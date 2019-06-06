@@ -28,7 +28,7 @@
       <Extensions>moc;h;cpp</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-    <Filter Include="Media">
+    <Filter Include="Icons">
       <UniqueIdentifier>{155e7c15-9c4c-47c4-9524-7d9d5798ae2c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -172,20 +172,38 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="play-pause.png">
-      <Filter>Media</Filter>
+    <Image Include="icons\chevron-double-down.png">
+      <Filter>Icons</Filter>
     </Image>
-    <Image Include="skip-backward.png">
-      <Filter>Media</Filter>
+    <Image Include="icons\chevron-double-up.png">
+      <Filter>Icons</Filter>
     </Image>
-    <Image Include="skip-forward.png">
-      <Filter>Media</Filter>
+    <Image Include="icons\menu.png">
+      <Filter>Icons</Filter>
     </Image>
-    <Image Include="skip-next.png">
-      <Filter>Media</Filter>
+    <Image Include="icons\pause.png">
+      <Filter>Icons</Filter>
     </Image>
-    <Image Include="skip-previous.png">
-      <Filter>Media</Filter>
+    <Image Include="icons\play.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\play-pause.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\reverse.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\skip-backward.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\skip-forward.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\skip-next.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\skip-previous.png">
+      <Filter>Icons</Filter>
     </Image>
   </ItemGroup>
 </Project>

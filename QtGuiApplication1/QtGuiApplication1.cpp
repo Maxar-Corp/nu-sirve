@@ -80,7 +80,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------
 
 	// Link playback to play controls
-	QObject::connect(ui.btn_play_pause, &QPushButton::clicked, this, &QtGuiApplication1::video_toggled);
+	QObject::connect(ui.btn_play, &QPushButton::clicked, playback_controller, &Playback::start_timer);
+	QObject::connect(ui.btn_pause, &QPushButton::clicked, playback_controller, &Playback::stop_timer);
+	QObject::connect(ui.btn_reverse, &QPushButton::clicked, playback_controller, &Playback::reverse);
+
+
 	QObject::connect(ui.btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
 	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
 	QObject::connect(ui.btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
@@ -103,27 +107,37 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------
 
 	//Add icons to video playback buttons
-	QPixmap play_image("play-pause.png");
+	QPixmap play_image("icons/play.png");
 	QIcon play_icon(play_image);
-	ui.btn_play_pause->setIcon(play_icon);
-	ui.btn_play_pause->setText("");
+	ui.btn_play->setIcon(play_icon);
+	ui.btn_play->setText("");
 
-	QPixmap speed_up_image("skip-forward.png");
+	QPixmap pause_image("icons/pause.png");
+	QIcon pause_icon(pause_image);
+	ui.btn_pause->setIcon(pause_icon);
+	ui.btn_pause->setText("");
+
+	QPixmap reverse_image("icons/reverse.png");
+	QIcon reverse_icon(reverse_image);
+	ui.btn_reverse->setIcon(reverse_icon);
+	ui.btn_reverse->setText("");
+
+	QPixmap speed_up_image("icons/chevron-double-up.png");
 	QIcon speed_up_icon(speed_up_image);
 	ui.btn_fast_forward->setIcon(speed_up_icon);
 	ui.btn_fast_forward->setText("");
 
-	QPixmap next_frame_image("skip-next.png");
+	QPixmap next_frame_image("icons/skip-next.png");
 	QIcon next_frame_icon(next_frame_image);
 	ui.btn_next_frame->setIcon(next_frame_icon);
 	ui.btn_next_frame->setText("");
 
-	QPixmap slow_down_image("skip-backward.png");
+	QPixmap slow_down_image("icons/chevron-double-down.png");
 	QIcon slow_down_icon(slow_down_image);
 	ui.btn_slow_back->setIcon(slow_down_icon);
 	ui.btn_slow_back->setText("");
 
-	QPixmap prev_frame_image("skip-previous.png");
+	QPixmap prev_frame_image("icons/skip-previous.png");
 	QIcon prev_frame_icon(prev_frame_image);
 	ui.btn_prev_frame->setIcon(prev_frame_icon);
 	ui.btn_prev_frame->setText("");
@@ -136,7 +150,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	menu->addAction("Sensor Boresight");
 	menu->addAction(menu_add_banner);
 
-	QPixmap menu_image("menu.png");
+	QPixmap menu_image("icons/menu.png");
 	QIcon menu_icon(menu_image);
 	ui.btn_video_menu->setIcon(menu_icon);
 	ui.btn_video_menu->setText("");
@@ -155,19 +169,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		//delete main_widget;
 		//delete main_layout;
-	}
-
-	void QtGuiApplication1::video_toggled()
-	{
-		if (playback_controller->timer->isActive())
-		{
-			playback_controller->stop_timer();
-		}
-		else
-		{
-			playback_controller->start_timer();
-		}
-
 	}
 
 	void QtGuiApplication1::load_osm_data()

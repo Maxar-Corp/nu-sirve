@@ -198,11 +198,17 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="play-pause.png" />
-    <Image Include="skip-backward.png" />
-    <Image Include="skip-forward.png" />
-    <Image Include="skip-next.png" />
-    <Image Include="skip-previous.png" />
+    <Image Include="icons\chevron-double-down.png" />
+    <Image Include="icons\chevron-double-up.png" />
+    <Image Include="icons\menu.png" />
+    <Image Include="icons\pause.png" />
+    <Image Include="icons\play-pause.png" />
+    <Image Include="icons\play.png" />
+    <Image Include="icons\reverse.png" />
+    <Image Include="icons\skip-backward.png" />
+    <Image Include="icons\skip-forward.png" />
+    <Image Include="icons\skip-next.png" />
+    <Image Include="icons\skip-previous.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

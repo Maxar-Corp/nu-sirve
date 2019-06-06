@@ -22,6 +22,7 @@ public:
 	int timer_frequency, index_speed;
 	QTimer  *timer;
 	std::vector<double> speeds;
+	bool is_reverse;
 
 public slots:
 	void speed_timer();
@@ -32,6 +33,7 @@ public slots:
 	void set_counter(int value);
 	void prev_frame();
 	void next_frame();
+	void reverse();
 
 signals:
 	void update_frame(int counter);
