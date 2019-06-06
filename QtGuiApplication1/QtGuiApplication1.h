@@ -63,7 +63,6 @@ public:
 
 	public slots:
 	void color_correction_toggled(int value);
-	void video_toggled();
 
 	void load_osm_data();
 	void load_abir_data();

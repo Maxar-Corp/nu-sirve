@@ -8,6 +8,7 @@ Playback::Playback(int number_frames)
 
 	timer->stop();
 	max_counter = number_frames;
+	is_reverse = false;
 
 	// Speeds in frames per second
 	speeds = {1/15.0, 0.10, 0.20, .25, 1/3.0, .5, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30};
@@ -64,19 +65,28 @@ void Playback::slow_timer() {
 
 void Playback::start_timer() {
 
+	is_reverse = false;
 	timer->start();
 }
 
 void Playback::timer_update()
 {
-	counter++;
+	if (is_reverse)
+		counter--;
+	else
+		counter++;
+
+	if (counter < 0)
+	{
+		counter = max_counter;
+	}
 
 	if (counter > max_counter)
 	{
 		counter = 0;
-	}
+	}	
+
 	emit update_frame(counter);
-	
 }
 
 void Playback::set_counter(int value)
@@ -120,4 +130,10 @@ void Playback::next_frame()
 void Playback::stop_timer() {
 
 	timer->stop();
+}
+
+void Playback::reverse() {
+
+	is_reverse = true;
+	timer->start();
 }
