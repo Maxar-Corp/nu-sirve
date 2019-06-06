@@ -28,17 +28,104 @@
       <Extensions>moc;h;cpp</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Media">
+      <UniqueIdentifier>{155e7c15-9c4c-47c4-9524-7d9d5798ae2c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="abir_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="binary_file_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="color_scheme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="histogram_plotter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="osm_plotter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="osm_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="QtGuiApplication1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Section.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="video_class.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="playback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="color_correction_lgg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plot_engineering_data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engineering_data.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="video_container.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="process_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="color_correction_plot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="euler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="earth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="histogram_plotter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="osm_plotter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Section.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="video_class.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="play_back.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="color_correction_lgg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="engineering_data.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="video_container.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="process_file.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="color_correction_plot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -51,5 +138,54 @@
     <QtRcc Include="QtGuiApplication1.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="binary_file_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color_scheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Data_Structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="osm_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="abir_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="plot_engineering_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="earth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="euler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jtime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="play-pause.png">
+      <Filter>Media</Filter>
+    </Image>
+    <Image Include="skip-backward.png">
+      <Filter>Media</Filter>
+    </Image>
+    <Image Include="skip-forward.png">
+      <Filter>Media</Filter>
+    </Image>
+    <Image Include="skip-next.png">
+      <Filter>Media</Filter>
+    </Image>
+    <Image Include="skip-previous.png">
+      <Filter>Media</Filter>
+    </Image>
   </ItemGroup>
 </Project>
