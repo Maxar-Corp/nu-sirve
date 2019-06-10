@@ -145,9 +145,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	create_menu_actions();
 
 	menu = new QMenu(this);
-	menu->addAction("OSM Tracks");
-	menu->addAction("Primary Target Metrics");
-	menu->addAction("Sensor Boresight");
+	menu->addAction(menu_osm);
+	menu->addAction(menu_add_primary_data);
+	menu->addAction(menu_sensor_boresight);
 	menu->addAction(menu_add_banner);
 
 	QPixmap menu_image("icons/menu.png");
@@ -286,6 +286,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// Set the video and histogram plots to this data
 		videos->display_original_data();
 		playback_controller->start_timer();
+
+		std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;
+		std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame - 1) + max_frame;
+		std::vector<Plotting_Frame_Data> subset_data(first, last);
+		ir_video->set_frame_data(subset_data);
 		
 		update_fps();
 
@@ -340,8 +345,20 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	void QtGuiApplication1::create_menu_actions()
 	{
 
-		menu_add_banner = new QAction(tr("&Add Banner"), this);
-		menu_add_banner->setStatusTip(tr("Add banner text to video"));
+		menu_osm = new QAction(tr("&Toggle OSM Tracks"), this);
+		menu_osm->setStatusTip(tr("Shows pixels OSM is tracking"));
+		connect(menu_osm, &QAction::triggered, ir_video, &Video::toggle_osm_tracks);
+
+		menu_add_primary_data = new QAction(tr("&Toggle Primary Tgt Metrics"), this);
+		menu_add_primary_data->setStatusTip(tr("Shows Az/El of Primary Tgt"));
+		connect(menu_add_primary_data, &QAction::triggered, ir_video, &Video::toggle_primary_track_data);
+
+		menu_sensor_boresight = new QAction(tr("&Toggle Sensor Metrics"), this);
+		menu_sensor_boresight->setStatusTip(tr("Shows Az/El of Sensor Pointing"));
+		connect(menu_sensor_boresight, &QAction::triggered, ir_video, &Video::toggle_sensor_boresight_data);
+
+		menu_add_banner = new QAction(tr("&Edit Banner"), this);
+		menu_add_banner->setStatusTip(tr("Edit banner text to video"));
 		connect(menu_add_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_text);
 		connect(this, &QtGuiApplication1::change_banner, ir_video, &Video::update_banner_text);
 	}

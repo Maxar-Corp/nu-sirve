@@ -41,6 +41,7 @@ struct TrackData {
 	double frame_stabilize_x, frame_stabilize_y, stable_frame_shift_x, stable_frame_shift_y, centroid_x, centroid_y, centroid_variance_x, centroid_variance_y, covariance;
 
 	std::vector<IR_Data> ir_measurements;
+	std::vector <double> az_el_track;
 
 };
 
@@ -49,7 +50,7 @@ struct FrameData {
 	uint32_t task_id, num_tracks;
 	double frametime, i_fov_x, i_fov_y, julian_date;
 
-	std::vector<double>  mrp, mrp_cov_rand, mrp_cov_bias, ecf, lla, dcm, az_el_boresight, az_el;
+	std::vector<double>  mrp, mrp_cov_rand, mrp_cov_bias, ecf, lla, dcm, az_el_boresight;
 
 	std::vector<TrackData> track_data;
 };
@@ -60,6 +61,55 @@ struct Frame {
 	MessageHeader msg_header;
 	FrameData data;
 
+};
+
+
+struct Track_Irradiance {
+
+	uint32_t track_id;
+	uint32_t band_id;
+	std::vector<double> frame_number;
+	std::vector<double> irradiance;
+	std::vector<double> frame_time;
+
+	unsigned int minimum_frame_number;
+	unsigned int maximum_frame_number;
+	double minimum_irradiance;
+	double maximum_irradiance;
+};
+
+struct Track_Tgts {
+
+	std::vector<int> x_pixels;
+	std::vector<int> y_pixels;
+
+};
+
+
+struct Plotting_Data {
+	std::vector<double> azimuth;
+	std::vector<double> elevation;
+	std::vector<double> frame_time;
+	std::vector<double> frame_number;
+
+	std::vector<Track_Irradiance> irradiance_data;
+	std::vector<Track_Tgts> ir_tgt_data;
+
+	int min_frame, max_frame;
+};
+
+struct Irradiance_Msrmnt {
+
+	unsigned int track_id, band_id;
+	double centroid_x, centroid_y;
+	double irradiance;
+};
+
+struct Plotting_Frame_Data {
+	double azimuth_sensor, elevation_sensor, azimuth_p_tgt, elevation_p_tgt, frame_time;
+
+	std::vector<Irradiance_Msrmnt> ir_data;
+	//std::vector<Track_Tgts> ir_tgt_data;
 };
 
 #endif

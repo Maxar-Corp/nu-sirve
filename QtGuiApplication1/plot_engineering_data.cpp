@@ -3,11 +3,9 @@
 
 Engineering_Plots::Engineering_Plots(QWidget *parent)
 {
-	chart = new QChart();
-
-	chart_view = new QChartView(chart);
-	chart_view->setRubberBand(QChartView::RectangleRubberBand);
+		
 	plot_all_data = true;
+	initial_index = 0;
 }
 
 Engineering_Plots::~Engineering_Plots()
@@ -17,7 +15,7 @@ Engineering_Plots::~Engineering_Plots()
 
 }
 
-void Engineering_Plots::plot_az_el_boresite_data(Az_El_Data data, bool plot_azimuth, bool plot_frames)
+void Engineering_Plots::plot_az_el_boresite_data(Plotting_Data data, bool plot_azimuth, bool plot_frames)
 {
 	// Clear chart
 	chart->removeAllSeries();
@@ -36,15 +34,19 @@ void Engineering_Plots::plot_az_el_boresite_data(Az_El_Data data, bool plot_azim
 			add_series(series, data.frame_number, data.azimuth);
 			y_title = QString("Azimuth (deg)");
 			title = QString("Azimuth Over Frames");
-			min_y = data.min_az;
-			max_y = data.max_az;
+			
+			arma::vec azimuth_data(data.azimuth);
+			min_y = arma::min(azimuth_data);
+			max_y = arma::max(azimuth_data);
 		}
 		else{
 			add_series(series, data.frame_number, data.elevation);
 			y_title = QString("Elevation (deg)");
 			title = QString("Elevation Over Frames");
-			min_y = data.min_el;
-			max_y = data.max_el;
+			
+			arma::vec elevation_data(data.elevation);
+			min_y = arma::min(elevation_data);
+			max_y = arma::max(elevation_data);
 		}
 
 		min_x = data.min_frame;
@@ -60,15 +62,19 @@ void Engineering_Plots::plot_az_el_boresite_data(Az_El_Data data, bool plot_azim
 			add_series(series, seconds, data.azimuth);
 			y_title = QString("Azimuth (deg)");
 			title = QString("Azimuth Over Time");
-			min_y = data.min_az;
-			max_y = data.max_az;
+
+			arma::vec azimuth_data(data.azimuth);
+			min_y = arma::min(azimuth_data);
+			max_y = arma::max(azimuth_data);
 		}
 		else {
 			add_series(series, seconds, data.elevation);
 			y_title = QString("Elevation (deg)");
 			title = QString("Elevation Over Time");
-			min_y = data.min_el;
-			max_y = data.max_el;
+
+			arma::vec elevation_data(data.elevation);
+			min_y = arma::min(elevation_data);
+			max_y = arma::max(elevation_data);
 		}
 
 		min_x = seconds[0];
@@ -103,7 +109,7 @@ void Engineering_Plots::plot_irradiance_data(std::vector<Track_Irradiance> data)
 		series->setColor(base_color);
 
 		// add to series to chart
-		add_series(series, data[i].frame_number, data[i].irradiance);
+		add_series(series, data[i].frame_number, data[i].irradiance, true);
 
 		// check data ranges
 		if (i == 0)
@@ -175,7 +181,7 @@ void Engineering_Plots::plot_irradiance_data(std::vector<Track_Irradiance> data)
 // ---------------------------------------------------------------------------------------------
 // Generic plotting functions
 
-void Engineering_Plots::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
+void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
 {
 
 	uint num_data_pts = x.size();
@@ -212,7 +218,7 @@ void Engineering_Plots::add_series(QXYSeries *series, std::vector<double> x, std
 		remove_series_legend();
 }
 
-double Engineering_Plots::find_tick_spacing(double data_range, int min_number_ticks, int max_number_ticks) {
+double QtPlotting::find_tick_spacing(double data_range, int min_number_ticks, int max_number_ticks) {
 
 	double min_spacing = data_range / max_number_ticks;
 	double magnitude_spacing = std::pow(10, std::floor(std::log10(min_spacing)));
@@ -240,7 +246,7 @@ double Engineering_Plots::find_tick_spacing(double data_range, int min_number_ti
 	return tick_spacing;
 }
 
-void Engineering_Plots::remove_series_legend() {
+void QtPlotting::remove_series_legend() {
 	int num_legend_entries = chart->legend()->markers().size();
 	if (num_legend_entries > 1) {
 		QLegendMarker *last_entry = chart->legend()->markers().last();
@@ -248,7 +254,7 @@ void Engineering_Plots::remove_series_legend() {
 	}
 }
 
-void Engineering_Plots::chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title) {
+void QtPlotting::chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title) {
 
 	// ------------------------------------------------------------------------------------------
 	// Define chart properties
@@ -280,5 +286,23 @@ void Engineering_Plots::chart_options(double min_x, double max_x, double min_y, 
 	chart->legend()->setVisible(false);
 	//chart->legend()->setAlignment(Qt::AlignRight);
 	//chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+
+}
+
+
+QtPlotting::QtPlotting(QWidget *parent)
+{
+	chart = new QChart();
+
+	chart_view = new QChartView(chart);
+	chart_view->setRubberBand(QChartView::RectangleRubberBand);
+
+
+}
+
+QtPlotting::~QtPlotting()
+{
+	delete chart;
+	delete chart_view;
 
 }

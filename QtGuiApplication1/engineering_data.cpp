@@ -3,6 +3,8 @@
 Engineering_Data::Engineering_Data(std::vector<Frame> & osm_data)
 {
 	osm = osm_data;
+	max_number_tracks = 0;
+	extract_engineering_data();
 
 }
 
@@ -10,6 +12,59 @@ Engineering_Data::~Engineering_Data()
 {
 
 }
+
+void Engineering_Data::extract_engineering_data()
+{
+	for (unsigned int i = 0; i < osm.size(); i++) {
+
+		Plotting_Frame_Data temp;
+
+		// ----------------------------------------------------------------------------------------
+		// Get Az-El of sensor and primary target
+		temp.azimuth_sensor = osm[i].data.az_el_boresight[0]; 	
+		temp.elevation_sensor = osm[i].data.az_el_boresight[1];
+		temp.frame_time = osm[i].data.julian_date;
+		
+		// ----------------------------------------------------------------------------------------
+		// Get irradiance track data
+		unsigned int number_tracks = osm[i].data.num_tracks;
+		if (number_tracks > max_number_tracks)
+		{
+			max_number_tracks = number_tracks;
+		}
+
+		if (number_tracks > 0) {
+
+			for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
+
+				Irradiance_Msrmnt ir_data;
+				//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
+
+				ir_data.irradiance = osm[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
+				ir_data.centroid_x = osm[i].data.track_data[track_index].centroid_x;
+				ir_data.centroid_y = osm[i].data.track_data[track_index].centroid_y;
+				ir_data.band_id = osm[i].data.track_data[track_index].ir_measurements[0].band_id;
+				ir_data.track_id = osm[i].data.track_data[track_index].track_id;
+
+				temp.ir_data.push_back(ir_data);
+			}
+
+			// Get primary target az-el, when it exists
+			temp.azimuth_p_tgt = osm[i].data.track_data[0].az_el_track[0];
+			temp.elevation_p_tgt = osm[i].data.track_data[0].az_el_track[1];
+		}
+		else {
+			// Set values when no primary target
+			temp.azimuth_p_tgt = -1001;
+			temp.elevation_p_tgt = -1001;
+		}
+
+		frame_data.push_back(temp);
+		frame_times.push_back(osm[i].data.julian_date);
+	}
+
+}
+
 
 void Engineering_Data::get_luminosity_data() {
 
@@ -27,39 +82,28 @@ void Engineering_Data::get_luminosity_data() {
 				bool found_track_id = false;
 
 				//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
-				uint32_t current_track_id = osm[i].data.track_data[track_index].track_id;
-				uint32_t current_band_id = osm[i].data.track_data[track_index].ir_measurements[0].band_id;
-				unsigned int out_track_index = 0;
 
-				for (out_track_index = 0; out_track_index < num_track_ids; ++out_track_index) {
-					if (current_track_id == out[out_track_index].track_id) {
-						found_track_id = true;
-						break;
-					}
-				}
-
-				if (found_track_id) {
+				if (track_index < num_track_ids) {
 					double irradiance_value = osm[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
 
-					out[out_track_index].frame_number.push_back(i);
-					out[out_track_index].irradiance.push_back(irradiance_value);
-					out[out_track_index].maximum_frame_number = i;
+					out[track_index].frame_number.push_back(i);
+					out[track_index].irradiance.push_back(irradiance_value);
+					out[track_index].maximum_frame_number = i;
 
-					if (irradiance_value < out[out_track_index].minimum_irradiance)
+					if (irradiance_value < out[track_index].minimum_irradiance)
 					{
-						out[out_track_index].minimum_irradiance = irradiance_value;
+						out[track_index].minimum_irradiance = irradiance_value;
 					}
 
-					if (irradiance_value > out[out_track_index].maximum_irradiance)
+					if (irradiance_value > out[track_index].maximum_irradiance)
 					{
-						out[out_track_index].maximum_irradiance = irradiance_value;
+						out[track_index].maximum_irradiance = irradiance_value;
 					}
 
 				}
 				else {
 					Track_Irradiance temp;
-					temp.track_id = current_track_id;
-					temp.band_id = current_band_id;
+
 					temp.frame_number.push_back(i);
 					temp.irradiance.push_back(osm[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0]);
 
@@ -82,12 +126,7 @@ void Engineering_Data::get_luminosity_data() {
 
 void Engineering_Data::get_azimuth_elevation_data()
 {
-	Az_El_Data out;
-
-	out.max_az = 0;
-	out.min_az = 400;
-	out.max_el = 0;
-	out.min_el = 100;
+	Plotting_Data out;
 
 	for (unsigned int i = 0; i < osm.size(); i++) {
 
@@ -98,16 +137,6 @@ void Engineering_Data::get_azimuth_elevation_data()
 		out.elevation.push_back(elevation);
 		out.frame_time.push_back(osm[i].data.julian_date);
 		out.frame_number.push_back(i + 1);
-
-		if (azimuth > out.max_az)
-			out.max_az = azimuth;
-		if (azimuth < out.min_az)
-			out.min_az = azimuth;
-
-		if (elevation > out.max_el)
-			out.max_el = elevation;
-		if (elevation < out.min_el)
-			out.min_el = elevation;
 	}
 
 	out.max_frame = out.frame_number.back();
@@ -115,4 +144,5 @@ void Engineering_Data::get_azimuth_elevation_data()
 
 	emit plot_azimuth_elevation(out, true, true);
 }
+
 
