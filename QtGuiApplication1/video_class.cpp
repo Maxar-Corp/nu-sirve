@@ -12,9 +12,11 @@ Video::Video(int x_pixels, int y_pixels)
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 
-	banner_text = QString("Insert Banner Here");
+	banner_text = QString("Insert Banner");
 	banner_color = QColor("Red");
-	plot_boresight = true;
+	plot_boresight = false;
+	display_boresight_txt = false;
+	display_tgt_pos_txt = false;
 
 	QString frame_str = "Frame ";
 	QString number;
@@ -75,13 +77,37 @@ void Video::update_banner_text(QString input_banner_text, QColor input_banner_co
 
 }
 
+void Video::toggle_osm_tracks()
+{
+	if (plot_boresight)
+		plot_boresight = false;
+	else
+		plot_boresight = true;
+}
+
+void Video::toggle_primary_track_data()
+{
+	if (display_tgt_pos_txt)
+		display_tgt_pos_txt = false;
+	else
+		display_tgt_pos_txt = true;
+}
+
+void Video::toggle_sensor_boresight_data()
+{
+	if (display_boresight_txt)
+		display_boresight_txt = false;
+	else
+		display_boresight_txt = true;
+}
+
 void Video::update_frame()
 {
 
 	// Takes ~ 35-40 ms to run which equates to a max update rate of 25 fps
 
-	if (counter == number_of_frames)
-		counter = 0;
+	//if (counter == number_of_frames)
+	//	counter = 0;
 
 	uint8_t *color_corrected_frame = new uint8_t[number_pixels];
 	double updated_value;
@@ -94,30 +120,61 @@ void Video::update_frame()
 
 	QImage frame((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
-	//QImage image_banners(image_x, image_y, QImage::Format_ARGB32);
-	//image_banners.fill(qRgba(0, 0, 0, 0));
-	
 	frame.setColorTable(colorTable);
 	frame = frame.convertToFormat(QImage::Format_RGB30);
 
-	QPainter p(&frame);
-	p.setPen(QPen(banner_color));
-	p.setFont(QFont("Times", 12, QFont::Bold));
-	p.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
-	p.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
-
-	if (plot_boresight) {
+	if (plot_boresight & display_data[counter].ir_data.size() > 0) {
 
 		QPainter rectangle_painter(&frame);
-		QRectF rectangle(10.0, 20.0, 80.0, 60.0);
 
+		//TODO figure out x,y pixels to draw box around
+		int x_pixel = display_data[counter].ir_data[0].centroid_x;
+		int y_pixel = display_data[counter].ir_data[0].centroid_y;
+
+		int x_center = image_x / 2 + x_pixel;
+		int y_center = image_y / 2 + y_pixel;
+
+		int box_size = 5;
+		QRectF rectangle(x_center - box_size, y_center - box_size, box_size * 2, box_size * 2);
+
+		//QRectF rectangle(10.0, 20.0, 80.0, 60.0);
 		rectangle_painter.setPen(QPen(Qt::red));
-		//rectangle_painter.setBrush(QBrush(QColor(Qt::red)));
 		rectangle_painter.drawRect(rectangle);
-		//rectangle_painter.drawLine(5, 5, 50, 50);
-		//rectangle_painter.end();
 	}
 
+	if (display_boresight_txt) {
+		QPainter p2(&frame);
+		p2.setPen(QPen(banner_color));
+		p2.setFont(QFont("Times", 8, QFont::Bold));
+
+		QString boresight_txt = "Sensor Boresight \n Az: " + QString::number(display_data[counter].azimuth_sensor) + "\n El " + QString::number(display_data[counter].elevation_sensor);
+
+		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignLeft, boresight_txt);
+	}
+
+	if (display_tgt_pos_txt) {
+		QPainter p3(&frame);
+		p3.setPen(QPen(banner_color));
+		p3.setFont(QFont("Times", 8, QFont::Bold));
+
+		double az_value = display_data[counter].azimuth_p_tgt;
+		double el_value = display_data[counter].elevation_p_tgt;
+
+		QString primary_tgt_text;
+		if (az_value < -1000 || el_value < -1000)
+			primary_tgt_text = "Sensor Boresight \n Az: NaN \n El NaN";
+		else
+			primary_tgt_text = "Sensor Boresight \n Az: " + QString::number(az_value) + "\n El " + QString::number(el_value);
+
+		p3.drawText(frame.rect(), Qt::AlignTop | Qt::AlignLeft, primary_tgt_text);
+	}
+
+	// Draw banner text
+	QPainter p1(&frame);
+	p1.setPen(QPen(banner_color));
+	p1.setFont(QFont("Times", 12, QFont::Bold));
+	p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
+	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
 	label->setPixmap(QPixmap::fromImage(frame));
 	label->update();
@@ -134,6 +191,11 @@ void Video::update_frame()
 	text->update();
 
 	//counter++;
+}
+
+void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
+{
+	display_data = input_data;
 }
 
 void Video::update_specific_frame(unsigned int frame_number)

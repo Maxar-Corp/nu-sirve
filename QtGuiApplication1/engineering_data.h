@@ -11,6 +11,7 @@
 #include <qwidget.h>
 
 #include "osm_reader.h"
+#include "Data_Structures.h"
 
 class Engineering_Data : public	QWidget
 {
@@ -19,16 +20,25 @@ class Engineering_Data : public	QWidget
 		Engineering_Data(std::vector<Frame> & osm_data);
 		~Engineering_Data();
 
+		std::vector<double>frame_times;
+		std::vector<Plotting_Frame_Data> frame_data;
+		
 		void get_luminosity_data();
 		void get_azimuth_elevation_data();
 
 	signals:
 		void plot_luminosity(std::vector<Track_Irradiance> data);
-		void plot_azimuth_elevation(Az_El_Data data, bool plot_azimuth, bool plot_frames);
+		void plot_azimuth_elevation(Plotting_Data data, bool plot_azimuth, bool plot_frames);
 
 	private:
 
 		std::vector<Frame> osm;
+		Plotting_Data data;
+
+		int max_number_tracks;
+		
+
+		void extract_engineering_data();
 
 };
 
