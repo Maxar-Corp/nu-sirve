@@ -24,7 +24,7 @@ Playback::~Playback() {
 
 void Playback::set_number_of_frames(int value)
 {
-	max_counter = value;
+	max_counter = value - 1;
 	counter = -1;
 }
 
@@ -101,30 +101,27 @@ void Playback::set_counter(int value)
 
 void Playback::prev_frame()
 {
-	//if (!timer->isActive())
-	//{
-		timer->stop();
-		counter--;
+	timer->stop();
+	counter--;
 
-		if (counter < 0)
-			counter = max_counter;
+	if (counter < 0)
+		counter = max_counter;
 
-		emit update_frame(counter);
-	//}
+	emit update_frame(counter);
+
 }
 
 void Playback::next_frame()
 {
-	//if (!timer->isActive())
-	//{
-		timer->stop();
-		counter++;
+	
+	timer->stop();
+	counter++;
 		
-		if (counter > max_counter)
-			counter = 0;
+	if (counter > max_counter)
+		counter = 0;
 
-		emit update_frame(counter);
-	//}
+	emit update_frame(counter);
+	
 }
 
 void Playback::stop_timer() {

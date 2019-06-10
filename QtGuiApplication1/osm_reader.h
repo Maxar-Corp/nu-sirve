@@ -16,29 +16,7 @@
 const int kMAX_NUMBER_ITERATIONS = 10000;
 const double kSMALL_NUMBER = 1e-8;
 
-struct Track_Irradiance{
 
-    uint32_t track_id;
-    uint32_t band_id;
-    std::vector<double> frame_number;
-    std::vector<double> irradiance;
-	std::vector<double> frame_time;
-
-	unsigned int minimum_frame_number;
-	unsigned int maximum_frame_number;
-	double minimum_irradiance;
-	double maximum_irradiance;
-};
-
-struct Az_El_Data {
-	std::vector<double> azimuth;
-	std::vector<double> elevation;
-	std::vector<double> frame_time;
-	std::vector<double> frame_number;
-
-	int min_frame, max_frame;
-	double min_az, max_az, min_el, max_el;
-};
 
 
 class OSMReader: private BinaryFileReader
@@ -55,7 +33,7 @@ public:
     
 	// Pull data from file
 	std::vector<Track_Irradiance> Get_Irradiance_Data();
-	Az_El_Data Get_Boresight_Azimuth_Elevation();
+	Plotting_Data Get_Boresight_Azimuth_Elevation();
 
 private:
 

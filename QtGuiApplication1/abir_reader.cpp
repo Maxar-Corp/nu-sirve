@@ -66,6 +66,9 @@ void ABIR_Data::LoadData(std::vector<unsigned int> valid_frames, bool header_onl
     if (valid_frames[1] > number_frames_file)
         valid_frames[1] = number_frames_file;
 
+	if (valid_frames[0] < 1)
+		valid_frames[0] = 1;
+
     ir_data.reserve(valid_frames[1] - valid_frames[0] + 1);
 
     for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)

@@ -297,6 +297,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
     current_track.centroid_variance_y = ReadValue<double>(true);
 
 	std::vector<double> az_el_track = calculation_azimuth_elevation(current_track.centroid_x, current_track.centroid_y, input);
+	current_track.az_el_track = az_el_track;
 
     current_track.covariance = ReadValue<double>(true);
 
@@ -461,25 +462,26 @@ std::vector<Track_Irradiance> OSMReader::Get_Irradiance_Data(){
                 bool found_track_id = false;
 
                 //TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
-                uint32_t current_track_id = data[i].data.track_data[track_index].track_id;
-                uint32_t current_band_id = data[i].data.track_data[track_index].ir_measurements[0].band_id;
-                unsigned int out_track_index = 0;
+                //uint32_t current_track_id = data[i].data.track_data[track_index].track_id;
+                //uint32_t current_band_id = data[i].data.track_data[track_index].ir_measurements[0].band_id;
+                //unsigned int out_track_index = 0;
 
-                for (out_track_index = 0; out_track_index < num_track_ids; ++out_track_index) {
-                    if(current_track_id == out[out_track_index].track_id){
-                        found_track_id = true;
-                        break;
-                    }
-                }
+                //for (out_track_index = 0; out_track_index < num_track_ids; ++out_track_index) {
+                //    if(current_track_id == out[out_track_index].track_id){
+                //        found_track_id = true;
+                //        break;
+                //    }
+                //}
 
-                if(found_track_id){
-                    out[out_track_index].frame_number.push_back(i);
-                    out[out_track_index].irradiance.push_back(data[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0]);
+                //if(found_track_id){
+				if(track_index < num_track_ids){
+                    out[track_index].frame_number.push_back(i);
+                    out[track_index].irradiance.push_back(data[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0]);
                 }
                 else{
                     Track_Irradiance temp;
-                    temp.track_id = current_track_id;
-                    temp.band_id = current_band_id;
+                    //temp.track_id = current_track_id;
+                    //temp.band_id = current_band_id;
                     temp.frame_number.push_back(i);
                     temp.irradiance.push_back(data[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0]);
 
@@ -496,34 +498,21 @@ std::vector<Track_Irradiance> OSMReader::Get_Irradiance_Data(){
     return out;
 }
 
-Az_El_Data OSMReader::Get_Boresight_Azimuth_Elevation()
+Plotting_Data OSMReader::Get_Boresight_Azimuth_Elevation()
 {
-	Az_El_Data out;
-
-	out.max_az = 0;
-	out.min_az = 400;
-	out.max_el = 0;
-	out.min_el = 100;
+	Plotting_Data out;
 
 	for (unsigned int i = 0; i < num_messages; i++) {
 
 		double azimuth = data[i].data.az_el_boresight[0];
 		double elevation = data[i].data.az_el_boresight[1];
 
+
 		out.azimuth.push_back(azimuth);
 		out.elevation.push_back(elevation);
 		out.frame_time.push_back(data[i].data.julian_date);
 		out.frame_number.push_back(i + 1);
 
-		if (azimuth > out.max_az)
-			out.max_az = azimuth;
-		if (azimuth < out.min_az)
-			out.min_az = azimuth;
-		
-		if (elevation > out.max_el)
-			out.max_el = elevation;
-		if (elevation < out.min_el)
-			out.min_el = elevation;
 	}
 
 	return out;

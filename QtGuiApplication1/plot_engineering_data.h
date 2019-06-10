@@ -20,12 +20,27 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-class Engineering_Plots : public QWidget 
+class QtPlotting : public QWidget
 {
 	public:
 		QChart *chart;
 		QChartView *chart_view;
 		ColorScheme colors;
+		
+		QtPlotting(QWidget *parent = nullptr);
+		~QtPlotting();
+
+		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
+		void remove_series_legend();
+		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
+		void chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title);
+};
+
+
+class Engineering_Plots : public QtPlotting 
+{
+	public:
+
 		bool plot_all_data;
 		int initial_index, last_index;
 
@@ -34,14 +49,8 @@ class Engineering_Plots : public QWidget
 
 	public slots:
 		void plot_irradiance_data(std::vector<Track_Irradiance> data);
-		void plot_az_el_boresite_data(Az_El_Data data, bool plot_azimuth, bool plot_frames);
+		void plot_az_el_boresite_data(Plotting_Data data, bool plot_azimuth, bool plot_frames);
 
-	private:
-
-		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
-		void remove_series_legend();
-		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
-		void chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title);
 };
 
 #endif
