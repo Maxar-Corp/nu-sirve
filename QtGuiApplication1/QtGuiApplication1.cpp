@@ -215,6 +215,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			data_plots = new Engineering_Plots();
 
 			data_plots->frame_numbers = eng_data->frame_numbers;
+			data_plots->past_midnight = eng_data->seconds_from_midnight;
+			data_plots->index_sub_plot_xmin = 0;
+			data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
+
 			data_plots->engineering_data = eng_data->frame_data;
 			data_plots->plot_irradiance(eng_data->max_number_tracks);
 
@@ -236,9 +240,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			ui.cmb_plot_xaxis->clear();
 			ui.cmb_plot_xaxis->addItem(QString("Frames"));
 			ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-			ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
+			//ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
 			ui.cmb_plot_xaxis->setCurrentIndex(0);
-			
+
+			ui.chk_plot_full_data->setEnabled(true);
+			connect(ui.chk_plot_full_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_full_data);
+						
 			connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 			connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 
@@ -322,6 +329,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame - 1) + max_frame;
 		std::vector<Plotting_Frame_Data> subset_data(first, last);
 		ir_video->set_frame_data(subset_data);
+
+		// Reset engineering plots with new sub plot indices
+		data_plots->index_sub_plot_xmin = min_frame - 1;
+		data_plots->index_sub_plot_xmax = max_frame - 1;
+		plot_change(1);
 		
 		update_fps();
 
@@ -378,6 +390,21 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	}
 
+	void QtGuiApplication1::plot_full_data(int index)
+	{
+		if (ui.chk_plot_full_data->isChecked())
+		{
+			data_plots->plot_all_data = true;
+			data_plots->toggle_subplot();
+		}
+
+		if (!ui.chk_plot_full_data->isChecked())
+		{
+			data_plots->plot_all_data = false;
+			data_plots->toggle_subplot();
+		}
+	}
+
 	void QtGuiApplication1::create_menu_actions()
 	{
 
@@ -421,13 +448,24 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		int x_index = ui.cmb_plot_xaxis->currentIndex();
 		int y_index = ui.cmb_plot_yaxis->currentIndex();
 
-		if (x_index == 0)
-			data_plots->plot_x_frames = true;
-		else
+		switch (x_index)
 		{
-			//data_plots->plot_x_frames = false;
+		case 0:
+			data_plots->x_axis_units = frames;
+			break;
 
+		case 1:
+			data_plots->x_axis_units = seconds_past_midnight;
+			break;
+
+		case 2:
+			data_plots->x_axis_units = seconds_past_midnight;
+			break;
+
+		default:
+			break;
 		}
+
 
 		switch (y_index)
 		{
