@@ -1,24 +1,178 @@
 #include "plot_engineering_data.h"
 
 
-Engineering_Plots::Engineering_Plots(QWidget *parent)
+Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 {
 		
-	plot_all_data = true;
-	initial_index = 0;
+	sub_plot_start = 0;
+	//std::vector<int>frame_numbers
+	//std::vector<double>time1;
+	//std::vector<double>time2;
+	
 }
 
 Engineering_Plots::~Engineering_Plots()
 {
-	delete chart;
-	delete chart_view;
 
+}
+
+void Engineering_Plots::plot_azimuth() {
+	// ---------------------------------------------------------------------------------------------------------------
+	// Clear chart
+	chart->removeAllSeries();
+	colors.reset_colors();
+	// ---------------------------------------------------------------------------------------------------------------
+
+	QString x_title, y_title, title;
+	int number_pts = engineering_data.size();
+	
+	std::vector<double>az;
+	std::vector<double>x;
+
+	for (int i = 0; i < number_pts; i++)
+	{
+		az.push_back(engineering_data[i].azimuth_sensor);
+	}
+
+	if (plot_x_frames) {
+		x = frame_numbers;
+		x_title = QString("Frame #");
+	}
+	else {
+		x = time1;
+		x_title = QString("Time ()");
+	}
+	y_title = QString("Azimuth (deg)");
+
+	QColor base_color(colors.GetCurrentColor());
+	QLineSeries *series = new QLineSeries();
+	series->setColor(base_color);
+	add_series(series, x, az);
+	
+	std::vector<double>min_max_x, min_max_y;
+	min_max_x = find_min_max(x);
+	min_max_y = find_min_max(az);
+	
+	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, 360, x_title, y_title, title);
+}
+
+void Engineering_Plots::plot_elevation() {
+	
+	// ---------------------------------------------------------------------------------------------------------------
+	// Clear chart
+	chart->removeAllSeries();
+	colors.reset_colors();
+	// ---------------------------------------------------------------------------------------------------------------
+
+	QString x_title, y_title, title;
+	int number_pts = engineering_data.size();
+
+	std::vector<double>el;
+	std::vector<double>x;
+
+	for (int i = 0; i < number_pts; i++)
+	{
+		el.push_back(engineering_data[i].elevation_sensor);
+	}
+
+	if (plot_x_frames) {
+		x = frame_numbers;
+		x_title = QString("Frame #");
+	}
+	else {
+		x = time1;
+		x_title = QString("Time ()");
+	}
+	y_title = QString("Elevation (deg)");
+
+	QColor base_color(colors.GetCurrentColor());
+	QLineSeries *series = new QLineSeries();
+	series->setColor(base_color);
+	add_series(series, x, el);
+
+	std::vector<double>min_max_x, min_max_y;
+	min_max_x = find_min_max(x);
+	min_max_y = find_min_max(el);
+
+	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, 90, x_title, y_title, title);
+}
+
+void Engineering_Plots::plot_irradiance(int number_tracks)
+{
+	// ---------------------------------------------------------------------------------------------------------------
+	// Clear chart
+	chart->removeAllSeries();
+	colors.reset_colors();
+	// ---------------------------------------------------------------------------------------------------------------
+
+	QString y_title, x_title, title;
+	int number_pts = engineering_data.size();
+
+	std::vector<double> x_points, y_points;
+
+	for (int i = 0; i < number_tracks; i++)
+	{
+		std::vector<double>x, irradiance;
+		for (int j = 0; j < number_pts; j++)
+		{
+			int num_tracks_present = engineering_data[j].ir_data.size();
+			if (num_tracks_present > 0 && i < num_tracks_present)
+			{
+				
+				double value = engineering_data[j].ir_data[i].irradiance;
+				irradiance.push_back(value);
+				y_points.push_back(value);
+
+				if (plot_x_frames) {
+					x.push_back(j + 1);
+					x_points.push_back(j + 1);
+					x_title = QString("Frame #");
+				}
+				else {
+					x.push_back(time1[j]);
+					x_points.push_back(time1[j]);
+					x_title = QString("Time ()");
+				}
+			}
+		}
+		
+		// add to series to chart
+		QLineSeries *series = new QLineSeries();
+		QColor base_color(colors.GetCurrentColor());
+		series->setColor(base_color);
+		add_series(series, x, irradiance, true);
+
+		// get next color for series
+		colors.GetNextColor();
+	}
+
+	std::vector<double>min_max_x, min_max_y;
+	min_max_x = find_min_max(x_points);
+	min_max_y = find_min_max(y_points);
+
+
+
+	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+}
+
+std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
+{
+	
+	arma::vec input_data(data);
+	double min_value = arma::min(input_data);
+	double max_value = arma::max(input_data);
+
+	return {min_value, max_value};
 }
 
 void Engineering_Plots::plot_az_el_boresite_data(Plotting_Data data, bool plot_azimuth, bool plot_frames)
 {
+
+	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
 	chart->removeAllSeries();
+	colors.reset_colors();
+	// ---------------------------------------------------------------------------------------------------------------
 
 	QLineSeries *series = new QLineSeries();
 	QString x_title, y_title, title;
@@ -181,6 +335,23 @@ void Engineering_Plots::plot_irradiance_data(std::vector<Track_Irradiance> data)
 // ---------------------------------------------------------------------------------------------
 // Generic plotting functions
 
+QtPlotting::QtPlotting(QWidget *parent)
+{
+	chart = new QChart();
+
+	chart_view = new QChartView(chart);
+	chart_view->setRubberBand(QChartView::RectangleRubberBand);
+
+
+}
+
+QtPlotting::~QtPlotting()
+{
+	delete chart;
+	delete chart_view;
+
+}
+
 void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
 {
 
@@ -262,22 +433,12 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
 
-	double x_range = max_x - min_x;
-	double y_range = max_y - min_y;
-
-	double tick_spacing_x = find_tick_spacing(x_range, 3, 10);
-	double max_limit_x = std::floor(max_x / tick_spacing_x) * tick_spacing_x + 0.5 * tick_spacing_x;
-
-	double tick_spacing_y = find_tick_spacing(y_range, 3, 10);
-	double max_limit_y = std::floor(max_y / tick_spacing_y) * tick_spacing_y + 0.5 * tick_spacing_y;
-
-	x_axis->setMin(min_x);
-	x_axis->setMax(max_limit_x);
+	set_xaxis_limits(min_x, max_x);
 	x_axis->setTitleText(x_label_title);
 
-	y_axis->setMin(min_y);
-	y_axis->setMax(max_limit_y);
-	y_axis->setLabelsVisible(false);
+	set_yaxis_limits(min_y, max_y);
+	//y_axis->setLabelsVisible(true);
+	y_axis->setTitleText(y_label_title);
 
 	// Set chart title
 	chart->setTitle(title);
@@ -286,23 +447,32 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	chart->legend()->setVisible(false);
 	//chart->legend()->setAlignment(Qt::AlignRight);
 	//chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
-
 }
 
+void QtPlotting::set_xaxis_limits(double min_x, double max_x) {
 
-QtPlotting::QtPlotting(QWidget *parent)
-{
-	chart = new QChart();
-
-	chart_view = new QChartView(chart);
-	chart_view->setRubberBand(QChartView::RectangleRubberBand);
-
-
+	chart->createDefaultAxes();
+	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
+	
+	x_axis->setMin(min_x);
+	x_axis->setMax(max_x);
 }
 
-QtPlotting::~QtPlotting()
-{
-	delete chart;
-	delete chart_view;
+void QtPlotting::set_yaxis_limits(double min_y, double max_y) {
 
+	chart->createDefaultAxes();
+	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+
+	y_axis->setMin(min_y);
+	y_axis->setMax(max_y);
+}
+
+double QtPlotting::find_max_for_axis(std::vector<double>min_max_values) {
+
+	double range_value = min_max_values[1] - min_max_values[0];
+
+	double tick_spacing_x = find_tick_spacing(range_value, 3, 10);
+	double max_limit_x = std::floor(min_max_values[1] / tick_spacing_x) * tick_spacing_x + 0.5 * tick_spacing_x;
+
+	return max_limit_x;
 }
