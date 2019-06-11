@@ -69,6 +69,7 @@ public:
 
 	void update_fps();
 	void reset_color_correction();
+	void allow_epoch();
 	
 private:
 	Ui::QtGuiApplication1Class ui;

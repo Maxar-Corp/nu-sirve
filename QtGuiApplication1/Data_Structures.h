@@ -48,7 +48,7 @@ struct TrackData {
 struct FrameData {
 
 	uint32_t task_id, num_tracks;
-	double frametime, i_fov_x, i_fov_y, julian_date;
+	double frametime, i_fov_x, i_fov_y, julian_date, seconds_past_midnight;
 
 	std::vector<double>  mrp, mrp_cov_rand, mrp_cov_bias, ecf, lla, dcm, az_el_boresight;
 
@@ -106,7 +106,7 @@ struct Irradiance_Msrmnt {
 };
 
 struct Plotting_Frame_Data {
-	double azimuth_sensor, elevation_sensor, azimuth_p_tgt, elevation_p_tgt, frame_time;
+	double azimuth_sensor, elevation_sensor, azimuth_p_tgt, elevation_p_tgt, julian_date, seconds_past_midnight;
 
 	std::vector<Irradiance_Msrmnt> ir_data;
 	//std::vector<Track_Tgts> ir_tgt_data;

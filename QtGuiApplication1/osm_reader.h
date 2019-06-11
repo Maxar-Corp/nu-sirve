@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <armadillo>
+#include <math.h>
 
 #include "Data_Structures.h"
 #include "binary_file_reader.h"

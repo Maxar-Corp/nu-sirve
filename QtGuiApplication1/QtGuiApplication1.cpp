@@ -373,6 +373,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		ui.slider_gamma->setValue(100);
 	}
 
+	void QtGuiApplication1::allow_epoch()
+	{
+
+	}
+
 	void QtGuiApplication1::create_menu_actions()
 	{
 
