@@ -15,6 +15,7 @@ public:
     QString GetCurrentColor();
     QString GetNextColor();
     QString GetPreviousColor();
+	void reset_colors();
 
 private:
     uint index;

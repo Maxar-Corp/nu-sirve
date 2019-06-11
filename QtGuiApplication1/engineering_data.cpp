@@ -61,6 +61,7 @@ void Engineering_Data::extract_engineering_data()
 
 		frame_data.push_back(temp);
 		frame_times.push_back(osm[i].data.julian_date);
+		frame_numbers.push_back(i);
 	}
 
 }
