@@ -219,6 +219,11 @@ FrameData OSMReader::ReadFrameData() {
 	data.dcm = mr2dcos(data.mrp);
 	
 	data.julian_date = get_gps_time(data.frametime);
+	
+	double modified_julian_date = data.julian_date + 0.5;
+	int midnight_julian = std::floor(modified_julian_date);
+	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
+	
     //TODO Write code to process ecf for when ecf proided by file
     //If ~osm_unit.ecf then convert lla to ecf data and push onto frame data
 
@@ -426,7 +431,7 @@ double OSMReader::get_gps_time(double offset_gps_seconds)
 	}
 
 	// The last date that UTC and GPS time were aligned
-	double base = jtime::JulianDate(1980, 1, 5, 0, 0, 0);
+	double base = jtime::JulianDate(1980, 1, 6, 0, 0, 0);
 	arma::vec modified_julian_date_leap_seconds = julian_date_leap_seconds - base;
 
 	// Find the number of leap seconds for a given date

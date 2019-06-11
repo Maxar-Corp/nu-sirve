@@ -23,7 +23,8 @@ void Engineering_Data::extract_engineering_data()
 		// Get Az-El of sensor and primary target
 		temp.azimuth_sensor = osm[i].data.az_el_boresight[0]; 	
 		temp.elevation_sensor = osm[i].data.az_el_boresight[1];
-		temp.frame_time = osm[i].data.julian_date;
+		temp.julian_date = osm[i].data.julian_date;
+		temp.seconds_past_midnight = osm[i].data.seconds_past_midnight;
 		
 		// ----------------------------------------------------------------------------------------
 		// Get irradiance track data
@@ -60,8 +61,9 @@ void Engineering_Data::extract_engineering_data()
 		}
 
 		frame_data.push_back(temp);
-		frame_times.push_back(osm[i].data.julian_date);
-		frame_numbers.push_back(i);
+		julian_date.push_back(osm[i].data.julian_date);
+		seconds_from_midnight.push_back(osm[i].data.seconds_past_midnight);
+		frame_numbers.push_back(i + 1);
 	}
 
 }
