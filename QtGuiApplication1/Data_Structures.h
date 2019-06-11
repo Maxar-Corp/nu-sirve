@@ -112,4 +112,6 @@ struct Plotting_Frame_Data {
 	//std::vector<Track_Tgts> ir_tgt_data;
 };
 
+enum x_plot_variables{frames , seconds_past_midnight, seconds_from_epoch};
+
 #endif
