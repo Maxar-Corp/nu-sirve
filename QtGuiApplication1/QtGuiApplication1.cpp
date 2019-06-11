@@ -142,6 +142,19 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.btn_prev_frame->setIcon(prev_frame_icon);
 	ui.btn_prev_frame->setText("");
 
+	QPixmap record_frame("icons/record.png");
+	QIcon record_frame_icon(record_frame);
+	ui.btn_frame_record->setIcon(record_frame_icon);
+	ui.btn_frame_record->setText("");
+
+	QPixmap save_frame("icons/content-save.png");
+	QIcon save_frame_icon(save_frame);
+	ui.btn_frame_save->setIcon(save_frame_icon);
+	ui.btn_frame_save->setText("");
+
+	ui.btn_save_plot->setIcon(save_frame_icon);
+	ui.btn_save_plot->setText("");
+
 	create_menu_actions();
 
 	menu = new QMenu(this);
@@ -210,16 +223,24 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			
 			ui.tabPlots->setCurrentIndex(1);
 
-			ui.cmb_plot_data->setEnabled(true);
-			ui.cmb_plot_data->addItem(QString("Irradiance vs Frames"));
-			ui.cmb_plot_data->addItem(QString("Irradiance vs Times"));
-			ui.cmb_plot_data->addItem(QString("Azimuth vs Frames"));
-			ui.cmb_plot_data->addItem(QString("Azimuth vs Time"));
-			ui.cmb_plot_data->addItem(QString("Elevation vs Frames"));
-			ui.cmb_plot_data->addItem(QString("Elevation vs Time"));
+			ui.cmb_plot_yaxis->clear();
+			ui.cmb_plot_yaxis->setEnabled(true);
+			ui.cmb_plot_yaxis->clear();
+			ui.cmb_plot_yaxis->addItem(QString("Irradiance"));
+			ui.cmb_plot_yaxis->addItem(QString("Azimuth"));
+			ui.cmb_plot_yaxis->addItem(QString("Elevation"));
+			ui.cmb_plot_yaxis->setCurrentIndex(0);
 
-			ui.cmb_plot_data->setCurrentIndex(0);
-			connect(ui.cmb_plot_data, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+			ui.cmb_plot_xaxis->clear();
+			ui.cmb_plot_xaxis->setEnabled(true);
+			ui.cmb_plot_xaxis->clear();
+			ui.cmb_plot_xaxis->addItem(QString("Frames"));
+			ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
+			ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
+			ui.cmb_plot_xaxis->setCurrentIndex(0);
+			
+			connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+			connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 
 			engineering_plot_layout = new QGridLayout();
 			engineering_plot_layout->addWidget(data_plots->chart_view);
@@ -290,12 +311,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// Set frame number for playback controller and valid values for slider
 		playback_controller->set_number_of_frames(number_frames);
 		ui.sldrVideo->setRange(0, number_frames);	
-
-		//---------------------------------------------------------------------------
-
-		//QObject::connect(eng_data, &Engineering_Data::plot_azimuth_elevation, data_plots, &Engineering_Plots::plot_az_el_boresite_data);
-		//eng_data->get_azimuth_elevation_data();
-		data_plots->plot_azimuth();
 
 		//---------------------------------------------------------------------------
 
@@ -388,44 +403,39 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::plot_change(int index)
 	{
+		// x - axis
+		// Index 0 - Frames
+		// Index 1 - Seconds from Midnight
+		// Index 2 - Seconds from Epoch
+		
+		// y - axis
+		// Index 0 - Irradiance
+		// Index 1 - Azimuth
+		// Index 2 - Elevation
 
-		// Index 0 - "Irradiance vs Frames"
-		// Index 1 - "Irradiance vs Times"
-		// Index 2 - "Azimuth vs Frames"
-		// Index 3 - "Azimuth vs Time"
-		// Index 4 - "Elevation vs Frames"
-		// Index 5 - "Elevation vs Time"
+		int x_index = ui.cmb_plot_xaxis->currentIndex();
+		int y_index = ui.cmb_plot_yaxis->currentIndex();
 
-		switch (index)
+		if (x_index == 0)
+			data_plots->plot_x_frames = true;
+		else
+		{
+			//data_plots->plot_x_frames = false;
+
+		}
+
+		switch (y_index)
 		{
 		case 0:
-			data_plots->plot_x_frames = true;
 			data_plots->plot_irradiance(eng_data->max_number_tracks);
 			break;
 
 		case 1:
-			data_plots->plot_x_frames = false;
-
-			break;
-
-		case 2:
-			data_plots->plot_x_frames = true;
 			data_plots->plot_azimuth();
 			break;
 
-		case 3:
-			data_plots->plot_x_frames = false;
-
-			break;
-
-		case 4:
-			data_plots->plot_x_frames = true;
+		case 2:
 			data_plots->plot_elevation();
-			break;
-
-		case 5:
-			data_plots->plot_x_frames = false;
-
 			break;
 
 		default:
