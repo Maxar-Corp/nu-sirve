@@ -70,6 +70,7 @@ public:
 	void update_fps();
 	void reset_color_correction();
 	void allow_epoch();
+	void plot_full_data(int index);
 	
 private:
 	Ui::QtGuiApplication1Class ui;

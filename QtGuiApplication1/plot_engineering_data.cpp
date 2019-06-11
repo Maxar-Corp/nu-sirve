@@ -4,10 +4,8 @@
 Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 {
 		
-	sub_plot_start = 0;
-	//std::vector<int>frame_numbers
-	//std::vector<double>time1;
-	//std::vector<double>time2;
+	
+	x_axis_units = frames;
 	
 }
 
@@ -34,14 +32,7 @@ void Engineering_Plots::plot_azimuth() {
 		az.push_back(engineering_data[i].azimuth_sensor);
 	}
 
-	if (plot_x_frames) {
-		x = frame_numbers;
-		x_title = QString("Frame #");
-	}
-	else {
-		x = time1;
-		x_title = QString("Time ()");
-	}
+	get_xaxis_value(x, x_title);
 	y_title = QString("Azimuth (deg)");
 
 	QColor base_color(colors.GetCurrentColor());
@@ -52,8 +43,14 @@ void Engineering_Plots::plot_azimuth() {
 	std::vector<double>min_max_x, min_max_y;
 	min_max_x = find_min_max(x);
 	min_max_y = find_min_max(az);
+
+	full_plot_xmin = min_max_x[0];
+	full_plot_xmax = find_max_for_axis(min_max_x);
+
+	sub_plot_xmin = x[index_sub_plot_xmin];
+	sub_plot_xmax = x[index_sub_plot_xmax];
 	
-	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, 360, x_title, y_title, title);
+	chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title, title);
 }
 
 void Engineering_Plots::plot_elevation() {
@@ -75,14 +72,7 @@ void Engineering_Plots::plot_elevation() {
 		el.push_back(engineering_data[i].elevation_sensor);
 	}
 
-	if (plot_x_frames) {
-		x = frame_numbers;
-		x_title = QString("Frame #");
-	}
-	else {
-		x = time1;
-		x_title = QString("Time ()");
-	}
+	get_xaxis_value(x, x_title);
 	y_title = QString("Elevation (deg)");
 
 	QColor base_color(colors.GetCurrentColor());
@@ -94,7 +84,13 @@ void Engineering_Plots::plot_elevation() {
 	min_max_x = find_min_max(x);
 	min_max_y = find_min_max(el);
 
-	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, 90, x_title, y_title, title);
+	full_plot_xmin = min_max_x[0];
+	full_plot_xmax = find_max_for_axis(min_max_x);
+
+	sub_plot_xmin = x[index_sub_plot_xmin];
+	sub_plot_xmax = x[index_sub_plot_xmax];
+
+	chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title, title);
 }
 
 void Engineering_Plots::plot_irradiance(int number_tracks)
@@ -123,15 +119,15 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 				irradiance.push_back(value);
 				y_points.push_back(value);
 
-				if (plot_x_frames) {
+				if (x_axis_units == frames) {
 					x.push_back(j + 1);
 					x_points.push_back(j + 1);
 					x_title = QString("Frame #");
 				}
-				else {
-					x.push_back(time1[j]);
-					x_points.push_back(time1[j]);
-					x_title = QString("Time ()");
+				else if(x_axis_units == seconds_past_midnight) {
+					x.push_back(past_midnight[j]);
+					x_points.push_back(past_midnight[j]);
+					x_title = QString("Seconds Past Midnight");
 				}
 			}
 		}
@@ -150,8 +146,29 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	min_max_x = find_min_max(x_points);
 	min_max_y = find_min_max(y_points);
 
+	full_plot_xmin = min_max_x[0];
+	full_plot_xmax = find_max_for_axis(min_max_x);
+
+	switch (x_axis_units)
+	{
+	case frames:
+		sub_plot_xmin = frame_numbers[index_sub_plot_xmin];
+		sub_plot_xmax = frame_numbers[index_sub_plot_xmax];
+		break;
+	case seconds_past_midnight:
+		sub_plot_xmin = past_midnight[index_sub_plot_xmin];
+		sub_plot_xmax = past_midnight[index_sub_plot_xmax];
+		break;
+	case seconds_from_epoch:
+		sub_plot_xmin = past_epoch[index_sub_plot_xmin];
+		sub_plot_xmax = past_epoch[index_sub_plot_xmax];
+		break;
+	default:
+		break;
+	}
+
 	y_title = QString("Irradiance Counts");
-	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+	chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
 }
 
 std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
@@ -162,6 +179,29 @@ std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
 	double max_value = arma::max(input_data);
 
 	return {min_value, max_value};
+}
+
+void Engineering_Plots::get_xaxis_value(std::vector<double>& values, QString & title)
+{
+
+	switch (x_axis_units)
+	{
+	case frames:
+		values = frame_numbers;
+		title = "Frame #";
+		break;
+	case seconds_past_midnight:
+		values = past_midnight;
+		title = "Seconds Past Midnight";
+		break;
+	case seconds_from_epoch:
+		//TODO switch to past_epoch
+		values = past_midnight;
+		title = "Seconds Past Epoch";
+		break;
+	default:
+		break;
+	}
 }
 
 void Engineering_Plots::plot_az_el_boresite_data(Plotting_Data data, bool plot_azimuth, bool plot_frames)
@@ -235,6 +275,20 @@ void Engineering_Plots::plot_az_el_boresite_data(Plotting_Data data, bool plot_a
 	}
 
 	chart_options(min_x, max_x, min_y, max_y, x_title, y_title, title);
+}
+
+void Engineering_Plots::toggle_subplot()
+{
+	double min_value, max_value;
+
+	if (plot_all_data)
+	{
+		set_xaxis_limits(full_plot_xmin, full_plot_xmax);
+	}
+	else
+	{
+		set_xaxis_limits(sub_plot_xmin, sub_plot_xmax);
+	}
 }
 
 void Engineering_Plots::plot_irradiance_data(std::vector<Track_Irradiance> data) {
@@ -331,6 +385,7 @@ void Engineering_Plots::plot_irradiance_data(std::vector<Track_Irradiance> data)
 	//chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 }
 
+// ---------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------
 // Generic plotting functions
 
@@ -460,8 +515,7 @@ void QtPlotting::set_xaxis_limits(double min_x, double max_x) {
 	chart->createDefaultAxes();
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	
-	x_axis->setMin(min_x);
-	x_axis->setMax(max_x);
+	set_axis_limits(x_axis, min_x, max_x);
 }
 
 void QtPlotting::set_yaxis_limits(double min_y, double max_y) {

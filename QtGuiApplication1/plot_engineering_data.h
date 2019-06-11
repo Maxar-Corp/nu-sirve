@@ -39,6 +39,7 @@ class QtPlotting : public QWidget
 		void set_xaxis_limits(double min_x, double max_x);
 		void set_yaxis_limits(double min_y, double max_y);
 		double find_max_for_axis(std::vector<double>min_max_values);
+
 };
 
 
@@ -46,26 +47,30 @@ class Engineering_Plots : public QtPlotting
 {
 	public:
 
-		bool plot_all_data, plot_x_frames;
-		int initial_index, last_index;
+		bool plot_all_data;
+		x_plot_variables x_axis_units;
+		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
+		int index_sub_plot_xmin, index_sub_plot_xmax;
 
 		Engineering_Plots(QWidget *parent = nullptr);
 		~Engineering_Plots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
 		std::vector<double>frame_numbers;
-		std::vector<double>time1;
-		std::vector<double>time2;
-		int sub_plot_start;
+		std::vector<double>past_midnight;
+		std::vector<double>past_epoch;
+		
 
 		void plot_azimuth();
 		void plot_elevation();
 		void plot_irradiance(int number_tracks);
 		std::vector<double> find_min_max(std::vector<double>data);
+		void get_xaxis_value(std::vector<double> &values, QString &title);
 
 	public slots:
 		void plot_irradiance_data(std::vector<Track_Irradiance> data);
 		void plot_az_el_boresite_data(Plotting_Data data, bool plot_azimuth, bool plot_frames);
+		void toggle_subplot();
 
 };
 
