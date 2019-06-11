@@ -150,8 +150,7 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	min_max_x = find_min_max(x_points);
 	min_max_y = find_min_max(y_points);
 
-
-
+	y_title = QString("Irradiance Counts");
 	chart_options(min_max_x[0], find_max_for_axis(min_max_x), 0, find_max_for_axis(min_max_y), x_title, y_title, title);
 }
 
@@ -433,20 +432,27 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
 
-	set_xaxis_limits(min_x, max_x);
 	x_axis->setTitleText(x_label_title);
+	set_axis_limits(x_axis, min_x, max_x);
 
-	set_yaxis_limits(min_y, max_y);
-	//y_axis->setLabelsVisible(true);
 	y_axis->setTitleText(y_label_title);
-
+	set_axis_limits(y_axis, min_y, max_y);
+	//y_axis->setLabelsVisible(true);
+	
 	// Set chart title
 	chart->setTitle(title);
+	chart->setMargins(QMargins(0, 0, 0, 0));
 
 	// Legend properties
 	chart->legend()->setVisible(false);
 	//chart->legend()->setAlignment(Qt::AlignRight);
 	//chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+}
+
+void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x) {
+
+	axis->setMin(min_x);
+	axis->setMax(max_x);
 }
 
 void QtPlotting::set_xaxis_limits(double min_x, double max_x) {

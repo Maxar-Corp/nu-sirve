@@ -35,6 +35,7 @@ class QtPlotting : public QWidget
 		void remove_series_legend();
 		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
 		void chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title);
+		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
 		void set_xaxis_limits(double min_x, double max_x);
 		void set_yaxis_limits(double min_y, double max_y);
 		double find_max_for_axis(std::vector<double>min_max_values);

@@ -205,5 +205,14 @@
     <Image Include="icons\skip-previous.png">
       <Filter>Icons</Filter>
     </Image>
+    <Image Include="icons\content-save.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\record.png">
+      <Filter>Icons</Filter>
+    </Image>
+    <Image Include="icons\record-rec.png">
+      <Filter>Icons</Filter>
+    </Image>
   </ItemGroup>
 </Project>
