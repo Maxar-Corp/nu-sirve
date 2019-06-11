@@ -281,7 +281,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>19</y>
+        <y>39</y>
         <width>231</width>
         <height>95</height>
        </rect>
@@ -440,7 +440,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>160</y>
+        <y>170</y>
         <width>231</width>
         <height>20</height>
        </rect>
@@ -453,7 +453,7 @@
       <property name="geometry">
        <rect>
         <x>5</x>
-        <y>200</y>
+        <y>210</y>
         <width>250</width>
         <height>250</height>
        </rect>
@@ -469,7 +469,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>460</y>
+        <y>470</y>
         <width>261</width>
         <height>20</height>
        </rect>
@@ -485,13 +485,29 @@
       <property name="geometry">
        <rect>
         <x>170</x>
-        <y>120</y>
+        <y>140</y>
         <width>71</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
        <string>Reset</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>221</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Lift / Gamma / Gain Color Correction</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
      </widget>
     </widget>
@@ -598,7 +614,7 @@
     <widget class="QLabel" name="lbl_fps">
      <property name="geometry">
       <rect>
-       <x>500</x>
+       <x>490</x>
        <y>570</y>
        <width>47</width>
        <height>13</height>
@@ -674,9 +690,6 @@
      </property>
     </widget>
     <widget class="QPushButton" name="btn_frame_save">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -690,9 +703,6 @@
      </property>
     </widget>
     <widget class="QPushButton" name="btn_frame_record">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="geometry">
       <rect>
        <x>50</x>
@@ -890,9 +900,6 @@
       </property>
      </widget>
      <widget class="QPushButton" name="btn_save_plot">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
       <property name="geometry">
        <rect>
         <x>460</x>

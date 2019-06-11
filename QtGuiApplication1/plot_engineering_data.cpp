@@ -50,7 +50,10 @@ void Engineering_Plots::plot_azimuth() {
 	sub_plot_xmin = x[index_sub_plot_xmin];
 	sub_plot_xmax = x[index_sub_plot_xmax];
 	
-	chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title, title);
+	if (plot_all_data)
+		chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title, title);
+	else
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title, title);
 }
 
 void Engineering_Plots::plot_elevation() {
@@ -90,7 +93,10 @@ void Engineering_Plots::plot_elevation() {
 	sub_plot_xmin = x[index_sub_plot_xmin];
 	sub_plot_xmax = x[index_sub_plot_xmax];
 
-	chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title, title);
+	if (plot_all_data)
+		chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title, title);
+	else
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title, title);
 }
 
 void Engineering_Plots::plot_irradiance(int number_tracks)
@@ -168,7 +174,12 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	}
 
 	y_title = QString("Irradiance Counts");
-	chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+
+	if (plot_all_data)
+		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+	else
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+	
 }
 
 std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
