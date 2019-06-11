@@ -355,7 +355,7 @@ public:
         frm_video->setFrameShadow(QFrame::Raised);
         lbl_fps = new QLabel(frmVideoPlayer);
         lbl_fps->setObjectName(QString::fromUtf8("lbl_fps"));
-        lbl_fps->setGeometry(QRect(490, 570, 47, 13));
+        lbl_fps->setGeometry(QRect(500, 570, 47, 13));
         btn_prev_frame = new QPushButton(frmVideoPlayer);
         btn_prev_frame->setObjectName(QString::fromUtf8("btn_prev_frame"));
         btn_prev_frame->setGeometry(QRect(230, 560, 35, 30));
@@ -373,9 +373,11 @@ public:
         btn_reverse->setGeometry(QRect(270, 560, 35, 30));
         btn_frame_save = new QPushButton(frmVideoPlayer);
         btn_frame_save->setObjectName(QString::fromUtf8("btn_frame_save"));
+        btn_frame_save->setEnabled(false);
         btn_frame_save->setGeometry(QRect(10, 560, 35, 30));
         btn_frame_record = new QPushButton(frmVideoPlayer);
         btn_frame_record->setObjectName(QString::fromUtf8("btn_frame_record"));
+        btn_frame_record->setEnabled(false);
         btn_frame_record->setGeometry(QRect(50, 560, 35, 30));
         tabPlots = new QTabWidget(centralWidget);
         tabPlots->setObjectName(QString::fromUtf8("tabPlots"));
@@ -433,6 +435,7 @@ public:
         chk_plot_show_line->setChecked(true);
         btn_save_plot = new QPushButton(tab_4);
         btn_save_plot->setObjectName(QString::fromUtf8("btn_save_plot"));
+        btn_save_plot->setEnabled(false);
         btn_save_plot->setGeometry(QRect(460, 520, 41, 31));
         tabPlots->addTab(tab_4, QString());
         QtGuiApplication1Class->setCentralWidget(centralWidget);
