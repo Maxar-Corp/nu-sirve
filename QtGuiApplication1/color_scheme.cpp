@@ -39,3 +39,8 @@ QString ColorScheme::GetPreviousColor(){
 
     return colors[index];
 }
+
+void ColorScheme::reset_colors()
+{
+	index = 0;
+}

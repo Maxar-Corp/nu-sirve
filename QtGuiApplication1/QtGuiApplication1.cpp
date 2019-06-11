@@ -201,10 +201,25 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			eng_data = new Engineering_Data(file_data.osm_data.data);
 			data_plots = new Engineering_Plots();
 
-			QObject::connect(eng_data, &Engineering_Data::plot_luminosity, data_plots, &Engineering_Plots::plot_irradiance_data);
+			data_plots->frame_numbers = eng_data->frame_numbers;
+			data_plots->engineering_data = eng_data->frame_data;
+			data_plots->plot_irradiance(eng_data->max_number_tracks);
 
-			eng_data->get_luminosity_data();
+			//QObject::connect(eng_data, &Engineering_Data::plot_luminosity, data_plots, &Engineering_Plots::plot_irradiance_data);
+			//eng_data->get_luminosity_data();
+			
 			ui.tabPlots->setCurrentIndex(1);
+
+			ui.cmb_plot_data->setEnabled(true);
+			ui.cmb_plot_data->addItem(QString("Irradiance vs Frames"));
+			ui.cmb_plot_data->addItem(QString("Irradiance vs Times"));
+			ui.cmb_plot_data->addItem(QString("Azimuth vs Frames"));
+			ui.cmb_plot_data->addItem(QString("Azimuth vs Time"));
+			ui.cmb_plot_data->addItem(QString("Elevation vs Frames"));
+			ui.cmb_plot_data->addItem(QString("Elevation vs Time"));
+
+			ui.cmb_plot_data->setCurrentIndex(0);
+			connect(ui.cmb_plot_data, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 
 			engineering_plot_layout = new QGridLayout();
 			engineering_plot_layout->addWidget(data_plots->chart_view);
@@ -278,8 +293,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		//---------------------------------------------------------------------------
 
-		QObject::connect(eng_data, &Engineering_Data::plot_azimuth_elevation, data_plots, &Engineering_Plots::plot_az_el_boresite_data);
-		eng_data->get_azimuth_elevation_data();
+		//QObject::connect(eng_data, &Engineering_Data::plot_azimuth_elevation, data_plots, &Engineering_Plots::plot_az_el_boresite_data);
+		//eng_data->get_azimuth_elevation_data();
+		data_plots->plot_azimuth();
 
 		//---------------------------------------------------------------------------
 
@@ -368,6 +384,54 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal);
 		
 		emit change_banner(input_text, QColor("Red"));
+	}
+
+	void QtGuiApplication1::plot_change(int index)
+	{
+
+		// Index 0 - "Irradiance vs Frames"
+		// Index 1 - "Irradiance vs Times"
+		// Index 2 - "Azimuth vs Frames"
+		// Index 3 - "Azimuth vs Time"
+		// Index 4 - "Elevation vs Frames"
+		// Index 5 - "Elevation vs Time"
+
+		switch (index)
+		{
+		case 0:
+			data_plots->plot_x_frames = true;
+			data_plots->plot_irradiance(eng_data->max_number_tracks);
+			break;
+
+		case 1:
+			data_plots->plot_x_frames = false;
+
+			break;
+
+		case 2:
+			data_plots->plot_x_frames = true;
+			data_plots->plot_azimuth();
+			break;
+
+		case 3:
+			data_plots->plot_x_frames = false;
+
+			break;
+
+		case 4:
+			data_plots->plot_x_frames = true;
+			data_plots->plot_elevation();
+			break;
+
+		case 5:
+			data_plots->plot_x_frames = false;
+
+			break;
+
+		default:
+			break;
+		}
+
 	}
 
 	void QtGuiApplication1::set_color_correction_slider_labels()

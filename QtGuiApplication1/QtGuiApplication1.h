@@ -75,5 +75,6 @@ private:
 
 	void create_menu_actions();
 	void edit_banner_text();
+	void plot_change(int index);
 
 };
