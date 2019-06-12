@@ -32,10 +32,6 @@ public:
 	~OSMReader();
     int LoadFile(char *file_path, bool input_combine_tracks = false);
     
-	// Pull data from file
-	std::vector<Track_Irradiance> Get_Irradiance_Data();
-	Plotting_Data Get_Boresight_Azimuth_Elevation();
-
 private:
 
 	bool combine_tracks;	
