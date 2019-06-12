@@ -355,7 +355,7 @@ public:
         frm_video->setFrameShadow(QFrame::Raised);
         lbl_fps = new QLabel(frmVideoPlayer);
         lbl_fps->setObjectName(QString::fromUtf8("lbl_fps"));
-        lbl_fps->setGeometry(QRect(500, 570, 47, 13));
+        lbl_fps->setGeometry(QRect(490, 570, 47, 13));
         btn_prev_frame = new QPushButton(frmVideoPlayer);
         btn_prev_frame->setObjectName(QString::fromUtf8("btn_prev_frame"));
         btn_prev_frame->setGeometry(QRect(230, 560, 35, 30));
