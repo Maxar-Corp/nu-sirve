@@ -221,9 +221,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 			data_plots->engineering_data = eng_data->frame_data;
 			data_plots->plot_irradiance(eng_data->max_number_tracks);
-
-			//QObject::connect(eng_data, &Engineering_Data::plot_luminosity, data_plots, &Engineering_Plots::plot_irradiance_data);
-			//eng_data->get_luminosity_data();
 			
 			ui.tabPlots->setCurrentIndex(1);
 

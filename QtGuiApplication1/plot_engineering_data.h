@@ -85,8 +85,7 @@ class Engineering_Plots : public QtPlotting
 		void get_xaxis_value(std::vector<double> &values);
 
 	public slots:
-		void plot_irradiance_data(std::vector<Track_Irradiance> data);
-		void plot_az_el_boresite_data(Plotting_Data data, bool plot_azimuth, bool plot_frames);
+
 		void toggle_subplot();
 
 };

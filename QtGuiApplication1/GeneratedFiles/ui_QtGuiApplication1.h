@@ -410,7 +410,7 @@ public:
         chk_plot_full_data->setObjectName(QString::fromUtf8("chk_plot_full_data"));
         chk_plot_full_data->setEnabled(false);
         chk_plot_full_data->setGeometry(QRect(520, 520, 111, 21));
-        chk_plot_full_data->setChecked(true);
+        chk_plot_full_data->setChecked(false);
         cmb_plot_xaxis = new QComboBox(tab_4);
         cmb_plot_xaxis->setObjectName(QString::fromUtf8("cmb_plot_xaxis"));
         cmb_plot_xaxis->setEnabled(false);
@@ -419,7 +419,7 @@ public:
         chk_plot_primary_data->setObjectName(QString::fromUtf8("chk_plot_primary_data"));
         chk_plot_primary_data->setEnabled(false);
         chk_plot_primary_data->setGeometry(QRect(520, 540, 131, 21));
-        chk_plot_primary_data->setChecked(true);
+        chk_plot_primary_data->setChecked(false);
         label = new QLabel(tab_4);
         label->setObjectName(QString::fromUtf8("label"));
         label->setGeometry(QRect(10, 520, 131, 20));
@@ -432,7 +432,7 @@ public:
         chk_plot_show_line->setObjectName(QString::fromUtf8("chk_plot_show_line"));
         chk_plot_show_line->setEnabled(false);
         chk_plot_show_line->setGeometry(QRect(520, 560, 151, 21));
-        chk_plot_show_line->setChecked(true);
+        chk_plot_show_line->setChecked(false);
         btn_save_plot = new QPushButton(tab_4);
         btn_save_plot->setObjectName(QString::fromUtf8("btn_save_plot"));
         btn_save_plot->setEnabled(false);
