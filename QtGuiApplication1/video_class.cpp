@@ -198,6 +198,15 @@ void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 	display_data = input_data;
 }
 
+void Video::save_frame()
+{
+	const QPixmap* pix = label->pixmap();
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "untitled.png", tr("Images (*.png)"));
+
+	if (!fileName.isEmpty())
+		pix->save(fileName);
+}
+
 void Video::update_specific_frame(unsigned int frame_number)
 {
 	counter = frame_number;
