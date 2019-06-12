@@ -72,10 +72,6 @@ struct Track_Irradiance {
 	std::vector<double> irradiance;
 	std::vector<double> frame_time;
 
-	unsigned int minimum_frame_number;
-	unsigned int maximum_frame_number;
-	double minimum_irradiance;
-	double maximum_irradiance;
 };
 
 struct Track_Tgts {

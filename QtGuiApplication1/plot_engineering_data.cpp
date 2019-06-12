@@ -120,7 +120,6 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 			int num_tracks_present = engineering_data[j].ir_data.size();
 			if (num_tracks_present > 0 && i < num_tracks_present)
 			{
-				
 				double value = engineering_data[j].ir_data[i].irradiance;
 				irradiance.push_back(value);
 				y_points.push_back(value);
