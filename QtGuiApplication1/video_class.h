@@ -15,6 +15,7 @@
 #include <math.h>
 #include <qpainter.h>
 #include <qbrush.h>
+#include <qfiledialog.h>
 
 #include "abir_reader.h"
 #include "color_correction_lgg.h"
@@ -43,6 +44,7 @@ public:
 	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data);
 	
 	bool plot_boresight, display_boresight_txt, display_tgt_pos_txt;
+	void save_frame();
 
 
 public slots:
