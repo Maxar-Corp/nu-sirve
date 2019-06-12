@@ -574,3 +574,16 @@ double QtPlotting::find_max_for_axis(std::vector<double>min_max_values) {
 
 	return max_limit_x;
 }
+
+void QtPlotting::save_plot()
+{
+
+	QPixmap p = chart_view->grab();
+	// QPixmap p(chart_view->size());
+	//chart_view->render(&p);
+
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "untitled.png", tr("Images (*.png)"));
+	
+	if(!fileName.isEmpty())
+		p.save(fileName, "PNG");
+}
