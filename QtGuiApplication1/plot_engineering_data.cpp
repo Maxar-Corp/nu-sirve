@@ -4,7 +4,6 @@
 Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 {
 		
-	
 	x_axis_units = frames;
 	
 }
@@ -21,7 +20,6 @@ void Engineering_Plots::plot_azimuth() {
 	colors.reset_colors();
 	// ---------------------------------------------------------------------------------------------------------------
 
-	QString x_title, y_title, title;
 	int number_pts = engineering_data.size();
 	
 	std::vector<double>az;
@@ -32,7 +30,7 @@ void Engineering_Plots::plot_azimuth() {
 		az.push_back(engineering_data[i].azimuth_sensor);
 	}
 
-	get_xaxis_value(x, x_title);
+	get_xaxis_value(x);
 	y_title = QString("Azimuth (deg)");
 
 	QColor base_color(colors.GetCurrentColor());
@@ -50,6 +48,8 @@ void Engineering_Plots::plot_azimuth() {
 	sub_plot_xmin = x[index_sub_plot_xmin];
 	sub_plot_xmax = x[index_sub_plot_xmax];
 	
+	title = QString("");
+
 	if (plot_all_data)
 		chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title, title);
 	else
@@ -64,7 +64,6 @@ void Engineering_Plots::plot_elevation() {
 	colors.reset_colors();
 	// ---------------------------------------------------------------------------------------------------------------
 
-	QString x_title, y_title, title;
 	int number_pts = engineering_data.size();
 
 	std::vector<double>el;
@@ -75,7 +74,7 @@ void Engineering_Plots::plot_elevation() {
 		el.push_back(engineering_data[i].elevation_sensor);
 	}
 
-	get_xaxis_value(x, x_title);
+	get_xaxis_value(x);
 	y_title = QString("Elevation (deg)");
 
 	QColor base_color(colors.GetCurrentColor());
@@ -93,6 +92,8 @@ void Engineering_Plots::plot_elevation() {
 	sub_plot_xmin = x[index_sub_plot_xmin];
 	sub_plot_xmax = x[index_sub_plot_xmax];
 
+	title = QString("");
+
 	if (plot_all_data)
 		chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title, title);
 	else
@@ -107,7 +108,6 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	colors.reset_colors();
 	// ---------------------------------------------------------------------------------------------------------------
 
-	QString y_title, x_title, title;
 	int number_pts = engineering_data.size();
 
 	std::vector<double> x_points, y_points;
@@ -174,6 +174,7 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	}
 
 	y_title = QString("Irradiance Counts");
+	title = QString("");
 
 	if (plot_all_data)
 		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
@@ -192,23 +193,23 @@ std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
 	return {min_value, max_value};
 }
 
-void Engineering_Plots::get_xaxis_value(std::vector<double>& values, QString & title)
+void Engineering_Plots::get_xaxis_value(std::vector<double>& values)
 {
 
 	switch (x_axis_units)
 	{
 	case frames:
 		values = frame_numbers;
-		title = "Frame #";
+		x_title = "Frame #";
 		break;
 	case seconds_past_midnight:
 		values = past_midnight;
-		title = "Seconds Past Midnight";
+		x_title = "Seconds Past Midnight";
 		break;
 	case seconds_from_epoch:
 		//TODO switch to past_epoch
 		values = past_midnight;
-		title = "Seconds Past Epoch";
+		x_title = "Seconds Past Epoch";
 		break;
 	default:
 		break;
@@ -294,11 +295,11 @@ void Engineering_Plots::toggle_subplot()
 
 	if (plot_all_data)
 	{
-		set_xaxis_limits(full_plot_xmin, full_plot_xmax);
+		set_xaxis_limits(full_plot_xmin, full_plot_xmax, x_title, y_title, title);
 	}
 	else
 	{
-		set_xaxis_limits(sub_plot_xmin, sub_plot_xmax);
+		set_xaxis_limits(sub_plot_xmin, sub_plot_xmax, x_title, y_title, title);
 	}
 }
 
@@ -400,14 +401,32 @@ void Engineering_Plots::plot_irradiance_data(std::vector<Track_Irradiance> data)
 // ---------------------------------------------------------------------------------------------
 // Generic plotting functions
 
+NewChartView::NewChartView(QChart* chart)
+	:QChartView(chart)
+{
+	newchart = chart;
+	
+	setMouseTracking(true);
+	setInteractive(true);
+	setRubberBand(RectangleRubberBand);
+}
+
+void NewChartView::mouseReleaseEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::RightButton)
+	{
+		newchart->zoomReset();
+		return; //event doesn't go further
+	}
+	QChartView::mouseReleaseEvent(e);//any other event
+}
+
 QtPlotting::QtPlotting(QWidget *parent)
 {
 	chart = new QChart();
 
-	chart_view = new QChartView(chart);
-	chart_view->setRubberBand(QChartView::RectangleRubberBand);
-
-
+	chart_view = new NewChartView(chart);
+	
 }
 
 QtPlotting::~QtPlotting()
@@ -521,12 +540,20 @@ void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x
 	axis->setMax(max_x);
 }
 
-void QtPlotting::set_xaxis_limits(double min_x, double max_x) {
+void QtPlotting::set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title) {
 
 	chart->createDefaultAxes();
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	
+	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+
+	x_axis->setTitleText(x_label_title);
 	set_axis_limits(x_axis, min_x, max_x);
+
+	y_axis->setTitleText(y_label_title);
+	
+	// Set chart title
+	chart->setTitle(title);
+	chart->setMargins(QMargins(0, 0, 0, 0));
 }
 
 void QtPlotting::set_yaxis_limits(double min_y, double max_y) {
