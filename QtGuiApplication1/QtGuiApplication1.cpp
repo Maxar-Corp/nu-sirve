@@ -253,6 +253,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			engineering_plot_layout->addWidget(data_plots->chart_view);
 			ui.frm_plots->setLayout(engineering_plot_layout);
 
+			ui.btn_save_plot->setEnabled(true);
+			connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
+
 		}
 
 		ui.btn_load_osm->setEnabled(true);
@@ -334,6 +337,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		data_plots->index_sub_plot_xmin = min_frame - 1;
 		data_plots->index_sub_plot_xmax = max_frame - 1;
 		plot_change(1);
+
+		//Enable saving frame
+		ui.btn_save_plot->setEnabled(false);
+		connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
 		
 		update_fps();
 
@@ -403,6 +410,16 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			data_plots->plot_all_data = false;
 			data_plots->toggle_subplot();
 		}
+	}
+
+	void QtGuiApplication1::save_plot()
+	{
+		data_plots->save_plot();
+	}
+
+	void QtGuiApplication1::save_frame()
+	{
+
 	}
 
 	void QtGuiApplication1::create_menu_actions()

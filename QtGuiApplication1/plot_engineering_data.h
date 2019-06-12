@@ -10,6 +10,7 @@
 #include <QtCharts/QAbstractAxis>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/qxyseries.h>
+#include <qfiledialog.h>
 #include <QString>
 #include <vector>
 #include <math.h>
@@ -50,6 +51,8 @@ class QtPlotting : public QWidget
 		void set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title);
 		void set_yaxis_limits(double min_y, double max_y);
 		double find_max_for_axis(std::vector<double>min_max_values);
+
+		void save_plot();
 
 };
 
