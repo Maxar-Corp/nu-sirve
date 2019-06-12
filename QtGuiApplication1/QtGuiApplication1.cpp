@@ -339,8 +339,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		plot_change(1);
 
 		//Enable saving frame
-		ui.btn_save_plot->setEnabled(false);
-		connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
+		ui.btn_frame_save->setEnabled(true);
+		connect(ui.btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
 		
 		update_fps();
 
@@ -419,7 +419,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::save_frame()
 	{
-
+		ir_video->save_frame();
 	}
 
 	void QtGuiApplication1::create_menu_actions()

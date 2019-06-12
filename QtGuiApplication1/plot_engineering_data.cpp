@@ -421,6 +421,8 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 	QChartView::mouseReleaseEvent(e);//any other event
 }
 
+// ---------------------------------------------------------------------------------------------
+
 QtPlotting::QtPlotting(QWidget *parent)
 {
 	chart = new QChart();
