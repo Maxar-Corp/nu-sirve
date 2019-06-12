@@ -71,6 +71,8 @@ public:
 	void reset_color_correction();
 	void allow_epoch();
 	void plot_full_data(int index);
+	void save_plot();
+	void save_frame();
 	
 private:
 	Ui::QtGuiApplication1Class ui;
