@@ -21,7 +21,10 @@ class Engineering_Data : public	QWidget
 		~Engineering_Data();
 
 		std::vector<double>frame_numbers, julian_date, seconds_from_midnight;
+		
 		std::vector<Plotting_Frame_Data> frame_data;
+		std::vector<Track_Irradiance> track_irradiance_data;
+		
 		int max_number_tracks;
 
 	private:
@@ -30,6 +33,7 @@ class Engineering_Data : public	QWidget
 		Plotting_Data data;
 				
 		void extract_engineering_data();
+		void fill_irradiance_vector();
 };
 
 #endif

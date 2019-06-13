@@ -250,6 +250,9 @@ void HistogramLine_Plot::update_histogram_chart() {
 	frame_str.append(number);
 	text->setText(frame_str);
 
+	//chart->setTitle(title);
+	chart->setMargins(QMargins(0, 0, 0, 0));
+
 	counter++;
 }
 

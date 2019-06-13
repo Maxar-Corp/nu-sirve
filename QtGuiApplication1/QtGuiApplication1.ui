@@ -800,10 +800,10 @@
        </rect>
       </property>
       <property name="text">
-       <string>Plot Subset of Data</string>
+       <string>Plot All Data</string>
       </property>
       <property name="checked">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
      </widget>
      <widget class="QComboBox" name="cmb_plot_xaxis">
