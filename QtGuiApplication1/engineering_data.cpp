@@ -5,6 +5,7 @@ Engineering_Data::Engineering_Data(std::vector<Frame> & osm_data)
 	osm = osm_data;
 	max_number_tracks = 0;
 	extract_engineering_data();
+	fill_irradiance_vector();
 
 }
 
@@ -66,5 +67,45 @@ void Engineering_Data::extract_engineering_data()
 		frame_numbers.push_back(i + 1);
 	}
 
+}
+
+void Engineering_Data::fill_irradiance_vector()
+{
+
+	track_irradiance_data.reserve(max_number_tracks);
+	int number_pts = frame_data.size();
+		
+	for (int i = 0; i < number_pts; i++)
+	{
+		
+		int num_tracks_present = frame_data[i].ir_data.size();
+
+		for (int j = 0; j < num_tracks_present; j++)
+		{
+			if (j < track_irradiance_data.size())
+			{
+				track_irradiance_data[j].frame_number.push_back(i + 1);
+				track_irradiance_data[j].julian_date.push_back(frame_data[i].julian_date);
+				track_irradiance_data[j].past_midnight.push_back(frame_data[i].seconds_past_midnight);
+
+				track_irradiance_data[j].irradiance.push_back(frame_data[i].ir_data[j].irradiance);
+			}
+			else
+			{
+				Track_Irradiance temp;
+
+				temp.band_id = 1;
+				temp.track_id = j;
+
+				temp.frame_number.push_back(i + 1);
+				temp.julian_date.push_back(frame_data[i].julian_date);
+				temp.past_midnight.push_back(frame_data[i].seconds_past_midnight);
+
+				temp.irradiance.push_back(frame_data[i].ir_data[j].irradiance);
+
+				track_irradiance_data.push_back(temp);
+			}
+		}	
+	}
 }
 

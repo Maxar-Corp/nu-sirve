@@ -410,7 +410,7 @@ public:
         chk_plot_full_data->setObjectName(QString::fromUtf8("chk_plot_full_data"));
         chk_plot_full_data->setEnabled(false);
         chk_plot_full_data->setGeometry(QRect(520, 520, 111, 21));
-        chk_plot_full_data->setChecked(false);
+        chk_plot_full_data->setChecked(true);
         cmb_plot_xaxis = new QComboBox(tab_4);
         cmb_plot_xaxis->setObjectName(QString::fromUtf8("cmb_plot_xaxis"));
         cmb_plot_xaxis->setEnabled(false);
@@ -512,7 +512,7 @@ public:
         btn_frame_save->setText(QApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
         btn_frame_record->setText(QApplication::translate("QtGuiApplication1Class", "Rec", nullptr));
         tabPlots->setTabText(tabPlots->indexOf(tab_3), QApplication::translate("QtGuiApplication1Class", "Histogram", nullptr));
-        chk_plot_full_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot Subset of Data", nullptr));
+        chk_plot_full_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot All Data", nullptr));
         chk_plot_primary_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot Primary Data Only", nullptr));
         label->setText(QApplication::translate("QtGuiApplication1Class", "X - Axis", nullptr));
         label_2->setText(QApplication::translate("QtGuiApplication1Class", "Y - Axis", nullptr));

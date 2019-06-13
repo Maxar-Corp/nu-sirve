@@ -220,6 +220,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
 
 			data_plots->engineering_data = eng_data->frame_data;
+			data_plots->track_irradiance_data = eng_data->track_irradiance_data;
 			data_plots->plot_irradiance(eng_data->max_number_tracks);
 			
 			ui.tabPlots->setCurrentIndex(1);
@@ -241,7 +242,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			ui.cmb_plot_xaxis->setCurrentIndex(0);
 
 			ui.chk_plot_full_data->setEnabled(true);
+			ui.chk_plot_primary_data->setEnabled(true);
 			connect(ui.chk_plot_full_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_full_data);
+			connect(ui.chk_plot_primary_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_primary_only);
 						
 			connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 			connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
@@ -401,12 +404,22 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			data_plots->plot_all_data = true;
 			data_plots->toggle_subplot();
 		}
-
-		if (!ui.chk_plot_full_data->isChecked())
+		else 
 		{
 			data_plots->plot_all_data = false;
 			data_plots->toggle_subplot();
 		}
+
+	}
+
+	void QtGuiApplication1::plot_primary_only()
+	{
+		if (ui.chk_plot_primary_data->isChecked())
+			data_plots->plot_primary_only = true;
+		else
+			data_plots->plot_primary_only = false;
+
+		plot_change(1);
 	}
 
 	void QtGuiApplication1::save_plot()

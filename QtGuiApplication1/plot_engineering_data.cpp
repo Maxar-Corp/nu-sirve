@@ -5,7 +5,8 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 {
 		
 	x_axis_units = frames;
-	
+	plot_primary_only = false;
+		
 }
 
 Engineering_Plots::~Engineering_Plots()
@@ -105,9 +106,87 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
 	chart->removeAllSeries();
+	//new_chart();
 	colors.reset_colors();
 	// ---------------------------------------------------------------------------------------------------------------
+	
+	std::vector<double> x_points, y_points;
 
+	int plot_number_tracks = number_tracks;
+	if (plot_primary_only)
+		plot_number_tracks = 1;
+
+	for (int i = 0; i < plot_number_tracks; i++)
+	{
+		QLineSeries *series = new QLineSeries();
+		QColor base_color(colors.GetCurrentColor());
+		series->setColor(base_color);
+
+		std::vector<double> x_values;
+
+		switch (x_axis_units)
+		{
+		case frames:
+			x_title = QString("Frame #");
+			x_values = track_irradiance_data[i].frame_number;
+			break;
+		case seconds_past_midnight:
+			x_title = QString("Seconds Past Midnight");
+			x_values = track_irradiance_data[i].past_midnight;
+			break;
+		case seconds_from_epoch:
+			x_title = QString("Seconds Past Epoch");
+			//x_values = track_irradiance_data[i].frame_number;
+			break;
+		default:
+			
+			break;
+		}
+
+		add_series(series, x_values, track_irradiance_data[i].irradiance, true);
+
+		// get next color for series
+		colors.GetNextColor();
+
+		// Add all x/y points to a common vector for processing later
+		x_points.insert(x_points.end(), x_values.begin(), x_values.end());
+		y_points.insert(y_points.end(), track_irradiance_data[i].irradiance.begin(), track_irradiance_data[i].irradiance.end());
+	}
+
+	std::vector<double>min_max_x, min_max_y;
+	min_max_x = find_min_max(x_points);
+	min_max_y = find_min_max(y_points);
+
+	full_plot_xmin = min_max_x[0];
+	full_plot_xmax = find_max_for_axis(min_max_x);
+
+	switch (x_axis_units)
+	{
+	case frames:
+		sub_plot_xmin = frame_numbers[index_sub_plot_xmin];
+		sub_plot_xmax = frame_numbers[index_sub_plot_xmax];
+		break;
+	case seconds_past_midnight:
+		sub_plot_xmin = past_midnight[index_sub_plot_xmin];
+		sub_plot_xmax = past_midnight[index_sub_plot_xmax];
+		break;
+	case seconds_from_epoch:
+		sub_plot_xmin = past_epoch[index_sub_plot_xmin];
+		sub_plot_xmax = past_epoch[index_sub_plot_xmax];
+		break;
+	default:
+		break;
+	}
+
+	y_title = QString("Irradiance Counts");
+	title = QString("");
+
+	if (plot_all_data)
+		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+	else
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+
+	/*
 	int number_pts = engineering_data.size();
 
 	std::vector<double> x_points, y_points;
@@ -179,6 +258,8 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+
+		*/
 	
 }
 
@@ -258,9 +339,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 QtPlotting::QtPlotting(QWidget *parent)
 {
 	chart = new QChart();
-
 	chart_view = new NewChartView(chart);
-	
 }
 
 QtPlotting::~QtPlotting()
@@ -278,7 +357,7 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 
 	double base_x_distance = 1;
 	if (num_data_pts > 1) {
-		base_x_distance = (x[1] - x[0]) * 1.01;
+		base_x_distance = (x[1] - x[0]) * 1.5;
 	}
 
 	for (uint i = 0; i < num_data_pts; i++) {
