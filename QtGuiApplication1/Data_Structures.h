@@ -68,10 +68,11 @@ struct Track_Irradiance {
 
 	uint32_t track_id;
 	uint32_t band_id;
+	std::vector<double> julian_date;
 	std::vector<double> frame_number;
-	std::vector<double> irradiance;
-	std::vector<double> frame_time;
+	std::vector<double> past_midnight;
 
+	std::vector<double> irradiance;
 };
 
 struct Track_Tgts {

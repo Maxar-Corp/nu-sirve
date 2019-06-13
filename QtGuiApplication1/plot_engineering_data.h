@@ -61,23 +61,25 @@ class Engineering_Plots : public QtPlotting
 {
 	public:
 
-		bool plot_all_data;
 		x_plot_variables x_axis_units;
 		
+		// Parameters to display subplot
+		bool plot_all_data, plot_primary_only;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
 		int index_sub_plot_xmin, index_sub_plot_xmax;
 
+		// plot axes titles
 		QString x_title, y_title, title;
 
 		Engineering_Plots(QWidget *parent = nullptr);
 		~Engineering_Plots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
+		std::vector<Track_Irradiance> track_irradiance_data;
 		std::vector<double>frame_numbers;
 		std::vector<double>past_midnight;
 		std::vector<double>past_epoch;
 		
-
 		void plot_azimuth();
 		void plot_elevation();
 		void plot_irradiance(int number_tracks);
