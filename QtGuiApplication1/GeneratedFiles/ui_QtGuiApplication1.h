@@ -88,6 +88,8 @@ public:
     QPushButton *btn_reverse;
     QPushButton *btn_frame_save;
     QPushButton *btn_frame_record;
+    QLabel *lbl_video_frame;
+    QLabel *lbl_video_time_midnight;
     QTabWidget *tabPlots;
     QWidget *tab_3;
     QFrame *frm_histogram;
@@ -379,6 +381,15 @@ public:
         btn_frame_record->setObjectName(QString::fromUtf8("btn_frame_record"));
         btn_frame_record->setEnabled(false);
         btn_frame_record->setGeometry(QRect(50, 560, 35, 30));
+        lbl_video_frame = new QLabel(frmVideoPlayer);
+        lbl_video_frame->setObjectName(QString::fromUtf8("lbl_video_frame"));
+        lbl_video_frame->setGeometry(QRect(20, 510, 81, 20));
+        lbl_video_time_midnight = new QLabel(frmVideoPlayer);
+        lbl_video_time_midnight->setObjectName(QString::fromUtf8("lbl_video_time_midnight"));
+        lbl_video_time_midnight->setGeometry(QRect(230, 510, 195, 20));
+        lbl_video_time_midnight->setFrameShape(QFrame::NoFrame);
+        lbl_video_time_midnight->setFrameShadow(QFrame::Plain);
+        lbl_video_time_midnight->setAlignment(Qt::AlignCenter);
         tabPlots = new QTabWidget(centralWidget);
         tabPlots->setObjectName(QString::fromUtf8("tabPlots"));
         tabPlots->setGeometry(QRect(1000, 50, 684, 620));
@@ -511,6 +522,8 @@ public:
         btn_reverse->setText(QApplication::translate("QtGuiApplication1Class", "Re", nullptr));
         btn_frame_save->setText(QApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
         btn_frame_record->setText(QApplication::translate("QtGuiApplication1Class", "Rec", nullptr));
+        lbl_video_frame->setText(QString());
+        lbl_video_time_midnight->setText(QString());
         tabPlots->setTabText(tabPlots->indexOf(tab_3), QApplication::translate("QtGuiApplication1Class", "Histogram", nullptr));
         chk_plot_full_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot All Data", nullptr));
         chk_plot_primary_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot Primary Data Only", nullptr));

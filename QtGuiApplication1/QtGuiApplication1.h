@@ -72,9 +72,10 @@ public:
 	void allow_epoch();
 	void plot_full_data(int index);
 	void plot_primary_only();
+	void plot_current_frame_marker();
 	void save_plot();
 	void save_frame();
-	
+	void set_frame_number_label(int counter);
 	
 private:
 	Ui::QtGuiApplication1Class ui;
@@ -82,5 +83,5 @@ private:
 	void create_menu_actions();
 	void edit_banner_text();
 	void plot_change(int index);
-
+	
 };

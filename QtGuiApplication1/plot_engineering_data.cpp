@@ -5,7 +5,9 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 {
 		
 	x_axis_units = frames;
+	plot_all_data = true;
 	plot_primary_only = false;
+	plot_current_marker = false;
 		
 }
 
@@ -19,6 +21,8 @@ void Engineering_Plots::plot_azimuth() {
 	// Clear chart
 	chart->removeAllSeries();
 	colors.reset_colors();
+	start_new_chart();
+	create_current_marker();
 	// ---------------------------------------------------------------------------------------------------------------
 
 	int number_pts = engineering_data.size();
@@ -63,6 +67,8 @@ void Engineering_Plots::plot_elevation() {
 	// Clear chart
 	chart->removeAllSeries();
 	colors.reset_colors();
+	start_new_chart();
+	create_current_marker();
 	// ---------------------------------------------------------------------------------------------------------------
 
 	int number_pts = engineering_data.size();
@@ -106,8 +112,9 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
 	chart->removeAllSeries();
-	//new_chart();
 	colors.reset_colors();
+	start_new_chart();
+	create_current_marker();
 	// ---------------------------------------------------------------------------------------------------------------
 	
 	std::vector<double> x_points, y_points;
@@ -185,81 +192,6 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
-
-	/*
-	int number_pts = engineering_data.size();
-
-	std::vector<double> x_points, y_points;
-
-	for (int i = 0; i < number_tracks; i++)
-	{
-		std::vector<double>x, irradiance;
-		for (int j = 0; j < number_pts; j++)
-		{
-			int num_tracks_present = engineering_data[j].ir_data.size();
-			if (num_tracks_present > 0 && i < num_tracks_present)
-			{
-				double value = engineering_data[j].ir_data[i].irradiance;
-				irradiance.push_back(value);
-				y_points.push_back(value);
-
-				if (x_axis_units == frames) {
-					x.push_back(j + 1);
-					x_points.push_back(j + 1);
-					x_title = QString("Frame #");
-				}
-				else if(x_axis_units == seconds_past_midnight) {
-					x.push_back(past_midnight[j]);
-					x_points.push_back(past_midnight[j]);
-					x_title = QString("Seconds Past Midnight");
-				}
-			}
-		}
-		
-		// add to series to chart
-		QLineSeries *series = new QLineSeries();
-		QColor base_color(colors.GetCurrentColor());
-		series->setColor(base_color);
-		add_series(series, x, irradiance, true);
-
-		// get next color for series
-		colors.GetNextColor();
-	}
-
-	std::vector<double>min_max_x, min_max_y;
-	min_max_x = find_min_max(x_points);
-	min_max_y = find_min_max(y_points);
-
-	full_plot_xmin = min_max_x[0];
-	full_plot_xmax = find_max_for_axis(min_max_x);
-
-	switch (x_axis_units)
-	{
-	case frames:
-		sub_plot_xmin = frame_numbers[index_sub_plot_xmin];
-		sub_plot_xmax = frame_numbers[index_sub_plot_xmax];
-		break;
-	case seconds_past_midnight:
-		sub_plot_xmin = past_midnight[index_sub_plot_xmin];
-		sub_plot_xmax = past_midnight[index_sub_plot_xmax];
-		break;
-	case seconds_from_epoch:
-		sub_plot_xmin = past_epoch[index_sub_plot_xmin];
-		sub_plot_xmax = past_epoch[index_sub_plot_xmax];
-		break;
-	default:
-		break;
-	}
-
-	y_title = QString("Irradiance Counts");
-	title = QString("");
-
-	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
-	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
-
-		*/
 	
 }
 
@@ -294,6 +226,53 @@ void Engineering_Plots::get_xaxis_value(std::vector<double>& values)
 	default:
 		break;
 	}
+}
+
+void Engineering_Plots::create_current_marker()
+{
+	current_frame_marker = new QLineSeries();
+
+	QPen pen;
+	pen.setColor(colors.Get_Color(2));
+	pen.setStyle(Qt::SolidLine);
+	pen.setWidth(3);
+
+	current_frame_marker->setPen(pen);
+	
+	current_frame_marker->append(0, 0);
+	current_frame_marker->append(0, 0);
+	
+	chart->addSeries(current_frame_marker);
+}
+
+void Engineering_Plots::plot_current_step(int counter)
+{
+	
+	if (!current_frame_marker == NULL) {
+
+		reset_current_marker();
+	}
+
+	if (plot_current_marker)
+	{
+		std::vector<double> x;
+		get_xaxis_value(x);
+
+		//TODO figure out how to find the y-values for current chart
+		double current_x = x[index_sub_plot_xmin + counter];
+		
+		double min_y = axis_y->min() * 1.01;
+		double max_y = axis_y->max() * 0.99;
+
+		current_frame_marker->replace(0, current_x, min_y);
+		current_frame_marker->replace(1, current_x, max_y);
+	}
+}
+
+void Engineering_Plots::reset_current_marker() {
+
+	current_frame_marker->replace(0, 0, 0);
+	current_frame_marker->replace(1, 0, 0);
 }
 
 void Engineering_Plots::toggle_subplot()
@@ -340,13 +319,31 @@ QtPlotting::QtPlotting(QWidget *parent)
 {
 	chart = new QChart();
 	chart_view = new NewChartView(chart);
+
+	axis_x = new QValueAxis;
+	axis_y = new QValueAxis;
 }
 
 QtPlotting::~QtPlotting()
 {
 	delete chart;
 	delete chart_view;
+}
 
+void QtPlotting::start_new_chart()
+{
+	delete axis_x;
+	axis_x = new QValueAxis();
+	axis_x->setTitleText("x");
+	axis_x->setRange(0, 10);
+
+	delete axis_y;
+	axis_y = new QValueAxis();
+	axis_y->setTitleText("y");
+	axis_y->setRange(0, 10);
+
+	chart->addAxis(axis_x, Qt::AlignBottom);
+	chart->addAxis(axis_y, Qt::AlignLeft);
 }
 
 void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
@@ -366,6 +363,7 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 
 		}
 		else if (x[i] - x[i - 1] > base_x_distance & broken_data) { //if current point is greater than 1 frame away then start new series...
+			
 			chart->addSeries(series);
 
 			if (num_breaks > 0)
@@ -426,16 +424,37 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 
 	// ------------------------------------------------------------------------------------------
 	// Define chart properties
-	chart->createDefaultAxes();
-	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+		
+	axis_x->setRange(min_x, max_x);
+	axis_x->setTitleText(x_label_title);
 
-	x_axis->setTitleText(x_label_title);
-	set_axis_limits(x_axis, min_x, max_x);
+	axis_y->setRange(min_y, max_y);
+	axis_y->setTitleText(y_label_title);
 
-	y_axis->setTitleText(y_label_title);
-	set_axis_limits(y_axis, min_y, max_y);
+	int num_series = chart->series().size();
+	QList<QAbstractSeries *> all_series = chart->series();
+	for (int i = 0; i < num_series; i++)
+	{
+		bool check1 = all_series[i]->attachAxis(axis_x);
+		bool check2 = all_series[i]->attachAxis(axis_y);
+	}
+
+	//------------------------------------------------------------
+	// Deprecated Code
+	//-------------------------------------------------------------
+			
+	//chart->createDefaultAxes();
+	//QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
+	//QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+
+	//x_axis->setTitleText(x_label_title);
+	//set_axis_limits(x_axis, min_x, max_x);
+
+	//y_axis->setTitleText(y_label_title);
+	//set_axis_limits(y_axis, min_y, max_y);
 	//y_axis->setLabelsVisible(true);
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
 	
 	// Set chart title
 	chart->setTitle(title);
@@ -455,27 +474,30 @@ void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x
 
 void QtPlotting::set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title) {
 
-	chart->createDefaultAxes();
-	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+	//chart->createDefaultAxes();
+	//QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
+	//QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
 
-	x_axis->setTitleText(x_label_title);
-	set_axis_limits(x_axis, min_x, max_x);
+	//x_axis->setTitleText(x_label_title);
+	//set_axis_limits(x_axis, min_x, max_x);
+	chart->axisX()->setRange(min_x, max_x);
 
-	y_axis->setTitleText(y_label_title);
+	//y_axis->setTitleText(y_label_title);
 	
 	// Set chart title
-	chart->setTitle(title);
-	chart->setMargins(QMargins(0, 0, 0, 0));
+	//chart->setTitle(title);
+	//chart->setMargins(QMargins(0, 0, 0, 0));
 }
 
 void QtPlotting::set_yaxis_limits(double min_y, double max_y) {
 
-	chart->createDefaultAxes();
-	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+	//chart->createDefaultAxes();
+	//QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
 
-	y_axis->setMin(min_y);
-	y_axis->setMax(max_y);
+	//y_axis->setMin(min_y);
+	//y_axis->setMax(max_y);
+
+	chart->axisY()->setRange(min_y, max_y);
 }
 
 double QtPlotting::find_max_for_axis(std::vector<double>min_max_values) {
