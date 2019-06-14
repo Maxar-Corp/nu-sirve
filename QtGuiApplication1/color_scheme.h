@@ -13,6 +13,7 @@ public:
 
     ColorScheme();
     QString GetCurrentColor();
+	QString Get_Color(int index);
     QString GetNextColor();
     QString GetPreviousColor();
 	void reset_colors();

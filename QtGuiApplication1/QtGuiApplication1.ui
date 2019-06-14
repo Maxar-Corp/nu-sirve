@@ -705,6 +705,41 @@
       <string>Rec</string>
      </property>
     </widget>
+    <widget class="QLabel" name="lbl_video_frame">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>510</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_video_time_midnight">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>510</y>
+       <width>195</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </widget>
    <widget class="QTabWidget" name="tabPlots">
     <property name="geometry">

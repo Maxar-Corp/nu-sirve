@@ -243,8 +243,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 			ui.chk_plot_full_data->setEnabled(true);
 			ui.chk_plot_primary_data->setEnabled(true);
+			ui.chk_plot_show_line->setEnabled(true);
 			connect(ui.chk_plot_full_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_full_data);
 			connect(ui.chk_plot_primary_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_primary_only);
+			connect(ui.chk_plot_show_line, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_current_frame_marker);
 						
 			connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 			connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
@@ -341,6 +343,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		//Enable saving frame
 		ui.btn_frame_save->setEnabled(true);
 		connect(ui.btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
+
+		//Update frame number label
+		connect(playback_controller, &Playback::update_frame, this, &QtGuiApplication1::set_frame_number_label);
+
+		//Update frame marker on engineering plot
+		connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
 		
 		update_fps();
 
@@ -418,6 +426,15 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			data_plots->plot_primary_only = true;
 		else
 			data_plots->plot_primary_only = false;
+
+		plot_change(1);
+	}
+
+	void QtGuiApplication1::plot_current_frame_marker() {
+		if (ui.chk_plot_show_line->isChecked())
+			data_plots->plot_current_marker = true;
+		else
+			data_plots->plot_current_marker = false;
 
 		plot_change(1);
 	}
@@ -511,6 +528,23 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		default:
 			break;
 		}
+
+	}
+
+	void QtGuiApplication1::set_frame_number_label(int counter)
+	{
+
+		int index = data_plots->index_sub_plot_xmin;
+		
+		int frame_number = eng_data->frame_numbers[index + counter];
+		QString frame_text("Frame # ");
+		frame_text.append(QString::number(frame_number));
+		ui.lbl_video_frame->setText(frame_text);
+
+		double seconds_midnight = eng_data->seconds_from_midnight[index + counter];
+		QString seconds_text("From Midnight ");
+		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
+		ui.lbl_video_time_midnight->setText(seconds_text);
 
 	}
 
