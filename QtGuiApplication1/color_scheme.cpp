@@ -21,6 +21,10 @@ QString ColorScheme::GetCurrentColor(){
     return colors[index];
 }
 
+QString ColorScheme::Get_Color(int index) {
+	return colors[index];
+}
+
 QString ColorScheme::GetNextColor(){
 
     index++;

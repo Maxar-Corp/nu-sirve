@@ -43,6 +43,9 @@ class QtPlotting : public QWidget
 		QtPlotting(QWidget *parent = nullptr);
 		~QtPlotting();
 
+		QValueAxis *axis_x, *axis_y;
+
+		void start_new_chart();
 		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
 		void remove_series_legend();
 		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
@@ -64,12 +67,13 @@ class Engineering_Plots : public QtPlotting
 		x_plot_variables x_axis_units;
 		
 		// Parameters to display subplot
-		bool plot_all_data, plot_primary_only;
+		bool plot_all_data, plot_primary_only, plot_current_marker;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
 		int index_sub_plot_xmin, index_sub_plot_xmax;
 
 		// plot axes titles
 		QString x_title, y_title, title;
+		QXYSeries *current_frame_marker;
 
 		Engineering_Plots(QWidget *parent = nullptr);
 		~Engineering_Plots();
@@ -85,10 +89,13 @@ class Engineering_Plots : public QtPlotting
 		void plot_irradiance(int number_tracks);
 		std::vector<double> find_min_max(std::vector<double>data);
 		void get_xaxis_value(std::vector<double> &values);
+		void create_current_marker();
+		void reset_current_marker();
 
 	public slots:
 
 		void toggle_subplot();
+		void plot_current_step(int counter);
 
 };
 
