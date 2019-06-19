@@ -285,18 +285,26 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		ui.txt_start_frame->setText(QString::number(min_frame));
 		ui.txt_end_frame->setText(QString::number(max_frame));
 
-		// Load the ABIR data
-		std::vector<unsigned int> frame_numbers{ min_frame, max_frame };		
-		bool load_complete = file_data.load_image_file(min_frame, max_frame, 4.2);
-
 		//---------------------------------------------------------------------------
 
-		//abir_data = file_data.abir_data;
+		// Load the ABIR data
+		std::vector<unsigned int> frame_numbers{ min_frame, max_frame };
 
+		// Create the video properties data
+		video_details primary;
+		primary.properties[Video_Parameters::original] = true;
+		
+		primary.set_number_of_bits(14);
+		std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, 4.2);
+		
 		int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
 		int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
-		int number_frames = file_data.abir_data.video_frames_16bit.size();
-
+		
+		primary.set_image_size(x_pixels, y_pixels);
+		primary.set_video_frames(video_frames);
+		videos->something.push_back(primary);
+		
+		int number_frames = primary.frames_16bit.size();
 		QString status_txt = ui.lbl_file_load->text();
 		QString update_text("\nFrames ");
 		update_text.append(QString::number(min_frame));
@@ -306,17 +314,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		status_txt.append(update_text);
 		ui.lbl_file_load->setText(status_txt);
-
-		//---------------------------------------------------------------------------
-
-		// Create the video properties data
-		video_details primary;
-		primary.properties[Video_Parameters::original] = true;
-		primary.set_image_size(x_pixels, y_pixels);
-		primary.set_number_of_bits(14);
-		primary.set_video_frames(file_data.abir_data.video_frames_16bit);
-		
-		videos->something.push_back(primary);
 
 		//---------------------------------------------------------------------------
 

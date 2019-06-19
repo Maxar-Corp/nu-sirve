@@ -107,11 +107,10 @@ public:
 	uint64_t frame_size;
 	double file_version;	
 	std::vector<ABIR_Frame> ir_data;
-	
-	std::vector<uint16_t*>video_frames_16bit;
+	//std::vector<uint16_t*>video_frames_16bit;
 
-    int LoadFile(char* file_path, std::vector<unsigned int> valid_frames, double version_number = -0.1, bool header_only = false);
-    void LoadData(std::vector<unsigned int> valid_frames, bool header_only);
+    int File_Setup(char* file_path, double version_number = -0.1);
+	std::vector<std::vector<uint16_t>> Get_Data_and_Frames(std::vector<unsigned int> valid_frames, bool header_only = false);
     double GetVersionNumber(double version_number);
 
 private:
