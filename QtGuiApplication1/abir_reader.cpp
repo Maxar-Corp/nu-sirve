@@ -9,16 +9,16 @@ ABIR_Data::~ABIR_Data()
 
 	//delete full_file_path;
 
-	int num_frames = video_frames_16bit.size();
-	for (int i = 0; i < num_frames; i++)
-	{
-		delete[] video_frames_16bit[i];
-	}
+	//int num_frames = video_frames_16bit.size();
+	//for (int i = 0; i < num_frames; i++)
+	//{
+	//	delete[] video_frames_16bit[i];
+	//}
 
-	video_frames_16bit.clear();
+	//video_frames_16bit.clear();
 }
 
-int ABIR_Data::LoadFile(char* file_path, std::vector<unsigned int> valid_frames, double version_number, bool header_only)
+int ABIR_Data::File_Setup(char* file_path, double version_number)
 {
 
     errno_t err = fopen_s(&fp, file_path, "rb");
@@ -29,15 +29,18 @@ int ABIR_Data::LoadFile(char* file_path, std::vector<unsigned int> valid_frames,
     file_version = GetVersionNumber(version_number);
 
     full_file_path = file_path;
-    LoadData(valid_frames, header_only);
-
+   
     fclose(fp);
 
     return err;
 }
 
-void ABIR_Data::LoadData(std::vector<unsigned int> valid_frames, bool header_only)
+std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<unsigned int> valid_frames, bool header_only)
 {
+
+	std::vector<std::vector<uint16_t>>video_frames_16bit;
+
+	errno_t err = fopen_s(&fp, full_file_path, "rb");
 
     size_t return_code = fseek(fp, 16, SEEK_SET);
     frame_size = ReadValue<uint64_t>();
@@ -290,11 +293,15 @@ void ABIR_Data::LoadData(std::vector<unsigned int> valid_frames, bool header_onl
         //temp_frame.raw_16bit = raw_data2;
 
 		//video_frames_8bit.push_back(raw_8bit_data);
-		video_frames_16bit.push_back(raw_16bit_data);
+		std::vector<uint16_t> values(raw_16bit_data, raw_16bit_data + header_data.image_size);
+		video_frames_16bit.push_back(values);
 
         ir_data.push_back(temp_frame);
     }
 
+	fclose(fp);
+
+	return video_frames_16bit;
 }
 
 double ABIR_Data::GetVersionNumber(double version_number)

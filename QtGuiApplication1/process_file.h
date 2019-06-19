@@ -35,7 +35,7 @@ public:
 	bool read_osm_file();
 
 	bool check_image_path();
-	bool load_image_file(int first_frame, int last_frame, double version);
+	std::vector<std::vector<uint16_t>> load_image_file(int first_frame, int last_frame, double version);
 
 private:
 

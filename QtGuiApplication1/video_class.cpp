@@ -29,7 +29,7 @@ Video::Video(int x_pixels, int y_pixels)
 		colorTable.push_back(qRgb(255 - i, i, i));
 }
 
-Video::Video(std::vector<uint8_t*> &video_data, int x_pixels, int y_pixels)
+Video::Video(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_pixels)
 {
 	label = new QLabel(this);
 	text = new QLabel(this);
@@ -45,7 +45,7 @@ Video::~Video()
 	delete text;
 }
 
-void Video::update_video_file(std::vector<uint8_t*>& video_data, int x_pixels, int y_pixels)
+void Video::update_video_file(std::vector<std::vector<uint8_t>>& video_data, int x_pixels, int y_pixels)
 {
 	
 	frame_data = video_data;
