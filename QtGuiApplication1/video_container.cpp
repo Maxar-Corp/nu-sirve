@@ -16,8 +16,8 @@ video_details::video_details() {
 video_details::~video_details()
 {
 	// TODO make sure that when structure is removed, the pointers are properly deleted.
-	//clear_16bit_vector();
-	//clear_8bit_vector();
+	clear_16bit_vector();
+	clear_8bit_vector();
 }
 
 void video_details::set_image_size(int x, int y)
@@ -32,13 +32,13 @@ void video_details::set_number_of_bits(int num_bits)
 	number_of_bits = num_bits;
 }
 
-void video_details::set_video_frames(std::vector<uint8_t*>& video_in)
+void video_details::set_video_frames(std::vector<std::vector<uint8_t>> video_in)
 {
 	frames_8bit = video_in;
 	create_histogram_data();
 }
 
-void video_details::set_video_frames(std::vector<uint16_t*>& video_in)
+void video_details::set_video_frames(std::vector<std::vector<uint16_t>> video_in)
 {
 	frames_16bit = video_in;
 	convert_16bit_to_8bit();
@@ -47,26 +47,26 @@ void video_details::set_video_frames(std::vector<uint16_t*>& video_in)
 
 void video_details::clear_16bit_vector()
 {
-	int num_frames = frames_16bit.size();
+	//int num_frames = frames_16bit.size();
+	//
+	//for (int j = 0; j < num_frames; j++)
+	//{
+	//	delete[] frames_16bit[j];
+	//}
 
-	for (int j = 0; j < num_frames; j++)
-	{
-		delete[] frames_16bit[j];
-	}
-
-	frames_16bit.clear();
+	//frames_16bit.clear();
 }
 
 void video_details::clear_8bit_vector()
 {
-	int num_frames = frames_8bit.size();
+	//int num_frames = frames_8bit.size();
 
-	for (int j = 0; j < num_frames; j++)
-	{
-		delete[] frames_8bit[j];
-	}
+	//for (int j = 0; j < num_frames; j++)
+	//{
+	//	delete[] frames_8bit[j];
+	//}
 
-	frames_8bit.clear();
+	//frames_8bit.clear();
 }
 
 void video_details::convert_16bit_to_8bit() {
@@ -74,19 +74,21 @@ void video_details::convert_16bit_to_8bit() {
 	uint16_t total_range = std::pow(2, number_of_bits);
 	int number_of_frames = frames_16bit.size();
 
-	clear_8bit_vector();
+	//clear_8bit_vector();
+	frames_8bit.clear();
 
 	for (size_t i = 0; i < number_of_frames; i++)
 	{
 			   
-		uint8_t *raw_8bit_data = new uint8_t[number_pixels];
+		std::vector<uint8_t> raw_8bit_data;
+		raw_8bit_data.reserve(number_pixels);
 
 		for (int j = 0; j < number_pixels; j++) {
 
 			uint16_t value = frames_16bit[i][j];
 			double new_value = 255 * 1.0 * value / total_range;
 
-			raw_8bit_data[j] = (uint8_t)new_value;
+			raw_8bit_data.push_back((uint8_t)new_value);
 		}
 
 		frames_8bit.push_back(raw_8bit_data);
@@ -148,20 +150,20 @@ Video_Container::Video_Container()
 
 Video_Container::~Video_Container()
 {
-	int num_videos = something.size();
-	for (int i = 0; i < num_videos; i++)
-	{
-		int num_frames = something[i].frames_8bit.size();
+	//int num_videos = something.size();
+	//for (int i = 0; i < num_videos; i++)
+	//{
+	//	int num_frames = something[i].frames_8bit.size();
 
-		for (int j = 0; j < num_frames; j++)
-		{
-			delete[] something[i].frames_8bit[j];
-			//delete[] something[i].frames_16bit[j];
-		}
+	//	for (int j = 0; j < num_frames; j++)
+	//	{
+	//		delete[] something[i].frames_8bit[j];
+	//		//delete[] something[i].frames_16bit[j];
+	//	}
 
-		something[i].frames_8bit.clear();
-		//something[i].frames_16bit.clear();
-	}	
+	//	something[i].frames_8bit.clear();
+	//	//something[i].frames_16bit.clear();
+	//}	
 }
 
 bool Video_Container::display_original_data()

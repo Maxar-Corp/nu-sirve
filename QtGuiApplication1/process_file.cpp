@@ -87,11 +87,13 @@ bool Process_File::check_image_path()
 
 }
 
-bool Process_File::load_image_file(int first_frame, int last_frame, double version)
+std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame, int last_frame, double version)
 {
 
+	std::vector<std::vector<uint16_t>> video_frames_16bit;
+
 	if (first_frame < 0 || last_frame < 0)
-		return false;
+		return video_frames_16bit;
 
 	frame_start = first_frame;
 	frame_end = last_frame;
@@ -101,7 +103,9 @@ bool Process_File::load_image_file(int first_frame, int last_frame, double versi
 	char* buffer = array.data();
 
 	std::vector<unsigned int> frame_numbers{ frame_start, frame_end };
-	abir_data.LoadFile(buffer, frame_numbers, 4.2);
+	abir_data.File_Setup(buffer, 4.2);
 
-	return true;
+	video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
+
+	return video_frames_16bit;
 }
