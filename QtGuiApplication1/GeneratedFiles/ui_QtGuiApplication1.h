@@ -73,6 +73,8 @@ public:
     QLabel *lbl_color_correction;
     QPushButton *btn_reset_color_correction;
     QWidget *tab_5;
+    QPushButton *btn_create_nuc;
+    QCheckBox *chk_apply_nuc;
     QWidget *tab_6;
     QFrame *frmVideoPlayer;
     QSlider *sldrVideo;
@@ -326,6 +328,12 @@ public:
         tabMenu->addTab(tab_2, QString());
         tab_5 = new QWidget();
         tab_5->setObjectName(QString::fromUtf8("tab_5"));
+        btn_create_nuc = new QPushButton(tab_5);
+        btn_create_nuc->setObjectName(QString::fromUtf8("btn_create_nuc"));
+        btn_create_nuc->setGeometry(QRect(150, 50, 81, 31));
+        chk_apply_nuc = new QCheckBox(tab_5);
+        chk_apply_nuc->setObjectName(QString::fromUtf8("chk_apply_nuc"));
+        chk_apply_nuc->setGeometry(QRect(30, 60, 70, 17));
         tabMenu->addTab(tab_5, QString());
         tab_6 = new QWidget();
         tab_6->setObjectName(QString::fromUtf8("tab_6"));
@@ -476,7 +484,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(0);
+        tabMenu->setCurrentIndex(2);
         tabPlots->setCurrentIndex(1);
 
 
@@ -509,6 +517,8 @@ public:
         lbl_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Output vs Input Value", nullptr));
         btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
+        btn_create_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));
+        chk_apply_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Apply NUC", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_5), QApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_6), QApplication::translate("QtGuiApplication1Class", "Info", nullptr));
         btn_play->setText(QApplication::translate("QtGuiApplication1Class", "Pl", nullptr));

@@ -124,6 +124,7 @@
     <ClCompile Include="histogram_plotter.cpp" />
     <ClCompile Include="jtime.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="non_uniformity_correction.cpp" />
     <ClCompile Include="osm_plotter.cpp" />
     <ClCompile Include="osm_reader.cpp" />
     <ClCompile Include="playback.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="earth.h" />
     <ClInclude Include="euler.h" />
     <ClInclude Include="jtime.h" />
+    <ClInclude Include="non_uniformity_correction.h" />
     <ClInclude Include="plot_engineering_data.h" />
     <QtMoc Include="color_correction_lgg.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>

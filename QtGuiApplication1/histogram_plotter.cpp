@@ -91,7 +91,6 @@ QList<QPointF> HistogramLine_Plot::create_qpoints()
 		}
 	}
 
-
 	QList<QPointF> histogram_line;
 	histogram_line.reserve(number_of_bins * 2);
 

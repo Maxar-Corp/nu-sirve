@@ -54,7 +54,7 @@ void video_details::clear_16bit_vector()
 	//	delete[] frames_16bit[j];
 	//}
 
-	//frames_16bit.clear();
+	frames_16bit.clear();
 }
 
 void video_details::clear_8bit_vector()
@@ -66,7 +66,7 @@ void video_details::clear_8bit_vector()
 	//	delete[] frames_8bit[j];
 	//}
 
-	//frames_8bit.clear();
+	frames_8bit.clear();
 }
 
 void video_details::convert_16bit_to_8bit() {
@@ -93,7 +93,6 @@ void video_details::convert_16bit_to_8bit() {
 
 		frames_8bit.push_back(raw_8bit_data);
 	}
-
 }
 
 void video_details::create_histogram_data()
@@ -194,4 +193,19 @@ bool Video_Container::display_data(video_details input)
 	}
 
 	return false;
+}
+
+int Video_Container::find_data_index(video_details input)
+{
+	int number_videos = something.size();
+
+	for (int i = 0; i < number_videos; i++)
+	{
+		if (input == something[i]) {
+
+			return i;
+		}
+	}
+
+	return -1;
 }

@@ -6,6 +6,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	max_used_bits = 14;
+
 	videos = new Video_Container(); 
 
 	//---------------------------------------------------------------------------
@@ -98,6 +100,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//Link buttons to functions
 	QObject::connect(ui.btn_load_osm, &QPushButton::clicked, this, &QtGuiApplication1::load_osm_data);
 	QObject::connect(ui.btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
+
+	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
+	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
 
@@ -294,7 +299,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		video_details primary;
 		primary.properties[Video_Parameters::original] = true;
 		
-		primary.set_number_of_bits(14);
+		primary.set_number_of_bits(max_used_bits);
 		std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, 4.2);
 		
 		int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
@@ -543,6 +548,60 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
 		ui.lbl_video_time_midnight->setText(seconds_text);
 
+	}
+
+	void QtGuiApplication1::create_non_uniformity_correction()
+	{
+		video_details nuc_video;
+		video_details original = videos->something[0];
+		
+		NUC nuc(file_data.image_path, 1, 50, file_data.file_version);
+		std::vector<double> nuc_correction = nuc.get_nuc_correction(original.number_of_bits);
+
+		nuc_video = original;
+		nuc_video.clear_16bit_vector();
+		nuc_video.clear_8bit_vector();
+		nuc_video.histogram_data.clear();
+
+		nuc_video.properties[Video_Parameters::original] = false;
+		nuc_video.properties[Video_Parameters::non_uniformity_correction] = true;
+
+		// Apply NUC to the frames		
+		int number_frames = original.frames_16bit.size();
+		for (int i = 0; i < number_frames; i++)
+			nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[0], nuc_correction));
+
+		nuc_video.convert_16bit_to_8bit();
+		nuc_video.create_histogram_data();		
+
+		bool nuc_exists = false;
+		int index_nuc = videos->find_data_index(nuc_video);
+		if (index_nuc > 0) {
+			nuc_exists = true;
+			videos->something[index_nuc] = nuc_video;
+		}
+		else
+		{
+			videos->something.push_back(nuc_video);
+		}
+		
+		//TODO if more than one correction already exists, then apply NUC to it as well ? 
+		
+	}
+
+	void QtGuiApplication1::toggle_video_filters()
+	{
+		video_details user_requested;
+
+		user_requested.properties[Video_Parameters::original] = true;
+
+		if (ui.chk_apply_nuc->checkState())
+		{
+			user_requested.properties[Video_Parameters::original] = false;
+			user_requested.properties[Video_Parameters::non_uniformity_correction] = true;
+		}
+
+		videos->display_data(user_requested);
 	}
 
 	void QtGuiApplication1::set_color_correction_slider_labels()
