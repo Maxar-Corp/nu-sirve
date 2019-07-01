@@ -15,6 +15,7 @@
 #include "video_container.h"
 #include "process_file.h"
 #include "color_correction_plot.h"
+#include "non_uniformity_correction.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -77,11 +78,16 @@ public:
 	void save_frame();
 	void set_frame_number_label(int counter);
 	
+	void create_non_uniformity_correction();
+	void toggle_video_filters();
+	
 private:
 	Ui::QtGuiApplication1Class ui;
+	int max_used_bits;
 
 	void create_menu_actions();
 	void edit_banner_text();
 	void plot_change(int index);
+	
 	
 };

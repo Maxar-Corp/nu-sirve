@@ -62,6 +62,7 @@ class Video_Container : public QObject
 
 		bool display_original_data();
 		bool display_data(video_details input);
+		int find_data_index(video_details input);
 
 	signals:
 		void update_display_video(video_details &update);
