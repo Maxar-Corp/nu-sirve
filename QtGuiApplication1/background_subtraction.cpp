@@ -35,7 +35,7 @@ std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_det
 			int num_cols = frame_data.n_cols;
 			frame_data.insert_cols(num_cols, frame_vector);
 
-			if (i > number_of_frames)
+			if (num_cols >= number_of_frames)
 				frame_data.shed_col(0);
 		}
 
