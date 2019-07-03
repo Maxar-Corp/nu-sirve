@@ -102,9 +102,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
 
 	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
-	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
+	QObject::connect(ui.btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
 	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
-	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
+	QObject::connect(ui.chk_bgs, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
 
@@ -608,12 +608,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		video_details original = videos->something[0];
 
 		// Get frame numbers from text boxes
-		//QString txt_subtract_number_of_frames = ui.txt_nuc_start->text();
+		QString txt_subtract_number_of_frames = ui.txt_bgs_num_frames->text();
 		
 		// Convert strings to integers
 		bool converted_number;
-		int subtract_number_of_frames = 5;
-		//int subtract_number_of_frames = txt_subtract_number_of_frames.toInt(&converted_number);
+		//int subtract_number_of_frames = 5;
+		int subtract_number_of_frames = txt_subtract_number_of_frames.toInt(&converted_number);
 
 		// TODO test that inputs are valid (inputs are numbers and greater than zero) Same as ABIR data
 
@@ -661,7 +661,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			user_requested.properties[Video_Parameters::original] = false;
 			user_requested.properties[Video_Parameters::non_uniformity_correction] = true;
 		}
-		if (ui.chk_apply_nuc->checkState())
+		if (ui.chk_bgs->checkState())
 		{
 			user_requested.properties[Video_Parameters::original] = false;
 			user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
