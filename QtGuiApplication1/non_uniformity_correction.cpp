@@ -62,9 +62,9 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame, std
 
 	arma::vec corrected_values = original_frame / nuc_values;
 
-	original_frame.save("original_frame.txt", arma::arma_ascii);
-	nuc_values.save("nuc_values.txt", arma::arma_ascii);
-	corrected_values.save("updated_frame.txt", arma::arma_ascii);
+	//original_frame.save("original_frame.txt", arma::arma_ascii);
+	//nuc_values.save("nuc_values.txt", arma::arma_ascii);
+	//corrected_values.save("updated_frame.txt", arma::arma_ascii);
 	
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int (vector_double.begin(), vector_double.end());

@@ -554,8 +554,19 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	{
 		video_details nuc_video;
 		video_details original = videos->something[0];
-		
-		NUC nuc(file_data.image_path, 1, 50, file_data.file_version);
+
+		// Get frame numbers from text boxes
+		QString start_frame_text = ui.txt_nuc_start->text();
+		QString stop_frame_text = ui.txt_nuc_stop->text();
+
+		// Convert strings to integers
+		bool converted_min_frame, converted_max_frame;
+		unsigned int min_frame = start_frame_text.toInt(&converted_min_frame);
+		unsigned int max_frame = stop_frame_text.toInt(&converted_max_frame);
+
+		// TODO test that inputs are valid (inputs are numbers and greater than zero) Same as ABIR data
+
+		NUC nuc(file_data.image_path, min_frame, max_frame, file_data.file_version);
 		std::vector<double> nuc_correction = nuc.get_nuc_correction(original.number_of_bits);
 
 		nuc_video = original;
