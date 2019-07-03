@@ -176,6 +176,9 @@
     <ClInclude Include="non_uniformity_correction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="background_subtraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icons\chevron-double-down.png">
