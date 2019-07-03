@@ -16,6 +16,7 @@
 #include "process_file.h"
 #include "color_correction_plot.h"
 #include "non_uniformity_correction.h"
+#include "background_subtraction.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>

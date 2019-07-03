@@ -102,6 +102,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
 
 	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
+	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
+	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
@@ -580,7 +582,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// Apply NUC to the frames		
 		int number_frames = original.frames_16bit.size();
 		for (int i = 0; i < number_frames; i++)
-			nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[0], nuc_correction));
+			nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i], nuc_correction));
 
 		nuc_video.convert_16bit_to_8bit();
 		nuc_video.create_histogram_data();		
@@ -602,6 +604,50 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_background_subtraction_correction() {
 
+		video_details background_subraction_video;
+		video_details original = videos->something[0];
+
+		// Get frame numbers from text boxes
+		//QString txt_subtract_number_of_frames = ui.txt_nuc_start->text();
+		
+		// Convert strings to integers
+		bool converted_number;
+		int subtract_number_of_frames = 5;
+		//int subtract_number_of_frames = txt_subtract_number_of_frames.toInt(&converted_number);
+
+		// TODO test that inputs are valid (inputs are numbers and greater than zero) Same as ABIR data
+
+		BackgroundSubtraction background(subtract_number_of_frames);
+		std::vector<std::vector<double>> background_correction = background.get_correction(original);
+
+		background_subraction_video = original;
+		background_subraction_video.clear_16bit_vector();
+		background_subraction_video.clear_8bit_vector();
+		background_subraction_video.histogram_data.clear();
+
+		background_subraction_video.properties[Video_Parameters::original] = false;
+		background_subraction_video.properties[Video_Parameters::background_subtraction] = true;
+
+		// Apply background subtraction to the frames		
+		int number_frames = original.frames_16bit.size();
+		for (int i = 0; i < number_frames; i++)
+			background_subraction_video.frames_16bit.push_back(background.apply_correction(original.frames_16bit[i], background_correction[i]));
+
+		background_subraction_video.convert_16bit_to_8bit();
+		background_subraction_video.create_histogram_data();
+
+		bool background_subtraction_exists = false;
+		int index_background_subtraction = videos->find_data_index(background_subraction_video);
+		if (index_background_subtraction > 0) {
+			background_subtraction_exists = true;
+			videos->something[index_background_subtraction] = background_subraction_video;
+		}
+		else
+		{
+			videos->something.push_back(background_subraction_video);
+		}
+
+
 	}
 
 	void QtGuiApplication1::toggle_video_filters()
@@ -614,6 +660,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		{
 			user_requested.properties[Video_Parameters::original] = false;
 			user_requested.properties[Video_Parameters::non_uniformity_correction] = true;
+		}
+		if (ui.chk_apply_nuc->checkState())
+		{
+			user_requested.properties[Video_Parameters::original] = false;
+			user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
+			user_requested.properties[Video_Parameters::background_subtraction] = true;
 		}
 
 		videos->display_data(user_requested);
