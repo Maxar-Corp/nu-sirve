@@ -600,6 +600,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		
 	}
 
+	void QtGuiApplication1::create_background_subtraction_correction() {
+
+	}
+
 	void QtGuiApplication1::toggle_video_filters()
 	{
 		video_details user_requested;
