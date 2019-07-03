@@ -114,6 +114,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="abir_reader.cpp" />
+    <ClCompile Include="background_subtraction.cpp" />
     <ClCompile Include="binary_file_reader.cpp" />
     <ClCompile Include="color_correction_lgg.cpp" />
     <ClCompile Include="color_correction_plot.cpp" />

@@ -96,6 +96,9 @@
     <ClCompile Include="non_uniformity_correction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="background_subtraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
