@@ -1,3 +1,6 @@
+#ifndef BINARY_READER_CPP
+#define BINARY_READER_CPP
+
 #include "binary_file_reader.h"
 
 BinaryFileReader::BinaryFileReader()
@@ -213,3 +216,5 @@ double BinaryFileReader::ReadDoubleFromBinary(FILE *fp, int bigendian)
 		return answer * sign;
 	}
 }
+
+#endif
