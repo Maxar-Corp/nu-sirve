@@ -10,7 +10,9 @@
 #include <type_traits>
 
 #include <sys/stat.h>
+
 #include "binary_file_reader.h"
+#include "binary_file_reader.cpp"
 
 
 struct Object {

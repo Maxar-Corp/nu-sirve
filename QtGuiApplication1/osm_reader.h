@@ -10,14 +10,14 @@
 #include <armadillo>
 #include <math.h>
 
-#include "Data_Structures.h"
 #include "binary_file_reader.h"
+#include "binary_file_reader.cpp"
+
+#include "Data_Structures.h"
 #include "earth.h"
 
 const int kMAX_NUMBER_ITERATIONS = 10000;
 const double kSMALL_NUMBER = 1e-8;
-
-
 
 
 class OSMReader: private BinaryFileReader
