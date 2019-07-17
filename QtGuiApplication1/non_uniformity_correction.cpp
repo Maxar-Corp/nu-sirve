@@ -8,6 +8,7 @@ NUC::NUC(QString path_video_file, unsigned int first_frame, unsigned int last_fr
 
 	frame_numbers = { first_frame, last_frame };
 
+	//TODO apply fix to creating frame that is similar to tested de-interlace function
 }
 
 NUC::~NUC()
