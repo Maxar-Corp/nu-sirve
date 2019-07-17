@@ -103,6 +103,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
 	QObject::connect(ui.btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
+	QObject::connect(ui.btn_deinterlace, &QPushButton::clicked, this, &QtGuiApplication1::create_deinterlace);
+
 	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 	QObject::connect(ui.chk_bgs, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 
@@ -602,6 +604,41 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		
 	}
 
+	void QtGuiApplication1::create_deinterlace()
+	{
+		video_details deinterlace_video;
+		video_details original = videos->something[0];
+
+		Deinterlace deinterlace_method(deinterlace_type::max_absolute_value, 640, 480);
+		
+		deinterlace_video = original;
+		deinterlace_video.clear_16bit_vector();
+		deinterlace_video.clear_8bit_vector();
+		deinterlace_video.histogram_data.clear();
+
+		deinterlace_video.properties[Video_Parameters::original] = false;
+		deinterlace_video.properties[Video_Parameters::deinterlace_max_absolute_value] = true;
+
+		// Apply NUC to the frames		
+		int number_frames = original.frames_16bit.size();
+		for (int i = 0; i < number_frames; i++)
+			deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
+
+		deinterlace_video.convert_16bit_to_8bit();
+		deinterlace_video.create_histogram_data();
+
+		bool deinterlace_exists = false;
+		int index_deinterlace = videos->find_data_index(deinterlace_video);
+		if (index_deinterlace > 0) {
+			deinterlace_exists = true;
+			videos->something[index_deinterlace] = deinterlace_video;
+		}
+		else
+		{
+			videos->something.push_back(deinterlace_video);
+		}
+	}
+
 	void QtGuiApplication1::create_background_subtraction_correction() {
 
 		video_details background_subraction_video;
@@ -666,6 +703,13 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			user_requested.properties[Video_Parameters::original] = false;
 			user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
 			user_requested.properties[Video_Parameters::background_subtraction] = true;
+		}
+		if (ui.chk_max_abs_deinterlace->checkState())
+		{
+			user_requested.properties[Video_Parameters::original] = false;
+			user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
+			user_requested.properties[Video_Parameters::background_subtraction] = false;
+			user_requested.properties[Video_Parameters::deinterlace_max_absolute_value] = true;
 		}
 
 		videos->display_data(user_requested);

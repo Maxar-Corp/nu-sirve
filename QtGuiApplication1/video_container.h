@@ -11,7 +11,8 @@ enum struct Video_Parameters
 {
 	original,
 	background_subtraction,
-	non_uniformity_correction, 
+	non_uniformity_correction,
+	deinterlace_max_absolute_value,
 	
 	number_of_parameters
 };

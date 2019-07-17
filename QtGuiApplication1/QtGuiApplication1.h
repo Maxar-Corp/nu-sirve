@@ -17,6 +17,7 @@
 #include "color_correction_plot.h"
 #include "non_uniformity_correction.h"
 #include "background_subtraction.h"
+#include "deinterlace.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -80,6 +81,7 @@ public:
 	void set_frame_number_label(int counter);
 	
 	void create_non_uniformity_correction();
+	void create_deinterlace();
 	void create_background_subtraction_correction();
 	void toggle_video_filters();
 	
