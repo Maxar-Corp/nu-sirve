@@ -99,6 +99,9 @@
     <ClCompile Include="background_subtraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="deinterlace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -180,6 +183,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="background_subtraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deinterlace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

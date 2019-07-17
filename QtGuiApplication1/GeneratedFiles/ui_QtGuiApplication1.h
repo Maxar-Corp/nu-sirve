@@ -87,6 +87,8 @@ public:
     QLabel *lblBGS;
     QLabel *lblBGS_num_frames;
     QFrame *line_6;
+    QPushButton *btn_deinterlace;
+    QCheckBox *chk_max_abs_deinterlace;
     QWidget *tab_6;
     QFrame *frmVideoPlayer;
     QSlider *sldrVideo;
@@ -391,6 +393,12 @@ public:
         line_6->setGeometry(QRect(0, 260, 231, 20));
         line_6->setFrameShape(QFrame::HLine);
         line_6->setFrameShadow(QFrame::Sunken);
+        btn_deinterlace = new QPushButton(tab_5);
+        btn_deinterlace->setObjectName(QString::fromUtf8("btn_deinterlace"));
+        btn_deinterlace->setGeometry(QRect(120, 310, 111, 31));
+        chk_max_abs_deinterlace = new QCheckBox(tab_5);
+        chk_max_abs_deinterlace->setObjectName(QString::fromUtf8("chk_max_abs_deinterlace"));
+        chk_max_abs_deinterlace->setGeometry(QRect(20, 360, 161, 17));
         tabMenu->addTab(tab_5, QString());
         tab_6 = new QWidget();
         tab_6->setObjectName(QString::fromUtf8("tab_6"));
@@ -584,6 +592,9 @@ public:
         chk_bgs->setText(QApplication::translate("QtGuiApplication1Class", "Apply Background Subtraction", nullptr));
         lblBGS->setText(QApplication::translate("QtGuiApplication1Class", "Background Subtraction:", nullptr));
         lblBGS_num_frames->setText(QApplication::translate("QtGuiApplication1Class", "Number of Frames", nullptr));
+        btn_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Create Max Abs\n"
+" Deinterlace", nullptr));
+        chk_max_abs_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply Max Abs De-interlace", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_5), QApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_6), QApplication::translate("QtGuiApplication1Class", "Info", nullptr));
         btn_play->setText(QApplication::translate("QtGuiApplication1Class", "Pl", nullptr));
