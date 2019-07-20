@@ -87,12 +87,92 @@ arma::mat Deinterlace::cross_correlate_frame(arma::mat & mat_frame, arma::mat od
 	arma::uvec reverse_index_cols = arma::regspace<arma::uvec>(cols_frame2 - 1, 0);
 	frame2_pad.submat(0, 0, rows_frame2 - 1, cols_frame2 - 1) = frame2.submat(reverse_index_rows, reverse_index_cols);
 
-	arma::cx_mat fft_frame1 = arma::fft2(frame1_pad);
-	arma::cx_mat fft_frame2 = arma::fft2(frame2_pad);
+	arma::mat cc_mat = fast_fourier_transform(frame1_pad, frame2_pad);
 
-	arma::mat cc_mat = arma::real(arma::ifft2(fft_frame1 % fft_frame2));
+	//arma::cx_mat fft_frame1 = arma::fft2(frame1_pad);
+	//arma::cx_mat fft_frame2 = arma::fft2(frame2_pad);
+
+	//arma::mat cc_mat = arma::real(arma::ifft2(fft_frame1 % fft_frame2));
 
 	return cc_mat;
+}
+
+arma::mat Deinterlace::fast_fourier_transform(arma::mat matrix1, arma::mat matrix2)
+{
+	//--------------------------------------------------------------------------------
+	//FFT of matrix 1
+
+	int r1 = matrix1.n_rows;
+	int c1 = matrix1.n_cols;
+	int N1 = r1 * c1;
+	arma::vec matrix1_flat = arma::vectorise(matrix1.t());
+
+	fftw_complex *out1;
+	out1 = (fftw_complex*)fftw_malloc(N1 * sizeof(fftw_complex));
+
+	std::vector<double>vector1_flat = arma::conv_to<std::vector<double>>::from(matrix1_flat);
+	double *pt_vector1_flat = vector1_flat.data();
+
+	/* forward Fourier transform, save the result in 'out' */
+	fftw_plan plan1 = fftw_plan_dft_r2c_2d(matrix1.n_rows, matrix1.n_cols, pt_vector1_flat, out1, FFTW_ESTIMATE);
+	fftw_execute(plan1);
+		
+	//--------------------------------------------------------------------------------
+	//FFT of matrix 2
+	
+	int r2 = matrix2.n_rows;
+	int c2 = matrix2.n_cols;
+	int N2 = r2 * c2;
+	arma::vec matrix2_flat = arma::vectorise(matrix2.t());
+
+	fftw_complex *out2;
+	out2 = (fftw_complex*)fftw_malloc(N2 * sizeof(fftw_complex));
+
+	std::vector<double>vector2_flat = arma::conv_to<std::vector<double>>::from(matrix2_flat);
+	double *pt_vector2_flat = vector2_flat.data();
+
+	// forward Fourier transform, save the result in 'out'
+	fftw_plan plan2 = fftw_plan_dft_r2c_2d(matrix2.n_rows, matrix2.n_cols, pt_vector2_flat, out2, FFTW_ESTIMATE);
+	fftw_execute(plan2);
+	
+
+	//--------------------------------------------------------------------------------
+	//Inverse FFT of product
+
+	fftw_complex *in3;
+	in3 = (fftw_complex*)fftw_malloc(N1 * sizeof(fftw_complex));
+	
+	double *out3;
+	out3 = (double*)malloc(sizeof(double) * N2);
+	fftw_plan inverse = fftw_plan_dft_c2r_2d(r2, c2, in3, out3, FFTW_ESTIMATE);
+	
+	for (int j = 0; j < N2; j++)
+	{
+		in3[j][0] = out1[j][0] * out2[j][0] - out1[j][1] * out2[j][1];
+		in3[j][1] = out1[j][1] * out2[j][0] + out1[j][0] * out2[j][1];
+	}
+		
+	fftw_execute(inverse);
+	
+	std::vector<double> out_vector(out3, out3 + r2 * c2);
+	arma::vec out_arma_vector(out_vector);
+	arma::mat out_mat(out_arma_vector / N2);
+	out_mat.reshape(c1, r1);
+	out_mat = out_mat.t();
+
+	//out_mat.save("cross_cor_matrix.txt", arma::arma_ascii);
+
+	//-------------------------------------------------------------------
+
+	fftw_free(out1);
+	fftw_free(out2);
+	fftw_free(in3);
+
+	fftw_destroy_plan(plan1);
+	fftw_destroy_plan(plan2);
+	fftw_destroy_plan(inverse);
+	
+	return out_mat;
 }
 
 void Deinterlace::test_conversion(std::vector<uint16_t>& frame)
