@@ -619,7 +619,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		deinterlace_video.properties[Video_Parameters::original] = false;
 		deinterlace_video.properties[Video_Parameters::deinterlace_max_absolute_value] = true;
 
-		// Apply NUC to the frames		
+		// Apply de-interlace to the frames		
 		int number_frames = original.frames_16bit.size();
 		for (int i = 0; i < number_frames; i++)
 			deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
