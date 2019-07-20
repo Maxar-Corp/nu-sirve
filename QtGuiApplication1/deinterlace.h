@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <armadillo>
+#include <fftw3.h>
 
 enum deinterlace_type { max_absolute_value, centroid, avg_cross_correlation };
 
@@ -21,6 +22,8 @@ public:
 	arma::mat create_frame(std::vector<uint16_t>& frame);
 	void create_even_odd_frames(arma::mat & mat_frame, arma::mat &odd_frame, arma::mat &even_frame);
 	arma::mat cross_correlate_frame(arma::mat & mat_frame, arma::mat odd_frames, arma::mat even_frames);
+
+	arma::mat fast_fourier_transform(arma::mat matrix1, arma::mat matrix2);
 
 	void test_conversion(std::vector<uint16_t>& frame);
 
