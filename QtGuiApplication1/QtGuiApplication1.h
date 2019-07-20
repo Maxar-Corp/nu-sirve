@@ -27,6 +27,7 @@
 #include <qfiledialog.h>
 #include <qfileinfo.h>
 #include <qinputdialog.h>
+#include <qprogressdialog.h>
 
 
 class QtGuiApplication1 : public QMainWindow

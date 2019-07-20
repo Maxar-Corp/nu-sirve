@@ -606,11 +606,15 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_deinterlace()
 	{
+		QProgressDialog progress("", "Cancel", 0, 1);
+		progress.setWindowModality(Qt::WindowModal);
+		progress.setLabelText(QString("Copying data for de-interlace..."));
+
 		video_details deinterlace_video;
 		video_details original = videos->something[0];
 
 		Deinterlace deinterlace_method(deinterlace_type::max_absolute_value, 640, 480);
-		
+
 		deinterlace_video = original;
 		deinterlace_video.clear_16bit_vector();
 		deinterlace_video.clear_8bit_vector();
@@ -621,8 +625,22 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		// Apply de-interlace to the frames		
 		int number_frames = original.frames_16bit.size();
+		
+		progress.setMaximum(number_frames - 1);
+		progress.setLabelText(QString("Creating de-interlaced frames..."));
+
 		for (int i = 0; i < number_frames; i++)
+		{
+			progress.setValue(i);
 			deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
+			if (progress.wasCanceled())
+				break;
+		}
+
+		if (progress.wasCanceled())
+			return;
+
+		progress.setLabelText(QString("Downconverting video and creating histogram data..."));
 
 		deinterlace_video.convert_16bit_to_8bit();
 		deinterlace_video.create_histogram_data();
