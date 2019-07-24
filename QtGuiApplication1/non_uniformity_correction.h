@@ -11,15 +11,17 @@
 class NUC
 {
 public:
-	QString input_video_file;
+	QString input_video_file; 
 	char* buffer;
+	std::vector<double> nuc_correction;
 
 	NUC(QString path_video_file, unsigned int first_frame, unsigned int last_frame, double version);
 	~NUC();
 
 	std::vector<double> get_nuc_correction(int max_used_bits);
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double>nuc);
-	
+	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame);
+
 private:
 
 	std::vector<unsigned int> frame_numbers;

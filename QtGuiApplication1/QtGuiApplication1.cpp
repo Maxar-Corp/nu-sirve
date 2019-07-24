@@ -556,6 +556,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_non_uniformity_correction()
 	{
+		QProgressDialog progress("", "Cancel", 0, 100);
+		progress.setWindowModality(Qt::WindowModal);
+		progress.setValue(0);
+		progress.setWindowTitle(QString("Non-Uniformity Correction"));
+		progress.setLabelText(QString("Copying data for non-uniformity correction..."));
+				
 		video_details nuc_video;
 		video_details original = videos->something[0];
 
@@ -583,8 +589,21 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		// Apply NUC to the frames		
 		int number_frames = original.frames_16bit.size();
-		for (int i = 0; i < number_frames; i++)
-			nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i], nuc_correction));
+
+		progress.setMaximum(number_frames);
+		progress.setLabelText(QString("Applying non-uniformity correction..."));
+
+		for (int i = 0; i < number_frames; i++) {
+			progress.setValue(i);
+			nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i]));
+			if (progress.wasCanceled())
+				break;
+		}
+
+		if (progress.wasCanceled())
+			return;
+
+		progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 		nuc_video.convert_16bit_to_8bit();
 		nuc_video.create_histogram_data();		
@@ -606,10 +625,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_deinterlace()
 	{
-		QProgressDialog progress("", "Cancel", 0, 1);
+		QProgressDialog progress("", "Cancel", 0, 100);
 		progress.setWindowModality(Qt::WindowModal);
+		progress.setValue(0);
 		progress.setLabelText(QString("Copying data for de-interlace..."));
-
+		progress.setWindowTitle(QString("De-interlace Frames"));
+		
 		video_details deinterlace_video;
 		video_details original = videos->something[0];
 
@@ -626,7 +647,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// Apply de-interlace to the frames		
 		int number_frames = original.frames_16bit.size();
 		
-		progress.setMaximum(number_frames - 1);
+		progress.setMaximum(number_frames);
 		progress.setLabelText(QString("Creating de-interlaced frames..."));
 
 		for (int i = 0; i < number_frames; i++)
@@ -640,7 +661,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		if (progress.wasCanceled())
 			return;
 
-		progress.setLabelText(QString("Downconverting video and creating histogram data..."));
+		progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 		deinterlace_video.convert_16bit_to_8bit();
 		deinterlace_video.create_histogram_data();
@@ -658,6 +679,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	}
 
 	void QtGuiApplication1::create_background_subtraction_correction() {
+
+		QProgressDialog progress("", "Cancel", 0, 100);
+		progress.setWindowModality(Qt::WindowModal);
+		progress.setValue(0);
+		progress.setLabelText(QString("Copying data for processing..."));
+		progress.setWindowTitle(QString("Background Subtraction"));
 
 		video_details background_subraction_video;
 		video_details original = videos->something[0];
@@ -685,8 +712,21 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		// Apply background subtraction to the frames		
 		int number_frames = original.frames_16bit.size();
-		for (int i = 0; i < number_frames; i++)
+
+		progress.setMaximum(number_frames);
+		progress.setLabelText(QString("Subtracting frames..."));
+
+		for (int i = 0; i < number_frames; i++) {
+			progress.setValue(i);
 			background_subraction_video.frames_16bit.push_back(background.apply_correction(original.frames_16bit[i], background_correction[i]));
+			if (progress.wasCanceled())
+				break;
+		}
+
+		if (progress.wasCanceled())
+			return;
+
+		progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 		background_subraction_video.convert_16bit_to_8bit();
 		background_subraction_video.create_histogram_data();
