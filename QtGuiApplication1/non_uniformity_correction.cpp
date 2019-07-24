@@ -49,9 +49,32 @@ std::vector<double> NUC::get_nuc_correction(int max_used_bits)
 
 	std::vector<double>out = arma::conv_to<std::vector<double>>::from(adjusted_mean_flat);
 
+	nuc_correction = out;
+
 	return out;
 
 }
+
+std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
+{
+
+	std::vector<double> converted_values(frame.begin(), frame.end());
+
+	arma::vec original_frame(converted_values);
+	arma::vec nuc_values(nuc_correction);
+
+	arma::vec corrected_values = original_frame / nuc_values;
+
+	//original_frame.save("original_frame.txt", arma::arma_ascii);
+	//nuc_values.save("nuc_values.txt", arma::arma_ascii);
+	//corrected_values.save("updated_frame.txt", arma::arma_ascii);
+
+	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
+	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
+
+	return vector_int;
+}
+
 
 std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double> nuc)
 {
