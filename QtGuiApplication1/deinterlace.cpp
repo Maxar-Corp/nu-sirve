@@ -34,7 +34,31 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		}
 	case centroid:
 	{
+		arma::SizeMat cc_size = arma::size(cross_correlation);
+		int x = cc_size.n_rows;
+		int y = cc_size.n_cols;
 		
+		arma::vec x_values = arma::regspace<arma::vec>(0, y);
+		arma::vec y_values = arma::regspace<arma::vec>(0, x);
+		arma::mat x_mat(x, y, arma::fill::zeros);
+		arma::mat y_mat(x, y, arma::fill::zeros);
+		
+		mesh_grid(x_values, y_values, x_mat, y_mat);
+
+		arma::mat v(cross_correlation);
+		double max_value = cross_correlation.max();
+		arma::uvec below_max = arma::find(cross_correlation < 0.5 * max_value);
+
+		arma::vec zeros(below_max.n_elem, arma::fill::zeros);
+		v.elem(below_max) = zeros;
+
+		double cc_sum = arma::accu(cross_correlation);
+
+		double ux = std::round(arma::accu(v % x_mat) / cc_sum);
+		double uy = std::round(arma::accu(v % y_mat) / cc_sum);
+		
+		offsets << (cc_size.n_rows - uy) << (cc_size.n_cols - ux);
+
 		break;
 	}
 	
@@ -173,6 +197,31 @@ arma::mat Deinterlace::fast_fourier_transform(arma::mat matrix1, arma::mat matri
 	fftw_destroy_plan(inverse);
 	
 	return out_mat;
+}
+
+void Deinterlace::mesh_grid(arma::vec x_input, arma::vec y_input, arma::mat & x_mat, arma::mat & y_mat)
+{
+	int n_rows = x_mat.n_rows;
+	int n_cols = x_mat.n_cols;
+
+	if (n_rows != y_mat.n_rows)
+		return;
+
+	if (n_cols != y_mat.n_cols)
+		return;
+
+	if (n_rows != y_input.n_elem)
+		return;
+
+	if (n_cols != x_input.n_elem)
+		return;
+
+	for (int i = 0; i < n_rows; i++)
+	{
+		x_mat.row(i) = x_input;
+		y_mat.col(i) = y_input;
+	}
+
 }
 
 void Deinterlace::test_conversion(std::vector<uint16_t>& frame)
