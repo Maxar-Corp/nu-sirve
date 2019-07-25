@@ -537,6 +537,27 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	}
 
+	int QtGuiApplication1::get_integer_from_txt_box(QString input)
+	{
+		bool convert_value_numeric;
+		int value = input.toInt(&convert_value_numeric);
+		
+		if (convert_value_numeric)
+			return value;
+		else
+			return -1;
+	}
+
+	bool QtGuiApplication1::check_value_within_range(int input_value, int min_value, int max_value)
+	{
+		if (input_value < min_value)
+			return false;
+		if (input_value > max_value)
+			return false;
+		
+		return true;
+	}
+
 	void QtGuiApplication1::set_frame_number_label(int counter)
 	{
 
@@ -556,25 +577,50 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_non_uniformity_correction()
 	{
-		QProgressDialog progress("", "Cancel", 0, 100);
-		progress.setWindowModality(Qt::WindowModal);
-		progress.setValue(0);
-		progress.setWindowTitle(QString("Non-Uniformity Correction"));
-		progress.setLabelText(QString("Copying data for non-uniformity correction..."));
 				
 		video_details nuc_video;
 		video_details original = videos->something[0];
 
 		// Get frame numbers from text boxes
-		QString start_frame_text = ui.txt_nuc_start->text();
-		QString stop_frame_text = ui.txt_nuc_stop->text();
+		//QString start_frame_text = ui.txt_nuc_start->text();
+		//QString stop_frame_text = ui.txt_nuc_stop->text();
 
-		// Convert strings to integers
-		bool converted_min_frame, converted_max_frame;
-		unsigned int min_frame = start_frame_text.toInt(&converted_min_frame);
-		unsigned int max_frame = stop_frame_text.toInt(&converted_max_frame);
+		int min_frame = get_integer_from_txt_box(ui.txt_nuc_start->text());
+		int max_frame = get_integer_from_txt_box(ui.txt_nuc_stop->text());
 
-		// TODO test that inputs are valid (inputs are numbers and greater than zero) Same as ABIR data
+		// if non-numeric data is entered...
+		if ((min_frame < 0) || (max_frame < 0))
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle(QString("Non-Numeric Data"));
+			msgBox.setText("Non-numeric data entered for NUC min/max frames");
+			
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			msgBox.setDefaultButton(QMessageBox::Ok);
+			msgBox.exec();
+			return;
+		}
+		
+		//TODO find frame start / stop 
+		int frame_start = 1; // videos->something[0].frame_start;
+		int frame_stop = 100; // videos->something[0].frame_stop;
+
+		bool min_within_range = check_value_within_range(min_frame, frame_start, frame_stop);
+		bool max_within_range = check_value_within_range(max_frame, frame_start, frame_stop);
+
+		// if values outside range...
+		if (!min_within_range || !max_within_range)
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle(QString("Outside of Data Range"));
+			QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
+			msgBox.setText(box_text);
+
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			msgBox.setDefaultButton(QMessageBox::Ok);
+			msgBox.exec();
+			return;
+		}
 
 		NUC nuc(file_data.image_path, min_frame, max_frame, file_data.file_version);
 		std::vector<double> nuc_correction = nuc.get_nuc_correction(original.number_of_bits);
@@ -590,6 +636,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// Apply NUC to the frames		
 		int number_frames = original.frames_16bit.size();
 
+		QProgressDialog progress("", "Cancel", 0, 100);
+		progress.setWindowModality(Qt::WindowModal);
+		progress.setValue(0);
+		progress.setWindowTitle(QString("Non-Uniformity Correction"));
+		progress.setLabelText(QString("Copying data for non-uniformity correction..."));
 		progress.setMaximum(number_frames);
 		progress.setLabelText(QString("Applying non-uniformity correction..."));
 
