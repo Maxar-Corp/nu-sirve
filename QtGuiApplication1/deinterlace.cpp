@@ -24,22 +24,20 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 	{
 	case max_absolute_value:
 		{
-			arma::uword i_max = cross_correlation.index_max();
+			arma::uword i_max = arma::abs(cross_correlation).index_max();
 			arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
 
-			arma::SizeMat cc_size = arma::size(cross_correlation);
-			offsets << (cc_size.n_rows - peak_index(0)) << (cc_size.n_cols - peak_index(1));
+			offsets << ((even_frames.n_rows - 1) - peak_index(0)) << ((even_frames.n_cols - 1) - peak_index(1));
 
 			break;
 		}
 	case centroid:
 	{
-		arma::SizeMat cc_size = arma::size(cross_correlation);
-		int x = cc_size.n_rows;
-		int y = cc_size.n_cols;
+		int x = cross_correlation.n_rows;
+		int y = cross_correlation.n_cols;
 		
-		arma::vec x_values = arma::regspace<arma::vec>(0, y);
-		arma::vec y_values = arma::regspace<arma::vec>(0, x);
+		arma::vec x_values = arma::regspace<arma::vec>(0, y - 1);
+		arma::vec y_values = arma::regspace<arma::vec>(0, x - 1);
 		arma::mat x_mat(x, y, arma::fill::zeros);
 		arma::mat y_mat(x, y, arma::fill::zeros);
 		
@@ -52,12 +50,12 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		arma::vec zeros(below_max.n_elem, arma::fill::zeros);
 		v.elem(below_max) = zeros;
 
-		double cc_sum = arma::accu(cross_correlation);
+		double v_sum = arma::accu(v);
 
-		double ux = std::round(arma::accu(v % x_mat) / cc_sum);
-		double uy = std::round(arma::accu(v % y_mat) / cc_sum);
+		double ux = std::round(arma::accu(v % x_mat) / v_sum);
+		double uy = std::round(arma::accu(v % y_mat) / v_sum);
 		
-		offsets << (cc_size.n_rows - uy) << (cc_size.n_cols - ux);
+		offsets << ((even_frames.n_rows - 1) - uy) << ((even_frames.n_cols - 1) - ux);
 
 		break;
 	}
@@ -65,6 +63,36 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 	case avg_cross_correlation:
 	{
 	
+		arma::uword i_max = arma::abs(cross_correlation).index_max();
+		arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
+		
+		int x = cross_correlation.n_rows;
+		int y = cross_correlation.n_cols;
+
+		arma::vec x_values = arma::regspace<arma::vec>(0, y - 1);
+		arma::vec y_values = arma::regspace<arma::vec>(0, x - 1);
+		arma::mat x_mat(x, y, arma::fill::zeros);
+		arma::mat y_mat(x, y, arma::fill::zeros);
+
+		mesh_grid(x_values, y_values, x_mat, y_mat);
+
+		arma::mat v(cross_correlation);
+		double max_value = cross_correlation.max();
+		arma::uvec below_max = arma::find(cross_correlation < 0.5 * max_value);
+
+		arma::vec zeros(below_max.n_elem, arma::fill::zeros);
+		v.elem(below_max) = zeros;
+
+		double v_sum = arma::accu(v);
+
+		double ux = std::round(arma::accu(v % x_mat) / v_sum);
+		double uy = std::round(arma::accu(v % y_mat) / v_sum);
+
+		int offset1 = std::round((((even_frames.n_rows - 1) - peak_index(0)) + ((even_frames.n_rows - 1) - uy)) / 2.0);
+		int offset2 = std::round((((even_frames.n_cols - 1) - peak_index(1)) + ((even_frames.n_cols - 1) - ux)) / 2.0);
+
+		offsets << offset1 << offset2;
+
 		break;
 	}
 	default:
@@ -218,9 +246,14 @@ void Deinterlace::mesh_grid(arma::vec x_input, arma::vec y_input, arma::mat & x_
 
 	for (int i = 0; i < n_rows; i++)
 	{
-		x_mat.row(i) = x_input;
+		x_mat.row(i) = x_input.t();
 		y_mat.col(i) = y_input;
 	}
+	for (int i = 0; i < n_rows; i++)
+		x_mat.row(i) = x_input.t();
+
+	for (int j = 0; j < n_cols; j++)
+		y_mat.col(j) = y_input;
 
 }
 
