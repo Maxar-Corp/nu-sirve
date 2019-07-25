@@ -613,7 +613,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		video_details deinterlace_video;
 		video_details original = videos->something[0];
 
-		Deinterlace deinterlace_method(deinterlace_type::max_absolute_value, 640, 480);
+		Deinterlace deinterlace_method(deinterlace_type::avg_cross_correlation, 640, 480);
 
 		deinterlace_video = original;
 		deinterlace_video.clear_16bit_vector();
