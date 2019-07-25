@@ -28,6 +28,7 @@
 #include <qfileinfo.h>
 #include <qinputdialog.h>
 #include <qprogressdialog.h>
+#include <qmessagebox.h>
 
 
 class QtGuiApplication1 : public QMainWindow
@@ -93,6 +94,9 @@ private:
 	void create_menu_actions();
 	void edit_banner_text();
 	void plot_change(int index);
+
+	int get_integer_from_txt_box(QString input);
+	bool check_value_within_range(int input_value, int min_value, int max_value);
 	
 	
 };
