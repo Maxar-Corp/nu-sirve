@@ -24,6 +24,7 @@ public:
 	arma::mat cross_correlate_frame(arma::mat & mat_frame, arma::mat odd_frames, arma::mat even_frames);
 
 	arma::mat fast_fourier_transform(arma::mat matrix1, arma::mat matrix2);
+	void mesh_grid(arma::vec x_input, arma::vec y_input, arma::mat &x_mat, arma::mat &y_mat);
 
 	void test_conversion(std::vector<uint16_t>& frame);
 
