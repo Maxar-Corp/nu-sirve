@@ -89,6 +89,8 @@ public:
     QFrame *line_6;
     QPushButton *btn_deinterlace;
     QCheckBox *chk_max_abs_deinterlace;
+    QComboBox *cmb_deinterlace_options;
+    QLabel *lbl_deinterlace;
     QWidget *tab_6;
     QFrame *frmVideoPlayer;
     QSlider *sldrVideo;
@@ -129,14 +131,14 @@ public:
     {
         if (QtGuiApplication1Class->objectName().isEmpty())
             QtGuiApplication1Class->setObjectName(QString::fromUtf8("QtGuiApplication1Class"));
-        QtGuiApplication1Class->resize(1723, 847);
+        QtGuiApplication1Class->resize(1723, 737);
         actionLoad_OSM = new QAction(QtGuiApplication1Class);
         actionLoad_OSM->setObjectName(QString::fromUtf8("actionLoad_OSM"));
         centralWidget = new QWidget(QtGuiApplication1Class);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         tabMenu = new QTabWidget(centralWidget);
         tabMenu->setObjectName(QString::fromUtf8("tabMenu"));
-        tabMenu->setGeometry(QRect(20, 30, 270, 746));
+        tabMenu->setGeometry(QRect(20, 30, 270, 621));
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
         line = new QFrame(tab);
@@ -351,15 +353,19 @@ public:
         txt_nuc_start = new QLineEdit(tab_5);
         txt_nuc_start->setObjectName(QString::fromUtf8("txt_nuc_start"));
         txt_nuc_start->setGeometry(QRect(20, 60, 61, 20));
+        txt_nuc_start->setAlignment(Qt::AlignCenter);
         txt_nuc_stop = new QLineEdit(tab_5);
         txt_nuc_stop->setObjectName(QString::fromUtf8("txt_nuc_stop"));
         txt_nuc_stop->setGeometry(QRect(100, 60, 61, 20));
+        txt_nuc_stop->setAlignment(Qt::AlignCenter);
         lblNucStart = new QLabel(tab_5);
         lblNucStart->setObjectName(QString::fromUtf8("lblNucStart"));
         lblNucStart->setGeometry(QRect(20, 40, 61, 20));
+        lblNucStart->setAlignment(Qt::AlignCenter);
         lblNucStop = new QLabel(tab_5);
         lblNucStop->setObjectName(QString::fromUtf8("lblNucStop"));
         lblNucStop->setGeometry(QRect(100, 40, 61, 20));
+        lblNucStop->setAlignment(Qt::AlignCenter);
         lblNuc = new QLabel(tab_5);
         lblNuc->setObjectName(QString::fromUtf8("lblNuc"));
         lblNuc->setGeometry(QRect(10, 10, 171, 16));
@@ -372,6 +378,7 @@ public:
         txt_bgs_num_frames = new QLineEdit(tab_5);
         txt_bgs_num_frames->setObjectName(QString::fromUtf8("txt_bgs_num_frames"));
         txt_bgs_num_frames->setGeometry(QRect(30, 190, 61, 20));
+        txt_bgs_num_frames->setAlignment(Qt::AlignCenter);
         btn_bgs = new QPushButton(tab_5);
         btn_bgs->setObjectName(QString::fromUtf8("btn_bgs"));
         btn_bgs->setGeometry(QRect(120, 180, 111, 31));
@@ -395,10 +402,16 @@ public:
         line_6->setFrameShadow(QFrame::Sunken);
         btn_deinterlace = new QPushButton(tab_5);
         btn_deinterlace->setObjectName(QString::fromUtf8("btn_deinterlace"));
-        btn_deinterlace->setGeometry(QRect(120, 310, 111, 31));
+        btn_deinterlace->setGeometry(QRect(190, 300, 61, 22));
         chk_max_abs_deinterlace = new QCheckBox(tab_5);
         chk_max_abs_deinterlace->setObjectName(QString::fromUtf8("chk_max_abs_deinterlace"));
-        chk_max_abs_deinterlace->setGeometry(QRect(20, 360, 161, 17));
+        chk_max_abs_deinterlace->setGeometry(QRect(20, 340, 161, 17));
+        cmb_deinterlace_options = new QComboBox(tab_5);
+        cmb_deinterlace_options->setObjectName(QString::fromUtf8("cmb_deinterlace_options"));
+        cmb_deinterlace_options->setGeometry(QRect(20, 300, 161, 22));
+        lbl_deinterlace = new QLabel(tab_5);
+        lbl_deinterlace->setObjectName(QString::fromUtf8("lbl_deinterlace"));
+        lbl_deinterlace->setGeometry(QRect(20, 280, 121, 16));
         tabMenu->addTab(tab_5, QString());
         tab_6 = new QWidget();
         tab_6->setObjectName(QString::fromUtf8("tab_6"));
@@ -592,9 +605,9 @@ public:
         chk_bgs->setText(QApplication::translate("QtGuiApplication1Class", "Apply Background Subtraction", nullptr));
         lblBGS->setText(QApplication::translate("QtGuiApplication1Class", "Background Subtraction:", nullptr));
         lblBGS_num_frames->setText(QApplication::translate("QtGuiApplication1Class", "Number of Frames", nullptr));
-        btn_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Create Max Abs\n"
-" Deinterlace", nullptr));
-        chk_max_abs_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply Max Abs De-interlace", nullptr));
+        btn_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Create", nullptr));
+        chk_max_abs_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply De-Interlace Method", nullptr));
+        lbl_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "De-Interlace Methods", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_5), QApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_6), QApplication::translate("QtGuiApplication1Class", "Info", nullptr));
         btn_play->setText(QApplication::translate("QtGuiApplication1Class", "Pl", nullptr));
