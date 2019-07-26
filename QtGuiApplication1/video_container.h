@@ -13,6 +13,8 @@ enum struct Video_Parameters
 	background_subtraction,
 	non_uniformity_correction,
 	deinterlace_max_absolute_value,
+	deinterlace_centroid,
+	deinterlace_avg_cross_correlation,
 	
 	number_of_parameters
 };
