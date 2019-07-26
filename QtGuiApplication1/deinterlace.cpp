@@ -212,12 +212,11 @@ arma::mat Deinterlace::fast_fourier_transform(arma::mat matrix1, arma::mat matri
 	out_mat.reshape(c1, r1);
 	out_mat = out_mat.t();
 
-	//out_mat.save("cross_cor_matrix.txt", arma::arma_ascii);
-
 	//-------------------------------------------------------------------
 
 	fftw_free(out1);
 	fftw_free(out2);
+	free(out3);
 	fftw_free(in3);
 
 	fftw_destroy_plan(plan1);
