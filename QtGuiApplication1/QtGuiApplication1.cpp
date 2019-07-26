@@ -75,6 +75,14 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 
+	ui.cmb_deinterlace_options->addItem("Max Absolute Value");
+	ui.cmb_deinterlace_options->addItem("Centroid");
+	ui.cmb_deinterlace_options->addItem("Avg Cross Correlation");
+
+	QObject::connect(ui.cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::change_deinterlace_options);
+
+	//---------------------------------------------------------------------------
+
 	// Link horizontal slider to playback controller
 	QObject::connect(playback_controller, &Playback::update_frame, ui.sldrVideo, &QSlider::setValue);
 	QObject::connect(ui.sldrVideo, &QSlider::valueChanged, playback_controller, &Playback::set_counter);
@@ -107,6 +115,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 	QObject::connect(ui.chk_bgs, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
+	QObject::connect(ui.chk_max_abs_deinterlace, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
 
@@ -613,15 +622,18 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		video_details deinterlace_video;
 		video_details original = videos->something[0];
 
-		Deinterlace deinterlace_method(deinterlace_type::avg_cross_correlation, 640, 480);
+		deinterlace_type deinterlace_method_type = find_deinterlace_type(ui.cmb_deinterlace_options->currentIndex());
+		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
 
+		Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
+		
 		deinterlace_video = original;
 		deinterlace_video.clear_16bit_vector();
 		deinterlace_video.clear_8bit_vector();
 		deinterlace_video.histogram_data.clear();
 
 		deinterlace_video.properties[Video_Parameters::original] = false;
-		deinterlace_video.properties[Video_Parameters::deinterlace_max_absolute_value] = true;
+		deinterlace_video.properties[deinterlace_video_type] = true;
 
 		// Apply de-interlace to the frames		
 		int number_frames = original.frames_16bit.size();
@@ -655,6 +667,67 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		{
 			videos->something.push_back(deinterlace_video);
 		}
+
+		change_deinterlace_options(ui.cmb_deinterlace_options->currentIndex());
+	}
+
+	void QtGuiApplication1::change_deinterlace_options(int index)
+	{
+		Video_Parameters deinterlace_type = find_deinterlace_video_type(index);
+
+		video_details deinterlace_check;
+		deinterlace_check.properties[deinterlace_type] = true;
+
+		int index_deinterlace_video = videos->find_data_index(deinterlace_check);
+
+		if (index_deinterlace_video > 0)
+		{
+			ui.chk_max_abs_deinterlace->setEnabled(true);
+			if (ui.chk_max_abs_deinterlace->isChecked())
+				toggle_video_filters();
+		}
+		else {
+			ui.chk_max_abs_deinterlace->setCheckState(Qt::Unchecked);
+			ui.chk_max_abs_deinterlace->setEnabled(false);
+		}
+
+	}
+
+	deinterlace_type QtGuiApplication1::find_deinterlace_type(int index) {
+
+		switch (index)
+		{
+		case 0:
+			return deinterlace_type::max_absolute_value;
+		case 1:
+			return deinterlace_type::centroid;
+		case 2:
+			return deinterlace_type::avg_cross_correlation;
+		
+		default:
+			break;
+		}
+
+		return deinterlace_type::max_absolute_value;
+
+	}
+
+	Video_Parameters QtGuiApplication1::find_deinterlace_video_type(int index)
+	{
+		switch (index)
+		{
+		case 0:
+			return Video_Parameters::deinterlace_max_absolute_value;
+		case 1:
+			return Video_Parameters::deinterlace_centroid;
+		case 2:
+			return Video_Parameters::deinterlace_avg_cross_correlation;
+
+		default:
+			break;
+		}
+
+		return Video_Parameters::deinterlace_max_absolute_value;
 	}
 
 	void QtGuiApplication1::create_background_subtraction_correction() {
@@ -727,7 +800,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			user_requested.properties[Video_Parameters::original] = false;
 			user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
 			user_requested.properties[Video_Parameters::background_subtraction] = false;
-			user_requested.properties[Video_Parameters::deinterlace_max_absolute_value] = true;
+
+			Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+
+			user_requested.properties[deinterlace_video_type] = true;
 		}
 
 		videos->display_data(user_requested);
