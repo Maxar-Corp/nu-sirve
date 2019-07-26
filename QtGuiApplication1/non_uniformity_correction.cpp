@@ -45,8 +45,6 @@ std::vector<double> NUC::get_nuc_correction(int max_used_bits)
 
 	adjusted_mean_frames = adjusted_mean_frames / min_value;
 
-	adjusted_mean_frames = adjusted_mean_frames.t();
-
 	arma::vec adjusted_mean_flat = arma::vectorise(adjusted_mean_frames);
 
 	std::vector<double>out = arma::conv_to<std::vector<double>>::from(adjusted_mean_flat);
@@ -129,8 +127,7 @@ arma::mat NUC::replace_dead_pixels(arma::vec values, int max_used_bits)
 						{0, 0, 1, 0, 0} };
 
 	arma::mat mean_frame(values);
-	mean_frame.reshape(x_pixels, y_pixels);
-	mean_frame = mean_frame.t();
+	mean_frame.reshape(y_pixels, x_pixels);
 	
 	int pixel_index, pixel_row, pixel_col;
 	
