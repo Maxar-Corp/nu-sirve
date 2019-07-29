@@ -14,13 +14,16 @@ OSMReader::~OSMReader()
 int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 {
 
-    contains_data = false;
-
     combine_tracks = input_combine_tracks;
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
     if (err != 0) return err;
+
+	contains_data = false;
+	num_messages = 0;
+	data.clear();
+	frame_time.clear();
 
     FindMessageNumber();
     InitializeVariables();
@@ -99,6 +102,7 @@ void OSMReader::LoadData()
 {
     int return_code;
     return_code = fseek(fp, 0, SEEK_SET);
+	data.clear();
 
     int num_iterations = -1;
     for (int i = 0; i < num_messages; i++)
