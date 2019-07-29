@@ -11,6 +11,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	videos = new Video_Container(); 
 
 	//---------------------------------------------------------------------------
+	eng_data = NULL;
 
 	playback_controller = new Playback(1);
 	
@@ -214,7 +215,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		if (!valid_files) {
 			ui.btn_load_osm->setEnabled(true);
 
-			if (eng_data->julian_date.size() > 0) {
+			if (eng_data != NULL) {
+				// if eng_data already initialized, allow user to re-select frames
 				ui.txt_start_frame->setEnabled(true);
 				ui.txt_end_frame->setEnabled(true);
 				ui.btn_get_frames->setEnabled(true);
@@ -241,6 +243,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			max_frame_text.append(osm_max_frames);
 			ui.lbl_max_frames->setText(max_frame_text);
 
+			if (eng_data != NULL) {
+				// delete objects with existing data within them
+				delete eng_data;
+				delete data_plots;
+				delete engineering_plot_layout;
+			}
 			eng_data = new Engineering_Data(file_data.osm_data.data);
 			data_plots = new Engineering_Plots();
 
