@@ -211,7 +211,19 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		ui.btn_load_osm->setEnabled(false);
 
 		bool valid_files = file_data.load_osm_file();
+		if (!valid_files) {
+			ui.btn_load_osm->setEnabled(true);
 
+			if (eng_data->julian_date.size() > 0) {
+				ui.txt_start_frame->setEnabled(true);
+				ui.txt_end_frame->setEnabled(true);
+				ui.btn_get_frames->setEnabled(true);
+				ui.btn_load_osm->setEnabled(true);
+			}
+
+			return;
+		}
+		
 		ui.lbl_file_load->setText(file_data.info_msg);
 		ui.lbl_directory_path->setText(file_data.directory_path);
 		ui.lbl_file_name->setText(file_data.file_name);
