@@ -206,7 +206,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		//delete main_widget;
 		//delete main_layout;
 
-		INFO << "GUI: GUI destructor called";
+		DEBUG << "GUI: GUI destructor called";
 	}
 
 	void QtGuiApplication1::load_osm_data()
@@ -222,7 +222,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		INFO << "GUI: Loading OSM data";
 		bool valid_files = file_data.load_osm_file();
 		if (!valid_files) {
-			WARN << "GUI: OSM file provided failed check";
+			WARN << "GUI: OSM file failed cursory check";
 
 			ui.btn_load_osm->setEnabled(true);
 
@@ -615,19 +615,29 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		bool convert_value_numeric;
 		int value = input.toInt(&convert_value_numeric);
 		
-		if (convert_value_numeric)
+		if (convert_value_numeric) {
+			DEBUG << "GUI: Integer from text box is " << std::to_string(value);
 			return value;
-		else
+		}
+		else {
+			DEBUG << "GUI: Value is text box is non-numeric: " << input.toLocal8Bit().constData();
 			return -1;
+		}
 	}
 
 	bool QtGuiApplication1::check_value_within_range(int input_value, int min_value, int max_value)
 	{
-		if (input_value < min_value)
+		if (input_value < min_value) {
+			DEBUG << "GUI: " << std::to_string(input_value) << "is less than min value of " << std::to_string(min_value);
 			return false;
-		if (input_value > max_value)
+		}
+		if (input_value > max_value) {
+			DEBUG << "GUI: " << std::to_string(input_value) << "is more than max value of " << std::to_string(max_value);
 			return false;
+		}
 		
+		DEBUG << "GUI: " << std::to_string(input_value) << " is between " << std::to_string(min_value) << " and " << std::to_string(max_value);
+
 		return true;
 	}
 
@@ -656,9 +666,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		video_details original = videos->something[0];
 
 		// Get frame numbers from text boxes
-		//QString start_frame_text = ui.txt_nuc_start->text();
-		//QString stop_frame_text = ui.txt_nuc_stop->text();
-
 		int min_frame = get_integer_from_txt_box(ui.txt_nuc_start->text());
 		int max_frame = get_integer_from_txt_box(ui.txt_nuc_stop->text());
 
@@ -666,9 +673,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		if ((min_frame < 0) || (max_frame < 0))
 		{
 			if(min_frame < 0)
-				DEBUG << "GUI: User entered non numeric data to start frame. Enterd: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
+				DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
 			if (min_frame < 0)
-				DEBUG << "GUI: User entered non numeric data to stop frame. Enterd: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
+				DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
 
 			INFO << "GUI: NUC correction not completed";
 
@@ -695,13 +702,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			if (min_frame < frame_start)
 				DEBUG << "GUI: Start frame before minimum frame. Entered: " << std::to_string(min_frame) << " Minimum: " << std::to_string(frame_start);
 			if (min_frame < 0)
-				DEBUG << "GUI: Stpp frame after maximum frame. Entered: " << std::to_string(max_frame) << "Maximum: " << std::to_string(frame_stop);
+				DEBUG << "GUI: Stop frame after maximum frame. Entered: " << std::to_string(max_frame) << "Maximum: " << std::to_string(frame_stop);
 
 			INFO << "GUI: NUC correction not completed";
-			
-			
-			DEBUG << "GUI: User entered out of range frames (" << std::to_string(min_frame) << " / " << std::to_string(max_frame) << ")";
-
 			
 			QMessageBox msgBox;
 			msgBox.setWindowTitle(QString("Outside of Data Range"));
@@ -716,6 +719,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		NUC nuc(file_data.image_path, min_frame, max_frame, file_data.file_version);
 		std::vector<double> nuc_correction = nuc.get_nuc_correction(original.number_of_bits);
+
+		INFO << "Calculated NUC correction";
 
 		nuc_video = original;
 		nuc_video.clear_16bit_vector();
@@ -745,7 +750,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		}
 
 		if (progress.wasCanceled()) {
-			INFO << "GUI: NUC process was cancelled";
+			INFO << "GUI: NUC process was canceled";
 			return;
 		}
 
@@ -774,6 +779,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_deinterlace()
 	{
+		INFO << "GUI: Creating de-interlace file from original data";
+
 		QProgressDialog progress("", "Cancel", 0, 100);
 		progress.setWindowModality(Qt::WindowModal);
 		progress.setValue(0);
@@ -785,6 +792,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		deinterlace_type deinterlace_method_type = find_deinterlace_type(ui.cmb_deinterlace_options->currentIndex());
 		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+
+		DEBUG << "GUI: Found de-interlacing method type and video type";
 
 		Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
 		
@@ -805,13 +814,16 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		for (int i = 0; i < number_frames; i++)
 		{
 			progress.setValue(i);
+			DEBUG << "GUI: Applying de-interlace to " << std::to_string(i + 1) << " of " << std::to_string(number_frames) << "frames";
 			deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
 			if (progress.wasCanceled())
 				break;
 		}
 
-		if (progress.wasCanceled())
+		if (progress.wasCanceled()) {
+			INFO << "De-interlace process was canceled";
 			return;
+		}
 
 		progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
@@ -823,10 +835,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		if (index_deinterlace > 0) {
 			deinterlace_exists = true;
 			videos->something[index_deinterlace] = deinterlace_video;
+			INFO << "GUI: Previous de-interlace video was replaced";
 		}
 		else
 		{
 			videos->something.push_back(deinterlace_video);
+			INFO << "GUI: De-interlace video was added";
 		}
 
 		change_deinterlace_options(ui.cmb_deinterlace_options->currentIndex());
@@ -846,10 +860,14 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			ui.chk_max_abs_deinterlace->setEnabled(true);
 			if (ui.chk_max_abs_deinterlace->isChecked())
 				toggle_video_filters();
+
+			DEBUG << "GUI: New de-interlace method selected and video found";
 		}
 		else {
 			ui.chk_max_abs_deinterlace->setCheckState(Qt::Unchecked);
 			ui.chk_max_abs_deinterlace->setEnabled(false);
+
+			DEBUG << "GUI: New de-interlace method selected and video not found";
 		}
 
 	}
@@ -859,18 +877,21 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		switch (index)
 		{
 		case 0:
+			DEBUG << "GUI: De-interlace type max absolute value";
 			return deinterlace_type::max_absolute_value;
 		case 1:
+			DEBUG << "GUI: De-interlace type centroid";
 			return deinterlace_type::centroid;
 		case 2:
+			DEBUG << "GUI: De-interlace type avg cross correlation";
 			return deinterlace_type::avg_cross_correlation;
 		
 		default:
 			break;
 		}
 
+		INFO << "GUI: De-interlace type not found. Default to max absolute value";
 		return deinterlace_type::max_absolute_value;
-
 	}
 
 	Video_Parameters QtGuiApplication1::find_deinterlace_video_type(int index)
@@ -893,6 +914,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_background_subtraction_correction() {
 
+		INFO << "GUI: Background subtraction video being created";
 		QProgressDialog progress("", "Cancel", 0, 100);
 		progress.setWindowModality(Qt::WindowModal);
 		progress.setValue(0);
@@ -912,8 +934,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		// TODO test that inputs are valid (inputs are numbers and greater than zero) Same as ABIR data
 
+		DEBUG << "GUI: Input value for background subtraction validated";
+		INFO << "GUI: Creating adjustment for video";
 		BackgroundSubtraction background(subtract_number_of_frames);
 		std::vector<std::vector<double>> background_correction = background.get_correction(original);
+
+		INFO << "GUI: Background subtraction adjustment for video is completed";
 
 		background_subraction_video = original;
 		background_subraction_video.clear_16bit_vector();
@@ -930,14 +956,17 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		progress.setLabelText(QString("Subtracting frames..."));
 
 		for (int i = 0; i < number_frames; i++) {
+			DEBUG << "GUI: Applying background subtraction to " << std::to_string(i + 1) << " of " << std::to_string(number_frames) << "frames";
 			progress.setValue(i);
 			background_subraction_video.frames_16bit.push_back(background.apply_correction(original.frames_16bit[i], background_correction[i]));
 			if (progress.wasCanceled())
 				break;
 		}
 
-		if (progress.wasCanceled())
+		if (progress.wasCanceled()) {
+			INFO << "GUI: Background subtraction process was canceled";
 			return;
+		}
 
 		progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
@@ -949,18 +978,20 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		if (index_background_subtraction > 0) {
 			background_subtraction_exists = true;
 			videos->something[index_background_subtraction] = background_subraction_video;
+			INFO << "GUI: Background subtraction video was replaced";
 		}
 		else
 		{
 			videos->something.push_back(background_subraction_video);
+			INFO << "GUI: Background subtraction video was added";
 		}
-
-
 	}
 
 	void QtGuiApplication1::toggle_video_filters()
 	{
 		video_details user_requested;
+
+		INFO << "GUI: User toggled new video for display";
 
 		user_requested.properties[Video_Parameters::original] = true;
 
