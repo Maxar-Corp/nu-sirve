@@ -18,6 +18,7 @@
 #include "non_uniformity_correction.h"
 #include "background_subtraction.h"
 #include "deinterlace.h"
+#include "logging.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>

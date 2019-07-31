@@ -6,6 +6,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	INFO << "GUI: Initializing GUI";
+
 	max_used_bits = 14;
 
 	videos = new Video_Container(); 
@@ -190,6 +192,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.btn_video_menu->setMenu(menu);
 
 	show();
+
+	INFO << "GUI: GUI Initialized";
 }
 
 	QtGuiApplication1::~QtGuiApplication1() {
@@ -201,18 +205,25 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		//delete main_widget;
 		//delete main_layout;
+
+		INFO << "GUI: GUI destructor called";
 	}
 
 	void QtGuiApplication1::load_osm_data()
 	{
+
+		INFO << "GUI: Start OSM load process";
 
 		ui.txt_start_frame->setEnabled(false);
 		ui.txt_end_frame->setEnabled(false);
 		ui.btn_get_frames->setEnabled(false);
 		ui.btn_load_osm->setEnabled(false);
 
+		INFO << "GUI: Loading OSM data";
 		bool valid_files = file_data.load_osm_file();
 		if (!valid_files) {
+			WARN << "GUI: OSM file provided failed check";
+
 			ui.btn_load_osm->setEnabled(true);
 
 			if (eng_data != NULL) {
@@ -226,6 +237,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			return;
 		}
 		
+		INFO << "GUI: OSM file has valid path";
+
 		ui.lbl_file_load->setText(file_data.info_msg);
 		ui.lbl_directory_path->setText(file_data.directory_path);
 		ui.lbl_file_name->setText(file_data.file_name);
@@ -244,11 +257,17 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			ui.lbl_max_frames->setText(max_frame_text);
 
 			if (eng_data != NULL) {
+				
+				DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
+
 				// delete objects with existing data within them
 				delete eng_data;
 				delete data_plots;
 				delete engineering_plot_layout;
 			}
+
+			DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
+
 			eng_data = new Engineering_Data(file_data.osm_data.data);
 			data_plots = new Engineering_Plots();
 
@@ -296,6 +315,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			ui.btn_save_plot->setEnabled(true);
 			connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
 
+			INFO << "GUI: OSM successfully loaded";
+
 		}
 
 		ui.btn_load_osm->setEnabled(true);
@@ -308,9 +329,13 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		ui.btn_get_frames->setEnabled(false);
 
+		INFO << "GUI: Starting ABIR load process";
+
 		// Get frame numbers from text boxes
 		QString min_frame_text = ui.txt_start_frame->text();
 		QString max_frame_text = ui.txt_end_frame->text();
+
+		DEBUG << "GUI: Checking user input of frame numbers";
 		
 		// Convert strings to integers
 		bool converted_min_frame, converted_max_frame;
@@ -323,6 +348,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		ui.txt_start_frame->setText(QString::number(min_frame));
 		ui.txt_end_frame->setText(QString::number(max_frame));
 
+		DEBUG << "GUI: Frame numbers are valid";
+
 		//---------------------------------------------------------------------------
 
 		// Load the ABIR data
@@ -332,11 +359,14 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		video_details primary;
 		primary.properties[Video_Parameters::original] = true;
 		
+		INFO << "GUI: Reading in video data";
 		primary.set_number_of_bits(max_used_bits);
 		std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, 4.2);
 		
 		int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
 		int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
+
+		DEBUG << "GUI: Frames are of size " << std::to_string(x_pixels) << " x " << std::to_string(y_pixels);
 		
 		primary.set_image_size(x_pixels, y_pixels);
 		primary.set_video_frames(video_frames);
@@ -391,6 +421,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		ui.btn_get_frames->setEnabled(true);
 
+		INFO << "GUI: ABIR file load complete";
+
 		//---------------------------------------------------------------------------
 	}
 
@@ -420,6 +452,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 			ir_video->update_specific_frame(counter_value);
 			histogram_plot->update_specific_histogram(counter_value);
 		}		
+
+		DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << std::to_string(gamma_value) << "/" << std::to_string(gain_value);
 	}
 
 	void QtGuiApplication1::reset_color_correction()
@@ -433,6 +467,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		ui.slider_lift->setValue(base_lift);
 		ui.slider_gain->setValue(100);
 		ui.slider_gamma->setValue(100);
+
+		DEBUG << "GUI: Color correction reset";
 	}
 
 	void QtGuiApplication1::allow_epoch()
@@ -446,13 +482,14 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		{
 			data_plots->plot_all_data = true;
 			data_plots->toggle_subplot();
+			DEBUG << "GUI: Toggle plot all data ";
 		}
 		else 
 		{
 			data_plots->plot_all_data = false;
 			data_plots->toggle_subplot();
-		}
-
+			DEBUG << "GUI: Toggle plot sub-set data ";
+		}		
 	}
 
 	void QtGuiApplication1::plot_primary_only()
@@ -477,11 +514,13 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	void QtGuiApplication1::save_plot()
 	{
 		data_plots->save_plot();
+		INFO << "GUI: Plot saved";
 	}
 
 	void QtGuiApplication1::save_frame()
 	{
 		ir_video->save_frame();
+		INFO << "GUI: Video frame saved  ";
 	}
 
 	void QtGuiApplication1::create_menu_actions()
@@ -510,6 +549,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal);
 		
 		emit change_banner(input_text, QColor("Red"));
+
+		DEBUG << "GUI: Banner text changed";
 	}
 
 	void QtGuiApplication1::plot_change(int index)
@@ -526,6 +567,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		int x_index = ui.cmb_plot_xaxis->currentIndex();
 		int y_index = ui.cmb_plot_yaxis->currentIndex();
+
+		DEBUG << "GUI: Engineering plot units changed to case " << std::to_string(x_index);
+		DEBUG << "GUI: Engineering plot changed to case " << std::to_string(y_index);
 
 		switch (x_index)
 		{
@@ -606,7 +650,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	void QtGuiApplication1::create_non_uniformity_correction()
 	{
-				
+		INFO << "GUI: Creating non-uniformity correction file from original data";
+
 		video_details nuc_video;
 		video_details original = videos->something[0];
 
@@ -620,6 +665,13 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// if non-numeric data is entered...
 		if ((min_frame < 0) || (max_frame < 0))
 		{
+			if(min_frame < 0)
+				DEBUG << "GUI: User entered non numeric data to start frame. Enterd: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
+			if (min_frame < 0)
+				DEBUG << "GUI: User entered non numeric data to stop frame. Enterd: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
+
+			INFO << "GUI: NUC correction not completed";
+
 			QMessageBox msgBox;
 			msgBox.setWindowTitle(QString("Non-Numeric Data"));
 			msgBox.setText("Non-numeric data entered for NUC min/max frames");
@@ -631,7 +683,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		}
 		
 		//TODO find frame start / stop 
-		int frame_start = 1; // videos->something[0].frame_start;
+		int frame_start = 0; // videos->something[0].frame_start;
 		int frame_stop = 100; // videos->something[0].frame_stop;
 
 		bool min_within_range = check_value_within_range(min_frame, frame_start, frame_stop);
@@ -640,6 +692,17 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		// if values outside range...
 		if (!min_within_range || !max_within_range)
 		{
+			if (min_frame < frame_start)
+				DEBUG << "GUI: Start frame before minimum frame. Entered: " << std::to_string(min_frame) << " Minimum: " << std::to_string(frame_start);
+			if (min_frame < 0)
+				DEBUG << "GUI: Stpp frame after maximum frame. Entered: " << std::to_string(max_frame) << "Maximum: " << std::to_string(frame_stop);
+
+			INFO << "GUI: NUC correction not completed";
+			
+			
+			DEBUG << "GUI: User entered out of range frames (" << std::to_string(min_frame) << " / " << std::to_string(max_frame) << ")";
+
+			
 			QMessageBox msgBox;
 			msgBox.setWindowTitle(QString("Outside of Data Range"));
 			QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
@@ -675,13 +738,16 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 		for (int i = 0; i < number_frames; i++) {
 			progress.setValue(i);
+			DEBUG << "GUI: Applying NUC correction to " << std::to_string(i + 1) << " of " << std::to_string(number_frames) << "frames";
 			nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i]));
 			if (progress.wasCanceled())
 				break;
 		}
 
-		if (progress.wasCanceled())
+		if (progress.wasCanceled()) {
+			INFO << "GUI: NUC process was cancelled";
 			return;
+		}
 
 		progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
@@ -693,10 +759,13 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		if (index_nuc > 0) {
 			nuc_exists = true;
 			videos->something[index_nuc] = nuc_video;
+
+			INFO << "GUI: Previous NUC video was replaced";
 		}
 		else
 		{
 			videos->something.push_back(nuc_video);
+			INFO << "GUI: NUC video added";
 		}
 		
 		//TODO if more than one correction already exists, then apply NUC to it as well ? 
