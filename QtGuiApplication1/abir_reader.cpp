@@ -23,11 +23,14 @@ int ABIR_Data::File_Setup(char* file_path, double version_number)
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
-    if (err != 0) return err;
+	if (err != 0) {
+		INFO << "ABIR Load: Error opening file";
+		return err;
+	}
 
     //full_file_path = file_path;
     file_version = GetVersionNumber(version_number);
-
+	
     full_file_path = file_path;
    
     fclose(fp);
@@ -37,6 +40,7 @@ int ABIR_Data::File_Setup(char* file_path, double version_number)
 
 std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<unsigned int> valid_frames, bool header_only)
 {
+	INFO << "ABIR Load: Getting ABIR data";
 
 	std::vector<std::vector<uint16_t>>video_frames_16bit;
 
@@ -74,12 +78,18 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 
     ir_data.reserve(valid_frames[1] - valid_frames[0] + 1);
 
+	QProgressDialog progress("", "Cancel", valid_frames[0], valid_frames[1]);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setValue(0);
+	progress.setLabelText(QString("Reading frame data..."));
+	progress.setWindowTitle(QString("Inputing Frames"));
+
     for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
+		progress.setValue(frame_index);
+		INFO << "ABIR Load: Inputting frame " << std::to_string(frame_index + 1) << " of " << std::to_string(valid_frames[1]) << " frames";
 
         ABIR_Header header_data;
-
-        //TODO implement header only implementation
 
         // TODO Matlab code as check for empyt or corrupt data packets and frames. Implement if needed
         fseek(fp, (frame_index - 1) * frame_size, SEEK_SET);
@@ -88,8 +98,10 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
         uint64_t temp_size = ReadValue<uint64_t>();
 
         // Break from empty frames
-        if (temp_size == 0)
-            break;
+		if (temp_size == 0) {
+			WARN << "ABIR Load: Empty frame found";
+			break;
+		}
 
         header_data.seconds = temp_seconds + temp_nano_seconds * 10e-9;
         header_data.size = temp_size;
@@ -116,6 +128,8 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 
         header_data.pixel_depth = ReadValue<uint16_t>();
         header_data.bits_per_pixel = ReadValue<uint16_t>();
+
+		DEBUG << "ABIR Load: Loading frame data. Sample file value for frame time is " << std::to_string(header_data.frame_time);
 
         // Skipped section only relevant for versions less than or equal to 3.0
 
@@ -263,36 +277,18 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
             // TODO throw error for wrong version type
         }
 
-        //std::vector<uint16_t> raw_data;
-        //uint16_t *raw_data2 = new uint16_t[header_data.image_size];
-        // *raw_data_8bit = new uint8_t[header_data.image_size];
         uint16_t total_range = 65535 / 4;
 
 		uint16_t *raw_16bit_data = new uint16_t[header_data.image_size];
-		//uint8_t *raw_8bit_data = new uint8_t[header_data.image_size];
+		
 
         if (! header_only)	{
-
-            //ReadMultipleValues(raw_data2, false, header_data.image_size);
 			ReadMultipleValues(raw_16bit_data, false, header_data.image_size);
-            /*for (int i = 0; i < (int)header_data.image_size; i++) {
-                //uint16_t value = raw_data2[i];
-				uint16_t value = raw_16bit_data[i];
-                double new_value = 255 * 1.0 / total_range * value;
-               // raw_data_8bit[i] = (uint8_t)new_value;
-                //raw_data_8bit[i] = (uint8_t)raw_data2[i];
-				raw_8bit_data[i] = (uint8_t)new_value;
-            }*/
-
         }
 
         ABIR_Frame temp_frame;
         temp_frame.header = header_data;
-        //temp_frame.data = raw_data;
-        //temp_frame.raw_8bit = raw_data_8bit;
-        //temp_frame.raw_16bit = raw_data2;
-
-		//video_frames_8bit.push_back(raw_8bit_data);
+        
 		std::vector<uint16_t> values(raw_16bit_data, raw_16bit_data + header_data.image_size);
 		video_frames_16bit.push_back(values);
 
@@ -307,18 +303,23 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 double ABIR_Data::GetVersionNumber(double version_number)
 {
 
-    if (version_number > 0)
-        return version_number;
+	if (version_number > 0) {
+		INFO << "ABIR Load: File version is being overridden to " << std::to_string(version_number);
+		return version_number;
+	}
 
     int return_code = fseek(fp, 36, SEEK_SET);
     version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct
 
-    if (version_number < 1 || version_number > 20)
-        std::cout << "Version number not recognized";
-    // TODO throw error for bad version
+	if (version_number < 1 || version_number > 20) {
+		WARN << "ABIR Load: File version is not between 1 and 20 (" << std::to_string(version_number) << ")";
+		// TODO throw error for bad version
+	}
 
     if (version_number == 2.5)
         version_number = 3.0;
+
+	INFO << "ABIR Load: File version is " << std::to_string(version_number);
 
     return version_number;
 

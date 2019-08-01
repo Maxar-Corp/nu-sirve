@@ -3,6 +3,7 @@
 #define BACKGROUND_SUBTRACTION_H
 
 #include "video_container.h"
+#include "logging.h"
 
 #include <armadillo>
 #include <qstring.h>

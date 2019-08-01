@@ -11,6 +11,7 @@ Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_p
 
 std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& frame)
 {
+	INFO << "De-interlace: De-interlace processing started";
 
 	arma::mat even_frames, odd_frames, mat_frame, cross_correlation;
 	mat_frame = create_frame(frame);
@@ -28,6 +29,8 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 			arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
 
 			offsets << ((even_frames.n_rows - 1) - peak_index(0)) << ((even_frames.n_cols - 1) - peak_index(1));
+
+			DEBUG << "De-interlace: Offsets for max absolute method are " << std::to_string((even_frames.n_rows - 1) - peak_index(0)) << " " << std::to_string((even_frames.n_cols - 1) - peak_index(1));
 
 			break;
 		}
@@ -56,6 +59,8 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		double uy = std::round(arma::accu(v % y_mat) / v_sum);
 		
 		offsets << ((even_frames.n_rows - 1) - uy) << ((even_frames.n_cols - 1) - ux);
+
+		DEBUG << "De-interlace: Offsets for centroid method are " << std::to_string(((even_frames.n_rows - 1) - uy)) << " " << std::to_string(((even_frames.n_cols - 1) - ux));
 
 		break;
 	}
@@ -93,6 +98,8 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 
 		offsets << offset1 << offset2;
 
+		DEBUG << "De-interlace: Offsets for avg cross correlation method are " << std::to_string(offset1) << " " << std::to_string(offset2);
+		
 		break;
 	}
 	default:
@@ -115,6 +122,8 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 	arma::vec out_frame_flat = arma::vectorise(out_frame);
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(out_frame_flat);
 	std::vector<uint16_t> converted_values(out_vector.begin(), out_vector.end());
+
+	DEBUG << "De-interlace: Output frame 1st row and 1st column is " << std::to_string(out_frame_flat(0));
 
 	return converted_values;
 }
@@ -141,10 +150,7 @@ arma::mat Deinterlace::cross_correlate_frame(arma::mat & mat_frame, arma::mat od
 
 	arma::mat cc_mat = fast_fourier_transform(frame1_pad, frame2_pad);
 
-	//arma::cx_mat fft_frame1 = arma::fft2(frame1_pad);
-	//arma::cx_mat fft_frame2 = arma::fft2(frame2_pad);
-
-	//arma::mat cc_mat = arma::real(arma::ifft2(fft_frame1 % fft_frame2));
+	DEBUG << "De-interlace: Cross correlation matrix 1st row, 1st Column value is " << std::to_string(cc_mat(0, 0));
 
 	return cc_mat;
 }
@@ -296,6 +302,8 @@ arma::mat Deinterlace::create_frame(std::vector<uint16_t>& frame) {
 	mat_frame.reshape(x_pixels, y_pixels);
 	mat_frame = mat_frame.t();
 
+	DEBUG << "De-interlace: Original frame 2nd row, 1st column value is " << std::to_string(mat_frame(1, 0));
+
 	return mat_frame;
 }
 
@@ -312,6 +320,9 @@ void Deinterlace::create_even_odd_frames(arma::mat & mat_frame, arma::mat & odd_
 	//Setup odd / even video frames
 	odd_frame = mat_frame.rows(odd_rows);
 	even_frame = mat_frame.rows(even_rows);
+
+	DEBUG << "De-interlace: Odd frame 1st row, 1st column value is " << std::to_string(odd_frame(0, 0));
+	DEBUG << "De-interlace: Even frame 1st row, 1st column value is " << std::to_string(even_frame(0, 0));
 
 }
 
