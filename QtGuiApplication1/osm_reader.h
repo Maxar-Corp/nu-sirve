@@ -12,6 +12,7 @@
 
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
+#include "logging.h"
 
 #include "Data_Structures.h"
 #include "earth.h"
