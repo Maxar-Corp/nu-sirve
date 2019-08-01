@@ -12,6 +12,7 @@
 #include "abir_reader.h"
 #include "osm_reader.h"
 #include <qfiledialog.h>
+#include "logging.h"
 
 
 class Process_File : public QWidget

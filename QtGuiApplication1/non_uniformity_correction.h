@@ -4,6 +4,7 @@
 
 #include "abir_reader.h"
 #include "process_file.h"
+#include "logging.h"
 
 #include <armadillo>
 #include <qstring.h>
@@ -18,7 +19,7 @@ public:
 	NUC(QString path_video_file, unsigned int first_frame, unsigned int last_frame, double version);
 	~NUC();
 
-	std::vector<double> get_nuc_correction(int max_used_bits);
+	std::vector<double> get_nuc_correction();
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double>nuc);
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame);
 
@@ -30,7 +31,7 @@ private:
 	ABIR_Data abir_data;
 
 	std::vector<std::vector<uint16_t>> import_frames();
-	arma::mat replace_dead_pixels(arma::vec values, int max_used_bits);
+	arma::mat replace_dead_pixels(arma::vec values);
 	void replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels);
 
 };

@@ -718,7 +718,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		}
 
 		NUC nuc(file_data.image_path, min_frame, max_frame, file_data.file_version);
-		std::vector<double> nuc_correction = nuc.get_nuc_correction(original.number_of_bits);
+		std::vector<double> nuc_correction = nuc.get_nuc_correction();
 
 		INFO << "Calculated NUC correction";
 

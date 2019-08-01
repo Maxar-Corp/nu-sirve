@@ -13,12 +13,15 @@ OSMReader::~OSMReader()
 
 int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 {
-
+	INFO << "OSM Load: Loading OSM data";
     combine_tracks = input_combine_tracks;
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
-    if (err != 0) return err;
+	if (err != 0) {
+		WARN << "OSM Load: Error opening file";
+		return err;
+	}
 
 	contains_data = false;
 	num_messages = 0;
@@ -32,6 +35,8 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
     fclose(fp);
 
     contains_data = true;
+
+	INFO << "OSM Load: OSM data loaded complete";
 
     return err;
 }
@@ -72,13 +77,10 @@ void OSMReader::FindMessageNumber()
             break;
         }
 
-        if (number_iterations == 6240)
-            std::cout << number_iterations;
-
         number_iterations++;
     }
 
-
+	INFO << "OSM Load: " << std::to_string(num_messages) << " entries found";
 }
 
 void OSMReader::InitializeVariables()
@@ -107,6 +109,7 @@ void OSMReader::LoadData()
     int num_iterations = -1;
     for (int i = 0; i < num_messages; i++)
     {
+		INFO << "OSM Load: Reading message #" << std::to_string(i + 1);
 
         bool valid_step = i == 0 || frame_time[i] - frame_time[i - 1] != 0 || !combine_tracks;
         if (valid_step) {
@@ -121,7 +124,8 @@ void OSMReader::LoadData()
         }
         else
         {
-            AddTrackToLastFrame();
+			INFO << "OSM Load: Adding track to last frame";
+			AddTrackToLastFrame();
         }
 
     }
@@ -167,9 +171,13 @@ MessageHeader OSMReader::ReadMessageHeader()
 
     //TODO matlab also has a condition testing whether tsize is empty. Implement conditional test
     if (tsize == 0) {
+		WARN << "OSM Load: Invalid size value in message header";
+
         throw std::invalid_argument("received invalid size value in message header");
         //return;
     }
+
+	DEBUG << "OSM Load: Reading message header";
 
     MessageHeader current_message;
     current_message.seconds = seconds + nano_seconds * 1e-9;
@@ -179,6 +187,8 @@ MessageHeader OSMReader::ReadMessageHeader()
 }
 
 FrameHeader OSMReader::ReadFrameHeader() {
+
+	DEBUG << "OSM Load: Reading frame header";
 
     FrameHeader fh;
     fh.authorization = ReadValue<uint64_t>(true);
@@ -205,6 +215,8 @@ FrameHeader OSMReader::ReadFrameHeader() {
 }
 
 FrameData OSMReader::ReadFrameData() {
+
+	DEBUG << "OSM Load: Reading frame data";
 
     FrameData data;
 
@@ -242,7 +254,9 @@ FrameData OSMReader::ReadFrameData() {
 
     for (uint32_t j = start_track_index; j < data.num_tracks; j++)
     {
-        TrackData current_track = GetTrackData(data);
+		DEBUG << "OSM Load: Reading track data #" << std::to_string(j);
+		
+		TrackData current_track = GetTrackData(data);
         data.track_data.push_back(current_track);
     }
 
