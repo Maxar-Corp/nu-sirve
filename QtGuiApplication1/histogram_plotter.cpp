@@ -234,6 +234,9 @@ void HistogramLine_Plot::update_histogram_chart() {
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
 
+	x_axis->setTitleText("Luminosity");
+	y_axis->setTitleText("Count");
+
 	y_axis->setMinorGridLineVisible(true);
 	y_axis->setLabelsVisible(false);
 
@@ -242,15 +245,9 @@ void HistogramLine_Plot::update_histogram_chart() {
 	x_axis->setMinorGridLineVisible(true);
 	x_axis->setLabelsVisible(false);
 
-	QString frame_str = "Frame ";
-	QString number;
-	number.setNum(counter);
-
-	frame_str.append(number);
-	text->setText(frame_str);
-
-	//chart->setTitle(title);
+	chart->setTitle(QString("Histogram"));
 	chart->setMargins(QMargins(0, 0, 0, 0));
+	chart->setContentsMargins(0, 0, 0, 0);
 
 	counter++;
 }
