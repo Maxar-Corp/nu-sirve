@@ -88,7 +88,7 @@ public:
     QLabel *lblBGS_num_frames;
     QFrame *line_6;
     QPushButton *btn_deinterlace;
-    QCheckBox *chk_max_abs_deinterlace;
+    QCheckBox *chk_deinterlace;
     QComboBox *cmb_deinterlace_options;
     QLabel *lbl_deinterlace;
     QWidget *tab_6;
@@ -208,7 +208,7 @@ public:
         line_3->setFrameShadow(QFrame::Sunken);
         btn_load_osm = new QPushButton(tab);
         btn_load_osm->setObjectName(QString::fromUtf8("btn_load_osm"));
-        btn_load_osm->setGeometry(QRect(160, 100, 81, 23));
+        btn_load_osm->setGeometry(QRect(40, 100, 161, 23));
         lbl_file_load = new QLabel(tab);
         lbl_file_load->setObjectName(QString::fromUtf8("lbl_file_load"));
         lbl_file_load->setGeometry(QRect(10, 400, 231, 141));
@@ -403,9 +403,9 @@ public:
         btn_deinterlace = new QPushButton(tab_5);
         btn_deinterlace->setObjectName(QString::fromUtf8("btn_deinterlace"));
         btn_deinterlace->setGeometry(QRect(190, 300, 61, 22));
-        chk_max_abs_deinterlace = new QCheckBox(tab_5);
-        chk_max_abs_deinterlace->setObjectName(QString::fromUtf8("chk_max_abs_deinterlace"));
-        chk_max_abs_deinterlace->setGeometry(QRect(20, 340, 161, 17));
+        chk_deinterlace = new QCheckBox(tab_5);
+        chk_deinterlace->setObjectName(QString::fromUtf8("chk_deinterlace"));
+        chk_deinterlace->setGeometry(QRect(20, 340, 161, 17));
         cmb_deinterlace_options = new QComboBox(tab_5);
         cmb_deinterlace_options->setObjectName(QString::fromUtf8("cmb_deinterlace_options"));
         cmb_deinterlace_options->setGeometry(QRect(20, 300, 161, 22));
@@ -606,7 +606,7 @@ public:
         lblBGS->setText(QApplication::translate("QtGuiApplication1Class", "Background Subtraction:", nullptr));
         lblBGS_num_frames->setText(QApplication::translate("QtGuiApplication1Class", "Number of Frames", nullptr));
         btn_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Create", nullptr));
-        chk_max_abs_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply De-Interlace Method", nullptr));
+        chk_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply De-Interlace Method", nullptr));
         lbl_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "De-Interlace Methods", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_5), QApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_6), QApplication::translate("QtGuiApplication1Class", "Info", nullptr));

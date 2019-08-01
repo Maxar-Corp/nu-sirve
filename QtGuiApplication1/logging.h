@@ -1,6 +1,9 @@
 #
 #pragma once
 
+//Logging Paradigm from:
+//https://stackoverflow.com/questions/20086754/how-to-use-boost-log-from-multiple-files-with-gloa/22068278#22068278
+
 #include <boost/log/expressions.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/support/date_time.hpp>

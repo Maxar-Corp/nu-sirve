@@ -22,9 +22,17 @@ std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_det
 	int num_pixels = original.x_pixels * original.y_pixels;
 	arma::mat frame_data(num_pixels, 1);
 
+	QProgressDialog progress("", QString(), 0, 1000);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setMinimum(0);
+	progress.setMaximum(num_video_frames);
+	progress.setWindowTitle(QString("Background Subtraction"));
+	progress.setLabelText(QString("Creating adjustment for background subtraction..."));
+
 	for (int i = 0; i < num_video_frames; i++)
 	{
 		DEBUG << "Background Subtraction: Processing adjustment for frame #" << std::to_string(i + 1);
+		progress.setValue(i);
 
 		std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
 		arma::vec frame_vector(frame_values);

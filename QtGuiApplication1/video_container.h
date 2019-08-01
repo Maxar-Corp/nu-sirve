@@ -6,6 +6,7 @@
 #include <qobject.h>
 
 #include "Data_Structures.h"
+#include <qprogressdialog.h>
 
 enum struct Video_Parameters
 {
