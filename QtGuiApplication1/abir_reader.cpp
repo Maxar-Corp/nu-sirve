@@ -42,6 +42,9 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 {
 	INFO << "ABIR Load: Getting ABIR data";
 
+	QProgressDialog progress("", QString(), 0, 10);
+	progress.setWindowModality(Qt::WindowModal);
+
 	std::vector<std::vector<uint16_t>>video_frames_16bit;
 
 	errno_t err = fopen_s(&fp, full_file_path, "rb");
@@ -78,11 +81,10 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 
     ir_data.reserve(valid_frames[1] - valid_frames[0] + 1);
 
-	QProgressDialog progress("", "Cancel", valid_frames[0], valid_frames[1]);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setLabelText(QString("Reading frame data..."));
-	progress.setWindowTitle(QString("Inputing Frames"));
+	progress.setMinimum(valid_frames[0]);
+	progress.setMaximum(valid_frames[1]);
+	progress.setMinimumDuration(1);
+	progress.setLabelText(QString("Reading in frames..."));
 
     for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {

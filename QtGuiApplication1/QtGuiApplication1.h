@@ -52,7 +52,6 @@ public:
 	Video_Container *videos;
 	Video *ir_video;
 	HistogramLine_Plot *histogram_plot;
-	//OSMPlotter *engineering_data;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;

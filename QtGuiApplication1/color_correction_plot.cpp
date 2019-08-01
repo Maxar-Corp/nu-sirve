@@ -51,11 +51,12 @@ void ColorPlotter::update_chart_properties() {
 	chart->createDefaultAxes();
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+	
+	x_axis->setTitleText("Input");
+	y_axis->setTitleText("Output");
+
 	chart->setMargins(QMargins(0, 0, 0, 0));
-
-	//x_axis->setTitleText("Input");
-	//y_axis->setTitleText("Output");
-
+	
 	y_axis->setMinorGridLineVisible(true);
 	y_axis->setLabelsVisible(false);
 

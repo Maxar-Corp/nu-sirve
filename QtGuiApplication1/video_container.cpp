@@ -74,12 +74,19 @@ void video_details::convert_16bit_to_8bit() {
 	uint16_t total_range = std::pow(2, number_of_bits);
 	int number_of_frames = frames_16bit.size();
 
+	QProgressDialog progress("", QString(), 0, 1000);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setMinimum(0);
+	progress.setMaximum(number_of_frames);
+	progress.setWindowTitle(QString("Creating Video"));
+	progress.setLabelText(QString("Down-converting video frames..."));
+
 	//clear_8bit_vector();
 	frames_8bit.clear();
 
 	for (size_t i = 0; i < number_of_frames; i++)
 	{
-			   
+		progress.setValue(i);
 		std::vector<uint8_t> raw_8bit_data;
 		raw_8bit_data.reserve(number_pixels);
 
@@ -104,12 +111,18 @@ void video_details::create_histogram_data()
 	histogram_data.clear();
 	histogram_data.reserve(number_of_frames);
 
-	//TODO figure out how to enforce 8bit / 256 bin assumption
+	QProgressDialog progress("", QString(), 0, 1000);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setMinimum(0);
+	progress.setMaximum(number_of_frames);
+	progress.setWindowTitle(QString("Creating Histogram"));
+	progress.setLabelText(QString("Creating histogram data..."));
 
 	for (int frame_number = 0; frame_number < number_of_frames; frame_number++) {
 
+		progress.setValue(frame_number);
 		std::vector<unsigned int> frame_histogram(number_of_bins, 0);
-
+		
 		for (int pixel_index = 0; pixel_index < number_pixels; pixel_index++)
 		{
 			uint8_t value = frames_8bit[frame_number][pixel_index];
