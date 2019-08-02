@@ -55,6 +55,8 @@ std::vector<double> NUC::get_nuc_correction()
 	DEBUG << "NUC: Normalizing value for adjusted mean frame: " << min_value;
 	DEBUG << "NUC: First value of the normalized adjusted mean frame: " << adjusted_mean_flat(0);
 
+	adjusted_mean_frames.save("adj_mean_frames.txt", arma::arma_ascii);
+
 	return out;
 
 }
@@ -124,12 +126,6 @@ arma::mat NUC::replace_dead_pixels(arma::vec values)
 	DEBUG << "NUC: Fixing pixels. Min value found is " << min_value_vector;
 	DEBUG << "NUC: Fixing pixels. Max value found is " << max_value_vector;
 
-	arma::uvec pixels_dead = arma::find(values <= min_value_vector);
-	arma::uvec pixels_happy = arma::find(values >= max_value_vector);
-
-	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
-	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;
-
 	arma::mat kernel = {{0, 0, 1, 0, 0},
 						{0, 0, 1, 0, 0},
 						{1, 1, 0, 1, 1},
@@ -139,6 +135,12 @@ arma::mat NUC::replace_dead_pixels(arma::vec values)
 	arma::mat mean_frame(values);
 	mean_frame.reshape(x_pixels, y_pixels);
 	mean_frame = mean_frame.t();
+
+	arma::uvec pixels_dead = arma::find(mean_frame <= min_value_vector);
+	arma::uvec pixels_happy = arma::find(mean_frame >= max_value_vector);
+
+	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
+	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;
 
 	DEBUG << "NUC: Mean frame value 2nd row, 1st col " << mean_frame(1, 0);
 	
@@ -157,6 +159,8 @@ arma::mat NUC::replace_dead_pixels(arma::vec values)
 
 	DEBUG << "NUC: Replacing happy pixels";
 	replace_pixels(mean_frame, adj_mean_frame, pixels_happy);
+
+	mean_frame.save("mean_frame.txt", arma::arma_ascii);
 	
 	return mean_frame;
 }
