@@ -103,7 +103,7 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame
 	char* buffer = array.data();
 
 	std::vector<unsigned int> frame_numbers{ frame_start, frame_end };
-	abir_data.File_Setup(buffer, 4.2);
+	abir_data.File_Setup(buffer, version);
 
 	video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
 

@@ -718,7 +718,7 @@ void QtGuiApplication1::create_non_uniformity_correction()
 	progress.setValue(0);
 	progress.setWindowTitle(QString("Non-Uniformity Correction"));
 	progress.setLabelText(QString("Copying data for non-uniformity correction..."));
-
+	
 	INFO << "GUI: Creating non-uniformity correction file from original data";
 
 	video_details nuc_video;
