@@ -61,7 +61,7 @@ public:
 
         btn_add_location = new QPushButton(Dialog);
         btn_add_location->setObjectName(QString::fromUtf8("btn_add_location"));
-        btn_add_location->setGeometry(QRect(100, 30, 101, 23));
+        btn_add_location->setGeometry(QRect(100, 40, 101, 23));
         lbl_list = new QLabel(Dialog);
         lbl_list->setObjectName(QString::fromUtf8("lbl_list"));
         lbl_list->setGeometry(QRect(220, 70, 141, 221));

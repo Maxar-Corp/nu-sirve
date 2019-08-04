@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
-    <height>259</height>
+    <width>395</width>
+    <height>248</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>200</y>
      <width>351</width>
      <height>33</height>
@@ -52,9 +52,16 @@
      </spacer>
     </item>
     <item>
+     <widget class="QPushButton" name="btn_create">
+      <property name="text">
+       <string>Create Sensor</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="okButton">
       <property name="text">
-       <string>OK</string>
+       <string>Done</string>
       </property>
      </widget>
     </item>
@@ -70,7 +77,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>30</y>
      <width>71</width>
      <height>16</height>
@@ -86,7 +93,7 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>70</y>
      <width>71</width>
      <height>16</height>
@@ -102,7 +109,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>80</x>
      <y>140</y>
      <width>81</width>
      <height>20</height>
@@ -118,7 +125,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>200</x>
+     <x>180</x>
      <y>140</y>
      <width>91</width>
      <height>20</height>
@@ -134,7 +141,7 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>300</x>
      <y>140</y>
      <width>61</width>
      <height>16</height>
@@ -150,7 +157,7 @@
   <widget class="QLineEdit" name="txt_name">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>90</x>
      <y>30</y>
      <width>113</width>
      <height>20</height>
@@ -160,17 +167,20 @@
   <widget class="QLineEdit" name="txt_description">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>90</x>
      <y>70</y>
      <width>271</width>
      <height>51</height>
     </rect>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+   </property>
   </widget>
   <widget class="QLineEdit" name="txt_latitude">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>90</x>
      <y>160</y>
      <width>60</width>
      <height>20</height>
@@ -180,7 +190,7 @@
   <widget class="QLineEdit" name="txt_longitude">
    <property name="geometry">
     <rect>
-     <x>215</x>
+     <x>195</x>
      <y>160</y>
      <width>60</width>
      <height>20</height>
@@ -190,24 +200,11 @@
   <widget class="QLineEdit" name="txt_altitude">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>300</x>
      <y>160</y>
      <width>60</width>
      <height>20</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btn_create">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>120</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>CreateSensor</string>
    </property>
   </widget>
  </widget>
