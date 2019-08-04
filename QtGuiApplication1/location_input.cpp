@@ -7,10 +7,12 @@ LocationInput::LocationInput()
 
 	directory_path = "locations/";
 	selected_file_path = "";
+	path_set = false;
 
 	RefreshListBox();
 	
 	QObject::connect(ui.lst_locations, &QListWidget::currentTextChanged, this, &LocationInput::OnItemChange);
+	QObject::connect(ui.btn_add_location, &QPushButton::clicked, this, &LocationInput::OnAddNewPush);
 	
 }
 
@@ -41,9 +43,9 @@ void LocationInput::RefreshListBox()
 	}
 }
 
-
 void LocationInput::OnItemChange(QString item) {
 
+	path_set = false;
 
 	QString path = directory_path + item;
 	QFile file(path);
@@ -81,6 +83,7 @@ void LocationInput::OnItemChange(QString item) {
 		ui.lbl_list->setText(text);
 
 		selected_file_path = path;
+		path_set = true;
 	}
 	else
 	{
@@ -107,6 +110,19 @@ void LocationInput::clear() {
 	for (int i = 0; i < num; i++){
 		QListWidgetItem *delete_item = ui.lst_locations->takeItem(0);
 		delete delete_item;
+	}
+
+}
+
+void LocationInput::OnAddNewPush()
+{
+	
+	AddLocation add_new_location(directory_path);
+	auto response = add_new_location.exec();
+	
+	if (response == 1) {
+		clear();
+		RefreshListBox();
 	}
 
 }
