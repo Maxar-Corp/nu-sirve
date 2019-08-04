@@ -13,9 +13,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.tabMenu->setTabEnabled(1, false);
 	ui.tabMenu->setTabEnabled(2, false);
 	ui.tabMenu->setTabEnabled(3, false);
-
-
-
+	   
 	INFO << "GUI: Initializing GUI";
 
 	max_used_bits = 14;
