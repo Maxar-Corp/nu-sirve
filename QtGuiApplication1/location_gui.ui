@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>393</width>
-    <height>388</height>
+    <height>365</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>330</y>
+     <y>310</y>
      <width>351</width>
      <height>33</height>
     </rect>
@@ -67,21 +67,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QListView" name="list_location">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>80</y>
-     <width>181</width>
-     <height>241</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="btn_add_location">
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>50</y>
+     <y>30</y>
      <width>101</width>
      <height>23</height>
     </rect>
@@ -94,13 +84,26 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>90</y>
+     <y>70</y>
      <width>141</width>
      <height>221</height>
     </rect>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="lst_locations">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>181</width>
+     <height>221</height>
+    </rect>
    </property>
   </widget>
  </widget>
