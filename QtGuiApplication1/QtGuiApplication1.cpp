@@ -1,12 +1,13 @@
 #include "QtGuiApplication1.h"
 #include "location_input.h"
+//#include "new_location.h"
 
 QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
-	QString gary;
+	QString gary = "locations/";
 	LocationInput bob;
 	auto jane = bob.exec();
 
