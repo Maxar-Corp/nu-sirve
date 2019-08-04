@@ -5,18 +5,69 @@ LocationInput::LocationInput()
 {
 	ui.setupUi(this);
 
+	directory_path = "locations/";
 	selected_file_path = "";
 
-	QDir directory("locations/");
-	QStringList location = directory.entryList(QStringList() << "*.json", QDir::Files);
-	foreach(QString filename, location) {
-		QString a = filename;
-	}
+	RefreshListBox();
 
-	selected_file_path = "bob1";
+	QObject::connect(ui.lst_locations, &QListWidget::currentTextChanged, this, &LocationInput::OnItemChange);
+	
 }
 
 LocationInput::~LocationInput()
 {
 
 }
+
+void LocationInput::RefreshListBox()
+{
+	QDir directory(directory_path);
+	QStringList location = directory.entryList(QStringList() << "*.json", QDir::Files);
+
+	location.sort();
+
+	foreach(QString filename, location) {
+
+		QString path = directory.dirName() + "/" + filename;
+		QFile file(path);
+		if (!file.open(QFile::ReadOnly)) {
+			INFO << "Error, Cannot open location file " + path.toStdString();
+			continue;
+		}
+
+		file.close();
+
+		ui.lst_locations->addItem(filename);
+	}
+}
+
+
+void LocationInput::OnItemChange(QString item) {
+
+
+	QString path = directory_path + item;
+	QFile file(path);
+	if (!file.open(QFile::ReadOnly)) {
+		INFO << "Error, Cannot open location file " + path.toStdString();
+	}
+
+	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+	QJsonObject jsonObj = jsonDoc.object();
+	
+	QString location_name = jsonObj.value("name").toString();
+	QString description = jsonObj.value("description").toString();
+	double latitude = jsonObj.value("latitude").toDouble();
+	double longitude = jsonObj.value("longitude").toDouble();
+	double altitude = jsonObj.value("altitude").toDouble();
+
+	file.close();
+
+	QString text = "";
+	text = "Name: " + location_name + "\n\nDescription: " + description + "\n\nLatitude: " + QString::number(latitude) + "\n\nLongitude: " + QString::number(longitude) + "\n\nAltitude: " + QString::number(altitude);
+
+	ui.lbl_list->setText(text);
+
+	selected_file_path = path;
+}
+
+

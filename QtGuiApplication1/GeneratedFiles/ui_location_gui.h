@@ -14,7 +14,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QListView>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QWidget>
@@ -29,9 +29,9 @@ public:
     QSpacerItem *spacerItem;
     QPushButton *okButton;
     QPushButton *cancelButton;
-    QListView *list_location;
     QPushButton *btn_add_location;
     QLabel *lbl_list;
+    QListWidget *lst_locations;
 
     void setupUi(QDialog *Dialog)
     {
@@ -59,15 +59,16 @@ public:
 
         hboxLayout->addWidget(cancelButton);
 
-        list_location = new QListView(Dialog);
-        list_location->setObjectName(QString::fromUtf8("list_location"));
-        list_location->setGeometry(QRect(20, 80, 181, 241));
         btn_add_location = new QPushButton(Dialog);
         btn_add_location->setObjectName(QString::fromUtf8("btn_add_location"));
         btn_add_location->setGeometry(QRect(100, 50, 101, 23));
         lbl_list = new QLabel(Dialog);
         lbl_list->setObjectName(QString::fromUtf8("lbl_list"));
         lbl_list->setGeometry(QRect(220, 90, 141, 221));
+        lbl_list->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+        lst_locations = new QListWidget(Dialog);
+        lst_locations->setObjectName(QString::fromUtf8("lst_locations"));
+        lst_locations->setGeometry(QRect(20, 90, 181, 221));
 
         retranslateUi(Dialog);
         QObject::connect(okButton, SIGNAL(clicked()), Dialog, SLOT(accept()));
