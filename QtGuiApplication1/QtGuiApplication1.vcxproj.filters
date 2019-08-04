@@ -108,6 +108,9 @@
     <ClCompile Include="location_input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="new_location.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -146,12 +149,18 @@
     <QtMoc Include="location_input.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="new_location.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="QtGuiApplication1.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="location_gui.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="new_location.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

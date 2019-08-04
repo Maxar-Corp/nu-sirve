@@ -1,8 +1,13 @@
 #pragma once
 
+#ifndef LOCATION_INPUT_H
+#define LOCATION_INPUT_H
+
 #include <ui_location_gui.h>
 
 #include "logging.h"
+
+#include "new_location.h"
 
 #include <qlabel.h>
 #include <qpushbutton.h>
@@ -23,6 +28,7 @@ public:
 
 	QString selected_file_path;
 	QString directory_path;
+	bool path_set;
 
 	LocationInput();
 	~LocationInput();
@@ -32,8 +38,11 @@ public:
 
 public slots:
 	void OnItemChange(QString item);
+	void OnAddNewPush();
 
 private:
 	Ui_Dialog ui;
 
 };
+
+#endif
