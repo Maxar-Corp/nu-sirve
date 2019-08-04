@@ -126,6 +126,7 @@
     <ClCompile Include="euler.cpp" />
     <ClCompile Include="histogram_plotter.cpp" />
     <ClCompile Include="jtime.cpp" />
+    <ClCompile Include="location_input.cpp" />
     <ClCompile Include="logging.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="non_uniformity_correction.cpp" />
@@ -143,6 +144,7 @@
     <QtMoc Include="QtGuiApplication1.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="location_gui.ui" />
     <QtUic Include="QtGuiApplication1.ui" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +177,10 @@
     <ClInclude Include="earth.h" />
     <ClInclude Include="euler.h" />
     <ClInclude Include="jtime.h" />
+    <QtMoc Include="location_input.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\boost_1_70_0;.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64</IncludePath>
+    </QtMoc>
     <ClInclude Include="logging.h" />
     <ClInclude Include="non_uniformity_correction.h" />
     <ClInclude Include="plot_engineering_data.h" />
