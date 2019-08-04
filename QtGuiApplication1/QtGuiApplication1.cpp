@@ -1,14 +1,20 @@
 #include "QtGuiApplication1.h"
-
+#include "location_input.h"
 
 QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
+	QString gary;
+	LocationInput bob;
+	auto jane = bob.exec();
+
 	ui.tabMenu->setTabEnabled(1, false);
 	ui.tabMenu->setTabEnabled(2, false);
 	ui.tabMenu->setTabEnabled(3, false);
+
+
 
 	INFO << "GUI: Initializing GUI";
 
