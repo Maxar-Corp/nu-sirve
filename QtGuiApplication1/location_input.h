@@ -12,6 +12,7 @@
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonvalue.h>
+#include <qmessagebox.h>
 
 
 class LocationInput : public QDialog//, public QWidget
@@ -27,6 +28,7 @@ public:
 	~LocationInput();
 
 	void RefreshListBox();
+	void clear();
 
 public slots:
 	void OnItemChange(QString item);
