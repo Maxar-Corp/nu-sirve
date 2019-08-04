@@ -9,7 +9,7 @@ LocationInput::LocationInput()
 	selected_file_path = "";
 
 	RefreshListBox();
-
+	
 	QObject::connect(ui.lst_locations, &QListWidget::currentTextChanged, this, &LocationInput::OnItemChange);
 	
 }
@@ -54,20 +54,61 @@ void LocationInput::OnItemChange(QString item) {
 	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
 	QJsonObject jsonObj = jsonDoc.object();
 	
-	QString location_name = jsonObj.value("name").toString();
-	QString description = jsonObj.value("description").toString();
-	double latitude = jsonObj.value("latitude").toDouble();
-	double longitude = jsonObj.value("longitude").toDouble();
-	double altitude = jsonObj.value("altitude").toDouble();
+	QString location_name, description;
+	if (jsonObj.contains("name"))
+		location_name = jsonObj.value("name").toString();
+	else
+		location_name = "Name not found";
 
-	file.close();
+	if (jsonObj.contains("description"))
+		description = jsonObj.value("description").toString();
+	else
+		description = "Description not found";
+	
+	//double latitude, longitude, altitude;
 
-	QString text = "";
-	text = "Name: " + location_name + "\n\nDescription: " + description + "\n\nLatitude: " + QString::number(latitude) + "\n\nLongitude: " + QString::number(longitude) + "\n\nAltitude: " + QString::number(altitude);
+	if (jsonObj.contains("latitude") & jsonObj.contains("longitude") & jsonObj.contains("altitude")) {
 
-	ui.lbl_list->setText(text);
+		double latitude = jsonObj.value("latitude").toDouble();
+		double longitude = jsonObj.value("longitude").toDouble();
+		double altitude = jsonObj.value("altitude").toDouble();
 
-	selected_file_path = path;
+		file.close();
+
+		QString text = "";
+		text = "Name: " + location_name + "\n\nDescription: " + description + "\n\nLatitude: " + QString::number(latitude) + "\n\nLongitude: " + QString::number(longitude) + "\n\nAltitude: " + QString::number(altitude);
+
+		ui.lbl_list->setText(text);
+
+		selected_file_path = path;
+	}
+	else
+	{
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Location Data Missing"));
+		QString box_text = "One or more of the following keys is missing from the file ("+ item + "):\nlatitude, longitude, and/or altitude";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
+		int current_row = ui.lst_locations->currentRow();
+		QListWidgetItem *delete_item = ui.lst_locations->takeItem(current_row);
+		delete delete_item;
+
+	}
+}
+
+void LocationInput::clear() {
+
+	int num = ui.lst_locations->count();
+	
+	for (int i = 0; i < num; i++){
+		QListWidgetItem *delete_item = ui.lst_locations->takeItem(0);
+		delete delete_item;
+	}
+
 }
 
 
