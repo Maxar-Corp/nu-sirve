@@ -404,7 +404,7 @@ void QtGuiApplication1::load_abir_data()
 	// Load the ABIR data
 	
 	videos->something.clear();
-
+	
 	// Create the video properties data
 	video_details primary;
 	primary.properties[Video_Parameters::original] = true;
@@ -478,7 +478,9 @@ void QtGuiApplication1::load_abir_data()
 	ui.tabMenu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
-
+	
+	clear_image_processing();
+	
 	//---------------------------------------------------------------------------
 }
 
@@ -837,7 +839,7 @@ void QtGuiApplication1::create_non_uniformity_correction()
 	}
 		
 	//TODO if more than one correction already exists, then apply NUC to it as well ? 
-		
+	ui.chk_apply_nuc->setEnabled(true);
 }
 
 void QtGuiApplication1::create_deinterlace()
@@ -981,6 +983,9 @@ void QtGuiApplication1::clear_image_processing()
 	int n = videos->something.size();
 
 	videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
+	change_deinterlace_options(0);
+	ui.chk_apply_nuc->setEnabled(false);
+	ui.chk_bgs->setEnabled(false);
 
 }
 
@@ -1094,6 +1099,8 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 		videos->something.push_back(background_subraction_video);
 		INFO << "GUI: Background subtraction video was added";
 	}
+
+	ui.chk_bgs->setEnabled(true);
 }
 
 void QtGuiApplication1::toggle_video_filters()
