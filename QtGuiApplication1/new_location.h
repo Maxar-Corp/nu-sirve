@@ -15,6 +15,7 @@
 #include <qjsonobject.h>
 #include <qjsonvalue.h>
 #include <qmessagebox.h>
+#include <qinputdialog.h>
 
 class AddLocation : public QDialog
 {

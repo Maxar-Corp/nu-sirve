@@ -66,26 +66,57 @@ bool AddLocation::withinRange(QString text, double min_value, double max_value)
 
 void AddLocation::makeLocationFile()
 {
-	QString new_file_name = "updated_location.json";
+	bool ok;
+	QString new_file_name = QInputDialog::getText(this, "Save File", "Enter filename", QLineEdit::Normal, "", &ok);
+		
+	if (ok && !new_file_name.isEmpty()) {
 
-	QJsonObject json_obj;
-	json_obj["name"] = ui.txt_name->text();
-	json_obj["description"] = ui.txt_description->text();
-	json_obj["latitude"] = ui.txt_latitude->text().toDouble();
-	json_obj["longitude"] = ui.txt_latitude->text().toDouble();
-	json_obj["altitude"] = ui.txt_latitude->text().toDouble();
+		if(!new_file_name.contains(".json", Qt::CaseInsensitive))
+			new_file_name = new_file_name + ".json";
 
-	QJsonDocument json_doc(json_obj);
-	QByteArray json_string = json_doc.toJson();
+		QJsonObject json_obj;
+		json_obj["name"] = ui.txt_name->text();
+		json_obj["description"] = ui.txt_description->text();
+		json_obj["latitude"] = ui.txt_latitude->text().toDouble();
+		json_obj["longitude"] = ui.txt_longitude->text().toDouble();
+		json_obj["altitude"] = ui.txt_altitude->text().toDouble();
 
-	QString save_path = directory_path + new_file_name;
-	QFile save_file(save_path);
-	save_file.open(QIODevice::WriteOnly | QIODevice::Text);
+		QJsonDocument json_doc(json_obj);
+		QByteArray json_string = json_doc.toJson();
 
-	save_file.write(json_string.data());
-	save_file.close();
+		QString save_path = directory_path + new_file_name;
+		QFile save_file(save_path);
+		save_file.open(QIODevice::WriteOnly | QIODevice::Text);
+
+		save_file.write(json_string.data());
+		save_file.close();
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Location File Created"));
+		QString box_text = "Location file successfully created!";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+	}
+	
 }
 
 void AddLocation::create_sensor() {
-	makeLocationFile();
+
+	if(checkLatitude() & checkLongitude() & checkAltitude())
+		makeLocationFile();
+	else {
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Invalid Entry"));
+		QString box_text = "Location file not created. Check inputs boxes contain numeric data only.\nLatitude should be between -90 to 90.\nLongitude should vary between -180 to 180 or 0 to 360.";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+	}
+
 }

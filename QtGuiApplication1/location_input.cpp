@@ -67,8 +67,6 @@ void LocationInput::OnItemChange(QString item) {
 	else
 		description = "Description not found";
 	
-	//double latitude, longitude, altitude;
-
 	if (jsonObj.contains("latitude") & jsonObj.contains("longitude") & jsonObj.contains("altitude")) {
 
 		double latitude = jsonObj.value("latitude").toDouble();
@@ -116,15 +114,11 @@ void LocationInput::clear() {
 
 void LocationInput::OnAddNewPush()
 {
-	
 	AddLocation add_new_location(directory_path);
 	auto response = add_new_location.exec();
 	
-	if (response == 1) {
-		clear();
-		RefreshListBox();
-	}
-
+	clear();
+	RefreshListBox();	
 }
 
 
