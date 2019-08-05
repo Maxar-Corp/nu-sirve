@@ -91,6 +91,7 @@ public:
     QCheckBox *chk_deinterlace;
     QComboBox *cmb_deinterlace_options;
     QLabel *lbl_deinterlace;
+    QPushButton *btn_clear_filters;
     QWidget *tab_6;
     QFrame *frmVideoPlayer;
     QSlider *sldrVideo;
@@ -412,6 +413,9 @@ public:
         lbl_deinterlace = new QLabel(tab_5);
         lbl_deinterlace->setObjectName(QString::fromUtf8("lbl_deinterlace"));
         lbl_deinterlace->setGeometry(QRect(20, 280, 121, 16));
+        btn_clear_filters = new QPushButton(tab_5);
+        btn_clear_filters->setObjectName(QString::fromUtf8("btn_clear_filters"));
+        btn_clear_filters->setGeometry(QRect(4, 560, 251, 23));
         tabMenu->addTab(tab_5, QString());
         tab_6 = new QWidget();
         tab_6->setObjectName(QString::fromUtf8("tab_6"));
@@ -562,7 +566,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(2);
+        tabMenu->setCurrentIndex(0);
         tabPlots->setCurrentIndex(1);
 
 
@@ -608,6 +612,7 @@ public:
         btn_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Create", nullptr));
         chk_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply De-Interlace Method", nullptr));
         lbl_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "De-Interlace Methods", nullptr));
+        btn_clear_filters->setText(QApplication::translate("QtGuiApplication1Class", "Clear All Image Processing Filters", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_5), QApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_6), QApplication::translate("QtGuiApplication1Class", "Info", nullptr));
         btn_play->setText(QApplication::translate("QtGuiApplication1Class", "Pl", nullptr));

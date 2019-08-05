@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -746,6 +746,19 @@ Subtraction</string>
       </property>
       <property name="text">
        <string>De-Interlace Methods</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_clear_filters">
+      <property name="geometry">
+       <rect>
+        <x>4</x>
+        <y>560</y>
+        <width>251</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Clear All Image Processing Filters</string>
       </property>
      </widget>
     </widget>
