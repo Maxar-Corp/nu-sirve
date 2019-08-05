@@ -19,6 +19,7 @@
 #include "color_scheme.h"
 #include "osm_reader.h"
 #include "Data_Structures.h"
+#include <armadillo>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -87,6 +88,10 @@ class Engineering_Plots : public QtPlotting
 		void plot_azimuth();
 		void plot_elevation();
 		void plot_irradiance(int number_tracks);
+
+		std::vector<double> get_individual_x_track(int i);
+		void establish_sub_plot_limits(std::vector<double> min_max_x);
+
 		std::vector<double> find_min_max(std::vector<double>data);
 		void get_xaxis_value(std::vector<double> &values);
 		void create_current_marker();

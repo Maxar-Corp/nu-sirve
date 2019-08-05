@@ -24,41 +24,48 @@ void Engineering_Plots::plot_azimuth() {
 	start_new_chart();
 	create_current_marker();
 	// ---------------------------------------------------------------------------------------------------------------
-
-	int number_pts = engineering_data.size();
 	
-	std::vector<double>az;
-	std::vector<double>x;
+	std::vector<double> x_points, y_points;
 
-	for (int i = 0; i < number_pts; i++)
+	int number_tracks = track_irradiance_data.size();
+	int plot_number_tracks = number_tracks;
+	if (plot_primary_only)
+		plot_number_tracks = 1;
+
+	for (int i = 0; i < plot_number_tracks; i++)
 	{
-		az.push_back(engineering_data[i].azimuth_sensor);
+		QLineSeries *series = new QLineSeries();
+		QColor base_color(colors.GetCurrentColor());
+		series->setColor(base_color);
+
+		std::vector<double> x_values = get_individual_x_track(i);
+		std::vector<double> y_values = track_irradiance_data[i].azimuth;
+
+		add_series(series, x_values, y_values, true);
+
+		// get next color for series
+		colors.GetNextColor();
+
+		// Add all x/y points to a common vector for processing later
+		x_points.insert(x_points.end(), x_values.begin(), x_values.end());
+		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
 
-	get_xaxis_value(x);
-	y_title = QString("Azimuth (deg)");
-
-	QColor base_color(colors.GetCurrentColor());
-	QLineSeries *series = new QLineSeries();
-	series->setColor(base_color);
-	add_series(series, x, az);
-	
 	std::vector<double>min_max_x, min_max_y;
-	min_max_x = find_min_max(x);
-	min_max_y = find_min_max(az);
+	min_max_x = find_min_max(x_points);
+	min_max_y = find_min_max(y_points);
 
-	full_plot_xmin = min_max_x[0];
-	full_plot_xmax = find_max_for_axis(min_max_x);
-
-	sub_plot_xmin = x[index_sub_plot_xmin];
-	sub_plot_xmax = x[index_sub_plot_xmax];
+	establish_sub_plot_limits(min_max_x);
 	
 	title = QString("");
+	y_title = QString("Azimuth (deg)");
 
 	if (plot_all_data)
 		chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title, title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title, title);
+
+	
 }
 
 void Engineering_Plots::plot_elevation() {
@@ -71,36 +78,40 @@ void Engineering_Plots::plot_elevation() {
 	create_current_marker();
 	// ---------------------------------------------------------------------------------------------------------------
 
-	int number_pts = engineering_data.size();
+	std::vector<double> x_points, y_points;
 
-	std::vector<double>el;
-	std::vector<double>x;
+	int number_tracks = track_irradiance_data.size();
+	int plot_number_tracks = number_tracks;
+	if (plot_primary_only)
+		plot_number_tracks = 1;
 
-	for (int i = 0; i < number_pts; i++)
+	for (int i = 0; i < plot_number_tracks; i++)
 	{
-		el.push_back(engineering_data[i].elevation_sensor);
+		QLineSeries *series = new QLineSeries();
+		QColor base_color(colors.GetCurrentColor());
+		series->setColor(base_color);
+
+		std::vector<double> x_values = get_individual_x_track(i);
+		std::vector<double> y_values = track_irradiance_data[i].elevation;
+
+		add_series(series, x_values, y_values, true);
+
+		// get next color for series
+		colors.GetNextColor();
+
+		// Add all x/y points to a common vector for processing later
+		x_points.insert(x_points.end(), x_values.begin(), x_values.end());
+		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
 
-	get_xaxis_value(x);
-	y_title = QString("Elevation (deg)");
-
-	QColor base_color(colors.GetCurrentColor());
-	QLineSeries *series = new QLineSeries();
-	series->setColor(base_color);
-	add_series(series, x, el);
-
 	std::vector<double>min_max_x, min_max_y;
-	min_max_x = find_min_max(x);
-	min_max_y = find_min_max(el);
+	min_max_x = find_min_max(x_points);
+	min_max_y = find_min_max(y_points);
 
-	full_plot_xmin = min_max_x[0];
-	full_plot_xmax = find_max_for_axis(min_max_x);
-
-	sub_plot_xmin = x[index_sub_plot_xmin];
-	sub_plot_xmax = x[index_sub_plot_xmax];
+	establish_sub_plot_limits(min_max_x);
 
 	title = QString("");
-
+	y_title = QString("Elevation (deg)");
 	if (plot_all_data)
 		chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title, title);
 	else
@@ -129,26 +140,7 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 		QColor base_color(colors.GetCurrentColor());
 		series->setColor(base_color);
 
-		std::vector<double> x_values;
-
-		switch (x_axis_units)
-		{
-		case frames:
-			x_title = QString("Frame #");
-			x_values = track_irradiance_data[i].frame_number;
-			break;
-		case seconds_past_midnight:
-			x_title = QString("Seconds Past Midnight");
-			x_values = track_irradiance_data[i].past_midnight;
-			break;
-		case seconds_from_epoch:
-			x_title = QString("Seconds Past Epoch");
-			//x_values = track_irradiance_data[i].frame_number;
-			break;
-		default:
-			
-			break;
-		}
+		std::vector<double> x_values = get_individual_x_track(i);
 
 		add_series(series, x_values, track_irradiance_data[i].irradiance, true);
 
@@ -163,6 +155,46 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	std::vector<double>min_max_x, min_max_y;
 	min_max_x = find_min_max(x_points);
 	min_max_y = find_min_max(y_points);
+
+	establish_sub_plot_limits(min_max_x);	
+
+	y_title = QString("Irradiance Counts");
+	title = QString("");
+
+	if (plot_all_data)
+		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+	else
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+	
+}
+
+std::vector<double> Engineering_Plots::get_individual_x_track(int i)
+{
+
+	std::vector<double> x_values;
+
+	switch (x_axis_units)
+	{
+	case frames:
+		x_title = QString("Frame #");
+		x_values = track_irradiance_data[i].frame_number;
+		break;
+	case seconds_past_midnight:
+		x_title = QString("Seconds Past Midnight");
+		x_values = track_irradiance_data[i].past_midnight;
+		break;
+	case seconds_from_epoch:
+		x_title = QString("Seconds Past Epoch");
+		//x_values = track_irradiance_data[i].frame_number;
+		break;
+	default:
+
+		break;
+	}
+	return x_values;
+}
+
+void Engineering_Plots::establish_sub_plot_limits(std::vector<double> min_max_x) {
 
 	full_plot_xmin = min_max_x[0];
 	full_plot_xmax = find_max_for_axis(min_max_x);
@@ -184,15 +216,6 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	default:
 		break;
 	}
-
-	y_title = QString("Irradiance Counts");
-	title = QString("");
-
-	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
-	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
-	
 }
 
 std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
@@ -258,7 +281,6 @@ void Engineering_Plots::plot_current_step(int counter)
 		std::vector<double> x;
 		get_xaxis_value(x);
 
-		//TODO figure out how to find the y-values for current chart
 		double current_x = x[index_sub_plot_xmin + counter];
 		
 		double min_y = axis_y->min() * 1.01;
@@ -354,7 +376,11 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 
 	double base_x_distance = 1;
 	if (num_data_pts > 1) {
-		base_x_distance = (x[1] - x[0]) * 1.5;
+
+		arma::vec x_vector(x);
+		arma::vec diff = arma::diff(x_vector);
+
+		base_x_distance = diff.min() * 1.5;
 	}
 
 	for (uint i = 0; i < num_data_pts; i++) {

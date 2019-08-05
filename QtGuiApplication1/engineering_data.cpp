@@ -47,6 +47,8 @@ void Engineering_Data::extract_engineering_data()
 				ir_data.centroid_y = osm[i].data.track_data[track_index].centroid_y;
 				ir_data.band_id = osm[i].data.track_data[track_index].ir_measurements[0].band_id;
 				ir_data.track_id = osm[i].data.track_data[track_index].track_id;
+				ir_data.azimuth = osm[i].data.track_data[track_index].az_el_track[0];
+				ir_data.elevation = osm[i].data.track_data[track_index].az_el_track[1];
 
 				temp.ir_data.push_back(ir_data);
 			}
@@ -89,6 +91,8 @@ void Engineering_Data::fill_irradiance_vector()
 				track_irradiance_data[j].past_midnight.push_back(frame_data[i].seconds_past_midnight);
 
 				track_irradiance_data[j].irradiance.push_back(frame_data[i].ir_data[j].irradiance);
+				track_irradiance_data[j].azimuth.push_back(frame_data[i].ir_data[j].azimuth);
+				track_irradiance_data[j].elevation.push_back(frame_data[i].ir_data[j].elevation);
 			}
 			else
 			{
@@ -102,6 +106,8 @@ void Engineering_Data::fill_irradiance_vector()
 				temp.past_midnight.push_back(frame_data[i].seconds_past_midnight);
 
 				temp.irradiance.push_back(frame_data[i].ir_data[j].irradiance);
+				temp.azimuth.push_back(frame_data[i].ir_data[j].azimuth);
+				temp.elevation.push_back(frame_data[i].ir_data[j].elevation);
 
 				track_irradiance_data.push_back(temp);
 			}
