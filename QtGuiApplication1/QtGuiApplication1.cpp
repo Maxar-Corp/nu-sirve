@@ -455,6 +455,9 @@ void QtGuiApplication1::load_abir_data()
 	data_plots->index_sub_plot_xmax = max_frame - 1;
 	plot_change(1);
 
+	//Enable clearing image processing filters
+	QObject::connect(ui.btn_clear_filters, &QPushButton::clicked, this, &QtGuiApplication1::clear_image_processing);
+	
 	//Enable saving frame
 	ui.btn_frame_save->setEnabled(true);
 	connect(ui.btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
@@ -970,6 +973,15 @@ Video_Parameters QtGuiApplication1::find_deinterlace_video_type(int index)
 	}
 
 	return Video_Parameters::deinterlace_max_absolute_value;
+}
+
+void QtGuiApplication1::clear_image_processing()
+{
+	
+	int n = videos->something.size();
+
+	videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
+
 }
 
 void QtGuiApplication1::create_background_subtraction_correction() {
