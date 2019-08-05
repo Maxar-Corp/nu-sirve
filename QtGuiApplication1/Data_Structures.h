@@ -73,6 +73,9 @@ struct Track_Irradiance {
 	std::vector<double> past_midnight;
 
 	std::vector<double> irradiance;
+	std::vector<double> azimuth;
+	std::vector<double> elevation;
+
 };
 
 struct Track_Tgts {
@@ -100,6 +103,8 @@ struct Irradiance_Msrmnt {
 	unsigned int track_id, band_id;
 	double centroid_x, centroid_y;
 	double irradiance;
+	double azimuth;
+	double elevation;
 };
 
 struct Plotting_Frame_Data {
