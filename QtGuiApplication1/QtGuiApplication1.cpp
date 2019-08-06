@@ -411,7 +411,23 @@ void QtGuiApplication1::load_abir_data()
 		
 	INFO << "GUI: Reading in video data";
 	primary.set_number_of_bits(max_used_bits);
-	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, 4.2);
+	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, 0);
+
+	if (video_frames.size() == 0) {
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("File Version Not Within Range"));
+		QString box_text = "File version was not within valid range. See log for more details";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
+		INFO << "GUI: Video import stopped. File version not within range";
+		ui.btn_get_frames->setEnabled(true);
+		return;
+	}
 		
 	int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
 	int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
@@ -781,12 +797,26 @@ void QtGuiApplication1::create_non_uniformity_correction()
 		msgBox.exec();
 		return;
 	}
-
-
+	
 	//----------------------------------------------------------------------------------------------------
 
 	NUC nuc(file_data.image_path, min_frame, max_frame, file_data.file_version);
 	std::vector<double> nuc_correction = nuc.get_nuc_correction();
+
+	if (nuc_correction.size() == 0)
+	{
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("File Version Not Within Range"));
+		QString box_text = "File version was not within valid range. See log for more details";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
+		INFO << "GUI: NUC correction not completed";
+		return;
+	}
 
 	INFO << "Calculated NUC correction";
 

@@ -18,11 +18,16 @@ NUC::~NUC()
 std::vector<double> NUC::get_nuc_correction()
 {
 	INFO << "NUC: Starting correction process";
+	std::vector<double>out;
 
 	QByteArray array = input_video_file.toLocal8Bit();
 	buffer = array.data();
 		
-	abir_data.File_Setup(buffer, file_version);
+	int check_value = abir_data.File_Setup(buffer, file_version);
+	if (check_value < 0) {
+
+		return out;
+	}
 	std::vector<std::vector<uint16_t>> video_frames_16bit = import_frames();
 
 	int number_frames = video_frames_16bit.size();
@@ -48,7 +53,7 @@ std::vector<double> NUC::get_nuc_correction()
 
 	arma::vec adjusted_mean_flat = arma::vectorise(adjusted_mean_frames);
 
-	std::vector<double>out = arma::conv_to<std::vector<double>>::from(adjusted_mean_flat);
+	out = arma::conv_to<std::vector<double>>::from(adjusted_mean_flat);
 
 	nuc_correction = out;
 
