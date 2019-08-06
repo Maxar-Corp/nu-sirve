@@ -11,6 +11,7 @@
 
 #include <sys/stat.h>
 #include <qprogressdialog.h>
+#include <qinputdialog.h>
 
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
