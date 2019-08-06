@@ -21,6 +21,40 @@ LocationInput::~LocationInput()
 
 }
 
+std::vector<double> LocationInput::GetECEFVector()
+{
+
+	QString path = selected_file_path;
+	QFile file(path);
+	if (!file.open(QFile::ReadOnly)) {
+		INFO << "Location Input: Error, Cannot open location file " + path.toStdString();
+		return std::vector<double>();
+	}
+
+	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+	QJsonObject jsonObj = jsonDoc.object();
+
+	double latitude = jsonObj.value("latitude").toDouble();
+	double longitude = jsonObj.value("longitude").toDouble();
+	double altitude = jsonObj.value("altitude").toDouble();
+
+	arma::mat lla(3, 1);
+	lla(0, 0) = latitude;
+	lla(1, 0) = longitude;
+	lla(2, 0) = altitude / 1000.;
+
+	arma::mat ecef_mat = earth::LLAtoECF(lla);
+	arma::vec ecef_vec = arma::vectorise(ecef_mat);
+	ecef_vec = ecef_vec * 1000.;
+
+	std::vector<double>out = arma::conv_to<std::vector<double>>::from(ecef_vec);
+	out.push_back(0);
+	out.push_back(0);
+	out.push_back(0);
+
+	return out;
+}
+
 void LocationInput::RefreshListBox()
 {
 	QDir directory(directory_path);
@@ -33,7 +67,7 @@ void LocationInput::RefreshListBox()
 		QString path = directory.dirName() + "/" + filename;
 		QFile file(path);
 		if (!file.open(QFile::ReadOnly)) {
-			INFO << "Error, Cannot open location file " + path.toStdString();
+			INFO << "Location Input: Error, Cannot open location file " + path.toStdString();
 			continue;
 		}
 
@@ -50,7 +84,7 @@ void LocationInput::OnItemChange(QString item) {
 	QString path = directory_path + item;
 	QFile file(path);
 	if (!file.open(QFile::ReadOnly)) {
-		INFO << "Error, Cannot open location file " + path.toStdString();
+		INFO << "Location Input: Error, Cannot open location file " + path.toStdString();
 	}
 
 	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
@@ -76,7 +110,7 @@ void LocationInput::OnItemChange(QString item) {
 		file.close();
 
 		QString text = "";
-		text = "Name: " + location_name + "\n\nDescription: " + description + "\n\nLatitude: " + QString::number(latitude) + "\n\nLongitude: " + QString::number(longitude) + "\n\nAltitude: " + QString::number(altitude);
+		text = "Name: " + location_name + "\n\nDescription: " + description + "\n\nLatitude(deg): " + QString::number(latitude) + "\n\nLongitude(deg): " + QString::number(longitude) + "\n\nAltitude(m): " + QString::number(altitude);
 
 		ui.lbl_list->setText(text);
 
