@@ -30,11 +30,11 @@ BOOST_LOG_GLOBAL_LOGGER_INIT(my_logger, logger_t)
 			<< expr::smessage
 			)
 	);
-
+	
 	logging::core::get()->set_filter
 	(
 		logging::trivial::severity >= logging::trivial::debug
 	);
-
+	
 	return lg;
 }

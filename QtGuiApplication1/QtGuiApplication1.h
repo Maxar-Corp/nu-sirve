@@ -30,6 +30,8 @@
 #include <qinputdialog.h>
 #include <qprogressdialog.h>
 #include <qmessagebox.h>
+#include <qjsonobject.h>
+#include <qjsondocument.h>
 
 
 class QtGuiApplication1 : public QMainWindow
