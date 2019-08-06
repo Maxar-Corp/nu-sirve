@@ -30,6 +30,8 @@ int ABIR_Data::File_Setup(char* file_path, double version_number)
 
     //full_file_path = file_path;
     file_version = GetVersionNumber(version_number);
+	if (file_version < 0)
+		return -1;
 	
     full_file_path = file_path;
    
@@ -313,9 +315,23 @@ double ABIR_Data::GetVersionNumber(double version_number)
     int return_code = fseek(fp, 36, SEEK_SET);
     version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct
 
+	bool ok;
+	double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version", "Enter File Version to Use:", version_number, 1, 20, 2, &ok);
+
+	INFO << "ABIR Load: Version number from file is: " << version_number;
+	INFO << "ABIR Load: Version number selected by user is " << version_number_entered;
+
+	version_number = version_number_entered;
+
+	if (!ok) {
+		INFO << "User selected 'Cancel' for version. Import of video files canceled";
+		return -1;
+	}
+
 	if (version_number < 1 || version_number > 20) {
 		WARN << "ABIR Load: File version is not between 1 and 20 (" << std::to_string(version_number) << ")";
-		// TODO throw error for bad version
+		
+		return -1;
 	}
 
     if (version_number == 2.5)
