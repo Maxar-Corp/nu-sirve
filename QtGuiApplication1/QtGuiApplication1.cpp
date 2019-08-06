@@ -7,10 +7,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	QString gary = "locations/";
-	LocationInput bob;
-	auto jane = bob.exec();
-
 	ui.tabMenu->setTabEnabled(1, false);
 	ui.tabMenu->setTabEnabled(2, false);
 	ui.tabMenu->setTabEnabled(3, false);

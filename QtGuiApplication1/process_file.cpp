@@ -33,7 +33,10 @@ bool Process_File::load_osm_file()
 		return false;
 	}
 
-	read_osm_file();
+	bool check_read = read_osm_file();
+	if (!check_read)
+		return false;
+
 	valid_osm = true;
 
 	int index_file_start, index_file_end;
@@ -69,7 +72,9 @@ bool Process_File::read_osm_file()
 	QByteArray array = osm_path.toLocal8Bit();
 	char* buffer = array.data();
 	
-	osm_data.LoadFile(buffer, false);
+	int check = osm_data.LoadFile(buffer, false);
+	if (check < 0)
+		return false;
 	
 	return true;
 }

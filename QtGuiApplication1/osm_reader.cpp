@@ -4,6 +4,8 @@ OSMReader::OSMReader()
 {
     num_messages = 0;
     contains_data = false;
+	location_from_file = false;
+	small_value = 0.000001;
 
 }
 
@@ -34,9 +36,16 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 
     fclose(fp);
 
+	if (data.size() == 0) {
+		INFO << "OSM Load: Import of location data from file canceled";
+		return -1;
+	}
+
     contains_data = true;
 
 	INFO << "OSM Load: OSM data loaded complete";
+
+	location_from_file = false;
 
     return err;
 }
@@ -119,6 +128,11 @@ void OSMReader::LoadData()
             current_frame.msg_header = ReadMessageHeader();
             current_frame.frame_header = ReadFrameHeader();
             current_frame.data = ReadFrameData();
+
+			if (i == 0) {
+				if (current_frame.data.ecf.size() == 0)
+					return;
+			}
 
             data.push_back(current_frame);
         }
@@ -225,23 +239,48 @@ FrameData OSMReader::ReadFrameData() {
     uint32_t osm_micro_seconds = ReadValue<uint32_t>(true);
     data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
 
+	data.julian_date = get_gps_time(data.frametime);
+	double modified_julian_date = data.julian_date + 0.5;
+	int midnight_julian = std::floor(modified_julian_date);
+	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
+
     data.mrp = ReadMultipleDoubleValues(3, true);
     data.mrp_cov_rand = ReadMultipleDoubleValues(6, true);
     data.mrp_cov_bias = ReadMultipleDoubleValues(6, true);
 
+	//-----------------------------------------------------------------------------------------------------------------
 	data.ecf = ReadMultipleDoubleValues(6, true);
+	DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
+	double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
+	if (sum < small_value)
+	{
+		if (location_from_file) {
+			data.ecf = file_ecef_vector;
+		}
+		else {
+			LocationInput get_location_file;
+			auto response = get_location_file.exec();
+			
+			if (response && get_location_file.path_set) {
+				file_ecef_vector = get_location_file.GetECEFVector();
+				INFO << "OSM Load: Using location from file " << get_location_file.selected_file_path.toLocal8Bit().constData();;
+			}
+			else {
+				DEBUG << "OSM Load: Location file import canceled or file path not set";
+				FrameData bad_input;
+				return bad_input;
+			}
+		}
+	}
+	//-----------------------------------------------------------------------------------------------------------------
+
+	
+	//TODO Write code to process ecf for when ecf proided by file
+	//If ~osm_unit.ecf then convert lla to ecf data and push onto frame data
+	
 	data.lla = get_lat_lon_alt(data.ecf);
 
-	data.dcm = mr2dcos(data.mrp);
-	
-	data.julian_date = get_gps_time(data.frametime);
-	
-	double modified_julian_date = data.julian_date + 0.5;
-	int midnight_julian = std::floor(modified_julian_date);
-	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
-	
-    //TODO Write code to process ecf for when ecf proided by file
-    //If ~osm_unit.ecf then convert lla to ecf data and push onto frame data
+	data.dcm = mr2dcos(data.mrp);    
 
     data.i_fov_x = ReadValue<double>(true);
     data.i_fov_y = ReadValue<double>(true);

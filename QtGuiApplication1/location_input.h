@@ -8,6 +8,7 @@
 #include "logging.h"
 
 #include "new_location.h"
+#include "earth.h"
 
 #include <qlabel.h>
 #include <qpushbutton.h>
@@ -18,6 +19,7 @@
 #include <qjsonobject.h>
 #include <qjsonvalue.h>
 #include <qmessagebox.h>
+#include <armadillo>
 
 
 class LocationInput : public QDialog//, public QWidget
@@ -33,6 +35,7 @@ public:
 	LocationInput();
 	~LocationInput();
 
+	std::vector<double> GetECEFVector();
 	void RefreshListBox();
 	void clear();
 

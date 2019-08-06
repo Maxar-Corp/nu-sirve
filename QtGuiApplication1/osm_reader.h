@@ -10,6 +10,7 @@
 #include <armadillo>
 #include <math.h>
 
+#include "location_input.h"
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
 #include "logging.h"
@@ -28,6 +29,9 @@ public:
     uint32_t num_messages;
     std::vector<Frame> data;
     bool contains_data;
+	bool location_from_file;
+	std::vector<double> file_ecef_vector;
+	double small_value;
 
 	OSMReader();
 	~OSMReader();
