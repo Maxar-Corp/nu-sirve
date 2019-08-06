@@ -12,7 +12,32 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	INFO << "GUI: Initializing GUI";
 
-	max_used_bits = 14;
+	//---------------------------------------------------------------------------
+
+	QString path = "config/config.json";
+	QFile file(path);
+	
+	if (!file.open(QFile::ReadOnly)) {
+		INFO << "GUI: Cannot open configuration file " + path.toStdString();
+		INFO << "GUI: Setting maximum bit level to 14 bits";
+		max_used_bits = 14;
+	}
+	else {
+		QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+		QJsonObject jsonObj = jsonDoc.object();
+
+		if (jsonObj.contains("max number of bits")) {
+			max_used_bits = jsonObj.value("max number of bits").toInt();
+			INFO << "GUI: Setting maximum bit level of image file to " << max_used_bits << " bits";
+		}
+		else {
+			INFO << "GUI: Cannot find key 'max number of bits' in configuration file " + path.toStdString();
+			INFO << "GUI: Setting maximum bit level to 14 bits";
+			max_used_bits = 14;
+		}
+	}
+
+	//---------------------------------------------------------------------------
 
 	videos = new Video_Container(); 
 
