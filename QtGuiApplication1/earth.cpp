@@ -17,8 +17,8 @@ namespace earth {
 	double earthSMI_km = 6356.752314;
 
 	//Earth shape
-	double earthEccentricity = std::sqrt((std::pow(earthSMA_km, 2) - std::pow(earthSMI_km, 2)) / std::pow(earthSMA_km, 2));
 	double earthFlattening = 1 / 298.2572236;
+	double earthEccentricity = std::sqrt(2 * earthFlattening - earthFlattening * earthFlattening);
 
 	//Earth rotation rate (rad/s)
 	double earthRotation = 0.00007292115;//rad / solar sec

@@ -1,5 +1,6 @@
 #include "QtGuiApplication1.h"
-
+#include "location_input.h"
+//#include "new_location.h"
 
 QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	: QMainWindow(parent)
@@ -9,7 +10,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.tabMenu->setTabEnabled(1, false);
 	ui.tabMenu->setTabEnabled(2, false);
 	ui.tabMenu->setTabEnabled(3, false);
-
+	   
 	INFO << "GUI: Initializing GUI";
 
 	//---------------------------------------------------------------------------
