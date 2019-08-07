@@ -274,10 +274,6 @@ FrameData OSMReader::ReadFrameData() {
 	}
 	//-----------------------------------------------------------------------------------------------------------------
 
-	
-	//TODO Write code to process ecf for when ecf proided by file
-	//If ~osm_unit.ecf then convert lla to ecf data and push onto frame data
-	
 	data.lla = get_lat_lon_alt(data.ecf);
 
 	data.dcm = mr2dcos(data.mrp);    
@@ -443,30 +439,6 @@ std::vector<double> OSMReader::calculation_azimuth_elevation(int x_pixel, int y_
 
 	return std::vector<double> {los_az, los_el};
 
-	//ecf2ned = rotations.ecf2ned;
-	//ifovX = rotations.ifovX;
-	//ifovY = rotations.ifovY;
-	//dth = x_pix * ifovX;
-	//dphi = -y_pix * ifovY; % positive is up on the FPA in this case, so need a negative in front
-
-	//LOSIC = [sin(dth)*cos(dphi); ...
-	//		- sin(dphi); ...
-	//		cos(dth)*cos(dphi)];
-
-	//LOSned = ecf2ned * cam2ecf*LOSIC;
-	
-	//%% Extract LOS Az and El from LOS vector
-	//rtd = 180 / pi;
-	//LOSned(abs(LOSned) < 1e-14) = 0;
-	//ux = LOSned(1, :);
-	//uy = LOSned(2, :);
-	//uz = LOSned(3, :);
-	//losaz = rtd * atan2(uy, ux);
-	//losel = rtd * atan2(-uz, sqrt(ux.*ux + uy.*uy));
-	//if (losaz < 0) losaz = losaz + 360; end
-	
-	
-	//return std::vector<double>();
 }
 
 double OSMReader::get_gps_time(double offset_gps_seconds)
