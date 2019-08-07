@@ -893,7 +893,6 @@ void QtGuiApplication1::create_non_uniformity_correction()
 		INFO << "GUI: NUC video added";
 	}
 		
-	//TODO if more than one correction already exists, then apply NUC to it as well ? 
 	ui.chk_apply_nuc->setEnabled(true);
 }
 
@@ -1044,6 +1043,95 @@ void QtGuiApplication1::clear_image_processing()
 
 }
 
+video_details QtGuiApplication1::get_current_filter_state()
+{
+	video_details current_status;
+	bool no_filters_applied = true;
+
+	if (ui.chk_apply_nuc->isChecked()) {
+		current_status.properties[Video_Parameters::non_uniformity_correction] = true;
+		no_filters_applied = false;
+	}
+	if (ui.chk_bgs->isChecked()) {
+		current_status.properties[Video_Parameters::background_subtraction] = true;
+		no_filters_applied = false;
+	}
+	if (ui.chk_deinterlace->isChecked()) {
+		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+		current_status.properties[deinterlace_video_type] = true;
+
+		no_filters_applied = false;
+	}
+
+	if (no_filters_applied)
+		current_status.properties[Video_Parameters::original] = true;
+
+	return current_status;
+}
+
+bool QtGuiApplication1::check_filter_selection(video_details filter_state)
+{
+		
+	int index_exists = videos->find_data_index(filter_state);
+	
+	if (index_exists > 0)
+		return true;
+	
+	return false;
+}
+
+void QtGuiApplication1::show_available_filter_options()
+{
+	video_details current_state = get_current_filter_state();
+
+	//Check NUC
+	if (!current_state.properties[Video_Parameters::non_uniformity_correction])
+	{
+		current_state.properties[Video_Parameters::non_uniformity_correction] = true;
+		if (check_filter_selection(current_state))
+			ui.chk_apply_nuc->setEnabled(true);
+		else {
+			ui.chk_apply_nuc->setChecked(false);
+			ui.chk_apply_nuc->setEnabled(false);
+		}
+
+		//reset filter state
+		current_state.properties[Video_Parameters::non_uniformity_correction] = false;
+	}
+
+	//Check BGS
+	if (!current_state.properties[Video_Parameters::background_subtraction])
+	{
+		current_state.properties[Video_Parameters::background_subtraction] = true;
+		if (check_filter_selection(current_state))
+			ui.chk_bgs->setEnabled(true);
+		else {
+			ui.chk_bgs->setChecked(false);
+			ui.chk_bgs->setEnabled(false);
+		}
+
+		//reset filter state
+		current_state.properties[Video_Parameters::background_subtraction] = false;
+	}
+
+	//Check De-interlace
+	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+	if (!current_state.properties[deinterlace_video_type])
+	{
+		current_state.properties[deinterlace_video_type] = true;
+		if (check_filter_selection(current_state))
+			ui.chk_bgs->setEnabled(true);
+		else {
+			ui.chk_bgs->setChecked(false);
+			ui.chk_bgs->setEnabled(false);
+		}
+
+		//reset filter state
+		current_state.properties[deinterlace_video_type] = false;
+	}
+
+}
+
 void QtGuiApplication1::create_background_subtraction_correction() {
 
 	INFO << "GUI: Background subtraction video being created";
@@ -1160,10 +1248,12 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 
 void QtGuiApplication1::toggle_video_filters()
 {
-	video_details user_requested;
-
 	INFO << "GUI: User toggled new video for display";
 
+	video_details user_requested = get_current_filter_state();
+	bool request_exists = check_filter_selection(user_requested);
+
+	/*
 	user_requested.properties[Video_Parameters::original] = true;
 	user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
 	user_requested.properties[Video_Parameters::background_subtraction] = false;
@@ -1191,7 +1281,14 @@ void QtGuiApplication1::toggle_video_filters()
 		user_requested.properties[deinterlace_video_type] = true;
 	}
 
-	videos->display_data(user_requested);
+	*/
+
+	if (request_exists)
+		videos->display_data(user_requested);
+	else {
+		//video_details updated_user_request = get_current_filter_state();
+		videos->display_original_data();// (updated_user_request);
+	}
 }
 
 void QtGuiApplication1::set_color_correction_slider_labels()
