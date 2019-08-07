@@ -110,7 +110,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.cmb_deinterlace_options->addItem("Centroid");
 	ui.cmb_deinterlace_options->addItem("Avg Cross Correlation");
 
-	QObject::connect(ui.cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::change_deinterlace_options);
+	QObject::connect(ui.cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::show_available_filter_options);
 
 	//---------------------------------------------------------------------------
 
@@ -759,16 +759,8 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 
 void QtGuiApplication1::create_non_uniformity_correction()
 {
-	QProgressDialog progress("", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setWindowTitle(QString("Non-Uniformity Correction"));
-	progress.setLabelText(QString("Copying data for non-uniformity correction..."));
-	
+		
 	INFO << "GUI: Creating non-uniformity correction file from original data";
-
-	video_details nuc_video;
-	video_details original = videos->something[0];
 		
 	//----------------------------------------------------------------------------------------------------
 	// Get frame numbers from text boxes
@@ -845,17 +837,27 @@ void QtGuiApplication1::create_non_uniformity_correction()
 
 	INFO << "Calculated NUC correction";
 
+	video_details nuc_video;
+	video_details current_state = get_current_filter_state();
+	int index_current_state = videos->find_data_index(current_state);
+
+	video_details original = videos->something[index_current_state];
+
 	nuc_video = original;
 	nuc_video.clear_16bit_vector();
 	nuc_video.clear_8bit_vector();
 	nuc_video.histogram_data.clear();
-
+	
 	nuc_video.properties[Video_Parameters::original] = false;
 	nuc_video.properties[Video_Parameters::non_uniformity_correction] = true;
 
 	// Apply NUC to the frames		
 	int number_frames = original.frames_16bit.size();
 
+	QProgressDialog progress("", "Cancel", 0, 100);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setValue(0);
+	progress.setWindowTitle(QString("Non-Uniformity Correction"));
 		
 	progress.setMinimum(0);
 	progress.setMaximum(number_frames - 1);
@@ -892,30 +894,27 @@ void QtGuiApplication1::create_non_uniformity_correction()
 		videos->something.push_back(nuc_video);
 		INFO << "GUI: NUC video added";
 	}
-		
-	ui.chk_apply_nuc->setEnabled(true);
+	
+
+	show_available_filter_options();
 }
 
 void QtGuiApplication1::create_deinterlace()
 {
 	INFO << "GUI: Creating de-interlace file from original data";
-
-	QProgressDialog progress("", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setLabelText(QString("Copying data for de-interlace..."));
-	progress.setWindowTitle(QString("De-interlace Frames"));
 		
-	video_details deinterlace_video;
-	video_details original = videos->something[0];
-
 	deinterlace_type deinterlace_method_type = find_deinterlace_type(ui.cmb_deinterlace_options->currentIndex());
 	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+	
+	video_details deinterlace_video;
+	video_details current_state = get_current_filter_state();
+	int index_current_state = videos->find_data_index(current_state);
+
+	video_details original = videos->something[index_current_state];
 
 	DEBUG << "GUI: Found de-interlacing method type and video type";
-
 	Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
-		
+
 	deinterlace_video = original;
 	deinterlace_video.clear_16bit_vector();
 	deinterlace_video.clear_8bit_vector();
@@ -926,7 +925,12 @@ void QtGuiApplication1::create_deinterlace()
 
 	// Apply de-interlace to the frames		
 	int number_frames = original.frames_16bit.size();
-		
+	
+	QProgressDialog progress("", "Cancel", 0, 100);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setValue(0);
+	progress.setWindowTitle(QString("De-interlace Frames"));
+
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Creating de-interlaced frames..."));
 
@@ -962,33 +966,8 @@ void QtGuiApplication1::create_deinterlace()
 		INFO << "GUI: De-interlace video was added";
 	}
 
-	change_deinterlace_options(ui.cmb_deinterlace_options->currentIndex());
-}
-
-void QtGuiApplication1::change_deinterlace_options(int index)
-{
-	Video_Parameters deinterlace_type = find_deinterlace_video_type(index);
-
-	video_details deinterlace_check;
-	deinterlace_check.properties[deinterlace_type] = true;
-
-	int index_deinterlace_video = videos->find_data_index(deinterlace_check);
-
-	if (index_deinterlace_video > 0)
-	{
-		ui.chk_deinterlace->setEnabled(true);
-		if (ui.chk_deinterlace->isChecked())
-			toggle_video_filters();
-
-		DEBUG << "GUI: New de-interlace method selected and video found";
-	}
-	else {
-		ui.chk_deinterlace->setCheckState(Qt::Unchecked);
-		ui.chk_deinterlace->setEnabled(false);
-
-		DEBUG << "GUI: New de-interlace method selected and video not found";
-	}
-
+	show_available_filter_options();
+	
 }
 
 deinterlace_type QtGuiApplication1::find_deinterlace_type(int index) {
@@ -1037,10 +1016,9 @@ void QtGuiApplication1::clear_image_processing()
 	int n = videos->something.size();
 
 	videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
-	change_deinterlace_options(0);
-	ui.chk_apply_nuc->setEnabled(false);
-	ui.chk_bgs->setEnabled(false);
-
+	
+	show_available_filter_options();
+	
 }
 
 video_details QtGuiApplication1::get_current_filter_state()
@@ -1074,7 +1052,7 @@ bool QtGuiApplication1::check_filter_selection(video_details filter_state)
 		
 	int index_exists = videos->find_data_index(filter_state);
 	
-	if (index_exists > 0)
+	if (index_exists >= 0)
 		return true;
 	
 	return false;
@@ -1087,6 +1065,7 @@ void QtGuiApplication1::show_available_filter_options()
 	//Check NUC
 	if (!current_state.properties[Video_Parameters::non_uniformity_correction])
 	{
+		current_state.properties[Video_Parameters::original] = false;
 		current_state.properties[Video_Parameters::non_uniformity_correction] = true;
 		if (check_filter_selection(current_state))
 			ui.chk_apply_nuc->setEnabled(true);
@@ -1102,6 +1081,7 @@ void QtGuiApplication1::show_available_filter_options()
 	//Check BGS
 	if (!current_state.properties[Video_Parameters::background_subtraction])
 	{
+		current_state.properties[Video_Parameters::original] = false;
 		current_state.properties[Video_Parameters::background_subtraction] = true;
 		if (check_filter_selection(current_state))
 			ui.chk_bgs->setEnabled(true);
@@ -1118,12 +1098,13 @@ void QtGuiApplication1::show_available_filter_options()
 	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
 	if (!current_state.properties[deinterlace_video_type])
 	{
+		current_state.properties[Video_Parameters::original] = false;
 		current_state.properties[deinterlace_video_type] = true;
 		if (check_filter_selection(current_state))
-			ui.chk_bgs->setEnabled(true);
+			ui.chk_deinterlace->setEnabled(true);
 		else {
-			ui.chk_bgs->setChecked(false);
-			ui.chk_bgs->setEnabled(false);
+			ui.chk_deinterlace->setChecked(false);
+			ui.chk_deinterlace->setEnabled(false);
 		}
 
 		//reset filter state
@@ -1136,9 +1117,6 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 
 	INFO << "GUI: Background subtraction video being created";
 	
-	video_details background_subraction_video;
-	video_details original = videos->something[0];
-
 	//-----------------------------------------------------------------------------------------------
 	// Get frame numbers from text boxes
 	int num_frames_subtract = get_integer_from_txt_box(ui.txt_bgs_num_frames->text());
@@ -1184,6 +1162,12 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	}
 
 	//-----------------------------------------------------------------------------------------------------
+
+	video_details background_subraction_video;
+	video_details current_state = get_current_filter_state();
+	int index_current_state = videos->find_data_index(current_state);
+
+	video_details original = videos->something[index_current_state];
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
@@ -1243,7 +1227,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 		INFO << "GUI: Background subtraction video was added";
 	}
 
-	ui.chk_bgs->setEnabled(true);
+	show_available_filter_options();
 }
 
 void QtGuiApplication1::toggle_video_filters()
@@ -1253,41 +1237,19 @@ void QtGuiApplication1::toggle_video_filters()
 	video_details user_requested = get_current_filter_state();
 	bool request_exists = check_filter_selection(user_requested);
 
-	/*
-	user_requested.properties[Video_Parameters::original] = true;
-	user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
-	user_requested.properties[Video_Parameters::background_subtraction] = false;
-
-	if (ui.chk_apply_nuc->checkState())
-	{
-		user_requested.properties[Video_Parameters::original] = false;
-		user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
-		user_requested.properties[Video_Parameters::background_subtraction] = false;
-		user_requested.properties[Video_Parameters::non_uniformity_correction] = true;
-	}
-	if (ui.chk_bgs->checkState()) {
-		user_requested.properties[Video_Parameters::original] = false;
-		user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
-		user_requested.properties[Video_Parameters::background_subtraction] = false;
-		user_requested.properties[Video_Parameters::background_subtraction] = true;
+	if (!request_exists) {
+		ui.chk_apply_nuc->setChecked(false);
+		ui.chk_bgs->setChecked(false);
+		ui.chk_deinterlace->setChecked(false);
 	}
 
-	if (ui.chk_deinterlace->checkState())
-	{
-		user_requested.properties[Video_Parameters::original] = false;
-		user_requested.properties[Video_Parameters::non_uniformity_correction] = false;
-		user_requested.properties[Video_Parameters::background_subtraction] = false;
-		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
-		user_requested.properties[deinterlace_video_type] = true;
-	}
-
-	*/
+	show_available_filter_options();
 
 	if (request_exists)
 		videos->display_data(user_requested);
 	else {
-		//video_details updated_user_request = get_current_filter_state();
-		videos->display_original_data();// (updated_user_request);
+		video_details updated_user_request = get_current_filter_state();
+		videos->display_data(updated_user_request);
 	}
 }
 

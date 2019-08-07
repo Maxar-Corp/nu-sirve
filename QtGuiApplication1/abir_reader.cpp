@@ -316,7 +316,7 @@ double ABIR_Data::GetVersionNumber(double version_number)
     version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct
 
 	bool ok;
-	double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version", "Enter File Version to Use:", version_number, 1, 20, 2, &ok);
+	double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version", "Enter File Version to Use:", version_number, 1, 4.2, 2, &ok);
 
 	INFO << "ABIR Load: Version number from file is: " << version_number;
 	INFO << "ABIR Load: Version number selected by user is " << version_number_entered;
