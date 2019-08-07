@@ -71,6 +71,8 @@ void AddLocation::makeLocationFile()
 		
 	if (ok && !new_file_name.isEmpty()) {
 
+		DEBUG << "Location File Creation: New location file being created";
+
 		if(!new_file_name.contains(".json", Qt::CaseInsensitive))
 			new_file_name = new_file_name + ".json";
 
