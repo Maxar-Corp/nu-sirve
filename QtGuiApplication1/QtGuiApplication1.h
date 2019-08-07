@@ -92,6 +92,10 @@ public:
 	deinterlace_type find_deinterlace_type(int index);
 	Video_Parameters find_deinterlace_video_type(int index);
 	void clear_image_processing();
+
+	video_details get_current_filter_state();
+	bool check_filter_selection(video_details filter_state);
+	void show_available_filter_options();
 	
 private:
 	Ui::QtGuiApplication1Class ui;
