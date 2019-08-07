@@ -88,7 +88,7 @@ public:
 	void create_background_subtraction_correction();
 	void toggle_video_filters();
 	void create_deinterlace();
-	void change_deinterlace_options(int index);
+
 	deinterlace_type find_deinterlace_type(int index);
 	Video_Parameters find_deinterlace_video_type(int index);
 	void clear_image_processing();
