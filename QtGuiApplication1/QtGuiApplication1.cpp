@@ -111,7 +111,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.cmb_deinterlace_options->addItem("Centroid");
 	ui.cmb_deinterlace_options->addItem("Avg Cross Correlation");
 
-	QObject::connect(ui.cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::show_available_filter_options);
+	QObject::connect(ui.cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
 
