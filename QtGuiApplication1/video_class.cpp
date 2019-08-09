@@ -127,7 +127,6 @@ void Video::update_frame()
 
 		QPainter rectangle_painter(&frame);
 
-		//TODO figure out x,y pixels to draw box around
 		int x_pixel = display_data[counter].ir_data[0].centroid_x;
 		int y_pixel = display_data[counter].ir_data[0].centroid_y;
 
@@ -137,7 +136,6 @@ void Video::update_frame()
 		int box_size = 5;
 		QRectF rectangle(x_center - box_size, y_center - box_size, box_size * 2, box_size * 2);
 
-		//QRectF rectangle(10.0, 20.0, 80.0, 60.0);
 		rectangle_painter.setPen(QPen(Qt::red));
 		rectangle_painter.drawRect(rectangle);
 	}
