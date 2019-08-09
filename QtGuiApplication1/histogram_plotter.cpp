@@ -26,38 +26,6 @@ HistogramLine_Plot::~HistogramLine_Plot(){
 	delete chart_view;
 }
 
-/*void HistogramLine_Plot::create_histogram_data(std::vector<uint8_t*>& video_data, int num_pixels)
-{
-
-	video_frames = video_data;
-	number_of_frames = video_frames.size();
-
-	histogram_data.clear();
-	histogram_data.reserve(number_of_frames);
-
-	//TODO figure out how to enforce 8bit / 256 bin assumption
-	
-	for (int frame_number = 0; frame_number < number_of_frames; frame_number++) {
-
-		std::vector<unsigned int> frame_histogram(number_of_bins, 0);
-
-		for (int pixel_index = 0; pixel_index < num_pixels; pixel_index++)
-		{
-			uint8_t value = video_frames[frame_number][pixel_index];
-			uint8_t index = (uint8_t)value;
-
-			// Check if exceeds maximum bins, puts in last bin
-			if (index > number_of_bins)
-				index = number_of_bins - 1;
-
-			frame_histogram[index]++;
-		}
-
-		histogram_data.push_back(frame_histogram);
-	}
-}
-*/
-
 QList<QPointF> HistogramLine_Plot::create_qpoints()
 {
 	

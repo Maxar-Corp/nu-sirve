@@ -43,8 +43,6 @@ private:
 
 	std::vector<double> frame_time;
 
-	//TODO write the check file function
-    int CheckFilePath();
     void FindMessageNumber();
     void InitializeVariables();
     void LoadData();

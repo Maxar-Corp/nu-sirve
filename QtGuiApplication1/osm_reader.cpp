@@ -97,16 +97,17 @@ void OSMReader::InitializeVariables()
 
     int size_allocation = 1;
 
-    //TODO if combine_tracks is false, do math to find new pre-allocation value
-    /*if (combine_tracks) {
-
+    if (combine_tracks) {
+		arma::vec frame_time_vec(frame_time);
+		arma::vec diff = arma::diff(frame_time_vec);
+		arma::uvec index = arma::find(diff != 0);
+		size_allocation = index.n_elem;
     }
     else {
         size_allocation = num_messages;
     }
-    */
-
-    data.reserve(num_messages);
+    
+    data.reserve(size_allocation);
 }
 
 void OSMReader::LoadData()
@@ -126,6 +127,10 @@ void OSMReader::LoadData()
             Frame current_frame;
 
             current_frame.msg_header = ReadMessageHeader();
+			if (current_frame.msg_header.size < 0)
+				return;
+
+
             current_frame.frame_header = ReadFrameHeader();
             current_frame.data = ReadFrameData();
 
@@ -148,18 +153,19 @@ void OSMReader::LoadData()
 void OSMReader::AddTrackToLastFrame()
 {
     //TODO Verify that this adding track to last frame works correctly.....
-    std::cout << "Adding track data to last frame...double check that this works" << std::endl;
-
     int return_code;
     Frame last_frame = data.back();
 
     uint32_t start_track_index = last_frame.data.num_tracks;
+	
     return_code = fseek(fp, 284, SEEK_SET);
     last_frame.data.num_tracks += ReadValue<uint32_t>(true);
 
     for (uint32_t j = start_track_index; j < last_frame.data.num_tracks; j++)
     {
-        TrackData current_track = GetTrackData(last_frame.data);
+		INFO << "Adding track " << j << "of " << last_frame.data.num_tracks << " tracks to last frame";
+
+		TrackData current_track = GetTrackData(last_frame.data);
         last_frame.data.track_data.push_back(current_track);
     }
 }
@@ -183,17 +189,16 @@ MessageHeader OSMReader::ReadMessageHeader()
     uint64_t nano_seconds = ReadValue<uint64_t>();
     uint64_t tsize = ReadValue<uint64_t>();
 
-    //TODO matlab also has a condition testing whether tsize is empty. Implement conditional test
-    if (tsize == 0) {
-		WARN << "OSM Load: Invalid size value in message header";
+	MessageHeader current_message;
+    if (tsize < small_value) {
+		WARN << "OSM Load: Invalid tsize value in message header";
 
-        throw std::invalid_argument("received invalid size value in message header");
-        //return;
+		current_message.size = -1;
+		return current_message;
     }
 
 	DEBUG << "OSM Load: Reading message header";
-
-    MessageHeader current_message;
+   
     current_message.seconds = seconds + nano_seconds * 1e-9;
     current_message.size = tsize;
 

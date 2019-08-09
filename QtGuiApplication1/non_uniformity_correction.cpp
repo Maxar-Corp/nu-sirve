@@ -8,7 +8,6 @@ NUC::NUC(QString path_video_file, unsigned int first_frame, unsigned int last_fr
 
 	frame_numbers = { first_frame, last_frame };
 
-	//TODO apply fix to creating frame that is similar to tested de-interlace function
 }
 
 NUC::~NUC()
@@ -107,7 +106,6 @@ std::vector<std::vector<uint16_t>> NUC::import_frames() {
 
 	std::vector<std::vector<uint16_t>> video_frames_16bit;
 
-	//TODO check that the frame numbers are within upper bounds
 	if (frame_numbers[0] < 0 || frame_numbers[1] < 0)
 		return video_frames_16bit;
 

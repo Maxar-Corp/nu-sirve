@@ -15,9 +15,9 @@ video_details::video_details() {
 
 video_details::~video_details()
 {
-	// TODO make sure that when structure is removed, the pointers are properly deleted.
 	clear_16bit_vector();
 	clear_8bit_vector();
+	histogram_data.clear();
 }
 
 void video_details::set_image_size(int x, int y)
