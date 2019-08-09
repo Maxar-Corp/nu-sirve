@@ -89,7 +89,7 @@ void OSMReader::FindMessageNumber()
         number_iterations++;
     }
 
-	INFO << "OSM Load: " << std::to_string(num_messages) << " entries found";
+	INFO << "OSM Load: " << num_messages << " entries found";
 }
 
 void OSMReader::InitializeVariables()
@@ -119,7 +119,7 @@ void OSMReader::LoadData()
     int num_iterations = -1;
     for (int i = 0; i < num_messages; i++)
     {
-		INFO << "OSM Load: Reading message #" << std::to_string(i + 1);
+		INFO << "OSM Load: Reading message #" << i + 1;
 
         bool valid_step = i == 0 || frame_time[i] - frame_time[i - 1] != 0 || !combine_tracks;
         if (valid_step) {
@@ -294,7 +294,7 @@ FrameData OSMReader::ReadFrameData() {
 
     for (uint32_t j = start_track_index; j < data.num_tracks; j++)
     {
-		DEBUG << "OSM Load: Reading track data #" << std::to_string(j);
+		DEBUG << "OSM Load: Reading track data #" << j;
 		
 		TrackData current_track = GetTrackData(data);
         data.track_data.push_back(current_track);

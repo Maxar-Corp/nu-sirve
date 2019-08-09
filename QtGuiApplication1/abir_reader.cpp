@@ -86,12 +86,13 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 	progress.setMinimum(valid_frames[0]);
 	progress.setMaximum(valid_frames[1]);
 	progress.setMinimumDuration(1);
+	progress.setWindowTitle(QString("Import Frames"));
 	progress.setLabelText(QString("Reading in frames..."));
 
     for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
 		progress.setValue(frame_index);
-		INFO << "ABIR Load: Inputting frame " << std::to_string(frame_index + 1) << " of " << std::to_string(valid_frames[1]) << " frames";
+		INFO << "ABIR Load: Inputting frame " << frame_index + 1 << " of " << valid_frames[1] << " frames";
 
         ABIR_Header header_data;
 
@@ -133,7 +134,7 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
         header_data.pixel_depth = ReadValue<uint16_t>();
         header_data.bits_per_pixel = ReadValue<uint16_t>();
 
-		DEBUG << "ABIR Load: Loading frame data. Sample file value for frame time is " << std::to_string(header_data.frame_time);
+		DEBUG << "ABIR Load: Loading frame data. Sample file value for frame time is " <<header_data.frame_time;
 
         // Skipped section only relevant for versions less than or equal to 3.0
 
@@ -308,7 +309,7 @@ double ABIR_Data::GetVersionNumber(double version_number)
 {
 
 	if (version_number > 0) {
-		INFO << "ABIR Load: File version is being overridden to " << std::to_string(version_number);
+		INFO << "ABIR Load: File version is being overridden to " << version_number;
 		return version_number;
 	}
 
@@ -329,7 +330,7 @@ double ABIR_Data::GetVersionNumber(double version_number)
 	}
 
 	if (version_number < 1 || version_number > 20) {
-		WARN << "ABIR Load: File version is not between 1 and 20 (" << std::to_string(version_number) << ")";
+		WARN << "ABIR Load: File version is not between 1 and 20 (" << version_number << ")";
 		
 		return -1;
 	}
@@ -337,7 +338,7 @@ double ABIR_Data::GetVersionNumber(double version_number)
     if (version_number == 2.5)
         version_number = 3.0;
 
-	INFO << "ABIR Load: File version is " << std::to_string(version_number);
+	INFO << "ABIR Load: File version is " << version_number;
 
     return version_number;
 

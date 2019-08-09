@@ -231,10 +231,13 @@ QtGuiApplication1::~QtGuiApplication1() {
 	delete playback_controller;
 	delete histogram_plot;
 
+	videos->something.clear();
 	delete videos;
+
 	//delete ir_video;
 	//delete histogram_plot;
 	//delete data_plots;
+	
 	delete eng_data;
 
 	DEBUG << "GUI: GUI destructor called";
@@ -401,9 +404,9 @@ void QtGuiApplication1::load_abir_data()
 	if (!min_within_range || !max_within_range)
 	{
 		if (min_frame < frame_start)
-			DEBUG << "GUI: Start frame before minimum frame. Entered: " << std::to_string(min_frame) << " Minimum: " << std::to_string(frame_start);
+			DEBUG << "GUI: Start frame before minimum frame. Entered: " << min_frame << " Minimum: " << frame_start;
 		if (min_frame < 0)
-			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << std::to_string(max_frame) << "Maximum: " << std::to_string(frame_stop);
+			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
 
 		INFO << "GUI: Video load not completed";
 
@@ -458,7 +461,7 @@ void QtGuiApplication1::load_abir_data()
 	int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
 	int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
 
-	DEBUG << "GUI: Frames are of size " << std::to_string(x_pixels) << " x " << std::to_string(y_pixels);
+	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 		
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
@@ -668,8 +671,8 @@ void QtGuiApplication1::plot_change(int index)
 	int x_index = ui.cmb_plot_xaxis->currentIndex();
 	int y_index = ui.cmb_plot_yaxis->currentIndex();
 
-	DEBUG << "GUI: Engineering plot units changed to case " << std::to_string(x_index);
-	DEBUG << "GUI: Engineering plot changed to case " << std::to_string(y_index);
+	DEBUG << "GUI: Engineering plot units changed to case " << x_index;
+	DEBUG << "GUI: Engineering plot changed to case " << y_index;
 
 	switch (x_index)
 	{
@@ -716,7 +719,7 @@ int QtGuiApplication1::get_integer_from_txt_box(QString input)
 	int value = input.toInt(&convert_value_numeric);
 		
 	if (convert_value_numeric) {
-		DEBUG << "GUI: Integer from text box is " << std::to_string(value);
+		DEBUG << "GUI: Integer from text box is " << value;
 		return value;
 	}
 	else {
@@ -728,15 +731,15 @@ int QtGuiApplication1::get_integer_from_txt_box(QString input)
 bool QtGuiApplication1::check_value_within_range(int input_value, int min_value, int max_value)
 {
 	if (input_value < min_value) {
-		DEBUG << "GUI: " << std::to_string(input_value) << "is less than min value of " << std::to_string(min_value);
+		DEBUG << "GUI: " << input_value << "is less than min value of " << min_value;
 		return false;
 	}
 	if (input_value > max_value) {
-		DEBUG << "GUI: " << std::to_string(input_value) << "is more than max value of " << std::to_string(max_value);
+		DEBUG << "GUI: " << input_value << "is more than max value of " << max_value;
 		return false;
 	}
 		
-	DEBUG << "GUI: " << std::to_string(input_value) << " is between " << std::to_string(min_value) << " and " << std::to_string(max_value);
+	DEBUG << "GUI: " << input_value << " is between " << min_value << " and " << max_value;
 
 	return true;
 }
@@ -799,9 +802,9 @@ void QtGuiApplication1::create_non_uniformity_correction()
 	if (!min_within_range || !max_within_range)
 	{
 		if (min_frame < frame_start)
-			DEBUG << "GUI: Start frame before minimum frame. Entered: " << std::to_string(min_frame) << " Minimum: " << std::to_string(frame_start);
+			DEBUG << "GUI: Start frame before minimum frame. Entered: " << min_frame << " Minimum: " << frame_start;
 		if (min_frame < 0)
-			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << std::to_string(max_frame) << "Maximum: " << std::to_string(frame_stop);
+			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
 
 		INFO << "GUI: NUC correction not completed";
 			
@@ -866,7 +869,7 @@ void QtGuiApplication1::create_non_uniformity_correction()
 
 	for (int i = 0; i < number_frames; i++) {
 		progress.setValue(i);
-		DEBUG << "GUI: Applying NUC correction to " << std::to_string(i + 1) << " of " << std::to_string(number_frames) << "frames";
+		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << "frames";
 		nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
@@ -938,7 +941,7 @@ void QtGuiApplication1::create_deinterlace()
 	for (int i = 0; i < number_frames; i++)
 	{
 		progress.setValue(i);
-		DEBUG << "GUI: Applying de-interlace to " << std::to_string(i + 1) << " of " << std::to_string(number_frames) << "frames";
+		DEBUG << "GUI: Applying de-interlace to " << i + 1 << " of " << number_frames << "frames";
 		deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
@@ -1198,7 +1201,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	progress.setLabelText(QString("Subtracting frames..."));
 
 	for (int i = 0; i < number_frames; i++) {
-		DEBUG << "GUI: Applying background subtraction to " << std::to_string(i + 1) << " of " << std::to_string(number_frames) << "frames";
+		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
 		progress.setValue(i);
 		background_subraction_video.frames_16bit.push_back(background.apply_correction(original.frames_16bit[i], background_correction[i]));
 		if (progress.wasCanceled())
