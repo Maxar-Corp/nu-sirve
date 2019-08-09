@@ -31,7 +31,7 @@ std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_det
 
 	for (int i = 0; i < num_video_frames; i++)
 	{
-		DEBUG << "Background Subtraction: Processing adjustment for frame #" << std::to_string(i + 1);
+		DEBUG << "Background Subtraction: Processing adjustment for frame #" << i + 1;
 		progress.setValue(i);
 
 		std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
@@ -51,7 +51,7 @@ std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_det
 
 		}
 		
-		DEBUG << "Background Subtraction: Value of first pixel of the last frame used is " << frame_data(0, 0);
+		DEBUG << "Background Subtraction: Value of first pixel of the last frame used is " << std::to_string(frame_data(0, 0));
 
 		// Take the mean of each row
 		arma::vec mean_frame = arma::mean(frame_data, 1);
@@ -75,10 +75,6 @@ std::vector<uint16_t> BackgroundSubtraction::apply_correction(std::vector<uint16
 	arma::vec correction_values(correction);
 
 	arma::vec corrected_values = original_frame - correction_values;
-
-	//original_frame.save("original_frame.txt", arma::arma_ascii);
-	//nuc_values.save("nuc_values.txt", arma::arma_ascii);
-	//corrected_values.save("updated_frame.txt", arma::arma_ascii);
 
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());

@@ -56,10 +56,10 @@ std::vector<double> NUC::get_nuc_correction()
 
 	nuc_correction = out;
 
-	DEBUG << "NUC: Normalizing value for adjusted mean frame: " << min_value;
-	DEBUG << "NUC: First value of the normalized adjusted mean frame: " << adjusted_mean_flat(0);
+	DEBUG << "NUC: Normalizing value for adjusted mean frame: " << std::to_string(min_value);
+	DEBUG << "NUC: First value of the normalized adjusted mean frame: " << std::to_string(adjusted_mean_flat(0));
 
-	adjusted_mean_frames.save("adj_mean_frames.txt", arma::arma_ascii);
+	adjusted_mean_frames.save("nuc_correction_matrix.txt", arma::arma_ascii);
 
 	return out;
 
@@ -75,7 +75,7 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 
 	arma::vec corrected_values = original_frame / nuc_values;
 
-	DEBUG << "NUC: NUC correction applied. First value after correction " << corrected_values(0);
+	DEBUG << "NUC: NUC correction applied. First value after correction " << std::to_string(corrected_values(0));
 
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
@@ -94,7 +94,7 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame, std
 
 	arma::vec corrected_values = original_frame / nuc_values;
 
-	DEBUG << "NUC: NUC correction applied. First value after correction " << corrected_values(0);
+	DEBUG << "NUC: NUC correction applied. First value after correction " << std::to_string(corrected_values(0));
 	
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int (vector_double.begin(), vector_double.end());
@@ -145,7 +145,7 @@ arma::mat NUC::replace_dead_pixels(arma::vec values)
 	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
 	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;
 
-	DEBUG << "NUC: Mean frame value 2nd row, 1st col " << mean_frame(1, 0);
+	DEBUG << "NUC: Mean frame value 2nd row, 1st col " << std::to_string(mean_frame(1, 0));
 	
 	int pixel_index, pixel_row, pixel_col;
 	
@@ -155,15 +155,13 @@ arma::mat NUC::replace_dead_pixels(arma::vec values)
 
 	arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel);
 
-	DEBUG << "NUC: Adjusted mean frame value 2nd row, 1st col " << adj_mean_frame(1, 0);
+	DEBUG << "NUC: Adjusted mean frame value 2nd row, 1st col " << std::to_string(adj_mean_frame(1, 0));
 
 	DEBUG << "NUC: Replacing dead pixels";
 	replace_pixels(mean_frame, adj_mean_frame, pixels_dead);
 
 	DEBUG << "NUC: Replacing happy pixels";
 	replace_pixels(mean_frame, adj_mean_frame, pixels_happy);
-
-	mean_frame.save("mean_frame.txt", arma::arma_ascii);
 	
 	return mean_frame;
 }
@@ -184,7 +182,7 @@ void NUC::replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels)
 		pixel_row = pixel_index % rows;
 		pixel_col = pixel_index / rows;
 
-		DEBUG << "NUC: Replacing pixel at index " << std::to_string(pixel_index);
+		DEBUG << "NUC: Replacing pixel at index " << pixel_index;
 
 		value_before = base(pixel_row, pixel_col);
 		value_new = updated(pixel_row + 2, pixel_col + 2);
