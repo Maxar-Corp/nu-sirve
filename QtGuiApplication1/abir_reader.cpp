@@ -63,10 +63,7 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
     _stat64(full_file_path, &info);
     uint64_t file_size = info.st_size;
 
-    // Had to use boost library due to files often being over 2GB in size
     uint32_t number_frames_file = file_size / frame_size;
-
-    //TODO check that valid_frames is a vector of size 2 or 3
 
     //Check that minimum frame number is smaller than max frame number
     if (valid_frames[0] > valid_frames[1]) {
@@ -86,7 +83,7 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 	progress.setMinimum(valid_frames[0]);
 	progress.setMaximum(valid_frames[1]);
 	progress.setMinimumDuration(1);
-	progress.setWindowTitle(QString("Import Frames"));
+	progress.setWindowTitle(QString(""));
 	progress.setLabelText(QString("Reading in frames..."));
 
     for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
@@ -96,7 +93,6 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 
         ABIR_Header header_data;
 
-        // TODO Matlab code as check for empyt or corrupt data packets and frames. Implement if needed
         fseek(fp, (frame_index - 1) * frame_size, SEEK_SET);
         uint64_t temp_seconds = ReadValue<uint64_t>();
         uint64_t temp_nano_seconds = ReadValue<uint64_t>();
@@ -279,7 +275,10 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
         header_data.image_size = ReadValue<uint32_t>();
 
         if (header_data.image_size > 20e6) {
-            // TODO throw error for wrong version type
+			WARN << "ABIR Load: Image size exceeds max allowable. Check version type.";
+			fclose(fp);
+
+			return video_frames_16bit;
         }
 
         uint16_t total_range = 65535 / 4;
