@@ -115,5 +115,7 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame
 
 	video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
 
+	INFO << "Number of frames imported: " << video_frames_16bit.size();
+
 	return video_frames_16bit;
 }
