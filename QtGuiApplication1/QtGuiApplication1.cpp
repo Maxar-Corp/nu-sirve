@@ -161,49 +161,66 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QIcon play_icon(play_image);
 	ui.btn_play->setIcon(play_icon);
 	ui.btn_play->setText("");
+	ui.btn_play->setToolTip("Play Video");
+	ui.btn_play->setEnabled(false);
 
 	QPixmap pause_image("icons/pause.png");
 	QIcon pause_icon(pause_image);
 	ui.btn_pause->setIcon(pause_icon);
 	ui.btn_pause->setText("");
+	ui.btn_pause->setToolTip("Pause Video");
+	ui.btn_pause->setEnabled(false);
 
 	QPixmap reverse_image("icons/reverse.png");
 	QIcon reverse_icon(reverse_image);
 	ui.btn_reverse->setIcon(reverse_icon);
 	ui.btn_reverse->setText("");
+	ui.btn_reverse->setToolTip("Reverse Video");
+	ui.btn_reverse->setEnabled(false);
 
 	QPixmap speed_up_image("icons/chevron-double-up.png");
 	QIcon speed_up_icon(speed_up_image);
 	ui.btn_fast_forward->setIcon(speed_up_icon);
 	ui.btn_fast_forward->setText("");
+	ui.btn_fast_forward->setToolTip("Speed Up");
+	ui.btn_fast_forward->setEnabled(false);
 
 	QPixmap next_frame_image("icons/skip-next.png");
 	QIcon next_frame_icon(next_frame_image);
 	ui.btn_next_frame->setIcon(next_frame_icon);
 	ui.btn_next_frame->setText("");
+	ui.btn_next_frame->setToolTip("Next Frame");
+	ui.btn_next_frame->setEnabled(false);
 
 	QPixmap slow_down_image("icons/chevron-double-down.png");
 	QIcon slow_down_icon(slow_down_image);
 	ui.btn_slow_back->setIcon(slow_down_icon);
 	ui.btn_slow_back->setText("");
+	ui.btn_slow_back->setToolTip("Slow Down");
+	ui.btn_slow_back->setEnabled(false);
 
 	QPixmap prev_frame_image("icons/skip-previous.png");
 	QIcon prev_frame_icon(prev_frame_image);
 	ui.btn_prev_frame->setIcon(prev_frame_icon);
 	ui.btn_prev_frame->setText("");
+	ui.btn_prev_frame->setToolTip("Previous Frame");
+	ui.btn_prev_frame->setEnabled(false);
 
 	QPixmap record_frame("icons/record.png");
 	QIcon record_frame_icon(record_frame);
 	ui.btn_frame_record->setIcon(record_frame_icon);
 	ui.btn_frame_record->setText("");
+	ui.btn_frame_record->setToolTip("Record Video");
 
 	QPixmap save_frame("icons/content-save.png");
 	QIcon save_frame_icon(save_frame);
 	ui.btn_frame_save->setIcon(save_frame_icon);
 	ui.btn_frame_save->setText("");
+	ui.btn_frame_save->setToolTip("Save Frame");
 
 	ui.btn_save_plot->setIcon(save_frame_icon);
 	ui.btn_save_plot->setText("");
+
 
 	create_menu_actions();
 
@@ -521,6 +538,15 @@ void QtGuiApplication1::load_abir_data()
 
 	ui.tabMenu->setTabEnabled(1, true);
 	ui.tabMenu->setTabEnabled(2, true);
+
+	ui.btn_reverse->setEnabled(true);
+	ui.btn_fast_forward->setEnabled(true);
+	ui.btn_slow_back->setEnabled(true);
+	ui.btn_pause->setEnabled(true);
+	ui.btn_play->setEnabled(true);
+	ui.btn_next_frame->setEnabled(true);
+	ui.btn_prev_frame->setEnabled(true);
+
 
 	INFO << "GUI: ABIR file load complete";
 	

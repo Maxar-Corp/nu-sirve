@@ -104,8 +104,6 @@ void Video::toggle_sensor_boresight_data()
 void Video::update_frame()
 {
 
-	// Takes ~ 35-40 ms to run which equates to a max update rate of 25 fps
-
 	//if (counter == number_of_frames)
 	//	counter = 0;
 
