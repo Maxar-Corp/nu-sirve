@@ -30,7 +30,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 
 			offsets << ((even_frames.n_rows - 1) - peak_index(0)) << ((even_frames.n_cols - 1) - peak_index(1));
 
-			DEBUG << "De-interlace: Offsets for max absolute method are " << std::to_string((even_frames.n_rows - 1) - peak_index(0)) << " " << std::to_string((even_frames.n_cols - 1) - peak_index(1));
+			DEBUG << "De-interlace: Offsets for max absolute method are " << (even_frames.n_rows - 1) - peak_index(0) << " " << (even_frames.n_cols - 1) - peak_index(1);
 
 			break;
 		}
@@ -60,7 +60,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		
 		offsets << ((even_frames.n_rows - 1) - uy) << ((even_frames.n_cols - 1) - ux);
 
-		DEBUG << "De-interlace: Offsets for centroid method are " << std::to_string(((even_frames.n_rows - 1) - uy)) << " " << std::to_string(((even_frames.n_cols - 1) - ux));
+		DEBUG << "De-interlace: Offsets for centroid method are " << ((even_frames.n_rows - 1) - uy) << " " << ((even_frames.n_cols - 1) - ux);
 
 		break;
 	}
@@ -98,7 +98,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 
 		offsets << offset1 << offset2;
 
-		DEBUG << "De-interlace: Offsets for avg cross correlation method are " << std::to_string(offset1) << " " << std::to_string(offset2);
+		DEBUG << "De-interlace: Offsets for avg cross correlation method are " << offset1 << " " << offset2;
 		
 		break;
 	}
@@ -151,7 +151,7 @@ arma::mat Deinterlace::cross_correlate_frame(arma::mat & mat_frame, arma::mat od
 	arma::mat cc_mat = fast_fourier_transform(frame1_pad, frame2_pad);
 
 	DEBUG << "De-interlace: Cross correlation matrix 1st row, 1st Column value is " << std::to_string(cc_mat(0, 0));
-
+	
 	return cc_mat;
 }
 
@@ -274,17 +274,12 @@ void Deinterlace::test_conversion(std::vector<uint16_t>& frame)
 
 	arma::mat test2 = arma::shift(test, 3, 0);
 	arma::mat test3 = arma::shift(test, 3, 1);
-	//test.save("test.txt", arma::arma_ascii);
-	//test2.save("test_shift2.txt", arma::arma_ascii);
-	//test3.save("test_shift3.txt", arma::arma_ascii);
-	
 	
 	// Convert the frame from a vector into armadillo matrix 
 	std::vector<double> converted_values(frame.begin(), frame.end());
 	arma::vec temp(converted_values);
 	arma::mat mat_frame(temp);
 	mat_frame.reshape(y_pixels, x_pixels);
-
 
 	arma::vec out_frame_flat = arma::vectorise(mat_frame);
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(out_frame_flat);
