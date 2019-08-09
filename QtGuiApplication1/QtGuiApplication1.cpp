@@ -489,7 +489,7 @@ void QtGuiApplication1::load_abir_data()
 	QString update_text("\nFrames ");
 	update_text.append(QString::number(min_frame));
 	update_text.append(" to ");
-	update_text.append(QString::number(max_frame));
+	update_text.append(QString::number(min_frame + number_frames - 1));
 	update_text.append(" were loaded");
 
 	status_txt.append(update_text);
