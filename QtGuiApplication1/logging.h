@@ -15,7 +15,7 @@
 #define ERROR BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::error)
 #define DEBUG  BOOST_LOG_SEV(my_logger::get(), boost::log::trivial::debug)
 
-#define SYS_LOGFILE             "log/example.log"
+#define SYS_LOGFILE             "log/output_log.log"
 
 //Narrow-char thread-safe logger.
 typedef boost::log::sources::severity_logger_mt<boost::log::trivial::severity_level> logger_t;
