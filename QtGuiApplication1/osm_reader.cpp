@@ -36,9 +36,9 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 
     fclose(fp);
 
-	if (data.size() == 0) {
-		INFO << "OSM Load: Import of location data from file canceled";
-		return -1;
+	if (data.size() < num_messages) {
+		INFO << "OSM Load: Quit unexepectedly. Only " << data.size() << " messages were imported of " << num_messages;
+		return 5;
 	}
 
     contains_data = true;
@@ -134,11 +134,9 @@ void OSMReader::LoadData()
             current_frame.frame_header = ReadFrameHeader();
             current_frame.data = ReadFrameData();
 
-			if (i == 0) {
-				if (current_frame.data.ecf.size() == 0)
-					return;
-			}
-
+			if (current_frame.data.ecf.size() < 0)
+				return;
+			
             data.push_back(current_frame);
         }
         else
@@ -261,14 +259,16 @@ FrameData OSMReader::ReadFrameData() {
 	{
 		if (location_from_file) {
 			data.ecf = file_ecef_vector;
+			INFO << "Overridding location data with position in selected file";
 		}
 		else {
 			LocationInput get_location_file;
 			auto response = get_location_file.exec();
+			location_from_file = true;
 			
 			if (response && get_location_file.path_set) {
 				file_ecef_vector = get_location_file.GetECEFVector();
-				INFO << "OSM Load: Using location from file " << get_location_file.selected_file_path.toLocal8Bit().constData();;
+				INFO << "OSM Load: Using location from file " << get_location_file.selected_file_path.toLocal8Bit().constData();
 			}
 			else {
 				DEBUG << "OSM Load: Location file import canceled or file path not set";
