@@ -93,7 +93,10 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 
         ABIR_Header header_data;
 
-        fseek(fp, (frame_index - 1) * frame_size, SEEK_SET);
+		size_t seek_rtn = _fseeki64(fp, (frame_index - 1) * frame_size, SEEK_SET);
+		if (seek_rtn != 0)
+			WARN << "ABIR Load: fseek command failed to find frame";
+
         uint64_t temp_seconds = ReadValue<uint64_t>();
         uint64_t temp_nano_seconds = ReadValue<uint64_t>();
         uint64_t temp_size = ReadValue<uint64_t>();
