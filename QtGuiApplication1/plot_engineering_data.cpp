@@ -381,7 +381,7 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 
 		arma::vec x_vector(x);
 		arma::vec diff = arma::diff(x_vector);
-		base_x_distance = arma::median(diff);
+		base_x_distance = 1.5; //arma::median(diff);
 		
 	}
 
