@@ -11,6 +11,7 @@
 
 #include "abir_reader.h"
 #include "osm_reader.h"
+#include "logging.h"
 #include <qfiledialog.h>
 
 
