@@ -508,7 +508,7 @@ void QtGuiApplication1::load_abir_data()
 	playback_controller->start_timer();
 
 	std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;
-	std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame - 1) + (max_frame - min_frame);
+	std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame) + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> subset_data(first, last);
 	ir_video->set_frame_data(subset_data);
 
@@ -546,7 +546,6 @@ void QtGuiApplication1::load_abir_data()
 	ui.btn_play->setEnabled(true);
 	ui.btn_next_frame->setEnabled(true);
 	ui.btn_prev_frame->setEnabled(true);
-
 
 	INFO << "GUI: ABIR file load complete";
 	

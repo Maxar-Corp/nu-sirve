@@ -377,10 +377,12 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 	double base_x_distance = 1;
 	if (num_data_pts > 1) {
 
+		// distance to separate into different line series is the median difference of the x-value set
+
 		arma::vec x_vector(x);
 		arma::vec diff = arma::diff(x_vector);
-
-		base_x_distance = diff.min() * 1.5;
+		base_x_distance = arma::median(diff);
+		
 	}
 
 	for (uint i = 0; i < num_data_pts; i++) {
