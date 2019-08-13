@@ -6,14 +6,14 @@ Lift_Gamma_Gain::Lift_Gamma_Gain(double input_lift, double input_gamma, double i
 	gamma = input_gamma;
 	gain = input_gain;
 
-	max_lift = 0.75;
-	min_lift = -0.75;
+	max_lift = 1.0;
+	min_lift = -1.0;
 	
 	max_gamma = 5;
-	min_gamma = .1;
+	min_gamma = .01;
 	
-	max_gain = 1.75;
-	min_gain = 0.25;
+	max_gain = 2.0;
+	min_gain = 0.0;
 }
 
 Lift_Gamma_Gain::~Lift_Gamma_Gain()

@@ -37,7 +37,7 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
     fclose(fp);
 
 	if (data.size() < num_messages) {
-		INFO << "OSM Load: Quit unexepectedly. Only " << data.size() << " messages were imported of " << num_messages;
+		INFO << "OSM Load: Quit unexepectedly. Only " << data.size() << " messages were loaded of " << num_messages;
 		return 5;
 	}
 
