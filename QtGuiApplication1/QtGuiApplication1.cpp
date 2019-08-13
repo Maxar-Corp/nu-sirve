@@ -457,7 +457,32 @@ void QtGuiApplication1::load_abir_data()
 		
 	INFO << "GUI: Reading in video data";
 	primary.set_number_of_bits(max_used_bits);
-	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, 0);
+
+	//----------------------------------------------------------------------------
+	QString path = "config/config.json";
+	QFile file(path);
+	double version = 0;
+
+	if (!file.open(QFile::ReadOnly)) {
+		INFO << "GUI: Cannot open configuration file " + path.toStdString();
+		INFO << "GUI: Version file being set on loading of image data";
+	}
+	else {
+		QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+		QJsonObject jsonObj = jsonDoc.object();
+
+		if (jsonObj.contains("version")) {
+			version = jsonObj.value("version").toDouble();
+			INFO << "GUI: Overriding version of image file to " << version;
+		}
+		else {
+			INFO << "GUI: Cannot find key 'version' in configuration file " + path.toStdString();
+			INFO << "GUI: Version file being set on loading of image data";
+		}
+	}
+	//----------------------------------------------------------------------------
+
+	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, version);
 
 	if (video_frames.size() == 0) {
 
