@@ -158,9 +158,9 @@ void Video::update_frame()
 
 		QString primary_tgt_text;
 		if (az_value < -1000 || el_value < -1000)
-			primary_tgt_text = "Sensor Boresight \n Az: NaN \n El NaN";
+			primary_tgt_text = "Target Metrics \n Az: NaN \n El NaN";
 		else
-			primary_tgt_text = "Sensor Boresight \n Az: " + QString::number(az_value) + "\n El " + QString::number(el_value);
+			primary_tgt_text = "Target Metrics \n Az: " + QString::number(az_value) + "\n El " + QString::number(el_value);
 
 		p3.drawText(frame.rect(), Qt::AlignTop | Qt::AlignLeft, primary_tgt_text);
 	}

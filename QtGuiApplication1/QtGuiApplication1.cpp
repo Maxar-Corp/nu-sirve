@@ -1305,6 +1305,8 @@ void QtGuiApplication1::toggle_video_filters()
 		video_details updated_user_request = get_current_filter_state();
 		videos->display_data(updated_user_request);
 	}
+
+	emit playback_controller->update_frame(playback_controller->get_counter());
 }
 
 void QtGuiApplication1::set_color_correction_slider_labels()
