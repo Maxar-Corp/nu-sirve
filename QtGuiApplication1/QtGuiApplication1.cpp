@@ -699,7 +699,8 @@ void QtGuiApplication1::create_menu_actions()
 
 void QtGuiApplication1::edit_banner_text()
 {
-	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal);
+	//TODO add bool to catch when user selects OK vs cancel
+	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text);
 		
 	emit change_banner(input_text, QColor("Red"));
 
