@@ -37,10 +37,10 @@ public:
     {
         if (Dialog->objectName().isEmpty())
             Dialog->setObjectName(QString::fromUtf8("Dialog"));
-        Dialog->resize(393, 365);
+        Dialog->resize(393, 341);
         layoutWidget = new QWidget(Dialog);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(20, 310, 351, 33));
+        layoutWidget->setGeometry(QRect(20, 290, 351, 33));
         hboxLayout = new QHBoxLayout(layoutWidget);
         hboxLayout->setSpacing(6);
         hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
@@ -61,14 +61,14 @@ public:
 
         btn_add_location = new QPushButton(Dialog);
         btn_add_location->setObjectName(QString::fromUtf8("btn_add_location"));
-        btn_add_location->setGeometry(QRect(100, 40, 101, 23));
+        btn_add_location->setGeometry(QRect(100, 20, 101, 23));
         lbl_list = new QLabel(Dialog);
         lbl_list->setObjectName(QString::fromUtf8("lbl_list"));
-        lbl_list->setGeometry(QRect(220, 70, 141, 221));
+        lbl_list->setGeometry(QRect(220, 50, 141, 221));
         lbl_list->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         lst_locations = new QListWidget(Dialog);
         lst_locations->setObjectName(QString::fromUtf8("lst_locations"));
-        lst_locations->setGeometry(QRect(20, 70, 181, 221));
+        lst_locations->setGeometry(QRect(20, 50, 181, 221));
 
         retranslateUi(Dialog);
         QObject::connect(okButton, SIGNAL(clicked()), Dialog, SLOT(accept()));

@@ -38,7 +38,6 @@ public:
     QTabWidget *tabMenu;
     QWidget *tab;
     QFrame *line;
-    QLabel *lbl_directory_path;
     QLabel *lbl_file_name;
     QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout;
@@ -56,6 +55,7 @@ public:
     QLineEdit *txt_epoch;
     QLabel *label_5;
     QLabel *label_6;
+    QPushButton *btn_copy_directory;
     QWidget *tab_2;
     QWidget *gridLayoutWidget;
     QGridLayout *grdLayout_Color_Control;
@@ -144,22 +144,17 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         line = new QFrame(tab);
         line->setObjectName(QString::fromUtf8("line"));
-        line->setGeometry(QRect(10, 120, 231, 20));
+        line->setGeometry(QRect(10, 90, 231, 20));
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
-        lbl_directory_path = new QLabel(tab);
-        lbl_directory_path->setObjectName(QString::fromUtf8("lbl_directory_path"));
-        lbl_directory_path->setGeometry(QRect(10, 30, 231, 31));
-        lbl_directory_path->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
-        lbl_directory_path->setWordWrap(true);
         lbl_file_name = new QLabel(tab);
         lbl_file_name->setObjectName(QString::fromUtf8("lbl_file_name"));
-        lbl_file_name->setGeometry(QRect(10, 70, 231, 31));
+        lbl_file_name->setGeometry(QRect(10, 20, 231, 31));
         lbl_file_name->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         lbl_file_name->setWordWrap(true);
         gridLayoutWidget_2 = new QWidget(tab);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(40, 150, 160, 91));
+        gridLayoutWidget_2->setGeometry(QRect(40, 120, 160, 91));
         gridLayout = new QGridLayout(gridLayoutWidget_2);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
@@ -204,38 +199,42 @@ public:
 
         line_3 = new QFrame(tab);
         line_3->setObjectName(QString::fromUtf8("line_3"));
-        line_3->setGeometry(QRect(10, 260, 231, 20));
+        line_3->setGeometry(QRect(10, 230, 231, 20));
         line_3->setFrameShape(QFrame::HLine);
         line_3->setFrameShadow(QFrame::Sunken);
         btn_load_osm = new QPushButton(tab);
         btn_load_osm->setObjectName(QString::fromUtf8("btn_load_osm"));
-        btn_load_osm->setGeometry(QRect(40, 100, 161, 23));
+        btn_load_osm->setGeometry(QRect(10, 70, 141, 23));
         lbl_file_load = new QLabel(tab);
         lbl_file_load->setObjectName(QString::fromUtf8("lbl_file_load"));
-        lbl_file_load->setGeometry(QRect(10, 400, 231, 141));
+        lbl_file_load->setGeometry(QRect(10, 370, 231, 211));
         lbl_file_load->setFrameShape(QFrame::Box);
         lbl_file_load->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         lbl_file_load->setWordWrap(true);
         line_4 = new QFrame(tab);
         line_4->setObjectName(QString::fromUtf8("line_4"));
-        line_4->setGeometry(QRect(10, 370, 231, 20));
+        line_4->setGeometry(QRect(10, 340, 231, 20));
         line_4->setFrameShape(QFrame::HLine);
         line_4->setFrameShadow(QFrame::Sunken);
         btn_use_epoch = new QCheckBox(tab);
         btn_use_epoch->setObjectName(QString::fromUtf8("btn_use_epoch"));
-        btn_use_epoch->setGeometry(QRect(20, 280, 131, 17));
+        btn_use_epoch->setGeometry(QRect(20, 250, 131, 17));
         txt_epoch = new QLineEdit(tab);
         txt_epoch->setObjectName(QString::fromUtf8("txt_epoch"));
         txt_epoch->setEnabled(false);
-        txt_epoch->setGeometry(QRect(20, 330, 211, 20));
+        txt_epoch->setGeometry(QRect(20, 300, 211, 20));
         label_5 = new QLabel(tab);
         label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setEnabled(false);
-        label_5->setGeometry(QRect(20, 350, 211, 16));
+        label_5->setGeometry(QRect(20, 320, 211, 16));
         label_6 = new QLabel(tab);
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setEnabled(false);
-        label_6->setGeometry(QRect(20, 310, 47, 13));
+        label_6->setGeometry(QRect(20, 280, 47, 13));
+        btn_copy_directory = new QPushButton(tab);
+        btn_copy_directory->setObjectName(QString::fromUtf8("btn_copy_directory"));
+        btn_copy_directory->setEnabled(false);
+        btn_copy_directory->setGeometry(QRect(160, 70, 81, 23));
         tabMenu->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -568,7 +567,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(1);
+        tabMenu->setCurrentIndex(0);
         tabPlots->setCurrentIndex(1);
 
 
@@ -579,7 +578,6 @@ public:
     {
         QtGuiApplication1Class->setWindowTitle(QApplication::translate("QtGuiApplication1Class", "QtGuiApplication1", nullptr));
         actionLoad_OSM->setText(QApplication::translate("QtGuiApplication1Class", "Load OSM", nullptr));
-        lbl_directory_path->setText(QApplication::translate("QtGuiApplication1Class", "Directory Path:", nullptr));
         lbl_file_name->setText(QApplication::translate("QtGuiApplication1Class", "File Name:", nullptr));
         txt_start_frame->setText(QApplication::translate("QtGuiApplication1Class", "0", nullptr));
         label_4->setText(QApplication::translate("QtGuiApplication1Class", "End Frame", nullptr));
@@ -591,6 +589,7 @@ public:
         btn_use_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Use epoch as t0", nullptr));
         label_5->setText(QApplication::translate("QtGuiApplication1Class", "Format is:    YYYY/MM/DD HH:MM:SS", nullptr));
         label_6->setText(QApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
+        btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Directory", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab), QApplication::translate("QtGuiApplication1Class", "Import", nullptr));
         lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Lift", nullptr));
         lbl_gamma->setText(QApplication::translate("QtGuiApplication1Class", "Gamma", nullptr));
