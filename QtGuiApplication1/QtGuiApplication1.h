@@ -32,6 +32,7 @@
 #include <qmessagebox.h>
 #include <qjsonobject.h>
 #include <qjsondocument.h>
+#include <qclipboard.h>
 
 
 class QtGuiApplication1 : public QMainWindow
@@ -83,6 +84,7 @@ public:
 	void save_plot();
 	void save_frame();
 	void set_frame_number_label(int counter);
+	void copy_osm_directory();
 	
 	void create_non_uniformity_correction();
 	void create_background_subtraction_correction();
@@ -99,6 +101,7 @@ public:
 	
 private:
 	Ui::QtGuiApplication1Class ui;
+	QClipboard *clipboard;
 	int max_used_bits;
 
 	void create_menu_actions();

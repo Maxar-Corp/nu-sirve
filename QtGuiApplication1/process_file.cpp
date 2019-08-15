@@ -45,10 +45,9 @@ bool Process_File::load_osm_file()
 	index_file_start = osm_path.lastIndexOf("/");
 	index_file_end = osm_path.lastIndexOf(".");
 
-	directory_path = QString("Directory Path: ");
+	directory_path = osm_path.left(index_file_start);;
 	file_name = QString("File: ");
 
-	directory_path.append(osm_path.left(index_file_start));
 	file_name.append(osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
 
 	image_path = osm_path;
