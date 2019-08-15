@@ -28,7 +28,6 @@ public:
     QHBoxLayout *hboxLayout;
     QSpacerItem *spacerItem;
     QPushButton *btn_create;
-    QPushButton *okButton;
     QPushButton *cancelButton;
     QLabel *label;
     QLabel *label_2;
@@ -61,11 +60,6 @@ public:
         btn_create->setObjectName(QString::fromUtf8("btn_create"));
 
         hboxLayout->addWidget(btn_create);
-
-        okButton = new QPushButton(layoutWidget);
-        okButton->setObjectName(QString::fromUtf8("okButton"));
-
-        hboxLayout->addWidget(okButton);
 
         cancelButton = new QPushButton(layoutWidget);
         cancelButton->setObjectName(QString::fromUtf8("cancelButton"));
@@ -110,7 +104,6 @@ public:
         txt_altitude->setGeometry(QRect(300, 160, 60, 20));
 
         retranslateUi(Dialog_Add_Location);
-        QObject::connect(okButton, SIGNAL(clicked()), Dialog_Add_Location, SLOT(accept()));
         QObject::connect(cancelButton, SIGNAL(clicked()), Dialog_Add_Location, SLOT(reject()));
 
         QMetaObject::connectSlotsByName(Dialog_Add_Location);
@@ -120,7 +113,6 @@ public:
     {
         Dialog_Add_Location->setWindowTitle(QApplication::translate("Dialog_Add_Location", "Add New Location", nullptr));
         btn_create->setText(QApplication::translate("Dialog_Add_Location", "Create Sensor", nullptr));
-        okButton->setText(QApplication::translate("Dialog_Add_Location", "Done", nullptr));
         cancelButton->setText(QApplication::translate("Dialog_Add_Location", "Cancel", nullptr));
         label->setText(QApplication::translate("Dialog_Add_Location", "Name:", nullptr));
         label_2->setText(QApplication::translate("Dialog_Add_Location", "Description:", nullptr));
