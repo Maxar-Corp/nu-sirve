@@ -1,6 +1,6 @@
 #include "QtGuiApplication1.h"
 #include "location_input.h"
-#include "new_location.h"
+//#include "new_location.h"
 
 QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	: QMainWindow(parent)
@@ -13,9 +13,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	   
 	INFO << "GUI: Initializing GUI";
 
-	LocationInput get_location_file;
-	auto response = get_location_file.exec();
-	
 	//---------------------------------------------------------------------------
 
 	QString path = "config/config.json";
