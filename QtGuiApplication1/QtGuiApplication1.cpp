@@ -48,6 +48,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	playback_controller = new Playback(1);
 	
 	//---------------------------------------------------------------------------	
+	
+	ui.btn_copy_directory->setEnabled(true);
+	clipboard = QApplication::clipboard();
+	QObject::connect(ui.btn_copy_directory, &QPushButton::clicked, this, &QtGuiApplication1::copy_osm_directory);
+	//---------------------------------------------------------------------------	
 
 	ir_video = new Video(1, 1);
 	
@@ -291,8 +296,8 @@ void QtGuiApplication1::load_osm_data()
 	INFO << "GUI: OSM file has valid path";
 
 	ui.lbl_file_load->setText(file_data.info_msg);
-	ui.lbl_directory_path->setText(file_data.directory_path);
 	ui.lbl_file_name->setText(file_data.file_name);
+	ui.lbl_file_name->setToolTip(file_data.directory_path);
 
 	if (valid_files) {
 		ui.txt_start_frame->setEnabled(true);
@@ -810,6 +815,11 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 	seconds_text.append(QString::number(seconds_midnight, 'g', 8));
 	ui.lbl_video_time_midnight->setText(seconds_text);
 
+}
+
+void QtGuiApplication1::copy_osm_directory()
+{
+	clipboard->setText(file_data.directory_path);
 }
 
 void QtGuiApplication1::create_non_uniformity_correction()
