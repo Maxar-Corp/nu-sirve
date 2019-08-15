@@ -7,6 +7,43 @@ Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_p
 	y_pixels = y_pixel_input;
 	number_pixels = x_pixels * y_pixels;
 
+	/*
+	arma::mat temp1(9, 10, arma::fill::zeros);
+	arma::mat temp2(temp1);
+	temp1(1, 3) = 1;
+	temp1(2, 3) = 1;
+	temp1(3, 3) = 1;
+	temp1(4, 3) = 1;
+	temp1(4, 4) = 1;
+	temp1(4, 5) = 1;
+
+	temp2(5, 6) = 1;
+	temp2(6, 6) = 1;
+	temp2(7, 6) = 1;
+	temp2(8, 6) = 1;
+	temp2(8, 7) = 1;
+	temp2(8, 8) = 1;
+
+	arma::mat zeros(9, 10, arma::fill::zeros);
+	arma::mat cross_correlation = cross_correlate_frame(zeros, temp2, temp1);
+
+	arma::ivec offsets;
+	arma::uword i_max = arma::abs(cross_correlation).index_max();
+	arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
+
+	offsets << ((temp1.n_rows - 1) - peak_index(0)) << ((temp1.n_cols - 1) - peak_index(1));
+
+	int row_shift = arma::sign(offsets(0)) * (std::abs(offsets(0)) % temp2.n_rows);
+	int col_shift = arma::sign(offsets(1)) * (std::abs(offsets(1)) % temp2.n_cols);
+	
+	arma::mat temp = arma::shift(temp2, row_shift, 0);
+	arma::mat  odd = arma::shift(temp, col_shift, 1);
+
+	temp2.save("original_mat.txt", arma::arma_ascii);
+	temp1.save("shifted_mat.txt", arma::arma_ascii);
+	odd.save("calculated_shift_mat.txt", arma::arma_ascii);
+	*/
+
 }
 
 std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& frame)
@@ -106,8 +143,11 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		return std::vector<uint16_t>();
 	}
 
-	arma::mat temp = arma::shift(odd_frames, offsets(0) % odd_frames.n_rows, 0);
-	arma::mat  odd = arma::shift(temp, offsets(1) % odd_frames.n_cols, 1);
+	int row_shift = arma::sign(offsets(0)) * (std::abs(offsets(0)) % odd_frames.n_rows);
+	int col_shift = arma::sign(offsets(1)) * (std::abs(offsets(1)) % odd_frames.n_cols);
+
+	arma::mat temp = arma::shift(odd_frames, row_shift, 0);
+	arma::mat  odd = arma::shift(temp, col_shift, 1);
 
 	arma::mat out_frame(y_pixels, x_pixels, arma::fill::zeros);
 	
