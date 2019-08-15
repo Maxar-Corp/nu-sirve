@@ -9,8 +9,8 @@ Lift_Gamma_Gain::Lift_Gamma_Gain(double input_lift, double input_gamma, double i
 	max_lift = 1.0;
 	min_lift = -1.0;
 	
-	max_gamma = 5;
-	min_gamma = .005;
+	max_gamma = 5.0;
+	min_gamma = .001;
 	
 	max_gain = 2.0;
 	min_gain = 0.0;
@@ -131,8 +131,8 @@ void Lift_Gamma_Gain::get_gamma_slider_range(int & min_value, int & max_value)
 {
 	// Assumes gamma is above zero
 
-	min_value = min_gamma * 100;
-	max_value = max_gamma * 100;
+	min_value = min_gamma * 1000;
+	max_value = max_gamma * 1000;
 
 }
 
@@ -151,7 +151,7 @@ double Lift_Gamma_Gain::lift_convert_slider_to_value(int value)
 
 double Lift_Gamma_Gain::gamma_convert_slider_to_value(int value)
 {
-	return value / 100.;
+	return value / 1000.;
 }
 
 double Lift_Gamma_Gain::gain_convert_slider_to_value(int value)
