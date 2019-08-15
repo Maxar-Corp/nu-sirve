@@ -68,13 +68,22 @@ void AddLocation::makeLocationFile()
 {
 	bool ok;
 	QString new_file_name = QInputDialog::getText(this, "Save File", "Enter filename", QLineEdit::Normal, "", &ok);
+
+	if (!new_file_name.contains(".json", Qt::CaseInsensitive))
+		new_file_name = new_file_name + ".json";
+
+	QFileInfo check_file(directory_path + new_file_name);
+	if (check_file.exists()) {
+		QString label = "This file (" + new_file_name + ") already exists. Would you like to write oer the existing file?";
+		auto reply = QMessageBox::question(this, "File Already Exists", label, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+		
+		if (reply == QMessageBox::StandardButton::No)
+			ok = false;
+	}
 		
 	if (ok && !new_file_name.isEmpty()) {
 
 		DEBUG << "Location File Creation: New location file being created";
-
-		if(!new_file_name.contains(".json", Qt::CaseInsensitive))
-			new_file_name = new_file_name + ".json";
 
 		QJsonObject json_obj;
 		json_obj["name"] = ui.txt_name->text();
