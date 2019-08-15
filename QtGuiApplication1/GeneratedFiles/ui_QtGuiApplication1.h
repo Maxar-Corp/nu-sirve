@@ -280,13 +280,15 @@ public:
         slider_gamma = new QSlider(gridLayoutWidget);
         slider_gamma->setObjectName(QString::fromUtf8("slider_gamma"));
         slider_gamma->setEnabled(true);
-        slider_gamma->setMinimum(10);
-        slider_gamma->setMaximum(500);
-        slider_gamma->setSingleStep(5);
-        slider_gamma->setValue(100);
+        slider_gamma->setMinimum(1);
+        slider_gamma->setMaximum(5000);
+        slider_gamma->setSingleStep(1);
+        slider_gamma->setPageStep(100);
+        slider_gamma->setValue(1000);
+        slider_gamma->setSliderPosition(1000);
         slider_gamma->setOrientation(Qt::Horizontal);
         slider_gamma->setTickPosition(QSlider::TicksAbove);
-        slider_gamma->setTickInterval(50);
+        slider_gamma->setTickInterval(500);
 
         grdLayout_Color_Control->addWidget(slider_gamma, 1, 1, 1, 1);
 
@@ -566,7 +568,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(0);
+        tabMenu->setCurrentIndex(1);
         tabPlots->setCurrentIndex(1);
 
 

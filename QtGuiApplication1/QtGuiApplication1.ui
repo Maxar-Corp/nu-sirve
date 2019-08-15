@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -351,16 +351,22 @@
           <bool>true</bool>
          </property>
          <property name="minimum">
-          <number>10</number>
+          <number>1</number>
          </property>
          <property name="maximum">
-          <number>500</number>
+          <number>5000</number>
          </property>
          <property name="singleStep">
-          <number>5</number>
+          <number>1</number>
+         </property>
+         <property name="pageStep">
+          <number>100</number>
          </property>
          <property name="value">
-          <number>100</number>
+          <number>1000</number>
+         </property>
+         <property name="sliderPosition">
+          <number>1000</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -369,7 +375,7 @@
           <enum>QSlider::TicksAbove</enum>
          </property>
          <property name="tickInterval">
-          <number>50</number>
+          <number>500</number>
          </property>
         </widget>
        </item>
