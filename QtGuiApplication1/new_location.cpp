@@ -86,7 +86,7 @@ void AddLocation::makeLocationFile()
 		QJsonDocument json_doc(json_obj);
 		QByteArray json_string = json_doc.toJson();
 
-		QString save_path = directory_path + new_file_name;
+		save_path = directory_path + new_file_name;
 		QFile save_file(save_path);
 		save_file.open(QIODevice::WriteOnly | QIODevice::Text);
 
@@ -101,6 +101,8 @@ void AddLocation::makeLocationFile()
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		msgBox.setDefaultButton(QMessageBox::Ok);
 		msgBox.exec();
+		
+		accept();
 	}
 	
 }

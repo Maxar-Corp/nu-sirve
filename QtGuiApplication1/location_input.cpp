@@ -153,6 +153,13 @@ void LocationInput::OnAddNewPush()
 	
 	clear();
 	RefreshListBox();	
+
+	if (response) {
+		selected_file_path = add_new_location.save_path;
+		path_set = true;
+
+		accept();
+	}
 }
 
 

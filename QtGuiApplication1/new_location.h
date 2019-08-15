@@ -23,7 +23,7 @@ class AddLocation : public QDialog
 
 public:
 
-	QString directory_path;
+	QString directory_path, save_path;
 
 	AddLocation(QString path);
 	~AddLocation();
