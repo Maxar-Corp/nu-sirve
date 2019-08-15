@@ -19,7 +19,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 
 	cross_correlation = cross_correlate_frame(mat_frame, odd_frames, even_frames);
 
-	arma::uvec offsets;
+	arma::ivec offsets;
 
 	switch (deinterlace_method)
 	{

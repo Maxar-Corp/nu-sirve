@@ -619,7 +619,7 @@ void QtGuiApplication1::reset_color_correction()
 		
 	ui.slider_lift->setValue(base_lift);
 	ui.slider_gain->setValue(100);
-	ui.slider_gamma->setValue(100);
+	ui.slider_gamma->setValue(1000);
 
 	DEBUG << "GUI: Color correction reset";
 }
@@ -992,7 +992,7 @@ void QtGuiApplication1::create_deinterlace()
 	for (int i = 0; i < number_frames; i++)
 	{
 		progress.setValue(i);
-		DEBUG << "GUI: Applying de-interlace to " << i + 1 << " of " << number_frames << "frames";
+		DEBUG << "GUI: Applying de-interlace to " << i + 1 << " of " << number_frames << " frames";
 		deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
