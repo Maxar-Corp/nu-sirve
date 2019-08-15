@@ -76,6 +76,12 @@ std::vector<uint16_t> BackgroundSubtraction::apply_correction(std::vector<uint16
 
 	arma::vec corrected_values = original_frame - correction_values;
 
+	arma::uvec index_negative = arma::find(corrected_values < 0);
+	if (index_negative.size() > 0){
+		DEBUG << "Background Subtraction: " << index_negative.size() << "number of negative pixels found during subtraction.";
+		corrected_values.elem(index_negative) = arma::zeros(index_negative.size());
+	}
+
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
 
