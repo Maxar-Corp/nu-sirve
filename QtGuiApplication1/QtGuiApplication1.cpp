@@ -667,6 +667,7 @@ void QtGuiApplication1::plot_current_frame_marker() {
 		data_plots->plot_current_marker = false;
 
 	plot_change(1);
+	emit data_plots->plot_current_step(playback_controller->get_counter());
 }
 
 void QtGuiApplication1::save_plot()
