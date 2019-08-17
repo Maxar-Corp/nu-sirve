@@ -31,7 +31,7 @@ private:
 	ABIR_Data abir_data;
 
 	std::vector<std::vector<uint16_t>> import_frames();
-	arma::mat replace_dead_pixels(arma::vec values);
+	arma::mat replace_broken_pixels(arma::vec values);
 	void replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels);
 
 };

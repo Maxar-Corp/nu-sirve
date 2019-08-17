@@ -25,22 +25,64 @@ Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_p
 	temp2(8, 8) = 1;
 
 	arma::mat zeros(9, 10, arma::fill::zeros);
-	arma::mat cross_correlation = cross_correlate_frame(zeros, temp2, temp1);
+	arma::mat cross_correlation = cross_correlate_frame(zeros, temp1, temp2);
 
 	arma::ivec offsets;
 	arma::uword i_max = arma::abs(cross_correlation).index_max();
 	arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
 
-	offsets << ((temp1.n_rows - 1) - peak_index(0)) << ((temp1.n_cols - 1) - peak_index(1));
+	//---------------------------------------------------------------------------------------
+	int x = cross_correlation.n_rows;
+	int y = cross_correlation.n_cols;
 
-	int row_shift = arma::sign(offsets(0)) * (std::abs(offsets(0)) % temp2.n_rows);
-	int col_shift = arma::sign(offsets(1)) * (std::abs(offsets(1)) % temp2.n_cols);
+	arma::vec x_values = arma::regspace<arma::vec>(0, y - 1);
+	arma::vec y_values = arma::regspace<arma::vec>(0, x - 1);
+	arma::mat x_mat(x, y, arma::fill::zeros);
+	arma::mat y_mat(x, y, arma::fill::zeros);
+
+	mesh_grid(x_values, y_values, x_mat, y_mat);
+
+	arma::mat v(cross_correlation);
+	double max_value = cross_correlation.max();
+	arma::uvec below_max = arma::find(cross_correlation < 0.5 * max_value);
+
+	arma::vec zeros_v(below_max.n_elem, arma::fill::zeros);
+	v.elem(below_max) = zeros_v;
+
+	double v_sum = arma::accu(v);
+
+	double ux = std::round(arma::accu(v % x_mat) / v_sum);
+	double uy = std::round(arma::accu(v % y_mat) / v_sum);
+
+	//---------------------------------------------------------------------------------------------
+
+	int y_max_abs_value = (temp2.n_rows - 1.0) - peak_index(0);
+	int x_max_abs_value = (temp2.n_cols - 1.0) - peak_index(1);
+
+	int y_avg_cc = (temp2.n_rows - 1.0) - uy;
+	int x_avg_cc = (temp2.n_cols - 1.0) - ux;
+
+	DEBUG << "De-interlace: Using avereage cross correlation method. Max y was " << y_max_abs_value << " and x centroid was " << y_avg_cc;
+	DEBUG << "De-interlace: Using avereage cross correlation method. Max x was " << x_max_abs_value << " and x centroid was " << x_avg_cc;
+
+	int offset1a = std::round((((temp2.n_rows - 1.0) - peak_index(0)) + ((temp2.n_rows - 1.0) - uy)) / 2.0);
+	int offset2b = std::round((((temp2.n_cols - 1.0) - peak_index(1)) + ((temp2.n_cols - 1.0) - ux)) / 2.0);
+
+	int offset1 = std::round((y_max_abs_value + y_avg_cc) * 0.5);
+	int offset2 = std::round((x_max_abs_value + x_avg_cc) * 0.5);
+
+	//---------------------------------------------------------------------------------------------
+
+	offsets << offset1 << offset2;
+
+	int row_shift = arma::sign(offsets(0)) * (std::abs(offsets(0)) % temp1.n_rows);
+	int col_shift = arma::sign(offsets(1)) * (std::abs(offsets(1)) % temp1.n_cols);
 	
-	arma::mat temp = arma::shift(temp2, row_shift, 0);
+	arma::mat temp = arma::shift(temp1, row_shift, 0);
 	arma::mat  odd = arma::shift(temp, col_shift, 1);
 
-	temp2.save("original_mat.txt", arma::arma_ascii);
-	temp1.save("shifted_mat.txt", arma::arma_ascii);
+	temp1.save("original_mat.txt", arma::arma_ascii);
+	temp2.save("shifted_mat.txt", arma::arma_ascii);
 	odd.save("calculated_shift_mat.txt", arma::arma_ascii);
 	*/
 
@@ -104,9 +146,12 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 	
 	case avg_cross_correlation:
 	{
-	
+		//--------------------------------------------------------------------------------------
+		
 		arma::uword i_max = arma::abs(cross_correlation).index_max();
 		arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
+		
+		//--------------------------------------------------------------------------------------
 		
 		int x = cross_correlation.n_rows;
 		int y = cross_correlation.n_cols;
@@ -130,12 +175,23 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		double ux = std::round(arma::accu(v % x_mat) / v_sum);
 		double uy = std::round(arma::accu(v % y_mat) / v_sum);
 
-		int offset1 = std::round((((even_frames.n_rows - 1) - peak_index(0)) + ((even_frames.n_rows - 1) - uy)) / 2.0);
-		int offset2 = std::round((((even_frames.n_cols - 1) - peak_index(1)) + ((even_frames.n_cols - 1) - ux)) / 2.0);
+		//--------------------------------------------------------------------------------------
+
+		int y_max_abs_value = (even_frames.n_rows - 1.0) - peak_index(0);
+		int x_max_abs_value = (even_frames.n_cols - 1.0) - peak_index(1);
+
+		int y_avg_cc = (even_frames.n_rows - 1.0) - uy;
+		int x_avg_cc = (even_frames.n_cols - 1.0) - ux;
+	
+		
+		int offset1 = std::round((y_max_abs_value + y_avg_cc) * 0.5);
+		int offset2 = std::round((x_max_abs_value + x_avg_cc) * 0.5);
+
+		DEBUG << "De-interlace: Using avereage cross correlation method. Max y was " << y_max_abs_value << " and y centroid was " << y_avg_cc;
+		DEBUG << "De-interlace: Using avereage cross correlation method. Max x was " << x_max_abs_value << " and x centroid was " << x_avg_cc;
+		DEBUG << "De-interlace: Calculated offset is y / x: " << offset1 << " / " << offset2;
 
 		offsets << offset1 << offset2;
-
-		DEBUG << "De-interlace: Offsets for avg cross correlation method are " << offset1 << " " << offset2;
 		
 		break;
 	}
