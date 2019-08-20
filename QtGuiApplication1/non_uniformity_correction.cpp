@@ -53,8 +53,9 @@ std::vector<double> NUC::get_nuc_correction()
 	double min_value = adjusted_mean_frames.min();
 
 	adjusted_mean_frames = adjusted_mean_frames / min_value;
+	arma::mat adjusted_mean_transpose = adjusted_mean_frames.t();
 
-	arma::vec adjusted_mean_flat = arma::vectorise(adjusted_mean_frames);
+	arma::vec adjusted_mean_flat = arma::vectorise(adjusted_mean_transpose);
 
 	out = arma::conv_to<std::vector<double>>::from(adjusted_mean_flat);
 
@@ -128,10 +129,15 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 
 	arma::vec sorted_values = arma::sort(values);
 
-	double min_value_vector = sorted_values(std::ceil(0.00001 * sorted_values.n_elem));
-	double max_value_vector = sorted_values(std::floor(0.9999 * sorted_values.n_elem));
+	int index_min = std::ceil(0.00001 * sorted_values.n_elem);
+	int index_max = std::floor(0.99999 * sorted_values.n_elem);
 
+	double min_value_vector = sorted_values(index_min);
+	double max_value_vector = sorted_values(index_max);
+
+	DEBUG << "NUC: Fixing pixels. Index of min value found is " << index_min;
 	DEBUG << "NUC: Fixing pixels. Min value found is " << min_value_vector;
+	DEBUG << "NUC: Fixing pixels. Index of max value found is " << index_max;
 	DEBUG << "NUC: Fixing pixels. Max value found is " << max_value_vector;
 
 	arma::mat kernel = {{0, 0, 1, 0, 0},
@@ -154,11 +160,9 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 		
 	int pixel_index, pixel_row, pixel_col;
 	
-	pixel_index = pixels_dead(0);
-	pixel_row = pixel_index % y_pixels;
-	pixel_col = pixel_index / y_pixels;
-
-	arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel);
+	arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel, "same");
+	mean_frame.save("nuc_mean_frame.txt", arma::arma_ascii);
+	adj_mean_frame.save("nuc_adj_mean_frame.txt", arma::arma_ascii);
 
 	DEBUG << "NUC: Replacing dead pixels";
 	replace_pixels(mean_frame, adj_mean_frame, pixels_dead);
@@ -187,11 +191,13 @@ void NUC::replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels)
 		pixel_row = pixel_index % rows;
 		pixel_col = pixel_index / rows;
 
-		DEBUG << "NUC: Replacing pixel at row / col " << pixel_row << " / " << pixel_col;
-
 		value_before = base(pixel_row, pixel_col);
-		value_new = updated(pixel_row + 2, pixel_col + 2);
-		
+		value_new = updated(pixel_row, pixel_col);
+
+		DEBUG << "NUC: Replacing pixel at row / col " << pixel_row << " / " << pixel_col;
+		DEBUG << "NUC: Original value was " << value_before;
+		DEBUG << "NUC: New value is " << value_new;
+
 		base(pixel_row, pixel_col) = value_new;
 	}
 
