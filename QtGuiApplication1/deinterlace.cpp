@@ -110,7 +110,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 
 			offsets << ((even_frames.n_rows - 1.0) - peak_index(0)) << ((even_frames.n_cols - 1.0) - peak_index(1));
 
-			DEBUG << "De-interlace: Peak index at " << peak_index;
+			DEBUG << "De-interlace: Peak index at " << peak_index(0) << " " << peak_index(1);
 			DEBUG << "De-interlace: Offsets(y,x) for max absolute method are " << offsets(0) << " " << offsets(1);
 
 			break;
@@ -189,12 +189,12 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		int offset1 = std::round((y_max_abs_value + y_avg_cc) * 0.5);
 		int offset2 = std::round((x_max_abs_value + x_avg_cc) * 0.5);
 
+		offsets << offset1 << offset2;
+
 		DEBUG << "De-interlace: Using avereage cross correlation method. Max y was " << y_max_abs_value << " and y centroid was " << y_avg_cc;
 		DEBUG << "De-interlace: Using avereage cross correlation method. Max x was " << x_max_abs_value << " and x centroid was " << x_avg_cc;
 		DEBUG << "De-interlace: Calculated offset(y,x) is : " << offsets(0) << " " << offsets(1);
 
-		offsets << offset1 << offset2;
-		
 		break;
 	}
 	default:
