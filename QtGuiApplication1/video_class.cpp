@@ -7,6 +7,7 @@ Video::Video(int x_pixels, int y_pixels)
 	text = new QLabel(this);
 
 	counter = 0;
+	counter_record = 0;
 
 	image_x = x_pixels;
 	image_y = y_pixels;
@@ -119,7 +120,7 @@ void Video::update_frame()
 	QImage frame((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
 	frame.setColorTable(colorTable);
-	frame = frame.convertToFormat(QImage::Format_RGB30);
+	frame = frame.convertToFormat(QImage::Format_RGB888);
 
 	if (plot_boresight & display_data[counter].ir_data.size() > 0) {
 
@@ -172,6 +173,22 @@ void Video::update_frame()
 	p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
 	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
+	bool video_open;
+	if (counter_record == 0) {
+		video_open = start_recording();
+		counter_record++;
+		video_frame_number = counter;
+	}
+	if (counter_record < 100 && video_frame_number != counter) {
+		counter_record++;
+		video_frame_number = counter;
+		add_new_frame(frame, CV_8UC3);
+	}
+	if (counter_record == 100) {
+		stop_recording();
+		counter_record++;
+	}
+
 	label->setPixmap(QPixmap::fromImage(frame));
 	label->update();
 	label->repaint();
@@ -192,6 +209,24 @@ void Video::update_frame()
 void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 {
 	display_data = input_data;
+}
+
+bool Video::start_recording()
+{
+	video.open("output_video.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, cv::Size(640, 480));
+	return video.isOpened();
+}
+
+void Video::add_new_frame(QImage &img, int format)
+{
+	QImage image = img.rgbSwapped();
+	cv::Mat output_frame(image.height(), image.width(),	format, image.bits(), image.bytesPerLine());
+	video.write(output_frame);
+}
+
+void Video::stop_recording()
+{
+	video.release();
 }
 
 void Video::save_frame()
