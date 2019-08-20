@@ -7,6 +7,7 @@ Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_p
 	y_pixels = y_pixel_input;
 	number_pixels = x_pixels * y_pixels;
 
+
 	/*
 	arma::mat temp1(9, 10, arma::fill::zeros);
 	arma::mat temp2(temp1);
@@ -107,9 +108,10 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 			arma::uword i_max = arma::abs(cross_correlation).index_max();
 			arma::uvec peak_index = arma::ind2sub(arma::size(cross_correlation), i_max);
 
-			offsets << ((even_frames.n_rows - 1) - peak_index(0)) << ((even_frames.n_cols - 1) - peak_index(1));
+			offsets << ((even_frames.n_rows - 1.0) - peak_index(0)) << ((even_frames.n_cols - 1.0) - peak_index(1));
 
-			DEBUG << "De-interlace: Offsets for max absolute method are " << (even_frames.n_rows - 1) - peak_index(0) << " " << (even_frames.n_cols - 1) - peak_index(1);
+			DEBUG << "De-interlace: Peak index at " << peak_index;
+			DEBUG << "De-interlace: Offsets(y,x) for max absolute method are " << offsets(0) << " " << offsets(1);
 
 			break;
 		}
@@ -139,7 +141,8 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		
 		offsets << ((even_frames.n_rows - 1) - uy) << ((even_frames.n_cols - 1) - ux);
 
-		DEBUG << "De-interlace: Offsets for centroid method are " << ((even_frames.n_rows - 1) - uy) << " " << ((even_frames.n_cols - 1) - ux);
+		DEBUG << "De-interlace: Centroid calculated at (y,x) " << uy << " " << ux;
+		DEBUG << "De-interlace: Offsets(y,x) for centroid method are " << offsets(0) << " " << offsets(1);
 
 		break;
 	}
@@ -182,14 +185,13 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 
 		int y_avg_cc = (even_frames.n_rows - 1.0) - uy;
 		int x_avg_cc = (even_frames.n_cols - 1.0) - ux;
-	
-		
+			
 		int offset1 = std::round((y_max_abs_value + y_avg_cc) * 0.5);
 		int offset2 = std::round((x_max_abs_value + x_avg_cc) * 0.5);
 
 		DEBUG << "De-interlace: Using avereage cross correlation method. Max y was " << y_max_abs_value << " and y centroid was " << y_avg_cc;
 		DEBUG << "De-interlace: Using avereage cross correlation method. Max x was " << x_max_abs_value << " and x centroid was " << x_avg_cc;
-		DEBUG << "De-interlace: Calculated offset is y / x: " << offset1 << " / " << offset2;
+		DEBUG << "De-interlace: Calculated offset(y,x) is : " << offsets(0) << " " << offsets(1);
 
 		offsets << offset1 << offset2;
 		
