@@ -16,6 +16,8 @@
 #include <qpainter.h>
 #include <qbrush.h>
 #include <qfiledialog.h>
+#include <opencv2/opencv.hpp>
+#include "opencv2/imgproc/types_c.h"
 
 #include "abir_reader.h"
 #include "color_correction_lgg.h"
@@ -31,6 +33,10 @@ public:
 	Video(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_pixels);
 	~Video();
 
+	int counter_record, video_frame_number;
+	cv::VideoWriter video;
+
+
     unsigned int number_of_frames;
 	int timer_frequency;
     QLabel  *label;
@@ -42,6 +48,9 @@ public:
 	QVector<QRgb> colorTable;
 	
 	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data);
+	bool start_recording();
+	void add_new_frame(QImage &img, int format);
+	void stop_recording();
 	
 	bool plot_boresight, display_boresight_txt, display_tgt_pos_txt;
 	void save_frame();
