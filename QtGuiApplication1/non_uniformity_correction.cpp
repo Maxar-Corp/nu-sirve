@@ -162,7 +162,7 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 	
 	arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel, "same");
 	mean_frame.save("nuc_mean_frame.txt", arma::arma_ascii);
-	adj_mean_frame.save("nuc_adj_mean_frame.txt", arma::arma_ascii);
+	adj_mean_frame.save("nuc_post_convolution_mean_frame.txt", arma::arma_ascii);
 
 	DEBUG << "NUC: Replacing dead pixels";
 	replace_pixels(mean_frame, adj_mean_frame, pixels_dead);
@@ -194,7 +194,7 @@ void NUC::replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels)
 		value_before = base(pixel_row, pixel_col);
 		value_new = updated(pixel_row, pixel_col);
 
-		DEBUG << "NUC: Replacing pixel at row / col " << pixel_row << " / " << pixel_col;
+		DEBUG << "NUC: Replacing pixel at (row, col) " << pixel_row << ", " << pixel_col;
 		DEBUG << "NUC: Original value was " << value_before;
 		DEBUG << "NUC: New value is " << value_new;
 
