@@ -576,7 +576,7 @@ public:
 
     void retranslateUi(QMainWindow *QtGuiApplication1Class)
     {
-        QtGuiApplication1Class->setWindowTitle(QApplication::translate("QtGuiApplication1Class", "QtGuiApplication1", nullptr));
+        QtGuiApplication1Class->setWindowTitle(QApplication::translate("QtGuiApplication1Class", "Data Processing Tool", nullptr));
         actionLoad_OSM->setText(QApplication::translate("QtGuiApplication1Class", "Load OSM", nullptr));
         lbl_file_name->setText(QApplication::translate("QtGuiApplication1Class", "File Name:", nullptr));
         txt_start_frame->setText(QApplication::translate("QtGuiApplication1Class", "0", nullptr));

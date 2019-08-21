@@ -96,6 +96,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.slider_gamma, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
 	QObject::connect(ui.slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
 
+	ui.lbl_lift->setToolTip("Lift control pushes and pulls at the darker parts of the image. It does not only affect the darks, but it has the strongest amount of influence there.");
+	ui.lbl_gamma->setToolTip("Gamma control provides more weight to the midtones than the highlights and shadows.");
+	ui.lbl_gain->setToolTip("Gain control pushes and pulls at the lighter parts of the image. It affects all brightness levels within the image, but gives more weight to the highlights.");
+
 	int max_lift, min_lift, max_gamma, min_gamma, max_gain, min_gain;
 	color_correction.get_lift_slider_range(min_lift, max_lift);
 	color_correction.get_gamma_slider_range(min_gamma, max_gamma);
