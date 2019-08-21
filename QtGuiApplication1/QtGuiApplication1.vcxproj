@@ -233,6 +233,7 @@
     <Image Include="icons\skip-forward.png" />
     <Image Include="icons\skip-next.png" />
     <Image Include="icons\skip-previous.png" />
+    <Image Include="icons\stop.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
