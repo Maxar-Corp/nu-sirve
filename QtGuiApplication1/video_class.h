@@ -34,6 +34,7 @@ public:
 	~Video();
 
 	int counter_record, video_frame_number;
+	bool record_frame;
 	cv::VideoWriter video;
 
 

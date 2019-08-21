@@ -8,6 +8,7 @@ Video::Video(int x_pixels, int y_pixels)
 
 	counter = 0;
 	counter_record = 0;
+	record_frame = false;
 
 	image_x = x_pixels;
 	image_y = y_pixels;
@@ -174,19 +175,9 @@ void Video::update_frame()
 	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
 	bool video_open;
-	if (counter_record == 0) {
-		video_open = start_recording();
-		counter_record++;
-		video_frame_number = counter;
-	}
-	if (counter_record < 100 && video_frame_number != counter) {
-		counter_record++;
+	if (record_frame) {
 		video_frame_number = counter;
 		add_new_frame(frame, CV_8UC3);
-	}
-	if (counter_record == 100) {
-		stop_recording();
-		counter_record++;
 	}
 
 	label->setPixmap(QPixmap::fromImage(frame));
@@ -213,8 +204,22 @@ void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 
 bool Video::start_recording()
 {
-	video.open("output_video.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, cv::Size(640, 480));
-	return video.isOpened();
+	
+	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "","Video (*.avi)");
+	
+	if (file_name.isEmpty())
+		return false;
+	
+	std::string file_string = file_name.toLocal8Bit().constData();
+	
+	video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, cv::Size(image_x, image_y));
+
+	bool video_opened = video.isOpened();
+	
+	if (video_opened)
+		record_frame = true;
+
+	return video_opened;
 }
 
 void Video::add_new_frame(QImage &img, int format)
@@ -227,6 +232,7 @@ void Video::add_new_frame(QImage &img, int format)
 void Video::stop_recording()
 {
 	video.release();
+	record_frame = false;
 }
 
 void Video::save_frame()
