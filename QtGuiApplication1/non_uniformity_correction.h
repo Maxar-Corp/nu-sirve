@@ -22,6 +22,7 @@ public:
 	std::vector<double> get_nuc_correction();
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double>nuc);
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame);
+	arma::mat ordfilt2(arma::mat input_matrix, int order, arma::mat domain);
 
 private:
 
