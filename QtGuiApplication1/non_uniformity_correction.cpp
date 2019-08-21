@@ -88,6 +88,74 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 	return vector_int;
 }
 
+arma::mat NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain)
+{
+	//Assumes a domain matrix that is square n x n, where n is an odd number greater than 1
+	
+	int domain_rows = domain.n_rows;
+	int domain_cols = domain.n_cols;
+
+	int matrix_rows = input_matrix.n_rows;
+	int matrix_cols = input_matrix.n_cols;
+
+	int offset = domain_rows / 2;
+
+	arma::mat output(matrix_rows, matrix_cols);
+
+	for (int i = 0; i < matrix_rows; i++)
+	{
+		for (int j = 0; j < matrix_cols; j++)
+		{
+			double rtn_value;
+			arma::mat values(domain.n_rows, domain.n_cols);
+			if (i - offset >= 0 && j - offset >= 0 && i + offset < matrix_rows && j + offset < matrix_cols) {
+				arma::mat sub_matrix = input_matrix.submat(i - offset, j - offset, i + offset, j + offset);
+				values = sub_matrix % domain;				
+			}
+			else {
+
+				for (int m = 0; m < domain_rows; m++)
+				{
+					int r = i + (m - offset);
+
+					if (r < 0)
+						r = matrix_rows + r;
+
+					if (r >= matrix_rows)
+						r = r - matrix_rows;
+
+
+					for (int n = 0; n < domain_cols; n++)
+					{
+						int c = j + (n - offset);
+						
+						if (c < 0)
+							c = matrix_cols + c;
+						
+						if (c >= matrix_cols)
+							c = c - matrix_cols;
+
+						values(m, n) = domain(m, n) * input_matrix(r, c);
+					}
+				}
+				
+			}
+			
+			arma::vec values_flatten = arma::vectorise(values);
+			values_flatten = arma::sort(values_flatten, "descend");
+
+			if (values_flatten.n_elem > order)
+				rtn_value = values_flatten(order - 1);
+			else
+				rtn_value = values_flatten.min();
+
+			output(i, j) = rtn_value;
+		}
+	}
+	
+	return output;
+}
+
 std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double> nuc)
 {
 	
@@ -160,7 +228,9 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 		
 	int pixel_index, pixel_row, pixel_col;
 	
-	arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel, "same");
+	//arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel, "same");
+	arma::mat adj_mean_frame = ordfilt2(mean_frame, 5, kernel);
+	
 	mean_frame.save("nuc_mean_frame.txt", arma::arma_ascii);
 	adj_mean_frame.save("nuc_post_convolution_mean_frame.txt", arma::arma_ascii);
 
