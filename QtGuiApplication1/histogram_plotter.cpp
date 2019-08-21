@@ -161,7 +161,7 @@ void HistogramLine_Plot::receive_video_data(video_details &new_input)
 {
 	//update_video_frames(new_input.frames_8bit, new_input.number_pixels, 8);
 
-	counter = 70;
+	counter = 0;
 
 	maximum_levels = 8;
 	number_of_bins = std::pow(2, maximum_levels);
