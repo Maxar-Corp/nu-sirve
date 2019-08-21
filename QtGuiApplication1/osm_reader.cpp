@@ -134,7 +134,7 @@ void OSMReader::LoadData()
             current_frame.frame_header = ReadFrameHeader();
             current_frame.data = ReadFrameData();
 
-			if (current_frame.data.ecf.size() < 0)
+			if (current_frame.data.ecf.size() == 0)
 				return;
 			
             data.push_back(current_frame);
