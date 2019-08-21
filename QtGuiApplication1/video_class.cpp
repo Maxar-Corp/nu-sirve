@@ -103,7 +103,7 @@ void Video::toggle_sensor_boresight_data()
 		display_boresight_txt = true;
 }
 
-void Video::update_frame()
+void Video::update_display_frame()
 {
 
 	//if (counter == number_of_frames)
@@ -175,7 +175,7 @@ void Video::update_frame()
 	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
 	bool video_open;
-	if (record_frame) {
+	if (record_frame && video_frame_number != counter) {
 		video_frame_number = counter;
 		add_new_frame(frame, CV_8UC3);
 	}
@@ -202,7 +202,7 @@ void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 	display_data = input_data;
 }
 
-bool Video::start_recording()
+bool Video::start_recording(double fps)
 {
 	
 	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "","Video (*.avi)");
@@ -212,7 +212,7 @@ bool Video::start_recording()
 	
 	std::string file_string = file_name.toLocal8Bit().constData();
 	
-	video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 15, cv::Size(image_x, image_y));
+	video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(image_x, image_y));
 
 	bool video_opened = video.isOpened();
 	
@@ -247,7 +247,7 @@ void Video::save_frame()
 void Video::update_specific_frame(unsigned int frame_number)
 {
 	counter = frame_number;
-	update_frame();
+	update_display_frame();
 }
 
 void Video::update_color_correction(double lift, double gamma, double gain)
