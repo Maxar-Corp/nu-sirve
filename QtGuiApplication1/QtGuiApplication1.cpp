@@ -608,8 +608,8 @@ void QtGuiApplication1::start_stop_video_record()
 	}
 	else {
 		//Starting record video
-		bool file_opened = ir_video->start_recording();
-		
+		bool file_opened = ir_video->start_recording(playback_controller->get_fps());
+
 		if (file_opened) {
 
 			QPixmap stop_image("icons/stop.png");

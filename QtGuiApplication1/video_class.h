@@ -49,7 +49,7 @@ public:
 	QVector<QRgb> colorTable;
 	
 	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data);
-	bool start_recording();
+	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
 	void stop_recording();
 	
@@ -58,7 +58,7 @@ public:
 
 
 public slots:
-    void update_frame();	
+    void update_display_frame();	
 	void update_specific_frame(unsigned int frame_number);
 	void update_color_correction(double lift, double gamma, double gain);
 	void update_video_file(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_pixels);
