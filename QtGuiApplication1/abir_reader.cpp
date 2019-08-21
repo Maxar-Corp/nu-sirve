@@ -83,7 +83,7 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<un
 	progress.setMinimum(valid_frames[0]);
 	progress.setMaximum(valid_frames[1]);
 	progress.setMinimumDuration(1);
-	progress.setWindowTitle(QString(""));
+	progress.setWindowTitle(QString("Import Video"));
 	progress.setLabelText(QString("Reading in frames..."));
 
     for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
