@@ -48,6 +48,11 @@ void Playback::speed_timer() {
 	timer->start();
 }
 
+double Playback::get_fps()
+{
+	return speeds[index_speed];	
+}
+
 void Playback::slow_timer() {
 
 	if (index_speed - 1 < 0)

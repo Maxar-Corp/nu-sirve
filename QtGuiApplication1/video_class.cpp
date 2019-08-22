@@ -7,6 +7,8 @@ Video::Video(int x_pixels, int y_pixels)
 	text = new QLabel(this);
 
 	counter = 0;
+	counter_record = 0;
+	record_frame = false;
 
 	image_x = x_pixels;
 	image_y = y_pixels;
@@ -101,7 +103,7 @@ void Video::toggle_sensor_boresight_data()
 		display_boresight_txt = true;
 }
 
-void Video::update_frame()
+void Video::update_display_frame()
 {
 
 	//if (counter == number_of_frames)
@@ -119,7 +121,7 @@ void Video::update_frame()
 	QImage frame((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
 	frame.setColorTable(colorTable);
-	frame = frame.convertToFormat(QImage::Format_RGB30);
+	frame = frame.convertToFormat(QImage::Format_RGB888);
 
 	if (plot_boresight & display_data[counter].ir_data.size() > 0) {
 
@@ -172,6 +174,12 @@ void Video::update_frame()
 	p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
 	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
+	bool video_open;
+	if (record_frame && video_frame_number != counter) {
+		video_frame_number = counter;
+		add_new_frame(frame, CV_8UC3);
+	}
+
 	label->setPixmap(QPixmap::fromImage(frame));
 	label->update();
 	label->repaint();
@@ -194,6 +202,39 @@ void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 	display_data = input_data;
 }
 
+bool Video::start_recording(double fps)
+{
+	
+	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "","Video (*.avi)");
+	
+	if (file_name.isEmpty())
+		return false;
+	
+	std::string file_string = file_name.toLocal8Bit().constData();
+	
+	video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(image_x, image_y));
+
+	bool video_opened = video.isOpened();
+	
+	if (video_opened)
+		record_frame = true;
+
+	return video_opened;
+}
+
+void Video::add_new_frame(QImage &img, int format)
+{
+	QImage image = img.rgbSwapped();
+	cv::Mat output_frame(image.height(), image.width(),	format, image.bits(), image.bytesPerLine());
+	video.write(output_frame);
+}
+
+void Video::stop_recording()
+{
+	video.release();
+	record_frame = false;
+}
+
 void Video::save_frame()
 {
 	const QPixmap* pix = label->pixmap();
@@ -206,7 +247,7 @@ void Video::save_frame()
 void Video::update_specific_frame(unsigned int frame_number)
 {
 	counter = frame_number;
-	update_frame();
+	update_display_frame();
 }
 
 void Video::update_color_correction(double lift, double gamma, double gain)
