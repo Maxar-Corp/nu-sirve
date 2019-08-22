@@ -58,6 +58,7 @@ public:
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;
+	bool record_video;
 
 	
 	QtGuiApplication1(QWidget *parent = Q_NULLPTR);
@@ -74,6 +75,8 @@ public:
 
 	void load_osm_data();
 	void load_abir_data();
+
+	void start_stop_video_record();
 
 	void update_fps();
 	void reset_color_correction();
