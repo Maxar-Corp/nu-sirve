@@ -69,6 +69,37 @@ double Lift_Gamma_Gain::get_updated_color(int original_value, int max_value)
 	return updated_value;
 }
 
+arma::mat Lift_Gamma_Gain::get_updated_color(arma::mat input, int max_value)
+{
+	arma::mat normalized_input, exponent_base, updated_value;
+	
+	int rows = input.n_rows;
+	int cols = input.n_cols;
+	arma::mat ones(rows, cols, arma::fill::ones);
+	
+	normalized_input = input / max_value;
+
+	exponent_base = normalized_input * gain - normalized_input * lift + ones * lift;
+	
+	// Guarantees root of negative not being taken
+	arma::uvec index = arma::find(exponent_base < 0);
+	if (index.n_elem > 0)
+		exponent_base.elem(index) = arma::zeros(index.n_elem);
+
+	updated_value = arma::pow(exponent_base, 1.0 / gamma) * max_value;
+
+	// Check limits
+	index = arma::find(updated_value > max_value);
+	if (index.n_elem > 0)
+		updated_value.elem(index) = arma::ones(index.n_elem) * max_value;
+
+	index = arma::find(updated_value < 0);
+	if (index.n_elem > 0)
+		updated_value.elem(index) = arma::zeros(index.n_elem);
+	
+	return updated_value;
+}
+
 bool Lift_Gamma_Gain::set_lift(double value)
 {
 	if (value >= min_lift & value <= max_lift)

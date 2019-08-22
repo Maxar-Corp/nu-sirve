@@ -1,7 +1,7 @@
 #include "video_class.h"
 
 
-Video::Video(int x_pixels, int y_pixels)
+Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new QLabel(this);
 	text = new QLabel(this);
@@ -13,6 +13,7 @@ Video::Video(int x_pixels, int y_pixels)
 	image_x = x_pixels;
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
+	max_bit_level = input_bit_level;
 
 	banner_text = QString("Insert Banner");
 	banner_color = QColor("Red");
@@ -31,7 +32,8 @@ Video::Video(int x_pixels, int y_pixels)
 		colorTable.push_back(qRgb(255 - i, i, i));
 }
 
-Video::Video(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_pixels)
+/*
+Video::Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels)
 {
 	label = new QLabel(this);
 	text = new QLabel(this);
@@ -40,14 +42,14 @@ Video::Video(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_
 	
 	update_video_file(video_data, x_pixels, y_pixels);
 }
-
+*/
 Video::~Video()
 {
 	delete  label;
 	delete text;
 }
 
-void Video::update_video_file(std::vector<std::vector<uint8_t>>& video_data, int x_pixels, int y_pixels)
+void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, int x_pixels, int y_pixels)
 {
 	
 	frame_data = video_data;
@@ -56,8 +58,7 @@ void Video::update_video_file(std::vector<std::vector<uint8_t>>& video_data, int
 	image_x = x_pixels;
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
-	//update_frame();
-
+	
 	QString frame_str = "Frame ";
 	QString number;
 	number.setNum(counter);
@@ -68,7 +69,7 @@ void Video::update_video_file(std::vector<std::vector<uint8_t>>& video_data, int
 
 void Video::receive_video_data(video_details &new_input)
 {
-	update_video_file(new_input.frames_8bit, new_input.x_pixels, new_input.y_pixels);
+	update_video_file(new_input.frames_16bit, new_input.x_pixels, new_input.y_pixels);
 
 }
 
@@ -105,18 +106,32 @@ void Video::toggle_sensor_boresight_data()
 
 void Video::update_display_frame()
 {
+	//Convert current frame to armadillo matrix
+	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
+	arma::vec temp(frame_vector);
+	arma::mat frame_matrix(temp);
+	frame_matrix.reshape(image_x, image_y);
+	frame_matrix = frame_matrix.t();
 
-	//if (counter == number_of_frames)
-	//	counter = 0;
+	int max_value = std::pow(2, max_bit_level);
+	arma::mat color_corrected_matrix = color_correction.get_updated_color(frame_matrix, max_value);
 
-	uint8_t *color_corrected_frame = new uint8_t[number_pixels];
-	double updated_value;
+	color_corrected_matrix = color_corrected_matrix * 255 / max_value;
 
-	for (int i = 0; i < number_pixels; i++)
-	{
-		updated_value = color_correction.get_updated_color(frame_data[counter][i], 256);
-		color_corrected_frame[i] = (uint8_t)updated_value;
-	}
+	//------------------------------------------------------------------------------------------------
+	color_corrected_matrix = color_corrected_matrix.t();
+	arma::vec out_frame_flat = arma::vectorise(color_corrected_matrix);
+	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(out_frame_flat);
+	std::vector<uint8_t> converted_values(out_vector.begin(), out_vector.end());
+
+	uint8_t *color_corrected_frame = converted_values.data();// new uint8_t[number_pixels];
+	//double updated_value;
+
+	//for (int i = 0; i < number_pixels; i++)
+	//{
+	//	updated_value = color_correction.get_updated_color(frame_data[counter][i], 256);
+	//	color_corrected_frame[i] = (uint8_t)updated_value;
+	//}
 
 	QImage frame((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
@@ -184,7 +199,7 @@ void Video::update_display_frame()
 	label->update();
 	label->repaint();
 
-	delete[] color_corrected_frame;
+	//delete[] color_corrected_frame;
 
 	QString frame_str = "Frame ";
 	QString number;

@@ -54,7 +54,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.btn_copy_directory, &QPushButton::clicked, this, &QtGuiApplication1::copy_osm_directory);
 	//---------------------------------------------------------------------------	
 
-	ir_video = new Video(1, 1);
+	ir_video = new Video(1, 1, max_used_bits);
 	
 	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
