@@ -60,6 +60,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
 	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, ir_video, &Video::update_color_correction);
 	
+	record_video = false;
+
 	//---------------------------------------------------------------------------	
 	
 	int number_bits = 8;
@@ -140,7 +142,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
 	QObject::connect(ui.btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
 	QObject::connect(ui.btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
-	
+	QObject::connect(ui.btn_frame_record, &QPushButton::clicked, this, &QtGuiApplication1::start_stop_video_record);
+		
 	QObject::connect(ui.btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 
@@ -580,12 +583,61 @@ void QtGuiApplication1::load_abir_data()
 	ui.btn_play->setEnabled(true);
 	ui.btn_next_frame->setEnabled(true);
 	ui.btn_prev_frame->setEnabled(true);
+	ui.btn_frame_record->setEnabled(true);
 
 	INFO << "GUI: ABIR file load complete";
 	
 	clear_image_processing();
 	
 	//---------------------------------------------------------------------------
+}
+
+void QtGuiApplication1::start_stop_video_record()
+{
+
+	if (record_video)
+	{
+		//Stopping record video
+
+		ir_video->stop_recording();
+
+		QPixmap record_image("icons/record.png");
+		QIcon record_icon(record_image);
+		ui.btn_frame_record->setIcon(record_icon);
+		ui.btn_frame_record->setText("");
+		ui.btn_frame_record->setToolTip("Start Record");
+		ui.btn_frame_record->setEnabled(true);
+
+		record_video = false;
+	}
+	else {
+		//Starting record video
+		bool file_opened = ir_video->start_recording(playback_controller->get_fps());
+
+		if (file_opened) {
+
+			QPixmap stop_image("icons/stop.png");
+			QIcon stop_icon(stop_image);
+			ui.btn_frame_record->setIcon(stop_icon);
+			ui.btn_frame_record->setText("");
+			ui.btn_frame_record->setToolTip("Stop Record");
+			ui.btn_frame_record->setEnabled(true);
+
+			record_video = true;
+		}
+		else
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle(QString("Video Record Failed "));
+			msgBox.setText("Video file could not be saved to this location");
+
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			msgBox.setDefaultButton(QMessageBox::Ok);
+			msgBox.exec();
+		}
+
+	}
+
 }
 
 void QtGuiApplication1::update_fps()

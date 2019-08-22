@@ -23,6 +23,7 @@ public:
 	QTimer  *timer;
 	std::vector<double> speeds;
 	bool is_reverse;
+	double get_fps();
 
 public slots:
 	void speed_timer();
