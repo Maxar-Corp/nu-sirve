@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 
+#include <armadillo>
+
 #include <QWidget>
 
 class Lift_Gamma_Gain : public QWidget
@@ -21,6 +23,7 @@ public:
 	double get_gamma();
 	double get_gain();
 	double get_updated_color(int original_value, int max_value);
+	arma::mat get_updated_color(arma::mat input, int max_value);
 
 	bool set_lift(double value);
 	bool set_gamma(double value);

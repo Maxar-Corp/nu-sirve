@@ -7,7 +7,6 @@
 #include <string>
 #include <math.h>
 
-//#include <QObject>
 #include <QString>
 #include <QTimer>
 #include <QLabel>
@@ -16,8 +15,11 @@
 #include <qpainter.h>
 #include <qbrush.h>
 #include <qfiledialog.h>
+
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
+
+#include <armadillo>
 
 #include "abir_reader.h"
 #include "color_correction_lgg.h"
@@ -29,8 +31,8 @@ class Video : public QWidget
     Q_OBJECT
 public:
    
-	Video(int x_pixles, int y_pixels);
-	Video(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_pixels);
+	Video(int x_pixles, int y_pixels, int input_bit_level);
+	//Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
 	~Video();
 
 	int counter_record, video_frame_number;
@@ -61,7 +63,7 @@ public slots:
     void update_display_frame();	
 	void update_specific_frame(unsigned int frame_number);
 	void update_color_correction(double lift, double gamma, double gain);
-	void update_video_file(std::vector<std::vector<uint8_t>> &video_data, int x_pixels, int y_pixels);
+	void update_video_file(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
 	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text, QColor input_banner_color);
 	void toggle_osm_tracks();
@@ -70,9 +72,9 @@ public slots:
 
 private:
 
-	int image_x, image_y, number_pixels;
+	int image_x, image_y, number_pixels, max_bit_level;
 
-	std::vector<std::vector<uint8_t>> frame_data;
+	std::vector<std::vector<uint16_t>> frame_data;
     unsigned int counter;
 
 	std::vector<Plotting_Frame_Data> display_data;
