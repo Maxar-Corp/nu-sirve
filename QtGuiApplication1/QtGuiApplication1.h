@@ -33,6 +33,9 @@
 #include <qjsonobject.h>
 #include <qjsondocument.h>
 #include <qclipboard.h>
+#include <QThread>
+#include <QtConcurrent/qtconcurrentmap.h>
+//#include <QtConcurrent/qtconcurrent.h>
 
 
 class QtGuiApplication1 : public QMainWindow

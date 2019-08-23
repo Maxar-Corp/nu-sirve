@@ -1038,16 +1038,33 @@ void QtGuiApplication1::create_deinterlace()
 	Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
 
 	deinterlace_video = original;
-	deinterlace_video.clear_16bit_vector();
+	//deinterlace_video.clear_16bit_vector();
 	deinterlace_video.clear_8bit_vector();
 	deinterlace_video.histogram_data.clear();
 
 	deinterlace_video.properties[Video_Parameters::original] = false;
 	deinterlace_video.properties[deinterlace_video_type] = true;
 
-	// Apply de-interlace to the frames		
+	//---------------------------------------------------------------------------------------
 	int number_frames = original.frames_16bit.size();
+
+	QList<std::vector<uint16_t>> myList;
+	myList.reserve(number_frames);
+	std::copy(deinterlace_video.frames_16bit.begin(), deinterlace_video.frames_16bit.end(), std::back_inserter(myList));
+
+	//QFutureWatcher<std::vector<uint16_t>> *imageScaling;
+	QList<std::vector<uint16_t>> output;
+	std::function<QImage(const std::vector<uint16_t> &)> scale = [](const std::vector<uint16_t> &img) {
+		return Deinterlace::deinterlace_frame(deinterlace_method_type, original.x_pixels, original.y_pixels, img);
+	};
+
+	QFuture<void> thumbnails = QtConcurrent::map(myList, scale);
 	
+	/*
+	// Apply de-interlace to the frames		
+	
+	int number_frames = original.frames_16bit.size();
+
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
@@ -1069,9 +1086,8 @@ void QtGuiApplication1::create_deinterlace()
 		INFO << "De-interlace process was canceled";
 		return;
 	}
-
-	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
-
+	*/
+	
 	deinterlace_video.convert_16bit_to_8bit();
 	deinterlace_video.create_histogram_data();
 
