@@ -114,14 +114,18 @@ void Video::update_display_frame()
 	frame_matrix = frame_matrix.t();
 
 	int max_value = std::pow(2, max_bit_level);
-	arma::mat color_corrected_matrix = color_correction.get_updated_color(frame_matrix, max_value);
+	double normalized_min_value, normalized_max_value;
+	
+	arma::mat color_corrected_matrix = color_correction.get_updated_color(frame_matrix, max_value, normalized_min_value, normalized_max_value);
 
-	color_corrected_matrix = color_corrected_matrix * 255 / max_value;
+	color_corrected_matrix = color_corrected_matrix * 255;
 
 	//------------------------------------------------------------------------------------------------
 	color_corrected_matrix = color_corrected_matrix.t();
 	arma::vec out_frame_flat = arma::vectorise(color_corrected_matrix);
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(out_frame_flat);
+
+
 	std::vector<uint8_t> converted_values(out_vector.begin(), out_vector.end());
 
 	uint8_t *color_corrected_frame = converted_values.data();// new uint8_t[number_pixels];

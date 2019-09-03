@@ -23,7 +23,7 @@ public:
 	double get_gamma();
 	double get_gain();
 	double get_updated_color(int original_value, int max_value);
-	arma::mat get_updated_color(arma::mat input, int max_value);
+	arma::mat get_updated_color(arma::mat input, int max_value, double &frame_min, double &frame_max);
 
 	bool set_lift(double value);
 	bool set_gamma(double value);
