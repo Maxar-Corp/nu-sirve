@@ -69,34 +69,53 @@ double Lift_Gamma_Gain::get_updated_color(int original_value, int max_value)
 	return updated_value;
 }
 
-arma::mat Lift_Gamma_Gain::get_updated_color(arma::mat input, int max_value)
+arma::mat Lift_Gamma_Gain::get_updated_color(arma::mat input, int max_value, double &frame_min, double &frame_max)
 {
-	arma::mat normalized_input, exponent_base, updated_value;
+	arma::mat updated_value;
 	
 	int rows = input.n_rows;
 	int cols = input.n_cols;
 	arma::mat ones(rows, cols, arma::fill::ones);
 	
-	normalized_input = input / max_value;
-
-	exponent_base = normalized_input * gain - normalized_input * lift + ones * lift;
+	input = input / max_value;
+	updated_value = input * gain - input * lift + ones * lift;
 	
 	// Guarantees root of negative not being taken
-	arma::uvec index = arma::find(exponent_base < 0);
+	arma::uvec index = arma::find(updated_value < 0);
 	if (index.n_elem > 0)
-		exponent_base.elem(index) = arma::zeros(index.n_elem);
+		updated_value.elem(index) = arma::zeros(index.n_elem);
 
-	updated_value = arma::pow(exponent_base, 1.0 / gamma) * max_value;
+	updated_value = arma::pow(updated_value, 1.0 / gamma);
+
+	double min_frame_value, max_frame_value, min_frame_value_update, max_frame_value_update;
+	min_frame_value = 0;
+	max_frame_value = 1;
+
+	bool enhanced_dynamic_range = true;
+	if (enhanced_dynamic_range) {
+
+		max_frame_value_update = (std::pow(1.0, gamma) - lift) / (gain - lift);
+		min_frame_value_update = (std::pow(0.00000001, gamma) - lift) / (gain - lift);
+		if (min_frame_value_update > 0)
+			min_frame_value = min_frame_value_update;
+		if (max_frame_value_update < 1)
+			max_frame_value = max_frame_value_update;
+
+		frame_min = min_frame_value;
+		frame_max = max_frame_value;
+	}
 
 	// Check limits
-	index = arma::find(updated_value > max_value);
+	index = arma::find(updated_value > max_frame_value);
 	if (index.n_elem > 0)
 		updated_value.elem(index) = arma::ones(index.n_elem) * max_value;
 
-	index = arma::find(updated_value < 0);
+	index = arma::find(updated_value < min_frame_value);
 	if (index.n_elem > 0)
 		updated_value.elem(index) = arma::zeros(index.n_elem);
 	
+	updated_value = updated_value / (max_frame_value - min_frame_value);
+
 	return updated_value;
 }
 

@@ -1045,6 +1045,7 @@ void QtGuiApplication1::create_deinterlace()
 	deinterlace_video.properties[Video_Parameters::original] = false;
 	deinterlace_video.properties[deinterlace_video_type] = true;
 
+	/*
 	//---------------------------------------------------------------------------------------
 	int number_frames = original.frames_16bit.size();
 
@@ -1059,8 +1060,9 @@ void QtGuiApplication1::create_deinterlace()
 	};
 
 	QFuture<void> thumbnails = QtConcurrent::map(myList, scale);
+	//---------------------------------------------------------------------------------------
+	*/
 	
-	/*
 	// Apply de-interlace to the frames		
 	
 	int number_frames = original.frames_16bit.size();
@@ -1086,7 +1088,7 @@ void QtGuiApplication1::create_deinterlace()
 		INFO << "De-interlace process was canceled";
 		return;
 	}
-	*/
+
 	
 	deinterlace_video.convert_16bit_to_8bit();
 	deinterlace_video.create_histogram_data();
