@@ -32,17 +32,19 @@ void video_details::set_number_of_bits(int num_bits)
 	number_of_bits = num_bits;
 }
 
+/*
 void video_details::set_video_frames(std::vector<std::vector<uint8_t>> video_in)
 {
-	frames_8bit = video_in;
-	create_histogram_data();
+	//frames_8bit = video_in;
+	//create_histogram_data();
 }
+*/
 
 void video_details::set_video_frames(std::vector<std::vector<uint16_t>> video_in)
 {
 	frames_16bit = video_in;
-	convert_16bit_to_8bit();
-	create_histogram_data();
+	//convert_16bit_to_8bit();
+	//create_histogram_data();
 }
 
 void video_details::clear_16bit_vector()
@@ -66,9 +68,10 @@ void video_details::clear_8bit_vector()
 	//	delete[] frames_8bit[j];
 	//}
 
-	frames_8bit.clear();
+	//frames_8bit.clear();
 }
 
+/*
 void video_details::convert_16bit_to_8bit() {
 
 	uint16_t total_range = std::pow(2, number_of_bits);
@@ -81,7 +84,7 @@ void video_details::convert_16bit_to_8bit() {
 	progress.setWindowTitle(QString("Creating Video"));
 	progress.setLabelText(QString("Down-converting video frames..."));
 
-	//clear_8bit_vector();
+	clear_8bit_vector();
 	frames_8bit.clear();
 
 	for (size_t i = 0; i < number_of_frames; i++)
@@ -101,7 +104,9 @@ void video_details::convert_16bit_to_8bit() {
 		frames_8bit.push_back(raw_8bit_data);
 	}
 }
+*/
 
+/*
 void video_details::create_histogram_data()
 {
 
@@ -138,6 +143,8 @@ void video_details::create_histogram_data()
 		histogram_data.push_back(frame_histogram);
 	}
 }
+
+*/
 
 template <typename Map>
 bool video_details::map_compare(Map const &lhs, Map const &rhs) {

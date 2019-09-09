@@ -106,6 +106,10 @@ void Video::toggle_sensor_boresight_data()
 
 void Video::update_display_frame()
 {
+	// In case update_display_frame is called before a video is fully placed 
+	if (frame_data.size() < counter)
+		return;
+	
 	//Convert current frame to armadillo matrix
 	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
 	arma::vec temp(frame_vector);
