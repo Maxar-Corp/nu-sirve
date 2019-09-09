@@ -34,8 +34,6 @@
 #include <qjsondocument.h>
 #include <qclipboard.h>
 #include <QThread>
-#include <QtConcurrent/qtconcurrentmap.h>
-//#include <QtConcurrent/qtconcurrent.h>
 
 
 class QtGuiApplication1 : public QMainWindow
@@ -50,6 +48,8 @@ public:
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *color_plot_layout;
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm;
+
+	QThread thread_video, thread_histogram, thread_timer;
 
 	Lift_Gamma_Gain color_correction;
 	Playback *playback_controller;

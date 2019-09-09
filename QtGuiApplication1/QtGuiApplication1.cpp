@@ -46,6 +46,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	eng_data = NULL;
 
 	playback_controller = new Playback(1);
+	playback_controller->moveToThread(&thread_timer);
+	QObject::connect(&thread_video, &QThread::started, playback_controller, &Playback::start_timer);
 	
 	//---------------------------------------------------------------------------	
 	
@@ -55,17 +57,24 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------	
 
 	ir_video = new Video(1, 1, max_used_bits);
+
+	ir_video->moveToThread(&thread_video);
+
+	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
 	
 	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
 	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, ir_video, &Video::update_color_correction);
-	
+
 	record_video = false;
 
 	//---------------------------------------------------------------------------	
 	
 	int number_bits = 8;
 	histogram_plot = new HistogramLine_Plot(number_bits);
+
+	histogram_plot->moveToThread(&thread_histogram);
+	QObject::connect(&thread_video, &QThread::started, histogram_plot, &HistogramLine_Plot::update_histogram_chart);
 		
 	QObject::connect(videos, &Video_Container::update_display_video, histogram_plot, &HistogramLine_Plot::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, histogram_plot, &HistogramLine_Plot::update_specific_histogram);
@@ -268,6 +277,10 @@ QtGuiApplication1::~QtGuiApplication1() {
 	//delete data_plots;
 	
 	delete eng_data;
+
+	thread_video.terminate();
+	thread_histogram.terminate();
+	thread_timer.terminate();
 
 	DEBUG << "GUI: GUI destructor called";
 }
@@ -541,8 +554,13 @@ void QtGuiApplication1::load_abir_data()
 	//---------------------------------------------------------------------------
 
 	// Set the video and histogram plots to this data
-	videos->display_original_data();
-	playback_controller->start_timer();
+	videos->display_original_data();	
+	
+	//playback_controller->start_timer();
+	// Start threads...
+	thread_video.start();
+	thread_histogram.start();
+	thread_timer.start();
 
 	std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;
 	std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame) + (max_frame - min_frame);
@@ -1000,8 +1018,8 @@ void QtGuiApplication1::create_non_uniformity_correction()
 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
-	nuc_video.convert_16bit_to_8bit();
-	nuc_video.create_histogram_data();		
+	//nuc_video.convert_16bit_to_8bit();
+	//nuc_video.create_histogram_data();		
 
 	bool nuc_exists = false;
 	int index_nuc = videos->find_data_index(nuc_video);
@@ -1090,8 +1108,8 @@ void QtGuiApplication1::create_deinterlace()
 	}
 
 	
-	deinterlace_video.convert_16bit_to_8bit();
-	deinterlace_video.create_histogram_data();
+	//deinterlace_video.convert_16bit_to_8bit();
+	//deinterlace_video.create_histogram_data();
 
 	bool deinterlace_exists = false;
 	int index_deinterlace = videos->find_data_index(deinterlace_video);
@@ -1351,8 +1369,8 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
-	background_subraction_video.convert_16bit_to_8bit();
-	background_subraction_video.create_histogram_data();
+	//background_subraction_video.convert_16bit_to_8bit();
+	//background_subraction_video.create_histogram_data();
 
 	bool background_subtraction_exists = false;
 	int index_background_subtraction = videos->find_data_index(background_subraction_video);
