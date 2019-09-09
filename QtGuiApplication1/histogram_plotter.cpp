@@ -33,7 +33,7 @@ void HistogramLine_Plot::receive_video_data(video_details &new_input)
 
 	maximum_levels = 8;
 	number_of_bins = std::pow(2, maximum_levels);
-	number_of_frames = new_input.frames_8bit.size();
+	//number_of_frames = new_input.frames_8bit.size();
 
 	histogram_data = new_input.histogram_data;
 	video_frames = new_input.frames_16bit;
