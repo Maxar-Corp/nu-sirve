@@ -72,6 +72,7 @@ public:
     QFrame *frmColorCorrection;
     QLabel *lbl_color_correction;
     QPushButton *btn_reset_color_correction;
+    QCheckBox *chk_enhanced_range;
     QWidget *tab_5;
     QPushButton *btn_create_nuc;
     QCheckBox *chk_apply_nuc;
@@ -112,6 +113,7 @@ public:
     QTabWidget *tabPlots;
     QWidget *tab_3;
     QFrame *frm_histogram;
+    QFrame *frm_histogram_abs;
     QWidget *tab_4;
     QFrame *frm_plots;
     QComboBox *cmb_plot_yaxis;
@@ -342,7 +344,10 @@ public:
         lbl_color_correction->setAlignment(Qt::AlignCenter);
         btn_reset_color_correction = new QPushButton(tab_2);
         btn_reset_color_correction->setObjectName(QString::fromUtf8("btn_reset_color_correction"));
-        btn_reset_color_correction->setGeometry(QRect(170, 120, 71, 21));
+        btn_reset_color_correction->setGeometry(QRect(190, 120, 51, 21));
+        chk_enhanced_range = new QCheckBox(tab_2);
+        chk_enhanced_range->setObjectName(QString::fromUtf8("chk_enhanced_range"));
+        chk_enhanced_range->setGeometry(QRect(10, 120, 141, 21));
         tabMenu->addTab(tab_2, QString());
         tab_5 = new QWidget();
         tab_5->setObjectName(QString::fromUtf8("tab_5"));
@@ -496,6 +501,11 @@ public:
         frm_histogram->setGeometry(QRect(10, 10, 660, 500));
         frm_histogram->setFrameShape(QFrame::StyledPanel);
         frm_histogram->setFrameShadow(QFrame::Raised);
+        frm_histogram_abs = new QFrame(tab_3);
+        frm_histogram_abs->setObjectName(QString::fromUtf8("frm_histogram_abs"));
+        frm_histogram_abs->setGeometry(QRect(9, 519, 661, 61));
+        frm_histogram_abs->setFrameShape(QFrame::StyledPanel);
+        frm_histogram_abs->setFrameShadow(QFrame::Raised);
         tabPlots->addTab(tab_3, QString());
         tab_4 = new QWidget();
         tab_4->setObjectName(QString::fromUtf8("tab_4"));
@@ -567,8 +577,8 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(0);
-        tabPlots->setCurrentIndex(1);
+        tabMenu->setCurrentIndex(1);
+        tabPlots->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(QtGuiApplication1Class);
@@ -599,6 +609,7 @@ public:
         lbl_gain_value->setText(QApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
         lbl_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Output vs Input Value", nullptr));
         btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
+        chk_enhanced_range->setText(QApplication::translate("QtGuiApplication1Class", "Enhanced Dynamic Range", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
         btn_create_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));
         chk_apply_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Apply NUC", nullptr));

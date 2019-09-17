@@ -69,6 +69,7 @@ public slots:
 	void toggle_osm_tracks();
 	void toggle_primary_track_data();
 	void toggle_sensor_boresight_data();
+	void toggle_enhanced_dynamic_range(bool input);
 
 private:
 
