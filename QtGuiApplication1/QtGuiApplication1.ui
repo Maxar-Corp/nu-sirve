@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -487,14 +487,27 @@
      <widget class="QPushButton" name="btn_reset_color_correction">
       <property name="geometry">
        <rect>
-        <x>170</x>
+        <x>190</x>
         <y>120</y>
-        <width>71</width>
+        <width>51</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
        <string>Reset</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="chk_enhanced_range">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>141</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Enhanced Dynamic Range</string>
       </property>
      </widget>
     </widget>
@@ -1022,7 +1035,7 @@ Subtraction</string>
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="tabsClosable">
      <bool>false</bool>
@@ -1044,6 +1057,22 @@ Subtraction</string>
         <y>10</y>
         <width>660</width>
         <height>500</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+     </widget>
+     <widget class="QFrame" name="frm_histogram_abs">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>519</y>
+        <width>661</width>
+        <height>61</height>
        </rect>
       </property>
       <property name="frameShape">

@@ -71,6 +71,7 @@ public:
 
 	signals:
 		void change_banner(QString banner_text, QColor banner_color);
+		void enhanced_dynamic_range(bool enhance_range);
 	
 
 	public slots:
@@ -91,6 +92,7 @@ public:
 	void save_frame();
 	void set_frame_number_label(int counter);
 	void copy_osm_directory();
+	void update_enhanced_range(bool input);
 	
 	void create_non_uniformity_correction();
 	void create_background_subtraction_correction();

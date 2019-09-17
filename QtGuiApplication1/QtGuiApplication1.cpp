@@ -65,6 +65,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
 	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, ir_video, &Video::update_color_correction);
+	QObject::connect(this, &QtGuiApplication1::enhanced_dynamic_range, ir_video, &Video::toggle_enhanced_dynamic_range);
 
 	record_video = false;
 
@@ -79,6 +80,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(videos, &Video_Container::update_display_video, histogram_plot, &HistogramLine_Plot::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, histogram_plot, &HistogramLine_Plot::update_specific_histogram);
 	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, histogram_plot, &HistogramLine_Plot::update_color_correction);
+	QObject::connect(this, &QtGuiApplication1::enhanced_dynamic_range, histogram_plot, &HistogramLine_Plot::toggle_enhanced_dynamic_range);
+
 
 	//---------------------------------------------------------------------------
 
@@ -88,6 +91,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, &color_correction_plot, &ColorPlotter::update_color_correction);
 	QObject::connect(ui.btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
+	QObject::connect(ui.chk_enhanced_range, &QCheckBox::toggled, this, &QtGuiApplication1::update_enhanced_range);
 
 	//---------------------------------------------------------------------------
 
@@ -895,6 +899,13 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 void QtGuiApplication1::copy_osm_directory()
 {
 	clipboard->setText(file_data.directory_path);
+}
+
+void QtGuiApplication1::update_enhanced_range(bool input)
+{
+
+	emit enhanced_dynamic_range(input);
+
 }
 
 void QtGuiApplication1::create_non_uniformity_correction()

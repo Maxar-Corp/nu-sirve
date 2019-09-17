@@ -3,11 +3,16 @@
 HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 {
 	chart = new QChart();
+	abs_chart = new QChart();
+
 	chart_view = new QChartView(chart);
+	abs_chart_view = new QChartView(abs_chart);
+
 	text = new QLabel(this);
 
 	//chart->setTitle("Luminosity");
 	chart->legend()->hide();
+	abs_chart->legend()->hide();
 
 	QColor base_color(colors.GetCurrentColor());
 	pen.setStyle(Qt::SolidLine);
@@ -46,6 +51,11 @@ void HistogramLine_Plot::receive_video_data(video_details &new_input)
 
 	frame_str.append(number);
 	text->setText(frame_str);
+}
+
+void HistogramLine_Plot::toggle_enhanced_dynamic_range(bool input)
+{
+	color_correction.enhanced_dynamic_range = input;
 }
 
 void HistogramLine_Plot::update_histogram_chart() {

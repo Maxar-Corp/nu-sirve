@@ -104,6 +104,11 @@ void Video::toggle_sensor_boresight_data()
 		display_boresight_txt = true;
 }
 
+void Video::toggle_enhanced_dynamic_range(bool input)
+{
+	color_correction.enhanced_dynamic_range = input;
+}
+
 void Video::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
