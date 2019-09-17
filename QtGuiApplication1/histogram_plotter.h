@@ -31,8 +31,8 @@ class HistogramLine_Plot : public QWidget //public QChartView
         
 		Lift_Gamma_Gain color_correction;
         
-		QChart *chart;
-		QChartView *chart_view;
+		QChart *chart, *abs_chart;
+		QChartView *chart_view, *abs_chart_view;
 
 		QLabel *text;
 		unsigned int maximum_levels;
@@ -48,6 +48,7 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		void update_specific_histogram(unsigned int frame_number);
 		void update_color_correction(double lift, double gamma, double gain);
 		void receive_video_data(video_details &new_input);
+		void toggle_enhanced_dynamic_range(bool input);
 
     private:
 

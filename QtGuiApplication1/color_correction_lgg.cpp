@@ -6,6 +6,8 @@ Lift_Gamma_Gain::Lift_Gamma_Gain(double input_lift, double input_gamma, double i
 	gamma = input_gamma;
 	gain = input_gain;
 
+	enhanced_dynamic_range = false;
+
 	max_lift = 1.0;
 	min_lift = -1.0;
 	
@@ -91,7 +93,6 @@ arma::mat Lift_Gamma_Gain::get_updated_color(arma::mat input, int max_value, dou
 	min_frame_value = 0;
 	max_frame_value = 1;
 
-	bool enhanced_dynamic_range = true;
 	if (enhanced_dynamic_range) {
 
 		max_frame_value_update = (std::pow(1.0, gamma) - lift) / (gain - lift);
@@ -192,6 +193,11 @@ void Lift_Gamma_Gain::get_gain_slider_range(int & min_value, int & max_value)
 
 	min_value = min_gain * 100;
 	max_value = max_gain * 100;
+}
+
+void Lift_Gamma_Gain::toggle_enhanced_range(bool enhanced_range)
+{
+	enhanced_dynamic_range = enhanced_range;
 }
 
 double Lift_Gamma_Gain::lift_convert_slider_to_value(int value)

@@ -18,6 +18,8 @@ public:
 	Lift_Gamma_Gain(double input_lift = 0, double input_gamma = 1, double input_gain = 1);
 	~Lift_Gamma_Gain();
 
+	bool enhanced_dynamic_range;
+
 	double get_min_lift();
 	double get_lift();
 	double get_gamma();
@@ -39,6 +41,9 @@ public:
 
 signals:
 	void update_lift_gamma_gain(double lift, double gamma, double gain);
+
+public slots:
+	void toggle_enhanced_range(bool enhanced_range);
 
 private:
 	double lift, gamma, gain;
