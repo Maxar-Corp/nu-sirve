@@ -71,23 +71,25 @@ double Lift_Gamma_Gain::get_updated_color(int original_value, int max_value)
 	return updated_value;
 }
 
-arma::mat Lift_Gamma_Gain::get_updated_color(arma::mat input, int max_value, double &frame_min, double &frame_max)
+void Lift_Gamma_Gain::get_updated_color(arma::vec & input, int max_value, double &frame_min, double &frame_max)
 {
-	arma::mat updated_value;
+	//arma::vec updated_value;
 	
 	int rows = input.n_rows;
 	int cols = input.n_cols;
 	arma::mat ones(rows, cols, arma::fill::ones);
 	
 	input = input / max_value;
-	updated_value = input * gain - input * lift + ones * lift;
+	input = input * gain - input * lift + ones * lift;
+
+	double max_max = input.max();
 	
 	// Guarantees root of negative not being taken
-	arma::uvec index = arma::find(updated_value < 0);
+	arma::uvec index = arma::find(input < 0);
 	if (index.n_elem > 0)
-		updated_value.elem(index) = arma::zeros(index.n_elem);
+		input.elem(index) = arma::zeros(index.n_elem);
 
-	updated_value = arma::pow(updated_value, 1.0 / gamma);
+	input = arma::pow(input, 1.0 / gamma);
 
 	double min_frame_value, max_frame_value, min_frame_value_update, max_frame_value_update;
 	min_frame_value = 0;
@@ -107,17 +109,18 @@ arma::mat Lift_Gamma_Gain::get_updated_color(arma::mat input, int max_value, dou
 	}
 
 	// Check limits
-	index = arma::find(updated_value > max_frame_value);
+	index = arma::find(input > max_frame_value);
+	if (index.n_elem > 0) {
+		double check = input(index(0));
+		input.elem(index) = arma::ones(index.n_elem) * max_frame_value;
+	}
+	index = arma::find(input < min_frame_value);
 	if (index.n_elem > 0)
-		updated_value.elem(index) = arma::ones(index.n_elem) * max_value;
-
-	index = arma::find(updated_value < min_frame_value);
-	if (index.n_elem > 0)
-		updated_value.elem(index) = arma::zeros(index.n_elem);
+		input.elem(index) = arma::ones(index.n_elem) * min_frame_value;
 	
-	updated_value = updated_value / (max_frame_value - min_frame_value);
+	input = (input - min_frame_value) / (max_frame_value - min_frame_value);
 
-	return updated_value;
+	//return updated_value;
 }
 
 bool Lift_Gamma_Gain::set_lift(double value)
