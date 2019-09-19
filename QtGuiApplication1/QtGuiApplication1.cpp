@@ -71,7 +71,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------	
 	
-	int number_bits = 8;
+	int number_bits = max_used_bits;
 	histogram_plot = new HistogramLine_Plot(number_bits);
 
 	histogram_plot->moveToThread(&thread_histogram);

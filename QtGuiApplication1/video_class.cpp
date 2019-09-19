@@ -117,20 +117,17 @@ void Video::update_display_frame()
 	
 	//Convert current frame to armadillo matrix
 	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
-	arma::vec temp(frame_vector);
-	arma::mat frame_matrix(temp);
-	frame_matrix.reshape(image_x, image_y);
-	frame_matrix = frame_matrix.t();
+	arma::vec color_corrected_matrix(frame_vector);
 
 	int max_value = std::pow(2, max_bit_level);
 	double normalized_min_value, normalized_max_value;
 	
-	arma::mat color_corrected_matrix = color_correction.get_updated_color(frame_matrix, max_value, normalized_min_value, normalized_max_value);
+	color_correction.get_updated_color(color_corrected_matrix, max_value, normalized_min_value, normalized_max_value);
 
 	color_corrected_matrix = color_corrected_matrix * 255;
 
 	//------------------------------------------------------------------------------------------------
-	color_corrected_matrix = color_corrected_matrix.t();
+	//color_corrected_matrix = color_corrected_matrix.t();
 	arma::vec out_frame_flat = arma::vectorise(color_corrected_matrix);
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(out_frame_flat);
 
