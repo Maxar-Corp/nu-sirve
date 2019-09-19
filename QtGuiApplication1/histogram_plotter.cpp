@@ -77,15 +77,14 @@ void HistogramLine_Plot::update_histogram_chart() {
 
 	color_corrected_matrix = color_corrected_matrix * 255;
 
+	//---------------------------------------------------------------------------------
+	// Bin pixels into histogram
 	arma::vec bin_midpoints = arma::linspace(0.5, 254.5, 255);
-	arma::uvec bin_counts = arma::hist(color_corrected_matrix, 255);
+	arma::uvec bin_counts = arma::hist(color_corrected_matrix, bin_midpoints);
 
-	arma::uvec bin_counts2 = create_histogram_data(color_corrected_matrix);
+	QList<QPointF> histogram_line = create_qpoints(bin_counts);
 
 	//---------------------------------------------------------------------------------
-	
-	QList<QPointF> histogram_line = create_qpoints(bin_counts);
-	QList<QPointF> histogram_line2 = create_qpoints(bin_counts2);
 
 	QLineSeries *series = new QLineSeries();
 	series->setPen(pen);
@@ -94,17 +93,21 @@ void HistogramLine_Plot::update_histogram_chart() {
 	series->setColor(base_color);
 	series->append(histogram_line);
 
-	QLineSeries *series2 = new QLineSeries();
-	series2->setPen(pen);
-	QColor color2(colors.Get_Color(1));
-	series2->setColor(color2);
-	series2->append(histogram_line2);
-
+	//---------------------------------------------------------------------------------
+	// Validation check of histogram
+	//QLineSeries *series2 = new QLineSeries();
+	//series2->setPen(pen);
+	//arma::uvec bin_counts2 = create_histogram_data(color_corrected_matrix);
+	//QList<QPointF> histogram_line2 = create_qpoints(bin_counts2);
+	//QColor color2(colors.Get_Color(1));
+	//series2->setColor(color2);
+	//series2->append(histogram_line2);
+	//---------------------------------------------------------------------------------
 
 	chart->removeAllSeries();
 
-	//chart->addSeries(series);
-	chart->addSeries(series2);
+	chart->addSeries(series);
+	//chart->addSeries(series2);
 	chart->createDefaultAxes();
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
@@ -136,6 +139,9 @@ arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec input)
 	arma::uvec frame_histogram(number_of_bins);
 	frame_histogram.fill(0);
 
+	double max = input.max();
+	double min = input.min();
+
 	//std::vector<unsigned int> frame_histogram(number_of_bins, 0);
 
 	for (int pixel_index = 0; pixel_index < number_pixels; pixel_index++)
@@ -146,6 +152,8 @@ arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec input)
 		// Check if exceeds maximum bins, puts in last bin
 		if (index > number_of_bins - 1)
 			index = number_of_bins - 1;
+		if (index < 0)
+			index = 0;
 
 		frame_histogram(index) = frame_histogram(index) + 1;
 	}
