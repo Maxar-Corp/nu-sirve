@@ -42,6 +42,7 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
 		QList<QPointF> create_qpoints();
 		QList<QPointF> create_qpoints(arma::uvec values);
+		arma::uvec create_histogram_data(arma::vec input);
 
 	public slots:
 		void update_histogram_chart();
