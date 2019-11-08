@@ -107,6 +107,10 @@ void Lift_Gamma_Gain::get_updated_color(arma::vec & input, int max_value, double
 		frame_min = min_frame_value;
 		frame_max = max_frame_value;
 	}
+	else {
+		frame_min = 0;
+		frame_max = 1;
+	}
 
 	// Check limits
 	index = arma::find(input > max_frame_value);

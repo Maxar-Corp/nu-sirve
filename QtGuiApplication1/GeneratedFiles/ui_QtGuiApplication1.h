@@ -498,12 +498,12 @@ public:
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
         frm_histogram = new QFrame(tab_3);
         frm_histogram->setObjectName(QString::fromUtf8("frm_histogram"));
-        frm_histogram->setGeometry(QRect(10, 10, 660, 500));
+        frm_histogram->setGeometry(QRect(10, 10, 441, 500));
         frm_histogram->setFrameShape(QFrame::StyledPanel);
         frm_histogram->setFrameShadow(QFrame::Raised);
         frm_histogram_abs = new QFrame(tab_3);
         frm_histogram_abs->setObjectName(QString::fromUtf8("frm_histogram_abs"));
-        frm_histogram_abs->setGeometry(QRect(9, 519, 661, 61));
+        frm_histogram_abs->setGeometry(QRect(450, 10, 211, 501));
         frm_histogram_abs->setFrameShape(QFrame::StyledPanel);
         frm_histogram_abs->setFrameShadow(QFrame::Raised);
         tabPlots->addTab(tab_3, QString());

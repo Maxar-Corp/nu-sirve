@@ -103,6 +103,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	histogram_layout->addWidget(histogram_plot->chart_view);
 	//histogram_layout->addWidget(histogram_plot->text, 0, 0);
 	ui.frm_histogram->setLayout(histogram_layout);
+	
+	
+	histogram_abs_layout = new QGridLayout();
+	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
+	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
 
 	//---------------------------------------------------------------------------
 
