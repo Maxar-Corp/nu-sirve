@@ -46,7 +46,7 @@ public:
 	Process_File file_data;
 	
 	QWidget *main_widget;
-	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *color_plot_layout;
+	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *color_plot_layout;
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm;
 
 	QThread thread_video, thread_histogram, thread_timer;

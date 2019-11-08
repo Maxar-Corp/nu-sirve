@@ -1055,7 +1055,7 @@ Subtraction</string>
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>660</width>
+        <width>441</width>
         <height>500</height>
        </rect>
       </property>
@@ -1069,10 +1069,10 @@ Subtraction</string>
      <widget class="QFrame" name="frm_histogram_abs">
       <property name="geometry">
        <rect>
-        <x>9</x>
-        <y>519</y>
-        <width>661</width>
-        <height>61</height>
+        <x>450</x>
+        <y>10</y>
+        <width>211</width>
+        <height>501</height>
        </rect>
       </property>
       <property name="frameShape">

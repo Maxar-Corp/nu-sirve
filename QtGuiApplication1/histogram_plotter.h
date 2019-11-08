@@ -8,6 +8,10 @@
 #include <QtCharts/QAbstractAxis>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QLineSeries>
+#include <QtCharts/qboxset.h>
+#include <QtCharts/qboxplotseries.h>
+#include <QtCharts/qscatterseries.h>
+#include <QtCharts/qbarcategoryaxis.h>
 #include <QString>
 #include <QList>
 #include <QPointF>
@@ -33,6 +37,9 @@ class HistogramLine_Plot : public QWidget //public QChartView
         
 		QChart *chart, *abs_chart;
 		QChartView *chart_view, *abs_chart_view;
+
+		QBarCategoryAxis *abs_xaxis;
+		QValueAxis *abs_yaxis;
 
 		QLabel *text;
 		unsigned int maximum_levels;
