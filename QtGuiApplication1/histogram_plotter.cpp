@@ -70,6 +70,8 @@ void HistogramLine_Plot::update_histogram_chart() {
 	std::vector<double> frame_vector(video_frames[counter].begin(), video_frames[counter].end());
 	arma::vec color_corrected_matrix(frame_vector);
 
+	// ------------------------------------------------------------------------------
+
 	int max_value = std::pow(2, maximum_levels);
 	double normalized_min_value, normalized_max_value;
 
@@ -78,12 +80,135 @@ void HistogramLine_Plot::update_histogram_chart() {
 	color_corrected_matrix = color_corrected_matrix * 255;
 
 	//---------------------------------------------------------------------------------
+	
+	// ------------------------------------------------------------------------------
+	//Setup box-whiskers plot
+	color_corrected_matrix = arma::sort(color_corrected_matrix);
+	int num_pixels = color_corrected_matrix.n_elem;
+	int median = arma::median(color_corrected_matrix);
+	int upper_quartile = color_corrected_matrix(num_pixels * 0.75);
+	int lower_quartile = color_corrected_matrix(num_pixels * 0.25);
+	int inter_quartile_range = upper_quartile - lower_quartile;
+	int abs_max_value = color_corrected_matrix(num_pixels * 0.99);
+	int abs_min_value = color_corrected_matrix(num_pixels * 0.01);
+
+	int max_value_box;
+	if (abs_max_value < upper_quartile + 1.5 * inter_quartile_range) {
+		max_value_box = abs_max_value;
+	}
+	else {
+		max_value_box = upper_quartile + 1.5 * inter_quartile_range;
+	}
+
+	int min_value_box;
+	if (abs_min_value < lower_quartile - 1.5 * inter_quartile_range) {
+		min_value_box = lower_quartile - 1.5 * inter_quartile_range;
+	}
+	else {
+		min_value_box = abs_min_value;
+	}
+
+	QBoxPlotSeries *box_series = new QBoxPlotSeries();
+
+	QBoxSet *box = new QBoxSet();
+	box->setValue(QBoxSet::LowerExtreme, min_value_box);
+	box->setValue(QBoxSet::UpperExtreme, max_value_box);
+	box->setValue(QBoxSet::Median, median);
+	box->setValue(QBoxSet::LowerQuartile, lower_quartile);
+	box->setValue(QBoxSet::UpperQuartile, upper_quartile);
+
+	box_series->append(box);
+
+	//debug
+	//arma::uvec index1 = arma::find(color_corrected_matrix > max_value_box);
+	//arma::uvec index2 = arma::find(color_corrected_matrix < min_value_box);
+	//int max_index = index1(0);
+	//int min_index = index2.max();
+	//int dmax_value = color_corrected_matrix(max_index);
+	//int dmin_value = color_corrected_matrix(min_index);
+	
+
+	// ------------------------------------------------------------------------------
+	/*
+	int max_value = std::pow(2, maximum_levels);
+	double normalized_min_value, normalized_max_value;
+
+	color_correction.get_updated_color(color_corrected_matrix, max_value, normalized_min_value, normalized_max_value);
+
+	color_corrected_matrix = color_corrected_matrix * 255;
+	*/
+	//---------------------------------------------------------------------------------
 	// Bin pixels into histogram
 	arma::vec bin_midpoints = arma::linspace(0.5, 254.5, 255);
 	arma::uvec bin_counts = arma::hist(color_corrected_matrix, bin_midpoints);
 
 	QList<QPointF> histogram_line = create_qpoints(bin_counts);
 
+	//---------------------------------------------------------------------------------
+
+	//abs_chart = new QChart();
+	//abs_chart_view = new QChartView(abs_chart);
+	
+	abs_chart->removeAllSeries();
+
+	abs_chart->addSeries(box_series);
+
+	double max_plot = 255 * normalized_max_value;
+	double min_plot = 255 * normalized_min_value;
+
+	QScatterSeries *series0 = new QScatterSeries();
+	// series0->setName("scatter1");
+	series0->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+	series0->setMarkerSize(15.0);
+	series0->append(QPoint(0, min_plot));
+	series0->append(QPoint(0, max_plot));
+
+	QScatterSeries *series1 = new QScatterSeries();
+	// series0->setName("scatter1");
+	series1->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+	series1->setMarkerSize(15.0);
+	series1->append(QPoint(0, abs_max_value));
+	series1->append(QPoint(0, abs_min_value));
+
+	abs_chart->addSeries(series0);
+	abs_chart->addSeries(series1);
+	int num = abs_chart->axes(Qt::Horizontal).size();
+
+	//Setup axis for absolute histogram chart
+	if (abs_chart->axes(Qt::Horizontal).size() == 0)
+	{
+
+		QStringList categories;
+		categories << "Jan";
+		abs_xaxis = new QBarCategoryAxis();
+		abs_xaxis->append(categories);
+		//abs_chart->setAxisX(abs_xaxis, series0);
+		//abs_chart->setAxisX(abs_xaxis, box_series);
+
+		abs_yaxis = new QValueAxis();
+		//abs_chart->setAxisY(abs_yaxis, series0);
+		//abs_chart->setAxisY(abs_yaxis, series1);
+		//abs_chart->setAxisY(abs_yaxis, box_series);
+		//abs_yaxis->setRange(0, max_value);
+	}
+
+	abs_chart->setAxisX(abs_xaxis, series0);
+	abs_chart->setAxisX(abs_xaxis, series1);
+	abs_chart->setAxisX(abs_xaxis, box_series);
+
+	abs_chart->setAxisY(abs_yaxis, series0);
+	abs_chart->setAxisY(abs_yaxis, series1);
+	abs_chart->setAxisY(abs_yaxis, box_series);
+	abs_yaxis->setRange(0, 255);
+	
+
+	/*
+	abs_chart->createDefaultAxes();
+	QAbstractAxis *x_axis_abs = abs_chart->axes(Qt::Horizontal)[0];
+	QAbstractAxis *y_axis_ab = abs_chart->axes(Qt::Vertical)[0];
+	y_axis_ab->setMin(0);
+	y_axis_ab->setMax(max_value);
+	*/
 	//---------------------------------------------------------------------------------
 
 	QLineSeries *series = new QLineSeries();
@@ -105,7 +230,6 @@ void HistogramLine_Plot::update_histogram_chart() {
 	//---------------------------------------------------------------------------------
 
 	chart->removeAllSeries();
-
 	chart->addSeries(series);
 	//chart->addSeries(series2);
 	chart->createDefaultAxes();
@@ -126,6 +250,10 @@ void HistogramLine_Plot::update_histogram_chart() {
 	chart->setTitle(QString("Histogram"));
 	chart->setMargins(QMargins(0, 0, 0, 0));
 	chart->setContentsMargins(0, 0, 0, 0);
+
+	//---------------------------------------------------------------------------------
+
+	
 
 	counter++;
 }
