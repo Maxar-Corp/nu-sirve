@@ -284,33 +284,7 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="grdLayout_Color_Control">
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbl_lift">
-         <property name="sizeIncrement">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Lift</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="lbl_gamma">
-         <property name="text">
-          <string>Gamma</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
         <widget class="QLabel" name="lbl_gain">
          <property name="text">
           <string>Gain</string>
@@ -320,84 +294,19 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QSlider" name="slider_lift">
-         <property name="enabled">
-          <bool>true</bool>
+       <item row="1" column="2">
+        <widget class="QLabel" name="lbl_gain_value">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="maximum">
-          <number>100</number>
+         <property name="text">
+          <string>1.0</string>
          </property>
-         <property name="value">
-          <number>50</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSlider" name="slider_gamma">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>5000</number>
-         </property>
-         <property name="singleStep">
-          <number>1</number>
-         </property>
-         <property name="pageStep">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>1000</number>
-         </property>
-         <property name="sliderPosition">
-          <number>1000</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>500</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSlider" name="slider_gain">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>50</number>
-         </property>
-         <property name="maximum">
-          <number>150</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksAbove</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -411,26 +320,69 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
-        <widget class="QLabel" name="lbl_gamma_value">
-         <property name="text">
-          <string>1.0</string>
+       <item row="0" column="1">
+        <widget class="QSlider" name="slider_lift">
+         <property name="enabled">
+          <bool>true</bool>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>100</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QLabel" name="lbl_gain_value">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="1" column="1">
+        <widget class="QSlider" name="slider_gain">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>1000</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::TicksAbove</enum>
+         </property>
+         <property name="tickInterval">
+          <number>100</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbl_lift">
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="text">
-          <string>1.0</string>
+          <string>Lift</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -488,26 +440,13 @@
       <property name="geometry">
        <rect>
         <x>190</x>
-        <y>120</y>
+        <y>130</y>
         <width>51</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
        <string>Reset</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="chk_enhanced_range">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>120</y>
-        <width>141</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Enhanced Dynamic Range</string>
       </property>
      </widget>
     </widget>
@@ -1055,8 +994,8 @@ Subtraction</string>
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>441</width>
-        <height>500</height>
+        <width>651</width>
+        <height>261</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -1069,10 +1008,10 @@ Subtraction</string>
      <widget class="QFrame" name="frm_histogram_abs">
       <property name="geometry">
        <rect>
-        <x>450</x>
-        <y>10</y>
-        <width>211</width>
-        <height>501</height>
+        <x>10</x>
+        <y>300</y>
+        <width>651</width>
+        <height>211</height>
        </rect>
       </property>
       <property name="frameShape">
