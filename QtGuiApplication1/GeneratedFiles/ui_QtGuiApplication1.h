@@ -66,8 +66,6 @@ public:
     QSlider *slider_gain;
     QLabel *lbl_lift;
     QFrame *line_2;
-    QFrame *frmColorCorrection;
-    QLabel *lbl_color_correction;
     QPushButton *btn_reset_color_correction;
     QWidget *tab_5;
     QPushButton *btn_create_nuc;
@@ -304,15 +302,6 @@ public:
         line_2->setGeometry(QRect(10, 160, 231, 20));
         line_2->setFrameShape(QFrame::HLine);
         line_2->setFrameShadow(QFrame::Sunken);
-        frmColorCorrection = new QFrame(tab_2);
-        frmColorCorrection->setObjectName(QString::fromUtf8("frmColorCorrection"));
-        frmColorCorrection->setGeometry(QRect(5, 200, 250, 250));
-        frmColorCorrection->setFrameShape(QFrame::Box);
-        frmColorCorrection->setFrameShadow(QFrame::Raised);
-        lbl_color_correction = new QLabel(tab_2);
-        lbl_color_correction->setObjectName(QString::fromUtf8("lbl_color_correction"));
-        lbl_color_correction->setGeometry(QRect(0, 460, 261, 20));
-        lbl_color_correction->setAlignment(Qt::AlignCenter);
         btn_reset_color_correction = new QPushButton(tab_2);
         btn_reset_color_correction->setObjectName(QString::fromUtf8("btn_reset_color_correction"));
         btn_reset_color_correction->setGeometry(QRect(190, 130, 51, 21));
@@ -545,7 +534,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(1);
+        tabMenu->setCurrentIndex(0);
         tabPlots->setCurrentIndex(0);
 
 
@@ -573,7 +562,6 @@ public:
         lbl_gain_value->setText(QApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
         lbl_lift_value->setText(QApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
         lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Lift", nullptr));
-        lbl_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Output vs Input Value", nullptr));
         btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
         btn_create_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));

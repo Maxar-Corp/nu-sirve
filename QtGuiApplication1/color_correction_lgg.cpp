@@ -313,6 +313,12 @@ void Min_Max_Value::get_max_slider_range(int & min_value, int & max_value)
 	max_value = 1000;
 }
 
+int Min_Max_Value::get_ui_slider_value(double input)
+{
+
+	return input * 1000;
+}
+
 // ------------------------------------------------------------------------------------------
 
 double Min_Max_Value::min_convert_slider_to_value(int value)
@@ -325,5 +331,7 @@ double Min_Max_Value::max_convert_slider_to_value(int value)
 {
 	return value / 1000.;
 }
+
+
 
 
