@@ -52,4 +52,36 @@ private:
 };
 
 
+class Min_Max_Value : public QWidget
+{
+	Q_OBJECT
+public:
+
+	Min_Max_Value();
+	~Min_Max_Value();
+
+	double get_min();
+	double get_max();
+	void get_updated_color(arma::vec& input);
+
+	bool set_min(double value);
+	bool set_max(double value);
+
+	void get_min_slider_range(int &min_value, int &max_value);
+	void get_max_slider_range(int &min_value, int &max_value);
+
+	double min_convert_slider_to_value(int value);
+	double max_convert_slider_to_value(int value);
+
+signals:
+	void update_min_max(double min, double max);
+
+
+private:
+	double min_value, max_value;
+
+};
+
+
+
 #endif // COLOR_CORRECTION_LGG_H

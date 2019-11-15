@@ -21,10 +21,12 @@
 
 #include <armadillo>
 
+#include "color_scheme.h"
 #include "abir_reader.h"
 #include "color_correction_lgg.h"
 #include "video_container.h"
 #include "Data_Structures.h"
+#include "histogram_plotter.h"
 
 class Video : public QWidget
 {
@@ -44,8 +46,9 @@ public:
 	int timer_frequency;
     QLabel  *label;
     QLabel *text;
-	Lift_Gamma_Gain color_correction;
-	
+	Min_Max_Value color_correction;
+	HistogramLine_Plot *histogram_plot;
+
 	QString banner_text, boresight_text;
 	QColor banner_color, boresight_color;
 	QVector<QRgb> colorTable;
@@ -62,14 +65,14 @@ public:
 public slots:
     void update_display_frame();	
 	void update_specific_frame(unsigned int frame_number);
-	void update_color_correction(double lift, double gamma, double gain);
+	//void update_color_correction(double lift, double gamma, double gain);
+	void update_color_correction(double new_min_value, double new_max_value);
 	void update_video_file(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
 	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text, QColor input_banner_color);
 	void toggle_osm_tracks();
 	void toggle_primary_track_data();
 	void toggle_sensor_boresight_data();
-	void toggle_enhanced_dynamic_range(bool input);
 
 private:
 
