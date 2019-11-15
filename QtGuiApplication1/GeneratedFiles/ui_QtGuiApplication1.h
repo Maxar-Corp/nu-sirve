@@ -67,6 +67,7 @@ public:
     QLabel *lbl_lift;
     QFrame *line_2;
     QPushButton *btn_reset_color_correction;
+    QCheckBox *chk_relative_histogram;
     QWidget *tab_5;
     QPushButton *btn_create_nuc;
     QCheckBox *chk_apply_nuc;
@@ -305,6 +306,9 @@ public:
         btn_reset_color_correction = new QPushButton(tab_2);
         btn_reset_color_correction->setObjectName(QString::fromUtf8("btn_reset_color_correction"));
         btn_reset_color_correction->setGeometry(QRect(190, 130, 51, 21));
+        chk_relative_histogram = new QCheckBox(tab_2);
+        chk_relative_histogram->setObjectName(QString::fromUtf8("chk_relative_histogram"));
+        chk_relative_histogram->setGeometry(QRect(20, 130, 151, 17));
         tabMenu->addTab(tab_2, QString());
         tab_5 = new QWidget();
         tab_5->setObjectName(QString::fromUtf8("tab_5"));
@@ -455,12 +459,12 @@ public:
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
         frm_histogram = new QFrame(tab_3);
         frm_histogram->setObjectName(QString::fromUtf8("frm_histogram"));
-        frm_histogram->setGeometry(QRect(10, 10, 651, 261));
+        frm_histogram->setGeometry(QRect(10, 10, 651, 281));
         frm_histogram->setFrameShape(QFrame::StyledPanel);
         frm_histogram->setFrameShadow(QFrame::Raised);
         frm_histogram_abs = new QFrame(tab_3);
         frm_histogram_abs->setObjectName(QString::fromUtf8("frm_histogram_abs"));
-        frm_histogram_abs->setGeometry(QRect(10, 300, 651, 211));
+        frm_histogram_abs->setGeometry(QRect(10, 300, 651, 281));
         frm_histogram_abs->setFrameShape(QFrame::StyledPanel);
         frm_histogram_abs->setFrameShadow(QFrame::Raised);
         tabPlots->addTab(tab_3, QString());
@@ -534,7 +538,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(0);
+        tabMenu->setCurrentIndex(1);
         tabPlots->setCurrentIndex(0);
 
 
@@ -563,6 +567,7 @@ public:
         lbl_lift_value->setText(QApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
         lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Lift", nullptr));
         btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
+        chk_relative_histogram->setText(QApplication::translate("QtGuiApplication1Class", "Show Relative Histogram", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
         btn_create_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));
         chk_apply_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Apply NUC", nullptr));

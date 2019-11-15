@@ -38,7 +38,7 @@ public:
 	~Video();
 
 	int counter_record, video_frame_number;
-	bool record_frame;
+	bool record_frame, show_relative_histogram;
 	cv::VideoWriter video;
 
 
@@ -73,6 +73,7 @@ public slots:
 	void toggle_osm_tracks();
 	void toggle_primary_track_data();
 	void toggle_sensor_boresight_data();
+	void toggle_relative_histogram();
 
 private:
 
