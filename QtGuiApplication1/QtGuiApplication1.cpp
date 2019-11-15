@@ -111,8 +111,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------
 
 	// Link color correction sliders to changing color correction values
-	QObject::connect(ui.slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
-	QObject::connect(ui.slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
+	QObject::connect(ui.slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::gain_slider_toggled);
+	QObject::connect(ui.slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::lift_slider_toggled);
 
 	ui.lbl_lift->setToolTip("Lift control pushes and pulls at the darker parts of the image");
 	ui.lbl_gain->setToolTip("Gain control pushes and pulls at the lighter parts of the image");
@@ -669,18 +669,42 @@ void QtGuiApplication1::update_fps()
 	ui.lbl_fps->setText(fps);
 }
 
-void QtGuiApplication1::color_correction_toggled(int value) {
-		
-		
+void QtGuiApplication1::lift_slider_toggled(int value) {
+
 	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
 
-	//TODO prevent lift from being higher than gain
+	//Prevent lift from being higher than gain value
+	if (lift_value >= gain_value) {
+
+		int new_value = color_correction.get_ui_slider_value(gain_value);
+		ui.slider_lift->setValue(new_value - 1);
+		lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());;
+	}
+
+	color_correction_toggled(lift_value, gain_value);
+}
+
+void QtGuiApplication1::gain_slider_toggled(int value) {
+
+	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+
+	// Prevent gain going below lift value
+	if (gain_value <= lift_value) {
+
+		int new_value = color_correction.get_ui_slider_value(lift_value);
+		ui.slider_gain->setValue(new_value + 1);
+		gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());;
+	}
+
+	color_correction_toggled(lift_value, gain_value);
+}
+
+void QtGuiApplication1::color_correction_toggled(double lift_value, double gain_value) {
 		
 	emit color_correction.update_min_max(lift_value, gain_value);
-	//TODO remove color correction plot
-	//emit color_correction_plot.update_color_chart();
-
+	
 	set_color_correction_slider_labels();
 
 	if (!playback_controller->timer->isActive() && file_data.valid_image)

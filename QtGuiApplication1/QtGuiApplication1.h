@@ -75,7 +75,10 @@ public:
 	
 
 	public slots:
-	void color_correction_toggled(int value);
+	
+	void lift_slider_toggled(int value);
+	void gain_slider_toggled(int value);
+	void color_correction_toggled(double lift_value, double gain_value);
 
 	void load_osm_data();
 	void load_abir_data();

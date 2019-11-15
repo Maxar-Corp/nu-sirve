@@ -69,6 +69,7 @@ public:
 
 	void get_min_slider_range(int &min_value, int &max_value);
 	void get_max_slider_range(int &min_value, int &max_value);
+	int get_ui_slider_value(double input);
 
 	double min_convert_slider_to_value(int value);
 	double max_convert_slider_to_value(int value);
