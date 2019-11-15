@@ -11,6 +11,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	counter = 0;
 	counter_record = 0;
 	record_frame = false;
+	show_relative_histogram = false;
 
 	image_x = x_pixels;
 	image_y = y_pixels;
@@ -106,6 +107,14 @@ void Video::toggle_sensor_boresight_data()
 		display_boresight_txt = true;
 }
 
+void Video::toggle_relative_histogram()
+{
+	if (show_relative_histogram)
+		show_relative_histogram = false;
+	else
+		show_relative_histogram = true;
+}
+
 void Video::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
@@ -131,7 +140,13 @@ void Video::update_display_frame()
 	color_correction.get_updated_color(image_vector);
 
 	// Create points for the relative histogram
-	//QList<QPointF> relative_histogram_line = histogram_plot->create_histogram_points(image_vector);	
+	if (show_relative_histogram) {
+		histogram_plot->plot_relative_histogram(image_vector);
+	}
+	else
+	{
+		histogram_plot->rel_chart->removeAllSeries();
+	}
 
 	//------------------------------------------------------------------------------------------------
 

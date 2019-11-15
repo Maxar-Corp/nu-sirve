@@ -3,15 +3,15 @@
 HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 {
 	chart = new QChart();
-	abs_chart = new QChart();
+	rel_chart = new QChart();
 
 	chart_view = new QChartView(chart);
-	abs_chart_view = new QChartView(abs_chart);
+	rel_chart_view = new QChartView(rel_chart);
 
 	text = new QLabel(this);
 
 	chart->legend()->hide();
-	abs_chart->legend()->hide();
+	rel_chart->legend()->hide();
 
 	pen.setColor(colors.GetCurrentColor());
 	pen.setStyle(Qt::SolidLine);
@@ -148,7 +148,7 @@ void HistogramLine_Plot::update_histogram_chart() {
 	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
 
 	//---------------------------------------------------------------------------------
-
+	/*
 	//abs_chart = new QChart();
 	//abs_chart_view = new QChartView(abs_chart);
 	
@@ -212,6 +212,7 @@ void HistogramLine_Plot::update_histogram_chart() {
 	y_axis_ab->setMin(0);
 	y_axis_ab->setMax(max_value);
 	*/
+
 	//---------------------------------------------------------------------------------
 
 	QLineSeries *series = new QLineSeries();
@@ -264,37 +265,37 @@ void HistogramLine_Plot::update_histogram_chart() {
 
 void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts) {
 
+	rel_chart->removeAllSeries();
+
+	// Histogram line
 	QLineSeries *series = new QLineSeries();
 	series->setPen(pen);
-
-	QColor base_color(colors.GetCurrentColor());
-	series->setColor(base_color);
 	series->append(pts);
 
-	chart->removeAllSeries();
-	chart->addSeries(series);
-	chart->createDefaultAxes();
-	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+	// Add to chart
+	rel_chart->addSeries(series);
 
-	x_axis->setTitleText("Luminosity");
+	// ---------------------------------------------------------------------------------
+
+	rel_chart->createDefaultAxes();
+	QAbstractAxis *x_axis = rel_chart->axes(Qt::Horizontal)[0];
+	QAbstractAxis *y_axis = rel_chart->axes(Qt::Vertical)[0];
+	
+	// Define histogram y-axis
 	y_axis->setTitleText("Frequency");
-
 	y_axis->setMinorGridLineVisible(true);
 	y_axis->setLabelsVisible(false);
 
-	QPointF last_pt = pts.last();
-	double max_x = last_pt.x();
-
+	// Define histogram x-axis
 	x_axis->setMin(0);
-	x_axis->setMax(max_x);
+	x_axis->setMax(1);
 	x_axis->setMinorGridLineVisible(true);
-	x_axis->setLabelsVisible(false);
+	x_axis->setLabelsVisible(true);
+	x_axis->setTitleText("Luminosity");
 
-	chart->setTitle(QString("Histogram"));
-	chart->setMargins(QMargins(0, 0, 0, 0));
-	chart->setContentsMargins(0, 0, 0, 0);
-
+	rel_chart->setTitle(QString("Relative Histogram"));
+	rel_chart->setMargins(QMargins(0.01, 0.01, 0.01, 0.01));
+	rel_chart->setContentsMargins(0, 0, 0, 0);
 }
 
 void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level) {
@@ -353,7 +354,8 @@ arma::vec HistogramLine_Plot::create_histogram_midpoints(double start, double st
 	double bin_stop = stop - bin_start;
 	double num_bins = (1 - bin_size) / bin_size;
 
-	arma::vec bin_midpoints = arma::linspace(bin_start, bin_stop, num_bins);
+	//arma::vec bin_midpoints = arma::linspace(bin_start, bin_stop, num_bins);
+	arma::vec bin_midpoints = arma::regspace(bin_start, bin_size, bin_stop);
 
 	return bin_midpoints;
 }
@@ -421,6 +423,19 @@ void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min,
 
 	double max_hist_value = bin_counts.max();
 	plot_histogram(histogram_line, min, max, max_hist_value);
+
+}
+
+void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
+{
+
+	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
+	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
+
+	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
+
+	double max_hist_value = bin_counts.max();
+	plot_histogram(histogram_line);
 
 }
 
@@ -551,7 +566,7 @@ QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec &
 	for (int i = 0; i < number_color_corrected_bins; i++) {
 
 		bin_size = values(i);
-		bin_x = bins(i) + bin_delta;
+		bin_x = bins(i) - bin_delta;
 
 		// Add the 0 point on the first iteration
 		if (i == 0)
@@ -562,7 +577,7 @@ QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec &
 
 		if (i < number_color_corrected_bins - 1) {
 
-			bin_x_next = bins(i + 1) + bin_delta;
+			bin_x_next = bins(i) + bin_delta;
 
 			QPointF temp_pt1(bin_x, bin_size);
 			histogram_line.push_back(temp_pt1);
@@ -572,7 +587,7 @@ QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec &
 		}
 		else {
 			
-			bin_x_next = bin_x + bin_delta;
+			bin_x_next = bin_x + 2 * bin_delta;
 
 			// Current value
 			QPointF temp_pt1(bin_x, bin_size);

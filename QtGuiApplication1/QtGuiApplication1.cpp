@@ -100,13 +100,15 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.frm_video->setLayout(video_layout);
 
 	histogram_layout = new QGridLayout();
-	histogram_layout->addWidget(ir_video->histogram_plot->chart_view);
+	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
 	ui.frm_histogram->setLayout(histogram_layout);
 	
 	
-	//histogram_abs_layout = new QGridLayout();
-	//histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
-	//ui.frm_histogram_abs->setLayout(histogram_abs_layout);
+	histogram_abs_layout = new QGridLayout();
+	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
+	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
+
+	QObject::connect(ui.chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
 
 	//---------------------------------------------------------------------------
 
@@ -925,6 +927,14 @@ void QtGuiApplication1::update_enhanced_range(bool input)
 
 	emit enhanced_dynamic_range(input);
 
+}
+
+void QtGuiApplication1::toggle_relative_histogram(bool input)
+{
+	if (input)
+		ir_video->show_relative_histogram = true;
+	else
+		ir_video->show_relative_histogram = false;
 }
 
 void QtGuiApplication1::create_non_uniformity_correction()
