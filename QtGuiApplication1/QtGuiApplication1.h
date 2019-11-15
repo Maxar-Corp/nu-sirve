@@ -96,6 +96,7 @@ public:
 	void set_frame_number_label(int counter);
 	void copy_osm_directory();
 	void update_enhanced_range(bool input);
+	void toggle_relative_histogram(bool input);
 	
 	void create_non_uniformity_correction();
 	void create_background_subtraction_correction();

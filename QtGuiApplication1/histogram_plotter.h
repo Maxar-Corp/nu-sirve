@@ -35,8 +35,8 @@ class HistogramLine_Plot : public QWidget //public QChartView
         
 		Lift_Gamma_Gain color_correction;
         
-		QChart *chart, *abs_chart;
-		QChartView *chart_view, *abs_chart_view;
+		QChart *chart, *rel_chart;
+		QChartView *chart_view, *rel_chart_view;
 
 		QLabel *text;
 		unsigned int maximum_levels;
@@ -51,6 +51,7 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		arma::vec create_histogram_midpoints(double start, double stop, double bin_size);
 		arma::uvec create_histogram_data(arma::vec &values, arma::vec &bin_midpoints);
 		void plot_absolute_histogram(arma::vec & values, double min, double max);
+		void plot_relative_histogram(arma::vec & values);
 	
 		void plot_histogram(QList<QPointF> & pts);
 		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level);
