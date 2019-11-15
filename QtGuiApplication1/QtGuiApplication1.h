@@ -51,13 +51,13 @@ public:
 
 	QThread thread_video, thread_histogram, thread_timer;
 
-	Lift_Gamma_Gain color_correction;
+	Min_Max_Value color_correction;
 	Playback *playback_controller;
 	QMenu *menu;
 	
 	Video_Container *videos;
 	Video *ir_video;
-	HistogramLine_Plot *histogram_plot;
+	//HistogramLine_Plot *histogram_plot;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;

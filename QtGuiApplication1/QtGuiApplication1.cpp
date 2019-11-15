@@ -64,34 +64,34 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	
 	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
-	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, ir_video, &Video::update_color_correction);
-	QObject::connect(this, &QtGuiApplication1::enhanced_dynamic_range, ir_video, &Video::toggle_enhanced_dynamic_range);
+	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
 
 	record_video = false;
 
 	//---------------------------------------------------------------------------	
 	
 	int number_bits = max_used_bits;
-	histogram_plot = new HistogramLine_Plot(number_bits);
+	//histogram_plot = new HistogramLine_Plot(number_bits);
 
-	histogram_plot->moveToThread(&thread_histogram);
-	QObject::connect(&thread_video, &QThread::started, histogram_plot, &HistogramLine_Plot::update_histogram_chart);
+	//histogram_plot->moveToThread(&thread_histogram);
+	//QObject::connect(&thread_video, &QThread::started, histogram_plot, &HistogramLine_Plot::update_histogram_chart);
 		
-	QObject::connect(videos, &Video_Container::update_display_video, histogram_plot, &HistogramLine_Plot::receive_video_data);
-	QObject::connect(playback_controller, &Playback::update_frame, histogram_plot, &HistogramLine_Plot::update_specific_histogram);
-	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, histogram_plot, &HistogramLine_Plot::update_color_correction);
-	QObject::connect(this, &QtGuiApplication1::enhanced_dynamic_range, histogram_plot, &HistogramLine_Plot::toggle_enhanced_dynamic_range);
-
+	//QObject::connect(videos, &Video_Container::update_display_video, histogram_plot, &HistogramLine_Plot::receive_video_data);
+	//QObject::connect(playback_controller, &Playback::update_frame, histogram_plot, &HistogramLine_Plot::update_specific_histogram);
+	//QObject::connect(&color_correction, &Min_Max_Value::update_min_max, histogram_plot, &HistogramLine_Plot::update_color_correction);
 
 	//---------------------------------------------------------------------------
-
+	
+	/*
+	// TODO remove color plotter if no longer needed
 	color_plot_layout = new QGridLayout();
 	color_plot_layout->addWidget(color_correction_plot.chart_view);
 	ui.frmColorCorrection->setLayout(color_plot_layout);
 
-	QObject::connect(&color_correction, &Lift_Gamma_Gain::update_lift_gamma_gain, &color_correction_plot, &ColorPlotter::update_color_correction);
+	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, &color_correction_plot, &ColorPlotter::update_color_correction);
 	QObject::connect(ui.btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
 	QObject::connect(ui.chk_enhanced_range, &QCheckBox::toggled, this, &QtGuiApplication1::update_enhanced_range);
+	*/
 
 	//---------------------------------------------------------------------------
 
@@ -100,35 +100,29 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.frm_video->setLayout(video_layout);
 
 	histogram_layout = new QGridLayout();
-	histogram_layout->addWidget(histogram_plot->chart_view);
-	//histogram_layout->addWidget(histogram_plot->text, 0, 0);
+	histogram_layout->addWidget(ir_video->histogram_plot->chart_view);
 	ui.frm_histogram->setLayout(histogram_layout);
 	
 	
-	histogram_abs_layout = new QGridLayout();
-	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
-	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
+	//histogram_abs_layout = new QGridLayout();
+	//histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
+	//ui.frm_histogram_abs->setLayout(histogram_abs_layout);
 
 	//---------------------------------------------------------------------------
 
 	// Link color correction sliders to changing color correction values
 	QObject::connect(ui.slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
-	QObject::connect(ui.slider_gamma, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
 	QObject::connect(ui.slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::color_correction_toggled);
 
-	ui.lbl_lift->setToolTip("Lift control pushes and pulls at the darker parts of the image. It does not only affect the darks, but it has the strongest amount of influence there.");
-	ui.lbl_gamma->setToolTip("Gamma control provides more weight to the midtones than the highlights and shadows.");
-	ui.lbl_gain->setToolTip("Gain control pushes and pulls at the lighter parts of the image. It affects all brightness levels within the image, but gives more weight to the highlights.");
+	ui.lbl_lift->setToolTip("Lift control pushes and pulls at the darker parts of the image");
+	ui.lbl_gain->setToolTip("Gain control pushes and pulls at the lighter parts of the image");
 
-	int max_lift, min_lift, max_gamma, min_gamma, max_gain, min_gain;
-	color_correction.get_lift_slider_range(min_lift, max_lift);
-	color_correction.get_gamma_slider_range(min_gamma, max_gamma);
-	color_correction.get_gain_slider_range(min_gain, max_gain);
+	int max_lift, min_lift, max_gain, min_gain;
+	color_correction.get_min_slider_range(min_lift, max_lift);
+	color_correction.get_max_slider_range(min_gain, max_gain);
 	
 	ui.slider_lift->setMinimum(min_lift);
 	ui.slider_lift->setMaximum(max_lift);
-	ui.slider_gamma->setMinimum(min_gamma);
-	ui.slider_gamma->setMaximum(max_gamma);
 	ui.slider_gain->setMinimum(min_gain);
 	ui.slider_gain->setMaximum(max_gain);
 
@@ -276,7 +270,7 @@ QtGuiApplication1::~QtGuiApplication1() {
 
 	delete ir_video;
 	delete playback_controller;
-	delete histogram_plot;
+	//delete histogram_plot;
 
 	videos->something.clear();
 	delete videos;
@@ -678,12 +672,14 @@ void QtGuiApplication1::update_fps()
 void QtGuiApplication1::color_correction_toggled(int value) {
 		
 		
-	double lift_value = color_correction.lift_convert_slider_to_value(ui.slider_lift->value()); 
-	double gamma_value = color_correction.gamma_convert_slider_to_value(ui.slider_gamma->value());
-	double gain_value = color_correction.gain_convert_slider_to_value(ui.slider_gain->value());
+	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+
+	//TODO prevent lift from being higher than gain
 		
-	emit color_correction.update_lift_gamma_gain(lift_value, gamma_value, gain_value);
-	emit color_correction_plot.update_color_chart();
+	emit color_correction.update_min_max(lift_value, gain_value);
+	//TODO remove color correction plot
+	//emit color_correction_plot.update_color_chart();
 
 	set_color_correction_slider_labels();
 
@@ -691,23 +687,17 @@ void QtGuiApplication1::color_correction_toggled(int value) {
 	{
 		int counter_value = playback_controller->get_counter();
 		ir_video->update_specific_frame(counter_value);
-		histogram_plot->update_specific_histogram(counter_value);
+		//histogram_plot->update_specific_histogram(counter_value);
 	}		
 
-	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << std::to_string(gamma_value) << "/" << std::to_string(gain_value);
+	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
 }
 
 void QtGuiApplication1::reset_color_correction()
 {
-	double min_lift = color_correction.get_min_lift();
-	int base_lift = min_lift * 100;
-	if (base_lift < 0) {
-		base_lift *= -1;
-	}
-		
-	ui.slider_lift->setValue(base_lift);
-	ui.slider_gain->setValue(100);
-	ui.slider_gamma->setValue(1000);
+			
+	ui.slider_lift->setValue(0);
+	ui.slider_gain->setValue(1000);
 
 	DEBUG << "GUI: Color correction reset";
 }
@@ -1431,17 +1421,12 @@ void QtGuiApplication1::toggle_video_filters()
 
 void QtGuiApplication1::set_color_correction_slider_labels()
 {
-	double lift_value = color_correction.lift_convert_slider_to_value(ui.slider_lift->value());
-	double gamma_value = color_correction.gamma_convert_slider_to_value(ui.slider_gamma->value());
-	double gain_value = color_correction.gain_convert_slider_to_value(ui.slider_gain->value());
+	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
 		
 	QString lift_string;
 	lift_string.setNum(lift_value);
 	ui.lbl_lift_value->setText(lift_string);
-
-	QString gamma_string;
-	gamma_string.setNum(gamma_value);
-	ui.lbl_gamma_value->setText(gamma_string);
 
 	QString gain_string;
 	gain_string.setNum(gain_value);

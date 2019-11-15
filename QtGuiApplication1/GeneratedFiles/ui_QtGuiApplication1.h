@@ -59,20 +59,16 @@ public:
     QWidget *tab_2;
     QWidget *gridLayoutWidget;
     QGridLayout *grdLayout_Color_Control;
-    QLabel *lbl_lift;
-    QLabel *lbl_gamma;
     QLabel *lbl_gain;
-    QSlider *slider_lift;
-    QSlider *slider_gamma;
-    QSlider *slider_gain;
-    QLabel *lbl_lift_value;
-    QLabel *lbl_gamma_value;
     QLabel *lbl_gain_value;
+    QLabel *lbl_lift_value;
+    QSlider *slider_lift;
+    QSlider *slider_gain;
+    QLabel *lbl_lift;
     QFrame *line_2;
     QFrame *frmColorCorrection;
     QLabel *lbl_color_correction;
     QPushButton *btn_reset_color_correction;
-    QCheckBox *chk_enhanced_range;
     QWidget *tab_5;
     QPushButton *btn_create_nuc;
     QCheckBox *chk_apply_nuc;
@@ -248,74 +244,11 @@ public:
         grdLayout_Color_Control->setContentsMargins(11, 11, 11, 11);
         grdLayout_Color_Control->setObjectName(QString::fromUtf8("grdLayout_Color_Control"));
         grdLayout_Color_Control->setContentsMargins(0, 0, 0, 0);
-        lbl_lift = new QLabel(gridLayoutWidget);
-        lbl_lift->setObjectName(QString::fromUtf8("lbl_lift"));
-        lbl_lift->setSizeIncrement(QSize(0, 0));
-        lbl_lift->setAlignment(Qt::AlignCenter);
-
-        grdLayout_Color_Control->addWidget(lbl_lift, 0, 0, 1, 1);
-
-        lbl_gamma = new QLabel(gridLayoutWidget);
-        lbl_gamma->setObjectName(QString::fromUtf8("lbl_gamma"));
-        lbl_gamma->setAlignment(Qt::AlignCenter);
-
-        grdLayout_Color_Control->addWidget(lbl_gamma, 1, 0, 1, 1);
-
         lbl_gain = new QLabel(gridLayoutWidget);
         lbl_gain->setObjectName(QString::fromUtf8("lbl_gain"));
         lbl_gain->setAlignment(Qt::AlignCenter);
 
-        grdLayout_Color_Control->addWidget(lbl_gain, 2, 0, 1, 1);
-
-        slider_lift = new QSlider(gridLayoutWidget);
-        slider_lift->setObjectName(QString::fromUtf8("slider_lift"));
-        slider_lift->setEnabled(true);
-        slider_lift->setMaximum(100);
-        slider_lift->setValue(50);
-        slider_lift->setOrientation(Qt::Horizontal);
-        slider_lift->setTickPosition(QSlider::TicksAbove);
-        slider_lift->setTickInterval(10);
-
-        grdLayout_Color_Control->addWidget(slider_lift, 0, 1, 1, 1);
-
-        slider_gamma = new QSlider(gridLayoutWidget);
-        slider_gamma->setObjectName(QString::fromUtf8("slider_gamma"));
-        slider_gamma->setEnabled(true);
-        slider_gamma->setMinimum(1);
-        slider_gamma->setMaximum(5000);
-        slider_gamma->setSingleStep(1);
-        slider_gamma->setPageStep(100);
-        slider_gamma->setValue(1000);
-        slider_gamma->setSliderPosition(1000);
-        slider_gamma->setOrientation(Qt::Horizontal);
-        slider_gamma->setTickPosition(QSlider::TicksAbove);
-        slider_gamma->setTickInterval(500);
-
-        grdLayout_Color_Control->addWidget(slider_gamma, 1, 1, 1, 1);
-
-        slider_gain = new QSlider(gridLayoutWidget);
-        slider_gain->setObjectName(QString::fromUtf8("slider_gain"));
-        slider_gain->setEnabled(true);
-        slider_gain->setMinimum(50);
-        slider_gain->setMaximum(150);
-        slider_gain->setValue(100);
-        slider_gain->setOrientation(Qt::Horizontal);
-        slider_gain->setTickPosition(QSlider::TicksAbove);
-        slider_gain->setTickInterval(10);
-
-        grdLayout_Color_Control->addWidget(slider_gain, 2, 1, 1, 1);
-
-        lbl_lift_value = new QLabel(gridLayoutWidget);
-        lbl_lift_value->setObjectName(QString::fromUtf8("lbl_lift_value"));
-        lbl_lift_value->setAlignment(Qt::AlignCenter);
-
-        grdLayout_Color_Control->addWidget(lbl_lift_value, 0, 2, 1, 1);
-
-        lbl_gamma_value = new QLabel(gridLayoutWidget);
-        lbl_gamma_value->setObjectName(QString::fromUtf8("lbl_gamma_value"));
-        lbl_gamma_value->setAlignment(Qt::AlignCenter);
-
-        grdLayout_Color_Control->addWidget(lbl_gamma_value, 1, 2, 1, 1);
+        grdLayout_Color_Control->addWidget(lbl_gain, 1, 0, 1, 1);
 
         lbl_gain_value = new QLabel(gridLayoutWidget);
         lbl_gain_value->setObjectName(QString::fromUtf8("lbl_gain_value"));
@@ -326,7 +259,45 @@ public:
         lbl_gain_value->setSizePolicy(sizePolicy);
         lbl_gain_value->setAlignment(Qt::AlignCenter);
 
-        grdLayout_Color_Control->addWidget(lbl_gain_value, 2, 2, 1, 1);
+        grdLayout_Color_Control->addWidget(lbl_gain_value, 1, 2, 1, 1);
+
+        lbl_lift_value = new QLabel(gridLayoutWidget);
+        lbl_lift_value->setObjectName(QString::fromUtf8("lbl_lift_value"));
+        lbl_lift_value->setAlignment(Qt::AlignCenter);
+
+        grdLayout_Color_Control->addWidget(lbl_lift_value, 0, 2, 1, 1);
+
+        slider_lift = new QSlider(gridLayoutWidget);
+        slider_lift->setObjectName(QString::fromUtf8("slider_lift"));
+        slider_lift->setEnabled(true);
+        slider_lift->setMaximum(1000);
+        slider_lift->setPageStep(10);
+        slider_lift->setValue(0);
+        slider_lift->setOrientation(Qt::Horizontal);
+        slider_lift->setTickPosition(QSlider::TicksAbove);
+        slider_lift->setTickInterval(100);
+
+        grdLayout_Color_Control->addWidget(slider_lift, 0, 1, 1, 1);
+
+        slider_gain = new QSlider(gridLayoutWidget);
+        slider_gain->setObjectName(QString::fromUtf8("slider_gain"));
+        slider_gain->setEnabled(true);
+        slider_gain->setMinimum(0);
+        slider_gain->setMaximum(1000);
+        slider_gain->setPageStep(10);
+        slider_gain->setValue(1000);
+        slider_gain->setOrientation(Qt::Horizontal);
+        slider_gain->setTickPosition(QSlider::TicksAbove);
+        slider_gain->setTickInterval(100);
+
+        grdLayout_Color_Control->addWidget(slider_gain, 1, 1, 1, 1);
+
+        lbl_lift = new QLabel(gridLayoutWidget);
+        lbl_lift->setObjectName(QString::fromUtf8("lbl_lift"));
+        lbl_lift->setSizeIncrement(QSize(0, 0));
+        lbl_lift->setAlignment(Qt::AlignCenter);
+
+        grdLayout_Color_Control->addWidget(lbl_lift, 0, 0, 1, 1);
 
         line_2 = new QFrame(tab_2);
         line_2->setObjectName(QString::fromUtf8("line_2"));
@@ -344,10 +315,7 @@ public:
         lbl_color_correction->setAlignment(Qt::AlignCenter);
         btn_reset_color_correction = new QPushButton(tab_2);
         btn_reset_color_correction->setObjectName(QString::fromUtf8("btn_reset_color_correction"));
-        btn_reset_color_correction->setGeometry(QRect(190, 120, 51, 21));
-        chk_enhanced_range = new QCheckBox(tab_2);
-        chk_enhanced_range->setObjectName(QString::fromUtf8("chk_enhanced_range"));
-        chk_enhanced_range->setGeometry(QRect(10, 120, 141, 21));
+        btn_reset_color_correction->setGeometry(QRect(190, 130, 51, 21));
         tabMenu->addTab(tab_2, QString());
         tab_5 = new QWidget();
         tab_5->setObjectName(QString::fromUtf8("tab_5"));
@@ -498,12 +466,12 @@ public:
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
         frm_histogram = new QFrame(tab_3);
         frm_histogram->setObjectName(QString::fromUtf8("frm_histogram"));
-        frm_histogram->setGeometry(QRect(10, 10, 441, 500));
+        frm_histogram->setGeometry(QRect(10, 10, 651, 261));
         frm_histogram->setFrameShape(QFrame::StyledPanel);
         frm_histogram->setFrameShadow(QFrame::Raised);
         frm_histogram_abs = new QFrame(tab_3);
         frm_histogram_abs->setObjectName(QString::fromUtf8("frm_histogram_abs"));
-        frm_histogram_abs->setGeometry(QRect(450, 10, 211, 501));
+        frm_histogram_abs->setGeometry(QRect(10, 300, 651, 211));
         frm_histogram_abs->setFrameShape(QFrame::StyledPanel);
         frm_histogram_abs->setFrameShadow(QFrame::Raised);
         tabPlots->addTab(tab_3, QString());
@@ -601,15 +569,12 @@ public:
         label_6->setText(QApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
         btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Directory", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab), QApplication::translate("QtGuiApplication1Class", "Import", nullptr));
-        lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Lift", nullptr));
-        lbl_gamma->setText(QApplication::translate("QtGuiApplication1Class", "Gamma", nullptr));
         lbl_gain->setText(QApplication::translate("QtGuiApplication1Class", "Gain", nullptr));
-        lbl_lift_value->setText(QApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
-        lbl_gamma_value->setText(QApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
         lbl_gain_value->setText(QApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
+        lbl_lift_value->setText(QApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
+        lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Lift", nullptr));
         lbl_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Output vs Input Value", nullptr));
         btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
-        chk_enhanced_range->setText(QApplication::translate("QtGuiApplication1Class", "Enhanced Dynamic Range", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
         btn_create_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));
         chk_apply_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Apply NUC", nullptr));

@@ -74,16 +74,16 @@ double Lift_Gamma_Gain::get_updated_color(int original_value, int max_value)
 void Lift_Gamma_Gain::get_updated_color(arma::vec & input, int max_value, double &frame_min, double &frame_max)
 {
 	//arma::vec updated_value;
-	
+
 	int rows = input.n_rows;
 	int cols = input.n_cols;
 	arma::mat ones(rows, cols, arma::fill::ones);
-	
+
 	input = input / max_value;
 	input = input * gain - input * lift + ones * lift;
 
 	double max_max = input.max();
-	
+
 	// Guarantees root of negative not being taken
 	arma::uvec index = arma::find(input < 0);
 	if (index.n_elem > 0)
@@ -121,7 +121,7 @@ void Lift_Gamma_Gain::get_updated_color(arma::vec & input, int max_value, double
 	index = arma::find(input < min_frame_value);
 	if (index.n_elem > 0)
 		input.elem(index) = arma::ones(index.n_elem) * min_frame_value;
-	
+
 	input = (input - min_frame_value) / (max_frame_value - min_frame_value);
 
 	//return updated_value;
@@ -220,6 +220,110 @@ double Lift_Gamma_Gain::gamma_convert_slider_to_value(int value)
 double Lift_Gamma_Gain::gain_convert_slider_to_value(int value)
 {
 	return value / 100.;
+}
+
+// ------------------------------------------------------------------------------------
+
+Min_Max_Value::Min_Max_Value()
+{
+	min_value = 0;
+	max_value = 1;
+}
+
+Min_Max_Value::~Min_Max_Value()
+{
+}
+
+double Min_Max_Value::get_min()
+{
+	return min_value;
+}
+
+
+double Min_Max_Value::get_max()
+{
+	return max_value;
+}
+
+
+void Min_Max_Value::get_updated_color(arma::vec & input)
+{
+
+	// Normalize the values
+	double range = max_value - min_value;
+	input = input - min_value;
+	input = input / range;
+
+	// Replace anything below the minimum value and above the maximum value
+	arma::uvec below_min_value = arma::find(input < 0);
+	arma::uvec above_max_value = arma::find(input > 1);
+
+	if (below_min_value.n_elem > 0) {
+		input(below_min_value) = arma::zeros(below_min_value.n_elem);
+	}
+
+	if (above_max_value.n_elem > 0)
+	{
+		input(above_max_value) = arma::ones(above_max_value.n_elem);
+	}
+
+}
+
+bool Min_Max_Value::set_min(double value)
+{
+	if (value >= 0 & value <= max_value)
+	{
+		if (value != min_value) {
+			min_value = value;
+			emit update_min_max(min_value, max_value);
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Min_Max_Value::set_max(double value)
+{
+	if (value >= min_value & value <= 1.0)
+	{
+		if (value != max_value) {
+			max_value = value;
+			emit update_min_max(min_value, max_value);
+		}
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void Min_Max_Value::get_min_slider_range(int & min_value, int & max_value)
+{
+	min_value = 0;
+	max_value = 1000;
+}
+
+void Min_Max_Value::get_max_slider_range(int & min_value, int & max_value)
+{
+	min_value = 0;
+	max_value = 1000;
+}
+
+// ------------------------------------------------------------------------------------------
+
+double Min_Max_Value::min_convert_slider_to_value(int value)
+{
+	return value / 1000.;
+}
+
+
+double Min_Max_Value::max_convert_slider_to_value(int value)
+{
+	return value / 1000.;
 }
 
 

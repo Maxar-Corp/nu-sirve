@@ -6,6 +6,8 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	label = new QLabel(this);
 	text = new QLabel(this);
 
+	histogram_plot = new HistogramLine_Plot(input_bit_level);
+
 	counter = 0;
 	counter_record = 0;
 	record_frame = false;
@@ -104,44 +106,46 @@ void Video::toggle_sensor_boresight_data()
 		display_boresight_txt = true;
 }
 
-void Video::toggle_enhanced_dynamic_range(bool input)
-{
-	color_correction.enhanced_dynamic_range = input;
-}
-
 void Video::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
 	if (frame_data.size() < counter)
 		return;
 	
+	//------------------------------------------------------------------------------------------------
+
 	//Convert current frame to armadillo matrix
 	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
-	arma::vec color_corrected_matrix(frame_vector);
+	arma::vec image_vector(frame_vector);
 
+	//Normalie the image to values between 0 - 1
 	int max_value = std::pow(2, max_bit_level);
-	double normalized_min_value, normalized_max_value;
+	image_vector = image_vector / max_value;
 	
-	color_correction.get_updated_color(color_corrected_matrix, max_value, normalized_min_value, normalized_max_value);
+	//------------------------------------------------------------------------------------------------
+	// Update the absolute histogram
+	histogram_plot->plot_absolute_histogram(image_vector, color_correction.get_min(), color_correction.get_max());
 
-	color_corrected_matrix = color_corrected_matrix * 255;
+	// Correct image based on min/max value inputs
+	double normalized_min_value, normalized_max_value;
+	color_correction.get_updated_color(image_vector);
+
+	// Create points for the relative histogram
+	//QList<QPointF> relative_histogram_line = histogram_plot->create_histogram_points(image_vector);	
 
 	//------------------------------------------------------------------------------------------------
-	//color_corrected_matrix = color_corrected_matrix.t();
-	arma::vec out_frame_flat = arma::vectorise(color_corrected_matrix);
-	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(out_frame_flat);
 
-
+	// Put image into 8-bit format for displaying
+	image_vector = image_vector * 255;
+	
+	//arma::vec out_frame_flat = arma::vectorise(image_vector);
+	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
 	std::vector<uint8_t> converted_values(out_vector.begin(), out_vector.end());
+	uint8_t *color_corrected_frame = converted_values.data();
 
-	uint8_t *color_corrected_frame = converted_values.data();// new uint8_t[number_pixels];
-	//double updated_value;
+	//------------------------------------------------------------------------------------------------
 
-	//for (int i = 0; i < number_pixels; i++)
-	//{
-	//	updated_value = color_correction.get_updated_color(frame_data[counter][i], 256);
-	//	color_corrected_frame[i] = (uint8_t)updated_value;
-	//}
+	//------------------------------------------------------------------------------------------------
 
 	QImage frame((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
@@ -275,9 +279,18 @@ void Video::update_specific_frame(unsigned int frame_number)
 	update_display_frame();
 }
 
+/*
 void Video::update_color_correction(double lift, double gamma, double gain)
 {
-	color_correction.set_lift(lift);
-	color_correction.set_gamma(gamma);
+	color_correction.set_min(lift);
+	color_correction.set_max(gamma);
 	color_correction.set_gain(gain);
+}
+*/
+
+void Video::update_color_correction(double new_min_value, double new_max_value)
+{
+	color_correction.set_min(new_min_value);
+	color_correction.set_max(new_max_value);
+
 }
