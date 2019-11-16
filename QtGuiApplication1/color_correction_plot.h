@@ -20,7 +20,7 @@
 #include <math.h>
 
 #include "color_scheme.h"
-#include "color_correction_lgg.h"
+#include "color_correction.h"
 #include "video_container.h"
 
 //-------------------------------------------------------------------------------------------------------------------------------

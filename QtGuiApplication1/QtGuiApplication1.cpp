@@ -103,7 +103,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
 	ui.frm_histogram->setLayout(histogram_layout);
 	
-	
 	histogram_abs_layout = new QGridLayout();
 	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
 	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
@@ -116,8 +115,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::gain_slider_toggled);
 	QObject::connect(ui.slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::lift_slider_toggled);
 
-	ui.lbl_lift->setToolTip("Lift control pushes and pulls at the darker parts of the image");
-	ui.lbl_gain->setToolTip("Gain control pushes and pulls at the lighter parts of the image");
+	ui.lbl_lift->setToolTip("Dark Set Point pushes the image darker");
+	ui.lbl_gain->setToolTip("Light Set Point pushes the image lighter");
 
 	int max_lift, min_lift, max_gain, min_gain;
 	color_correction.get_min_slider_range(min_lift, max_lift);
