@@ -9,7 +9,7 @@
 #include "histogram_plotter.h"
 #include "osm_plotter.h"
 #include "play_back.h"
-#include "color_correction_lgg.h"
+#include "color_correction.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"

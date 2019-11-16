@@ -25,6 +25,22 @@ HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 	maximum_levels = max_levels;
 	number_of_bins = 256;
 
+	// ------------------------------------------------------------------------------
+
+	// Initialize the histogram plots for displaying
+	QLineSeries *series1 = new QLineSeries();
+	QLineSeries *series2 = new QLineSeries();
+
+	series1->append(QPointF(0, 0));
+	series1->append(QPointF(0, 0));
+	series2->append(QPointF(0, 0));
+	series2->append(QPointF(0, 0));
+
+	chart->addSeries(series1);
+	rel_chart->addSeries(series2);
+	
+	setup_histogram_plot(chart);
+	setup_histogram_plot(rel_chart);
 }
 
 HistogramLine_Plot::~HistogramLine_Plot(){
@@ -262,45 +278,9 @@ void HistogramLine_Plot::update_histogram_chart() {
 	counter++;
 }
 
+void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart) {
 
-void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts) {
-
-	rel_chart->removeAllSeries();
-
-	// Histogram line
-	QLineSeries *series = new QLineSeries();
-	series->setPen(pen);
-	series->append(pts);
-
-	// Add to chart
-	rel_chart->addSeries(series);
-
-	// ---------------------------------------------------------------------------------
-
-	rel_chart->createDefaultAxes();
-	QAbstractAxis *x_axis = rel_chart->axes(Qt::Horizontal)[0];
-	QAbstractAxis *y_axis = rel_chart->axes(Qt::Vertical)[0];
-	
-	// Define histogram y-axis
-	y_axis->setTitleText("Frequency");
-	y_axis->setMinorGridLineVisible(true);
-	y_axis->setLabelsVisible(false);
-
-	// Define histogram x-axis
-	x_axis->setMin(0);
-	x_axis->setMax(1);
-	x_axis->setMinorGridLineVisible(true);
-	x_axis->setLabelsVisible(true);
-	x_axis->setTitleText("Luminosity");
-
-	rel_chart->setTitle(QString("Relative Histogram"));
-	rel_chart->setMargins(QMargins(0.01, 0.01, 0.01, 0.01));
-	rel_chart->setContentsMargins(0, 0, 0, 0);
-}
-
-void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level) {
-
-	chart->removeAllSeries();
+	input_chart->removeAllSeries();
 	
 	// Histogram line
 	QLineSeries *series = new QLineSeries();
@@ -319,17 +299,22 @@ void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts, double min, double
 	hist_max->setPen(pen_limits);
 	
 	// Add to chart
-	chart->addSeries(series);
-	chart->addSeries(hist_min);
-	chart->addSeries(hist_max);
+	input_chart->addSeries(series);
+	input_chart->addSeries(hist_min);
+	input_chart->addSeries(hist_max);
 
 	// ---------------------------------------------------------------------------------
 
-	chart->createDefaultAxes();
-	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
+	setup_histogram_plot(input_chart);
 
-	
+}
+
+void  HistogramLine_Plot::setup_histogram_plot(QChart *input_chart) {
+
+	input_chart->createDefaultAxes();
+	QAbstractAxis *x_axis = input_chart->axes(Qt::Horizontal)[0];
+	QAbstractAxis *y_axis = input_chart->axes(Qt::Vertical)[0];
+
 	// Define histogram y-axis
 	y_axis->setTitleText("Frequency");
 	y_axis->setMinorGridLineVisible(true);
@@ -342,10 +327,13 @@ void HistogramLine_Plot::plot_histogram(QList<QPointF> & pts, double min, double
 	x_axis->setLabelsVisible(true);
 	x_axis->setTitleText("Luminosity");
 
-	chart->setTitle(QString("Absolute Histogram"));
-	chart->setMargins(QMargins(0.01, 0.01, 0.01, 0.01));
-	chart->setContentsMargins(0, 0, 0, 0);
+	if (input_chart == chart)
+		input_chart->setTitle(QString("Absolute Histogram"));
+	else
+		input_chart->setTitle(QString("Relative Histogram"));
 
+	input_chart->setMargins(QMargins(0.01, 0.01, 0.01, 0.01));
+	input_chart->setContentsMargins(0, 0, 0, 0);
 }
 
 arma::vec HistogramLine_Plot::create_histogram_midpoints(double start, double stop, double bin_size) {
@@ -422,7 +410,7 @@ void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min,
 	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
-	plot_histogram(histogram_line, min, max, max_hist_value);
+	plot_histogram(histogram_line, min, max, max_hist_value, chart);
 
 }
 
@@ -435,7 +423,7 @@ void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
 	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
-	plot_histogram(histogram_line);
+	plot_histogram(histogram_line, 0, 1, max_hist_value, rel_chart);
 
 }
 

@@ -1,4 +1,4 @@
-#include "color_correction_lgg.h"
+#include "color_correction.h"
 
 Lift_Gamma_Gain::Lift_Gamma_Gain(double input_lift, double input_gamma, double input_gain)
 {
