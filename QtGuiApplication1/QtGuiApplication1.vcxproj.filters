@@ -66,9 +66,6 @@
     <ClCompile Include="playback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="color_correction_lgg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="plot_engineering_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -111,6 +108,9 @@
     <ClCompile Include="new_location.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="color_correction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -131,9 +131,6 @@
     <QtMoc Include="play_back.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="color_correction_lgg.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="engineering_data.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -150,6 +147,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="new_location.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="color_correction.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

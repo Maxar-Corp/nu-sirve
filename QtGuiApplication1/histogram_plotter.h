@@ -22,7 +22,7 @@
 #include <math.h>
 
 #include "color_scheme.h"
-#include "color_correction_lgg.h"
+#include "color_correction.h"
 #include "video_container.h"
 
 QT_CHARTS_USE_NAMESPACE
@@ -53,8 +53,8 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		void plot_absolute_histogram(arma::vec & values, double min, double max);
 		void plot_relative_histogram(arma::vec & values);
 	
-		void plot_histogram(QList<QPointF> & pts);
-		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level);
+		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart);
+		void  setup_histogram_plot(QChart *input_chart);
 
 	public slots:
 		void update_histogram_chart();

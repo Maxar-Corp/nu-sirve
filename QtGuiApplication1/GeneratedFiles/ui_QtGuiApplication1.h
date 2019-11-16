@@ -562,10 +562,12 @@ public:
         label_6->setText(QApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
         btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Directory", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab), QApplication::translate("QtGuiApplication1Class", "Import", nullptr));
-        lbl_gain->setText(QApplication::translate("QtGuiApplication1Class", "Gain", nullptr));
+        lbl_gain->setText(QApplication::translate("QtGuiApplication1Class", "Light\n"
+"Set Point", nullptr));
         lbl_gain_value->setText(QApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
         lbl_lift_value->setText(QApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
-        lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Lift", nullptr));
+        lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Dark \n"
+"Set Point", nullptr));
         btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
         chk_relative_histogram->setText(QApplication::translate("QtGuiApplication1Class", "Show Relative Histogram", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
