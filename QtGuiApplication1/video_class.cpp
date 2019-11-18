@@ -167,21 +167,36 @@ void Video::update_display_frame()
 	frame.setColorTable(colorTable);
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
-	if (plot_boresight & display_data[counter].ir_data.size() > 0) {
+	int num_tracks = display_data[counter].ir_data.size();
 
-		QPainter rectangle_painter(&frame);
+	if (plot_boresight & num_tracks > 0) {
 
-		int x_pixel = display_data[counter].ir_data[0].centroid_x;
-		int y_pixel = display_data[counter].ir_data[0].centroid_y;
+		if (num_tracks > 1)
+			int bob = 1;
 
-		int x_center = image_x / 2 + x_pixel;
-		int y_center = image_y / 2 + y_pixel;
+		for (int i = 0; i < num_tracks; i++)
+		{
 
-		int box_size = 5;
-		QRectF rectangle(x_center - box_size, y_center - box_size, box_size * 2, box_size * 2);
+			QPainter rectangle_painter(&frame);
 
-		rectangle_painter.setPen(QPen(Qt::red));
-		rectangle_painter.drawRect(rectangle);
+			int x_pixel = display_data[counter].ir_data[i].centroid_x;
+			int y_pixel = display_data[counter].ir_data[i].centroid_y;
+
+			int x_center = image_x / 2 + x_pixel;
+			int y_center = image_y / 2 + y_pixel;
+
+			int box_size = 5;
+			QRectF rectangle(x_center - box_size, y_center - box_size, box_size * 2, box_size * 2);
+
+			if (i == 0) {
+				rectangle_painter.setPen(QPen(Qt::red));
+			}
+			else {
+				rectangle_painter.setPen(QPen(Qt::yellow));
+			}
+
+			rectangle_painter.drawRect(rectangle);
+		}
 	}
 
 	if (display_boresight_txt) {
