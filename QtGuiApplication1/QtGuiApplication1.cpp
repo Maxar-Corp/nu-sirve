@@ -1187,7 +1187,7 @@ void QtGuiApplication1::toggle_osm_tracks()
 		menu_osm->setIconVisibleInMenu(true);
 	}
 	
-	ir_video->toggle_osm_tracks();
+	ir_video->toggle_osm_tracks(!current_status);
 
 }
 
@@ -1203,7 +1203,7 @@ void QtGuiApplication1::toggle_primary_track_data()
 		menu_add_primary_data->setIconVisibleInMenu(true);
 	}
 
-	ir_video->toggle_primary_track_data();
+	ir_video->toggle_primary_track_data(!current_status);
 
 }
 
@@ -1220,7 +1220,7 @@ void QtGuiApplication1::toggle_sensor_track_data()
 		menu_sensor_boresight->setIconVisibleInMenu(true);
 	}
 
-	ir_video->toggle_sensor_boresight_data();
+	ir_video->toggle_sensor_boresight_data(!current_status);
 
 }
 

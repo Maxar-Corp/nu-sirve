@@ -57,8 +57,12 @@ public:
 	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
 	void stop_recording();
+
+	void toggle_osm_tracks(bool input);
+	void toggle_primary_track_data(bool input);
+	void toggle_sensor_boresight_data(bool input);
 	
-	bool plot_boresight, display_boresight_txt, display_tgt_pos_txt;
+	bool plot_tracks, display_boresight_txt, display_tgt_pos_txt;
 	void save_frame();
 
 
@@ -70,9 +74,7 @@ public slots:
 	void update_video_file(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
 	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text, QColor input_banner_color);
-	void toggle_osm_tracks();
-	void toggle_primary_track_data();
-	void toggle_sensor_boresight_data();
+
 	void toggle_relative_histogram();
 
 private:
