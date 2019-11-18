@@ -20,7 +20,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 
 	banner_text = QString("Insert Banner");
 	banner_color = QColor("Red");
-	plot_boresight = false;
+	plot_tracks = false;
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
 
@@ -83,28 +83,19 @@ void Video::update_banner_text(QString input_banner_text, QColor input_banner_co
 
 }
 
-void Video::toggle_osm_tracks()
+void Video::toggle_osm_tracks(bool input)
 {
-	if (plot_boresight)
-		plot_boresight = false;
-	else
-		plot_boresight = true;
+	plot_tracks = input;
 }
 
-void Video::toggle_primary_track_data()
+void Video::toggle_primary_track_data(bool input)
 {
-	if (display_tgt_pos_txt)
-		display_tgt_pos_txt = false;
-	else
-		display_tgt_pos_txt = true;
+	display_tgt_pos_txt = input;
 }
 
-void Video::toggle_sensor_boresight_data()
+void Video::toggle_sensor_boresight_data(bool input)
 {
-	if (display_boresight_txt)
-		display_boresight_txt = false;
-	else
-		display_boresight_txt = true;
+	display_boresight_txt = input;
 }
 
 void Video::toggle_relative_histogram()
@@ -169,7 +160,7 @@ void Video::update_display_frame()
 
 	int num_tracks = display_data[counter].ir_data.size();
 
-	if (plot_boresight & num_tracks > 0) {
+	if (plot_tracks & num_tracks > 0) {
 
 		if (num_tracks > 1)
 			int bob = 1;
