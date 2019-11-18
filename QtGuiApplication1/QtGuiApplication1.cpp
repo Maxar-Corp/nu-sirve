@@ -782,21 +782,30 @@ void QtGuiApplication1::save_frame()
 
 void QtGuiApplication1::create_menu_actions()
 {
+	QIcon on("icons/check.png");
 
 	menu_osm = new QAction(tr("&Toggle OSM Tracks"), this);
+	menu_osm->setIcon(on);
 	menu_osm->setStatusTip(tr("Shows pixels OSM is tracking"));
-	connect(menu_osm, &QAction::triggered, ir_video, &Video::toggle_osm_tracks);
+	menu_osm->setIconVisibleInMenu(false);
+	connect(menu_osm, &QAction::triggered, this, &QtGuiApplication1::toggle_osm_tracks);
 
 	menu_add_primary_data = new QAction(tr("&Toggle Primary Tgt Metrics"), this);
+	menu_add_primary_data->setIcon(on);
 	menu_add_primary_data->setStatusTip(tr("Shows Az/El of Primary Tgt"));
-	connect(menu_add_primary_data, &QAction::triggered, ir_video, &Video::toggle_primary_track_data);
+	menu_add_primary_data->setIconVisibleInMenu(false);
+	connect(menu_add_primary_data, &QAction::triggered, this, &QtGuiApplication1::toggle_primary_track_data);
 
 	menu_sensor_boresight = new QAction(tr("&Toggle Sensor Metrics"), this);
+	menu_sensor_boresight->setIcon(on);
 	menu_sensor_boresight->setStatusTip(tr("Shows Az/El of Sensor Pointing"));
-	connect(menu_sensor_boresight, &QAction::triggered, ir_video, &Video::toggle_sensor_boresight_data);
+	menu_sensor_boresight->setIconVisibleInMenu(false);
+	connect(menu_sensor_boresight, &QAction::triggered, this, &QtGuiApplication1::toggle_sensor_track_data);
 
 	menu_add_banner = new QAction(tr("&Edit Banner"), this);
+	menu_add_banner->setIcon(on);
 	menu_add_banner->setStatusTip(tr("Edit banner text to video"));
+	menu_add_banner->setIconVisibleInMenu(false);
 	connect(menu_add_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_text);
 	connect(this, &QtGuiApplication1::change_banner, ir_video, &Video::update_banner_text);
 }
@@ -1165,6 +1174,54 @@ void QtGuiApplication1::create_deinterlace()
 
 	show_available_filter_options();
 	
+}
+
+void QtGuiApplication1::toggle_osm_tracks()
+{
+	bool current_status = menu_osm->isIconVisibleInMenu();
+	
+	if (current_status) {
+		menu_osm->setIconVisibleInMenu(false);
+	}
+	else {
+		menu_osm->setIconVisibleInMenu(true);
+	}
+	
+	ir_video->toggle_osm_tracks();
+
+}
+
+void QtGuiApplication1::toggle_primary_track_data()
+{
+
+	bool current_status = menu_add_primary_data->isIconVisibleInMenu();
+
+	if (current_status) {
+		menu_add_primary_data->setIconVisibleInMenu(false);
+	}
+	else {
+		menu_add_primary_data->setIconVisibleInMenu(true);
+	}
+
+	ir_video->toggle_primary_track_data();
+
+}
+
+void QtGuiApplication1::toggle_sensor_track_data()
+{
+
+
+	bool current_status = menu_sensor_boresight->isIconVisibleInMenu();
+
+	if (current_status) {
+		menu_sensor_boresight->setIconVisibleInMenu(false);
+	}
+	else {
+		menu_sensor_boresight->setIconVisibleInMenu(true);
+	}
+
+	ir_video->toggle_sensor_boresight_data();
+
 }
 
 deinterlace_type QtGuiApplication1::find_deinterlace_type(int index) {
