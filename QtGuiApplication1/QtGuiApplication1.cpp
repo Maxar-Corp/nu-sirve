@@ -811,13 +811,17 @@ void QtGuiApplication1::create_menu_actions()
 }
 
 void QtGuiApplication1::edit_banner_text()
-{
-	//TODO add bool to catch when user selects OK vs cancel
-	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text);
-		
-	emit change_banner(input_text, QColor("Red"));
-
-	DEBUG << "GUI: Banner text changed";
+{	
+	bool ok;
+	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text, &ok);
+	
+	if (ok) {
+		emit change_banner(input_text, QColor("Red"));
+		DEBUG << "GUI: Banner text changed";
+	}
+	else {
+		DEBUG << "GUI: Banner change cancelled";
+	}
 }
 
 void QtGuiApplication1::plot_change(int index)
