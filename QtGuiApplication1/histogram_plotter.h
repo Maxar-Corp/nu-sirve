@@ -55,6 +55,8 @@ class HistogramLine_Plot : public QWidget //public QChartView
 	
 		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart);
 		void  setup_histogram_plot(QChart *input_chart);
+		void initialize_histogram_plot();
+		void remove_histogram_plots();
 
 	public slots:
 		void update_histogram_chart();

@@ -27,20 +27,7 @@ HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 
 	// ------------------------------------------------------------------------------
 
-	// Initialize the histogram plots for displaying
-	QLineSeries *series1 = new QLineSeries();
-	QLineSeries *series2 = new QLineSeries();
-
-	series1->append(QPointF(0, 0));
-	series1->append(QPointF(0, 0));
-	series2->append(QPointF(0, 0));
-	series2->append(QPointF(0, 0));
-
-	chart->addSeries(series1);
-	rel_chart->addSeries(series2);
-	
-	setup_histogram_plot(chart);
-	setup_histogram_plot(rel_chart);
+	initialize_histogram_plot();
 }
 
 HistogramLine_Plot::~HistogramLine_Plot(){
@@ -334,6 +321,32 @@ void  HistogramLine_Plot::setup_histogram_plot(QChart *input_chart) {
 
 	input_chart->setMargins(QMargins(0.01, 0.01, 0.01, 0.01));
 	input_chart->setContentsMargins(0, 0, 0, 0);
+}
+
+void HistogramLine_Plot::initialize_histogram_plot()
+{
+
+	// Initialize the histogram plots for displaying
+	QLineSeries *series1 = new QLineSeries();
+	QLineSeries *series2 = new QLineSeries();
+
+	series1->append(QPointF(0, 0));
+	series1->append(QPointF(0, 0));
+	series2->append(QPointF(0, 0));
+	series2->append(QPointF(0, 0));
+
+	chart->addSeries(series1);
+	rel_chart->addSeries(series2);
+
+	setup_histogram_plot(chart);
+	setup_histogram_plot(rel_chart);
+
+}
+
+void HistogramLine_Plot::remove_histogram_plots()
+{
+	chart->removeAllSeries();
+	rel_chart->removeAllSeries();
 }
 
 arma::vec HistogramLine_Plot::create_histogram_midpoints(double start, double stop, double bin_size) {

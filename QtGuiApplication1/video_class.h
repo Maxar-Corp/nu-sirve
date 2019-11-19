@@ -65,6 +65,8 @@ public:
 	bool plot_tracks, display_boresight_txt, display_tgt_pos_txt;
 	void save_frame();
 
+	void remove_frame();
+
 
 public slots:
     void update_display_frame();	

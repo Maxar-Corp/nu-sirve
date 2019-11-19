@@ -294,6 +294,18 @@ void Video::save_frame()
 		pix->save(fileName);
 }
 
+void Video::remove_frame()
+{
+	delete label;
+
+	label = new QLabel(this);
+	//label->update();
+	label->repaint();
+
+	histogram_plot->remove_histogram_plots();
+	histogram_plot->initialize_histogram_plot();
+}
+
 void Video::update_specific_frame(unsigned int frame_number)
 {
 	counter = frame_number;
