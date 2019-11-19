@@ -68,6 +68,7 @@ public:
 	~QtGuiApplication1();
 
 	void set_color_correction_slider_labels();
+	void toggle_video_playback_options(bool input);
 
 	signals:
 		void change_banner(QString banner_text, QColor banner_color);

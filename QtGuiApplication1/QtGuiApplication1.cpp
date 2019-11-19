@@ -298,6 +298,7 @@ void QtGuiApplication1::load_osm_data()
 	ui.txt_end_frame->setEnabled(false);
 	ui.btn_get_frames->setEnabled(false);
 	ui.btn_load_osm->setEnabled(false);
+	ui.btn_copy_directory->setEnabled(false);
 
 	INFO << "GUI: Loading OSM data";
 	bool valid_files = file_data.load_osm_file();
@@ -340,10 +341,17 @@ void QtGuiApplication1::load_osm_data()
 				
 			DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
 
+			toggle_video_playback_options(false);
+
 			// delete objects with existing data within them
 			delete eng_data;
 			delete data_plots;
-			delete engineering_plot_layout;
+			delete engineering_plot_layout;			
+
+			// Reset video frame
+			ir_video->remove_frame();
+			video_layout->addWidget(ir_video->label);
+			ui.frm_video->setLayout(video_layout);
 		}
 
 		DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
@@ -400,6 +408,7 @@ void QtGuiApplication1::load_osm_data()
 	}
 
 	ui.btn_load_osm->setEnabled(true);
+	ui.btn_copy_directory->setEnabled(true);
 
 	return;
 }
@@ -598,18 +607,12 @@ void QtGuiApplication1::load_abir_data()
 	ui.tabMenu->setTabEnabled(1, true);
 	ui.tabMenu->setTabEnabled(2, true);
 
-	ui.btn_reverse->setEnabled(true);
-	ui.btn_fast_forward->setEnabled(true);
-	ui.btn_slow_back->setEnabled(true);
-	ui.btn_pause->setEnabled(true);
-	ui.btn_play->setEnabled(true);
-	ui.btn_next_frame->setEnabled(true);
-	ui.btn_prev_frame->setEnabled(true);
-	ui.btn_frame_record->setEnabled(true);
-
 	INFO << "GUI: ABIR file load complete";
 	
 	clear_image_processing();
+
+	toggle_video_playback_options(true);
+	playback_controller->start_timer();
 	
 	//---------------------------------------------------------------------------
 }
@@ -1525,4 +1528,35 @@ void QtGuiApplication1::set_color_correction_slider_labels()
 	QString gain_string;
 	gain_string.setNum(gain_value);
 	ui.lbl_gain_value->setText(gain_string);
+}
+
+void QtGuiApplication1::toggle_video_playback_options(bool input)
+{
+	ui.btn_fast_forward->setEnabled(input);
+	ui.btn_slow_back->setEnabled(input);
+	ui.btn_video_menu->setEnabled(input);
+
+	ui.btn_frame_record->setEnabled(input);
+	ui.btn_frame_save->setEnabled(input);
+
+	ui.btn_play->setEnabled(input);
+	ui.btn_pause->setEnabled(input);
+	ui.btn_next_frame->setEnabled(input);
+	ui.btn_prev_frame->setEnabled(input);
+	ui.btn_reverse->setEnabled(input);
+
+	if (input)
+	{
+		//playback_controller->start_timer();
+
+	}
+	else
+	{
+		playback_controller->stop_timer();
+		ui.sldrVideo->setValue(1);
+		ui.lbl_video_time_midnight->setText("");
+		ui.lbl_video_frame->setText("");
+		ui.lbl_fps->setText("");
+
+	}
 }
