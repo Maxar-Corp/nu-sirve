@@ -24,6 +24,7 @@ public:
 	std::vector<double> speeds;
 	bool is_reverse;
 	double get_fps();
+	bool is_running();
 
 public slots:
 	void speed_timer();
@@ -35,7 +36,7 @@ public slots:
 	void prev_frame();
 	void next_frame();
 	void reverse();
-
+	
 signals:
 	void update_frame(int counter);
 

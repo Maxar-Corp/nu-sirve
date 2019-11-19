@@ -139,3 +139,8 @@ void Playback::reverse() {
 	is_reverse = true;
 	timer->start();
 }
+
+bool Playback::is_running()
+{
+	return timer->isActive();
+}
