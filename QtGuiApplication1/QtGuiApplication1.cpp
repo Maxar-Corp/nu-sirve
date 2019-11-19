@@ -779,12 +779,14 @@ void QtGuiApplication1::save_plot()
 
 void QtGuiApplication1::save_frame()
 {
-	playback_controller->stop_timer();
+	if(playback_controller->is_running())
+		playback_controller->stop_timer();
 	
 	ir_video->save_frame();
 	INFO << "GUI: Video frame saved  ";
 
-	playback_controller->start_timer();
+	if(playback_controller->is_running())
+		playback_controller->start_timer();
 }
 
 void QtGuiApplication1::create_menu_actions()
