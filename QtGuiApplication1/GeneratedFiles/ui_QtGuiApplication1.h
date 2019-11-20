@@ -215,6 +215,7 @@ public:
         line_4->setFrameShadow(QFrame::Sunken);
         btn_use_epoch = new QCheckBox(tab);
         btn_use_epoch->setObjectName(QString::fromUtf8("btn_use_epoch"));
+        btn_use_epoch->setEnabled(false);
         btn_use_epoch->setGeometry(QRect(20, 250, 131, 17));
         txt_epoch = new QLineEdit(tab);
         txt_epoch->setObjectName(QString::fromUtf8("txt_epoch"));
@@ -538,7 +539,7 @@ public:
 
         retranslateUi(QtGuiApplication1Class);
 
-        tabMenu->setCurrentIndex(1);
+        tabMenu->setCurrentIndex(0);
         tabPlots->setCurrentIndex(0);
 
 
