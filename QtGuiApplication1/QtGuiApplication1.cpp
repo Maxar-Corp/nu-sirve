@@ -426,77 +426,15 @@ void QtGuiApplication1::load_abir_data()
 	int min_frame = get_integer_from_txt_box(ui.txt_start_frame->text());
 	int max_frame = get_integer_from_txt_box(ui.txt_end_frame->text());
 
-	// if non-numeric data is entered...
-	if ((min_frame < 0) || (max_frame < 0))
-	{
-		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_start_frame->text().toLocal8Bit().constData();
-		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_end_frame->text().toLocal8Bit().constData();
+	bool check_data = check_min_max_frame_input(min_frame, max_frame);
+
+	if (!check_data) {
+		ui.btn_get_frames->setEnabled(true);
 
 		INFO << "GUI: No video loaded";
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Non-Numeric Data"));
-		msgBox.setText("Non-numeric data entered for video load min/max frames");
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-
-		ui.btn_get_frames->setEnabled(true);
 		return;
 	}
-
-	// if minimum frame is greater than maximum frame...
-	if (min_frame > max_frame)
-	{
-		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
-		INFO << "GUI: No video loaded";
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Bad Data Entered"));
-		msgBox.setText("Start frame is greater than the end frame");
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-
-		ui.btn_get_frames->setEnabled(true);
-		return;
-	}
-
-	//find frame start / stop 
-	int frame_start = 0;
-	int frame_stop = eng_data->frame_numbers.back();
-
-	bool min_within_range = check_value_within_range(min_frame, frame_start, frame_stop);
-	bool max_within_range = check_value_within_range(max_frame, frame_start, frame_stop);
-
-	// if values outside range...
-	if (!min_within_range || !max_within_range)
-	{
-		if (min_frame < frame_start)
-			DEBUG << "GUI: Start frame before minimum frame. Entered: " << min_frame << " Minimum: " << frame_start;
-		if (min_frame < 0)
-			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
-
-		INFO << "GUI: Video load not completed";
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Outside of Data Range"));
-		QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-		
-		ui.btn_get_frames->setEnabled(true);
-
-		return;
-	}
-
+	
 	//-----------------------------------------------------------------------------------
 
 	DEBUG << "GUI: Frame numbers are valid";
@@ -986,71 +924,14 @@ void QtGuiApplication1::create_non_uniformity_correction()
 	int min_frame = get_integer_from_txt_box(ui.txt_nuc_start->text());
 	int max_frame = get_integer_from_txt_box(ui.txt_nuc_stop->text());
 
-	// if non-numeric data is entered...
-	if ((min_frame < 0) || (max_frame < 0))
-	{
-		if(min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
-		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
+	bool check_data = check_min_max_frame_input(min_frame, max_frame);
 
+	if (!check_data) {
+		
 		INFO << "GUI: NUC correction not completed";
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Non-Numeric Data"));
-		msgBox.setText("Non-numeric data entered for NUC min/max frames");
-			
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-		return;
-	}
-	
-	// if minimum frame is greater than maximum frame...
-	if (min_frame > max_frame)
-	{
-		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
-		INFO << "GUI: NUC correction not completed";
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Bad Data Entered"));
-		msgBox.setText("Start frame is greater than the end frame");
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-
 		return;
 	}
 
-	//find frame start / stop 
-	int frame_start = 0; 
-	int frame_stop = eng_data->frame_numbers.back(); 
-
-	bool min_within_range = check_value_within_range(min_frame, frame_start, frame_stop);
-	bool max_within_range = check_value_within_range(max_frame, frame_start, frame_stop);
-
-	// if values outside range...
-	if (!min_within_range || !max_within_range)
-	{
-		if (min_frame < frame_start)
-			DEBUG << "GUI: Start frame before minimum frame. Entered: " << min_frame << " Minimum: " << frame_start;
-		if (min_frame < 0)
-			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
-
-		INFO << "GUI: NUC correction not completed";
-			
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Outside of Data Range"));
-		QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-		return;
-	}
-	
 	//----------------------------------------------------------------------------------------------------
 
 	NUC nuc(file_data.image_path, min_frame, max_frame, file_data.file_version);
@@ -1600,4 +1481,71 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 		ui.lbl_fps->setText("");
 
 	}
+}
+
+bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
+{
+	
+	// if non-numeric data is entered...
+	if ((min_frame < 0) || (max_frame < 0))
+	{
+		if (min_frame < 0)
+			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
+		if (min_frame < 0)
+			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
+		
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Non-Numeric Data"));
+		msgBox.setText("Non-numeric data entered for the start/end frames");
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+		return false;
+	}
+
+	// if minimum frame is greater than maximum frame...
+	if (min_frame > max_frame)
+	{
+		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
+		
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Bad Data Entered"));
+		msgBox.setText("Start frame is greater than the end frame");
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
+		return false;
+	}
+
+	//find frame start / stop 
+	int frame_start = 1;
+	int frame_stop = eng_data->frame_numbers.back();
+
+	bool min_within_range = check_value_within_range(min_frame, frame_start, frame_stop);
+	bool max_within_range = check_value_within_range(max_frame, frame_start, frame_stop);
+
+	// if values outside range...
+	if (!min_within_range || !max_within_range)
+	{
+		if (min_frame < frame_start)
+			DEBUG << "GUI: Start frame before minimum frame. Entered: " << min_frame << " Minimum: " << frame_start;
+		if (min_frame < 0)
+			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Outside of Data Range"));
+		QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+		return false;
+	}
+	
+	
+	return true;
 }
