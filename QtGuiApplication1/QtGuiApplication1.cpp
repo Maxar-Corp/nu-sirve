@@ -844,6 +844,8 @@ void QtGuiApplication1::plot_change(int index)
 		break;
 	}
 
+	data_plots->plot_current_step(playback_controller->get_counter()); 
+
 }
 
 int QtGuiApplication1::get_integer_from_txt_box(QString input)
