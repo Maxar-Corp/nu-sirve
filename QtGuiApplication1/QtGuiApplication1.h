@@ -69,6 +69,7 @@ public:
 
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
+	bool check_min_max_frame_input(int min_frame, int max_frame);
 
 	signals:
 		void change_banner(QString banner_text, QColor banner_color);
