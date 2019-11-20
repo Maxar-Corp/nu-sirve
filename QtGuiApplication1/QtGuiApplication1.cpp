@@ -430,15 +430,33 @@ void QtGuiApplication1::load_abir_data()
 	if ((min_frame < 0) || (max_frame < 0))
 	{
 		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
+			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_start_frame->text().toLocal8Bit().constData();
 		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
+			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_end_frame->text().toLocal8Bit().constData();
 
 		INFO << "GUI: No video loaded";
 
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Non-Numeric Data"));
 		msgBox.setText("Non-numeric data entered for video load min/max frames");
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
+		ui.btn_get_frames->setEnabled(true);
+		return;
+	}
+
+	// if minimum frame is greater than maximum frame...
+	if (min_frame > max_frame)
+	{
+		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
+		INFO << "GUI: No video loaded";
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Bad Data Entered"));
+		msgBox.setText("Start frame is greater than the end frame");
 
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		msgBox.setDefaultButton(QMessageBox::Ok);
@@ -987,7 +1005,24 @@ void QtGuiApplication1::create_non_uniformity_correction()
 		msgBox.exec();
 		return;
 	}
-		
+	
+	// if minimum frame is greater than maximum frame...
+	if (min_frame > max_frame)
+	{
+		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
+		INFO << "GUI: NUC correction not completed";
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Bad Data Entered"));
+		msgBox.setText("Start frame is greater than the end frame");
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
+		return;
+	}
+
 	//find frame start / stop 
 	int frame_start = 0; 
 	int frame_stop = eng_data->frame_numbers.back(); 
