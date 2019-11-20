@@ -1322,7 +1322,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	}
 
 	//find frame start / stop 
-	int frame_start = 0;
+	int frame_start = 1;
 	int frame_stop = eng_data->frame_numbers.back();
 
 	bool num_within_range = check_value_within_range(num_frames_subtract, frame_start, frame_stop);
