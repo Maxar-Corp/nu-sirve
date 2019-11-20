@@ -243,7 +243,7 @@ void HistogramLine_Plot::update_histogram_chart() {
 	QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
 	QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
 
-	x_axis->setTitleText("Luminosity");
+	x_axis->setTitleText("Luminance");
 	y_axis->setTitleText("Count");
 
 	y_axis->setMinorGridLineVisible(true);
@@ -312,7 +312,7 @@ void  HistogramLine_Plot::setup_histogram_plot(QChart *input_chart) {
 	x_axis->setMax(1);
 	x_axis->setMinorGridLineVisible(true);
 	x_axis->setLabelsVisible(true);
-	x_axis->setTitleText("Luminosity");
+	x_axis->setTitleText("Luminance");
 
 	if (input_chart == chart)
 		input_chart->setTitle(QString("Absolute Histogram"));
