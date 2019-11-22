@@ -256,8 +256,7 @@ FrameData OSMReader::ReadFrameData() {
 	DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
 	double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
 
-	//TODO remove debugging statement below. should be sum < small_value
-	if (sum > small_value)
+	if (sum < small_value)
 	{
 		if (location_from_file) {
 			data.ecf = file_ecef_vector;
