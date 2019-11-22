@@ -255,7 +255,9 @@ FrameData OSMReader::ReadFrameData() {
 	data.ecf = ReadMultipleDoubleValues(6, true);
 	DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
 	double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
-	if (sum < small_value)
+
+	//TODO remove debugging statement below. should be sum < small_value
+	if (sum > small_value)
 	{
 		if (location_from_file) {
 			data.ecf = file_ecef_vector;
@@ -273,6 +275,7 @@ FrameData OSMReader::ReadFrameData() {
 			else {
 				DEBUG << "OSM Load: Location file import canceled or file path not set";
 				FrameData bad_input;
+				location_from_file = false;
 				return bad_input;
 			}
 		}
