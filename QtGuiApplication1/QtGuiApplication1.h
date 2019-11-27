@@ -34,6 +34,8 @@
 #include <qjsondocument.h>
 #include <qclipboard.h>
 #include <QThread>
+#include <QButtonGroup.h>
+#include <QRadioButton.h>
 
 
 class QtGuiApplication1 : public QMainWindow
@@ -48,6 +50,7 @@ public:
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *color_plot_layout;
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm;
+	QButtonGroup data_plot_yformat, data_plot_yloglinear;
 
 	QThread thread_video, thread_histogram, thread_timer;
 
@@ -109,6 +112,12 @@ public:
 	void toggle_primary_track_data();
 	void toggle_sensor_track_data();
 
+	void yaxis_log_toggled(bool input);
+	void yaxis_linear_toggled(bool input);
+	void yaxis_decimal_toggled(bool input);
+	void yaxis_scientific_toggled(bool input);
+
+
 	deinterlace_type find_deinterlace_type(int index);
 	Video_Parameters find_deinterlace_video_type(int index);
 	void clear_image_processing();
@@ -125,6 +134,7 @@ private:
 	void create_menu_actions();
 	void edit_banner_text();
 	void plot_change(int index);
+	
 
 	int get_integer_from_txt_box(QString input);
 	bool check_value_within_range(int input_value, int min_value, int max_value);
