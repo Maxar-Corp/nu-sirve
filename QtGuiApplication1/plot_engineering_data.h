@@ -9,6 +9,7 @@
 #include <QtCharts/QLegendMarker>
 #include <QtCharts/QAbstractAxis>
 #include <QtCharts/QValueAxis>
+#include <QtCharts/QLogValueAxis>
 #include <QtCharts/qxyseries.h>
 #include <qfiledialog.h>
 #include <QString>
@@ -45,6 +46,9 @@ class QtPlotting : public QWidget
 		~QtPlotting();
 
 		QValueAxis *axis_x, *axis_y;
+		QLogValueAxis *axis_ylog;
+
+		bool yaxis_is_log, yaxis_is_scientific;
 
 		void start_new_chart();
 		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
@@ -96,6 +100,8 @@ class Engineering_Plots : public QtPlotting
 		void get_xaxis_value(std::vector<double> &values);
 		void create_current_marker();
 		void reset_current_marker();
+		void toggle_yaxis_log(bool input);
+		void toggle_yaxis_scientific(bool input);
 
 	public slots:
 

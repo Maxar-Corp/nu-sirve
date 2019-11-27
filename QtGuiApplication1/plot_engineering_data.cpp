@@ -8,7 +8,8 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 	plot_all_data = true;
 	plot_primary_only = false;
 	plot_current_marker = false;
-		
+	yaxis_is_log = false;
+	yaxis_is_scientific = false;
 }
 
 Engineering_Plots::~Engineering_Plots()
@@ -268,6 +269,16 @@ void Engineering_Plots::create_current_marker()
 	chart->addSeries(current_frame_marker);
 }
 
+void Engineering_Plots::toggle_yaxis_log(bool input)
+{
+	yaxis_is_log = input;
+}
+
+void Engineering_Plots::toggle_yaxis_scientific(bool input)
+{
+	yaxis_is_scientific = input;
+}
+
 void Engineering_Plots::plot_current_step(int counter)
 {
 	
@@ -282,9 +293,16 @@ void Engineering_Plots::plot_current_step(int counter)
 		get_xaxis_value(x);
 
 		double current_x = x[index_sub_plot_xmin + counter];
-		
-		double min_y = axis_y->min() * 1.01;
-		double max_y = axis_y->max() * 0.99;
+		double min_y, max_y;
+
+		if (yaxis_is_log) {
+			min_y = axis_ylog->min() * 1.01;
+			max_y = axis_ylog->max() * 0.99;
+		}
+		else {
+			min_y = axis_y->min() * 1.01;
+			max_y = axis_y->max() * 0.99;
+		}
 
 		current_frame_marker->replace(0, current_x, min_y);
 		current_frame_marker->replace(1, current_x, max_y);
@@ -344,6 +362,7 @@ QtPlotting::QtPlotting(QWidget *parent)
 
 	axis_x = new QValueAxis;
 	axis_y = new QValueAxis;
+	axis_ylog = new QLogValueAxis;
 }
 
 QtPlotting::~QtPlotting()
@@ -364,8 +383,31 @@ void QtPlotting::start_new_chart()
 	axis_y->setTitleText("y");
 	axis_y->setRange(0, 10);
 
+	delete axis_ylog;
+	axis_ylog = new QLogValueAxis();
+	axis_ylog->setTitleText("y");
+	axis_ylog->setBase(10);
+	axis_ylog->setRange(1, 10);
+	
+
+	if (yaxis_is_scientific) {
+		axis_y->setLabelFormat("%.4e");
+		axis_ylog->setLabelFormat("%.4e");
+	}
+	else {
+		axis_y->setLabelFormat("%i");
+		axis_ylog->setLabelFormat("%i");
+	}
+
 	chart->addAxis(axis_x, Qt::AlignBottom);
-	chart->addAxis(axis_y, Qt::AlignLeft);
+
+	if (yaxis_is_log)
+	{
+		chart->addAxis(axis_ylog, Qt::AlignLeft);
+	}
+	else {
+		chart->addAxis(axis_y, Qt::AlignLeft);
+	}
 }
 
 void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
@@ -456,15 +498,31 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	axis_x->setRange(min_x, max_x);
 	axis_x->setTitleText(x_label_title);
 
-	axis_y->setRange(min_y, max_y);
-	axis_y->setTitleText(y_label_title);
+	if (yaxis_is_log) {
+		if (min_y <= 0.001)
+			min_y = 0.01;
+		axis_ylog->setRange(min_y, max_y);
+		axis_ylog->setTitleText(y_label_title);
+	}
+	else {
+		axis_y->setRange(min_y, max_y);
+		axis_y->setTitleText(y_label_title);
+	}
 
 	int num_series = chart->series().size();
+
+	bool check1, check2;
 	QList<QAbstractSeries *> all_series = chart->series();
 	for (int i = 0; i < num_series; i++)
 	{
-		bool check1 = all_series[i]->attachAxis(axis_x);
-		bool check2 = all_series[i]->attachAxis(axis_y);
+		check1 = all_series[i]->attachAxis(axis_x);
+		
+		if (yaxis_is_log) {
+			check2 = all_series[i]->attachAxis(axis_ylog);
+		}
+		else {
+			check2 = all_series[i]->attachAxis(axis_y);
+		}
 	}
 
 	//------------------------------------------------------------
