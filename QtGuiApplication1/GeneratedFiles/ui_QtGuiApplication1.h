@@ -16,12 +16,14 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
@@ -119,6 +121,11 @@ public:
     QLabel *label_2;
     QCheckBox *chk_plot_show_line;
     QPushButton *btn_save_plot;
+    QGroupBox *groupBox;
+    QRadioButton *rad_decimal;
+    QRadioButton *rad_linear;
+    QRadioButton *rad_scientific;
+    QRadioButton *rad_log;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuHelp;
@@ -511,6 +518,28 @@ public:
         btn_save_plot->setObjectName(QString::fromUtf8("btn_save_plot"));
         btn_save_plot->setEnabled(false);
         btn_save_plot->setGeometry(QRect(460, 520, 41, 31));
+        groupBox = new QGroupBox(tab_4);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setGeometry(QRect(280, 519, 151, 71));
+        rad_decimal = new QRadioButton(groupBox);
+        rad_decimal->setObjectName(QString::fromUtf8("rad_decimal"));
+        rad_decimal->setEnabled(false);
+        rad_decimal->setGeometry(QRect(10, 40, 82, 17));
+        rad_decimal->setChecked(true);
+        rad_linear = new QRadioButton(groupBox);
+        rad_linear->setObjectName(QString::fromUtf8("rad_linear"));
+        rad_linear->setEnabled(false);
+        rad_linear->setGeometry(QRect(10, 20, 82, 17));
+        rad_linear->setChecked(false);
+        rad_linear->setAutoExclusive(true);
+        rad_scientific = new QRadioButton(groupBox);
+        rad_scientific->setObjectName(QString::fromUtf8("rad_scientific"));
+        rad_scientific->setEnabled(false);
+        rad_scientific->setGeometry(QRect(70, 40, 82, 17));
+        rad_log = new QRadioButton(groupBox);
+        rad_log->setObjectName(QString::fromUtf8("rad_log"));
+        rad_log->setEnabled(false);
+        rad_log->setGeometry(QRect(70, 20, 82, 17));
         tabPlots->addTab(tab_4, QString());
         QtGuiApplication1Class->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(QtGuiApplication1Class);
@@ -540,7 +569,7 @@ public:
         retranslateUi(QtGuiApplication1Class);
 
         tabMenu->setCurrentIndex(0);
-        tabPlots->setCurrentIndex(0);
+        tabPlots->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(QtGuiApplication1Class);
@@ -608,6 +637,11 @@ public:
         label_2->setText(QApplication::translate("QtGuiApplication1Class", "Y - Axis", nullptr));
         chk_plot_show_line->setText(QApplication::translate("QtGuiApplication1Class", "Show Video Frame Location", nullptr));
         btn_save_plot->setText(QApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
+        groupBox->setTitle(QApplication::translate("QtGuiApplication1Class", "Y-Axis Options", nullptr));
+        rad_decimal->setText(QApplication::translate("QtGuiApplication1Class", "Decimal", nullptr));
+        rad_linear->setText(QApplication::translate("QtGuiApplication1Class", "Linear", nullptr));
+        rad_scientific->setText(QApplication::translate("QtGuiApplication1Class", "Scientific", nullptr));
+        rad_log->setText(QApplication::translate("QtGuiApplication1Class", "Log", nullptr));
         tabPlots->setTabText(tabPlots->indexOf(tab_4), QApplication::translate("QtGuiApplication1Class", "Plots", nullptr));
         menuFile->setTitle(QApplication::translate("QtGuiApplication1Class", "File", nullptr));
         menuHelp->setTitle(QApplication::translate("QtGuiApplication1Class", "Help", nullptr));

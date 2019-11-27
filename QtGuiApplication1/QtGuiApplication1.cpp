@@ -44,6 +44,21 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 	eng_data = NULL;
+	
+	data_plot_yformat.addButton(ui.rad_decimal);
+	data_plot_yformat.addButton(ui.rad_scientific);
+	ui.rad_decimal->setChecked(true);
+
+	data_plot_yloglinear.addButton(ui.rad_log);
+	data_plot_yloglinear.addButton(ui.rad_linear);
+	ui.rad_linear->setChecked(true);
+
+	connect(ui.rad_log, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_log_toggled);
+	connect(ui.rad_decimal, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_decimal_toggled);
+	connect(ui.rad_linear, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_linear_toggled);
+	connect(ui.rad_scientific, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_scientific_toggled);
+
+	//---------------------------------------------------------------------------
 
 	playback_controller = new Playback(1);
 	playback_controller->moveToThread(&thread_timer);
@@ -385,6 +400,11 @@ void QtGuiApplication1::load_osm_data()
 		ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
 		//ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
 		ui.cmb_plot_xaxis->setCurrentIndex(0);
+
+		ui.rad_decimal->setEnabled(true);
+		ui.rad_scientific->setEnabled(true);
+		ui.rad_log->setEnabled(true);
+		ui.rad_linear->setEnabled(true);
 
 		ui.chk_plot_full_data->setEnabled(true);
 		ui.chk_plot_primary_data->setEnabled(true);
@@ -804,6 +824,11 @@ void QtGuiApplication1::plot_change(int index)
 	int x_index = ui.cmb_plot_xaxis->currentIndex();
 	int y_index = ui.cmb_plot_yaxis->currentIndex();
 
+	bool scientific_is_checked = ui.rad_scientific->isChecked();
+	bool log_is_checked = ui.rad_log->isChecked();
+	data_plots->toggle_yaxis_log(log_is_checked);
+	data_plots->toggle_yaxis_scientific(scientific_is_checked);
+
 	DEBUG << "GUI: Engineering plot units changed to case " << x_index;
 	DEBUG << "GUI: Engineering plot changed to case " << y_index;
 
@@ -846,6 +871,39 @@ void QtGuiApplication1::plot_change(int index)
 
 	data_plots->plot_current_step(playback_controller->get_counter()); 
 
+}
+
+void QtGuiApplication1::yaxis_log_toggled(bool input)
+{
+	if (input)
+	{
+		plot_change(1);
+	}
+	
+}
+
+void QtGuiApplication1::yaxis_linear_toggled(bool input)
+{
+	if (input)
+	{
+		plot_change(1);
+	}
+}
+
+void QtGuiApplication1::yaxis_decimal_toggled(bool input)
+{
+	if (input)
+	{
+		plot_change(1);
+	}
+}
+
+void QtGuiApplication1::yaxis_scientific_toggled(bool input)
+{
+	if (input)
+	{
+		plot_change(1);
+	}
 }
 
 int QtGuiApplication1::get_integer_from_txt_box(QString input)
