@@ -30,9 +30,17 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 	data.clear();
 	frame_time.clear();
 
-    FindMessageNumber();
-    InitializeVariables();
-    LoadData();
+	try
+	{
+		FindMessageNumber();
+		InitializeVariables();
+		LoadData();
+	}
+	catch (const std::exception& e)
+	{
+		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
+	}
+    
 
     fclose(fp);
 
