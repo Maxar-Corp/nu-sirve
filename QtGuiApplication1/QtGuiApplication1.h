@@ -75,7 +75,9 @@ public:
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
 	bool check_min_max_frame_input(int min_frame, int max_frame);
-	void update_epoch_string(std::vector<double> new_epoch);
+	void update_epoch_string(QString new_epoch_string);
+	void display_original_epoch(QString new_epoch_string);
+	QString create_epoch_string(std::vector<double> new_epoch);
 
 	signals:
 		void change_banner(QString banner_text, QColor banner_color);
