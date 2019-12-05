@@ -127,7 +127,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
 
 	QObject::connect(ui.chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
-
+	toggle_relative_histogram(false);
 	//---------------------------------------------------------------------------
 
 	// Link color correction sliders to changing color correction values
@@ -996,10 +996,20 @@ void QtGuiApplication1::update_enhanced_range(bool input)
 
 void QtGuiApplication1::toggle_relative_histogram(bool input)
 {
-	if (input)
+	if (input) {
+
 		ir_video->show_relative_histogram = true;
+
+		ui.frm_histogram_abs->move(10, 300);
+		ui.frm_histogram_abs->resize(651, 281);
+	}
 	else
+	{
 		ir_video->show_relative_histogram = false;
+
+		ui.frm_histogram_abs->move(10, 10);
+		ui.frm_histogram_abs->resize(651, 571);
+	}
 }
 
 void QtGuiApplication1::apply_epoch_time()
