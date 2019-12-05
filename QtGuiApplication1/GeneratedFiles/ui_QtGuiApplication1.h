@@ -238,7 +238,8 @@ public:
         dt_epoch = new QDateTimeEdit(tab);
         dt_epoch->setObjectName(QString::fromUtf8("dt_epoch"));
         dt_epoch->setEnabled(false);
-        dt_epoch->setGeometry(QRect(20, 250, 211, 22));
+        dt_epoch->setGeometry(QRect(20, 250, 171, 22));
+        dt_epoch->setAlignment(Qt::AlignCenter);
         dt_epoch->setDateTime(QDateTime(QDate(2000, 1, 1), QTime(0, 0, 0)));
         dt_epoch->setDate(QDate(2000, 1, 1));
         dt_epoch->setTime(QTime(0, 0, 0));

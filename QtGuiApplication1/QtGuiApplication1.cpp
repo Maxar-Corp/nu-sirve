@@ -415,7 +415,8 @@ void QtGuiApplication1::load_osm_data()
 		std::vector<double> epoch0 = eng_data->get_epoch();
 		std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
 		std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
-		update_epoch_string(epoch0);
+		update_epoch_string(create_epoch_string(epoch0));
+		display_original_epoch(create_epoch_string(epoch0));
 
 		QDate new_date(epoch0[0], epoch0[1], epoch0[2]);
 		QDate min_date(epoch_min[0], epoch_min[1], epoch_min[2]);
@@ -1024,7 +1025,7 @@ void QtGuiApplication1::apply_epoch_time()
 	sec += msec;
 
 	std::vector<double> epoch{year, month, day, hr, min, sec};
-	update_epoch_string(epoch);
+	update_epoch_string(create_epoch_string(epoch));
 	// --------------------------------------------------------------------
 
 	epoch_jdate = jtime::JulianDate(year, month, day, hr, min, sec);
@@ -1672,13 +1673,26 @@ bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
 	return true;
 }
 
-void QtGuiApplication1::update_epoch_string(std::vector<double> new_epoch)
+void QtGuiApplication1::update_epoch_string(QString new_epoch_string)
 {
 
-	// Display epoch date
 	QString out = "Applied Epoch: ";
-	//out = "Applied Epoch: %1/%2/%3 %4:%5:%6";
+	out = out +new_epoch_string;
+	ui.lbl_current_epoch->setText(out);
+	
+}
 
+void QtGuiApplication1::display_original_epoch(QString new_epoch_string) 
+{
+	QString out = "Original Epoch: ";
+	out = out + new_epoch_string;
+	ui.lbl_current_epoch->setToolTip(out);
+}
+
+QString QtGuiApplication1::create_epoch_string(std::vector<double> new_epoch) {
+
+	QString out = "";
+	
 	int number;
 	int length = new_epoch.size();
 	for (int i = 0; i < length; i++)
@@ -1716,6 +1730,5 @@ void QtGuiApplication1::update_epoch_string(std::vector<double> new_epoch)
 
 	}
 
-	ui.lbl_current_epoch->setText(out);
-	
+	return out;
 }
