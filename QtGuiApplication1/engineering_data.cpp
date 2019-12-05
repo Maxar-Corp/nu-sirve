@@ -14,6 +14,41 @@ Engineering_Data::~Engineering_Data()
 
 }
 
+void Engineering_Data::update_epoch_time(double new_julian_date)
+{
+	int length = seconds_from_epoch.size();
+
+	// update the vector
+	for (int i = 0; i < length; i++)
+	{
+		seconds_from_epoch[i] = (julian_date[i] - new_julian_date) * 86400.;
+	}
+
+	//update tracks
+	length = track_irradiance_data.size();
+	for (int i = 0; i < length; i++)
+	{
+		int num_entries = track_irradiance_data[i].julian_date.size();
+		for (int j = 0; j < num_entries; j++)
+		{
+			track_irradiance_data[i].past_epoch[j] = (track_irradiance_data[i].julian_date[j] - new_julian_date) * 86400.;
+		}
+	}
+
+}
+
+std::vector<double> Engineering_Data::get_epoch()
+{
+	std::vector<double>out;
+
+	double epoch0 = track_irradiance_data[0].julian_date[0] - track_irradiance_data[0].past_epoch[0] / 86400;
+
+	arma::vec date_time = jtime::DateTime(epoch0);
+	out = arma::conv_to<std::vector<double>>::from(date_time);
+	
+	return out;
+}
+
 void Engineering_Data::extract_engineering_data()
 {
 	for (unsigned int i = 0; i < osm.size(); i++) {
@@ -66,6 +101,7 @@ void Engineering_Data::extract_engineering_data()
 		frame_data.push_back(temp);
 		julian_date.push_back(osm[i].data.julian_date);
 		seconds_from_midnight.push_back(osm[i].data.seconds_past_midnight);
+		seconds_from_epoch.push_back(osm[i].data.seconds_past_midnight);
 		frame_numbers.push_back(i + 1);
 	}
 
@@ -89,6 +125,7 @@ void Engineering_Data::fill_irradiance_vector()
 				track_irradiance_data[j].frame_number.push_back(i + 1);
 				track_irradiance_data[j].julian_date.push_back(frame_data[i].julian_date);
 				track_irradiance_data[j].past_midnight.push_back(frame_data[i].seconds_past_midnight);
+				track_irradiance_data[j].past_epoch.push_back(frame_data[i].seconds_past_midnight);
 
 				track_irradiance_data[j].irradiance.push_back(frame_data[i].ir_data[j].irradiance);
 				track_irradiance_data[j].azimuth.push_back(frame_data[i].ir_data[j].azimuth);
@@ -104,6 +141,7 @@ void Engineering_Data::fill_irradiance_vector()
 				temp.frame_number.push_back(i + 1);
 				temp.julian_date.push_back(frame_data[i].julian_date);
 				temp.past_midnight.push_back(frame_data[i].seconds_past_midnight);
+				temp.past_epoch.push_back(frame_data[i].seconds_past_midnight);
 
 				temp.irradiance.push_back(frame_data[i].ir_data[j].irradiance);
 				temp.azimuth.push_back(frame_data[i].ir_data[j].azimuth);

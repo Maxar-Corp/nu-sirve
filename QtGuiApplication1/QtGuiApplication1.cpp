@@ -41,6 +41,10 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------
 
 	videos = new Video_Container(); 
+	
+	// Initialize epoch time box
+	//ui.dt_epoch->setDate(QDate(2000, 1, 1));
+	//ui.dt_epoch->setTime(QTime(0, 0, 0, 0));
 
 	//---------------------------------------------------------------------------
 	eng_data = NULL;
@@ -376,10 +380,11 @@ void QtGuiApplication1::load_osm_data()
 
 		data_plots->frame_numbers = eng_data->frame_numbers;
 		data_plots->past_midnight = eng_data->seconds_from_midnight;
+		data_plots->past_epoch = eng_data->seconds_from_epoch;
 		data_plots->index_sub_plot_xmin = 0;
 		data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
 
-		data_plots->engineering_data = eng_data->frame_data;
+		//data_plots->engineering_data = eng_data->frame_data;
 		data_plots->track_irradiance_data = eng_data->track_irradiance_data;
 		data_plots->plot_irradiance(eng_data->max_number_tracks);
 			
@@ -398,8 +403,25 @@ void QtGuiApplication1::load_osm_data()
 		ui.cmb_plot_xaxis->clear();
 		ui.cmb_plot_xaxis->addItem(QString("Frames"));
 		ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-		//ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
+		ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
 		ui.cmb_plot_xaxis->setCurrentIndex(0);
+
+		//--------------------------------------------------------------------------------
+		// Enable setting of epoch
+		ui.dt_epoch->setEnabled(true);
+		ui.btn_apply_epoch->setEnabled(true);
+		QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
+
+		std::vector<double> epoch0 = eng_data->get_epoch();
+		update_epoch_string(epoch0);
+
+		QDate new_date(epoch0[0], epoch0[1], epoch0[2]));
+		QDate min_date(epoch0[0], epoch0[1] - 2, epoch0[2]);
+		QDate max_date(epoch0[0], epoch0[1] + 2, epoch0[2]);
+
+		ui.dt_epoch->setDate(new_date);
+		ui.dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
+		//--------------------------------------------------------------------------------
 
 		ui.rad_decimal->setEnabled(true);
 		ui.rad_scientific->setEnabled(true);
@@ -843,7 +865,7 @@ void QtGuiApplication1::plot_change(int index)
 		break;
 
 	case 2:
-		data_plots->x_axis_units = seconds_past_midnight;
+		data_plots->x_axis_units = seconds_from_epoch;
 		break;
 
 	default:
@@ -972,6 +994,41 @@ void QtGuiApplication1::toggle_relative_histogram(bool input)
 		ir_video->show_relative_histogram = true;
 	else
 		ir_video->show_relative_histogram = false;
+}
+
+void QtGuiApplication1::apply_epoch_time()
+{
+	double year, month, day, hr, min;
+	double sec, msec, epoch_jdate;
+
+	// --------------------------------------------------------------------
+	// Get new date
+
+	QDate date = ui.dt_epoch->date();
+	QTime time = ui.dt_epoch->time();
+
+	year = date.year();
+	month = date.month();
+	day = date.day();
+
+	hr = time.hour();
+	min = time.minute();
+	sec = time.second();
+	msec = time.msec() / 1000;
+
+	sec += msec;
+
+	std::vector<double> epoch{year, month, day, hr, min, sec};
+	update_epoch_string(epoch);
+	// --------------------------------------------------------------------
+
+	epoch_jdate = jtime::JulianDate(year, month, day, hr, min, sec);
+	eng_data->update_epoch_time(epoch_jdate);
+	
+	data_plots->past_epoch = eng_data->seconds_from_epoch;
+	data_plots->track_irradiance_data = eng_data->track_irradiance_data;
+	plot_change(0);
+	
 }
 
 void QtGuiApplication1::create_non_uniformity_correction()
@@ -1608,4 +1665,52 @@ bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
 	
 	
 	return true;
+}
+
+void QtGuiApplication1::update_epoch_string(std::vector<double> new_epoch)
+{
+
+	// Display epoch date
+	QString out = "Applied Epoch: ";
+	//out = "Applied Epoch: %1/%2/%3 %4:%5:%6";
+
+	int number;
+	int length = new_epoch.size();
+	for (int i = 0; i < length; i++)
+	{
+		if (i == 0)
+		{
+			out = out + QString::number(new_epoch[i]);
+		}
+		else {
+			number = new_epoch[i];
+			if (number < 10)
+			{
+				out = out + "0" + QString::number(new_epoch[i]);
+			}
+			else
+			{
+				out = out + QString::number(new_epoch[i]);
+			}
+
+		}
+
+		// Add date/time separator
+		if (i < 2)
+		{
+			out = out + "/";
+		}
+		if (i == 2)
+		{
+			out = out + " ";
+		}
+		if (i > 2 && i < 5)
+		{
+			out = out + ":";
+		}
+
+	}
+
+	ui.lbl_current_epoch->setText(out);
+	
 }
