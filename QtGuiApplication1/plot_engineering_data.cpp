@@ -13,7 +13,7 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 }
 
 Engineering_Plots::~Engineering_Plots()
-{
+{	
 
 }
 
@@ -186,7 +186,7 @@ std::vector<double> Engineering_Plots::get_individual_x_track(int i)
 		break;
 	case seconds_from_epoch:
 		x_title = QString("Seconds Past Epoch");
-		//x_values = track_irradiance_data[i].frame_number;
+		x_values = track_irradiance_data[i].past_epoch;
 		break;
 	default:
 

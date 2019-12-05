@@ -71,6 +71,7 @@ struct Track_Irradiance {
 	std::vector<double> julian_date;
 	std::vector<double> frame_number;
 	std::vector<double> past_midnight;
+	std::vector<double> past_epoch;
 
 	std::vector<double> irradiance;
 	std::vector<double> azimuth;

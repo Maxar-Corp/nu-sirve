@@ -9,11 +9,13 @@
 #ifndef UI_QTGUIAPPLICATION1_H
 #define UI_QTGUIAPPLICATION1_H
 
+#include <QtCore/QDate>
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QDateTimeEdit>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
@@ -53,11 +55,12 @@ public:
     QPushButton *btn_load_osm;
     QLabel *lbl_file_load;
     QFrame *line_4;
-    QCheckBox *btn_use_epoch;
-    QLineEdit *txt_epoch;
     QLabel *label_5;
     QLabel *label_6;
     QPushButton *btn_copy_directory;
+    QDateTimeEdit *dt_epoch;
+    QPushButton *btn_apply_epoch;
+    QLabel *lbl_current_epoch;
     QWidget *tab_2;
     QWidget *gridLayoutWidget;
     QGridLayout *grdLayout_Color_Control;
@@ -148,7 +151,7 @@ public:
         tab->setObjectName(QString::fromUtf8("tab"));
         line = new QFrame(tab);
         line->setObjectName(QString::fromUtf8("line"));
-        line->setGeometry(QRect(10, 90, 231, 20));
+        line->setGeometry(QRect(10, 80, 231, 20));
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
         lbl_file_name = new QLabel(tab);
@@ -158,7 +161,7 @@ public:
         lbl_file_name->setWordWrap(true);
         gridLayoutWidget_2 = new QWidget(tab);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
-        gridLayoutWidget_2->setGeometry(QRect(40, 120, 160, 91));
+        gridLayoutWidget_2->setGeometry(QRect(40, 110, 160, 91));
         gridLayout = new QGridLayout(gridLayoutWidget_2);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
@@ -203,12 +206,12 @@ public:
 
         line_3 = new QFrame(tab);
         line_3->setObjectName(QString::fromUtf8("line_3"));
-        line_3->setGeometry(QRect(10, 230, 231, 20));
+        line_3->setGeometry(QRect(10, 210, 231, 20));
         line_3->setFrameShape(QFrame::HLine);
         line_3->setFrameShadow(QFrame::Sunken);
         btn_load_osm = new QPushButton(tab);
         btn_load_osm->setObjectName(QString::fromUtf8("btn_load_osm"));
-        btn_load_osm->setGeometry(QRect(10, 70, 141, 23));
+        btn_load_osm->setGeometry(QRect(10, 60, 141, 23));
         lbl_file_load = new QLabel(tab);
         lbl_file_load->setObjectName(QString::fromUtf8("lbl_file_load"));
         lbl_file_load->setGeometry(QRect(10, 370, 231, 211));
@@ -220,26 +223,38 @@ public:
         line_4->setGeometry(QRect(10, 340, 231, 20));
         line_4->setFrameShape(QFrame::HLine);
         line_4->setFrameShadow(QFrame::Sunken);
-        btn_use_epoch = new QCheckBox(tab);
-        btn_use_epoch->setObjectName(QString::fromUtf8("btn_use_epoch"));
-        btn_use_epoch->setEnabled(false);
-        btn_use_epoch->setGeometry(QRect(20, 250, 131, 17));
-        txt_epoch = new QLineEdit(tab);
-        txt_epoch->setObjectName(QString::fromUtf8("txt_epoch"));
-        txt_epoch->setEnabled(false);
-        txt_epoch->setGeometry(QRect(20, 300, 211, 20));
         label_5 = new QLabel(tab);
         label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setEnabled(false);
-        label_5->setGeometry(QRect(20, 320, 211, 16));
+        label_5->setGeometry(QRect(20, 270, 211, 16));
         label_6 = new QLabel(tab);
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setEnabled(false);
-        label_6->setGeometry(QRect(20, 280, 47, 13));
+        label_6->setGeometry(QRect(20, 230, 47, 13));
         btn_copy_directory = new QPushButton(tab);
         btn_copy_directory->setObjectName(QString::fromUtf8("btn_copy_directory"));
         btn_copy_directory->setEnabled(false);
-        btn_copy_directory->setGeometry(QRect(160, 70, 81, 23));
+        btn_copy_directory->setGeometry(QRect(160, 60, 81, 23));
+        dt_epoch = new QDateTimeEdit(tab);
+        dt_epoch->setObjectName(QString::fromUtf8("dt_epoch"));
+        dt_epoch->setEnabled(false);
+        dt_epoch->setGeometry(QRect(20, 250, 211, 22));
+        dt_epoch->setDateTime(QDateTime(QDate(2000, 1, 1), QTime(0, 0, 0)));
+        dt_epoch->setDate(QDate(2000, 1, 1));
+        dt_epoch->setTime(QTime(0, 0, 0));
+        dt_epoch->setMaximumDateTime(QDateTime(QDate(2050, 12, 31), QTime(23, 59, 59)));
+        dt_epoch->setMinimumDateTime(QDateTime(QDate(2000, 1, 1), QTime(0, 0, 0)));
+        dt_epoch->setMinimumDate(QDate(2000, 1, 1));
+        dt_epoch->setCalendarPopup(true);
+        dt_epoch->setTimeSpec(Qt::LocalTime);
+        btn_apply_epoch = new QPushButton(tab);
+        btn_apply_epoch->setObjectName(QString::fromUtf8("btn_apply_epoch"));
+        btn_apply_epoch->setEnabled(false);
+        btn_apply_epoch->setGeometry(QRect(20, 320, 211, 21));
+        lbl_current_epoch = new QLabel(tab);
+        lbl_current_epoch->setObjectName(QString::fromUtf8("lbl_current_epoch"));
+        lbl_current_epoch->setEnabled(false);
+        lbl_current_epoch->setGeometry(QRect(20, 300, 211, 16));
         tabMenu->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -587,10 +602,12 @@ public:
         lbl_max_frames->setText(QApplication::translate("QtGuiApplication1Class", "Max Frames: ", nullptr));
         btn_load_osm->setText(QApplication::translate("QtGuiApplication1Class", "Load OSM File", nullptr));
         lbl_file_load->setText(QApplication::translate("QtGuiApplication1Class", "File Load Status:", nullptr));
-        btn_use_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Use epoch as t0", nullptr));
         label_5->setText(QApplication::translate("QtGuiApplication1Class", "Format is:    YYYY/MM/DD HH:MM:SS", nullptr));
         label_6->setText(QApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
         btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Directory", nullptr));
+        dt_epoch->setDisplayFormat(QApplication::translate("QtGuiApplication1Class", "yyyy/MM/dd hh:mm:ss.zzz", nullptr));
+        btn_apply_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Apply Epoch", nullptr));
+        lbl_current_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Applied Epoch: ", nullptr));
         tabMenu->setTabText(tabMenu->indexOf(tab), QApplication::translate("QtGuiApplication1Class", "Import", nullptr));
         lbl_gain->setText(QApplication::translate("QtGuiApplication1Class", "Light\n"
 "Set Point", nullptr));
