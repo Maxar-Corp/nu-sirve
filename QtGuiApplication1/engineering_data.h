@@ -29,6 +29,7 @@ class Engineering_Data : public	QWidget
 
 		void update_epoch_time(double new_julian_date);
 		std::vector<double>get_epoch();
+		std::vector<double>get_adj_epoch(double num_days);
 		
 		int max_number_tracks;
 
