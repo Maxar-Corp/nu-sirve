@@ -413,13 +413,18 @@ void QtGuiApplication1::load_osm_data()
 		QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
 
 		std::vector<double> epoch0 = eng_data->get_epoch();
+		std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
+		std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
 		update_epoch_string(epoch0);
 
-		QDate new_date(epoch0[0], epoch0[1], epoch0[2]));
-		QDate min_date(epoch0[0], epoch0[1] - 2, epoch0[2]);
-		QDate max_date(epoch0[0], epoch0[1] + 2, epoch0[2]);
+		QDate new_date(epoch0[0], epoch0[1], epoch0[2]);
+		QDate min_date(epoch_min[0], epoch_min[1], epoch_min[2]);
+		QDate max_date(epoch_max[0], epoch_max[1], epoch_max[2]);
 
 		ui.dt_epoch->setDate(new_date);
+		ui.dt_epoch->setMinimumDate(min_date);
+		ui.dt_epoch->setMaximumDate(max_date);
+
 		ui.dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
 		//--------------------------------------------------------------------------------
 
