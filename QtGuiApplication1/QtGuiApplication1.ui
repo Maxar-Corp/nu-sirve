@@ -251,9 +251,12 @@
        <rect>
         <x>20</x>
         <y>250</y>
-        <width>211</width>
+        <width>171</width>
         <height>22</height>
        </rect>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
       </property>
       <property name="dateTime">
        <datetime>
