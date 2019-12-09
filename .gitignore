@@ -261,3 +261,6 @@ __pycache__/
 *.pyc
 *.txt
 *.tmp_517f8cc3
+/QtGuiApplication1/enhanced_image.png
+/QtGuiApplication1/irrad_plot.png
+/QtGuiApplication1/enhanced_image2.png
