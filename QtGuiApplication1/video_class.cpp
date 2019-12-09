@@ -4,7 +4,6 @@
 Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new QLabel(this);
-	text = new QLabel(this);
 
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
@@ -20,16 +19,10 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 
 	banner_text = QString("Insert Banner");
 	banner_color = QColor("Red");
+	tracker_color = QColor("Red");
 	plot_tracks = false;
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
-
-	QString frame_str = "Frame ";
-	QString number;
-	number.setNum(counter);
-
-	frame_str.append(number);
-	text->setText(frame_str);
 
 	for (int i = 0; i < 255; i++)
 		colorTable.push_back(qRgb(255 - i, i, i));
@@ -49,7 +42,6 @@ Video::Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y
 Video::~Video()
 {
 	delete  label;
-	delete text;
 }
 
 void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, int x_pixels, int y_pixels)
@@ -62,12 +54,6 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 	
-	QString frame_str = "Frame ";
-	QString number;
-	number.setNum(counter);
-
-	frame_str.append(number);
-	text->setText(frame_str);
 }
 
 void Video::receive_video_data(video_details &new_input)
@@ -76,11 +62,21 @@ void Video::receive_video_data(video_details &new_input)
 
 }
 
-void Video::update_banner_text(QString input_banner_text, QColor input_banner_color)
+void Video::update_banner_text(QString input_banner_text)
 {
 	banner_text = input_banner_text;
-	banner_color = input_banner_color;
+}
 
+void Video::update_banner_color(QString input_color)
+{
+	QColor new_color(input_color);
+	banner_color = new_color;
+}
+
+void Video::update_tracker_color(QString input_color)
+{
+	QColor new_color(input_color);
+	tracker_color = new_color;
 }
 
 void Video::toggle_osm_tracks(bool input)
@@ -162,9 +158,6 @@ void Video::update_display_frame()
 
 	if (plot_tracks & num_tracks > 0) {
 
-		if (num_tracks > 1)
-			int bob = 1;
-
 		for (int i = 0; i < num_tracks; i++)
 		{
 
@@ -179,13 +172,7 @@ void Video::update_display_frame()
 			int box_size = 5;
 			QRectF rectangle(x_center - box_size, y_center - box_size, box_size * 2, box_size * 2);
 
-			if (i == 0) {
-				rectangle_painter.setPen(QPen(Qt::red));
-			}
-			else {
-				rectangle_painter.setPen(QPen(Qt::yellow));
-			}
-
+			rectangle_painter.setPen(QPen(tracker_color));
 			rectangle_painter.drawRect(rectangle);
 		}
 	}
@@ -233,16 +220,6 @@ void Video::update_display_frame()
 	label->setPixmap(QPixmap::fromImage(frame));
 	label->update();
 	label->repaint();
-
-	//delete[] color_corrected_frame;
-
-	QString frame_str = "Frame ";
-	QString number;
-	number.setNum(counter);
-
-	frame_str.append(number);
-	text->setText(frame_str);
-	text->update();
 
 	//counter++;
 }

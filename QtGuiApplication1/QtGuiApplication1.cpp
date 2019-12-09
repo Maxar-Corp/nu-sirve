@@ -273,6 +273,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	menu->addAction(menu_add_primary_data);
 	menu->addAction(menu_sensor_boresight);
 	menu->addAction(menu_add_banner);
+	menu->addAction(menu_change_color_banner);
+	menu->addAction(menu_change_color_tracker);
 
 	QPixmap menu_image("icons/menu.png");
 	QIcon menu_icon(menu_image);
@@ -815,12 +817,21 @@ void QtGuiApplication1::create_menu_actions()
 	menu_sensor_boresight->setIconVisibleInMenu(false);
 	connect(menu_sensor_boresight, &QAction::triggered, this, &QtGuiApplication1::toggle_sensor_track_data);
 
-	menu_add_banner = new QAction(tr("&Edit Banner"), this);
-	menu_add_banner->setIcon(on);
+	menu_add_banner = new QAction(tr("&Edit Banner Text"), this);
 	menu_add_banner->setStatusTip(tr("Edit banner text to video"));
 	menu_add_banner->setIconVisibleInMenu(false);
 	connect(menu_add_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_text);
 	connect(this, &QtGuiApplication1::change_banner, ir_video, &Video::update_banner_text);
+
+	menu_change_color_banner = new QAction(tr("&Change Banner Color"), this);
+	menu_change_color_banner->setStatusTip(tr("Change banner text color"));
+	connect(menu_change_color_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_color);
+	connect(this, &QtGuiApplication1::change_banner_color, ir_video, &Video::update_banner_color);
+
+	menu_change_color_tracker = new QAction(tr("&Change Tracker Color"), this);
+	menu_change_color_tracker->setStatusTip(tr("Change color of tracking boxes "));
+	connect(menu_change_color_tracker, &QAction::triggered, this, &QtGuiApplication1::edit_tracker_color);
+	connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
 }
 
 void QtGuiApplication1::edit_banner_text()
@@ -829,11 +840,86 @@ void QtGuiApplication1::edit_banner_text()
 	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text, &ok);
 	
 	if (ok) {
-		emit change_banner(input_text, QColor("Red"));
+		emit change_banner(input_text);
 		DEBUG << "GUI: Banner text changed";
+
+		ir_video->update_display_frame();
 	}
 	else {
 		DEBUG << "GUI: Banner change cancelled";
+	}
+}
+
+int QtGuiApplication1::get_color_index(QList<QString> colors, QColor input_color) {
+
+	int index_current_color;
+	QString current_banner_color = input_color.name();
+	for (int i = 0; i < colors.size(); i++)
+	{
+		QColor check_color(colors[i]);
+		int check = QString::compare(current_banner_color, check_color.name(), Qt::CaseInsensitive);
+		if (check == 0)
+		{
+			index_current_color = i;
+		}
+	}
+
+	return index_current_color;
+}
+
+
+void QtGuiApplication1::edit_banner_color()
+{
+	
+	QList<QString> colors{};
+	colors.append("red");
+	colors.append("orange");
+	colors.append("yellow");
+	colors.append("green");
+	colors.append("blue");
+	colors.append("violet");
+
+	QStringList color_list(colors);
+	int index = get_color_index(colors, ir_video->banner_color);
+
+	bool ok;
+	QString input_text = QInputDialog::getItem(0, "Banner Color", "Banner Color", color_list, index, false, &ok);
+
+	if (ok) {
+		emit change_banner_color(input_text);
+		DEBUG << "GUI: Banner color changed";
+		ir_video->update_display_frame();
+	}
+	else {
+		DEBUG << "GUI: Banner color change cancelled";
+	}
+}
+
+void QtGuiApplication1::edit_tracker_color()
+{
+
+	QList<QString> colors{};
+	colors.append("red");
+	colors.append("orange");
+	colors.append("yellow");
+	colors.append("green");
+	colors.append("blue");
+	colors.append("violet");
+
+	QStringList color_list(colors);
+	int index = get_color_index(colors, ir_video->tracker_color);
+
+	bool ok;
+	QString input_text = QInputDialog::getItem(0, "Tracker Color", "Tracker Color", color_list, index, false, &ok);
+
+
+	if (ok) {
+		emit change_tracker_color(input_text);
+		DEBUG << "GUI: Banner color changed";
+		ir_video->update_display_frame();
+	}
+	else {
+		DEBUG << "GUI: Banner color change cancelled";
 	}
 }
 
@@ -1250,6 +1336,7 @@ void QtGuiApplication1::toggle_osm_tracks()
 	}
 	
 	ir_video->toggle_osm_tracks(!current_status);
+	ir_video->update_display_frame();
 
 }
 
@@ -1266,6 +1353,7 @@ void QtGuiApplication1::toggle_primary_track_data()
 	}
 
 	ir_video->toggle_primary_track_data(!current_status);
+	ir_video->update_display_frame();
 
 }
 
@@ -1283,6 +1371,7 @@ void QtGuiApplication1::toggle_sensor_track_data()
 	}
 
 	ir_video->toggle_sensor_boresight_data(!current_status);
+	ir_video->update_display_frame();
 
 }
 
