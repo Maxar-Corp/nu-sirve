@@ -44,6 +44,7 @@ public:
 
     unsigned int number_of_frames;
 	int timer_frequency;
+	QImage frame;
     QLabel  *label;
 	Min_Max_Value color_correction;
 	HistogramLine_Plot *histogram_plot;

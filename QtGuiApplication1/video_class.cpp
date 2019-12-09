@@ -149,7 +149,7 @@ void Video::update_display_frame()
 
 	//------------------------------------------------------------------------------------------------
 
-	QImage frame((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
+	frame = QImage((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
 	frame.setColorTable(colorTable);
 	frame = frame.convertToFormat(QImage::Format_RGB888);
@@ -267,8 +267,10 @@ void Video::save_frame()
 	const QPixmap* pix = label->pixmap();
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "untitled.png", tr("Images (*.png)"));
 
-	if (!fileName.isEmpty())
-		pix->save(fileName);
+	if (!fileName.isEmpty()) {
+		//pix->save(fileName);
+		frame.save(fileName);
+	}
 }
 
 void Video::remove_frame()
