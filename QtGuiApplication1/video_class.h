@@ -45,12 +45,11 @@ public:
     unsigned int number_of_frames;
 	int timer_frequency;
     QLabel  *label;
-    QLabel *text;
 	Min_Max_Value color_correction;
 	HistogramLine_Plot *histogram_plot;
 
 	QString banner_text, boresight_text;
-	QColor banner_color, boresight_color;
+	QColor banner_color, tracker_color;
 	QVector<QRgb> colorTable;
 	
 	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data);
@@ -75,7 +74,9 @@ public slots:
 	void update_color_correction(double new_min_value, double new_max_value);
 	void update_video_file(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
 	void receive_video_data(video_details &new_input);
-	void update_banner_text(QString input_banner_text, QColor input_banner_color);
+	void update_banner_text(QString input_banner_text);
+	void update_banner_color(QString input_color);
+	void update_tracker_color(QString input_color);
 
 	void toggle_relative_histogram();
 

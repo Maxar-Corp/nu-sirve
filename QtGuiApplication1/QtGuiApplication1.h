@@ -51,7 +51,7 @@ public:
 	
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *color_plot_layout;
-	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm;
+	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner;
 	QButtonGroup data_plot_yformat, data_plot_yloglinear;
 
 	QThread thread_video, thread_histogram, thread_timer;
@@ -80,7 +80,9 @@ public:
 	QString create_epoch_string(std::vector<double> new_epoch);
 
 	signals:
-		void change_banner(QString banner_text, QColor banner_color);
+		void change_banner(QString banner_text);
+		void change_banner_color(QString color);
+		void change_tracker_color(QString color);
 		void enhanced_dynamic_range(bool enhance_range);
 	
 
@@ -139,11 +141,14 @@ private:
 
 	void create_menu_actions();
 	void edit_banner_text();
+	void edit_banner_color();
+	void edit_tracker_color();
 	void plot_change(int index);
 	
 
 	int get_integer_from_txt_box(QString input);
 	bool check_value_within_range(int input_value, int min_value, int max_value);
+	int get_color_index(QList<QString> colors, QColor input_color);
 	
 	
 };
