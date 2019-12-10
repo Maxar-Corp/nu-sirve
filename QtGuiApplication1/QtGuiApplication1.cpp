@@ -48,6 +48,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 	eng_data = NULL;
+
 	
 	data_plot_yformat.addButton(ui.rad_decimal);
 	data_plot_yformat.addButton(ui.rad_scientific);
@@ -386,10 +387,9 @@ void QtGuiApplication1::load_osm_data()
 		data_plots->index_sub_plot_xmin = 0;
 		data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
 
-		//data_plots->engineering_data = eng_data->frame_data;
 		data_plots->track_irradiance_data = eng_data->track_irradiance_data;
 		data_plots->plot_irradiance(eng_data->max_number_tracks);
-			
+	
 		ui.tabPlots->setCurrentIndex(1);
 
 		ui.cmb_plot_yaxis->clear();
@@ -822,7 +822,7 @@ void QtGuiApplication1::create_menu_actions()
 	menu_add_banner->setIconVisibleInMenu(false);
 	connect(menu_add_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_text);
 	connect(this, &QtGuiApplication1::change_banner, ir_video, &Video::update_banner_text);
-
+	
 	menu_change_color_banner = new QAction(tr("&Change Banner Color"), this);
 	menu_change_color_banner->setStatusTip(tr("Change banner text color"));
 	connect(menu_change_color_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_color);

@@ -10,6 +10,7 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 	plot_current_marker = false;
 	yaxis_is_log = false;
 	yaxis_is_scientific = false;
+	set_plot_title("EDIT THE BANNER");
 }
 
 Engineering_Plots::~Engineering_Plots()
@@ -58,14 +59,15 @@ void Engineering_Plots::plot_azimuth() {
 
 	establish_sub_plot_limits(min_max_x);
 	
-	title = QString("");
 	y_title = QString("Azimuth (deg)");
 
 	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title, title);
+		chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title);
 	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title, title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title);
 
+
+	draw_title();
 	
 }
 
@@ -111,12 +113,14 @@ void Engineering_Plots::plot_elevation() {
 
 	establish_sub_plot_limits(min_max_x);
 
-	title = QString("");
 	y_title = QString("Elevation (deg)");
 	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title, title);
+		chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title);
 	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title, title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
+
+
+	draw_title();
 }
 
 void Engineering_Plots::plot_irradiance(int number_tracks)
@@ -160,13 +164,14 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	establish_sub_plot_limits(min_max_x);	
 
 	y_title = QString("Irradiance Counts");
-	title = QString("");
 
 	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
+		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
 	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title, title);
-	
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
+
+
+	draw_title();
 }
 
 std::vector<double> Engineering_Plots::get_individual_x_track(int i)
@@ -307,6 +312,29 @@ void Engineering_Plots::plot_current_step(int counter)
 		current_frame_marker->replace(0, current_x, min_y);
 		current_frame_marker->replace(1, current_x, max_y);
 	}
+}
+
+void Engineering_Plots::set_plot_title(QString input_title)
+{
+	
+	title = input_title;
+	draw_title();
+
+}
+
+void Engineering_Plots::draw_title() 
+{
+	QColor brush_color("black");
+	QBrush brush(brush_color);
+
+	QFont font;
+	font.setPointSize(10);
+	font.setBold(true);
+
+	chart->setTitleBrush(brush);
+	chart->setTitleFont(font);
+
+	chart->setTitle(title);
 }
 
 void Engineering_Plots::reset_current_marker() {
@@ -490,7 +518,7 @@ void QtPlotting::remove_series_legend() {
 	}
 }
 
-void QtPlotting::chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title) {
+void QtPlotting::chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title) {
 
 	// ------------------------------------------------------------------------------------------
 	// Define chart properties
@@ -525,25 +553,6 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 		}
 	}
 
-	//------------------------------------------------------------
-	// Deprecated Code
-	//-------------------------------------------------------------
-			
-	//chart->createDefaultAxes();
-	//QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	//QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
-
-	//x_axis->setTitleText(x_label_title);
-	//set_axis_limits(x_axis, min_x, max_x);
-
-	//y_axis->setTitleText(y_label_title);
-	//set_axis_limits(y_axis, min_y, max_y);
-	//y_axis->setLabelsVisible(true);
-	//-------------------------------------------------------------
-	//-------------------------------------------------------------
-	
-	// Set chart title
-	chart->setTitle(title);
 	chart->setMargins(QMargins(0, 0, 0, 0));
 
 	// Legend properties
@@ -600,11 +609,9 @@ void QtPlotting::save_plot()
 {
 
 	QPixmap p = chart_view->grab();
-	// QPixmap p(chart_view->size());
-	//chart_view->render(&p);
-
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "untitled.png", tr("Images (*.png)"));
 	
-	if(!fileName.isEmpty())
+	if (!fileName.isEmpty())
 		p.save(fileName, "PNG");
+
 }
