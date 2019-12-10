@@ -1126,7 +1126,7 @@ Subtraction</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>520</x>
+        <x>680</x>
         <y>520</y>
         <width>111</width>
         <height>21</height>
@@ -1158,7 +1158,7 @@ Subtraction</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>520</x>
+        <x>680</x>
         <y>540</y>
         <width>131</width>
         <height>21</height>
@@ -1209,7 +1209,7 @@ Subtraction</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>520</x>
+        <x>680</x>
         <y>560</y>
         <width>151</width>
         <height>21</height>
@@ -1228,8 +1228,8 @@ Subtraction</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>460</x>
-        <y>520</y>
+        <x>570</x>
+        <y>550</y>
         <width>41</width>
         <height>31</height>
        </rect>
@@ -1323,6 +1323,22 @@ Subtraction</string>
         <string>Log</string>
        </property>
       </widget>
+     </widget>
+     <widget class="QPushButton" name="btn_plot_menu">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>630</x>
+        <y>550</y>
+        <width>41</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
      </widget>
     </widget>
    </widget>

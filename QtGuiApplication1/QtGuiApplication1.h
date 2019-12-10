@@ -51,14 +51,17 @@ public:
 	
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *color_plot_layout;
+	
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner;
+	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
+
 	QButtonGroup data_plot_yformat, data_plot_yloglinear;
 
 	QThread thread_video, thread_histogram, thread_timer;
 
 	Min_Max_Value color_correction;
 	Playback *playback_controller;
-	QMenu *menu;
+	QMenu *menu, *plot_menu;
 	
 	Video_Container *videos;
 	Video *ir_video;
@@ -74,6 +77,7 @@ public:
 
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
+	void enable_engineering_plot_options(bool input);
 	bool check_min_max_frame_input(int min_frame, int max_frame);
 	void update_epoch_string(QString new_epoch_string);
 	void display_original_epoch(QString new_epoch_string);
@@ -99,10 +103,13 @@ public:
 
 	void update_fps();
 	void reset_color_correction();
-	void allow_epoch();
-	void plot_full_data(int index);
+	
+	void plot_full_data();
 	void plot_primary_only();
 	void plot_current_frame_marker();
+	
+
+
 	void save_plot();
 	void save_frame();
 	void set_frame_number_label(int counter);
@@ -141,6 +148,7 @@ private:
 
 	void create_menu_actions();
 	void edit_banner_text();
+	void edit_plot_text();
 	void edit_banner_color();
 	void edit_tracker_color();
 	void plot_change(int index);

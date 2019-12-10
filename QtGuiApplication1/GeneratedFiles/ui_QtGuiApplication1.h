@@ -129,6 +129,7 @@ public:
     QRadioButton *rad_linear;
     QRadioButton *rad_scientific;
     QRadioButton *rad_log;
+    QPushButton *btn_plot_menu;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuHelp;
@@ -506,7 +507,7 @@ public:
         chk_plot_full_data = new QCheckBox(tab_4);
         chk_plot_full_data->setObjectName(QString::fromUtf8("chk_plot_full_data"));
         chk_plot_full_data->setEnabled(false);
-        chk_plot_full_data->setGeometry(QRect(520, 520, 111, 21));
+        chk_plot_full_data->setGeometry(QRect(680, 520, 111, 21));
         chk_plot_full_data->setChecked(true);
         cmb_plot_xaxis = new QComboBox(tab_4);
         cmb_plot_xaxis->setObjectName(QString::fromUtf8("cmb_plot_xaxis"));
@@ -515,7 +516,7 @@ public:
         chk_plot_primary_data = new QCheckBox(tab_4);
         chk_plot_primary_data->setObjectName(QString::fromUtf8("chk_plot_primary_data"));
         chk_plot_primary_data->setEnabled(false);
-        chk_plot_primary_data->setGeometry(QRect(520, 540, 131, 21));
+        chk_plot_primary_data->setGeometry(QRect(680, 540, 131, 21));
         chk_plot_primary_data->setChecked(false);
         label = new QLabel(tab_4);
         label->setObjectName(QString::fromUtf8("label"));
@@ -528,12 +529,12 @@ public:
         chk_plot_show_line = new QCheckBox(tab_4);
         chk_plot_show_line->setObjectName(QString::fromUtf8("chk_plot_show_line"));
         chk_plot_show_line->setEnabled(false);
-        chk_plot_show_line->setGeometry(QRect(520, 560, 151, 21));
+        chk_plot_show_line->setGeometry(QRect(680, 560, 151, 21));
         chk_plot_show_line->setChecked(false);
         btn_save_plot = new QPushButton(tab_4);
         btn_save_plot->setObjectName(QString::fromUtf8("btn_save_plot"));
         btn_save_plot->setEnabled(false);
-        btn_save_plot->setGeometry(QRect(460, 520, 41, 31));
+        btn_save_plot->setGeometry(QRect(570, 550, 41, 31));
         groupBox = new QGroupBox(tab_4);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         groupBox->setGeometry(QRect(280, 519, 151, 71));
@@ -556,6 +557,10 @@ public:
         rad_log->setObjectName(QString::fromUtf8("rad_log"));
         rad_log->setEnabled(false);
         rad_log->setGeometry(QRect(70, 20, 82, 17));
+        btn_plot_menu = new QPushButton(tab_4);
+        btn_plot_menu->setObjectName(QString::fromUtf8("btn_plot_menu"));
+        btn_plot_menu->setEnabled(false);
+        btn_plot_menu->setGeometry(QRect(630, 550, 41, 30));
         tabPlots->addTab(tab_4, QString());
         QtGuiApplication1Class->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(QtGuiApplication1Class);
@@ -660,6 +665,7 @@ public:
         rad_linear->setText(QApplication::translate("QtGuiApplication1Class", "Linear", nullptr));
         rad_scientific->setText(QApplication::translate("QtGuiApplication1Class", "Scientific", nullptr));
         rad_log->setText(QApplication::translate("QtGuiApplication1Class", "Log", nullptr));
+        btn_plot_menu->setText(QApplication::translate("QtGuiApplication1Class", "...", nullptr));
         tabPlots->setTabText(tabPlots->indexOf(tab_4), QApplication::translate("QtGuiApplication1Class", "Plots", nullptr));
         menuFile->setTitle(QApplication::translate("QtGuiApplication1Class", "File", nullptr));
         menuHelp->setTitle(QApplication::translate("QtGuiApplication1Class", "Help", nullptr));
