@@ -91,30 +91,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------	
 	
 	int number_bits = max_used_bits;
-	//histogram_plot = new HistogramLine_Plot(number_bits);
-
-	//histogram_plot->moveToThread(&thread_histogram);
-	//QObject::connect(&thread_video, &QThread::started, histogram_plot, &HistogramLine_Plot::update_histogram_chart);
-		
-	//QObject::connect(videos, &Video_Container::update_display_video, histogram_plot, &HistogramLine_Plot::receive_video_data);
-	//QObject::connect(playback_controller, &Playback::update_frame, histogram_plot, &HistogramLine_Plot::update_specific_histogram);
-	//QObject::connect(&color_correction, &Min_Max_Value::update_min_max, histogram_plot, &HistogramLine_Plot::update_color_correction);
-
-	//---------------------------------------------------------------------------
 	
-	/*
-	// TODO remove color plotter if no longer needed
-	color_plot_layout = new QGridLayout();
-	color_plot_layout->addWidget(color_correction_plot.chart_view);
-	ui.frmColorCorrection->setLayout(color_plot_layout);
-
-	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, &color_correction_plot, &ColorPlotter::update_color_correction);
-	QObject::connect(ui.btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
-	QObject::connect(ui.chk_enhanced_range, &QCheckBox::toggled, this, &QtGuiApplication1::update_enhanced_range);
-	*/
-
-	//---------------------------------------------------------------------------
-
 	video_layout = new QGridLayout();
 	video_layout->addWidget(ir_video->label);
 	ui.frm_video->setLayout(video_layout);
@@ -265,7 +242,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	ui.btn_save_plot->setIcon(save_frame_icon);
 	ui.btn_save_plot->setText("");
-
+	ui.btn_save_plot->setToolTip("Save Plot");
 
 	create_menu_actions();
 
@@ -277,12 +254,23 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	menu->addAction(menu_change_color_banner);
 	menu->addAction(menu_change_color_tracker);
 
+	plot_menu = new QMenu(this);
+	plot_menu->addAction(menu_plot_all_data);
+	plot_menu->addAction(menu_plot_primary);
+	plot_menu->addAction(menu_plot_frame_marker);
+	plot_menu->addAction(menu_plot_edit_banner);
+
 	QPixmap menu_image("icons/menu.png");
 	QIcon menu_icon(menu_image);
 	ui.btn_video_menu->setIcon(menu_icon);
 	ui.btn_video_menu->setText("");
+	ui.btn_video_menu->setEnabled(false);
+
+	ui.btn_plot_menu->setIcon(menu_icon);
+	ui.btn_plot_menu->setText("");
 
 	ui.btn_video_menu->setMenu(menu);
+	ui.btn_plot_menu->setMenu(plot_menu);
 
 	show();
 
@@ -389,25 +377,9 @@ void QtGuiApplication1::load_osm_data()
 
 		data_plots->track_irradiance_data = eng_data->track_irradiance_data;
 		data_plots->plot_irradiance(eng_data->max_number_tracks);
+
+		enable_engineering_plot_options(true);
 	
-		ui.tabPlots->setCurrentIndex(1);
-
-		ui.cmb_plot_yaxis->clear();
-		ui.cmb_plot_yaxis->setEnabled(true);
-		ui.cmb_plot_yaxis->clear();
-		ui.cmb_plot_yaxis->addItem(QString("Irradiance"));
-		ui.cmb_plot_yaxis->addItem(QString("Azimuth"));
-		ui.cmb_plot_yaxis->addItem(QString("Elevation"));
-		ui.cmb_plot_yaxis->setCurrentIndex(0);
-
-		ui.cmb_plot_xaxis->clear();
-		ui.cmb_plot_xaxis->setEnabled(true);
-		ui.cmb_plot_xaxis->clear();
-		ui.cmb_plot_xaxis->addItem(QString("Frames"));
-		ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-		ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
-		ui.cmb_plot_xaxis->setCurrentIndex(0);
-
 		//--------------------------------------------------------------------------------
 		// Enable setting of epoch
 		ui.dt_epoch->setEnabled(true);
@@ -431,30 +403,11 @@ void QtGuiApplication1::load_osm_data()
 		ui.dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
 		//--------------------------------------------------------------------------------
 
-		ui.rad_decimal->setEnabled(true);
-		ui.rad_scientific->setEnabled(true);
-		ui.rad_log->setEnabled(true);
-		ui.rad_linear->setEnabled(true);
-
-		ui.chk_plot_full_data->setEnabled(true);
-		ui.chk_plot_primary_data->setEnabled(true);
-		ui.chk_plot_show_line->setEnabled(true);
-		connect(ui.chk_plot_full_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_full_data);
-		connect(ui.chk_plot_primary_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_primary_only);
-		connect(ui.chk_plot_show_line, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_current_frame_marker);
-						
-		connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
-		connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
-
 		engineering_plot_layout = new QGridLayout();
 		engineering_plot_layout->addWidget(data_plots->chart_view);
 		ui.frm_plots->setLayout(engineering_plot_layout);
 
-		ui.btn_save_plot->setEnabled(true);
-		connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
-
 		INFO << "GUI: OSM successfully loaded";
-
 	}
 
 	ui.btn_load_osm->setEnabled(true);
@@ -736,45 +689,45 @@ void QtGuiApplication1::reset_color_correction()
 	DEBUG << "GUI: Color correction reset";
 }
 
-void QtGuiApplication1::allow_epoch()
-{
 
-}
-
-void QtGuiApplication1::plot_full_data(int index)
+void QtGuiApplication1::plot_full_data()
 {
-	if (ui.chk_plot_full_data->isChecked())
-	{
-		data_plots->plot_all_data = true;
-		data_plots->toggle_subplot();
-		DEBUG << "GUI: Toggle plot all data ";
-	}
-	else 
-	{
-		data_plots->plot_all_data = false;
-		data_plots->toggle_subplot();
-		DEBUG << "GUI: Toggle plot sub-set data ";
-	}		
+	bool current_state = data_plots->plot_all_data;
+	bool new_state = !current_state;
+
+	data_plots->plot_all_data = new_state;
+	data_plots->toggle_subplot();
+	menu_plot_all_data->setIconVisibleInMenu(new_state);
+
+	DEBUG << "GUI: Plot all data changed from " << current_state << " to " << new_state;
+	
 }
 
 void QtGuiApplication1::plot_primary_only()
 {
-	if (ui.chk_plot_primary_data->isChecked())
-		data_plots->plot_primary_only = true;
-	else
-		data_plots->plot_primary_only = false;
+	bool current_state = data_plots->plot_primary_only;
+	bool new_state = !current_state;
+
+	data_plots->plot_primary_only = new_state;
+	menu_plot_primary->setIconVisibleInMenu(new_state);
 
 	plot_change(1);
+
+	DEBUG << "GUI: Plot primary data changed from " << current_state << " to " << new_state;
 }
 
 void QtGuiApplication1::plot_current_frame_marker() {
-	if (ui.chk_plot_show_line->isChecked())
-		data_plots->plot_current_marker = true;
-	else
-		data_plots->plot_current_marker = false;
+
+	bool current_state = data_plots->plot_current_marker;
+	bool new_state = !current_state;
+
+	data_plots->plot_current_marker = new_state;
+	menu_plot_frame_marker->setIconVisibleInMenu(new_state);
 
 	plot_change(1);
 	emit data_plots->plot_current_step(playback_controller->get_counter());
+
+	DEBUG << "GUI: Show video marker changed from " << current_state << " to " << new_state;
 }
 
 void QtGuiApplication1::save_plot()
@@ -798,6 +751,8 @@ void QtGuiApplication1::save_frame()
 void QtGuiApplication1::create_menu_actions()
 {
 	QIcon on("icons/check.png");
+
+	// ------------------------- VIDEO MENU ACTIONS -------------------------
 
 	menu_osm = new QAction(tr("&Toggle OSM Tracks"), this);
 	menu_osm->setIcon(on);
@@ -832,6 +787,27 @@ void QtGuiApplication1::create_menu_actions()
 	menu_change_color_tracker->setStatusTip(tr("Change color of tracking boxes "));
 	connect(menu_change_color_tracker, &QAction::triggered, this, &QtGuiApplication1::edit_tracker_color);
 	connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
+
+	// ------------------------- PLOT MENU ACTIONS -------------------------
+
+	menu_plot_all_data = new QAction(tr("&Plot all frame data"), this);
+	menu_plot_all_data->setIcon(on);
+	menu_plot_all_data->setStatusTip(tr("Plot all data from OSM file"));
+	menu_plot_all_data->setIconVisibleInMenu(true);
+
+	menu_plot_primary = new QAction(tr("&Plot Primary Data Only"), this);
+	menu_plot_primary->setIcon(on);
+	menu_plot_primary->setStatusTip(tr("Plot only the primary object"));
+	menu_plot_primary->setIconVisibleInMenu(false);
+
+	menu_plot_frame_marker = new QAction(tr("&Plot Video Location"), this);
+	menu_plot_frame_marker->setIcon(on);
+	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video position"));
+	menu_plot_frame_marker->setIconVisibleInMenu(false);
+
+	menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
+	menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
+
 }
 
 void QtGuiApplication1::edit_banner_text()
@@ -843,10 +819,24 @@ void QtGuiApplication1::edit_banner_text()
 		emit change_banner(input_text);
 		DEBUG << "GUI: Banner text changed";
 
-		ir_video->update_display_frame();
 	}
 	else {
 		DEBUG << "GUI: Banner change cancelled";
+	}
+}
+
+void QtGuiApplication1::edit_plot_text()
+{
+	bool ok;
+	QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, data_plots->title, &ok);
+
+	if (ok) {
+		data_plots->set_plot_title(input_text);
+		DEBUG << "GUI: Plot header text changed";
+
+	}
+	else {
+		DEBUG << "GUI: Plot header text change cancelled";
 	}
 }
 
@@ -1688,11 +1678,11 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	ui.btn_next_frame->setEnabled(input);
 	ui.btn_prev_frame->setEnabled(input);
 	ui.btn_reverse->setEnabled(input);
+	ui.btn_video_menu->setEnabled(input);
 
 	if (input)
 	{
 		//playback_controller->start_timer();
-
 	}
 	else
 	{
@@ -1701,8 +1691,65 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 		ui.lbl_video_time_midnight->setText("");
 		ui.lbl_video_frame->setText("");
 		ui.lbl_fps->setText("");
-
 	}
+}
+
+void QtGuiApplication1::enable_engineering_plot_options(bool input)
+{
+	// ------------------------------------------ Set Dropdown Menu ------------------------------------------
+	ui.tabPlots->setCurrentIndex(1);
+
+	ui.cmb_plot_yaxis->clear();
+	ui.cmb_plot_yaxis->setEnabled(input);
+	ui.cmb_plot_yaxis->clear();
+	ui.cmb_plot_yaxis->addItem(QString("Irradiance"));
+	ui.cmb_plot_yaxis->addItem(QString("Azimuth"));
+	ui.cmb_plot_yaxis->addItem(QString("Elevation"));
+	ui.cmb_plot_yaxis->setCurrentIndex(0);
+
+	ui.cmb_plot_xaxis->clear();
+	ui.cmb_plot_xaxis->setEnabled(input);
+	ui.cmb_plot_xaxis->clear();
+	ui.cmb_plot_xaxis->addItem(QString("Frames"));
+	ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
+	ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
+	ui.cmb_plot_xaxis->setCurrentIndex(0);
+
+	// ------------------------------------------ Set Plot Options ------------------------------------------
+
+	ui.rad_decimal->setEnabled(input);
+	ui.rad_scientific->setEnabled(input);
+
+	ui.rad_log->setEnabled(input);
+	ui.rad_linear->setEnabled(input);
+
+	ui.btn_plot_menu->setEnabled(input);
+	ui.btn_save_plot->setEnabled(input);
+
+	ui.chk_plot_full_data->setEnabled(input);
+	ui.chk_plot_primary_data->setEnabled(input);
+	ui.chk_plot_show_line->setEnabled(input);
+
+	if (input)
+	{
+		// Connect x-axis and y-axis changes to functions
+		connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+		connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+
+		// Connect plotting options to 
+		connect(ui.chk_plot_full_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_full_data);
+		connect(ui.chk_plot_primary_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_primary_only);
+		connect(ui.chk_plot_show_line, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_current_frame_marker);
+
+		connect(menu_plot_all_data, &QAction::triggered, this, &QtGuiApplication1::plot_full_data);
+		connect(menu_plot_primary, &QAction::triggered, this, &QtGuiApplication1::plot_primary_only);
+		connect(menu_plot_frame_marker, &QAction::triggered, this, &QtGuiApplication1::plot_current_frame_marker);
+		connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
+
+		// Connect save button functions
+		connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
+	}
+
 }
 
 bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
