@@ -54,7 +54,7 @@ class QtPlotting : public QWidget
 		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
 		void remove_series_legend();
 		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
-		void chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title, QString title);
+		void chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title);
 		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
 		void set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title);
 		void set_yaxis_limits(double min_y, double max_y);
@@ -102,11 +102,13 @@ class Engineering_Plots : public QtPlotting
 		void reset_current_marker();
 		void toggle_yaxis_log(bool input);
 		void toggle_yaxis_scientific(bool input);
+		void draw_title();
 
 	public slots:
 
 		void toggle_subplot();
 		void plot_current_step(int counter);
+		void set_plot_title(QString input_title);
 
 };
 
