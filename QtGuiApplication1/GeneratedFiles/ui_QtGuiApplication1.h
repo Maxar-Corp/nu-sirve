@@ -534,7 +534,7 @@ public:
         btn_save_plot = new QPushButton(tab_4);
         btn_save_plot->setObjectName(QString::fromUtf8("btn_save_plot"));
         btn_save_plot->setEnabled(false);
-        btn_save_plot->setGeometry(QRect(570, 550, 41, 31));
+        btn_save_plot->setGeometry(QRect(620, 550, 41, 31));
         groupBox = new QGroupBox(tab_4);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         groupBox->setGeometry(QRect(280, 519, 151, 71));
@@ -560,7 +560,7 @@ public:
         btn_plot_menu = new QPushButton(tab_4);
         btn_plot_menu->setObjectName(QString::fromUtf8("btn_plot_menu"));
         btn_plot_menu->setEnabled(false);
-        btn_plot_menu->setGeometry(QRect(630, 550, 41, 30));
+        btn_plot_menu->setGeometry(QRect(570, 550, 41, 30));
         tabPlots->addTab(tab_4, QString());
         QtGuiApplication1Class->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(QtGuiApplication1Class);
