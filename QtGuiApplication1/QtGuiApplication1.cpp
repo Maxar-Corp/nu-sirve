@@ -162,6 +162,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//Link buttons to functions
 	QObject::connect(ui.btn_load_osm, &QPushButton::clicked, this, &QtGuiApplication1::load_osm_data);
 	QObject::connect(ui.btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
+	QObject::connect(ui.txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
 
 	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
 	QObject::connect(ui.btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
@@ -385,7 +386,7 @@ void QtGuiApplication1::load_osm_data()
 		ui.dt_epoch->setEnabled(true);
 		ui.btn_apply_epoch->setEnabled(true);
 		QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
-
+		
 		std::vector<double> epoch0 = eng_data->get_epoch();
 		std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
 		std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
