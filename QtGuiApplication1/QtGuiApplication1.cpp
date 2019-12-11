@@ -1099,6 +1099,9 @@ void QtGuiApplication1::toggle_relative_histogram(bool input)
 
 		ui.frm_histogram_abs->move(10, 300);
 		ui.frm_histogram_abs->resize(651, 281);
+
+		ir_video->update_display_frame();
+
 	}
 	else
 	{
