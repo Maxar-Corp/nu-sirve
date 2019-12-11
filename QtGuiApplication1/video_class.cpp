@@ -16,8 +16,9 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 	max_bit_level = input_bit_level;
+	number_of_frames = 0;
 
-	banner_text = QString("Insert Banner");
+	banner_text = QString("EDIT CLASSIFICATION");
 	banner_color = QColor("Red");
 	tracker_color = QColor("Red");
 	plot_tracks = false;
