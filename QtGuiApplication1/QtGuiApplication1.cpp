@@ -724,9 +724,12 @@ void QtGuiApplication1::plot_current_frame_marker() {
 	data_plots->plot_current_marker = new_state;
 	menu_plot_frame_marker->setIconVisibleInMenu(new_state);
 
-	plot_change(1);
-	emit data_plots->plot_current_step(playback_controller->get_counter());
-
+	if (ir_video->number_of_frames > 0)
+	{
+		plot_change(1);
+		emit data_plots->plot_current_step(playback_controller->get_counter());
+	}
+	
 	DEBUG << "GUI: Show video marker changed from " << current_state << " to " << new_state;
 }
 
