@@ -10,7 +10,7 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 	plot_current_marker = false;
 	yaxis_is_log = false;
 	yaxis_is_scientific = false;
-	set_plot_title("EDIT THE BANNER");
+	set_plot_title("EDIT CLASSIFICATION");
 }
 
 Engineering_Plots::~Engineering_Plots()
