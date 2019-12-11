@@ -1228,7 +1228,7 @@ Subtraction</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>570</x>
+        <x>620</x>
         <y>550</y>
         <width>41</width>
         <height>31</height>
@@ -1330,7 +1330,7 @@ Subtraction</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>630</x>
+        <x>570</x>
         <y>550</y>
         <width>41</width>
         <height>30</height>

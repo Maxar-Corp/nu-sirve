@@ -803,9 +803,9 @@ void QtGuiApplication1::create_menu_actions()
 	menu_plot_primary->setStatusTip(tr("Plot only the primary object"));
 	menu_plot_primary->setIconVisibleInMenu(false);
 
-	menu_plot_frame_marker = new QAction(tr("&Plot Video Location"), this);
+	menu_plot_frame_marker = new QAction(tr("&Plot Marker for Current Frame"), this);
 	menu_plot_frame_marker->setIcon(on);
-	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video position"));
+	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video frame"));
 	menu_plot_frame_marker->setIconVisibleInMenu(false);
 
 	menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
