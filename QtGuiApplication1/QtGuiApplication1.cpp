@@ -819,9 +819,27 @@ void QtGuiApplication1::edit_banner_text()
 	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text, &ok);
 	
 	if (ok) {
+
 		emit change_banner(input_text);
 		DEBUG << "GUI: Banner text changed";
 
+
+		QString plot_banner_text = data_plots->title;
+		int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
+		if (check != 0)
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle("Update All Banners");
+			msgBox.setText("Video and plot banners do not match. Would you like to set both to the same banner?");
+			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+			msgBox.setDefaultButton(QMessageBox::No);
+			int ret = msgBox.exec();
+
+			if (ret == QMessageBox::Yes)
+			{
+				data_plots->set_plot_title(input_text);
+			}
+		}
 	}
 	else {
 		DEBUG << "GUI: Banner change cancelled";
