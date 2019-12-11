@@ -248,8 +248,7 @@ void Engineering_Plots::get_xaxis_value(std::vector<double>& values)
 		x_title = "Seconds Past Midnight";
 		break;
 	case seconds_from_epoch:
-		//TODO switch to past_epoch
-		values = past_midnight;
+		values = past_epoch;
 		x_title = "Seconds Past Epoch";
 		break;
 	default:
