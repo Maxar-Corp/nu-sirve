@@ -29,6 +29,7 @@
 #include <qfiledialog.h>
 #include <qfileinfo.h>
 #include <qinputdialog.h>
+#include <qdialogbuttonbox.h>
 #include <qprogressdialog.h>
 #include <qmessagebox.h>
 #include <qjsonobject.h>
