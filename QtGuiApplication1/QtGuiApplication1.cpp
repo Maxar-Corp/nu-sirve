@@ -823,7 +823,7 @@ void QtGuiApplication1::edit_banner_text()
 		emit change_banner(input_text);
 		DEBUG << "GUI: Banner text changed";
 
-
+		// checks if banners are the same and asks user if they want them to be the same
 		QString plot_banner_text = data_plots->title;
 		int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
 		if (check != 0)
