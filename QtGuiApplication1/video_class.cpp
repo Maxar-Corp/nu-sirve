@@ -66,6 +66,7 @@ void Video::receive_video_data(video_details &new_input)
 void Video::update_banner_text(QString input_banner_text)
 {
 	banner_text = input_banner_text;
+	update_display_frame();
 }
 
 void Video::update_banner_color(QString input_color)
