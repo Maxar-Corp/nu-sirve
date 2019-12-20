@@ -22,8 +22,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSlider>
@@ -130,9 +128,6 @@ public:
     QRadioButton *rad_scientific;
     QRadioButton *rad_log;
     QPushButton *btn_plot_menu;
-    QMenuBar *menuBar;
-    QMenu *menuFile;
-    QMenu *menuHelp;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -563,14 +558,6 @@ public:
         btn_plot_menu->setGeometry(QRect(570, 550, 41, 30));
         tabPlots->addTab(tab_4, QString());
         QtGuiApplication1Class->setCentralWidget(centralWidget);
-        menuBar = new QMenuBar(QtGuiApplication1Class);
-        menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1723, 21));
-        menuFile = new QMenu(menuBar);
-        menuFile->setObjectName(QString::fromUtf8("menuFile"));
-        menuHelp = new QMenu(menuBar);
-        menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
-        QtGuiApplication1Class->setMenuBar(menuBar);
         mainToolBar = new QToolBar(QtGuiApplication1Class);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
         QtGuiApplication1Class->addToolBar(Qt::TopToolBarArea, mainToolBar);
@@ -582,10 +569,6 @@ public:
         QWidget::setTabOrder(btn_slow_back, btn_play);
         QWidget::setTabOrder(btn_play, btn_fast_forward);
         QWidget::setTabOrder(btn_fast_forward, sldrVideo);
-
-        menuBar->addAction(menuFile->menuAction());
-        menuBar->addAction(menuHelp->menuAction());
-        menuFile->addAction(actionLoad_OSM);
 
         retranslateUi(QtGuiApplication1Class);
 
@@ -667,8 +650,6 @@ public:
         rad_log->setText(QApplication::translate("QtGuiApplication1Class", "Log", nullptr));
         btn_plot_menu->setText(QApplication::translate("QtGuiApplication1Class", "...", nullptr));
         tabPlots->setTabText(tabPlots->indexOf(tab_4), QApplication::translate("QtGuiApplication1Class", "Plots", nullptr));
-        menuFile->setTitle(QApplication::translate("QtGuiApplication1Class", "File", nullptr));
-        menuHelp->setTitle(QApplication::translate("QtGuiApplication1Class", "Help", nullptr));
     } // retranslateUi
 
 };

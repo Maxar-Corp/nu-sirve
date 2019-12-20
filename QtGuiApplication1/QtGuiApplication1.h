@@ -39,6 +39,7 @@
 #include <QButtonGroup.h>
 #include <QRadioButton.h>
 #include <qdatetime.h>
+#include <qmenu.h>
 
 
 class QtGuiApplication1 : public QMainWindow
