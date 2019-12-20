@@ -1343,29 +1343,6 @@ Subtraction</string>
     </widget>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1723</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionLoad_OSM"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuHelp"/>
-  </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -1384,11 +1361,51 @@ Subtraction</string>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>tabMenu</tabstop>
-  <tabstop>tabPlots</tabstop>
-  <tabstop>btn_slow_back</tabstop>
+  <tabstop>btn_load_osm</tabstop>
+  <tabstop>btn_copy_directory</tabstop>
+  <tabstop>txt_start_frame</tabstop>
+  <tabstop>txt_end_frame</tabstop>
+  <tabstop>btn_get_frames</tabstop>
+  <tabstop>dt_epoch</tabstop>
+  <tabstop>btn_apply_epoch</tabstop>
+  <tabstop>btn_frame_save</tabstop>
+  <tabstop>btn_frame_record</tabstop>
+  <tabstop>btn_prev_frame</tabstop>
+  <tabstop>btn_reverse</tabstop>
+  <tabstop>btn_pause</tabstop>
   <tabstop>btn_play</tabstop>
+  <tabstop>btn_next_frame</tabstop>
   <tabstop>btn_fast_forward</tabstop>
+  <tabstop>btn_slow_back</tabstop>
+  <tabstop>btn_video_menu</tabstop>
+  <tabstop>cmb_plot_xaxis</tabstop>
+  <tabstop>cmb_plot_yaxis</tabstop>
+  <tabstop>rad_linear</tabstop>
+  <tabstop>rad_log</tabstop>
+  <tabstop>rad_decimal</tabstop>
+  <tabstop>rad_scientific</tabstop>
+  <tabstop>btn_plot_menu</tabstop>
+  <tabstop>btn_save_plot</tabstop>
+  <tabstop>slider_lift</tabstop>
+  <tabstop>slider_gain</tabstop>
+  <tabstop>chk_relative_histogram</tabstop>
+  <tabstop>btn_reset_color_correction</tabstop>
+  <tabstop>txt_nuc_start</tabstop>
+  <tabstop>txt_nuc_stop</tabstop>
+  <tabstop>btn_create_nuc</tabstop>
+  <tabstop>chk_apply_nuc</tabstop>
+  <tabstop>txt_bgs_num_frames</tabstop>
+  <tabstop>btn_bgs</tabstop>
+  <tabstop>chk_bgs</tabstop>
+  <tabstop>cmb_deinterlace_options</tabstop>
+  <tabstop>btn_deinterlace</tabstop>
+  <tabstop>chk_deinterlace</tabstop>
+  <tabstop>btn_clear_filters</tabstop>
   <tabstop>sldrVideo</tabstop>
+  <tabstop>tabPlots</tabstop>
+  <tabstop>chk_plot_full_data</tabstop>
+  <tabstop>chk_plot_primary_data</tabstop>
+  <tabstop>chk_plot_show_line</tabstop>
  </tabstops>
  <resources>
   <include location="QtGuiApplication1.qrc"/>
