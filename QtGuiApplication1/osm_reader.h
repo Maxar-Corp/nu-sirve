@@ -10,6 +10,8 @@
 #include <armadillo>
 #include <math.h>
 
+#include <excpt.h>
+
 #include "location_input.h"
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
