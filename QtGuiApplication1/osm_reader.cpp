@@ -318,12 +318,8 @@ FrameData OSMReader::ReadFrameData() {
 		DEBUG << "OSM Load: Reading track data #" << j;
 		
 		TrackData current_track = GetTrackData(data);
-
-		//TODO remove debug statement, uncomment last line
         data.track_data.push_back(current_track);
     }
-
-	//data.num_tracks = 0;
 
     return data;
 }
