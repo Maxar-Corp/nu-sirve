@@ -107,6 +107,9 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame
 	frame_end = last_frame;
 	file_version = version;
 
+	try
+	{
+
 	QByteArray array = image_path.toLocal8Bit();
 	char* buffer = array.data();
 
@@ -119,6 +122,16 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame
 	video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
 
 	INFO << "Number of frames imported: " << video_frames_16bit.size();
+
+	}
+	catch (const std::exception& e)
+	{
+		INFO << "File Processing: Exception occurred when loading video data: " << e.what();
+	}
+	catch (...)
+	{
+		INFO << "File Processing: An OS/CPU level error occurred when loading video data and could not be handled. Save log for further investigation.";
+	}
 
 	return video_frames_16bit;
 }
