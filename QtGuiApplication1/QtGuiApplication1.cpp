@@ -326,6 +326,15 @@ void QtGuiApplication1::load_osm_data()
 			ui.btn_load_osm->setEnabled(true);
 		}
 
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Error Loading OSM"));
+		QString box_text = "An unexpected error occurred while loading the OSM. Close program and see log for details. ";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+
 		return;
 	}
 		

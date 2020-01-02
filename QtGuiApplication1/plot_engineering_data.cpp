@@ -31,7 +31,7 @@ void Engineering_Plots::plot_azimuth() {
 
 	int number_tracks = track_irradiance_data.size();
 	int plot_number_tracks = number_tracks;
-	if (plot_primary_only)
+	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
 
 	for (int i = 0; i < plot_number_tracks; i++)
@@ -85,7 +85,7 @@ void Engineering_Plots::plot_elevation() {
 
 	int number_tracks = track_irradiance_data.size();
 	int plot_number_tracks = number_tracks;
-	if (plot_primary_only)
+	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
 
 	for (int i = 0; i < plot_number_tracks; i++)
@@ -136,7 +136,7 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	std::vector<double> x_points, y_points;
 
 	int plot_number_tracks = number_tracks;
-	if (plot_primary_only)
+	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
 
 	for (int i = 0; i < plot_number_tracks; i++)
@@ -228,6 +228,10 @@ std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
 {
 	
 	arma::vec input_data(data);
+
+	if(data.size() == 0)
+		return { 0.000001, 0.00001 };
+
 	double min_value = arma::min(input_data);
 	double max_value = arma::max(input_data);
 
@@ -528,6 +532,8 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	if (yaxis_is_log) {
 		if (min_y <= 0.001)
 			min_y = 0.01;
+		if (max_y <= 0.001)
+			max_y = 0.01;
 		axis_ylog->setRange(min_y, max_y);
 		axis_ylog->setTitleText(y_label_title);
 	}
@@ -540,10 +546,11 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 
 	bool check1, check2;
 	QList<QAbstractSeries *> all_series = chart->series();
+	
 	for (int i = 0; i < num_series; i++)
 	{
 		check1 = all_series[i]->attachAxis(axis_x);
-		
+
 		if (yaxis_is_log) {
 			check2 = all_series[i]->attachAxis(axis_ylog);
 		}
@@ -551,7 +558,7 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 			check2 = all_series[i]->attachAxis(axis_y);
 		}
 	}
-
+	
 	chart->setMargins(QMargins(0, 0, 0, 0));
 
 	// Legend properties

@@ -33,6 +33,8 @@ bool Process_File::load_osm_file()
 		return false;
 	}
 
+	INFO << "Importing file " << osm_path.toStdString();
+
 	bool check_read = read_osm_file();
 	if (!check_read) {
 		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
