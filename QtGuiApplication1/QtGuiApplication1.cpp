@@ -294,7 +294,6 @@ QtGuiApplication1::~QtGuiApplication1() {
 	delete eng_data;
 
 	thread_video.terminate();
-	thread_histogram.terminate();
 	thread_timer.terminate();
 
 	DEBUG << "GUI: GUI destructor called";
@@ -328,7 +327,7 @@ void QtGuiApplication1::load_osm_data()
 
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Error Loading OSM"));
-		QString box_text = "An unexpected error occurred while loading the OSM. Close program and see log for details. ";
+		QString box_text = "An unexpected error occurred while loading the OSM. Close program and see log for details.";
 		msgBox.setText(box_text);
 
 		msgBox.setStandardButtons(QMessageBox::Ok);
@@ -541,7 +540,6 @@ void QtGuiApplication1::load_abir_data()
 	//playback_controller->start_timer();
 	// Start threads...
 	thread_video.start();
-	thread_histogram.start();
 	thread_timer.start();
 
 	std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;

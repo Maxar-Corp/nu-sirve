@@ -53,16 +53,16 @@ void Engineering_Plots::plot_azimuth() {
 		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
 
-	std::vector<double>min_max_x, min_max_y;
-	min_max_x = find_min_max(x_points);
-	min_max_y = find_min_max(y_points);
+	//std::vector<double>min_max_x, min_max_y;
+	//min_max_x = find_min_max(x_points);
+	//min_max_y = find_min_max(y_points);
 
-	establish_sub_plot_limits(min_max_x);
+	establish_plot_limits();
 	
 	y_title = QString("Azimuth (deg)");
 
 	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, 360, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title);
 
@@ -107,15 +107,16 @@ void Engineering_Plots::plot_elevation() {
 		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
 
-	std::vector<double>min_max_x, min_max_y;
-	min_max_x = find_min_max(x_points);
-	min_max_y = find_min_max(y_points);
+	//std::vector<double>min_max_x, min_max_y;
+	//min_max_x = find_min_max(x_points);
+	//min_max_y = find_min_max(y_points);
 
-	establish_sub_plot_limits(min_max_x);
+	establish_plot_limits();
 
 	y_title = QString("Elevation (deg)");
+
 	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, 90, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
 
@@ -158,15 +159,15 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	}
 
 	std::vector<double>min_max_x, min_max_y;
-	min_max_x = find_min_max(x_points);
+	//min_max_x = find_min_max(x_points);
 	min_max_y = find_min_max(y_points);
 
-	establish_sub_plot_limits(min_max_x);	
+	establish_plot_limits();	
 
 	y_title = QString("Irradiance Counts");
 
 	if (plot_all_data)
-		chart_options(min_max_x[0], full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
 
@@ -200,24 +201,30 @@ std::vector<double> Engineering_Plots::get_individual_x_track(int i)
 	return x_values;
 }
 
-void Engineering_Plots::establish_sub_plot_limits(std::vector<double> min_max_x) {
-
-	full_plot_xmin = min_max_x[0];
-	full_plot_xmax = find_max_for_axis(min_max_x);
+void Engineering_Plots::establish_plot_limits() {
 
 	switch (x_axis_units)
 	{
 	case frames:
 		sub_plot_xmin = frame_numbers[index_sub_plot_xmin];
 		sub_plot_xmax = frame_numbers[index_sub_plot_xmax];
+
+		full_plot_xmin = frame_numbers[0];
+		full_plot_xmax = frame_numbers[frame_numbers.size() - 1];
 		break;
 	case seconds_past_midnight:
 		sub_plot_xmin = past_midnight[index_sub_plot_xmin];
 		sub_plot_xmax = past_midnight[index_sub_plot_xmax];
+
+		full_plot_xmin = past_midnight[0];
+		full_plot_xmax = past_midnight[past_midnight.size() - 1];
 		break;
 	case seconds_from_epoch:
 		sub_plot_xmin = past_epoch[index_sub_plot_xmin];
 		sub_plot_xmax = past_epoch[index_sub_plot_xmax];
+
+		full_plot_xmin = past_epoch[0];
+		full_plot_xmax = past_epoch[past_epoch.size() - 1];
 		break;
 	default:
 		break;
