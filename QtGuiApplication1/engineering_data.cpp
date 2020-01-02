@@ -41,8 +41,8 @@ std::vector<double> Engineering_Data::get_epoch()
 {
 	std::vector<double>out;
 
-	double epoch0 = track_irradiance_data[0].julian_date[0] - track_irradiance_data[0].past_epoch[0] / 86400;
-
+	double epoch0 = osm[0].data.julian_date - osm[0].data.seconds_past_midnight / 86400.;
+	
 	arma::vec date_time = jtime::DateTime(epoch0);
 	out = arma::conv_to<std::vector<double>>::from(date_time);
 	
@@ -53,7 +53,7 @@ std::vector<double> Engineering_Data::get_adj_epoch(double num_days)
 {
 	std::vector<double>out;
 
-	double epoch0 = track_irradiance_data[0].julian_date[0] - track_irradiance_data[0].past_epoch[0] / 86400;
+	double epoch0 = osm[0].data.julian_date - osm[0].data.seconds_past_midnight / 86400.;
 	epoch0 = epoch0 + num_days;
 
 	arma::vec date_time = jtime::DateTime(epoch0);

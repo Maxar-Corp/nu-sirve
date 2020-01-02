@@ -40,8 +40,19 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 	{
 		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
 	}
-    
-
+	catch (const std::system_error& e)
+	{
+		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
+	}
+	catch (const std::runtime_error& e)
+	{
+		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
+	}
+	catch (...)
+	{
+		INFO << "OSM Load: Error occurred when loading OSM data: An OS/CPU level error occurred and could not be handled. Save log for further investigation.";
+	}
+	
     fclose(fp);
 
 	if (data.size() < num_messages) {
@@ -296,7 +307,7 @@ FrameData OSMReader::ReadFrameData() {
     data.i_fov_x = ReadValue<double>(true);
     data.i_fov_y = ReadValue<double>(true);
     data.num_tracks = ReadValue<uint32_t>(true);
-
+	
 	std::vector<double> az_el_boresight = calculation_azimuth_elevation(0, 0, data);
 	data.az_el_boresight = az_el_boresight;
 
@@ -307,8 +318,12 @@ FrameData OSMReader::ReadFrameData() {
 		DEBUG << "OSM Load: Reading track data #" << j;
 		
 		TrackData current_track = GetTrackData(data);
+
+		//TODO remove debug statement, uncomment last line
         data.track_data.push_back(current_track);
     }
+
+	//data.num_tracks = 0;
 
     return data;
 }
