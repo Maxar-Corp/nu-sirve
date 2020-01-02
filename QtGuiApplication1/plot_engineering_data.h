@@ -94,7 +94,7 @@ class Engineering_Plots : public QtPlotting
 		void plot_irradiance(int number_tracks);
 
 		std::vector<double> get_individual_x_track(int i);
-		void establish_sub_plot_limits(std::vector<double> min_max_x);
+		void establish_plot_limits();
 
 		std::vector<double> find_min_max(std::vector<double>data);
 		void get_xaxis_value(std::vector<double> &values);
