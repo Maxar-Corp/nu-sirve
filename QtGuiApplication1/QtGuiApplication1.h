@@ -59,7 +59,7 @@ public:
 
 	QButtonGroup data_plot_yformat, data_plot_yloglinear;
 
-	QThread thread_video, thread_histogram, thread_timer;
+	QThread thread_video, thread_timer;
 
 	Min_Max_Value color_correction;
 	Playback *playback_controller;
