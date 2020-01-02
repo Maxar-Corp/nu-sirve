@@ -38,19 +38,19 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 	}
 	catch (const std::exception& e)
 	{
-		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
+		INFO << "OSM Load: Exception occurred when loading OSM data: " << e.what();
 	}
 	catch (const std::system_error& e)
 	{
-		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
+		INFO << "OSM Load: System error occurred when loading OSM data: " << e.what();
 	}
 	catch (const std::runtime_error& e)
 	{
-		INFO << "OSM Load: Error occurred when loading OSM data: " << e.what();
+		INFO << "OSM Load: Runtime error occurred when loading OSM data: " << e.what();
 	}
 	catch (...)
 	{
-		INFO << "OSM Load: Error occurred when loading OSM data: An OS/CPU level error occurred and could not be handled. Save log for further investigation.";
+		INFO << "OSM Load: An OS/CPU level error occurred when loading OSM data and could not be handled. Save log for further investigation.";
 	}
 	
     fclose(fp);
@@ -75,6 +75,8 @@ void OSMReader::FindMessageNumber()
     int number_iterations = 0;
     long int seek_position, current_p, current_p1, current_p2;
     size_t status_code;
+
+	INFO << "OSM Load: Searching for number of messages. Max iterations = " << kMAX_NUMBER_ITERATIONS;
 
     while (true && number_iterations < kMAX_NUMBER_ITERATIONS)
     {
@@ -108,6 +110,7 @@ void OSMReader::FindMessageNumber()
         number_iterations++;
     }
 
+	INFO << "OSM Load: " << number_iterations << " iterations executed";
 	INFO << "OSM Load: " << num_messages << " entries found";
 }
 
@@ -180,7 +183,7 @@ void OSMReader::AddTrackToLastFrame()
 
     for (uint32_t j = start_track_index; j < last_frame.data.num_tracks; j++)
     {
-		INFO << "Adding track " << j << "of " << last_frame.data.num_tracks << " tracks to last frame";
+		INFO << "OSM Load: Adding track " << j << "of " << last_frame.data.num_tracks << " tracks to last frame";
 
 		TrackData current_track = GetTrackData(last_frame.data);
         last_frame.data.track_data.push_back(current_track);
@@ -246,6 +249,8 @@ FrameHeader OSMReader::ReadFrameHeader() {
     fh.cant_pro_reason = ReadValue<uint32_t>(true);
     fh.message_length = ReadValue<uint32_t>(true);
     fh.software_version = ReadValue<uint32_t>(true);
+
+	DEBUG << "OSM Load: Frame header has been read";
 
     return fh;
 }
@@ -313,6 +318,8 @@ FrameData OSMReader::ReadFrameData() {
 
     uint32_t start_track_index = 0;
 
+	DEBUG << "OSM Load: Reading all " << data.num_tracks << " tracks";
+
     for (uint32_t j = start_track_index; j < data.num_tracks; j++)
     {
 		DEBUG << "OSM Load: Reading track data #" << j;
@@ -327,7 +334,9 @@ FrameData OSMReader::ReadFrameData() {
 TrackData OSMReader::GetTrackData(FrameData & input)
 {
     TrackData current_track;
-    current_track.track_id = ReadValue<uint32_t>(true);
+	DEBUG << "OSM Load: Reading track specific data";
+    
+	current_track.track_id = ReadValue<uint32_t>(true);
     current_track.sensor_type = ReadValue<uint32_t>(true);
 
     uint32_t num_bands = ReadValue<uint32_t>(true);
@@ -336,6 +345,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
     for (uint32_t k = 0; k < num_bands; k++)
     {
         IR_Data ir_data;
+		DEBUG << "OSM Load: Reading IR data from band #" << k + 1;
 
         ir_data.band_id = ReadValue<uint32_t>(true);
         ir_data.num_measurements = ReadValue<uint32_t>(true);
@@ -343,6 +353,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
         std::vector<double> irrad, irr_sigma, irr_time;
         for (uint32_t m = 0; m < ir_data.num_measurements; m++)
         {
+			DEBUG << "OSM Load: Reading measurment data #" << m + 1;
 
             ir_data.ir_radiance.push_back(ReadValue<double>(true));
             ir_data.ir_sigma.push_back(ReadValue<double>(true));
@@ -387,6 +398,8 @@ TrackData OSMReader::GetTrackData(FrameData & input)
 
     current_track.num_pixels = ReadValue<uint32_t>(true);
     current_track.object_type = ReadValue<uint32_t>(true);
+
+	DEBUG << "OSM Load: Completed track specific data";
 
     return current_track;
 }
