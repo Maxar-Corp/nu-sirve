@@ -388,7 +388,21 @@ void QtGuiApplication1::load_osm_data()
 		data_plots->plot_irradiance(eng_data->max_number_tracks);
 
 		enable_engineering_plot_options(true);
-	
+		
+		//--------------------------------------------------------------------------------
+		int num_tracks = data_plots->track_irradiance_data.size();
+		if (num_tracks == 0)
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle(QString("No Tracking Data"));
+			QString box_text = "No tracking data was found within the file. No data will be plotted.";
+			msgBox.setText(box_text);
+
+			msgBox.setStandardButtons(QMessageBox::Ok);
+			msgBox.setDefaultButton(QMessageBox::Ok);
+			msgBox.exec();
+		}
+
 		//--------------------------------------------------------------------------------
 		// Enable setting of epoch
 		ui.dt_epoch->setEnabled(true);
