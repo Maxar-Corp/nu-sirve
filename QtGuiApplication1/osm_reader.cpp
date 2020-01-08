@@ -296,7 +296,7 @@ FrameData OSMReader::ReadFrameData() {
 				INFO << "OSM Load: Using location from file " << get_location_file.selected_file_path.toLocal8Bit().constData();
 			}
 			else {
-				DEBUG << "OSM Load: Location file import canceled or file path not set";
+				INFO << "OSM Load: Location file import canceled or file path not set";
 				FrameData bad_input;
 				location_from_file = false;
 				return bad_input;
