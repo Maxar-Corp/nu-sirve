@@ -385,10 +385,7 @@ void QtGuiApplication1::load_osm_data()
 		data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
 
 		data_plots->track_irradiance_data = eng_data->track_irradiance_data;
-		data_plots->plot_irradiance(eng_data->max_number_tracks);
-
-		enable_engineering_plot_options(true);
-		
+				
 		//--------------------------------------------------------------------------------
 		int num_tracks = data_plots->track_irradiance_data.size();
 		if (num_tracks == 0)
@@ -407,6 +404,7 @@ void QtGuiApplication1::load_osm_data()
 		// Enable setting of epoch
 		ui.dt_epoch->setEnabled(true);
 		ui.btn_apply_epoch->setEnabled(true);
+		//TODO move to create menu actions or elsewhere. doesn't belong here
 		QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
 		
 		std::vector<double> epoch0 = eng_data->get_epoch();
@@ -429,6 +427,20 @@ void QtGuiApplication1::load_osm_data()
 		engineering_plot_layout = new QGridLayout();
 		engineering_plot_layout->addWidget(data_plots->chart_view);
 		ui.frm_plots->setLayout(engineering_plot_layout);
+
+		//--------------------------------------------------------------------------------
+		// Reset setting engineering plot defaults
+		data_plots->plot_all_data = true;
+		menu_plot_all_data->setIconVisibleInMenu(true);
+		
+		data_plots->plot_primary_only = false;
+		menu_plot_primary->setIconVisibleInMenu(false);
+
+		data_plots->plot_current_marker = false;
+		menu_plot_frame_marker->setIconVisibleInMenu(false);
+		
+		enable_engineering_plot_options(true);
+		data_plots->set_plot_title(QString("EDIT CLASSIFICATION"));
 
 		INFO << "GUI: OSM successfully loaded";
 	}
@@ -819,14 +831,14 @@ void QtGuiApplication1::create_menu_actions()
 	menu_plot_all_data->setIcon(on);
 	menu_plot_all_data->setStatusTip(tr("Plot all data from OSM file"));
 	menu_plot_all_data->setIconVisibleInMenu(true);
+	connect(menu_plot_all_data, &QAction::triggered, this, &QtGuiApplication1::plot_full_data);
 
 	menu_plot_primary = new QAction(tr("&Plot Primary Data Only"), this);
 	menu_plot_primary->setIcon(on);
 	menu_plot_primary->setStatusTip(tr("Plot only the primary object"));
 	menu_plot_primary->setIconVisibleInMenu(false);
 	connect(menu_plot_primary, &QAction::triggered, this, &QtGuiApplication1::plot_primary_only);
-	connect(menu_plot_all_data, &QAction::triggered, this, &QtGuiApplication1::plot_full_data);
-
+	
 	menu_plot_frame_marker = new QAction(tr("&Plot Marker for Current Frame"), this);
 	menu_plot_frame_marker->setIcon(on);
 	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video frame"));
@@ -982,52 +994,57 @@ void QtGuiApplication1::plot_change(int index)
 	int x_index = ui.cmb_plot_xaxis->currentIndex();
 	int y_index = ui.cmb_plot_yaxis->currentIndex();
 
-	bool scientific_is_checked = ui.rad_scientific->isChecked();
-	bool log_is_checked = ui.rad_log->isChecked();
-	data_plots->toggle_yaxis_log(log_is_checked);
-	data_plots->toggle_yaxis_scientific(scientific_is_checked);
-
-	DEBUG << "GUI: Engineering plot units changed to case " << x_index;
-	DEBUG << "GUI: Engineering plot changed to case " << y_index;
-
-	switch (x_index)
+	// Check that indices are all positive
+	if (x_index >= 0 && y_index >= 0)
 	{
-	case 0:
-		data_plots->x_axis_units = frames;
-		break;
 
-	case 1:
-		data_plots->x_axis_units = seconds_past_midnight;
-		break;
+		bool scientific_is_checked = ui.rad_scientific->isChecked();
+		bool log_is_checked = ui.rad_log->isChecked();
+		data_plots->toggle_yaxis_log(log_is_checked);
+		data_plots->toggle_yaxis_scientific(scientific_is_checked);
 
-	case 2:
-		data_plots->x_axis_units = seconds_from_epoch;
-		break;
+		DEBUG << "GUI: Engineering plot units changed to case " << x_index;
+		DEBUG << "GUI: Engineering plot changed to case " << y_index;
 
-	default:
-		break;
+		switch (x_index)
+		{
+		case 0:
+			data_plots->x_axis_units = frames;
+			break;
+
+		case 1:
+			data_plots->x_axis_units = seconds_past_midnight;
+			break;
+
+		case 2:
+			data_plots->x_axis_units = seconds_from_epoch;
+			break;
+
+		default:
+			break;
+		}
+
+
+		switch (y_index)
+		{
+		case 0:
+			data_plots->plot_irradiance(eng_data->max_number_tracks);
+			break;
+
+		case 1:
+			data_plots->plot_azimuth();
+			break;
+
+		case 2:
+			data_plots->plot_elevation();
+			break;
+
+		default:
+			break;
+		}
+
+		data_plots->plot_current_step(playback_controller->get_counter());
 	}
-
-
-	switch (y_index)
-	{
-	case 0:
-		data_plots->plot_irradiance(eng_data->max_number_tracks);
-		break;
-
-	case 1:
-		data_plots->plot_azimuth();
-		break;
-
-	case 2:
-		data_plots->plot_elevation();
-		break;
-
-	default:
-		break;
-	}
-
-	data_plots->plot_current_step(playback_controller->get_counter()); 
 
 }
 
@@ -1756,17 +1773,18 @@ void QtGuiApplication1::enable_engineering_plot_options(bool input)
 	// ------------------------------------------ Set Dropdown Menu ------------------------------------------
 	ui.tabPlots->setCurrentIndex(1);
 
+	ui.cmb_plot_xaxis->clear();
 	ui.cmb_plot_yaxis->clear();
+	ui.rad_linear->setChecked(true);
+	ui.rad_linear->setChecked(true);
+
 	ui.cmb_plot_yaxis->setEnabled(input);
-	ui.cmb_plot_yaxis->clear();
 	ui.cmb_plot_yaxis->addItem(QString("Irradiance"));
 	ui.cmb_plot_yaxis->addItem(QString("Azimuth"));
 	ui.cmb_plot_yaxis->addItem(QString("Elevation"));
 	ui.cmb_plot_yaxis->setCurrentIndex(0);
 
-	ui.cmb_plot_xaxis->clear();
 	ui.cmb_plot_xaxis->setEnabled(input);
-	ui.cmb_plot_xaxis->clear();
 	ui.cmb_plot_xaxis->addItem(QString("Frames"));
 	ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
 	ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
@@ -1786,30 +1804,6 @@ void QtGuiApplication1::enable_engineering_plot_options(bool input)
 	ui.chk_plot_full_data->setEnabled(input);
 	ui.chk_plot_primary_data->setEnabled(input);
 	ui.chk_plot_show_line->setEnabled(input);
-
-	if (input)
-	{
-		/*
-		
-		// Connect x-axis and y-axis changes to functions
-		connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
-		connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
-
-		// Connect plotting options to 
-		connect(ui.chk_plot_full_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_full_data);
-		connect(ui.chk_plot_primary_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_primary_only);
-		connect(ui.chk_plot_show_line, &QCheckBox::stateChanged, this, &QtGuiApplication1::plot_current_frame_marker);
-
-		connect(menu_plot_all_data, &QAction::triggered, this, &QtGuiApplication1::plot_full_data);
-		connect(menu_plot_primary, &QAction::triggered, this, &QtGuiApplication1::plot_primary_only);
-		connect(menu_plot_frame_marker, &QAction::triggered, this, &QtGuiApplication1::plot_current_frame_marker);
-		connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
-
-		// Connect save button functions
-		connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
-		
-		*/
-	}
 
 }
 
