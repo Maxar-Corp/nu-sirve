@@ -789,8 +789,8 @@ void QtGuiApplication1::create_menu_actions()
 	connect(menu_add_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_text);
 	connect(this, &QtGuiApplication1::change_banner, ir_video, &Video::update_banner_text);
 	
-	menu_change_color_banner = new QAction(tr("&Change Banner Color"), this);
-	menu_change_color_banner->setStatusTip(tr("Change banner text color"));
+	menu_change_color_banner = new QAction(tr("&Change Text Color"), this);
+	menu_change_color_banner->setStatusTip(tr("Change frame text color"));
 	connect(menu_change_color_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_color);
 	connect(this, &QtGuiApplication1::change_banner_color, ir_video, &Video::update_banner_color);
 
