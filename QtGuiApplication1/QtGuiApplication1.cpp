@@ -810,14 +810,25 @@ void QtGuiApplication1::create_menu_actions()
 	menu_plot_primary->setIcon(on);
 	menu_plot_primary->setStatusTip(tr("Plot only the primary object"));
 	menu_plot_primary->setIconVisibleInMenu(false);
+	connect(menu_plot_primary, &QAction::triggered, this, &QtGuiApplication1::plot_primary_only);
+	connect(menu_plot_all_data, &QAction::triggered, this, &QtGuiApplication1::plot_full_data);
 
 	menu_plot_frame_marker = new QAction(tr("&Plot Marker for Current Frame"), this);
 	menu_plot_frame_marker->setIcon(on);
 	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video frame"));
 	menu_plot_frame_marker->setIconVisibleInMenu(false);
+	connect(menu_plot_frame_marker, &QAction::triggered, this, &QtGuiApplication1::plot_current_frame_marker);
 
 	menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
 	menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
+	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
+
+	// Connect x-axis and y-axis changes to functions
+	connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+	connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+
+	// Connect save button functions
+	connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
 
 }
 
@@ -1764,6 +1775,8 @@ void QtGuiApplication1::enable_engineering_plot_options(bool input)
 
 	if (input)
 	{
+		/*
+		
 		// Connect x-axis and y-axis changes to functions
 		connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
 		connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
@@ -1780,6 +1793,8 @@ void QtGuiApplication1::enable_engineering_plot_options(bool input)
 
 		// Connect save button functions
 		connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
+		
+		*/
 	}
 
 }

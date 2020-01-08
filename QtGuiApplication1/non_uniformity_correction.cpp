@@ -64,6 +64,7 @@ std::vector<double> NUC::get_nuc_correction()
 	DEBUG << "NUC: Normalizing value for kernel adjusted mean frame: " << std::to_string(min_value);
 	DEBUG << "NUC: First value of the NUC correction: " << std::to_string(adjusted_mean_flat(0));
 
+	//TODO remove save from final repo
 	adjusted_mean_frames.save("nuc_correction_matrix.txt", arma::arma_ascii);
 
 	return out;
@@ -231,6 +232,7 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 	//arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel, "same");
 	arma::mat adj_mean_frame = ordfilt2(mean_frame, 5, kernel);
 	
+	//TODO remove saves from final repo
 	mean_frame.save("nuc_mean_frame.txt", arma::arma_ascii);
 	adj_mean_frame.save("nuc_post_convolution_mean_frame.txt", arma::arma_ascii);
 
