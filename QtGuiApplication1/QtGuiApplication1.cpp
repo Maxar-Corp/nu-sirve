@@ -429,6 +429,21 @@ void QtGuiApplication1::load_osm_data()
 		ui.frm_plots->setLayout(engineering_plot_layout);
 
 		//--------------------------------------------------------------------------------
+		
+		// Reset settings on video playback to defaults
+		menu_osm->setIconVisibleInMenu(false);
+		ir_video->toggle_osm_tracks(false);
+
+		menu_add_primary_data->setIconVisibleInMenu(false);
+		ir_video->toggle_primary_track_data(false);
+
+		menu_sensor_boresight->setIconVisibleInMenu(false);
+		ir_video->toggle_sensor_boresight_data(false);
+
+		ir_video->banner_color = QString("red");
+		ir_video->banner_text = QString("EDIT CLASSIFICATION");
+		ir_video->tracker_color = QString("red");
+		
 		// Reset setting engineering plot defaults
 		data_plots->plot_all_data = true;
 		menu_plot_all_data->setIconVisibleInMenu(true);
@@ -553,13 +568,11 @@ void QtGuiApplication1::load_abir_data()
 	ui.lbl_file_load->setText(status_txt);
 
 	//---------------------------------------------------------------------------
-
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
 	ui.sldrVideo->setRange(0, number_frames);	
 
 	//---------------------------------------------------------------------------
-
 	// Set the video and histogram plots to this data
 	videos->display_original_data();	
 	
