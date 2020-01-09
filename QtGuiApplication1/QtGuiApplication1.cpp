@@ -179,6 +179,12 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 
+	// Connect epoch button click to function
+	QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
+	
+	//---------------------------------------------------------------------------
+
+
 	//Add icons to video playback buttons
 	QPixmap play_image("icons/play.png");
 	QIcon play_icon(play_image);
@@ -404,9 +410,7 @@ void QtGuiApplication1::load_osm_data()
 		// Enable setting of epoch
 		ui.dt_epoch->setEnabled(true);
 		ui.btn_apply_epoch->setEnabled(true);
-		//TODO move to create menu actions or elsewhere. doesn't belong here
-		QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
-		
+				
 		std::vector<double> epoch0 = eng_data->get_epoch();
 		std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
 		std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
