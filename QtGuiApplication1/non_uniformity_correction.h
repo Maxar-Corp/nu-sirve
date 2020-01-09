@@ -23,6 +23,7 @@ public:
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double>nuc);
 	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame);
 	arma::mat ordfilt2(arma::mat input_matrix, int order, arma::mat domain);
+	
 
 private:
 
@@ -30,10 +31,13 @@ private:
 	int x_pixels, y_pixels;
 	double file_version;
 	ABIR_Data abir_data;
+	arma::uvec pixels_dead, pixels_happy;
+	arma::vec adj_mean_frame;
 
 	std::vector<std::vector<uint16_t>> import_frames();
 	arma::mat replace_broken_pixels(arma::vec values);
-	void replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels);
+	void replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels);
+	void replace_image_pixels(arma::vec &frame, arma::vec &update, arma::uvec &indices);
 
 };
 
