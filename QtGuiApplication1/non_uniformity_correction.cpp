@@ -79,6 +79,13 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 	arma::vec original_frame(converted_values);
 	arma::vec nuc_values(nuc_correction);
 
+	// Replace happy/dead pixels with adjusted mean frame
+	INFO << "NUC: Replacing happy pixels in frame";
+	replace_image_pixels(original_frame, adj_mean_frame, pixels_happy);
+	INFO << "NUC: Replacing dead pixels in frame";
+	replace_image_pixels(original_frame, adj_mean_frame, pixels_dead);
+
+	INFO << "NUC: Applying NUC to frame";
 	arma::vec corrected_values = original_frame / nuc_values;
 
 	DEBUG << "NUC: NUC correction applied. First value after correction " << std::to_string(corrected_values(0));
@@ -196,6 +203,8 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 {
 	double eps = std::pow(10, -6);
 
+	// -------------------------------------------------------------
+	// Find values for happy/dead pixels in selected frames
 	arma::vec sorted_values = arma::sort(values);
 
 	int index_min = std::ceil(0.00001 * sorted_values.n_elem);
@@ -209,6 +218,9 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 	DEBUG << "NUC: Fixing pixels. Index of max value found is " << index_max;
 	DEBUG << "NUC: Fixing pixels. Max value found is " << max_value_vector;
 
+	// -------------------------------------------------------------
+	// Apply kernel to the mean frame to replace happy/dead pixels
+
 	arma::mat kernel = {{0, 0, 1, 0, 0},
 						{0, 0, 1, 0, 0},
 						{1, 1, 0, 1, 1},
@@ -219,39 +231,56 @@ arma::mat NUC::replace_broken_pixels(arma::vec values)
 	mean_frame.reshape(x_pixels, y_pixels);
 	mean_frame = mean_frame.t();
 
-	arma::uvec pixels_dead = arma::find(mean_frame <= min_value_vector);
-	arma::uvec pixels_happy = arma::find(mean_frame >= max_value_vector);
-
-	DEBUG << "NUC: Mean frame value 2nd row, 1st col " << std::to_string(mean_frame(1, 0));
-
-	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
-	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;
-		
-	int pixel_index, pixel_row, pixel_col;
+	//arma::mat adj_mean_frame_matrix = arma::conv2(mean_frame, kernel, "same");
+	arma::mat adj_mean_frame_matrix = ordfilt2(mean_frame, 5, kernel);
 	
-	//arma::mat adj_mean_frame = arma::conv2(mean_frame, kernel, "same");
-	arma::mat adj_mean_frame = ordfilt2(mean_frame, 5, kernel);
+	adj_mean_frame = arma::vectorise(adj_mean_frame_matrix.t());
+
+	// -------------------------------------------------------------
+	// Find indices of happy/dead pixels
+
+	pixels_dead = arma::find(values <= min_value_vector);
+	pixels_happy = arma::find(values >= max_value_vector);
+
+	DEBUG << "NUC: Mean frame value 2nd row, 1st col " << values(x_pixels);
+	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
+	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;	
 	
 	//TODO remove saves from final repo
 	mean_frame.save("nuc_mean_frame.txt", arma::arma_ascii);
-	adj_mean_frame.save("nuc_post_convolution_mean_frame.txt", arma::arma_ascii);
+	adj_mean_frame_matrix.save("nuc_post_convolution_mean_frame.txt", arma::arma_ascii);
 
-	DEBUG << "NUC: Replacing dead pixels";
-	replace_pixels(mean_frame, adj_mean_frame, pixels_dead);
+	// -------------------------------------------------------------
+	// Replace the happy/dead pixels in mean frame
 
-	DEBUG << "NUC: Replacing happy pixels";
-	replace_pixels(mean_frame, adj_mean_frame, pixels_happy);
+	INFO << "NUC: Replacing dead pixels";
+	replace_pixels(values, adj_mean_frame, pixels_dead);
 
-	DEBUG << "NUC: Mean frame with pixels replaced and kernel applied; value at 2nd row, 1st col " << std::to_string(mean_frame(1, 0));
+	INFO << "NUC: Replacing happy pixels";
+	replace_pixels(values, adj_mean_frame, pixels_happy);
+	
+	// -------------------------------------------------------------
+	// DEBUG STATEMENTS
+	double updated_min_value = values.min();
+	double updated_max_value = values.max();
+	DEBUG << "NUC: After replacing all dead pixels, new minimum value is: " << updated_min_value;
+	DEBUG << "NUC: After replacing all happy pixels, new maximum value is: " << updated_max_value;
+
+	arma::uvec check_pixels_happy = arma::find(values >= updated_max_value);
+	arma::uvec check_pixels_dead = arma::find(values <= updated_min_value);
+
+	DEBUG << "NUC: Number of pixels below or equal to the new minimum: " << check_pixels_dead.n_elem;
+	DEBUG << "NUC: Number of pixels above or equal to the new maximum: " << check_pixels_happy.n_elem;
+	// -------------------------------------------------------------
+
+	DEBUG << "NUC: Mean frame with pixels replaced and kernel applied; value at 2nd row, 1st col " << values(x_pixels);
 	
 	return mean_frame;
 }
 
-void NUC::replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels) {
+void NUC::replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels) {
 
 	int num_pixels = pixels.size();
-	int rows = base.n_rows;
-	int cols = base.n_cols;
 
 	int pixel_index, pixel_row, pixel_col;
 	double value_before, value_new;
@@ -260,17 +289,45 @@ void NUC::replace_pixels(arma::mat &base, arma::mat &updated, arma::uvec pixels)
 	{
 		
 		pixel_index = pixels(i);
-		pixel_row = pixel_index % rows;
-		pixel_col = pixel_index / rows;
+		pixel_row = pixel_index / x_pixels;
+		pixel_col = pixel_index % x_pixels;
 
-		value_before = base(pixel_row, pixel_col);
-		value_new = updated(pixel_row, pixel_col);
+		value_before = base(pixel_index);
+		value_new = updated(pixel_index);
 
 		DEBUG << "NUC: Replacing pixel at (row, col) " << pixel_row << ", " << pixel_col;
 		DEBUG << "NUC: Original value was " << value_before;
 		DEBUG << "NUC: New value is " << value_new;
 
-		base(pixel_row, pixel_col) = value_new;
+		base(pixel_index) = value_new;
+
+	}
+
+}
+
+void  NUC::replace_image_pixels(arma::vec &frame, arma::vec &update, arma::uvec &indices)
+{
+	int num_pixels = indices.n_elem;
+	int pixel_index, pixel_row, pixel_col;
+
+	double value_before, value_new;
+
+	for (int i = 0; i < num_pixels; i++)
+	{
+
+		pixel_index = indices(i);
+		pixel_row = pixel_index / x_pixels;
+		pixel_col = pixel_index % x_pixels;
+
+		value_before = frame(pixel_index);
+		value_new = update(pixel_index);
+
+		DEBUG << "NUC: Replacing frame pixel at (row, col) " << pixel_row << ", " << pixel_col;
+		DEBUG << "NUC: Original value was " << value_before;
+		DEBUG << "NUC: New value is " << value_new;
+
+		frame(pixel_index) = value_new;
+
 	}
 
 }
