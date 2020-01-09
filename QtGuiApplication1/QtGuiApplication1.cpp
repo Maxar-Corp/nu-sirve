@@ -1278,7 +1278,7 @@ void QtGuiApplication1::create_non_uniformity_correction()
 
 	for (int i = 0; i < number_frames; i++) {
 		progress.setValue(i);
-		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << "frames";
+		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << " frames";
 		nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
