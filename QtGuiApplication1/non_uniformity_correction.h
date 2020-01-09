@@ -35,7 +35,7 @@ private:
 	arma::vec adj_mean_frame;
 
 	std::vector<std::vector<uint16_t>> import_frames();
-	arma::mat replace_broken_pixels(arma::vec values);
+	arma::vec replace_broken_pixels(arma::vec values);
 	void replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels);
 	void replace_image_pixels(arma::vec &frame, arma::vec &update, arma::uvec &indices);
 
