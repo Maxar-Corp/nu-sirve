@@ -20,7 +20,7 @@
 #include "Data_Structures.h"
 #include "earth.h"
 
-const int kMAX_NUMBER_ITERATIONS = 10000;
+const int kMAX_NUMBER_ITERATIONS = 100000;
 const double kSMALL_NUMBER = 1e-8;
 
 
