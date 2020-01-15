@@ -207,7 +207,7 @@ bool Video_Container::display_data(video_details input)
 	{
 		if (input == something[i]) {
 			emit update_display_video(something[i]);
-
+			DEBUG << "Video Container: Updating display video to index of " << i;
 			return true;
 		}
 	}
@@ -222,7 +222,7 @@ int Video_Container::find_data_index(video_details input)
 	for (int i = 0; i < number_videos; i++)
 	{
 		if (input == something[i]) {
-
+			DEBUG << "Video Container: Match for video found at index " << i;
 			return i;
 		}
 	}

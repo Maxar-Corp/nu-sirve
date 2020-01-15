@@ -5,6 +5,7 @@
 #include <map>
 #include <qobject.h>
 
+#include "logging.h"
 #include "Data_Structures.h"
 #include <qprogressdialog.h>
 
