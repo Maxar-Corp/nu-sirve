@@ -25,6 +25,7 @@ public:
 	bool is_reverse;
 	double get_fps();
 	bool is_running();
+	void set_speed_index(int index);
 
 public slots:
 	void speed_timer();

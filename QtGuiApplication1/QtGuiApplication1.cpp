@@ -611,7 +611,8 @@ void QtGuiApplication1::load_abir_data()
 
 	//Update frame marker on engineering plot
 	connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
-		
+	
+	playback_controller->set_speed_index(10);
 	update_fps();
 
 	ui.tabPlots->setCurrentIndex(0);
@@ -626,7 +627,7 @@ void QtGuiApplication1::load_abir_data()
 	clear_image_processing();
 
 	toggle_video_playback_options(true);
-	playback_controller->start_timer();
+	playback_controller->start_timer();	
 	
 	//---------------------------------------------------------------------------
 }
@@ -1498,10 +1499,7 @@ void QtGuiApplication1::clear_image_processing()
 		videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
 		show_available_filter_options();
 	}
-	
-	
-	
-	
+		
 }
 
 video_details QtGuiApplication1::get_current_filter_state()
