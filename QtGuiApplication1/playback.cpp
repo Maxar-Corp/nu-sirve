@@ -146,3 +146,13 @@ bool Playback::is_running()
 {
 	return timer->isActive();
 }
+
+void Playback::set_speed_index(int index)
+{
+	
+	if (index < speeds.size())
+	{
+		index_speed = index;
+	}
+
+}
