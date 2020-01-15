@@ -125,6 +125,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	ui.slider_gain->setMaximum(max_gain);
 
 	reset_color_correction();
+	QObject::connect(ui.btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
 
 	//---------------------------------------------------------------------------
 
@@ -447,6 +448,8 @@ void QtGuiApplication1::load_osm_data()
 		ir_video->banner_color = QString("red");
 		ir_video->banner_text = QString("EDIT CLASSIFICATION");
 		ir_video->tracker_color = QString("red");
+
+		reset_color_correction();
 		
 		// Reset setting engineering plot defaults
 		data_plots->plot_all_data = true;
@@ -736,6 +739,7 @@ void QtGuiApplication1::reset_color_correction()
 			
 	ui.slider_lift->setValue(0);
 	ui.slider_gain->setValue(1000);
+	ui.chk_relative_histogram->setChecked(false);
 
 	DEBUG << "GUI: Color correction reset";
 }
