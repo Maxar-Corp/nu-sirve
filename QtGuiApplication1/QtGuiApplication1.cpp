@@ -450,6 +450,7 @@ void QtGuiApplication1::load_osm_data()
 		ir_video->tracker_color = QString("red");
 
 		reset_color_correction();
+		clear_image_processing();
 		
 		// Reset setting engineering plot defaults
 		data_plots->plot_all_data = true;
@@ -1487,9 +1488,19 @@ void QtGuiApplication1::clear_image_processing()
 	
 	int n = videos->something.size();
 
-	videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
+	ui.txt_nuc_start->setText("");
+	ui.txt_nuc_stop->setText("");
+	ui.txt_bgs_num_frames->setText("");
+
+	int num_videos = videos->something.size();
+	if (num_videos > 0)
+	{
+		videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
+		show_available_filter_options();
+	}
 	
-	show_available_filter_options();
+	
+	
 	
 }
 
