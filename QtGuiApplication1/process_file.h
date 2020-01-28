@@ -20,7 +20,7 @@ class Process_File : public QWidget
 	Q_OBJECT
 public:
 
-	QString osm_path, image_path, directory_path, file_name, info_msg;
+	QString osm_path, image_path, directory_path, file_name, file_path, info_msg;
 	bool valid_osm, valid_image;
 
 	OSMReader osm_data;
