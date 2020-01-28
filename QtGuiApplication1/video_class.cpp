@@ -285,6 +285,14 @@ void Video::remove_frame()
 
 	histogram_plot->remove_histogram_plots();
 	histogram_plot->initialize_histogram_plot();
+
+	frame_data.clear();
+	number_of_frames = 0;
+
+	image_x = 0;
+	image_y = 0;
+	number_pixels = image_x * image_y;
+
 }
 
 void Video::update_specific_frame(unsigned int frame_number)

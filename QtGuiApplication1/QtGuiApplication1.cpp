@@ -185,6 +185,17 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	
 	//---------------------------------------------------------------------------
 
+	//Enable clearing image processing filters
+	QObject::connect(ui.btn_clear_filters, &QPushButton::clicked, this, &QtGuiApplication1::clear_image_processing);
+
+	//Enable saving frame
+	QObject::connect(ui.btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
+
+	//Update frame number label
+	QObject::connect(playback_controller, &Playback::update_frame, this, &QtGuiApplication1::set_frame_number_label);
+
+	//---------------------------------------------------------------------------
+
 
 	//Add icons to video playback buttons
 	QPixmap play_image("icons/play.png");
@@ -369,13 +380,21 @@ void QtGuiApplication1::load_osm_data()
 
 			toggle_video_playback_options(false);
 
+			// Reset video frame
+			playback_controller->stop_timer();
+			reset_color_correction();
+			clear_image_processing();
+
 			// delete objects with existing data within them
 			delete eng_data;
 			delete data_plots;
 			delete engineering_plot_layout;			
 
-			// Reset video frame
+			videos->something.clear();
 			ir_video->remove_frame();
+
+			clear_frame_label();
+
 			video_layout->addWidget(ir_video->label);
 			ui.frm_video->setLayout(video_layout);
 		}
@@ -448,9 +467,6 @@ void QtGuiApplication1::load_osm_data()
 		ir_video->banner_color = QString("red");
 		ir_video->banner_text = QString("EDIT CLASSIFICATION");
 		ir_video->tracker_color = QString("red");
-
-		reset_color_correction();
-		clear_image_processing();
 		
 		// Reset setting engineering plot defaults
 		data_plots->plot_all_data = true;
@@ -599,18 +615,8 @@ void QtGuiApplication1::load_abir_data()
 	data_plots->index_sub_plot_xmax = max_frame - 1;
 	plot_change(1);
 
-	//Enable clearing image processing filters
-	QObject::connect(ui.btn_clear_filters, &QPushButton::clicked, this, &QtGuiApplication1::clear_image_processing);
-	
-	//Enable saving frame
-	ui.btn_frame_save->setEnabled(true);
-	connect(ui.btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
-
-	//Update frame number label
-	connect(playback_controller, &Playback::update_frame, this, &QtGuiApplication1::set_frame_number_label);
-
 	//Update frame marker on engineering plot
-	connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
+	QObject::connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
 	
 	playback_controller->set_speed_index(10);
 	update_fps();
@@ -627,7 +633,7 @@ void QtGuiApplication1::load_abir_data()
 	clear_image_processing();
 
 	toggle_video_playback_options(true);
-	playback_controller->start_timer();	
+	playback_controller->start_timer();
 	
 	//---------------------------------------------------------------------------
 }
@@ -1152,6 +1158,17 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 
 }
 
+void QtGuiApplication1::clear_frame_label()
+{
+
+	QString frame_text("");
+	ui.lbl_video_frame->setText(frame_text);
+
+	QString seconds_text("");
+	ui.lbl_video_time_midnight->setText(seconds_text);
+
+}
+
 void QtGuiApplication1::copy_osm_directory()
 {
 	clipboard->setText(file_data.osm_path);
@@ -1501,9 +1518,14 @@ void QtGuiApplication1::clear_image_processing()
 	if (num_videos > 0)
 	{
 		videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
+
+		ui.chk_apply_nuc->setChecked(false);
+		ui.chk_bgs->setChecked(false);
+		ui.chk_deinterlace->setChecked(false);
+
 		show_available_filter_options();
 	}
-		
+
 }
 
 video_details QtGuiApplication1::get_current_filter_state()
@@ -1768,6 +1790,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	ui.btn_frame_record->setEnabled(input);
 	ui.btn_frame_save->setEnabled(input);
 
+	ui.sldrVideo->setEnabled(input);
 	ui.btn_play->setEnabled(input);
 	ui.btn_pause->setEnabled(input);
 	ui.btn_next_frame->setEnabled(input);

@@ -804,6 +804,9 @@ Subtraction</string>
      <enum>QFrame::Raised</enum>
     </property>
     <widget class="QSlider" name="sldrVideo">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
