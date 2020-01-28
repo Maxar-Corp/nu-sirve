@@ -55,6 +55,9 @@ bool Process_File::load_osm_file()
 	image_path = osm_path;
 	image_path.replace(QString(".abposm"), QString(".abpimage"), Qt::CaseInsensitive);
 
+	file_path = osm_path;
+	file_path.replace(QString(".abposm"), QString(""), Qt::CaseInsensitive);
+
 	valid_image = check_image_path();
 	
 	if (valid_image) {

@@ -240,7 +240,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Copy Directory</string>
+       <string>Copy Path</string>
       </property>
      </widget>
      <widget class="QDateTimeEdit" name="dt_epoch">

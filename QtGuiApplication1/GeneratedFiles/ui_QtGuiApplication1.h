@@ -633,7 +633,7 @@ public:
         lbl_file_load->setText(QApplication::translate("QtGuiApplication1Class", "File Load Status:", nullptr));
         label_5->setText(QApplication::translate("QtGuiApplication1Class", "Format is:    YYYY/MM/DD HH:MM:SS", nullptr));
         label_6->setText(QApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
-        btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Directory", nullptr));
+        btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Path", nullptr));
         dt_epoch->setDisplayFormat(QApplication::translate("QtGuiApplication1Class", "yyyy/MM/dd hh:mm:ss.zzz", nullptr));
         btn_apply_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Apply Epoch", nullptr));
         lbl_current_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Applied Epoch: ", nullptr));

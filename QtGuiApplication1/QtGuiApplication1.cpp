@@ -1154,7 +1154,7 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 
 void QtGuiApplication1::copy_osm_directory()
 {
-	clipboard->setText(file_data.directory_path);
+	clipboard->setText(file_data.osm_path);
 }
 
 void QtGuiApplication1::update_enhanced_range(bool input)
