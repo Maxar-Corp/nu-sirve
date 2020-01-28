@@ -29,6 +29,8 @@ std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_det
 	progress.setWindowTitle(QString("Background Subtraction"));
 	progress.setLabelText(QString("Creating adjustment for background subtraction..."));
 
+	progress.setMinimumWidth(300);
+
 	for (int i = 0; i < num_video_frames; i++)
 	{
 		DEBUG << "Background Subtraction: Processing adjustment for frame #" << i + 1;
