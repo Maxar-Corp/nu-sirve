@@ -1286,6 +1286,8 @@ void QtGuiApplication1::create_non_uniformity_correction()
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Applying non-uniformity correction..."));
 
+	progress.setMinimumWidth(300);
+
 	for (int i = 0; i < number_frames; i++) {
 		progress.setValue(i);
 		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << " frames";
@@ -1357,6 +1359,8 @@ void QtGuiApplication1::create_deinterlace()
 
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Creating de-interlaced frames..."));
+
+	progress.setMinimumWidth(300);
 
 	for (int i = 0; i < number_frames; i++)
 	{
@@ -1663,6 +1667,8 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	progress.setValue(0);
 	progress.setLabelText(QString("Copying data for processing..."));
 	progress.setWindowTitle(QString("Background Subtraction"));
+
+	progress.setMinimumWidth(300);
 
 	background_subraction_video = original;
 	background_subraction_video.clear_16bit_vector();
