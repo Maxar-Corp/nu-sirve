@@ -414,6 +414,7 @@ public:
         frmVideoPlayer->setFrameShadow(QFrame::Raised);
         sldrVideo = new QSlider(frmVideoPlayer);
         sldrVideo->setObjectName(QString::fromUtf8("sldrVideo"));
+        sldrVideo->setEnabled(false);
         sldrVideo->setGeometry(QRect(10, 530, 651, 22));
         sldrVideo->setSliderPosition(0);
         sldrVideo->setOrientation(Qt::Horizontal);
