@@ -64,12 +64,10 @@ std::vector<double> NUC::get_nuc_correction()
 	DEBUG << "NUC: Normalizing value for kernel adjusted mean frame: " << min_value;
 	DEBUG << "NUC: First value of the NUC correction: " << adjusted_mean_frames(0);
 
-	//TODO remove save from final repo
 	arma::mat nuc_correction(adjusted_mean_frames);
 	nuc_correction.reshape(x_pixels, y_pixels);
 	nuc_correction = nuc_correction.t();
-	nuc_correction.save("nuc_correction_matrix.txt", arma::arma_ascii);
-
+	
 	return out;
 
 }
@@ -255,10 +253,6 @@ arma::vec NUC::replace_broken_pixels(arma::vec values)
 	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
 	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;	
 	
-	//TODO remove saves from final repo
-	mean_frame.save("nuc_mean_frame.txt", arma::arma_ascii);
-	adj_mean_frame_matrix.save("nuc_post_convolution_mean_frame.txt", arma::arma_ascii);
-
 	// -------------------------------------------------------------
 	// Replace the happy/dead pixels in mean frame
 
