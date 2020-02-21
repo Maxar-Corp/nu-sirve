@@ -621,7 +621,10 @@ void QtGuiApplication1::load_abir_data()
 	playback_controller->set_speed_index(10);
 	update_fps();
 
-	ui.tabPlots->setCurrentIndex(0);
+	ui.tabPlots->setCurrentIndex(1);
+	plot_full_data();
+	plot_current_frame_marker();
+
 
 	ui.btn_get_frames->setEnabled(true);
 
