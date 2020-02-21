@@ -167,7 +167,11 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
 
 	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
+	QObject::connect(ui.txt_nuc_stop, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_non_uniformity_correction);
+	
 	QObject::connect(ui.btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
+	QObject::connect(ui.txt_bgs_num_frames, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_background_subtraction_correction);
+
 	QObject::connect(ui.btn_deinterlace, &QPushButton::clicked, this, &QtGuiApplication1::create_deinterlace);
 
 	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
