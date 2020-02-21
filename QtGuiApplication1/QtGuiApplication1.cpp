@@ -104,6 +104,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
 	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
 
+	QObject::connect(ui.tabMenu, &QTabWidget::currentChanged, this, &QtGuiApplication1::auto_change_plot_display);
 	QObject::connect(ui.chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
 	toggle_relative_histogram(false);
 	//---------------------------------------------------------------------------
@@ -624,8 +625,7 @@ void QtGuiApplication1::load_abir_data()
 	ui.tabPlots->setCurrentIndex(1);
 	plot_full_data();
 	plot_current_frame_marker();
-
-
+	
 	ui.btn_get_frames->setEnabled(true);
 
 	ui.tabMenu->setTabEnabled(1, true);
@@ -797,6 +797,19 @@ void QtGuiApplication1::plot_current_frame_marker() {
 	}
 	
 	DEBUG << "GUI: Show video marker changed from " << current_state << " to " << new_state;
+}
+
+void QtGuiApplication1::auto_change_plot_display(int index)
+{
+	// When color tab is selected, the histogram is automatically displayed
+	if (index == 1) {
+		ui.tabPlots->setCurrentIndex(0);
+	}
+
+	// When processing tab is selected, the engineering plots are automically displayed
+	if (index == 2) {
+		ui.tabPlots->setCurrentIndex(1);
+	}
 }
 
 void QtGuiApplication1::save_plot()
