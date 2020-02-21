@@ -110,6 +110,8 @@ public:
 	void plot_full_data();
 	void plot_primary_only();
 	void plot_current_frame_marker();
+
+	void auto_change_plot_display(int index);
 	
 
 
