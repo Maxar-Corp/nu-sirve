@@ -8,6 +8,11 @@ NUC::NUC(QString path_video_file, unsigned int first_frame, unsigned int last_fr
 
 	frame_numbers = { first_frame, last_frame };
 
+	kernel = { {0, 0, 1, 0, 0},
+		       {0, 0, 1, 0, 0},
+			   {1, 1, 0, 1, 1},
+			   {0, 0, 1, 0, 0},
+			   {0, 0, 1, 0, 0} };
 }
 
 NUC::~NUC()
@@ -79,13 +84,21 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 
 	arma::vec original_frame(converted_values);
 	arma::vec nuc_values(nuc_correction);
+		
+	// ----------------------------------------------------------------------------------------------
+
+	// get updated values for happy and dead pixels
+	arma::vec values_happy_pixels = apply_kernel(original_frame, pixels_happy);
+	arma::vec values_dead_pixels = apply_kernel(original_frame, pixels_dead);
 
 	// Replace happy/dead pixels with adjusted mean frame
 	INFO << "NUC: Replacing happy pixels in frame";
-	replace_image_pixels(original_frame, adj_mean_frame, pixels_happy);
+	replace_image_pixels(original_frame, pixels_happy, values_happy_pixels);
 	INFO << "NUC: Replacing dead pixels in frame";
-	replace_image_pixels(original_frame, adj_mean_frame, pixels_dead);
+	replace_image_pixels(original_frame, pixels_dead, values_dead_pixels);
 
+	// ----------------------------------------------------------------------------------------------
+	
 	INFO << "NUC: Applying NUC to frame";
 	arma::vec corrected_values = original_frame / nuc_values;
 
@@ -165,28 +178,95 @@ arma::mat NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain)
 	return output;
 }
 
-std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame, std::vector<double> nuc)
+double NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain, int i, int j)
 {
-	
-	std::vector<double> converted_values(frame.begin(), frame.end());
-	
-	arma::vec original_frame(converted_values);
-	arma::vec nuc_values(nuc);
+	//Assumes a domain matrix that is square n x n, where n is an odd number greater than 1
 
-	// Replace happy/dead pixels with adjusted mean frame
-	INFO << "NUC: Replacing happy pixels in frame";
-	replace_image_pixels(original_frame, adj_mean_frame, pixels_happy);
-	INFO << "NUC: Replacing dead pixels in frame";
-	replace_image_pixels(original_frame, adj_mean_frame, pixels_dead);
+	int domain_rows = domain.n_rows;
+	int domain_cols = domain.n_cols;
 
-	arma::vec corrected_values = original_frame / nuc_values;
+	int matrix_rows = input_matrix.n_rows;
+	int matrix_cols = input_matrix.n_cols;
 
-	DEBUG << "NUC: NUC correction applied. First value after correction " << std::to_string(corrected_values(0));
+	int offset = domain_rows / 2;
+
+	double output = 0;		
+	double rtn_value;
+	arma::mat values(domain.n_rows, domain.n_cols);
 	
-	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
-	std::vector<uint16_t> vector_int (vector_double.begin(), vector_double.end());
+	if (i - offset >= 0 && j - offset >= 0 && i + offset < matrix_rows && j + offset < matrix_cols) {
+		arma::mat sub_matrix = input_matrix.submat(i - offset, j - offset, i + offset, j + offset);
+		values = sub_matrix % domain;
+	}
+	else {
+
+		for (int m = 0; m < domain_rows; m++)
+		{
+			int r = i + (m - offset);
+
+			if (r < 0)
+				r = matrix_rows + r;
+
+			if (r >= matrix_rows)
+				r = r - matrix_rows;
+
+
+			for (int n = 0; n < domain_cols; n++)
+			{
+				int c = j + (n - offset);
+
+				if (c < 0)
+					c = matrix_cols + c;
+
+				if (c >= matrix_cols)
+					c = c - matrix_cols;
+
+				values(m, n) = domain(m, n) * input_matrix(r, c);
+			}
+		}
+
+	}
+
+	arma::vec values_flatten = arma::vectorise(values);
+	values_flatten = arma::sort(values_flatten, "descend");
+
+	if (values_flatten.n_elem > order)
+		rtn_value = values_flatten(order - 1);
+	else
+		rtn_value = values_flatten.min();
+
+	output = rtn_value;
+		
+	return output;
+}
+
+arma::vec NUC::apply_kernel(arma::vec data, arma::uvec indices)
+{
+
+	arma::mat data_matrix(data);
+	data_matrix.reshape(x_pixels, y_pixels);
+	data_matrix = data_matrix.t();
+
+	int num_pixels = indices.n_elem;
+	int pixel_index, pixel_row, pixel_col;
+	arma::vec output(num_pixels);
+
+	double value_before, value_new;
+
+	for (int i = 0; i < num_pixels; i++)
+	{
+
+		pixel_index = indices(i);
+		pixel_row = pixel_index / x_pixels;
+		pixel_col = pixel_index % x_pixels;
+
+		value_before = data_matrix(pixel_row, pixel_col);
+		value_new = ordfilt2(data_matrix, 5, kernel, pixel_row, pixel_col);
+
+		output(i) = value_new;
+	}
 	
-	return vector_int;
+	return output;
 }
 
 std::vector<std::vector<uint16_t>> NUC::import_frames() {
@@ -308,7 +388,7 @@ void NUC::replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels)
 
 }
 
-void  NUC::replace_image_pixels(arma::vec &frame, arma::vec &update, arma::uvec &indices)
+void  NUC::replace_image_pixels(arma::vec &frame, arma::uvec &indices, arma::vec &update)
 {
 	int num_pixels = indices.n_elem;
 	int pixel_index, pixel_row, pixel_col;
@@ -323,7 +403,7 @@ void  NUC::replace_image_pixels(arma::vec &frame, arma::vec &update, arma::uvec 
 		pixel_col = pixel_index % x_pixels;
 
 		value_before = frame(pixel_index);
-		value_new = update(pixel_index);
+		value_new = update(i);
 
 		DEBUG << "NUC: Replacing frame pixel at (row, col) " << pixel_row << ", " << pixel_col;
 		DEBUG << "NUC: Original value was " << value_before;
