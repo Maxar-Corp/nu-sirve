@@ -27,7 +27,7 @@ Playback::~Playback() {
 void Playback::set_number_of_frames(int value)
 {
 	max_counter = value - 1;
-	counter = -1;
+	counter = 0;
 }
 
 int Playback::get_counter()
@@ -74,6 +74,7 @@ void Playback::start_timer() {
 
 	is_reverse = false;
 	timer->start();
+	emit update_frame(counter);
 }
 
 void Playback::timer_update()
@@ -140,6 +141,8 @@ void Playback::reverse() {
 
 	is_reverse = true;
 	timer->start();
+
+	emit update_frame(counter);
 }
 
 bool Playback::is_running()
@@ -153,6 +156,12 @@ void Playback::set_speed_index(int index)
 	if (index < speeds.size())
 	{
 		index_speed = index;
+
+		timer_frequency = 1000 * 1 / speeds[index_speed];
+		timer->stop();
+		timer->setInterval(timer_frequency);
+		timer->setSingleShot(false);
+		timer->start();
 	}
 
 }

@@ -629,19 +629,19 @@ void QtGuiApplication1::load_abir_data()
 	ui.tabPlots->setCurrentIndex(1);
 	plot_full_data();
 	plot_current_frame_marker();
-	
+
 	ui.btn_get_frames->setEnabled(true);
 
 	ui.tabMenu->setTabEnabled(1, true);
 	ui.tabMenu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
-	
+
 	clear_image_processing();
 
 	toggle_video_playback_options(true);
 	playback_controller->start_timer();
-	
+
 	//---------------------------------------------------------------------------
 }
 
