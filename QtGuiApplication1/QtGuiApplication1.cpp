@@ -335,6 +335,14 @@ void QtGuiApplication1::load_osm_data()
 
 	INFO << "GUI: Loading OSM data";
 	bool valid_files = file_data.load_osm_file();
+	
+	// if no file was selected, do nothing
+	if (file_data.file_name.compare(""))
+	{
+		return;
+	}
+	
+	// if file selected was invalid, then tell user
 	if (!valid_files) {
 		WARN << "GUI: OSM file failed cursory check";
 
@@ -348,9 +356,13 @@ void QtGuiApplication1::load_osm_data()
 			ui.btn_load_osm->setEnabled(true);
 		}
 
+		ui.lbl_file_load->setText(file_data.info_msg);
+		ui.lbl_file_name->setText(file_data.file_name);
+		ui.lbl_file_name->setToolTip(file_data.directory_path);
+
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Error Loading OSM"));
-		QString box_text = "An unexpected error occurred while loading the OSM. Close program and see log for details.";
+		QString box_text = "An unexpected error occurred while loading the OSM \n\nSee file status box (lower left corner) for details \n\nMore detailed information can be found in the log";
 		msgBox.setText(box_text);
 
 		msgBox.setStandardButtons(QMessageBox::Ok);
