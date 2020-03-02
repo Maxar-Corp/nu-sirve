@@ -12,26 +12,66 @@ Process_File::~Process_File()
 
 bool Process_File::load_osm_file()
 {
-	info_msg = QString("File Load Status\n");
+	info_msg = QString("File Load Status: \n");
 
-	osm_path = QFileDialog::getOpenFileName(this, ("Open File"), "", ("OSM (*.abposm)"));
-	QFileInfo osm_file_data(osm_path);
+	// -----------------------------------------------------------------------------
+	// get image path
+	image_path = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
+	//QFileInfo osm_file_data(image_path);
 
-	info_msg.append("OSM file selected \n");
+	info_msg.append("Image file selected \n");
 
-	bool valid_extension = osm_path.endsWith(".abposm", Qt::CaseInsensitive);
-	bool osm_file_exists = osm_file_data.isFile();
-	
-	if (osm_file_exists && valid_extension) {
-		info_msg.append("OSM file has proper extension \n");
+	bool valid_image_extension = image_path.endsWith(".abpimage", Qt::CaseInsensitive);
+	bool image_file_exists = check_path(image_path);
+
+	// -----------------------------------------------------------------------------
+	// get osm path
+	osm_path = image_path;
+	osm_path.replace(QString(".abpimage"), QString(".abposm"), Qt::CaseInsensitive);
+
+	//QFileInfo image_file_data(osm_path);
+
+	bool valid_osm_extension = osm_path.endsWith(".abposm", Qt::CaseInsensitive);
+	bool osm_file_exists = check_path(osm_path);
+
+	// -----------------------------------------------------------------------------
+	// get file name to display
+	int index_file_start, index_file_end;
+	index_file_start = osm_path.lastIndexOf("/");
+	index_file_end = osm_path.lastIndexOf(".");
+
+	directory_path = osm_path.left(index_file_start);;
+	file_name = QString("File: ");
+
+	file_name.append(osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
+
+	// -----------------------------------------------------------------------------
+	// check image file is valid
+
+	if (valid_image_extension && image_file_exists) {
+		info_msg.append("Image file found with correct extension \n");
 	}
 	else
 	{
-		info_msg.append("OSM file does not have right extension or is not file \n");
-		
+		info_msg.append("Image file not found \n");
+		return false;
+	}
+
+	// -----------------------------------------------------------------------------
+	// check osm file is valid
+	if (valid_osm_extension && osm_file_exists) {
+		info_msg.append("OSM file found with correction extension \n");
+	}
+	else
+	{
+		info_msg.append("Corresponding OSM file not found \n");
+
 		valid_osm = false;
 		return false;
 	}
+
+	// -----------------------------------------------------------------------------
+	// read osm file
 
 	INFO << "Importing file " << osm_path.toStdString();
 
@@ -42,32 +82,6 @@ bool Process_File::load_osm_file()
 	}
 
 	valid_osm = true;
-
-	int index_file_start, index_file_end;
-	index_file_start = osm_path.lastIndexOf("/");
-	index_file_end = osm_path.lastIndexOf(".");
-
-	directory_path = osm_path.left(index_file_start);;
-	file_name = QString("File: ");
-
-	file_name.append(osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
-
-	image_path = osm_path;
-	image_path.replace(QString(".abposm"), QString(".abpimage"), Qt::CaseInsensitive);
-
-	file_path = osm_path;
-	file_path.replace(QString(".abposm"), QString(""), Qt::CaseInsensitive);
-
-	valid_image = check_image_path();
-	
-	if (valid_image) {
-		info_msg.append("Corresponding image file found in same directory \n");
-	}
-	else
-	{
-		info_msg.append("Corresponding image file not found in same directory \n");
-		return false;
-	}		
 
 	return true;
 }
@@ -85,16 +99,16 @@ bool Process_File::read_osm_file()
 	return true;
 }
 
-bool Process_File::check_image_path()
+bool Process_File::check_path(QString path)
 {
 	
 	QString info_msg("");
 
-	QFileInfo check_image_file(image_path);
-	bool image_file_isFile = check_image_file.isFile();
-	bool image_file_exists = check_image_file.exists();
+	QFileInfo check_file(path);
+	bool file_isFile = check_file.isFile();
+	bool file_exists = check_file.exists();
 
-	return image_file_exists && image_file_isFile;
+	return file_exists && file_isFile;
 
 }
 
