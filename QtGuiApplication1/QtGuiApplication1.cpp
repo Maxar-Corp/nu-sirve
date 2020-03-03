@@ -334,35 +334,46 @@ void QtGuiApplication1::load_osm_data()
 	ui.btn_copy_directory->setEnabled(false);
 
 	INFO << "GUI: Loading OSM data";
-	bool valid_files = file_data.load_osm_file();
+	int valid_files = file_data.load_osm_file();
 	
-	// if no file was selected, do nothing
-	if (file_data.file_name.compare(""))
-	{
-		return;
-	}
-	
-	// if file selected was invalid, then tell user
-	if (!valid_files) {
-		WARN << "GUI: OSM file failed cursory check";
+	if (valid_files != 1)
+	{		
+		INFO << "GUI: No file selected for load";
 
 		ui.btn_load_osm->setEnabled(true);
+		ui.btn_copy_directory->setEnabled(true);
 
 		if (eng_data != NULL) {
 			// if eng_data already initialized, allow user to re-select frames
 			ui.txt_start_frame->setEnabled(true);
 			ui.txt_end_frame->setEnabled(true);
 			ui.btn_get_frames->setEnabled(true);
-			ui.btn_load_osm->setEnabled(true);
+
 		}
 
-		ui.lbl_file_load->setText(file_data.info_msg);
-		ui.lbl_file_name->setText(file_data.file_name);
-		ui.lbl_file_name->setToolTip(file_data.directory_path);
-
+		QString error_status;
+		switch (valid_files)
+		{
+		case 2:
+			error_status = "No image file was selcted";
+			break;
+		case 3:
+			error_status = "Image file issue";
+			break;
+		case 4: 
+			error_status = "No OSM file found that matches the image file name";
+			break;
+		case 5:
+			error_status = "Error while reading OSM file. Close program and open logs for details";
+			break;
+		default:
+			return;
+			break;
+		}
+		
 		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Error Loading OSM"));
-		QString box_text = "An unexpected error occurred while loading the OSM \n\nSee file status box (lower left corner) for details \n\nMore detailed information can be found in the log";
+		msgBox.setWindowTitle(QString("Issue Loading File"));
+		QString box_text = error_status;
 		msgBox.setText(box_text);
 
 		msgBox.setStandardButtons(QMessageBox::Ok);
@@ -371,7 +382,7 @@ void QtGuiApplication1::load_osm_data()
 
 		return;
 	}
-		
+			
 	INFO << "GUI: OSM file has valid path";
 
 	ui.lbl_file_load->setText(file_data.info_msg);
