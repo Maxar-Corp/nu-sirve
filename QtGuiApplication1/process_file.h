@@ -32,7 +32,7 @@ public:
 	Process_File();
 	~Process_File();
 
-	bool load_osm_file();
+	int load_osm_file();
 	bool read_osm_file();
 
 	bool check_path(QString path);
