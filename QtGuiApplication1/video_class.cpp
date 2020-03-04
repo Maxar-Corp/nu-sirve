@@ -4,7 +4,15 @@
 Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new QLabel(this);
+	label->setBackgroundRole(QPalette::Base);
+	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+	label->setScaledContents(true);
 
+	scrollArea = new QScrollArea();
+	scrollArea->setBackgroundRole(QPalette::Dark);
+	scrollArea->setWidget(label);
+	scrollArea->setVisible(false);
+	
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
 	counter = 0;
@@ -24,6 +32,8 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	plot_tracks = false;
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
+
+	scale_factor = 1;
 
 	for (int i = 0; i < 255; i++)
 		colorTable.push_back(qRgb(255 - i, i, i));
@@ -59,6 +69,8 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 
 void Video::receive_video_data(video_details &new_input)
 {
+	scrollArea->setVisible(true);
+
 	update_video_file(new_input.frames_16bit, new_input.x_pixels, new_input.y_pixels);
 
 }
@@ -220,10 +232,23 @@ void Video::update_display_frame()
 	}
 
 	label->setPixmap(QPixmap::fromImage(frame));
+
+	// --------------------------
+	// zoom parameters
+
+	label->resize(scale_factor * label->pixmap()->size());
+	
 	label->update();
 	label->repaint();
 
 	//counter++;
+}
+
+void Video::adjustScrollBar(QScrollBar *scrollBar, double factor)
+//! [25] //! [26]
+{
+	scrollBar->setValue(int(factor * scrollBar->value()
+		+ ((factor - 1) * scrollBar->pageStep() / 2)));
 }
 
 void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
@@ -294,6 +319,17 @@ void Video::remove_frame()
 	number_pixels = image_x * image_y;
 
 }
+
+void Video::scale_image(double factor)
+{
+
+	scale_factor *= factor;
+	
+	adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
+	adjustScrollBar(scrollArea->verticalScrollBar(), factor);
+
+}
+
 
 void Video::update_specific_frame(unsigned int frame_number)
 {
