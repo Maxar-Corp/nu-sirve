@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "logging.h"
+#include "annotations.h"
 
 int main(int argc, char *argv[])
 {
