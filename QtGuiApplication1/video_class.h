@@ -15,6 +15,8 @@
 #include <qpainter.h>
 #include <qbrush.h>
 #include <qfiledialog.h>
+#include <qscrollarea.h>
+#include <qscrollbar.h>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
@@ -41,6 +43,7 @@ public:
 	bool record_frame, show_relative_histogram;
 	cv::VideoWriter video;
 
+	QScrollArea *scrollArea;
 
     unsigned int number_of_frames;
 	int timer_frequency;
@@ -67,6 +70,8 @@ public:
 
 	void remove_frame();
 
+	void scale_image(double factor);
+
 
 public slots:
     void update_display_frame();	
@@ -83,12 +88,16 @@ public slots:
 
 private:
 
+	
+	double scale_factor;
+
 	int image_x, image_y, number_pixels, max_bit_level;
 
 	std::vector<std::vector<uint16_t>> frame_data;
     unsigned int counter;
 
 	std::vector<Plotting_Frame_Data> display_data;
+	void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
 };
 
