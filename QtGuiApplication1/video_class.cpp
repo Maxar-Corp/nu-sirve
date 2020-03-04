@@ -216,17 +216,24 @@ void Video::update_display_frame()
 		
 		for (int i = 0; i < num_annotations; i++) {
 
-			QString annotation_color = annotation_list[i].color;
-			int font_size = annotation_list[i].font_size;
-			QString annotation_text = annotation_list[i].text;
-			int x = annotation_list[i].x_pixel;
-			int y = annotation_list[i].y_pixel;
+			annotation_info a = annotation_list[i];
+			int initial_frame_annotation = a.frame_start - a.min_frame;
+			int last_frame_annotation = initial_frame_annotation + a.num_frames;
+			
+			if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
+
+				QString annotation_color = a.color;
+				int font_size = a.font_size;
+				QString annotation_text = a.text;
+				int x = a.x_pixel;
+				int y = a.y_pixel;
 
 
-			QPainter p_a(&frame);
-			p_a.setPen(QPen(annotation_color));
-			p_a.setFont(QFont("Times", font_size));
-			p_a.drawText(x, y, annotation_text);
+				QPainter p_a(&frame);
+				p_a.setPen(QPen(annotation_color));
+				p_a.setFont(QFont("Times", font_size));
+				p_a.drawText(x, y, annotation_text);
+			}
 		}
 
 	}

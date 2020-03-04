@@ -111,8 +111,8 @@ void Annotations::add()
 	annotation_info new_data;
 	new_data.color = "red";
 	new_data.font_size = 8;
-	new_data.x_pixel = 1;
-	new_data.y_pixel = 1;
+	new_data.x_pixel = 50;
+	new_data.y_pixel = 50;
 	new_data.frame_start = base_data.min_frame;
 	new_data.num_frames = base_data.max_frame - base_data.min_frame;
 	new_data.text = "Add Text";
