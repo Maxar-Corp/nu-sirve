@@ -64,7 +64,7 @@ void Annotations::initialize_gui()
 	// define objects
 	lbl_annotations = new QLabel(tr("Annotations"));
 	lst_annotations = new QListWidget();
-	lbl_description = new QLabel(tr("Descriptions"));
+	lbl_description = new QLabel(tr(""));
 
 	btn_ok = new QPushButton(tr("OK"));
 	btn_edit = new QPushButton(tr("Edit"));
@@ -141,8 +141,6 @@ void Annotations::add()
 	repopulate_list();
 	lst_annotations->setCurrentRow(data.size() - 1);
 
-	// TODO remove debug statement
-	std::cout << response;
 }
 
 void Annotations::edit()
@@ -170,8 +168,7 @@ void Annotations::edit()
 			lst_annotations->setCurrentRow(index);
 		}
 	}
-	// TODO remove debug statement
-	std::cout << index;
+
 }
 
 void Annotations::delete_object()
@@ -201,6 +198,4 @@ void Annotations::delete_object()
 		}
 	}
 
-	// TODO remove debug statement
-	std::cout << index;
 }
