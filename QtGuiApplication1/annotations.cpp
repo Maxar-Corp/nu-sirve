@@ -27,15 +27,21 @@ Annotations::~Annotations() {
 
 void Annotations::show_annotation(int index)
 {
-	annotation_info d = data[index];
 	
 	QString output;
 
-	output = "Annotation: " + d.text + "\n";
-	output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n";
-	output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n";
-	output += "Frame Start: " + QString::number(d.frame_start) + "\t Num Frames: " + QString::number(d.num_frames) + " \n";
-	
+	if (index >= 0) {
+		annotation_info d = data[index];
+
+		output = "Annotation: " + d.text + "\n";
+		output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n";
+		output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n";
+		output += "Frame Start: " + QString::number(d.frame_start) + "\t Num Frames: " + QString::number(d.num_frames) + " \n";
+	}
+	else {
+		output = "";
+	}
+
 	lbl_description->setText(output);
 }
 
@@ -125,12 +131,12 @@ void Annotations::add()
 	// if action was cancelled or window closed, then remove the new annotation
 	if (response == 0) {
 		data.pop_back();
+		
+		return;
 	}
 
 	repopulate_list();
-
-	if(data.size() > 0)
-		show_annotation(data.size() - 1);
+	lst_annotations->setCurrentRow(data.size() - 1);
 
 	// TODO remove debug statement
 	std::cout << response;
@@ -140,37 +146,57 @@ void Annotations::edit()
 {
 	// set user definable attributes
 
-	int index = 0;// lst_annotations->currentRow();
+	int index = lst_annotations->currentRow();
 	
-	// store old data in case user cancels operation
-	annotation_info old_data = data[index];
+	if (index >= 0) {
+		// store old data in case user cancels operation
+		annotation_info old_data = data[index];
 
-	// display new annotation screen
-	NewAnnotation add_annotation(data[index]);
-	auto response = add_annotation.exec();
+		// display new annotation screen
+		NewAnnotation add_annotation(data[index]);
+		auto response = add_annotation.exec();
 
-	// if action was cancelled or window closed, then restore previous annotation
-	if (response == 0)
-	{
-		data[index] = old_data;
+		// if action was cancelled or window closed, then restore previous annotation
+		if (response == 0)
+		{
+			data[index] = old_data;
+		}
+
+		if (data.size() > 0) {
+			//show_annotation(index);
+			lst_annotations->setCurrentRow(index);
+		}
 	}
-
-	if (data.size() > 0)
-		show_annotation(index);
-
 	// TODO remove debug statement
-	std::cout << response;
+	std::cout << index;
 }
 
 void Annotations::delete_object()
 {
-	int index = 0;
+	int index = lst_annotations->currentRow();
 
-	if (data.size() > 0) {
-		data.erase(data.begin() + index);
+	if (index >= 0)
+	{
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Delete Annotation"));
+		QString box_text = QString("Are you sure you want to delete this annotation?");
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		msgBox.setDefaultButton(QMessageBox::No);
+		
+		// check to see if user wants to delete annotation
+		auto response = msgBox.exec();
+
+		// if yes, delete annotation
+		if (response == QMessageBox::Yes) {
+			data.erase(data.begin() + index);
+
+			repopulate_list();
+			lst_annotations->setCurrentRow(-1);
+		}
 	}
-
-	repopulate_list();
 
 	// TODO remove debug statement
 	std::cout << index;
