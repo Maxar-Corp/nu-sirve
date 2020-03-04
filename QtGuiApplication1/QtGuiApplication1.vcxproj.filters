@@ -111,6 +111,12 @@
     <ClCompile Include="color_correction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="annotations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="annotation_new.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -150,6 +156,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="color_correction.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="annotations.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="annotation_new.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -1,6 +1,4 @@
 #include "QtGuiApplication1.h"
-#include "location_input.h"
-//#include "new_location.h"
 
 QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	: QMainWindow(parent)
@@ -277,6 +275,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	menu->addAction(menu_add_banner);
 	menu->addAction(menu_change_color_banner);
 	menu->addAction(menu_change_color_tracker);
+	menu->addAction(menu_annotate);
 
 	plot_menu = new QMenu(this);
 	plot_menu->addAction(menu_plot_all_data);
@@ -897,6 +896,11 @@ void QtGuiApplication1::create_menu_actions()
 	connect(menu_change_color_tracker, &QAction::triggered, this, &QtGuiApplication1::edit_tracker_color);
 	connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
 
+	menu_annotate = new QAction(tr("&Annotate Video"), this);
+	menu_annotate->setStatusTip(tr("Add text to video display "));
+	connect(menu_annotate, &QAction::triggered, this, &QtGuiApplication1::annotate_video);
+	//connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
+
 	// ------------------------- PLOT MENU ACTIONS -------------------------
 
 	menu_plot_all_data = new QAction(tr("&Plot all frame data"), this);
@@ -1118,6 +1122,12 @@ void QtGuiApplication1::plot_change(int index)
 		data_plots->plot_current_step(playback_controller->get_counter());
 	}
 
+}
+
+void QtGuiApplication1::annotate_video()
+{
+	Annotations ann;
+	ann.exec();
 }
 
 void QtGuiApplication1::yaxis_log_toggled(bool input)

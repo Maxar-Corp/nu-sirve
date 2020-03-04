@@ -117,6 +117,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="abir_reader.cpp" />
+    <ClCompile Include="annotations.cpp" />
+    <ClCompile Include="annotation_new.cpp" />
     <ClCompile Include="background_subtraction.cpp" />
     <ClCompile Include="binary_file_reader.cpp" />
     <ClCompile Include="color_correction.cpp" />
@@ -180,6 +182,10 @@
     <ClInclude Include="deinterlace.h" />
     <ClInclude Include="earth.h" />
     <ClInclude Include="euler.h" />
+    <QtMoc Include="annotations.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
     <ClInclude Include="jtime.h" />
     <QtMoc Include="location_input.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
@@ -189,6 +195,10 @@
     <QtMoc Include="new_location.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\boost_1_70_0;.\GeneratedFiles;.;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64</IncludePath>
+    </QtMoc>
+    <QtMoc Include="annotation_new.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
     </QtMoc>
     <ClInclude Include="non_uniformity_correction.h" />
     <ClInclude Include="plot_engineering_data.h" />
