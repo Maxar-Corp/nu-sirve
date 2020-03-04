@@ -8,6 +8,8 @@ Annotations::Annotations(QWidget * parent)
 	connect(btn_new, &QPushButton::pressed, this, &Annotations::add);
 	connect(btn_edit, &QPushButton::pressed, this, &Annotations::edit);
 	connect(btn_delete, &QPushButton::pressed, this, &Annotations::delete_object);
+
+	connect(lst_annotations, &QListWidget::currentRowChanged, this, &Annotations::show_annotation);
 }
 
 Annotations::~Annotations() {
@@ -21,6 +23,30 @@ Annotations::~Annotations() {
 	delete btn_delete;
 
 	delete lst_annotations;
+}
+
+void Annotations::show_annotation(int index)
+{
+	annotation_info d = data[index];
+	
+	QString output;
+
+	output = "Annotation: " + d.text + "\n";
+	output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n";
+	output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n";
+	output += "Frame Start: " + QString::number(d.frame_start) + "\t Num Frames: " + QString::number(d.num_frames) + " \n";
+	
+	lbl_description->setText(output);
+}
+
+void Annotations::repopulate_list()
+{
+	lst_annotations->clear();
+
+	for (int i = 0; i < data.size(); i++)
+	{
+		lst_annotations->addItem(data[i].text);
+	}
 }
 
 void Annotations::initialize_gui()
@@ -67,7 +93,6 @@ void Annotations::initialize_gui()
 
 void Annotations::ok()
 {
-	
 	done(1);
 }
 
@@ -102,6 +127,11 @@ void Annotations::add()
 		data.pop_back();
 	}
 
+	repopulate_list();
+
+	if(data.size() > 0)
+		show_annotation(data.size() - 1);
+
 	// TODO remove debug statement
 	std::cout << response;
 }
@@ -125,6 +155,9 @@ void Annotations::edit()
 		data[index] = old_data;
 	}
 
+	if (data.size() > 0)
+		show_annotation(index);
+
 	// TODO remove debug statement
 	std::cout << response;
 }
@@ -136,6 +169,8 @@ void Annotations::delete_object()
 	if (data.size() > 0) {
 		data.erase(data.begin() + index);
 	}
+
+	repopulate_list();
 
 	// TODO remove debug statement
 	std::cout << index;
