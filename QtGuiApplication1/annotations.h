@@ -35,6 +35,7 @@ private:
 	void ok();
 	void add();
 	void edit();
+	void delete_object();
 
 };
 
