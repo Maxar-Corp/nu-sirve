@@ -206,6 +206,34 @@ void Video::update_display_frame()
 		p3.drawText(frame.rect(), Qt::AlignTop | Qt::AlignLeft, primary_tgt_text);
 	}
 
+	// ---------------------------------------------------------------------------------------
+
+	// Draw annotations
+	
+	int num_annotations = annotation_list.size();
+
+	if (num_annotations > 0) {
+		
+		for (int i = 0; i < num_annotations; i++) {
+
+			QString annotation_color = annotation_list[i].color;
+			int font_size = annotation_list[i].font_size;
+			QString annotation_text = annotation_list[i].text;
+			int x = annotation_list[i].x_pixel;
+			int y = annotation_list[i].y_pixel;
+
+
+			QPainter p_a(&frame);
+			p_a.setPen(QPen(annotation_color));
+			p_a.setFont(QFont("Times", font_size));
+			p_a.drawText(x, y, annotation_text);
+		}
+
+	}
+	// ---------------------------------------------------------------------------------------
+
+	QRect rectangle = frame.rect();
+
 	// Draw banner text
 	QPainter p1(&frame);
 	p1.setPen(QPen(banner_color));

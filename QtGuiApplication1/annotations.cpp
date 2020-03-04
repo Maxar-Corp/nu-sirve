@@ -1,8 +1,11 @@
 #include "annotations.h"
 
-Annotations::Annotations(QWidget * parent) 
+Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
+
+	base_data = details;
+	repopulate_list();
 
 	connect(btn_ok, &QPushButton::pressed, this, &Annotations::ok);
 	connect(btn_new, &QPushButton::pressed, this, &Annotations::add);
@@ -110,17 +113,17 @@ void Annotations::add()
 	new_data.font_size = 8;
 	new_data.x_pixel = 1;
 	new_data.y_pixel = 1;
-	new_data.frame_start = 200;
-	new_data.num_frames = 600;
+	new_data.frame_start = base_data.min_frame;
+	new_data.num_frames = base_data.max_frame - base_data.min_frame;
 	new_data.text = "Add Text";
 
 	// set attributes for checking data
-	new_data.min_frame = 200;
-	new_data.max_frame = 800;
+	new_data.min_frame = base_data.min_frame;
+	new_data.max_frame = base_data.max_frame;
 	new_data.x_min_position = 1;
-	new_data.x_max_position = 640;
+	new_data.x_max_position = base_data.x_pixels;
 	new_data.y_min_position = 1;
-	new_data.y_max_position = 480;
+	new_data.y_max_position = base_data.y_pixels;
 
 	data.push_back(new_data);
 	

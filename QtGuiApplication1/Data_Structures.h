@@ -63,6 +63,11 @@ struct Frame {
 
 };
 
+struct video_info {
+
+	int x_pixels, y_pixels, min_frame, max_frame;
+};
+
 struct annotation_info {
 
 	int x_pixel, y_pixel, frame_start, num_frames, font_size;

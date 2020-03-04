@@ -35,6 +35,11 @@ int Playback::get_counter()
 	return counter;
 }
 
+int Playback::get_max_counter()
+{
+	return max_counter;
+}
+
 void Playback::speed_timer() {
 
 	if (index_speed + 1 >= speeds.size())
