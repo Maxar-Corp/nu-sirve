@@ -93,7 +93,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	int number_bits = max_used_bits;
 	
 	video_layout = new QGridLayout();
-	video_layout->addWidget(ir_video->label);
+	video_layout->addWidget(ir_video->scrollArea);
 	ui.frm_video->setLayout(video_layout);
 
 	histogram_layout = new QGridLayout();
@@ -158,6 +158,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		
 	QObject::connect(ui.btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
+
+	QObject::connect(ui.btn_zoom_in, &QPushButton::clicked, this, &QtGuiApplication1::zoom_in);
+	QObject::connect(ui.btn_zoom_out, &QPushButton::clicked, this, &QtGuiApplication1::zoom_out);
 
 	//---------------------------------------------------------------------------
 
@@ -1212,6 +1215,16 @@ void QtGuiApplication1::clear_frame_label()
 
 }
 
+void QtGuiApplication1::zoom_in()
+{
+	ir_video->scale_image(1.25);
+}
+
+void QtGuiApplication1::zoom_out()
+{
+	ir_video->scale_image(0.8);
+}
+
 void QtGuiApplication1::copy_osm_directory()
 {
 	clipboard->setText(file_data.osm_path);
@@ -1829,6 +1842,9 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	ui.btn_fast_forward->setEnabled(input);
 	ui.btn_slow_back->setEnabled(input);
 	ui.btn_video_menu->setEnabled(input);
+	
+	ui.btn_zoom_in->setEnabled(input);
+	ui.btn_zoom_out->setEnabled(input);
 
 	ui.btn_frame_record->setEnabled(input);
 	ui.btn_frame_save->setEnabled(input);
