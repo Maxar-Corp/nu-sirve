@@ -1126,8 +1126,19 @@ void QtGuiApplication1::plot_change(int index)
 
 void QtGuiApplication1::annotate_video()
 {
-	Annotations ann;
-	ann.exec();
+	video_info standard_info;
+	standard_info.x_pixels = ir_video->image_x;
+	standard_info.y_pixels = ir_video->image_y;
+
+	int index = data_plots->index_sub_plot_xmin;
+	int min_frame = eng_data->frame_numbers[index];
+	int num_frames = playback_controller->get_max_counter();
+
+	standard_info.min_frame = min_frame;
+	standard_info.max_frame = min_frame + num_frames;
+
+	Annotations annotate_gui(ir_video->annotation_list, standard_info);
+	annotate_gui.exec();
 }
 
 void QtGuiApplication1::yaxis_log_toggled(bool input)
