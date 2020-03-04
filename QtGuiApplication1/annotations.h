@@ -23,6 +23,9 @@ public:
 	Annotations(QWidget *parent = nullptr);
 	~Annotations();
 
+	void show_annotation(int index);
+	void repopulate_list();
+
 private:
 
 	std::vector<annotation_info> data;
