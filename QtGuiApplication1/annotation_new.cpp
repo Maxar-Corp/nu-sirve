@@ -19,8 +19,11 @@ NewAnnotation::NewAnnotation(annotation_info &data, QWidget * parent)
 	txt_y_loc->setText(QString::number(data.y_pixel));
 
 	// set indices for combo boxes
-	cmb_colors->setCurrentIndex(0);
-	cmb_size->setCurrentIndex(0);
+	int index_colors = cmb_colors->findText(data.color);
+	cmb_colors->setCurrentIndex(index_colors);
+
+	int index_size = cmb_size->findText(QString::number(data.font_size));
+	cmb_size->setCurrentIndex(index_size);
 
 	// set connections
 	connect(txt_annotation, &QLineEdit::editingFinished, this, &NewAnnotation::text_changed);
@@ -229,7 +232,7 @@ void NewAnnotation::initialize_gui()
 	colors.append("violet");
 
 	// add sizes
-	sizes.append(" 8");
+	sizes.append("8");
 	sizes.append("10");
 	sizes.append("12");
 	sizes.append("14");

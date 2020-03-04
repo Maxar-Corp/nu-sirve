@@ -6,6 +6,8 @@ Annotations::Annotations(QWidget * parent)
 
 	connect(btn_ok, &QPushButton::pressed, this, &Annotations::ok);
 	connect(btn_new, &QPushButton::pressed, this, &Annotations::add);
+	connect(btn_edit, &QPushButton::pressed, this, &Annotations::edit);
+	connect(btn_delete, &QPushButton::pressed, this, &Annotations::delete_object);
 }
 
 Annotations::~Annotations() {
@@ -66,7 +68,7 @@ void Annotations::initialize_gui()
 void Annotations::ok()
 {
 	
-	close();
+	done(1);
 }
 
 void Annotations::add()
@@ -88,28 +90,53 @@ void Annotations::add()
 	new_data.x_max_position = 640;
 	new_data.y_min_position = 1;
 	new_data.y_max_position = 480;
+
+	data.push_back(new_data);
 	
 	// display new annotation screen
-	NewAnnotation add_annotation(new_data);
+	NewAnnotation add_annotation(data.back());
 	auto response = add_annotation.exec();
 
-	std::cout << response;
+	// if action was cancelled or window closed, then remove the new annotation
+	if (response == 0) {
+		data.pop_back();
+	}
 
+	// TODO remove debug statement
+	std::cout << response;
 }
 
 void Annotations::edit()
 {
 	// set user definable attributes
 
-	int index = lst_annotations->currentRow();
-	annotation_info edit_data = data[index];
-
-	// TODO copy old data into separate structure
+	int index = 0;// lst_annotations->currentRow();
 	
+	// store old data in case user cancels operation
+	annotation_info old_data = data[index];
+
 	// display new annotation screen
-	NewAnnotation add_annotation(edit_data);
+	NewAnnotation add_annotation(data[index]);
 	auto response = add_annotation.exec();
 
-	// TODO if cancelled, put old data back
+	// if action was cancelled or window closed, then restore previous annotation
+	if (response == 0)
+	{
+		data[index] = old_data;
+	}
 
+	// TODO remove debug statement
+	std::cout << response;
+}
+
+void Annotations::delete_object()
+{
+	int index = 0;
+
+	if (data.size() > 0) {
+		data.erase(data.begin() + index);
+	}
+
+	// TODO remove debug statement
+	std::cout << index;
 }
