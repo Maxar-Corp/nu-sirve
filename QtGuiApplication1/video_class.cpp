@@ -168,6 +168,8 @@ void Video::update_display_frame()
 	QRect scaled_rect = frame.rect();
 
 	// scale frame based on scale factor
+	scaled_rect.setX(0);
+	scaled_rect.setY(0);
 	scaled_rect.setHeight(int(scaled_rect.height()* scale_factor));
 	scaled_rect.setWidth(int(scaled_rect.width() * scale_factor));
 	frame = frame.copy(scaled_rect);
@@ -247,12 +249,6 @@ void Video::update_display_frame()
 	//counter++;
 }
 
-void Video::adjustScrollBar(QScrollBar *scrollBar, double factor)
-//! [25] //! [26]
-{
-	scrollBar->setValue(int(factor * scrollBar->value()
-		+ ((factor - 1) * scrollBar->pageStep() / 2)));
-}
 
 void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 {
@@ -355,4 +351,25 @@ void Video::update_color_correction(double new_min_value, double new_max_value)
 	color_correction.set_min(new_min_value);
 	color_correction.set_max(new_max_value);
 
+}
+
+EnhancedLabel::EnhancedLabel():QLabel()
+{
+
+}
+
+EnhancedLabel::~EnhancedLabel()
+{
+}
+
+void EnhancedLabel::mousePressEvent(QMouseEvent * ev)
+{
+}
+
+void EnhancedLabel::mouseMoveEvent(QMouseEvent * ev)
+{
+}
+
+void EnhancedLabel::mouseReleaseEvent(QMouseEvent * ev)
+{
 }
