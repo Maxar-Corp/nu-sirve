@@ -111,6 +111,9 @@
     <ClCompile Include="color_correction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="clickable_label.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -150,6 +153,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="color_correction.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="clickable_label.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

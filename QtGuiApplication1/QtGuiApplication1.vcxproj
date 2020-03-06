@@ -119,6 +119,7 @@
     <ClCompile Include="abir_reader.cpp" />
     <ClCompile Include="background_subtraction.cpp" />
     <ClCompile Include="binary_file_reader.cpp" />
+    <ClCompile Include="clickable_label.cpp" />
     <ClCompile Include="color_correction.cpp" />
     <ClCompile Include="color_correction_plot.cpp" />
     <ClCompile Include="color_scheme.cpp" />
@@ -179,6 +180,10 @@
     </QtMoc>
     <ClInclude Include="deinterlace.h" />
     <ClInclude Include="earth.h" />
+    <QtMoc Include="clickable_label.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
     <ClInclude Include="euler.h" />
     <ClInclude Include="jtime.h" />
     <QtMoc Include="location_input.h">
