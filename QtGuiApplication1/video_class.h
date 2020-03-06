@@ -27,6 +27,7 @@
 #include "video_container.h"
 #include "Data_Structures.h"
 #include "histogram_plotter.h"
+#include "clickable_label.h"
 
 class Video : public QWidget
 {
@@ -44,7 +45,7 @@ public:
     unsigned int number_of_frames;
 	int timer_frequency;
 	QImage frame;
-    QLabel  *label;
+    EnhancedLabel  *label;
 	Min_Max_Value color_correction;
 	HistogramLine_Plot *histogram_plot;
 
@@ -93,23 +94,7 @@ private:
     unsigned int counter;
 
 	std::vector<Plotting_Frame_Data> display_data;
-	void adjustScrollBar(QScrollBar *scrollBar, double factor);
-
+	
 };
-
-
-class EnhancedLabel : public QLabel
-{
-	Q_OBJECT
-	public:
-		EnhancedLabel();
-		~EnhancedLabel();
-
-		void mousePressEvent(QMouseEvent *ev);
-		void mouseMoveEvent(QMouseEvent *ev);
-		void mouseReleaseEvent(QMouseEvent *ev);
-
-};
-
 
 #endif // VIDEO_CLASS_H
