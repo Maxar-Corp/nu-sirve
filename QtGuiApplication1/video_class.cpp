@@ -8,10 +8,6 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	label->setScaledContents(true);
 
-	scrollArea = new QScrollArea();
-	scrollArea->setBackgroundRole(QPalette::Dark);
-	scrollArea->setWidget(label);
-	scrollArea->setVisible(false);
 	
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
@@ -69,7 +65,6 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 
 void Video::receive_video_data(video_details &new_input)
 {
-	scrollArea->setVisible(true);
 
 	update_video_file(new_input.frames_16bit, new_input.x_pixels, new_input.y_pixels);
 
@@ -168,6 +163,18 @@ void Video::update_display_frame()
 	frame.setColorTable(colorTable);
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+	// -----------------------------------------------------------
+	// scale image
+	QRect scaled_rect = frame.rect();
+
+	// scale frame based on scale factor
+	scaled_rect.setHeight(int(scaled_rect.height()* scale_factor));
+	scaled_rect.setWidth(int(scaled_rect.width() * scale_factor));
+	frame = frame.copy(scaled_rect);
+
+	// resize image to 
+	frame = frame.scaled(image_x, image_y);
+
 	int num_tracks = display_data[counter].ir_data.size();
 
 	if (plot_tracks & num_tracks > 0) {
@@ -233,10 +240,6 @@ void Video::update_display_frame()
 
 	label->setPixmap(QPixmap::fromImage(frame));
 
-	// --------------------------
-	// zoom parameters
-
-	label->resize(scale_factor * label->pixmap()->size());
 	
 	label->update();
 	label->repaint();
@@ -324,10 +327,11 @@ void Video::scale_image(double factor)
 {
 
 	scale_factor *= factor;
-	
-	adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
-	adjustScrollBar(scrollArea->verticalScrollBar(), factor);
+	if (scale_factor > 1) {
 
+		scale_factor = 1.0;
+	}
+	
 }
 
 
