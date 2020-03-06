@@ -43,8 +43,6 @@ public:
 	bool record_frame, show_relative_histogram;
 	cv::VideoWriter video;
 
-	QScrollArea *scrollArea;
-
     unsigned int number_of_frames;
 	int timer_frequency;
 	QImage frame;
