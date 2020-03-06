@@ -3,7 +3,7 @@
 
 Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 {
-	label = new QLabel(this);
+	label = new EnhancedLabel(this);
 	label->setBackgroundRole(QPalette::Base);
 	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	label->setScaledContents(true);
@@ -303,7 +303,7 @@ void Video::remove_frame()
 {
 	delete label;
 
-	label = new QLabel(this);
+	label = new EnhancedLabel(this);
 	//label->update();
 	label->repaint();
 
@@ -351,25 +351,4 @@ void Video::update_color_correction(double new_min_value, double new_max_value)
 	color_correction.set_min(new_min_value);
 	color_correction.set_max(new_max_value);
 
-}
-
-EnhancedLabel::EnhancedLabel():QLabel()
-{
-
-}
-
-EnhancedLabel::~EnhancedLabel()
-{
-}
-
-void EnhancedLabel::mousePressEvent(QMouseEvent * ev)
-{
-}
-
-void EnhancedLabel::mouseMoveEvent(QMouseEvent * ev)
-{
-}
-
-void EnhancedLabel::mouseReleaseEvent(QMouseEvent * ev)
-{
 }
