@@ -432,7 +432,7 @@ public:
         btn_fast_forward->setGeometry(QRect(550, 560, 35, 30));
         frm_video = new QFrame(frmVideoPlayer);
         frm_video->setObjectName(QString::fromUtf8("frm_video"));
-        frm_video->setGeometry(QRect(0, 0, 680, 510));
+        frm_video->setGeometry(QRect(10, 10, 660, 500));
         frm_video->setFrameShape(QFrame::StyledPanel);
         frm_video->setFrameShadow(QFrame::Raised);
         lbl_fps = new QLabel(frmVideoPlayer);

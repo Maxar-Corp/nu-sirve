@@ -93,7 +93,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	int number_bits = max_used_bits;
 	
 	video_layout = new QGridLayout();
-	video_layout->addWidget(ir_video->scrollArea);
+	video_layout->addWidget(ir_video->label);
 	ui.frm_video->setLayout(video_layout);
 
 	histogram_layout = new QGridLayout();
