@@ -15,8 +15,6 @@
 #include <qpainter.h>
 #include <qbrush.h>
 #include <qfiledialog.h>
-#include <qscrollarea.h>
-#include <qscrollbar.h>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
@@ -96,6 +94,20 @@ private:
 
 	std::vector<Plotting_Frame_Data> display_data;
 	void adjustScrollBar(QScrollBar *scrollBar, double factor);
+
+};
+
+
+class EnhancedLabel : public QLabel
+{
+	Q_OBJECT
+	public:
+		EnhancedLabel();
+		~EnhancedLabel();
+
+		void mousePressEvent(QMouseEvent *ev);
+		void mouseMoveEvent(QMouseEvent *ev);
+		void mouseReleaseEvent(QMouseEvent *ev);
 
 };
 
