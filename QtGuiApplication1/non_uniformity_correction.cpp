@@ -405,9 +405,9 @@ void  NUC::replace_image_pixels(arma::vec &frame, arma::uvec &indices, arma::vec
 		value_before = frame(pixel_index);
 		value_new = update(i);
 
-		DEBUG << "NUC: Replacing frame pixel at (row, col) " << pixel_row << ", " << pixel_col;
-		DEBUG << "NUC: Original value was " << value_before;
-		DEBUG << "NUC: New value is " << value_new;
+		//DEBUG << "NUC: Replacing frame pixel at (row, col) " << pixel_row << ", " << pixel_col;
+		//DEBUG << "NUC: Original value was " << value_before;
+		//DEBUG << "NUC: New value is " << value_new;
 
 		frame(pixel_index) = value_new;
 
