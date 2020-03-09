@@ -18,6 +18,7 @@ public:
 	~Playback();
 	void set_number_of_frames(int value);
 	int get_counter();
+	int get_max_counter();
 
 	int timer_frequency, index_speed;
 	QTimer  *timer;
