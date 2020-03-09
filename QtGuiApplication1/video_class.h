@@ -83,10 +83,15 @@ public slots:
 
 	void toggle_relative_histogram();
 
+	void zoom_image(QPoint origin, int w, int h);
+	void unzoom(QPoint origin);
+
 private:
 
 	
 	double scale_factor;
+	QPoint pt0;
+	int height, width;
 
 	int image_x, image_y, number_pixels, max_bit_level;
 

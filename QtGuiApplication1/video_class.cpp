@@ -33,6 +33,9 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 
 	for (int i = 0; i < 255; i++)
 		colorTable.push_back(qRgb(255 - i, i, i));
+
+	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
+	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
 }
 
 /*
@@ -60,6 +63,11 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	image_x = x_pixels;
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
+
+	height = y_pixels;
+	width = x_pixels;
+	pt0.setX(0);
+	pt0.setY(0);
 	
 }
 
@@ -109,6 +117,40 @@ void Video::toggle_relative_histogram()
 		show_relative_histogram = false;
 	else
 		show_relative_histogram = true;
+}
+
+void Video::zoom_image(QPoint origin, int w, int h)
+{
+
+	double aspect_ratio = image_x * 1.0 / image_y;
+	double adj_width = h * aspect_ratio;
+	double adj_height = w / aspect_ratio;
+
+	pt0 = origin;
+	
+	// adjust size of box to fit aspect ratio and encompass the highlighted area selected
+	if (adj_width > w) {
+		width = adj_width;
+		height = width / aspect_ratio;
+	}
+	else if (adj_height > h) {
+		width = adj_height * aspect_ratio;
+		height = adj_height;
+	}
+	else {
+		width = w;
+		height = h;
+	}
+}
+
+void Video::unzoom(QPoint origin)
+{
+	QPoint new_origin(0, 0);
+
+	pt0 = new_origin;
+
+	width = image_x;
+	height = image_y;
 }
 
 void Video::update_display_frame()
@@ -167,14 +209,15 @@ void Video::update_display_frame()
 	// scale image
 	QRect scaled_rect = frame.rect();
 
-	// scale frame based on scale factor
-	scaled_rect.setX(0);
-	scaled_rect.setY(0);
-	scaled_rect.setHeight(int(scaled_rect.height()* scale_factor));
-	scaled_rect.setWidth(int(scaled_rect.width() * scale_factor));
+	// resize image based on scale factor
+	scaled_rect.setX(pt0.x());
+	scaled_rect.setY(pt0.y());
+	scaled_rect.setHeight(height);
+	scaled_rect.setWidth(width);
+
 	frame = frame.copy(scaled_rect);
 
-	// resize image to 
+	// scale image to fit original dimensions
 	frame = frame.scaled(image_x, image_y);
 
 	int num_tracks = display_data[counter].ir_data.size();

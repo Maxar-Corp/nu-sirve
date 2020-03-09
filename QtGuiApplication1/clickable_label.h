@@ -25,11 +25,14 @@ signals:
 	void clicked(QPoint pt);
 	void right_clicked(QPoint pt);
 	void highlighted_area(QPoint pt0, int width, int height);
+	void double_clicked(QPoint pt);
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+	
+	void mouseDoubleClickEvent(QMouseEvent *event);
 
 };
 
