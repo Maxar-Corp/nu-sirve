@@ -159,9 +159,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(ui.btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 
-	QObject::connect(ui.btn_zoom_in, &QPushButton::clicked, this, &QtGuiApplication1::zoom_in);
-	QObject::connect(ui.btn_zoom_out, &QPushButton::clicked, this, &QtGuiApplication1::zoom_out);
-
 	//---------------------------------------------------------------------------
 
 	//Link buttons to functions
@@ -1215,15 +1212,6 @@ void QtGuiApplication1::clear_frame_label()
 
 }
 
-void QtGuiApplication1::zoom_in()
-{
-	ir_video->scale_image(1.25);
-}
-
-void QtGuiApplication1::zoom_out()
-{
-	ir_video->scale_image(0.8);
-}
 
 void QtGuiApplication1::copy_osm_directory()
 {

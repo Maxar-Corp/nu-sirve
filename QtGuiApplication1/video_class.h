@@ -67,8 +67,6 @@ public:
 
 	void remove_frame();
 
-	void scale_image(double factor);
-
 
 public slots:
     void update_display_frame();	
@@ -87,11 +85,8 @@ public slots:
 	void unzoom(QPoint origin);
 
 private:
-
-	
-	double scale_factor;
-	QRect zoom_area;
-
+		
+	std::vector<QRect> zoom_list;
 	int image_x, image_y, number_pixels, max_bit_level;
 
 	std::vector<std::vector<uint16_t>> frame_data;

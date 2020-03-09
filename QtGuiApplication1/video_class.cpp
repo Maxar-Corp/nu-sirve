@@ -29,8 +29,6 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
 
-	scale_factor = 1;
-
 	for (int i = 0; i < 255; i++)
 		colorTable.push_back(qRgb(255 - i, i, i));
 
@@ -64,13 +62,10 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 
-	zoom_area.setCoords(0, 0, x_pixels, y_pixels);
+	zoom_list.clear();
+	QRect new_zoom(0, 0, x_pixels, y_pixels);
+	zoom_list.push_back(new_zoom);
 
-	//height = y_pixels;
-	//width = x_pixels;
-	//pt0.setX(0);
-	//pt0.setY(0);
-	
 }
 
 void Video::receive_video_data(video_details &new_input)
@@ -141,7 +136,6 @@ void Video::zoom_image(QRect info)
 		return;
 	}
 
-	zoom_area = info;
 
 	int height = info.height();
 	int width = info.width();
@@ -176,25 +170,26 @@ void Video::zoom_image(QRect info)
 	}
 	
 	// if updated area exceeds height, move origin up
-	if (zoom_area.y() + zoom_area.height() > image_y)
+	if (y + height > image_y)
 	{
-		int delta = zoom_area.y() + zoom_area.height() - image_y;
+		int delta = y + height - image_y;
 		y = y - delta;
 	}
 
 	// set zoom area to appropriate values
-	zoom_area.setX(x);
-	zoom_area.setY(y);
-	zoom_area.setWidth(width);
-	zoom_area.setHeight(height);
+	QRect new_zoom(x, y, width, height);
+	zoom_list.push_back(new_zoom);
 }
 
 void Video::unzoom(QPoint origin)
 {
-	QRect new_rect(0, 0, 640, 480);
-
-	zoom_area = new_rect;
-
+	
+	if (zoom_list.size() > 1)
+	{
+		zoom_list.pop_back();
+		update_display_frame();
+	}
+	
 }
 
 void Video::update_display_frame()
@@ -249,20 +244,19 @@ void Video::update_display_frame()
 	frame.setColorTable(colorTable);
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+
 	// -----------------------------------------------------------
-	// scale image
-	QRect scaled_rect = frame.rect();
+	// loop thru all user set zooms
+	for (int i = 0; i < zoom_list.size(); i++)
+	{
+		QRect sub_frame = zoom_list[i];
+		
+		// get sub-image
+		frame = frame.copy(sub_frame);
 
-	// resize image based on scale factor
-	//scaled_rect.setX(pt0.x());
-	//scaled_rect.setY(pt0.y());
-	//scaled_rect.setHeight(height);
-	//scaled_rect.setWidth(width);
-
-	frame = frame.copy(zoom_area);
-
-	// scale image to fit original dimensions
-	frame = frame.scaled(image_x, image_y);
+		// scale to initial aspect ratio
+		frame = frame.scaled(image_x, image_y);
+	}
 
 	int num_tracks = display_data[counter].ir_data.size();
 
@@ -405,18 +399,6 @@ void Video::remove_frame()
 	number_pixels = image_x * image_y;
 
 }
-
-void Video::scale_image(double factor)
-{
-
-	scale_factor *= factor;
-	if (scale_factor > 1) {
-
-		scale_factor = 1.0;
-	}
-	
-}
-
 
 void Video::update_specific_frame(unsigned int frame_number)
 {
