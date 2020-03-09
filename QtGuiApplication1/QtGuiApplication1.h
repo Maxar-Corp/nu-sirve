@@ -20,6 +20,7 @@
 #include "deinterlace.h"
 #include "logging.h"
 #include "jtime.h"
+#include "annotations.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -54,7 +55,7 @@ public:
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *color_plot_layout;
 	
-	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner;
+	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
 
 	QButtonGroup data_plot_yformat, data_plot_yloglinear;
@@ -157,6 +158,7 @@ private:
 	void edit_banner_color();
 	void edit_tracker_color();
 	void plot_change(int index);
+	void annotate_video();
 	
 
 	int get_integer_from_txt_box(QString input);
