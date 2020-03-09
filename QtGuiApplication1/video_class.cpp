@@ -308,6 +308,43 @@ void Video::update_display_frame()
 		p3.drawText(frame.rect(), Qt::AlignTop | Qt::AlignLeft, primary_tgt_text);
 	}
 
+	// ---------------------------------------------------------------------------------------
+
+	// Draw annotations
+	
+	int num_annotations = annotation_list.size();
+
+	// if there are annotations ...
+	if (num_annotations > 0) {
+
+		// for each annotation ...
+		for (int i = 0; i < num_annotations; i++) {
+
+			// get frame information
+			annotation_info a = annotation_list[i];
+			int initial_frame_annotation = a.frame_start - a.min_frame;
+			int last_frame_annotation = initial_frame_annotation + a.num_frames;
+			
+			// check that current frame is within bounds
+			if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
+
+				QString annotation_color = a.color;
+				int font_size = a.font_size;
+				QString annotation_text = a.text;
+				int x = a.x_pixel;
+				int y = a.y_pixel;
+
+				// write text
+				QPainter p_a(&frame);
+				p_a.setPen(QPen(annotation_color));
+				p_a.setFont(QFont("Times", font_size));
+				p_a.drawText(x, y, annotation_text);
+			}
+		}
+
+	}
+	// ---------------------------------------------------------------------------------------
+
 	// Draw banner text
 	QPainter p1(&frame);
 	p1.setPen(QPen(banner_color));
