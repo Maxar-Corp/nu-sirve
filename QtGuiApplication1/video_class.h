@@ -91,8 +91,7 @@ public slots:
 private:
 		
 	std::vector<QRect> zoom_list;
-	int image_x, image_y, number_pixels, max_bit_level;
-
+	
 	std::vector<std::vector<uint16_t>> frame_data;
     unsigned int counter;
 
