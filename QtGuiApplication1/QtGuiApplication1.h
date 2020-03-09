@@ -86,9 +86,6 @@ public:
 	QString create_epoch_string(std::vector<double> new_epoch);
 	void clear_frame_label();
 
-	void zoom_in();
-	void zoom_out();
-
 	signals:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
