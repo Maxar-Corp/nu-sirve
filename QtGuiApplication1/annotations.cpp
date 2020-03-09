@@ -1,0 +1,201 @@
+#include "annotations.h"
+
+Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, QWidget * parent) : data(input_vector)
+{
+	initialize_gui();	
+
+	base_data = details;
+	repopulate_list();
+
+	connect(btn_ok, &QPushButton::pressed, this, &Annotations::ok);
+	connect(btn_new, &QPushButton::pressed, this, &Annotations::add);
+	connect(btn_edit, &QPushButton::pressed, this, &Annotations::edit);
+	connect(btn_delete, &QPushButton::pressed, this, &Annotations::delete_object);
+
+	connect(lst_annotations, &QListWidget::currentRowChanged, this, &Annotations::show_annotation);
+}
+
+Annotations::~Annotations() {
+
+	delete lbl_annotations;
+	delete lbl_description;
+	
+	delete btn_ok;
+	delete btn_edit;
+	delete btn_new;
+	delete btn_delete;
+
+	delete lst_annotations;
+}
+
+void Annotations::show_annotation(int index)
+{
+	
+	QString output;
+
+	if (index >= 0) {
+		annotation_info d = data[index];
+
+		output = "Annotation: " + d.text + "\n";
+		output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n";
+		output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n";
+		output += "Frame Start: " + QString::number(d.frame_start) + "\t Num Frames: " + QString::number(d.num_frames) + " \n";
+	}
+	else {
+		output = "";
+	}
+
+	lbl_description->setText(output);
+}
+
+void Annotations::repopulate_list()
+{
+	lst_annotations->clear();
+
+	for (int i = 0; i < data.size(); i++)
+	{
+		lst_annotations->addItem(data[i].text);
+	}
+}
+
+void Annotations::initialize_gui()
+{
+
+	// define objects
+	lbl_annotations = new QLabel(tr("Annotations"));
+	lst_annotations = new QListWidget();
+	lbl_description = new QLabel(tr(""));
+
+	btn_ok = new QPushButton(tr("OK"));
+	btn_edit = new QPushButton(tr("Edit"));
+	btn_new = new QPushButton(tr("New"));
+	btn_delete = new QPushButton(tr("Delete"));
+
+	// set gridlayout
+	QGridLayout *mainLayout = new QGridLayout;
+	//mainLayout->addWidget(lbl_annotations, 0, 0, 1, 4, Qt::AlignLeft);
+	mainLayout->addWidget(lst_annotations, 0, 0, 4, 1);
+	mainLayout->addWidget(lbl_description, 0, 1, 4, 1);
+	mainLayout->addWidget(btn_ok, 0, 2);
+	mainLayout->addWidget(btn_new, 1, 2);
+	mainLayout->addWidget(btn_edit, 2, 2);
+	mainLayout->addWidget(btn_delete, 3, 2);
+
+	// set grid characterestics
+	//mainLayout->setRowStretch(0, 0);
+	mainLayout->setRowStretch(0, 100);
+	mainLayout->setRowStretch(1, 100);
+	mainLayout->setRowStretch(2, 100);
+	mainLayout->setRowStretch(3, 100);
+
+	mainLayout->setColumnMinimumWidth(0, 100);
+	mainLayout->setColumnMinimumWidth(1, 150);
+
+	mainLayout->setColumnStretch(0, 100);
+	mainLayout->setColumnStretch(1, 100);
+	mainLayout->setColumnStretch(2, 0);
+
+	setLayout(mainLayout);
+	setWindowTitle(tr("Annotations"));
+
+}
+
+void Annotations::ok()
+{
+	done(1);
+}
+
+void Annotations::add()
+{
+	// set user definable attributes
+	annotation_info new_data;
+	new_data.color = "red";
+	new_data.font_size = 8;
+	new_data.x_pixel = 50;
+	new_data.y_pixel = 50;
+	new_data.frame_start = base_data.min_frame;
+	new_data.num_frames = base_data.max_frame - base_data.min_frame;
+	new_data.text = "Add Text";
+
+	// set attributes for checking data
+	new_data.min_frame = base_data.min_frame;
+	new_data.max_frame = base_data.max_frame;
+	new_data.x_min_position = 1;
+	new_data.x_max_position = base_data.x_pixels;
+	new_data.y_min_position = 1;
+	new_data.y_max_position = base_data.y_pixels;
+
+	data.push_back(new_data);
+	
+	// display new annotation screen
+	NewAnnotation add_annotation(data.back());
+	auto response = add_annotation.exec();
+
+	// if action was cancelled or window closed, then remove the new annotation
+	if (response == 0) {
+		data.pop_back();
+		
+		return;
+	}
+
+	repopulate_list();
+	lst_annotations->setCurrentRow(data.size() - 1);
+
+}
+
+void Annotations::edit()
+{
+	// set user definable attributes
+
+	int index = lst_annotations->currentRow();
+	
+	if (index >= 0) {
+		// store old data in case user cancels operation
+		annotation_info old_data = data[index];
+
+		// display new annotation screen
+		NewAnnotation add_annotation(data[index]);
+		auto response = add_annotation.exec();
+
+		// if action was cancelled or window closed, then restore previous annotation
+		if (response == 0)
+		{
+			data[index] = old_data;
+		}
+
+		if (data.size() > 0) {
+			//show_annotation(index);
+			lst_annotations->setCurrentRow(index);
+		}
+	}
+
+}
+
+void Annotations::delete_object()
+{
+	int index = lst_annotations->currentRow();
+
+	if (index >= 0)
+	{
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Delete Annotation"));
+		QString box_text = QString("Are you sure you want to delete this annotation?");
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		msgBox.setDefaultButton(QMessageBox::No);
+		
+		// check to see if user wants to delete annotation
+		auto response = msgBox.exec();
+
+		// if yes, delete annotation
+		if (response == QMessageBox::Yes) {
+			data.erase(data.begin() + index);
+
+			repopulate_list();
+			lst_annotations->setCurrentRow(-1);
+		}
+	}
+
+}

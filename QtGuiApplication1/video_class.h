@@ -41,6 +41,10 @@ public:
 	int counter_record, video_frame_number;
 	bool record_frame, show_relative_histogram;
 	cv::VideoWriter video;
+	
+	std::vector<annotation_info> annotation_list;
+
+	int image_x, image_y, number_pixels, max_bit_level;
 
     unsigned int number_of_frames;
 	int timer_frequency;
