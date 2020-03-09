@@ -64,10 +64,12 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 
-	height = y_pixels;
-	width = x_pixels;
-	pt0.setX(0);
-	pt0.setY(0);
+	zoom_area.setCoords(0, 0, x_pixels, y_pixels);
+
+	//height = y_pixels;
+	//width = x_pixels;
+	//pt0.setX(0);
+	//pt0.setY(0);
 	
 }
 
@@ -119,53 +121,80 @@ void Video::toggle_relative_histogram()
 		show_relative_histogram = true;
 }
 
-void Video::zoom_image(QPoint origin, int w, int h)
+void Video::zoom_image(QRect info)
 {
 
-	double aspect_ratio = image_x * 1.0 / image_y;
-	double adj_width = h * aspect_ratio;
-	double adj_height = w / aspect_ratio;
-
-	pt0 = origin;
-	
-	// adjust size of box to fit aspect ratio and encompass the highlighted area selected
-	if (adj_width > w) {
-		width = adj_width;
-		height = width / aspect_ratio;
+	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
+	if (info.x() + info.width() > image_x)
+	{
+		info.setWidth(image_x - info.x());
 	}
-	else if (adj_height > h) {
+
+	if (info.y() + info.height() > image_y)
+	{
+		info.setHeight(image_y - info.y());
+	}
+
+	// if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
+	if (info.width() < 10 || info.height() < 10)
+	{
+		return;
+	}
+
+	zoom_area = info;
+
+	int height = info.height();
+	int width = info.width();
+
+	int x = info.x();
+	int y = info.y();
+
+	double aspect_ratio = image_x * 1.0 / image_y;
+	double adj_width = height * aspect_ratio;
+	double adj_height = width / aspect_ratio;
+
+	// adjust size of box to fit aspect ratio and encompass the highlighted area selected
+	if (adj_width > width) {
+		
+		width  = adj_width;	
+		height = adj_width / aspect_ratio;
+	}
+	else if (adj_height > height) {
+		
 		width = adj_height * aspect_ratio;
 		height = adj_height;
 	}
 	else {
-		width = w;
-		height = h;
+		
 	}
 
 	// if updated area exceeds width, move origin to left
-	if (pt0.x() + width > image_x)
+	if (x + width > image_x)
 	{
-		int delta = pt0.x() + width - image_x;
-		pt0.setX(pt0.x() - delta);
+		int delta = x + width - image_x;
+		x = x - delta;
 	}
 	
 	// if updated area exceeds height, move origin up
-	if (pt0.y() + height > image_y)
+	if (zoom_area.y() + zoom_area.height() > image_y)
 	{
-		int delta = pt0.y() + height - image_y;
-		pt0.setY(pt0.y() - delta);
+		int delta = zoom_area.y() + zoom_area.height() - image_y;
+		y = y - delta;
 	}
 
+	// set zoom area to appropriate values
+	zoom_area.setX(x);
+	zoom_area.setY(y);
+	zoom_area.setWidth(width);
+	zoom_area.setHeight(height);
 }
 
 void Video::unzoom(QPoint origin)
 {
-	QPoint new_origin(0, 0);
+	QRect new_rect(0, 0, 640, 480);
 
-	pt0 = new_origin;
+	zoom_area = new_rect;
 
-	width = image_x;
-	height = image_y;
 }
 
 void Video::update_display_frame()
@@ -225,12 +254,12 @@ void Video::update_display_frame()
 	QRect scaled_rect = frame.rect();
 
 	// resize image based on scale factor
-	scaled_rect.setX(pt0.x());
-	scaled_rect.setY(pt0.y());
-	scaled_rect.setHeight(height);
-	scaled_rect.setWidth(width);
+	//scaled_rect.setX(pt0.x());
+	//scaled_rect.setY(pt0.y());
+	//scaled_rect.setHeight(height);
+	//scaled_rect.setWidth(width);
 
-	frame = frame.copy(scaled_rect);
+	frame = frame.copy(zoom_area);
 
 	// scale image to fit original dimensions
 	frame = frame.scaled(image_x, image_y);
