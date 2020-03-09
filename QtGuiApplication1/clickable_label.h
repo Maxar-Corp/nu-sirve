@@ -24,7 +24,7 @@ public:
 signals:
 	void clicked(QPoint pt);
 	void right_clicked(QPoint pt);
-	void highlighted_area(QPoint pt0, int width, int height);
+	void highlighted_area(QRect area);
 	void double_clicked(QPoint pt);
 
 protected:
