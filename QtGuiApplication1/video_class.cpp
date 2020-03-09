@@ -141,6 +141,21 @@ void Video::zoom_image(QPoint origin, int w, int h)
 		width = w;
 		height = h;
 	}
+
+	// if updated area exceeds width, move origin to left
+	if (pt0.x() + width > image_x)
+	{
+		int delta = pt0.x() + width - image_x;
+		pt0.setX(pt0.x() - delta);
+	}
+	
+	// if updated area exceeds height, move origin up
+	if (pt0.y() + height > image_y)
+	{
+		int delta = pt0.y() + height - image_y;
+		pt0.setY(pt0.y() - delta);
+	}
+
 }
 
 void Video::unzoom(QPoint origin)
