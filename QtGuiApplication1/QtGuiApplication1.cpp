@@ -1851,9 +1851,6 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	ui.btn_fast_forward->setEnabled(input);
 	ui.btn_slow_back->setEnabled(input);
 	ui.btn_video_menu->setEnabled(input);
-	
-	ui.btn_zoom_in->setEnabled(input);
-	ui.btn_zoom_out->setEnabled(input);
 
 	ui.btn_frame_record->setEnabled(input);
 	ui.btn_frame_save->setEnabled(input);
