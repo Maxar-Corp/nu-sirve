@@ -108,8 +108,6 @@ public:
     QPushButton *btn_frame_record;
     QLabel *lbl_video_frame;
     QLabel *lbl_video_time_midnight;
-    QPushButton *btn_zoom_in;
-    QPushButton *btn_zoom_out;
     QTabWidget *tabPlots;
     QWidget *tab_3;
     QFrame *frm_histogram;
@@ -470,14 +468,6 @@ public:
         lbl_video_time_midnight->setFrameShape(QFrame::NoFrame);
         lbl_video_time_midnight->setFrameShadow(QFrame::Plain);
         lbl_video_time_midnight->setAlignment(Qt::AlignCenter);
-        btn_zoom_in = new QPushButton(frmVideoPlayer);
-        btn_zoom_in->setObjectName(QString::fromUtf8("btn_zoom_in"));
-        btn_zoom_in->setEnabled(false);
-        btn_zoom_in->setGeometry(QRect(120, 560, 35, 30));
-        btn_zoom_out = new QPushButton(frmVideoPlayer);
-        btn_zoom_out->setObjectName(QString::fromUtf8("btn_zoom_out"));
-        btn_zoom_out->setEnabled(false);
-        btn_zoom_out->setGeometry(QRect(160, 560, 35, 30));
         tabPlots = new QTabWidget(centralWidget);
         tabPlots->setObjectName(QString::fromUtf8("tabPlots"));
         tabPlots->setGeometry(QRect(1000, 50, 684, 620));
@@ -687,8 +677,6 @@ public:
         btn_frame_record->setText(QApplication::translate("QtGuiApplication1Class", "Rec", nullptr));
         lbl_video_frame->setText(QString());
         lbl_video_time_midnight->setText(QString());
-        btn_zoom_in->setText(QApplication::translate("QtGuiApplication1Class", "+", nullptr));
-        btn_zoom_out->setText(QApplication::translate("QtGuiApplication1Class", "-", nullptr));
         tabPlots->setTabText(tabPlots->indexOf(tab_3), QApplication::translate("QtGuiApplication1Class", "Histogram", nullptr));
         chk_plot_full_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot All Data", nullptr));
         chk_plot_primary_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot Primary Data Only", nullptr));
