@@ -36,10 +36,10 @@ void Annotations::show_annotation(int index)
 	if (index >= 0) {
 		annotation_info d = data[index];
 
-		output = "Annotation: " + d.text + "\n";
-		output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n";
-		output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n";
-		output += "Frame Start: " + QString::number(d.frame_start) + "\t Num Frames: " + QString::number(d.num_frames) + " \n";
+		output = "Annotation: " + d.text + "\n\n";
+		output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n\n";
+		output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n\n";
+		output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nNum Frames: " + QString::number(d.num_frames) + " \n";
 	}
 	else {
 		output = "";
