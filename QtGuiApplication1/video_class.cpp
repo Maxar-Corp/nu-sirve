@@ -456,5 +456,6 @@ void Video::update_color_correction(double new_min_value, double new_max_value)
 {
 	color_correction.set_min(new_min_value);
 	color_correction.set_max(new_max_value);
+	update_display_frame();
 
 }
