@@ -179,6 +179,8 @@ void Video::zoom_image(QRect info)
 	// set zoom area to appropriate values
 	QRect new_zoom(x, y, width, height);
 	zoom_list.push_back(new_zoom);
+
+	update_display_frame();
 }
 
 void Video::unzoom(QPoint origin)
