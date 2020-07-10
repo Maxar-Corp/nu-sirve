@@ -1,11 +1,14 @@
 #include "annotations.h"
 
-Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, QWidget * parent) : data(input_vector)
+Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, Video *input_video, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
-
+	
 	base_data = details;
 	repopulate_list();
+
+	// pointer to video frame
+	current_video = input_video;
 
 	connect(btn_ok, &QPushButton::pressed, this, &Annotations::ok);
 	connect(btn_new, &QPushButton::pressed, this, &Annotations::add);
@@ -128,7 +131,7 @@ void Annotations::add()
 	data.push_back(new_data);
 	
 	// display new annotation screen
-	NewAnnotation add_annotation(data.back());
+	NewAnnotation add_annotation(data.back(), current_video);
 	auto response = add_annotation.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
@@ -154,7 +157,7 @@ void Annotations::edit()
 		annotation_info old_data = data[index];
 
 		// display new annotation screen
-		NewAnnotation add_annotation(data[index]);
+		NewAnnotation add_annotation(data[index], current_video);
 		auto response = add_annotation.exec();
 
 		// if action was cancelled or window closed, then restore previous annotation
