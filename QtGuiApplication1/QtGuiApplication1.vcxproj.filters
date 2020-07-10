@@ -161,6 +161,15 @@
     <QtMoc Include="color_correction.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="clickable_label.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="annotations.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="annotation_new.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="QtGuiApplication1.ui">
