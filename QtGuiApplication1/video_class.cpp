@@ -34,6 +34,9 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
+
+	label->setObjectName("video_object");
+	label->setStyleSheet("#video_object { border: 1px solid black; }");
 }
 
 /*
@@ -180,6 +183,10 @@ void Video::zoom_image(QRect info)
 	QRect new_zoom(x, y, width, height);
 	zoom_list.push_back(new_zoom);
 
+	// changes color of frame when zoomed within frame
+	label->setObjectName("video_object");
+	label->setStyleSheet("#video_object { border: 3px solid blue; }");
+
 	update_display_frame();
 }
 
@@ -192,6 +199,12 @@ void Video::unzoom(QPoint origin)
 		update_display_frame();
 	}
 	
+	// resets border color when not zoomed
+	if (zoom_list.size() == 1)
+	{
+		label->setObjectName("video_object");
+		label->setStyleSheet("#video_object { border: 1px solid black; }");
+	}
 }
 
 void Video::update_display_frame()
