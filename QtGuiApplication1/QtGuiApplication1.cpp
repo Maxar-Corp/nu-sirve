@@ -1137,7 +1137,7 @@ void QtGuiApplication1::annotate_video()
 	standard_info.min_frame = min_frame;
 	standard_info.max_frame = min_frame + num_frames;
 
-	Annotations annotate_gui(ir_video->annotation_list, standard_info);
+	Annotations annotate_gui(ir_video->annotation_list, standard_info, ir_video);
 	annotate_gui.exec();
 }
 

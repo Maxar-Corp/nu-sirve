@@ -16,6 +16,7 @@
 #include <qgridlayout.h>
 
 #include "Data_Structures.h"
+#include "video_class.h"
 
 
 class NewAnnotation : public QDialog
@@ -23,7 +24,7 @@ class NewAnnotation : public QDialog
 	Q_OBJECT
 
 public:
-	NewAnnotation(annotation_info &data, QWidget *parent = nullptr);
+	NewAnnotation(annotation_info &data, Video *input_video, QWidget *parent = nullptr);
 	~NewAnnotation();
 
 	int get_numeric_value(QString input);
@@ -53,14 +54,14 @@ private:
 	QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size, *lbl_x, *lbl_y;
 
 	QGridLayout *mainLayout;
-		
+
+	Video *current_video;		
 
 	void initialize_gui();
 	void display_error(QString msg);
 	void add();
 	void close_window();
 	void closeEvent(QCloseEvent *event);
-
 };
 
 
