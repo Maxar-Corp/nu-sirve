@@ -69,6 +69,10 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	QRect new_zoom(0, 0, x_pixels, y_pixels);
 	zoom_list.push_back(new_zoom);
 
+	// resets border color
+	label->setObjectName("video_object");
+	label->setStyleSheet("#video_object { border: 1px solid black; }");
+
 }
 
 void Video::receive_video_data(video_details &new_input)
