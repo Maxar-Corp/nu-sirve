@@ -65,6 +65,12 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 
+
+
+}
+
+void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
+
 	zoom_list.clear();
 	QRect new_zoom(0, 0, x_pixels, y_pixels);
 	zoom_list.push_back(new_zoom);
