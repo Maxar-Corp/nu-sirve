@@ -602,7 +602,8 @@ void QtGuiApplication1::load_abir_data()
 	int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
-		
+	
+	ir_video->clear_all_zoom_levels(x_pixels, y_pixels);
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
 	videos->something.push_back(primary);

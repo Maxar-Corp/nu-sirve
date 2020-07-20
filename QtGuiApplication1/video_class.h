@@ -68,6 +68,7 @@ public:
 	
 	bool plot_tracks, display_boresight_txt, display_tgt_pos_txt;
 	void save_frame();
+	void clear_all_zoom_levels(int x_pixels, int y_pixels);
 
 	void remove_frame();
 
