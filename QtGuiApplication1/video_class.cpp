@@ -30,7 +30,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	display_tgt_pos_txt = false;
 
 	for (int i = 0; i < 255; i++)
-		colorTable.push_back(qRgb(255 - i, i, i));
+		colorTable.push_back(qRgb(i, i, i));
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
@@ -266,9 +266,12 @@ void Video::update_display_frame()
 
 	frame = QImage((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
+	// Convert image to format_indexed. allows color table to take effect on image
+	frame = frame.convertToFormat(QImage::Format_Indexed8);
 	frame.setColorTable(colorTable);
-	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+	// Convert image back to RGB to facilitate use of the colors 
+	frame = frame.convertToFormat(QImage::Format_RGB888);
 
 	// -----------------------------------------------------------
 	// loop thru all user set zooms
