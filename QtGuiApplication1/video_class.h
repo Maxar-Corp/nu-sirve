@@ -59,7 +59,7 @@ public:
 
 	// defines color map parameters for showing color in video frame
 	ColorMap video_colors;
-	int video_color_index;
+	int index_video_color;
 	QVector<QRgb> colorTable;
 	
 	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data);

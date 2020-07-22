@@ -29,8 +29,9 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
 
-	for (int i = 0; i < 255; i++)
-		colorTable.push_back(qRgb(i, i, i));
+	// intializes color map to gray scale
+	index_video_color = 0;
+	colorTable = video_colors.maps[index_video_color].colors;
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
