@@ -56,6 +56,10 @@ public:
 
 	QString banner_text, boresight_text;
 	QColor banner_color, tracker_color;
+
+	// defines color map parameters for showing color in video frame
+	ColorMap video_colors;
+	int video_color_index;
 	QVector<QRgb> colorTable;
 	
 	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data);
