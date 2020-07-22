@@ -120,6 +120,9 @@
     <ClCompile Include="clickable_label.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="color_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">

@@ -126,6 +126,7 @@
     <ClCompile Include="clickable_label.cpp" />
     <ClCompile Include="color_correction.cpp" />
     <ClCompile Include="color_correction_plot.cpp" />
+    <ClCompile Include="color_map.cpp" />
     <ClCompile Include="color_scheme.cpp" />
     <ClCompile Include="deinterlace.cpp" />
     <ClCompile Include="earth.cpp" />
