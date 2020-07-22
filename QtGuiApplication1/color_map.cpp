@@ -1,50 +1,168 @@
-#pragma once
-
-#ifndef COLOR_MAP_H
-#define COLOR_MAP_H
-
-#include <iostream>
-#include <string>
-#include <math.h>
-
-#include <QString>
-#include <QTimer>
-#include <QLabel>
-#include <vector>
-#include <math.h>
-#include <qpainter.h>
-#include <qbrush.h>
+#include "color_map.h"
 
 
-struct color_range {
-	QString name;
-	QVector<QRgb> colors;
-};
-
-
-class ColorMap : public QWidget
+ColorMap::ColorMap()
 {
-	public:
-		QVector<color_range>maps;
+	
+	initialize_gray_scale();
+	initialize_jet_scale();
+	initialize_parula_scale();
+	initialize_hot_scale();
+	initialize_cool_scale();
+	initialize_summer_scale();
+	initialize_autumn_scale();
+	initialize_winter_scale();
+	intialize_copper_scale();
 
-		ColorMap();
-		
+}
 
-	private:
-		void initialize_gray_scale();
-		void initialize_jet_scale();
-		void initialize_parula_scale();
-		void initialize_hot_scale();
-		void initialize_cool_scale();
-		void initialize_summer_scale();
-		void initialize_autumn_scale();
-		void initialize_winter_scale();
-		void intialize_copper_scale();
-};
+void ColorMap::initialize_gray_scale()
+{
+	color_range gray;
+	gray.name = "gray";
+	gray.colors = {
+			qRgb(0, 0, 0), qRgb(1, 1, 1), qRgb(2, 2, 2), qRgb(3, 3, 3), qRgb(4, 4, 4), qRgb(5, 5, 5), qRgb(6, 6, 6), qRgb(7, 7, 7), qRgb(8, 8, 8), qRgb(9, 9, 9),
+			qRgb(10, 10, 10), qRgb(11, 11, 11), qRgb(12, 12, 12), qRgb(13, 13, 13), qRgb(14, 14, 14), qRgb(15, 15, 15), qRgb(16, 16, 16), qRgb(17, 17, 17), qRgb(18, 18, 18), qRgb(19, 19, 19),
+			qRgb(20, 20, 20), qRgb(21, 21, 21), qRgb(22, 22, 22), qRgb(23, 23, 23), qRgb(24, 24, 24), qRgb(25, 25, 25), qRgb(26, 26, 26), qRgb(27, 27, 27), qRgb(28, 28, 28), qRgb(29, 29, 29),
+			qRgb(30, 30, 30), qRgb(31, 31, 31), qRgb(32, 32, 32), qRgb(33, 33, 33), qRgb(34, 34, 34), qRgb(35, 35, 35), qRgb(36, 36, 36), qRgb(37, 37, 37), qRgb(38, 38, 38), qRgb(39, 39, 39),
+			qRgb(40, 40, 40), qRgb(41, 41, 41), qRgb(42, 42, 42), qRgb(43, 43, 43), qRgb(44, 44, 44), qRgb(45, 45, 45), qRgb(46, 46, 46), qRgb(47, 47, 47), qRgb(48, 48, 48), qRgb(49, 49, 49),
+			qRgb(50, 50, 50), qRgb(51, 51, 51), qRgb(52, 52, 52), qRgb(53, 53, 53), qRgb(54, 54, 54), qRgb(55, 55, 55), qRgb(56, 56, 56), qRgb(57, 57, 57), qRgb(58, 58, 58), qRgb(59, 59, 59),
+			qRgb(60, 60, 60), qRgb(61, 61, 61), qRgb(62, 62, 62), qRgb(63, 63, 63), qRgb(64, 64, 64), qRgb(65, 65, 65), qRgb(66, 66, 66), qRgb(67, 67, 67), qRgb(68, 68, 68), qRgb(69, 69, 69),
+			qRgb(70, 70, 70), qRgb(71, 71, 71), qRgb(72, 72, 72), qRgb(73, 73, 73), qRgb(74, 74, 74), qRgb(75, 75, 75), qRgb(76, 76, 76), qRgb(77, 77, 77), qRgb(78, 78, 78), qRgb(79, 79, 79),
+			qRgb(80, 80, 80), qRgb(81, 81, 81), qRgb(82, 82, 82), qRgb(83, 83, 83), qRgb(84, 84, 84), qRgb(85, 85, 85), qRgb(86, 86, 86), qRgb(87, 87, 87), qRgb(88, 88, 88), qRgb(89, 89, 89),
+			qRgb(90, 90, 90), qRgb(91, 91, 91), qRgb(92, 92, 92), qRgb(93, 93, 93), qRgb(94, 94, 94), qRgb(95, 95, 95), qRgb(96, 96, 96), qRgb(97, 97, 97), qRgb(98, 98, 98), qRgb(99, 99, 99),
+			qRgb(100, 100, 100), qRgb(101, 101, 101), qRgb(102, 102, 102), qRgb(103, 103, 103), qRgb(104, 104, 104), qRgb(105, 105, 105), qRgb(106, 106, 106), qRgb(107, 107, 107), qRgb(108, 108, 108), qRgb(109, 109, 109),
+			qRgb(110, 110, 110), qRgb(111, 111, 111), qRgb(112, 112, 112), qRgb(113, 113, 113), qRgb(114, 114, 114), qRgb(115, 115, 115), qRgb(116, 116, 116), qRgb(117, 117, 117), qRgb(118, 118, 118), qRgb(119, 119, 119),
+			qRgb(120, 120, 120), qRgb(121, 121, 121), qRgb(122, 122, 122), qRgb(123, 123, 123), qRgb(124, 124, 124), qRgb(125, 125, 125), qRgb(126, 126, 126), qRgb(127, 127, 127), qRgb(128, 128, 128), qRgb(129, 129, 129),
+			qRgb(130, 130, 130), qRgb(131, 131, 131), qRgb(132, 132, 132), qRgb(133, 133, 133), qRgb(134, 134, 134), qRgb(135, 135, 135), qRgb(136, 136, 136), qRgb(137, 137, 137), qRgb(138, 138, 138), qRgb(139, 139, 139),
+			qRgb(140, 140, 140), qRgb(141, 141, 141), qRgb(142, 142, 142), qRgb(143, 143, 143), qRgb(144, 144, 144), qRgb(145, 145, 145), qRgb(146, 146, 146), qRgb(147, 147, 147), qRgb(148, 148, 148), qRgb(149, 149, 149),
+			qRgb(150, 150, 150), qRgb(151, 151, 151), qRgb(152, 152, 152), qRgb(153, 153, 153), qRgb(154, 154, 154), qRgb(155, 155, 155), qRgb(156, 156, 156), qRgb(157, 157, 157), qRgb(158, 158, 158), qRgb(159, 159, 159),
+			qRgb(160, 160, 160), qRgb(161, 161, 161), qRgb(162, 162, 162), qRgb(163, 163, 163), qRgb(164, 164, 164), qRgb(165, 165, 165), qRgb(166, 166, 166), qRgb(167, 167, 167), qRgb(168, 168, 168), qRgb(169, 169, 169),
+			qRgb(170, 170, 170), qRgb(171, 171, 171), qRgb(172, 172, 172), qRgb(173, 173, 173), qRgb(174, 174, 174), qRgb(175, 175, 175), qRgb(176, 176, 176), qRgb(177, 177, 177), qRgb(178, 178, 178), qRgb(179, 179, 179),
+			qRgb(180, 180, 180), qRgb(181, 181, 181), qRgb(182, 182, 182), qRgb(183, 183, 183), qRgb(184, 184, 184), qRgb(185, 185, 185), qRgb(186, 186, 186), qRgb(187, 187, 187), qRgb(188, 188, 188), qRgb(189, 189, 189),
+			qRgb(190, 190, 190), qRgb(191, 191, 191), qRgb(192, 192, 192), qRgb(193, 193, 193), qRgb(194, 194, 194), qRgb(195, 195, 195), qRgb(196, 196, 196), qRgb(197, 197, 197), qRgb(198, 198, 198), qRgb(199, 199, 199),
+			qRgb(200, 200, 200), qRgb(201, 201, 201), qRgb(202, 202, 202), qRgb(203, 203, 203), qRgb(204, 204, 204), qRgb(205, 205, 205), qRgb(206, 206, 206), qRgb(207, 207, 207), qRgb(208, 208, 208), qRgb(209, 209, 209),
+			qRgb(210, 210, 210), qRgb(211, 211, 211), qRgb(212, 212, 212), qRgb(213, 213, 213), qRgb(214, 214, 214), qRgb(215, 215, 215), qRgb(216, 216, 216), qRgb(217, 217, 217), qRgb(218, 218, 218), qRgb(219, 219, 219),
+			qRgb(220, 220, 220), qRgb(221, 221, 221), qRgb(222, 222, 222), qRgb(223, 223, 223), qRgb(224, 224, 224), qRgb(225, 225, 225), qRgb(226, 226, 226), qRgb(227, 227, 227), qRgb(228, 228, 228), qRgb(229, 229, 229),
+			qRgb(230, 230, 230), qRgb(231, 231, 231), qRgb(232, 232, 232), qRgb(233, 233, 233), qRgb(234, 234, 234), qRgb(235, 235, 235), qRgb(236, 236, 236), qRgb(237, 237, 237), qRgb(238, 238, 238), qRgb(239, 239, 239),
+			qRgb(240, 240, 240), qRgb(241, 241, 241), qRgb(242, 242, 242), qRgb(243, 243, 243), qRgb(244, 244, 244), qRgb(245, 245, 245), qRgb(246, 246, 246), qRgb(247, 247, 247), qRgb(248, 248, 248), qRgb(249, 249, 249),
+			qRgb(250, 250, 250), qRgb(251, 251, 251), qRgb(252, 252, 252), qRgb(253, 253, 253), qRgb(254, 254, 254), qRgb(255, 255, 255)
+	};
 
-struct colormap_cool {
-	QString name = "cool";
-	QVector<QRgb> colors{
+	maps.push_back(gray);
+}
+
+void ColorMap::initialize_jet_scale()
+{
+	color_range jet;
+	jet.name = "jet";
+	jet.colors = {
+		qRgb(0, 0, 131), qRgb(0, 0, 135), qRgb(0, 0, 139), qRgb(0, 0, 143), qRgb(0, 0, 147), qRgb(0, 0, 151), qRgb(0, 0, 155), qRgb(0, 0, 159), qRgb(0, 0, 163), qRgb(0, 0, 167),
+		qRgb(0, 0, 171), qRgb(0, 0, 175), qRgb(0, 0, 179), qRgb(0, 0, 183), qRgb(0, 0, 187), qRgb(0, 0, 191), qRgb(0, 0, 195), qRgb(0, 0, 199), qRgb(0, 0, 203), qRgb(0, 0, 207),
+		qRgb(0, 0, 211), qRgb(0, 0, 215), qRgb(0, 0, 219), qRgb(0, 0, 223), qRgb(0, 0, 227), qRgb(0, 0, 231), qRgb(0, 0, 235), qRgb(0, 0, 239), qRgb(0, 0, 243), qRgb(0, 0, 247),
+		qRgb(0, 0, 251), qRgb(0, 0, 255), qRgb(0, 4, 255), qRgb(0, 8, 255), qRgb(0, 12, 255), qRgb(0, 16, 255), qRgb(0, 20, 255), qRgb(0, 24, 255), qRgb(0, 28, 255), qRgb(0, 32, 255),
+		qRgb(0, 36, 255), qRgb(0, 40, 255), qRgb(0, 44, 255), qRgb(0, 48, 255), qRgb(0, 52, 255), qRgb(0, 56, 255), qRgb(0, 60, 255), qRgb(0, 64, 255), qRgb(0, 68, 255), qRgb(0, 72, 255),
+		qRgb(0, 76, 255), qRgb(0, 80, 255), qRgb(0, 84, 255), qRgb(0, 88, 255), qRgb(0, 92, 255), qRgb(0, 96, 255), qRgb(0, 100, 255), qRgb(0, 104, 255), qRgb(0, 108, 255), qRgb(0, 112, 255),
+		qRgb(0, 116, 255), qRgb(0, 120, 255), qRgb(0, 124, 255), qRgb(0, 128, 255), qRgb(0, 131, 255), qRgb(0, 135, 255), qRgb(0, 139, 255), qRgb(0, 143, 255), qRgb(0, 147, 255), qRgb(0, 151, 255),
+		qRgb(0, 155, 255), qRgb(0, 159, 255), qRgb(0, 163, 255), qRgb(0, 167, 255), qRgb(0, 171, 255), qRgb(0, 175, 255), qRgb(0, 179, 255), qRgb(0, 183, 255), qRgb(0, 187, 255), qRgb(0, 191, 255),
+		qRgb(0, 195, 255), qRgb(0, 199, 255), qRgb(0, 203, 255), qRgb(0, 207, 255), qRgb(0, 211, 255), qRgb(0, 215, 255), qRgb(0, 219, 255), qRgb(0, 223, 255), qRgb(0, 227, 255), qRgb(0, 231, 255),
+		qRgb(0, 235, 255), qRgb(0, 239, 255), qRgb(0, 243, 255), qRgb(0, 247, 255), qRgb(0, 251, 255), qRgb(0, 255, 255), qRgb(4, 255, 251), qRgb(8, 255, 247), qRgb(12, 255, 243), qRgb(16, 255, 239),
+		qRgb(20, 255, 235), qRgb(24, 255, 231), qRgb(28, 255, 227), qRgb(32, 255, 223), qRgb(36, 255, 219), qRgb(40, 255, 215), qRgb(44, 255, 211), qRgb(48, 255, 207), qRgb(52, 255, 203), qRgb(56, 255, 199),
+		qRgb(60, 255, 195), qRgb(64, 255, 191), qRgb(68, 255, 187), qRgb(72, 255, 183), qRgb(76, 255, 179), qRgb(80, 255, 175), qRgb(84, 255, 171), qRgb(88, 255, 167), qRgb(92, 255, 163), qRgb(96, 255, 159),
+		qRgb(100, 255, 155), qRgb(104, 255, 151), qRgb(108, 255, 147), qRgb(112, 255, 143), qRgb(116, 255, 139), qRgb(120, 255, 135), qRgb(124, 255, 131), qRgb(128, 255, 128), qRgb(131, 255, 124), qRgb(135, 255, 120),
+		qRgb(139, 255, 116), qRgb(143, 255, 112), qRgb(147, 255, 108), qRgb(151, 255, 104), qRgb(155, 255, 100), qRgb(159, 255, 96), qRgb(163, 255, 92), qRgb(167, 255, 88), qRgb(171, 255, 84), qRgb(175, 255, 80),
+		qRgb(179, 255, 76), qRgb(183, 255, 72), qRgb(187, 255, 68), qRgb(191, 255, 64), qRgb(195, 255, 60), qRgb(199, 255, 56), qRgb(203, 255, 52), qRgb(207, 255, 48), qRgb(211, 255, 44), qRgb(215, 255, 40),
+		qRgb(219, 255, 36), qRgb(223, 255, 32), qRgb(227, 255, 28), qRgb(231, 255, 24), qRgb(235, 255, 20), qRgb(239, 255, 16), qRgb(243, 255, 12), qRgb(247, 255, 8), qRgb(251, 255, 4), qRgb(255, 255, 0),
+		qRgb(255, 251, 0), qRgb(255, 247, 0), qRgb(255, 243, 0), qRgb(255, 239, 0), qRgb(255, 235, 0), qRgb(255, 231, 0), qRgb(255, 227, 0), qRgb(255, 223, 0), qRgb(255, 219, 0), qRgb(255, 215, 0),
+		qRgb(255, 211, 0), qRgb(255, 207, 0), qRgb(255, 203, 0), qRgb(255, 199, 0), qRgb(255, 195, 0), qRgb(255, 191, 0), qRgb(255, 187, 0), qRgb(255, 183, 0), qRgb(255, 179, 0), qRgb(255, 175, 0),
+		qRgb(255, 171, 0), qRgb(255, 167, 0), qRgb(255, 163, 0), qRgb(255, 159, 0), qRgb(255, 155, 0), qRgb(255, 151, 0), qRgb(255, 147, 0), qRgb(255, 143, 0), qRgb(255, 139, 0), qRgb(255, 135, 0),
+		qRgb(255, 131, 0), qRgb(255, 128, 0), qRgb(255, 124, 0), qRgb(255, 120, 0), qRgb(255, 116, 0), qRgb(255, 112, 0), qRgb(255, 108, 0), qRgb(255, 104, 0), qRgb(255, 100, 0), qRgb(255, 96, 0),
+		qRgb(255, 92, 0), qRgb(255, 88, 0), qRgb(255, 84, 0), qRgb(255, 80, 0), qRgb(255, 76, 0), qRgb(255, 72, 0), qRgb(255, 68, 0), qRgb(255, 64, 0), qRgb(255, 60, 0), qRgb(255, 56, 0),
+		qRgb(255, 52, 0), qRgb(255, 48, 0), qRgb(255, 44, 0), qRgb(255, 40, 0), qRgb(255, 36, 0), qRgb(255, 32, 0), qRgb(255, 28, 0), qRgb(255, 24, 0), qRgb(255, 20, 0), qRgb(255, 16, 0),
+		qRgb(255, 12, 0), qRgb(255, 8, 0), qRgb(255, 4, 0), qRgb(255, 0, 0), qRgb(251, 0, 0), qRgb(247, 0, 0), qRgb(243, 0, 0), qRgb(239, 0, 0), qRgb(235, 0, 0), qRgb(231, 0, 0),
+		qRgb(227, 0, 0), qRgb(223, 0, 0), qRgb(219, 0, 0), qRgb(215, 0, 0), qRgb(211, 0, 0), qRgb(207, 0, 0), qRgb(203, 0, 0), qRgb(199, 0, 0), qRgb(195, 0, 0), qRgb(191, 0, 0),
+		qRgb(187, 0, 0), qRgb(183, 0, 0), qRgb(179, 0, 0), qRgb(175, 0, 0), qRgb(171, 0, 0), qRgb(167, 0, 0), qRgb(163, 0, 0), qRgb(159, 0, 0), qRgb(155, 0, 0), qRgb(151, 0, 0),
+		qRgb(147, 0, 0), qRgb(143, 0, 0), qRgb(139, 0, 0), qRgb(135, 0, 0), qRgb(131, 0, 0), qRgb(128, 0, 0) };
+
+	maps.push_back(jet);
+}
+
+void ColorMap::initialize_parula_scale()
+{
+	color_range parula;
+	parula.name = "parula";
+	parula.colors = {
+		qRgb(255, 0, 0), qRgb(255, 6, 0), qRgb(255, 12, 0), qRgb(255, 18, 0), qRgb(255, 24, 0), qRgb(255, 30, 0), qRgb(255, 36, 0), qRgb(255, 42, 0), qRgb(255, 48, 0), qRgb(255, 54, 0),
+		qRgb(255, 60, 0), qRgb(255, 66, 0), qRgb(255, 72, 0), qRgb(255, 78, 0), qRgb(255, 84, 0), qRgb(255, 90, 0), qRgb(255, 96, 0), qRgb(255, 102, 0), qRgb(255, 108, 0), qRgb(255, 114, 0),
+		qRgb(255, 120, 0), qRgb(255, 126, 0), qRgb(255, 131, 0), qRgb(255, 137, 0), qRgb(255, 143, 0), qRgb(255, 149, 0), qRgb(255, 155, 0), qRgb(255, 161, 0), qRgb(255, 167, 0), qRgb(255, 173, 0),
+		qRgb(255, 179, 0), qRgb(255, 185, 0), qRgb(255, 191, 0), qRgb(255, 197, 0), qRgb(255, 203, 0), qRgb(255, 209, 0), qRgb(255, 215, 0), qRgb(255, 221, 0), qRgb(255, 227, 0), qRgb(255, 233, 0),
+		qRgb(255, 239, 0), qRgb(255, 245, 0), qRgb(255, 251, 0), qRgb(253, 255, 0), qRgb(247, 255, 0), qRgb(241, 255, 0), qRgb(235, 255, 0), qRgb(229, 255, 0), qRgb(223, 255, 0), qRgb(217, 255, 0),
+		qRgb(211, 255, 0), qRgb(205, 255, 0), qRgb(199, 255, 0), qRgb(193, 255, 0), qRgb(187, 255, 0), qRgb(181, 255, 0), qRgb(175, 255, 0), qRgb(169, 255, 0), qRgb(163, 255, 0), qRgb(157, 255, 0),
+		qRgb(151, 255, 0), qRgb(145, 255, 0), qRgb(139, 255, 0), qRgb(133, 255, 0), qRgb(128, 255, 0), qRgb(122, 255, 0), qRgb(116, 255, 0), qRgb(110, 255, 0), qRgb(104, 255, 0), qRgb(98, 255, 0),
+		qRgb(92, 255, 0), qRgb(86, 255, 0), qRgb(80, 255, 0), qRgb(74, 255, 0), qRgb(68, 255, 0), qRgb(62, 255, 0), qRgb(56, 255, 0), qRgb(50, 255, 0), qRgb(44, 255, 0), qRgb(38, 255, 0),
+		qRgb(32, 255, 0), qRgb(26, 255, 0), qRgb(20, 255, 0), qRgb(14, 255, 0), qRgb(8, 255, 0), qRgb(2, 255, 0), qRgb(0, 255, 4), qRgb(0, 255, 10), qRgb(0, 255, 16), qRgb(0, 255, 22),
+		qRgb(0, 255, 28), qRgb(0, 255, 34), qRgb(0, 255, 40), qRgb(0, 255, 46), qRgb(0, 255, 52), qRgb(0, 255, 58), qRgb(0, 255, 64), qRgb(0, 255, 70), qRgb(0, 255, 76), qRgb(0, 255, 82),
+		qRgb(0, 255, 88), qRgb(0, 255, 94), qRgb(0, 255, 100), qRgb(0, 255, 106), qRgb(0, 255, 112), qRgb(0, 255, 118), qRgb(0, 255, 124), qRgb(0, 255, 129), qRgb(0, 255, 135), qRgb(0, 255, 141),
+		qRgb(0, 255, 147), qRgb(0, 255, 153), qRgb(0, 255, 159), qRgb(0, 255, 165), qRgb(0, 255, 171), qRgb(0, 255, 177), qRgb(0, 255, 183), qRgb(0, 255, 189), qRgb(0, 255, 195), qRgb(0, 255, 201),
+		qRgb(0, 255, 207), qRgb(0, 255, 213), qRgb(0, 255, 219), qRgb(0, 255, 225), qRgb(0, 255, 231), qRgb(0, 255, 237), qRgb(0, 255, 243), qRgb(0, 255, 249), qRgb(0, 255, 255), qRgb(0, 249, 255),
+		qRgb(0, 243, 255), qRgb(0, 237, 255), qRgb(0, 231, 255), qRgb(0, 225, 255), qRgb(0, 219, 255), qRgb(0, 213, 255), qRgb(0, 207, 255), qRgb(0, 201, 255), qRgb(0, 195, 255), qRgb(0, 189, 255),
+		qRgb(0, 183, 255), qRgb(0, 177, 255), qRgb(0, 171, 255), qRgb(0, 165, 255), qRgb(0, 159, 255), qRgb(0, 153, 255), qRgb(0, 147, 255), qRgb(0, 141, 255), qRgb(0, 135, 255), qRgb(0, 129, 255),
+		qRgb(0, 124, 255), qRgb(0, 118, 255), qRgb(0, 112, 255), qRgb(0, 106, 255), qRgb(0, 100, 255), qRgb(0, 94, 255), qRgb(0, 88, 255), qRgb(0, 82, 255), qRgb(0, 76, 255), qRgb(0, 70, 255),
+		qRgb(0, 64, 255), qRgb(0, 58, 255), qRgb(0, 52, 255), qRgb(0, 46, 255), qRgb(0, 40, 255), qRgb(0, 34, 255), qRgb(0, 28, 255), qRgb(0, 22, 255), qRgb(0, 16, 255), qRgb(0, 10, 255),
+		qRgb(0, 4, 255), qRgb(2, 0, 255), qRgb(8, 0, 255), qRgb(14, 0, 255), qRgb(20, 0, 255), qRgb(26, 0, 255), qRgb(32, 0, 255), qRgb(38, 0, 255), qRgb(44, 0, 255), qRgb(50, 0, 255),
+		qRgb(56, 0, 255), qRgb(62, 0, 255), qRgb(68, 0, 255), qRgb(74, 0, 255), qRgb(80, 0, 255), qRgb(86, 0, 255), qRgb(92, 0, 255), qRgb(98, 0, 255), qRgb(104, 0, 255), qRgb(110, 0, 255),
+		qRgb(116, 0, 255), qRgb(122, 0, 255), qRgb(128, 0, 255), qRgb(133, 0, 255), qRgb(139, 0, 255), qRgb(145, 0, 255), qRgb(151, 0, 255), qRgb(157, 0, 255), qRgb(163, 0, 255), qRgb(169, 0, 255),
+		qRgb(175, 0, 255), qRgb(181, 0, 255), qRgb(187, 0, 255), qRgb(193, 0, 255), qRgb(199, 0, 255), qRgb(205, 0, 255), qRgb(211, 0, 255), qRgb(217, 0, 255), qRgb(223, 0, 255), qRgb(229, 0, 255),
+		qRgb(235, 0, 255), qRgb(241, 0, 255), qRgb(247, 0, 255), qRgb(253, 0, 255), qRgb(255, 0, 251), qRgb(255, 0, 245), qRgb(255, 0, 239), qRgb(255, 0, 233), qRgb(255, 0, 227), qRgb(255, 0, 221),
+		qRgb(255, 0, 215), qRgb(255, 0, 209), qRgb(255, 0, 203), qRgb(255, 0, 197), qRgb(255, 0, 191), qRgb(255, 0, 185), qRgb(255, 0, 179), qRgb(255, 0, 173), qRgb(255, 0, 167), qRgb(255, 0, 161),
+		qRgb(255, 0, 155), qRgb(255, 0, 149), qRgb(255, 0, 143), qRgb(255, 0, 137), qRgb(255, 0, 131), qRgb(255, 0, 126), qRgb(255, 0, 120), qRgb(255, 0, 114), qRgb(255, 0, 108), qRgb(255, 0, 102),
+		qRgb(255, 0, 96), qRgb(255, 0, 90), qRgb(255, 0, 84), qRgb(255, 0, 78), qRgb(255, 0, 72), qRgb(255, 0, 66), qRgb(255, 0, 60), qRgb(255, 0, 54), qRgb(255, 0, 48), qRgb(255, 0, 42),
+		qRgb(255, 0, 36), qRgb(255, 0, 30), qRgb(255, 0, 24), qRgb(255, 0, 18), qRgb(255, 0, 12), qRgb(255, 0, 6) };
+
+	maps.push_back(parula);
+}
+
+void ColorMap::initialize_hot_scale()
+{
+	color_range hot;
+	hot.name = "hot";
+	hot.colors = {
+		qRgb(3, 0, 0), qRgb(5, 0, 0), qRgb(8, 0, 0), qRgb(11, 0, 0), qRgb(13, 0, 0), qRgb(16, 0, 0), qRgb(19, 0, 0), qRgb(21, 0, 0), qRgb(24, 0, 0), qRgb(27, 0, 0),
+		qRgb(29, 0, 0), qRgb(32, 0, 0), qRgb(35, 0, 0), qRgb(37, 0, 0), qRgb(40, 0, 0), qRgb(43, 0, 0), qRgb(45, 0, 0), qRgb(48, 0, 0), qRgb(50, 0, 0), qRgb(53, 0, 0),
+		qRgb(56, 0, 0), qRgb(58, 0, 0), qRgb(61, 0, 0), qRgb(64, 0, 0), qRgb(66, 0, 0), qRgb(69, 0, 0), qRgb(72, 0, 0), qRgb(74, 0, 0), qRgb(77, 0, 0), qRgb(80, 0, 0),
+		qRgb(82, 0, 0), qRgb(85, 0, 0), qRgb(88, 0, 0), qRgb(90, 0, 0), qRgb(93, 0, 0), qRgb(96, 0, 0), qRgb(98, 0, 0), qRgb(101, 0, 0), qRgb(104, 0, 0), qRgb(106, 0, 0),
+		qRgb(109, 0, 0), qRgb(112, 0, 0), qRgb(114, 0, 0), qRgb(117, 0, 0), qRgb(120, 0, 0), qRgb(122, 0, 0), qRgb(125, 0, 0), qRgb(128, 0, 0), qRgb(130, 0, 0), qRgb(133, 0, 0),
+		qRgb(135, 0, 0), qRgb(138, 0, 0), qRgb(141, 0, 0), qRgb(143, 0, 0), qRgb(146, 0, 0), qRgb(149, 0, 0), qRgb(151, 0, 0), qRgb(154, 0, 0), qRgb(157, 0, 0), qRgb(159, 0, 0),
+		qRgb(162, 0, 0), qRgb(165, 0, 0), qRgb(167, 0, 0), qRgb(170, 0, 0), qRgb(173, 0, 0), qRgb(175, 0, 0), qRgb(178, 0, 0), qRgb(181, 0, 0), qRgb(183, 0, 0), qRgb(186, 0, 0),
+		qRgb(189, 0, 0), qRgb(191, 0, 0), qRgb(194, 0, 0), qRgb(197, 0, 0), qRgb(199, 0, 0), qRgb(202, 0, 0), qRgb(205, 0, 0), qRgb(207, 0, 0), qRgb(210, 0, 0), qRgb(213, 0, 0),
+		qRgb(215, 0, 0), qRgb(218, 0, 0), qRgb(220, 0, 0), qRgb(223, 0, 0), qRgb(226, 0, 0), qRgb(228, 0, 0), qRgb(231, 0, 0), qRgb(234, 0, 0), qRgb(236, 0, 0), qRgb(239, 0, 0),
+		qRgb(242, 0, 0), qRgb(244, 0, 0), qRgb(247, 0, 0), qRgb(250, 0, 0), qRgb(252, 0, 0), qRgb(255, 0, 0), qRgb(255, 3, 0), qRgb(255, 5, 0), qRgb(255, 8, 0), qRgb(255, 11, 0),
+		qRgb(255, 13, 0), qRgb(255, 16, 0), qRgb(255, 19, 0), qRgb(255, 21, 0), qRgb(255, 24, 0), qRgb(255, 27, 0), qRgb(255, 29, 0), qRgb(255, 32, 0), qRgb(255, 35, 0), qRgb(255, 37, 0),
+		qRgb(255, 40, 0), qRgb(255, 43, 0), qRgb(255, 45, 0), qRgb(255, 48, 0), qRgb(255, 50, 0), qRgb(255, 53, 0), qRgb(255, 56, 0), qRgb(255, 58, 0), qRgb(255, 61, 0), qRgb(255, 64, 0),
+		qRgb(255, 66, 0), qRgb(255, 69, 0), qRgb(255, 72, 0), qRgb(255, 74, 0), qRgb(255, 77, 0), qRgb(255, 80, 0), qRgb(255, 82, 0), qRgb(255, 85, 0), qRgb(255, 88, 0), qRgb(255, 90, 0),
+		qRgb(255, 93, 0), qRgb(255, 96, 0), qRgb(255, 98, 0), qRgb(255, 101, 0), qRgb(255, 104, 0), qRgb(255, 106, 0), qRgb(255, 109, 0), qRgb(255, 112, 0), qRgb(255, 114, 0), qRgb(255, 117, 0),
+		qRgb(255, 120, 0), qRgb(255, 122, 0), qRgb(255, 125, 0), qRgb(255, 128, 0), qRgb(255, 130, 0), qRgb(255, 133, 0), qRgb(255, 135, 0), qRgb(255, 138, 0), qRgb(255, 141, 0), qRgb(255, 143, 0),
+		qRgb(255, 146, 0), qRgb(255, 149, 0), qRgb(255, 151, 0), qRgb(255, 154, 0), qRgb(255, 157, 0), qRgb(255, 159, 0), qRgb(255, 162, 0), qRgb(255, 165, 0), qRgb(255, 167, 0), qRgb(255, 170, 0),
+		qRgb(255, 173, 0), qRgb(255, 175, 0), qRgb(255, 178, 0), qRgb(255, 181, 0), qRgb(255, 183, 0), qRgb(255, 186, 0), qRgb(255, 189, 0), qRgb(255, 191, 0), qRgb(255, 194, 0), qRgb(255, 197, 0),
+		qRgb(255, 199, 0), qRgb(255, 202, 0), qRgb(255, 205, 0), qRgb(255, 207, 0), qRgb(255, 210, 0), qRgb(255, 213, 0), qRgb(255, 215, 0), qRgb(255, 218, 0), qRgb(255, 220, 0), qRgb(255, 223, 0),
+		qRgb(255, 226, 0), qRgb(255, 228, 0), qRgb(255, 231, 0), qRgb(255, 234, 0), qRgb(255, 236, 0), qRgb(255, 239, 0), qRgb(255, 242, 0), qRgb(255, 244, 0), qRgb(255, 247, 0), qRgb(255, 250, 0),
+		qRgb(255, 252, 0), qRgb(255, 255, 0), qRgb(255, 255, 4), qRgb(255, 255, 8), qRgb(255, 255, 12), qRgb(255, 255, 16), qRgb(255, 255, 20), qRgb(255, 255, 24), qRgb(255, 255, 28), qRgb(255, 255, 32),
+		qRgb(255, 255, 36), qRgb(255, 255, 40), qRgb(255, 255, 44), qRgb(255, 255, 48), qRgb(255, 255, 52), qRgb(255, 255, 56), qRgb(255, 255, 60), qRgb(255, 255, 64), qRgb(255, 255, 68), qRgb(255, 255, 72),
+		qRgb(255, 255, 76), qRgb(255, 255, 80), qRgb(255, 255, 84), qRgb(255, 255, 88), qRgb(255, 255, 92), qRgb(255, 255, 96), qRgb(255, 255, 100), qRgb(255, 255, 104), qRgb(255, 255, 108), qRgb(255, 255, 112),
+		qRgb(255, 255, 116), qRgb(255, 255, 120), qRgb(255, 255, 124), qRgb(255, 255, 128), qRgb(255, 255, 131), qRgb(255, 255, 135), qRgb(255, 255, 139), qRgb(255, 255, 143), qRgb(255, 255, 147), qRgb(255, 255, 151),
+		qRgb(255, 255, 155), qRgb(255, 255, 159), qRgb(255, 255, 163), qRgb(255, 255, 167), qRgb(255, 255, 171), qRgb(255, 255, 175), qRgb(255, 255, 179), qRgb(255, 255, 183), qRgb(255, 255, 187), qRgb(255, 255, 191),
+		qRgb(255, 255, 195), qRgb(255, 255, 199), qRgb(255, 255, 203), qRgb(255, 255, 207), qRgb(255, 255, 211), qRgb(255, 255, 215), qRgb(255, 255, 219), qRgb(255, 255, 223), qRgb(255, 255, 227), qRgb(255, 255, 231),
+		qRgb(255, 255, 235), qRgb(255, 255, 239), qRgb(255, 255, 243), qRgb(255, 255, 247), qRgb(255, 255, 251), qRgb(255, 255, 255)
+	};
+
+	maps.push_back(hot);
+}
+
+void ColorMap::initialize_cool_scale()
+{
+	color_range cool;
+	cool.name = "cool";
+	cool.colors = {
 	qRgb(0, 255, 255), qRgb(1, 254, 255), qRgb(2, 253, 255), qRgb(3, 252, 255), qRgb(4, 251, 255), qRgb(5, 250, 255), qRgb(6, 249, 255), qRgb(7, 248, 255), qRgb(8, 247, 255), qRgb(9, 246, 255),
 	qRgb(10, 245, 255), qRgb(11, 244, 255), qRgb(12, 243, 255), qRgb(13, 242, 255), qRgb(14, 241, 255), qRgb(15, 240, 255), qRgb(16, 239, 255), qRgb(17, 238, 255), qRgb(18, 237, 255), qRgb(19, 236, 255),
 	qRgb(20, 235, 255), qRgb(21, 234, 255), qRgb(22, 233, 255), qRgb(23, 232, 255), qRgb(24, 231, 255), qRgb(25, 230, 255), qRgb(26, 229, 255), qRgb(27, 228, 255), qRgb(28, 227, 255), qRgb(29, 226, 255),
@@ -72,11 +190,15 @@ struct colormap_cool {
 	qRgb(240, 15, 255), qRgb(241, 14, 255), qRgb(242, 13, 255), qRgb(243, 12, 255), qRgb(244, 11, 255), qRgb(245, 10, 255), qRgb(246, 9, 255), qRgb(247, 8, 255), qRgb(248, 7, 255), qRgb(249, 6, 255),
 	qRgb(250, 5, 255), qRgb(251, 4, 255), qRgb(252, 3, 255), qRgb(253, 2, 255), qRgb(254, 1, 255), qRgb(255, 0, 255)
 	};
-};
 
-struct colormap_summer {
-	QString name = "summer";
-	QVector<QRgb> colors{
+	maps.push_back(cool);
+}
+
+void ColorMap::initialize_summer_scale()
+{
+	color_range summer;
+	summer.name = "summer";
+	summer.colors = {
 	qRgb(0, 128, 102), qRgb(1, 128, 102), qRgb(2, 129, 102), qRgb(3, 129, 102), qRgb(4, 130, 102), qRgb(5, 130, 102), qRgb(6, 131, 102), qRgb(7, 131, 102), qRgb(8, 132, 102), qRgb(9, 132, 102),
 	qRgb(10, 133, 102), qRgb(11, 133, 102), qRgb(12, 134, 102), qRgb(13, 134, 102), qRgb(14, 135, 102), qRgb(15, 135, 102), qRgb(16, 136, 102), qRgb(17, 136, 102), qRgb(18, 137, 102), qRgb(19, 137, 102),
 	qRgb(20, 138, 102), qRgb(21, 138, 102), qRgb(22, 139, 102), qRgb(23, 139, 102), qRgb(24, 140, 102), qRgb(25, 140, 102), qRgb(26, 141, 102), qRgb(27, 141, 102), qRgb(28, 142, 102), qRgb(29, 142, 102),
@@ -104,11 +226,15 @@ struct colormap_summer {
 	qRgb(240, 248, 102), qRgb(241, 248, 102), qRgb(242, 249, 102), qRgb(243, 249, 102), qRgb(244, 250, 102), qRgb(245, 250, 102), qRgb(246, 251, 102), qRgb(247, 251, 102), qRgb(248, 252, 102), qRgb(249, 252, 102),
 	qRgb(250, 253, 102), qRgb(251, 253, 102), qRgb(252, 254, 102), qRgb(253, 254, 102), qRgb(254, 255, 102), qRgb(255, 255, 102)
 	};
-};
 
-struct colormap_autumn {
-	QString name = "autumn";
-	QVector<QRgb> colors{
+	maps.push_back(summer);
+}
+
+void ColorMap::initialize_autumn_scale()
+{
+	color_range autumn;
+	autumn.name = "autumn";
+	autumn.colors = {
 	qRgb(255, 0, 0), qRgb(255, 1, 0), qRgb(255, 2, 0), qRgb(255, 3, 0), qRgb(255, 4, 0), qRgb(255, 5, 0), qRgb(255, 6, 0), qRgb(255, 7, 0), qRgb(255, 8, 0), qRgb(255, 9, 0),
 	qRgb(255, 10, 0), qRgb(255, 11, 0), qRgb(255, 12, 0), qRgb(255, 13, 0), qRgb(255, 14, 0), qRgb(255, 15, 0), qRgb(255, 16, 0), qRgb(255, 17, 0), qRgb(255, 18, 0), qRgb(255, 19, 0),
 	qRgb(255, 20, 0), qRgb(255, 21, 0), qRgb(255, 22, 0), qRgb(255, 23, 0), qRgb(255, 24, 0), qRgb(255, 25, 0), qRgb(255, 26, 0), qRgb(255, 27, 0), qRgb(255, 28, 0), qRgb(255, 29, 0),
@@ -136,11 +262,15 @@ struct colormap_autumn {
 	qRgb(255, 240, 0), qRgb(255, 241, 0), qRgb(255, 242, 0), qRgb(255, 243, 0), qRgb(255, 244, 0), qRgb(255, 245, 0), qRgb(255, 246, 0), qRgb(255, 247, 0), qRgb(255, 248, 0), qRgb(255, 249, 0),
 	qRgb(255, 250, 0), qRgb(255, 251, 0), qRgb(255, 252, 0), qRgb(255, 253, 0), qRgb(255, 254, 0), qRgb(255, 255, 0)
 	};
-};
 
-struct colormap_winter {
-	QString name = "winter";
-	QVector<QRgb> colors{
+	maps.push_back(autumn);
+}
+
+void ColorMap::initialize_winter_scale()
+{
+	color_range winter;
+	winter.name = "winter";
+	winter.colors = {
 	qRgb(0, 0, 255), qRgb(0, 1, 255), qRgb(0, 2, 254), qRgb(0, 3, 254), qRgb(0, 4, 253), qRgb(0, 5, 253), qRgb(0, 6, 252), qRgb(0, 7, 252), qRgb(0, 8, 251), qRgb(0, 9, 251),
 	qRgb(0, 10, 250), qRgb(0, 11, 250), qRgb(0, 12, 249), qRgb(0, 13, 249), qRgb(0, 14, 248), qRgb(0, 15, 248), qRgb(0, 16, 247), qRgb(0, 17, 247), qRgb(0, 18, 246), qRgb(0, 19, 246),
 	qRgb(0, 20, 245), qRgb(0, 21, 245), qRgb(0, 22, 244), qRgb(0, 23, 244), qRgb(0, 24, 243), qRgb(0, 25, 243), qRgb(0, 26, 242), qRgb(0, 27, 242), qRgb(0, 28, 241), qRgb(0, 29, 241),
@@ -168,11 +298,15 @@ struct colormap_winter {
 	qRgb(0, 240, 135), qRgb(0, 241, 135), qRgb(0, 242, 134), qRgb(0, 243, 134), qRgb(0, 244, 133), qRgb(0, 245, 133), qRgb(0, 246, 132), qRgb(0, 247, 132), qRgb(0, 248, 131), qRgb(0, 249, 131),
 	qRgb(0, 250, 130), qRgb(0, 251, 130), qRgb(0, 252, 129), qRgb(0, 253, 129), qRgb(0, 254, 128), qRgb(0, 255, 128)
 	};
-};
 
-struct colormap_copper {
-	QString name = "copper";
-	QVector<QRgb> colors{
+	maps.push_back(winter);
+}
+
+void ColorMap::intialize_copper_scale()
+{
+	color_range copper;
+	copper.name = "copper";
+	copper.colors = {
 	qRgb(0, 0, 0), qRgb(1, 1, 0), qRgb(3, 2, 1), qRgb(4, 2, 1), qRgb(5, 3, 2), qRgb(6, 4, 2), qRgb(8, 5, 3), qRgb(9, 5, 3), qRgb(10, 6, 4), qRgb(11, 7, 4),
 	qRgb(13, 8, 5), qRgb(14, 9, 5), qRgb(15, 9, 6), qRgb(16, 10, 6), qRgb(18, 11, 7), qRgb(19, 12, 7), qRgb(20, 12, 8), qRgb(21, 13, 8), qRgb(23, 14, 9), qRgb(24, 15, 9),
 	qRgb(25, 16, 10), qRgb(26, 16, 10), qRgb(28, 17, 11), qRgb(29, 18, 11), qRgb(30, 19, 12), qRgb(31, 20, 12), qRgb(33, 20, 13), qRgb(34, 21, 13), qRgb(35, 22, 14), qRgb(36, 23, 14),
@@ -200,6 +334,6 @@ struct colormap_copper {
 	qRgb(255, 187, 119), qRgb(255, 188, 120), qRgb(255, 189, 120), qRgb(255, 190, 121), qRgb(255, 191, 121), qRgb(255, 191, 122), qRgb(255, 192, 122), qRgb(255, 193, 123), qRgb(255, 194, 123), qRgb(255, 195, 124),
 	qRgb(255, 195, 124), qRgb(255, 196, 125), qRgb(255, 197, 125), qRgb(255, 198, 126), qRgb(255, 198, 126), qRgb(255, 199, 127)
 	};
-};
 
-#endif
+	maps.push_back(copper);
+}
