@@ -28,6 +28,7 @@
 #include "Data_Structures.h"
 #include "histogram_plotter.h"
 #include "clickable_label.h"
+#include "color_map.h"
 
 class Video : public QWidget
 {
