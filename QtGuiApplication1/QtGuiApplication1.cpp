@@ -275,6 +275,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	menu->addAction(menu_add_banner);
 	menu->addAction(menu_change_color_banner);
 	menu->addAction(menu_change_color_tracker);
+	menu->addAction(menu_change_color_map);
 	menu->addAction(menu_annotate);
 
 	plot_menu = new QMenu(this);
@@ -897,11 +898,14 @@ void QtGuiApplication1::create_menu_actions()
 	connect(menu_change_color_tracker, &QAction::triggered, this, &QtGuiApplication1::edit_tracker_color);
 	connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
 
+	menu_change_color_map = new QAction(tr("&Change Color Map"), this);
+	menu_change_color_map->setStatusTip(tr("Change color map applied to frames "));
+	connect(menu_change_color_map, &QAction::triggered, this, &QtGuiApplication1::edit_color_map);
+	
 	menu_annotate = new QAction(tr("&Annotate Video"), this);
 	menu_annotate->setStatusTip(tr("Add text to video display "));
 	connect(menu_annotate, &QAction::triggered, this, &QtGuiApplication1::annotate_video);
-	//connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
-
+	
 	// ------------------------- PLOT MENU ACTIONS -------------------------
 
 	menu_plot_all_data = new QAction(tr("&Plot all frame data"), this);
@@ -1001,6 +1005,32 @@ int QtGuiApplication1::get_color_index(QList<QString> colors, QColor input_color
 }
 
 
+void QtGuiApplication1::edit_color_map()
+{
+	
+	QList<QString>color_maps{};
+	int number_maps = ir_video->video_colors.maps.size();
+
+	for (int i = 0; i < number_maps; i++)
+		color_maps.append(ir_video->video_colors.maps[i].name);
+
+	QStringList map_list(color_maps);
+	int index = ir_video->index_video_color;
+
+	bool ok;
+	QString input_text = QInputDialog::getItem(0, "Frame Color Map", "Choose Map", map_list, index, false, &ok);
+
+	if (ok) {
+		ir_video->update_color_map(input_text);
+		DEBUG << "GUI: Color map changed";
+		ir_video->update_display_frame();
+	}
+	else {
+		DEBUG << "GUI: Color map change cancelled";
+	}
+
+}
+
 void QtGuiApplication1::edit_banner_color()
 {
 	
@@ -1038,6 +1068,7 @@ void QtGuiApplication1::edit_tracker_color()
 	colors.append("green");
 	colors.append("blue");
 	colors.append("violet");
+	colors.append("black");
 
 	QStringList color_list(colors);
 	int index = get_color_index(colors, ir_video->tracker_color);

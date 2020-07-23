@@ -37,7 +37,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
 
 	label->setObjectName("video_object");
-	label->setStyleSheet("#video_object { border: 1px solid black; }");
+	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 }
 
 /*
@@ -78,7 +78,7 @@ void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 	// resets border color
 	label->setObjectName("video_object");
-	label->setStyleSheet("#video_object { border: 1px solid black; }");
+	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 
 }
 
@@ -99,6 +99,24 @@ void Video::update_banner_color(QString input_color)
 {
 	QColor new_color(input_color);
 	banner_color = new_color;
+}
+
+void Video::update_color_map(QString input_map)
+{
+	
+	// find number of color maps
+	int number_maps = video_colors.maps.size();
+	
+	// cycle through all color maps
+	for (int i = 0; i < number_maps; i++)
+	{
+		// checks to find where input_map matches provided maps
+		if (input_map == video_colors.maps[i].name)
+			index_video_color = i;
+	}
+
+	// sets color table
+	colorTable = video_colors.maps[index_video_color].colors;
 }
 
 void Video::update_tracker_color(QString input_color)
@@ -214,7 +232,7 @@ void Video::unzoom(QPoint origin)
 	if (zoom_list.size() == 1)
 	{
 		label->setObjectName("video_object");
-		label->setStyleSheet("#video_object { border: 1px solid black; }");
+		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 }
 
