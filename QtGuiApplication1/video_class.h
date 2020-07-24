@@ -91,7 +91,7 @@ public slots:
 	void update_color_map(QString input_map);
 
 	void toggle_relative_histogram();
-
+	
 	void zoom_image(QRect info);
 	void unzoom(QPoint origin);
 
