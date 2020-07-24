@@ -1041,6 +1041,8 @@ void QtGuiApplication1::edit_banner_color()
 	colors.append("green");
 	colors.append("blue");
 	colors.append("violet");
+	colors.append("black");
+	colors.append("white");
 
 	QStringList color_list(colors);
 	int index = get_color_index(colors, ir_video->banner_color);
@@ -1069,6 +1071,7 @@ void QtGuiApplication1::edit_tracker_color()
 	colors.append("blue");
 	colors.append("violet");
 	colors.append("black");
+	colors.append("white");
 
 	QStringList color_list(colors);
 	int index = get_color_index(colors, ir_video->tracker_color);
