@@ -1008,27 +1008,25 @@ int QtGuiApplication1::get_color_index(QList<QString> colors, QColor input_color
 void QtGuiApplication1::edit_color_map()
 {
 	
-	QList<QString>color_maps{};
+	QVector<QString>color_maps{};
 	int number_maps = ir_video->video_colors.maps.size();
 
 	for (int i = 0; i < number_maps; i++)
 		color_maps.append(ir_video->video_colors.maps[i].name);
 
-	QStringList map_list(color_maps);
-	int index = ir_video->index_video_color;
+	int initial_index = ir_video->index_video_color;
+	
+	CustomInputDialog color_map_dialog(color_maps, QString("Update Colormap"), QString("Available Colormaps:"), initial_index);
+	connect(color_map_dialog.cmb_options, &QComboBox::currentTextChanged, ir_video, &Video::update_color_map);
 
-	bool ok;
-	QString input_text = QInputDialog::getItem(0, "Frame Color Map", "Choose Map", map_list, index, false, &ok);
+	auto response = color_map_dialog.exec();
 
-	if (ok) {
-		ir_video->update_color_map(input_text);
-		DEBUG << "GUI: Color map changed";
-		ir_video->update_display_frame();
+	if (response == 0) {
+
+		ir_video->update_color_map(color_maps[initial_index]);
+
+		return;
 	}
-	else {
-		DEBUG << "GUI: Color map change cancelled";
-	}
-
 }
 
 void QtGuiApplication1::edit_banner_color()
