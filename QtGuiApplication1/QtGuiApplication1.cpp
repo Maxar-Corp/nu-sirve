@@ -987,7 +987,7 @@ void QtGuiApplication1::edit_plot_text()
 	}
 }
 
-int QtGuiApplication1::get_color_index(QList<QString> colors, QColor input_color) {
+int QtGuiApplication1::get_color_index(QVector<QString> colors, QColor input_color) {
 
 	int index_current_color;
 	QString current_banner_color = input_color.name();
@@ -1032,7 +1032,8 @@ void QtGuiApplication1::edit_color_map()
 void QtGuiApplication1::edit_banner_color()
 {
 	
-	QList<QString> colors{};
+	QVector<QString>colors{};
+
 	colors.append("red");
 	colors.append("orange");
 	colors.append("yellow");
@@ -1042,26 +1043,25 @@ void QtGuiApplication1::edit_banner_color()
 	colors.append("black");
 	colors.append("white");
 
-	QStringList color_list(colors);
-	int index = get_color_index(colors, ir_video->banner_color);
+	int initial_index = get_color_index(colors, ir_video->banner_color);
 
-	bool ok;
-	QString input_text = QInputDialog::getItem(0, "Banner Color", "Banner Color", color_list, index, false, &ok);
+	CustomInputDialog banner_color_dialog(colors, QString("Update Banner Colors"), QString("Available Colors:"), initial_index);
+	connect(banner_color_dialog.cmb_options, &QComboBox::currentTextChanged, ir_video, &Video::update_banner_color);
 
-	if (ok) {
-		emit change_banner_color(input_text);
-		DEBUG << "GUI: Banner color changed";
-		ir_video->update_display_frame();
-	}
-	else {
-		DEBUG << "GUI: Banner color change cancelled";
+	auto response = banner_color_dialog.exec();
+
+	if (response == 0) {
+
+		ir_video->update_banner_color(colors[initial_index]);
+
+		return;
 	}
 }
 
 void QtGuiApplication1::edit_tracker_color()
 {
 
-	QList<QString> colors{};
+	QVector<QString> colors{};
 	colors.append("red");
 	colors.append("orange");
 	colors.append("yellow");
@@ -1071,8 +1071,24 @@ void QtGuiApplication1::edit_tracker_color()
 	colors.append("black");
 	colors.append("white");
 
-	QStringList color_list(colors);
-	int index = get_color_index(colors, ir_video->tracker_color);
+	int initial_index = get_color_index(colors, ir_video->tracker_color);
+
+	CustomInputDialog tracker_color_dialog(colors, QString("Update Tracker Colors"), QString("Available Colors:"), initial_index);
+	connect(tracker_color_dialog.cmb_options, &QComboBox::currentTextChanged, ir_video, &Video::update_tracker_color);
+
+	auto response = tracker_color_dialog.exec();
+
+	if (response == 0) {
+
+		ir_video->update_tracker_color(colors[initial_index]);
+
+		return;
+	}
+
+
+	/*
+	// QStringList color_list(colors);
+	// int index = get_color_index(colors, ir_video->tracker_color);
 
 	bool ok;
 	QString input_text = QInputDialog::getItem(0, "Tracker Color", "Tracker Color", color_list, index, false, &ok);
@@ -1086,6 +1102,7 @@ void QtGuiApplication1::edit_tracker_color()
 	else {
 		DEBUG << "GUI: Banner color change cancelled";
 	}
+	*/
 }
 
 void QtGuiApplication1::plot_change(int index)
