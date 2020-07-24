@@ -246,6 +246,8 @@ void NewAnnotation::initialize_gui()
 	colors.append("green");
 	colors.append("blue");
 	colors.append("violet");
+	colors.append("black");
+	colors.append("white");
 
 	// add sizes
 	sizes.append("8");
