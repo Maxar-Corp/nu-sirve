@@ -21,6 +21,7 @@
 #include "logging.h"
 #include "jtime.h"
 #include "annotations.h"
+#include "custom_input_dialog.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>

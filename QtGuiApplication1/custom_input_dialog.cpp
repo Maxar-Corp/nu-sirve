@@ -1,23 +1,12 @@
 #include "custom_input_dialog.h"
 
-CustomInputDialog::CustomInputDialog(QVector<QString> combo_box_options, QString dialog_title, QString combo_label, int * index_combo, Video * input_video, QWidget * parent)
+CustomInputDialog::CustomInputDialog(QVector<QString> combo_box_options, QString dialog_title, QString combo_label, int index_combo, QWidget * parent)
 {
-
-	current_video = input_video;
-	current_index = index_combo;
 
 	initialize_gui(combo_box_options, dialog_title, combo_label);
 	
+	cmb_options->setCurrentIndex(index_combo);
 	
-	QComboBox *cmb_options;
-	QPushButton *btn_ok, *btn_cancel;
-	QLabel *lbl_display;
-
-	QGridLayout *mainLayout;
-
-	Video *current_video;
-
-
 }
 
 CustomInputDialog::~CustomInputDialog()
@@ -36,6 +25,8 @@ void CustomInputDialog::initialize_gui(QVector<QString> combo_box_options, QStri
 	// ------------------------------------------------------------
 	// add color maps
 
+	QList<QString> options;
+
 	int num_options = combo_box_options.size();
 	for (int i = 0; i < num_options; i++)
 	{
@@ -52,36 +43,34 @@ void CustomInputDialog::initialize_gui(QVector<QString> combo_box_options, QStri
 	// define buttons
 	btn_ok = new QPushButton(tr("Ok"));
 	btn_cancel = new QPushButton(tr("Cancel"));
+
+	connect(btn_ok, &QPushButton::pressed, this, &CustomInputDialog::ok);
+	connect(btn_cancel, &QPushButton::pressed, this, &CustomInputDialog::close_window);
+
 	// ------------------------------------------------------------
 	// set gridlayout
 
 	mainLayout = new QGridLayout;
-	
-	mainLayout->addWidget(btn_ok, 0, 2);
-	mainLayout->addWidget(btn_cancel, 1, 2);
 
-	mainLayout->addWidget(lbl_display, 1, 0);
-	mainLayout->addWidget(cmb_options, 4, 1);
+	mainLayout->addWidget(lbl_display, 0, 0, 1, 2, Qt::AlignCenter);
+	mainLayout->addWidget(cmb_options, 1, 0, 1, 2, Qt::AlignCenter);
+
+	mainLayout->addWidget(btn_ok, 2, 0, 1, 1, Qt::AlignCenter);
+	mainLayout->addWidget(btn_cancel, 2, 1, 1, 1, Qt::AlignCenter);
+
+	mainLayout->setColumnMinimumWidth(0, 100);
+	mainLayout->setColumnMinimumWidth(1, 100);
 
 	// set grid characterestics
-	mainLayout->setRowStretch(0, 0);
-	mainLayout->setRowStretch(1, 0);
-	mainLayout->setRowStretch(2, 0);
-	mainLayout->setRowStretch(3, 0);
-	mainLayout->setRowStretch(4, 0);
+	mainLayout->setRowStretch(0, 1);
+	mainLayout->setRowStretch(1, 1);
+	mainLayout->setRowStretch(2, 1);
 
-	mainLayout->setColumnStretch(0, 100);
-	mainLayout->setColumnStretch(1, 100);
-	mainLayout->setColumnStretch(2, 0);
+	mainLayout->setColumnStretch(0, 1);
+	mainLayout->setColumnStretch(1, 1);
 
 	setLayout(mainLayout);
 	setWindowTitle(dialog_title);
-
-}
-
-void CustomInputDialog::combo_box_changed(const QString &text)
-{
-
 }
 
 void CustomInputDialog::ok()
