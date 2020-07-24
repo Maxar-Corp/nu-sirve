@@ -1085,24 +1085,6 @@ void QtGuiApplication1::edit_tracker_color()
 		return;
 	}
 
-
-	/*
-	// QStringList color_list(colors);
-	// int index = get_color_index(colors, ir_video->tracker_color);
-
-	bool ok;
-	QString input_text = QInputDialog::getItem(0, "Tracker Color", "Tracker Color", color_list, index, false, &ok);
-
-
-	if (ok) {
-		emit change_tracker_color(input_text);
-		DEBUG << "GUI: Banner color changed";
-		ir_video->update_display_frame();
-	}
-	else {
-		DEBUG << "GUI: Banner color change cancelled";
-	}
-	*/
 }
 
 void QtGuiApplication1::plot_change(int index)
