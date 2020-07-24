@@ -6,7 +6,20 @@ CustomInputDialog::CustomInputDialog(QVector<QString> combo_box_options, QString
 	initialize_gui(combo_box_options, dialog_title, combo_label);
 	
 	cmb_options->setCurrentIndex(index_combo);
-	
+
+	// Resize width of dialog box to fit dialog title length
+	int title_length = dialog_title.length();
+
+	// defaults to 15 in length. this is known to fit within title window
+	if (title_length < 15)
+		title_length = 15;
+
+	int extra_length = title_length - 15;
+	int per_length_increase = 5;
+
+	// resize window 
+	resize(225 + extra_length * per_length_increase, 50);
+
 }
 
 CustomInputDialog::~CustomInputDialog()
