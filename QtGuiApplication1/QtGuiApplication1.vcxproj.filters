@@ -123,6 +123,9 @@
     <ClCompile Include="color_map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="custom_input_dialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -171,6 +174,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="annotation_new.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="custom_input_dialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

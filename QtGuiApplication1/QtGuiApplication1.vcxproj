@@ -128,6 +128,7 @@
     <ClCompile Include="color_correction_plot.cpp" />
     <ClCompile Include="color_map.cpp" />
     <ClCompile Include="color_scheme.cpp" />
+    <ClCompile Include="custom_input_dialog.cpp" />
     <ClCompile Include="deinterlace.cpp" />
     <ClCompile Include="earth.cpp" />
     <ClCompile Include="engineering_data.cpp" />
@@ -184,6 +185,10 @@
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
     </QtMoc>
     <ClInclude Include="color_map.h" />
+    <QtMoc Include="custom_input_dialog.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
     <ClInclude Include="deinterlace.h" />
     <ClInclude Include="earth.h" />
     <QtMoc Include="clickable_label.h">
