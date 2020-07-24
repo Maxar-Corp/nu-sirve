@@ -19,7 +19,7 @@ ColorMap::ColorMap()
 void ColorMap::initialize_gray_scale()
 {
 	color_range gray;
-	gray.name = "gray";
+	gray.name = "Gray";
 	gray.colors = {
 			qRgb(0, 0, 0), qRgb(1, 1, 1), qRgb(2, 2, 2), qRgb(3, 3, 3), qRgb(4, 4, 4), qRgb(5, 5, 5), qRgb(6, 6, 6), qRgb(7, 7, 7), qRgb(8, 8, 8), qRgb(9, 9, 9),
 			qRgb(10, 10, 10), qRgb(11, 11, 11), qRgb(12, 12, 12), qRgb(13, 13, 13), qRgb(14, 14, 14), qRgb(15, 15, 15), qRgb(16, 16, 16), qRgb(17, 17, 17), qRgb(18, 18, 18), qRgb(19, 19, 19),
@@ -55,7 +55,7 @@ void ColorMap::initialize_gray_scale()
 void ColorMap::initialize_jet_scale()
 {
 	color_range jet;
-	jet.name = "jet";
+	jet.name = "Rainbow";
 	jet.colors = {
 		qRgb(0, 0, 131), qRgb(0, 0, 135), qRgb(0, 0, 139), qRgb(0, 0, 143), qRgb(0, 0, 147), qRgb(0, 0, 151), qRgb(0, 0, 155), qRgb(0, 0, 159), qRgb(0, 0, 163), qRgb(0, 0, 167),
 		qRgb(0, 0, 171), qRgb(0, 0, 175), qRgb(0, 0, 179), qRgb(0, 0, 183), qRgb(0, 0, 187), qRgb(0, 0, 191), qRgb(0, 0, 195), qRgb(0, 0, 199), qRgb(0, 0, 203), qRgb(0, 0, 207),
@@ -90,7 +90,7 @@ void ColorMap::initialize_jet_scale()
 void ColorMap::initialize_parula_scale()
 {
 	color_range parula;
-	parula.name = "parula";
+	parula.name = "Red-Yellow-Green-Blue";
 	parula.colors = {
 		qRgb(255, 0, 0), qRgb(255, 6, 0), qRgb(255, 12, 0), qRgb(255, 18, 0), qRgb(255, 24, 0), qRgb(255, 30, 0), qRgb(255, 36, 0), qRgb(255, 42, 0), qRgb(255, 48, 0), qRgb(255, 54, 0),
 		qRgb(255, 60, 0), qRgb(255, 66, 0), qRgb(255, 72, 0), qRgb(255, 78, 0), qRgb(255, 84, 0), qRgb(255, 90, 0), qRgb(255, 96, 0), qRgb(255, 102, 0), qRgb(255, 108, 0), qRgb(255, 114, 0),
@@ -125,7 +125,7 @@ void ColorMap::initialize_parula_scale()
 void ColorMap::initialize_hot_scale()
 {
 	color_range hot;
-	hot.name = "hot";
+	hot.name = "Dark-Red-Yellow";
 	hot.colors = {
 		qRgb(3, 0, 0), qRgb(5, 0, 0), qRgb(8, 0, 0), qRgb(11, 0, 0), qRgb(13, 0, 0), qRgb(16, 0, 0), qRgb(19, 0, 0), qRgb(21, 0, 0), qRgb(24, 0, 0), qRgb(27, 0, 0),
 		qRgb(29, 0, 0), qRgb(32, 0, 0), qRgb(35, 0, 0), qRgb(37, 0, 0), qRgb(40, 0, 0), qRgb(43, 0, 0), qRgb(45, 0, 0), qRgb(48, 0, 0), qRgb(50, 0, 0), qRgb(53, 0, 0),
@@ -161,7 +161,7 @@ void ColorMap::initialize_hot_scale()
 void ColorMap::initialize_cool_scale()
 {
 	color_range cool;
-	cool.name = "cool";
+	cool.name = "Blue-Purple-Magenta";
 	cool.colors = {
 	qRgb(0, 255, 255), qRgb(1, 254, 255), qRgb(2, 253, 255), qRgb(3, 252, 255), qRgb(4, 251, 255), qRgb(5, 250, 255), qRgb(6, 249, 255), qRgb(7, 248, 255), qRgb(8, 247, 255), qRgb(9, 246, 255),
 	qRgb(10, 245, 255), qRgb(11, 244, 255), qRgb(12, 243, 255), qRgb(13, 242, 255), qRgb(14, 241, 255), qRgb(15, 240, 255), qRgb(16, 239, 255), qRgb(17, 238, 255), qRgb(18, 237, 255), qRgb(19, 236, 255),
@@ -197,7 +197,7 @@ void ColorMap::initialize_cool_scale()
 void ColorMap::initialize_summer_scale()
 {
 	color_range summer;
-	summer.name = "summer";
+	summer.name = "Green-Yellow";
 	summer.colors = {
 	qRgb(0, 128, 102), qRgb(1, 128, 102), qRgb(2, 129, 102), qRgb(3, 129, 102), qRgb(4, 130, 102), qRgb(5, 130, 102), qRgb(6, 131, 102), qRgb(7, 131, 102), qRgb(8, 132, 102), qRgb(9, 132, 102),
 	qRgb(10, 133, 102), qRgb(11, 133, 102), qRgb(12, 134, 102), qRgb(13, 134, 102), qRgb(14, 135, 102), qRgb(15, 135, 102), qRgb(16, 136, 102), qRgb(17, 136, 102), qRgb(18, 137, 102), qRgb(19, 137, 102),
@@ -233,7 +233,7 @@ void ColorMap::initialize_summer_scale()
 void ColorMap::initialize_autumn_scale()
 {
 	color_range autumn;
-	autumn.name = "autumn";
+	autumn.name = "Red-Yellow";
 	autumn.colors = {
 	qRgb(255, 0, 0), qRgb(255, 1, 0), qRgb(255, 2, 0), qRgb(255, 3, 0), qRgb(255, 4, 0), qRgb(255, 5, 0), qRgb(255, 6, 0), qRgb(255, 7, 0), qRgb(255, 8, 0), qRgb(255, 9, 0),
 	qRgb(255, 10, 0), qRgb(255, 11, 0), qRgb(255, 12, 0), qRgb(255, 13, 0), qRgb(255, 14, 0), qRgb(255, 15, 0), qRgb(255, 16, 0), qRgb(255, 17, 0), qRgb(255, 18, 0), qRgb(255, 19, 0),
@@ -269,7 +269,7 @@ void ColorMap::initialize_autumn_scale()
 void ColorMap::initialize_winter_scale()
 {
 	color_range winter;
-	winter.name = "winter";
+	winter.name = "Blue-Green";
 	winter.colors = {
 	qRgb(0, 0, 255), qRgb(0, 1, 255), qRgb(0, 2, 254), qRgb(0, 3, 254), qRgb(0, 4, 253), qRgb(0, 5, 253), qRgb(0, 6, 252), qRgb(0, 7, 252), qRgb(0, 8, 251), qRgb(0, 9, 251),
 	qRgb(0, 10, 250), qRgb(0, 11, 250), qRgb(0, 12, 249), qRgb(0, 13, 249), qRgb(0, 14, 248), qRgb(0, 15, 248), qRgb(0, 16, 247), qRgb(0, 17, 247), qRgb(0, 18, 246), qRgb(0, 19, 246),
@@ -305,7 +305,7 @@ void ColorMap::initialize_winter_scale()
 void ColorMap::intialize_copper_scale()
 {
 	color_range copper;
-	copper.name = "copper";
+	copper.name = "Dark-Copper";
 	copper.colors = {
 	qRgb(0, 0, 0), qRgb(1, 1, 0), qRgb(3, 2, 1), qRgb(4, 2, 1), qRgb(5, 3, 2), qRgb(6, 4, 2), qRgb(8, 5, 3), qRgb(9, 5, 3), qRgb(10, 6, 4), qRgb(11, 7, 4),
 	qRgb(13, 8, 5), qRgb(14, 9, 5), qRgb(15, 9, 6), qRgb(16, 10, 6), qRgb(18, 11, 7), qRgb(19, 12, 7), qRgb(20, 12, 8), qRgb(21, 13, 8), qRgb(23, 14, 9), qRgb(24, 15, 9),
