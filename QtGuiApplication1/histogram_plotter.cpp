@@ -1,11 +1,12 @@
 #include "histogram_plotter.h"
 
+
 HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 {
 	chart = new QChart();
 	rel_chart = new QChart();
 
-	chart_view = new QChartView(chart);
+	chart_view = new Clickable_QChartView(chart);
 	rel_chart_view = new QChartView(rel_chart);
 
 	text = new QLabel(this);
