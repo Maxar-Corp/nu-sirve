@@ -61,6 +61,10 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		void initialize_histogram_plot();
 		void remove_histogram_plots();
 
+	signals:
+		void click_drag_histogram(double x0, double x1);
+
+
 	public slots:
 		void update_histogram_chart();
 		void update_specific_histogram(unsigned int frame_number);
