@@ -29,6 +29,8 @@ HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 	// ------------------------------------------------------------------------------
 
 	initialize_histogram_plot();
+
+	connect(chart_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
 }
 
 HistogramLine_Plot::~HistogramLine_Plot(){
@@ -63,6 +65,11 @@ void HistogramLine_Plot::receive_video_data(video_details &new_input)
 void HistogramLine_Plot::toggle_enhanced_dynamic_range(bool input)
 {
 	color_correction.enhanced_dynamic_range = input;
+}
+
+void HistogramLine_Plot::adjust_color_correction(double x0, double x1)
+{
+	int a = 1;
 }
 
 void HistogramLine_Plot::update_histogram_chart() {
