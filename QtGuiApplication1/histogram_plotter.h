@@ -24,8 +24,10 @@
 #include "color_scheme.h"
 #include "color_correction.h"
 #include "video_container.h"
+#include "clickable_chartview.h"
 
 QT_CHARTS_USE_NAMESPACE
+
 
 class HistogramLine_Plot : public QWidget //public QChartView
 {
@@ -36,7 +38,8 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		Lift_Gamma_Gain color_correction;
         
 		QChart *chart, *rel_chart;
-		QChartView *chart_view, *rel_chart_view;
+		QChartView *rel_chart_view;
+		Clickable_QChartView *chart_view;
 
 		QLabel *text;
 		unsigned int maximum_levels;

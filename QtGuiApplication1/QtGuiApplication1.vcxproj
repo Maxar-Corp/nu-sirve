@@ -123,6 +123,7 @@
     <ClCompile Include="annotation_new.cpp" />
     <ClCompile Include="background_subtraction.cpp" />
     <ClCompile Include="binary_file_reader.cpp" />
+    <ClCompile Include="clickable_chartview.cpp" />
     <ClCompile Include="clickable_label.cpp" />
     <ClCompile Include="color_correction.cpp" />
     <ClCompile Include="color_correction_plot.cpp" />
@@ -183,6 +184,10 @@
     <QtMoc Include="color_correction_plot.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+    </QtMoc>
+    <QtMoc Include="clickable_chartview.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets</IncludePath>
     </QtMoc>
     <ClInclude Include="color_map.h" />
     <QtMoc Include="custom_input_dialog.h">
