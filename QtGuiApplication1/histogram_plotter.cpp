@@ -69,7 +69,7 @@ void HistogramLine_Plot::toggle_enhanced_dynamic_range(bool input)
 
 void HistogramLine_Plot::adjust_color_correction(double x0, double x1)
 {
-	int a = 1;
+	emit click_drag_histogram(x0, x1);
 }
 
 void HistogramLine_Plot::update_histogram_chart() {

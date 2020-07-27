@@ -97,6 +97,7 @@ public:
 
 	public slots:
 	
+	void histogram_clicked(double x0, double x1);
 	void lift_slider_toggled(int value);
 	void gain_slider_toggled(int value);
 	void color_correction_toggled(double lift_value, double gain_value);

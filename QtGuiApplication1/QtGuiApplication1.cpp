@@ -83,6 +83,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
+	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &QtGuiApplication1::histogram_clicked);
 
 	record_video = false;
 
@@ -724,6 +725,19 @@ void QtGuiApplication1::update_fps()
 
 	ui.lbl_fps->setText(fps);
 }
+
+
+void QtGuiApplication1::histogram_clicked(double x0, double x1) {
+	// connects the clickable histogram to the main program
+
+	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+
+	int a = 1;
+
+
+}
+
 
 void QtGuiApplication1::lift_slider_toggled(int value) {
 

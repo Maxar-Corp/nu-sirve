@@ -30,6 +30,11 @@ void Clickable_QChartView::mouseReleaseEvent(QMouseEvent *event)
 double Clickable_QChartView::get_x_position(QMouseEvent * event)
 {
 	
+	// get coordinates from clicking on chart
+
+	// technique to get coordinates from stackoverflow:
+	// https://stackoverflow.com/questions/44067831/get-mouse-coordinates-in-qchartviews-axis-system
+
 	auto const widgetPos = event->localPos();
 	auto const scenePos = mapToScene(QPoint(static_cast<int>(widgetPos.x()), static_cast<int>(widgetPos.y())));
 	auto const chartItemPos = chart()->mapFromScene(scenePos);
