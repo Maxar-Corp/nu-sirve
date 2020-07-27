@@ -19,14 +19,18 @@ public:
 	Clickable_QChartView(QChart *chart, QWidget *parent = nullptr);
 	~Clickable_QChartView();
 
-	QPoint pt0;
+	double x0, x1;
 
 signals:
-	void click_drag(QPoint pt0, QPoint pt1);
+	void click_drag(double x0, double x1);
 
 protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+
+private:
+	double get_x_position(QMouseEvent *event);
+	double get_y_position(QMouseEvent *event);
 
 };
 

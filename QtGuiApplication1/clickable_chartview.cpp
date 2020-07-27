@@ -14,7 +14,7 @@ void Clickable_QChartView::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		pt0 = event->pos();
+		x0 = get_x_position(event);
 	}
 }
 
@@ -22,7 +22,18 @@ void Clickable_QChartView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
-		QPoint pt1 = event->pos();
-		emit click_drag(pt0, pt1);
+		x1 = get_x_position(event);
+		emit click_drag(x0, x1);
 	}
+}
+
+double Clickable_QChartView::get_x_position(QMouseEvent * event)
+{
+	
+	auto const widgetPos = event->localPos();
+	auto const scenePos = mapToScene(QPoint(static_cast<int>(widgetPos.x()), static_cast<int>(widgetPos.y())));
+	auto const chartItemPos = chart()->mapFromScene(scenePos);
+	auto const valueGivenSeries = chart()->mapToValue(chartItemPos);
+	
+	return valueGivenSeries.x();
 }
