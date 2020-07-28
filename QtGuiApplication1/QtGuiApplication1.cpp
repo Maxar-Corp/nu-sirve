@@ -728,7 +728,7 @@ void QtGuiApplication1::update_fps()
 
 
 void QtGuiApplication1::histogram_clicked(double x0, double x1) {
-	// connects the clickable histogram to the main program
+	// connects the clickable histogram to the main program 
 
 	// get current lift/gain values
 	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
