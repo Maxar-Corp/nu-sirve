@@ -730,11 +730,63 @@ void QtGuiApplication1::update_fps()
 void QtGuiApplication1::histogram_clicked(double x0, double x1) {
 	// connects the clickable histogram to the main program
 
+	// get current lift/gain values
 	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
 
-	int a = 1;
+	// defines the space around limit lines that will allow user to adjust limits
+	double click_spacing = 0.015;
 
+	// if user click is not near limits, then disregard click  
+	if (abs(lift_value - x0) >= click_spacing && abs(gain_value - x0) >= click_spacing) {
+
+		return;
+	}
+
+	// define area around limit lines that clicks will be valid
+	double gain_ll = gain_value - click_spacing;
+	double gain_ul = gain_value + click_spacing;
+	double lift_ll = lift_value - click_spacing;
+	double lift_ul = lift_value + click_spacing;
+
+	// check if space between limit lines is less than 2 * spacing. this is a special case
+	if (gain_value - lift_value <= 2 * click_spacing)
+	{
+		// find mid-point between limits and set new upper/lower limits for gain/lift
+		double mid_point = (gain_value - lift_value) / 2.0;
+		gain_ll = gain_value - mid_point;
+		lift_ul = lift_value + mid_point;
+	}
+
+	// if user click is closest to gain limit, adjust value
+	if (x0 >= gain_ll && x0 <= gain_ul)
+	{
+		
+		// if drag goes past upper range, then stop at upper range
+		if (x1 > 1)
+			x1 = 1;
+
+		// if drag goes past lift value, then stop change before limit
+		if (x1 < lift_value + 0.01)
+			x1 = lift_value + 0.01;
+
+		ui.slider_gain->setValue(color_correction.get_ui_slider_value(x1));
+	}
+
+	// if user click is closest to lift limit, adjust value
+	if (x0 >= lift_ll && x0 <= lift_ul)
+	{
+
+		// if drag goes past lower range, then stop at lower range
+		if (x1 < 0)
+			x1 = 0;
+
+		// if drag goes past gain value, then stop change before limit
+		if (x1 > gain_value - 0.01)
+			x1 = gain_value - 0.01;
+
+		ui.slider_lift->setValue(color_correction.get_ui_slider_value(x1));
+	}
 
 }
 
