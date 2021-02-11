@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'QtGuiApplication1.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -622,75 +622,75 @@ public:
 
     void retranslateUi(QMainWindow *QtGuiApplication1Class)
     {
-        QtGuiApplication1Class->setWindowTitle(QApplication::translate("QtGuiApplication1Class", "Data Processing Tool", nullptr));
-        actionLoad_OSM->setText(QApplication::translate("QtGuiApplication1Class", "Load OSM", nullptr));
-        lbl_file_name->setText(QApplication::translate("QtGuiApplication1Class", "File Name:", nullptr));
-        txt_start_frame->setText(QApplication::translate("QtGuiApplication1Class", "0", nullptr));
-        label_4->setText(QApplication::translate("QtGuiApplication1Class", "End Frame", nullptr));
-        btn_get_frames->setText(QApplication::translate("QtGuiApplication1Class", "Load Frames", nullptr));
-        label_3->setText(QApplication::translate("QtGuiApplication1Class", "Start Frame", nullptr));
-        lbl_max_frames->setText(QApplication::translate("QtGuiApplication1Class", "Max Frames: ", nullptr));
-        btn_load_osm->setText(QApplication::translate("QtGuiApplication1Class", "Load OSM File", nullptr));
-        lbl_file_load->setText(QApplication::translate("QtGuiApplication1Class", "File Load Status:", nullptr));
-        label_5->setText(QApplication::translate("QtGuiApplication1Class", "Format is:    YYYY/MM/DD HH:MM:SS", nullptr));
-        label_6->setText(QApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
-        btn_copy_directory->setText(QApplication::translate("QtGuiApplication1Class", "Copy Path", nullptr));
-        dt_epoch->setDisplayFormat(QApplication::translate("QtGuiApplication1Class", "yyyy/MM/dd hh:mm:ss.zzz", nullptr));
-        btn_apply_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Apply Epoch", nullptr));
-        lbl_current_epoch->setText(QApplication::translate("QtGuiApplication1Class", "Applied Epoch: ", nullptr));
-        tabMenu->setTabText(tabMenu->indexOf(tab), QApplication::translate("QtGuiApplication1Class", "Import", nullptr));
-        lbl_gain->setText(QApplication::translate("QtGuiApplication1Class", "Light\n"
+        QtGuiApplication1Class->setWindowTitle(QCoreApplication::translate("QtGuiApplication1Class", "Data Processing Tool", nullptr));
+        actionLoad_OSM->setText(QCoreApplication::translate("QtGuiApplication1Class", "Load OSM", nullptr));
+        lbl_file_name->setText(QCoreApplication::translate("QtGuiApplication1Class", "File Name:", nullptr));
+        txt_start_frame->setText(QCoreApplication::translate("QtGuiApplication1Class", "0", nullptr));
+        label_4->setText(QCoreApplication::translate("QtGuiApplication1Class", "End Frame", nullptr));
+        btn_get_frames->setText(QCoreApplication::translate("QtGuiApplication1Class", "Load Frames", nullptr));
+        label_3->setText(QCoreApplication::translate("QtGuiApplication1Class", "Start Frame", nullptr));
+        lbl_max_frames->setText(QCoreApplication::translate("QtGuiApplication1Class", "Max Frames: ", nullptr));
+        btn_load_osm->setText(QCoreApplication::translate("QtGuiApplication1Class", "Load OSM File", nullptr));
+        lbl_file_load->setText(QCoreApplication::translate("QtGuiApplication1Class", "File Load Status:", nullptr));
+        label_5->setText(QCoreApplication::translate("QtGuiApplication1Class", "Format is:    YYYY/MM/DD HH:MM:SS", nullptr));
+        label_6->setText(QCoreApplication::translate("QtGuiApplication1Class", "Epoch", nullptr));
+        btn_copy_directory->setText(QCoreApplication::translate("QtGuiApplication1Class", "Copy Path", nullptr));
+        dt_epoch->setDisplayFormat(QCoreApplication::translate("QtGuiApplication1Class", "yyyy/MM/dd hh:mm:ss.zzz", nullptr));
+        btn_apply_epoch->setText(QCoreApplication::translate("QtGuiApplication1Class", "Apply Epoch", nullptr));
+        lbl_current_epoch->setText(QCoreApplication::translate("QtGuiApplication1Class", "Applied Epoch: ", nullptr));
+        tabMenu->setTabText(tabMenu->indexOf(tab), QCoreApplication::translate("QtGuiApplication1Class", "Import", nullptr));
+        lbl_gain->setText(QCoreApplication::translate("QtGuiApplication1Class", "Light\n"
 "Set Point", nullptr));
-        lbl_gain_value->setText(QApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
-        lbl_lift_value->setText(QApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
-        lbl_lift->setText(QApplication::translate("QtGuiApplication1Class", "Dark \n"
+        lbl_gain_value->setText(QCoreApplication::translate("QtGuiApplication1Class", "1.0", nullptr));
+        lbl_lift_value->setText(QCoreApplication::translate("QtGuiApplication1Class", "0.0", nullptr));
+        lbl_lift->setText(QCoreApplication::translate("QtGuiApplication1Class", "Dark \n"
 "Set Point", nullptr));
-        btn_reset_color_correction->setText(QApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
-        chk_relative_histogram->setText(QApplication::translate("QtGuiApplication1Class", "Show Relative Histogram", nullptr));
-        tabMenu->setTabText(tabMenu->indexOf(tab_2), QApplication::translate("QtGuiApplication1Class", "Color", nullptr));
-        btn_create_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));
-        chk_apply_nuc->setText(QApplication::translate("QtGuiApplication1Class", "Apply NUC", nullptr));
-        lblNucStart->setText(QApplication::translate("QtGuiApplication1Class", "Start Frame", nullptr));
-        lblNucStop->setText(QApplication::translate("QtGuiApplication1Class", "Stop Frame", nullptr));
-        lblNuc->setText(QApplication::translate("QtGuiApplication1Class", "Non-Uniformity Correction (NUC)", nullptr));
-        btn_bgs->setText(QApplication::translate("QtGuiApplication1Class", "Create Background \n"
+        btn_reset_color_correction->setText(QCoreApplication::translate("QtGuiApplication1Class", "Reset", nullptr));
+        chk_relative_histogram->setText(QCoreApplication::translate("QtGuiApplication1Class", "Show Relative Histogram", nullptr));
+        tabMenu->setTabText(tabMenu->indexOf(tab_2), QCoreApplication::translate("QtGuiApplication1Class", "Color", nullptr));
+        btn_create_nuc->setText(QCoreApplication::translate("QtGuiApplication1Class", "Create NUC", nullptr));
+        chk_apply_nuc->setText(QCoreApplication::translate("QtGuiApplication1Class", "Apply NUC", nullptr));
+        lblNucStart->setText(QCoreApplication::translate("QtGuiApplication1Class", "Start Frame", nullptr));
+        lblNucStop->setText(QCoreApplication::translate("QtGuiApplication1Class", "Stop Frame", nullptr));
+        lblNuc->setText(QCoreApplication::translate("QtGuiApplication1Class", "Non-Uniformity Correction (NUC)", nullptr));
+        btn_bgs->setText(QCoreApplication::translate("QtGuiApplication1Class", "Create Background \n"
 "Subtraction", nullptr));
-        chk_bgs->setText(QApplication::translate("QtGuiApplication1Class", "Apply Background Subtraction", nullptr));
-        lblBGS->setText(QApplication::translate("QtGuiApplication1Class", "Background Subtraction:", nullptr));
-        lblBGS_num_frames->setText(QApplication::translate("QtGuiApplication1Class", "Number of Frames", nullptr));
-        btn_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Create", nullptr));
-        chk_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "Apply De-Interlace Method", nullptr));
-        lbl_deinterlace->setText(QApplication::translate("QtGuiApplication1Class", "De-Interlace Methods", nullptr));
-        btn_clear_filters->setText(QApplication::translate("QtGuiApplication1Class", "Clear All Image Processing Filters", nullptr));
-        tabMenu->setTabText(tabMenu->indexOf(tab_5), QApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
-        tabMenu->setTabText(tabMenu->indexOf(tab_6), QApplication::translate("QtGuiApplication1Class", "Info", nullptr));
-        btn_play->setText(QApplication::translate("QtGuiApplication1Class", "Pl", nullptr));
-        btn_slow_back->setText(QApplication::translate("QtGuiApplication1Class", "SS", nullptr));
-        btn_fast_forward->setText(QApplication::translate("QtGuiApplication1Class", "FF", nullptr));
+        chk_bgs->setText(QCoreApplication::translate("QtGuiApplication1Class", "Apply Background Subtraction", nullptr));
+        lblBGS->setText(QCoreApplication::translate("QtGuiApplication1Class", "Background Subtraction:", nullptr));
+        lblBGS_num_frames->setText(QCoreApplication::translate("QtGuiApplication1Class", "Number of Frames", nullptr));
+        btn_deinterlace->setText(QCoreApplication::translate("QtGuiApplication1Class", "Create", nullptr));
+        chk_deinterlace->setText(QCoreApplication::translate("QtGuiApplication1Class", "Apply De-Interlace Method", nullptr));
+        lbl_deinterlace->setText(QCoreApplication::translate("QtGuiApplication1Class", "De-Interlace Methods", nullptr));
+        btn_clear_filters->setText(QCoreApplication::translate("QtGuiApplication1Class", "Clear All Image Processing Filters", nullptr));
+        tabMenu->setTabText(tabMenu->indexOf(tab_5), QCoreApplication::translate("QtGuiApplication1Class", "Processing", nullptr));
+        tabMenu->setTabText(tabMenu->indexOf(tab_6), QCoreApplication::translate("QtGuiApplication1Class", "Info", nullptr));
+        btn_play->setText(QCoreApplication::translate("QtGuiApplication1Class", "Pl", nullptr));
+        btn_slow_back->setText(QCoreApplication::translate("QtGuiApplication1Class", "SS", nullptr));
+        btn_fast_forward->setText(QCoreApplication::translate("QtGuiApplication1Class", "FF", nullptr));
         lbl_fps->setText(QString());
-        btn_prev_frame->setText(QApplication::translate("QtGuiApplication1Class", "S", nullptr));
-        btn_next_frame->setText(QApplication::translate("QtGuiApplication1Class", "F", nullptr));
-        btn_video_menu->setText(QApplication::translate("QtGuiApplication1Class", "...", nullptr));
-        btn_pause->setText(QApplication::translate("QtGuiApplication1Class", "Pa", nullptr));
-        btn_reverse->setText(QApplication::translate("QtGuiApplication1Class", "Re", nullptr));
-        btn_frame_save->setText(QApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
-        btn_frame_record->setText(QApplication::translate("QtGuiApplication1Class", "Rec", nullptr));
+        btn_prev_frame->setText(QCoreApplication::translate("QtGuiApplication1Class", "S", nullptr));
+        btn_next_frame->setText(QCoreApplication::translate("QtGuiApplication1Class", "F", nullptr));
+        btn_video_menu->setText(QCoreApplication::translate("QtGuiApplication1Class", "...", nullptr));
+        btn_pause->setText(QCoreApplication::translate("QtGuiApplication1Class", "Pa", nullptr));
+        btn_reverse->setText(QCoreApplication::translate("QtGuiApplication1Class", "Re", nullptr));
+        btn_frame_save->setText(QCoreApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
+        btn_frame_record->setText(QCoreApplication::translate("QtGuiApplication1Class", "Rec", nullptr));
         lbl_video_frame->setText(QString());
         lbl_video_time_midnight->setText(QString());
-        tabPlots->setTabText(tabPlots->indexOf(tab_3), QApplication::translate("QtGuiApplication1Class", "Histogram", nullptr));
-        chk_plot_full_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot All Data", nullptr));
-        chk_plot_primary_data->setText(QApplication::translate("QtGuiApplication1Class", "Plot Primary Data Only", nullptr));
-        label->setText(QApplication::translate("QtGuiApplication1Class", "X - Axis", nullptr));
-        label_2->setText(QApplication::translate("QtGuiApplication1Class", "Y - Axis", nullptr));
-        chk_plot_show_line->setText(QApplication::translate("QtGuiApplication1Class", "Show Video Frame Location", nullptr));
-        btn_save_plot->setText(QApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
-        groupBox->setTitle(QApplication::translate("QtGuiApplication1Class", "Y-Axis Options", nullptr));
-        rad_decimal->setText(QApplication::translate("QtGuiApplication1Class", "Decimal", nullptr));
-        rad_linear->setText(QApplication::translate("QtGuiApplication1Class", "Linear", nullptr));
-        rad_scientific->setText(QApplication::translate("QtGuiApplication1Class", "Scientific", nullptr));
-        rad_log->setText(QApplication::translate("QtGuiApplication1Class", "Log", nullptr));
-        btn_plot_menu->setText(QApplication::translate("QtGuiApplication1Class", "...", nullptr));
-        tabPlots->setTabText(tabPlots->indexOf(tab_4), QApplication::translate("QtGuiApplication1Class", "Plots", nullptr));
+        tabPlots->setTabText(tabPlots->indexOf(tab_3), QCoreApplication::translate("QtGuiApplication1Class", "Histogram", nullptr));
+        chk_plot_full_data->setText(QCoreApplication::translate("QtGuiApplication1Class", "Plot All Data", nullptr));
+        chk_plot_primary_data->setText(QCoreApplication::translate("QtGuiApplication1Class", "Plot Primary Data Only", nullptr));
+        label->setText(QCoreApplication::translate("QtGuiApplication1Class", "X - Axis", nullptr));
+        label_2->setText(QCoreApplication::translate("QtGuiApplication1Class", "Y - Axis", nullptr));
+        chk_plot_show_line->setText(QCoreApplication::translate("QtGuiApplication1Class", "Show Video Frame Location", nullptr));
+        btn_save_plot->setText(QCoreApplication::translate("QtGuiApplication1Class", "Sa", nullptr));
+        groupBox->setTitle(QCoreApplication::translate("QtGuiApplication1Class", "Y-Axis Options", nullptr));
+        rad_decimal->setText(QCoreApplication::translate("QtGuiApplication1Class", "Decimal", nullptr));
+        rad_linear->setText(QCoreApplication::translate("QtGuiApplication1Class", "Linear", nullptr));
+        rad_scientific->setText(QCoreApplication::translate("QtGuiApplication1Class", "Scientific", nullptr));
+        rad_log->setText(QCoreApplication::translate("QtGuiApplication1Class", "Log", nullptr));
+        btn_plot_menu->setText(QCoreApplication::translate("QtGuiApplication1Class", "...", nullptr));
+        tabPlots->setTabText(tabPlots->indexOf(tab_4), QCoreApplication::translate("QtGuiApplication1Class", "Plots", nullptr));
     } // retranslateUi
 
 };

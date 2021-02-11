@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'new_location.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -111,14 +111,14 @@ public:
 
     void retranslateUi(QDialog *Dialog_Add_Location)
     {
-        Dialog_Add_Location->setWindowTitle(QApplication::translate("Dialog_Add_Location", "Add New Location", nullptr));
-        btn_create->setText(QApplication::translate("Dialog_Add_Location", "Create Sensor", nullptr));
-        cancelButton->setText(QApplication::translate("Dialog_Add_Location", "Cancel", nullptr));
-        label->setText(QApplication::translate("Dialog_Add_Location", "Name:", nullptr));
-        label_2->setText(QApplication::translate("Dialog_Add_Location", "Description:", nullptr));
-        label_3->setText(QApplication::translate("Dialog_Add_Location", "Latitude(deg)", nullptr));
-        label_4->setText(QApplication::translate("Dialog_Add_Location", "Longitude(deg)", nullptr));
-        label_5->setText(QApplication::translate("Dialog_Add_Location", "Altitude(m)", nullptr));
+        Dialog_Add_Location->setWindowTitle(QCoreApplication::translate("Dialog_Add_Location", "Add New Location", nullptr));
+        btn_create->setText(QCoreApplication::translate("Dialog_Add_Location", "Create Sensor", nullptr));
+        cancelButton->setText(QCoreApplication::translate("Dialog_Add_Location", "Cancel", nullptr));
+        label->setText(QCoreApplication::translate("Dialog_Add_Location", "Name:", nullptr));
+        label_2->setText(QCoreApplication::translate("Dialog_Add_Location", "Description:", nullptr));
+        label_3->setText(QCoreApplication::translate("Dialog_Add_Location", "Latitude(deg)", nullptr));
+        label_4->setText(QCoreApplication::translate("Dialog_Add_Location", "Longitude(deg)", nullptr));
+        label_5->setText(QCoreApplication::translate("Dialog_Add_Location", "Altitude(m)", nullptr));
     } // retranslateUi
 
 };

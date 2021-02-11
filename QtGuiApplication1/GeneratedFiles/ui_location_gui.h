@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'location_gui.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.15.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -79,10 +79,10 @@ public:
 
     void retranslateUi(QDialog *Dialog)
     {
-        Dialog->setWindowTitle(QApplication::translate("Dialog", "Select Location", nullptr));
-        okButton->setText(QApplication::translate("Dialog", "OK", nullptr));
-        cancelButton->setText(QApplication::translate("Dialog", "Cancel", nullptr));
-        btn_add_location->setText(QApplication::translate("Dialog", "Add New Location", nullptr));
+        Dialog->setWindowTitle(QCoreApplication::translate("Dialog", "Select Location", nullptr));
+        okButton->setText(QCoreApplication::translate("Dialog", "OK", nullptr));
+        cancelButton->setText(QCoreApplication::translate("Dialog", "Cancel", nullptr));
+        btn_add_location->setText(QCoreApplication::translate("Dialog", "Add New Location", nullptr));
         lbl_list->setText(QString());
     } // retranslateUi
 
