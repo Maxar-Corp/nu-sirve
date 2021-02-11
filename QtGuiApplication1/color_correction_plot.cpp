@@ -42,7 +42,7 @@ ColorPlotter::~ColorPlotter()
 {
 	delete chart;
 	delete chart_view;
-	delete original_series;
+	//delete original_series;
 	delete updated_series;
 }
 
