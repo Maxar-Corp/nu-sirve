@@ -3,19 +3,16 @@
 QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	: QMainWindow(parent)
 {
-	ui.setupUi(this);
-
-	ui.tabMenu->setTabEnabled(1, false);
-	ui.tabMenu->setTabEnabled(2, false);
-	ui.tabMenu->setTabEnabled(3, false);
-	   
+	
 	INFO << "GUI: Initializing GUI";
+	
+	setup_ui();
 
 	//---------------------------------------------------------------------------
-
+	// read in configuration file 
 	QString path = "config/config.json";
 	QFile file(path);
-	
+
 	if (!file.open(QFile::ReadOnly)) {
 		INFO << "GUI: Cannot open configuration file " + path.toStdString();
 		INFO << "GUI: Setting maximum bit level to 14 bits";
@@ -38,272 +35,79 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 
-	videos = new Video_Container(); 
-	
-	// Initialize epoch time box
-	//ui.dt_epoch->setDate(QDate(2000, 1, 1));
-	//ui.dt_epoch->setTime(QTime(0, 0, 0, 0));
+	tabMenu->setTabEnabled(1, false);
+	tabMenu->setTabEnabled(2, false);
 
-	//---------------------------------------------------------------------------
-	eng_data = NULL;
+	btn_copy_directory->setEnabled(true);
 
-	
-	data_plot_yformat.addButton(ui.rad_decimal);
-	data_plot_yformat.addButton(ui.rad_scientific);
-	ui.rad_decimal->setChecked(true);
+	rad_decimal->setChecked(true);
+	rad_linear->setChecked(true);
 
-	data_plot_yloglinear.addButton(ui.rad_log);
-	data_plot_yloglinear.addButton(ui.rad_linear);
-	ui.rad_linear->setChecked(true);
-
-	connect(ui.rad_log, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_log_toggled);
-	connect(ui.rad_decimal, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_decimal_toggled);
-	connect(ui.rad_linear, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_linear_toggled);
-	connect(ui.rad_scientific, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_scientific_toggled);
-
-	//---------------------------------------------------------------------------
-
+	// establish object to control playback timer and move to a new thread
 	playback_controller = new Playback(1);
 	playback_controller->moveToThread(&thread_timer);
 	QObject::connect(&thread_video, &QThread::started, playback_controller, &Playback::start_timer);
-	
-	//---------------------------------------------------------------------------	
-	
-	ui.btn_copy_directory->setEnabled(true);
+
+	// establish copy copy 
 	clipboard = QApplication::clipboard();
-	QObject::connect(ui.btn_copy_directory, &QPushButton::clicked, this, &QtGuiApplication1::copy_osm_directory);
-	//---------------------------------------------------------------------------	
+	QObject::connect(btn_copy_directory, &QPushButton::clicked, this, &QtGuiApplication1::copy_osm_directory);
 
+	//---------------------------------------------------------------------------
+	// setup container to store all videos
+	videos = new Video_Container();
+	eng_data = NULL;
+
+	// establish object that will hold video and connect it to the playback thread
 	ir_video = new Video(1, 1, max_used_bits);
-
 	ir_video->moveToThread(&thread_video);
-
 	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
-	
-	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
-	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
-	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
-	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &QtGuiApplication1::histogram_clicked);
 
+	// default recording video to false
 	record_video = false;
 
-	//---------------------------------------------------------------------------	
-	
 	int number_bits = max_used_bits;
-	
+
+	// links label showing the video to the video frame
 	video_layout = new QGridLayout();
 	video_layout->addWidget(ir_video->label);
-	ui.frm_video->setLayout(video_layout);
+	frm_video->setLayout(video_layout);
 
+	// links chart with frame where it will be contained
 	histogram_layout = new QGridLayout();
 	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
-	ui.frm_histogram->setLayout(histogram_layout);
-	
+	frm_histogram->setLayout(histogram_layout);
+
+	// links chart with frame where it will be contained
 	histogram_abs_layout = new QGridLayout();
 	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
-	ui.frm_histogram_abs->setLayout(histogram_abs_layout);
+	frm_histogram_abs->setLayout(histogram_abs_layout);	
 
-	QObject::connect(ui.tabMenu, &QTabWidget::currentChanged, this, &QtGuiApplication1::auto_change_plot_display);
-	QObject::connect(ui.chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
-	toggle_relative_histogram(false);
-	//---------------------------------------------------------------------------
-
-	// Link color correction sliders to changing color correction values
-	QObject::connect(ui.slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::gain_slider_toggled);
-	QObject::connect(ui.slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::lift_slider_toggled);
-
-	ui.lbl_lift->setToolTip("Dark Set Point pushes the image darker");
-	ui.lbl_gain->setToolTip("Light Set Point pushes the image lighter");
-
+	// setup color correction class based on slider values
 	int max_lift, min_lift, max_gain, min_gain;
 	color_correction.get_min_slider_range(min_lift, max_lift);
 	color_correction.get_max_slider_range(min_gain, max_gain);
-	
-	ui.slider_lift->setMinimum(min_lift);
-	ui.slider_lift->setMaximum(max_lift);
-	ui.slider_gain->setMinimum(min_gain);
-	ui.slider_gain->setMaximum(max_gain);
+
+	slider_lift->setMinimum(min_lift);
+	slider_lift->setMaximum(max_lift);
+	slider_gain->setMinimum(min_gain);
+	slider_gain->setMaximum(max_gain);
 
 	reset_color_correction();
-	QObject::connect(ui.btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
 
-	//---------------------------------------------------------------------------
-
-	ui.cmb_deinterlace_options->addItem("Max Absolute Value");
-	ui.cmb_deinterlace_options->addItem("Centroid");
-	ui.cmb_deinterlace_options->addItem("Avg Cross Correlation");
-
-	QObject::connect(ui.cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::toggle_video_filters);
-
-	//---------------------------------------------------------------------------
-
-	// Link horizontal slider to playback controller
-	QObject::connect(playback_controller, &Playback::update_frame, ui.sldrVideo, &QSlider::setValue);
-	QObject::connect(ui.sldrVideo, &QSlider::valueChanged, playback_controller, &Playback::set_counter);
-
-	//---------------------------------------------------------------------------
-
-	// Link playback to play controls
-	QObject::connect(ui.btn_play, &QPushButton::clicked, playback_controller, &Playback::start_timer);
-	QObject::connect(ui.btn_pause, &QPushButton::clicked, playback_controller, &Playback::stop_timer);
-	QObject::connect(ui.btn_reverse, &QPushButton::clicked, playback_controller, &Playback::reverse);
-
-
-	QObject::connect(ui.btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
-	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
-	QObject::connect(ui.btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
-	QObject::connect(ui.btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
-	QObject::connect(ui.btn_frame_record, &QPushButton::clicked, this, &QtGuiApplication1::start_stop_video_record);
-		
-	QObject::connect(ui.btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
-	QObject::connect(ui.btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
-
-	//---------------------------------------------------------------------------
-
-	//Link buttons to functions
-	QObject::connect(ui.btn_load_osm, &QPushButton::clicked, this, &QtGuiApplication1::load_osm_data);
-	QObject::connect(ui.btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
-	QObject::connect(ui.txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
-
-	QObject::connect(ui.btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
-	QObject::connect(ui.txt_nuc_stop, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_non_uniformity_correction);
+	// establish connections to all qwidgets	
+	setup_connections();
 	
-	QObject::connect(ui.btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
-	QObject::connect(ui.txt_bgs_num_frames, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_background_subtraction_correction);
-
-	QObject::connect(ui.btn_deinterlace, &QPushButton::clicked, this, &QtGuiApplication1::create_deinterlace);
-
-	QObject::connect(ui.chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
-	QObject::connect(ui.chk_bgs, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
-	QObject::connect(ui.chk_deinterlace, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
-
-	//---------------------------------------------------------------------------
-
-	// Show Import Menu on load
-	ui.tabMenu->setCurrentIndex(0);
-
-	//---------------------------------------------------------------------------
-
-	// Connect epoch button click to function
-	QObject::connect(ui.btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
-	
-	//---------------------------------------------------------------------------
-
-	//Enable clearing image processing filters
-	QObject::connect(ui.btn_clear_filters, &QPushButton::clicked, this, &QtGuiApplication1::clear_image_processing);
-
-	//Enable saving frame
-	QObject::connect(ui.btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
-
-	//Update frame number label
-	QObject::connect(playback_controller, &Playback::update_frame, this, &QtGuiApplication1::set_frame_number_label);
-
-	//---------------------------------------------------------------------------
-
-
-	//Add icons to video playback buttons
-	QPixmap play_image("icons/play.png");
-	QIcon play_icon(play_image);
-	ui.btn_play->setIcon(play_icon);
-	ui.btn_play->setText("");
-	ui.btn_play->setToolTip("Play Video");
-	ui.btn_play->setEnabled(false);
-
-	QPixmap pause_image("icons/pause.png");
-	QIcon pause_icon(pause_image);
-	ui.btn_pause->setIcon(pause_icon);
-	ui.btn_pause->setText("");
-	ui.btn_pause->setToolTip("Pause Video");
-	ui.btn_pause->setEnabled(false);
-
-	QPixmap reverse_image("icons/reverse.png");
-	QIcon reverse_icon(reverse_image);
-	ui.btn_reverse->setIcon(reverse_icon);
-	ui.btn_reverse->setText("");
-	ui.btn_reverse->setToolTip("Reverse Video");
-	ui.btn_reverse->setEnabled(false);
-
-	QPixmap speed_up_image("icons/chevron-double-up.png");
-	QIcon speed_up_icon(speed_up_image);
-	ui.btn_fast_forward->setIcon(speed_up_icon);
-	ui.btn_fast_forward->setText("");
-	ui.btn_fast_forward->setToolTip("Speed Up");
-	ui.btn_fast_forward->setEnabled(false);
-
-	QPixmap next_frame_image("icons/skip-next.png");
-	QIcon next_frame_icon(next_frame_image);
-	ui.btn_next_frame->setIcon(next_frame_icon);
-	ui.btn_next_frame->setText("");
-	ui.btn_next_frame->setToolTip("Next Frame");
-	ui.btn_next_frame->setEnabled(false);
-
-	QPixmap slow_down_image("icons/chevron-double-down.png");
-	QIcon slow_down_icon(slow_down_image);
-	ui.btn_slow_back->setIcon(slow_down_icon);
-	ui.btn_slow_back->setText("");
-	ui.btn_slow_back->setToolTip("Slow Down");
-	ui.btn_slow_back->setEnabled(false);
-
-	QPixmap prev_frame_image("icons/skip-previous.png");
-	QIcon prev_frame_icon(prev_frame_image);
-	ui.btn_prev_frame->setIcon(prev_frame_icon);
-	ui.btn_prev_frame->setText("");
-	ui.btn_prev_frame->setToolTip("Previous Frame");
-	ui.btn_prev_frame->setEnabled(false);
-
-	QPixmap record_frame("icons/record.png");
-	QIcon record_frame_icon(record_frame);
-	ui.btn_frame_record->setIcon(record_frame_icon);
-	ui.btn_frame_record->setText("");
-	ui.btn_frame_record->setToolTip("Record Video");
-
-	QPixmap save_frame("icons/content-save.png");
-	QIcon save_frame_icon(save_frame);
-	ui.btn_frame_save->setIcon(save_frame_icon);
-	ui.btn_frame_save->setText("");
-	ui.btn_frame_save->setToolTip("Save Frame");
-
-	ui.btn_save_plot->setIcon(save_frame_icon);
-	ui.btn_save_plot->setText("");
-	ui.btn_save_plot->setToolTip("Save Plot");
+	tabMenu->setCurrentIndex(0);
+	toggle_relative_histogram(false);
 
 	create_menu_actions();
-
-	menu = new QMenu(this);
-	menu->addAction(menu_osm);
-	menu->addAction(menu_add_primary_data);
-	menu->addAction(menu_sensor_boresight);
-	menu->addAction(menu_add_banner);
-	menu->addAction(menu_change_color_banner);
-	menu->addAction(menu_change_color_tracker);
-	menu->addAction(menu_change_color_map);
-	menu->addAction(menu_annotate);
-
-	plot_menu = new QMenu(this);
-	plot_menu->addAction(menu_plot_all_data);
-	plot_menu->addAction(menu_plot_primary);
-	plot_menu->addAction(menu_plot_frame_marker);
-	plot_menu->addAction(menu_plot_edit_banner);
-
-	QPixmap menu_image("icons/menu.png");
-	QIcon menu_icon(menu_image);
-	ui.btn_video_menu->setIcon(menu_icon);
-	ui.btn_video_menu->setText("");
-	ui.btn_video_menu->setEnabled(false);
-
-	ui.btn_plot_menu->setIcon(menu_icon);
-	ui.btn_plot_menu->setText("");
-
-	ui.btn_video_menu->setMenu(menu);
-	ui.btn_plot_menu->setMenu(plot_menu);
-
-	show();
-
+		
 	INFO << "GUI: GUI Initialized";
 }
 
 QtGuiApplication1::~QtGuiApplication1() {
 
+	
 	delete ir_video;
 	delete playback_controller;
 	//delete histogram_plot;
@@ -321,6 +125,618 @@ QtGuiApplication1::~QtGuiApplication1() {
 	thread_timer.terminate();
 
 	DEBUG << "GUI: GUI destructor called";
+
+}
+
+void QtGuiApplication1::setup_ui() {
+
+	QHBoxLayout* main_layout = new QHBoxLayout();
+
+	// Define main widgets in UI
+	tabMenu = new QTabWidget();
+	frame_video_player = new QFrame();
+	tabPlots = new QTabWidget();
+
+	// ------------------------------------------------------------------------
+	// Define complete tab widget
+	// ------------------------------------------------------------------------
+	
+	QWidget *widget_tab_import = new QWidget(tabMenu);
+	QWidget* widget_tab_color = new QWidget(tabMenu);
+	QWidget* widget_tab_processing = new QWidget(tabMenu);
+
+	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
+	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
+	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
+
+	// ------------------------------------------------------------------------
+	// Define first tab
+
+	lbl_file_name = new QLabel("File Name:");
+	btn_load_osm = new QPushButton("Load OSM File");
+	btn_copy_directory = new QPushButton("Copy File Path");
+	
+	QFrame* horizontal_segment1 = new QFrame();
+	horizontal_segment1->setFrameShape(QFrame::HLine);
+
+	QGridLayout* grid_import_file = new QGridLayout(tabMenu);
+	grid_import_file->addWidget(lbl_file_name, 0, 0);
+	grid_import_file->addWidget(btn_load_osm, 1, 0);
+	grid_import_file->addWidget(btn_copy_directory, 1, 1);
+	grid_import_file->addWidget(horizontal_segment1, 2, 0, 1, 2);
+
+	QWidget* widget_tab_import_file = new QWidget();
+	widget_tab_import_file->setLayout(grid_import_file);
+
+	vlayout_tab_import->addWidget(widget_tab_import_file);
+	
+	// ------------------------------------------------------------------------
+
+	QLabel* label_start_frame = new QLabel("Start Frame");
+	QLabel* label_stop_frame = new QLabel("Stop Frame");
+	lbl_max_frames = new QLabel("Max Frames: ");
+
+	txt_start_frame = new QLineEdit("0");
+	txt_end_frame = new QLineEdit();
+	btn_get_frames = new QPushButton(" Load Frames");
+
+	QFrame* horizontal_segment2 = new QFrame();
+	horizontal_segment2->setFrameShape(QFrame::HLine);
+
+	QGridLayout* grid_tab_import_frames = new QGridLayout(tabMenu);
+	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
+	grid_tab_import_frames->addWidget(label_stop_frame, 0, 1);
+	grid_tab_import_frames->addWidget(txt_start_frame, 1, 0);
+	grid_tab_import_frames->addWidget(txt_end_frame, 1, 1);
+	grid_tab_import_frames->addWidget(lbl_max_frames, 2, 0, 1, 2);
+	grid_tab_import_frames->addWidget(btn_get_frames, 3, 0, 1, 2);
+	grid_tab_import_frames->addWidget(horizontal_segment2, 4, 0, 1, 2);
+
+	QWidget* widget_tab_import_frame = new QWidget();
+	widget_tab_import_frame->setLayout(grid_tab_import_frames);
+
+	vlayout_tab_import->addWidget(widget_tab_import_frame);
+
+	// ------------------------------------------------------------------------
+
+	QLabel *label_epoch = new QLabel("Epoch");
+	QLabel *label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
+	
+	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
+	dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
+	lbl_current_epoch = new QLabel("Applied Epoch: ");
+	btn_apply_epoch = new QPushButton("Apply Epoch");
+
+	QFrame* horizontal_segment3 = new QFrame();
+	horizontal_segment3->setFrameShape(QFrame::HLine);
+
+	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout(tabMenu);
+	vlayout_tab_import_epoch->addWidget(label_epoch);
+	vlayout_tab_import_epoch->addWidget(dt_epoch);
+	vlayout_tab_import_epoch->addWidget(label_date_format);
+	vlayout_tab_import_epoch->addWidget(lbl_current_epoch);
+	vlayout_tab_import_epoch->addWidget(btn_apply_epoch);
+	vlayout_tab_import_epoch->addWidget(horizontal_segment3);
+	
+	QWidget* widget_tab_import_epoch = new QWidget();
+	widget_tab_import_epoch->setLayout(vlayout_tab_import_epoch);
+
+	vlayout_tab_import->addWidget(widget_tab_import_epoch);
+
+	// ------------------------------------------------------------------------
+	lbl_file_load = new QLabel("File Load Status: ");
+	lbl_file_load->setFrameShape(QFrame::Box);
+	lbl_file_load->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+	lbl_file_load->setMinimumHeight(100);
+
+	vlayout_tab_import->addWidget(lbl_file_load);
+	vlayout_tab_import->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+	
+	// ------------------------------------------------------------------------
+	// Define second tab
+	
+	QWidget* widget_tab_color_sliders = new QWidget(tabMenu);
+	QWidget* widget_tab_color_controls = new QWidget(tabMenu);
+	QLabel* label_lift = new QLabel("Dark \nSet Point");
+	QLabel* label_gain = new QLabel("Ligt \nSet Point");
+	lbl_lift_value = new QLabel("0.0");
+	lbl_gain_value = new QLabel("1.0");
+	slider_lift = new QSlider();
+	slider_gain = new QSlider();
+	chk_relative_histogram = new QCheckBox("Show Relative Histogram");
+	btn_reset_color_correction = new QPushButton("Reset");
+
+	QFrame* horizontal_segment4= new QFrame();
+	horizontal_segment4->setFrameShape(QFrame::HLine);
+
+    // Set attributes for all qwidgets
+	label_lift->setToolTip("Dark Set Point pushes the image darker");
+	label_gain->setToolTip("Light Set Point pushes the image lighter");
+	slider_lift->setOrientation(Qt::Horizontal);
+	slider_lift->setMinimum(0);
+	slider_lift->setMaximum(1000);
+	slider_lift->setSingleStep(1);
+	slider_lift->setPageStep(10);
+	slider_lift->setValue(0);
+	slider_lift->setTickPosition(QSlider::TicksAbove);
+	slider_lift->setTickInterval(100);
+
+	slider_gain->setOrientation(Qt::Horizontal);
+	slider_gain->setMinimum(0);
+	slider_gain->setMaximum(1000);
+	slider_gain->setSingleStep(1);
+	slider_gain->setPageStep(10);
+	slider_gain->setValue(1000);
+	slider_gain->setTickPosition(QSlider::TicksAbove);
+	slider_gain->setTickInterval(100);
+
+	// End set attributes 
+
+	// define layouts
+	QGridLayout* grid_tab_color_sliders = new QGridLayout(tabMenu);
+	QHBoxLayout* hlayout_tab_color_controls = new QHBoxLayout(tabMenu);
+
+	// add widgets to layouts
+	grid_tab_color_sliders->addWidget(label_lift, 0, 0);
+	grid_tab_color_sliders->addWidget(slider_lift, 0, 1);
+	grid_tab_color_sliders->addWidget(lbl_lift_value, 0, 2);
+	grid_tab_color_sliders->addWidget(label_gain, 1, 0);
+	grid_tab_color_sliders->addWidget(slider_gain, 1, 1);
+	grid_tab_color_sliders->addWidget(lbl_gain_value, 1, 2);
+
+	hlayout_tab_color_controls->addWidget(chk_relative_histogram);
+	hlayout_tab_color_controls->addWidget(btn_reset_color_correction);
+	
+	widget_tab_color_sliders->setLayout(grid_tab_color_sliders);
+	widget_tab_color_controls->setLayout(hlayout_tab_color_controls);
+
+	vlayout_tab_color->addWidget(widget_tab_color_sliders);
+	vlayout_tab_color->addWidget(widget_tab_color_controls);
+	vlayout_tab_color->addWidget(horizontal_segment4);
+	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+
+	// ------------------------------------------------------------------------
+	// Define third tab
+
+	QLabel* label_nuc = new QLabel("Non-Uniformity Correction (NUC)");
+	QLabel* label_nuc_start = new QLabel("Start Frame");
+	QLabel* label_nuc_stop = new QLabel("Stop Frame");
+	txt_nuc_start = new QLineEdit();
+	txt_nuc_stop = new QLineEdit();
+	btn_create_nuc = new QPushButton("Create NUC");
+	chk_apply_nuc = new QCheckBox("Apply NUC");
+
+	QFrame* horizontal_segment5 = new QFrame();
+	horizontal_segment5->setFrameShape(QFrame::HLine);
+
+	QWidget* widget_tab_processing_nuc = new QWidget();
+	QGridLayout* grid_tab_processing_nuc = new QGridLayout(widget_tab_processing_nuc);
+
+	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(label_nuc_start, 1, 0);
+	grid_tab_processing_nuc->addWidget(label_nuc_stop, 1, 1);
+	grid_tab_processing_nuc->addWidget(txt_nuc_start, 2, 0);
+	grid_tab_processing_nuc->addWidget(txt_nuc_stop, 2, 1);
+	grid_tab_processing_nuc->addWidget(btn_create_nuc, 3, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(chk_apply_nuc, 4, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(horizontal_segment5, 5, 0, 1, 2);
+
+	vlayout_tab_processing->addWidget(widget_tab_processing_nuc);
+	
+	// ------------------------------------------------------------------------
+
+	QLabel* label_background_subtraction = new QLabel("Background Subtraction");
+	QLabel* label_bgs_frames = new QLabel("Number of Frames");
+	txt_bgs_num_frames = new QLineEdit();
+	btn_bgs = new QPushButton("Create Background Subtraction");
+	chk_bgs = new QCheckBox("Apply Background Subtraction");
+
+	QFrame* horizontal_segment6 = new QFrame();
+	horizontal_segment6->setFrameShape(QFrame::HLine);
+
+	QWidget* widget_tab_processing_bgs = new QWidget();
+	QGridLayout* grid_tab_processing_bgs = new QGridLayout(widget_tab_processing_bgs);
+
+	grid_tab_processing_bgs->addWidget(label_background_subtraction, 0, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(label_bgs_frames, 1, 0);
+	grid_tab_processing_bgs->addWidget(txt_bgs_num_frames, 2, 0);
+	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
+	grid_tab_processing_bgs->addWidget(chk_bgs, 3, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(horizontal_segment6, 4, 0, 1, 2);
+
+	vlayout_tab_processing->addWidget(widget_tab_processing_bgs);
+
+	// ------------------------------------------------------------------------
+	QLabel* label_deinterlace = new QLabel("De-Interlace Methods");
+	cmb_deinterlace_options = new QComboBox();
+	btn_deinterlace = new QPushButton("Create");
+	chk_deinterlace = new QCheckBox("Apply De-Interlace Method");
+
+	QFrame* horizontal_segment7 = new QFrame();
+	horizontal_segment7->setFrameShape(QFrame::HLine);
+
+	cmb_deinterlace_options->addItem("Max Absolute Value");
+	cmb_deinterlace_options->addItem("Centroid");
+	cmb_deinterlace_options->addItem("Avg Cross Correlation");
+
+	QWidget* widget_tab_processing_deinterlace = new QWidget();
+	QGridLayout* grid_tab_processing_deinterlace = new QGridLayout(widget_tab_processing_deinterlace);
+
+	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 2);
+	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0);
+	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 1, 1);
+	grid_tab_processing_deinterlace->addWidget(chk_deinterlace, 2, 0, 1, 2);
+	grid_tab_processing_deinterlace->addWidget(horizontal_segment7, 3, 0, 1, 2);
+
+	vlayout_tab_processing->addWidget(widget_tab_processing_deinterlace);
+	
+	// ------------------------------------------------------------------------
+	btn_clear_filters = new QPushButton("Clear All Image Processing Filters");
+	
+	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+	vlayout_tab_processing->addWidget(btn_clear_filters);
+
+	// ------------------------------------------------------------------------
+	// Add all to tab widget
+
+	tabMenu->addTab(widget_tab_import, "Import");
+	tabMenu->addTab(widget_tab_color, "Color");
+	tabMenu->addTab(widget_tab_processing, "Processing");
+
+	// ------------------------------------------------------------------------
+	// Define complete video frame
+	// ------------------------------------------------------------------------
+
+	frame_video_player->setFrameShape(QFrame::Box);
+	QVBoxLayout* vlayout_frame_video = new QVBoxLayout(frame_video_player);
+
+	// ------------------------------------------------------------------------
+
+	frm_video = new QFrame();
+	frm_video->setMinimumHeight(480);
+	frm_video->setMinimumWidth(640);
+
+	vlayout_frame_video->addWidget(frm_video);
+
+	// ------------------------------------------------------------------------
+
+	lbl_video_frame = new QLabel("Frame");
+	lbl_video_frame->setAlignment(Qt::AlignLeft);
+
+	lbl_video_time_midnight = new QLabel("Time");
+	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	
+	lbl_fps = new QLabel("fps"); 
+	lbl_fps->setAlignment(Qt::AlignRight);
+
+	QWidget* widget_video_label_descriptions = new QWidget();
+	QHBoxLayout* hlayout_video_label_description = new QHBoxLayout(widget_video_label_descriptions);
+
+	hlayout_video_label_description->addWidget(lbl_video_frame);
+	hlayout_video_label_description->addWidget(lbl_video_time_midnight);
+	hlayout_video_label_description->addWidget(lbl_fps);
+
+	vlayout_frame_video->addWidget(widget_video_label_descriptions);
+
+	// ------------------------------------------------------------------------
+
+	sldrVideo = new QSlider();
+	sldrVideo->setOrientation(Qt::Horizontal);
+
+	vlayout_frame_video->addWidget(sldrVideo);
+
+	// ------------------------------------------------------------------------
+
+	int button_video_width = 40;
+	int button_video_height = 40;
+
+	//Add icons to video playback buttons
+	QPixmap play_image("icons/play.png");
+	QIcon play_icon(play_image);
+	btn_play = new QPushButton();
+	btn_play->resize(button_video_width, button_video_height);
+	btn_play->setIcon(play_icon);
+	btn_play->setToolTip("Play Video");
+
+	QPixmap pause_image("icons/pause.png");
+	QIcon pause_icon(pause_image);
+	btn_pause = new QPushButton();
+	btn_pause->resize(button_video_width, button_video_height);
+	btn_pause->setIcon(pause_icon);
+	btn_pause->setToolTip("Pause Video");
+
+	QPixmap reverse_image("icons/reverse.png");
+	QIcon reverse_icon(reverse_image);
+	btn_reverse = new QPushButton();
+	btn_reverse->resize(button_video_width, button_video_height);
+	btn_reverse->setIcon(reverse_icon);
+	btn_reverse->setToolTip("Reverse Video");
+
+	QPixmap speed_up_image("icons/chevron-double-up.png");
+	QIcon speed_up_icon(speed_up_image); 
+	btn_fast_forward = new QPushButton();
+	btn_fast_forward->resize(button_video_width, button_video_height);
+	btn_fast_forward->setIcon(speed_up_icon);
+	btn_fast_forward->setToolTip("Speed Up");
+
+	QPixmap next_frame_image("icons/skip-next.png");
+	QIcon next_frame_icon(next_frame_image);
+	btn_next_frame = new QPushButton();
+	btn_next_frame->resize(button_video_width, button_video_height);
+	btn_next_frame->setIcon(next_frame_icon);
+	btn_next_frame->setToolTip("Next Frame");
+
+	QPixmap slow_down_image("icons/chevron-double-down.png");
+	QIcon slow_down_icon(slow_down_image);
+	btn_slow_back = new QPushButton();
+	btn_slow_back->resize(button_video_width, button_video_height);
+	btn_slow_back->setIcon(slow_down_icon);
+	btn_slow_back->setToolTip("Slow Down");
+
+	QPixmap prev_frame_image("icons/skip-previous.png");
+	QIcon prev_frame_icon(prev_frame_image);
+	btn_prev_frame = new QPushButton();
+	btn_prev_frame->resize(button_video_width, button_video_height);
+	btn_prev_frame->setIcon(prev_frame_icon);
+	btn_prev_frame->setToolTip("Previous Frame");
+
+	QPixmap record_frame("icons/record.png");
+	QIcon record_frame_icon(record_frame);
+	btn_frame_record = new QPushButton();
+	btn_frame_record->resize(button_video_width, button_video_height);
+	btn_frame_record->setIcon(record_frame_icon);
+	btn_frame_record->setToolTip("Record Video");
+
+	QPixmap save_frame("icons/content-save.png");
+	QIcon save_frame_icon(save_frame);
+	btn_frame_save = new QPushButton();
+	btn_frame_save->resize(button_video_width, button_video_height);
+	btn_frame_save->setIcon(save_frame_icon);
+	btn_frame_save->setToolTip("Save Frame");
+
+	QPixmap menu_image("icons/menu.png");
+	QIcon menu_icon(menu_image);
+	btn_video_menu = new QPushButton();
+	btn_video_menu->resize(button_video_width, button_video_height);
+	btn_video_menu->setIcon(menu_icon);
+
+	QWidget* widget_video_buttons = new QWidget();
+	QHBoxLayout* hlayout_video_buttons = new QHBoxLayout(widget_video_buttons);
+
+	hlayout_video_buttons->addWidget(btn_frame_save);
+	hlayout_video_buttons->addWidget(btn_frame_record);
+	hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+	hlayout_video_buttons->addWidget(btn_prev_frame);
+	hlayout_video_buttons->addWidget(btn_reverse);
+	hlayout_video_buttons->addWidget(btn_pause);
+	hlayout_video_buttons->addWidget(btn_play);
+	hlayout_video_buttons->addWidget(btn_next_frame);
+	hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+	hlayout_video_buttons->addWidget(btn_fast_forward);
+	hlayout_video_buttons->addWidget(btn_slow_back);
+	hlayout_video_buttons->addWidget(btn_video_menu);
+
+	vlayout_frame_video->addWidget(widget_video_buttons);
+
+	// ------------------------------------------------------------------------
+	// Define complete plots frame
+	// ------------------------------------------------------------------------
+
+	tabPlots->setTabPosition(QTabWidget::South);
+
+	frm_histogram = new QFrame();
+	frm_histogram_abs = new QFrame();
+
+	QWidget* widget_tab_histogram = new QWidget();
+	QVBoxLayout* vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram);
+
+	vlayout_tab_histogram->addWidget(frm_histogram);
+	vlayout_tab_histogram->addWidget(frm_histogram_abs);
+
+	// ------------------------------------------------------------------------
+
+	frm_plots = new QFrame();
+	QLabel* label_x_axis_option = new QLabel("X-Axis");
+	QLabel* label_y_axis_option = new QLabel("Y-Axis");
+	QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
+
+	// create and group radial boxes
+	rad_decimal = new QRadioButton("Decimal");
+	rad_scientific = new QRadioButton("Scientific");
+	rad_log = new QRadioButton("Log");
+	rad_linear = new QRadioButton("Linear");
+
+	data_plot_yformat.addButton(rad_decimal);
+	data_plot_yformat.addButton(rad_scientific);
+	data_plot_yloglinear.addButton(rad_log);
+	data_plot_yloglinear.addButton(rad_linear);
+
+	// create comboboxes and add options
+	cmb_plot_xaxis = new QComboBox();
+	cmb_plot_xaxis->addItem(QString("Frames"));
+	cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
+	cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
+	
+	cmb_plot_yaxis = new QComboBox();
+	cmb_plot_yaxis->addItem(QString("Irradiance"));
+	cmb_plot_yaxis->addItem(QString("Azimuth"));
+	cmb_plot_yaxis->addItem(QString("Elevation"));
+	
+	// create buttons in the plot controls
+	btn_save_plot = new QPushButton();
+	btn_save_plot->setIcon(save_frame_icon);
+	btn_save_plot->setToolTip("Save Plot");
+
+	btn_plot_menu = new QPushButton();
+	btn_plot_menu->setIcon(menu_icon);
+
+	// establish layout for plots tab
+
+	QGridLayout* grid_plots_tab_color_groupbox = new QGridLayout(plot_groupbox);
+	grid_plots_tab_color_groupbox->addWidget(rad_linear, 0, 0);
+	grid_plots_tab_color_groupbox->addWidget(rad_log, 1, 0);
+	grid_plots_tab_color_groupbox->addWidget(rad_decimal, 0, 1);
+	grid_plots_tab_color_groupbox->addWidget(rad_scientific, 1, 1);
+
+	QWidget* widget_plots_tab_color_combobox = new QWidget();
+	QGridLayout* grid_plots_tab_color_combobox = new QGridLayout(widget_plots_tab_color_combobox);
+	grid_plots_tab_color_combobox->addWidget(label_x_axis_option, 0, 0);
+	grid_plots_tab_color_combobox->addWidget(label_y_axis_option, 0, 1);
+	grid_plots_tab_color_combobox->addWidget(cmb_plot_xaxis, 1, 0);
+	grid_plots_tab_color_combobox->addWidget(cmb_plot_yaxis, 1, 1);
+	
+	QWidget* widget_plots_tab_color_control = new QWidget();
+	QHBoxLayout* hlayout_widget_plots_tab_color_control = new QHBoxLayout(widget_plots_tab_color_control);
+
+	hlayout_widget_plots_tab_color_control->addWidget(widget_plots_tab_color_combobox);
+	hlayout_widget_plots_tab_color_control->addWidget(plot_groupbox);
+	hlayout_widget_plots_tab_color_control->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+	hlayout_widget_plots_tab_color_control->addWidget(btn_plot_menu);
+	hlayout_widget_plots_tab_color_control->addWidget(btn_save_plot);
+
+	QWidget* widget_plots_tab_color = new QWidget();
+	QVBoxLayout* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
+	vlayout_widget_plots_tab_color->addWidget(frm_plots);
+	vlayout_widget_plots_tab_color->addWidget(widget_plots_tab_color_control);
+
+	// ------------------------------------------------------------------------
+	// Add all to tab widget
+
+	tabPlots->addTab(widget_tab_histogram, "Histogram");
+	tabPlots->addTab(widget_plots_tab_color, "Plots");
+
+	// ------------------------------------------------------------------------
+
+	main_layout->addWidget(tabMenu);
+	main_layout->addWidget(frame_video_player);
+	main_layout->addWidget(tabPlots);
+
+	QFrame* frame_main = new QFrame();
+	frame_main->setLayout(main_layout);
+
+	this->setCentralWidget(frame_main);
+	//this->resize();
+	this->show();
+
+}
+
+void QtGuiApplication1::setup_connections() {
+
+
+	//---------------------------------------------------------------------------	
+	// 
+	
+	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
+
+	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
+	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
+	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
+	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &QtGuiApplication1::histogram_clicked);
+
+	//---------------------------------------------------------------------------	
+	
+	QObject::connect(tabMenu, &QTabWidget::currentChanged, this, &QtGuiApplication1::auto_change_plot_display);
+	QObject::connect(chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
+	
+	//---------------------------------------------------------------------------	
+	// Link color correction sliders to changing color correction values
+	QObject::connect(slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::gain_slider_toggled);
+	QObject::connect(slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::lift_slider_toggled);
+
+	//---------------------------------------------------------------------------	
+
+	QObject::connect(btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
+	
+	//---------------------------------------------------------------------------
+
+	QObject::connect(cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::toggle_video_filters);
+
+	//---------------------------------------------------------------------------
+
+	// Link horizontal slider to playback controller
+	QObject::connect(playback_controller, &Playback::update_frame, sldrVideo, &QSlider::setValue);
+	QObject::connect(sldrVideo, &QSlider::valueChanged, playback_controller, &Playback::set_counter);
+
+	//---------------------------------------------------------------------------
+
+	// Link playback to play controls
+	QObject::connect(btn_play, &QPushButton::clicked, playback_controller, &Playback::start_timer);
+	QObject::connect(btn_pause, &QPushButton::clicked, playback_controller, &Playback::stop_timer);
+	QObject::connect(btn_reverse, &QPushButton::clicked, playback_controller, &Playback::reverse);
+
+
+	QObject::connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
+	QObject::connect(btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
+	QObject::connect(btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
+	QObject::connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
+	QObject::connect(btn_frame_record, &QPushButton::clicked, this, &QtGuiApplication1::start_stop_video_record);
+
+	QObject::connect(btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
+	QObject::connect(btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
+
+	//---------------------------------------------------------------------------
+
+	//Link buttons to functions
+	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &QtGuiApplication1::load_osm_data);
+	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
+	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
+
+	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction);
+	QObject::connect(txt_nuc_stop, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_non_uniformity_correction);
+
+	QObject::connect(btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
+	QObject::connect(txt_bgs_num_frames, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_background_subtraction_correction);
+
+	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &QtGuiApplication1::create_deinterlace);
+
+	QObject::connect(chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
+	QObject::connect(chk_bgs, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
+	QObject::connect(chk_deinterlace, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
+
+	//---------------------------------------------------------------------------
+
+	// Connect epoch button click to function
+	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
+
+	//---------------------------------------------------------------------------
+
+	//Enable clearing image processing filters
+	QObject::connect(btn_clear_filters, &QPushButton::clicked, this, &QtGuiApplication1::clear_image_processing);
+
+	//Enable saving frame
+	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
+
+	//Update frame number label
+	QObject::connect(playback_controller, &Playback::update_frame, this, &QtGuiApplication1::set_frame_number_label);
+
+
+	//---------------------------------------------------------------------------	
+	// Connect x-axis and y-axis changes to functions
+	connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+	connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+
+	// Connect save button functions
+	connect(btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
+
+	//---------------------------------------------------------------------------	
+
+
+	//---------------------------------------------------------------------------	
+
+
+	//---------------------------------------------------------------------------	
+
+
+	//---------------------------------------------------------------------------
+	// connect the plot radial buttons to adjust plot
+
+	connect(rad_log, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_log_toggled);
+	connect(rad_decimal, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_decimal_toggled);
+	connect(rad_linear, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_linear_toggled);
+	connect(rad_scientific, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_scientific_toggled);
+
+	//---------------------------------------------------------------------------
+
 }
 
 void QtGuiApplication1::load_osm_data()
@@ -328,11 +744,11 @@ void QtGuiApplication1::load_osm_data()
 
 	INFO << "GUI: Start OSM load process";
 
-	ui.txt_start_frame->setEnabled(false);
-	ui.txt_end_frame->setEnabled(false);
-	ui.btn_get_frames->setEnabled(false);
-	ui.btn_load_osm->setEnabled(false);
-	ui.btn_copy_directory->setEnabled(false);
+	txt_start_frame->setEnabled(false);
+	txt_end_frame->setEnabled(false);
+	btn_get_frames->setEnabled(false);
+	btn_load_osm->setEnabled(false);
+	btn_copy_directory->setEnabled(false);
 
 	INFO << "GUI: Loading OSM data";
 	int valid_files = file_data.load_osm_file();
@@ -341,14 +757,14 @@ void QtGuiApplication1::load_osm_data()
 	{		
 		INFO << "GUI: No file selected for load";
 
-		ui.btn_load_osm->setEnabled(true);
-		ui.btn_copy_directory->setEnabled(true);
+		btn_load_osm->setEnabled(true);
+		btn_copy_directory->setEnabled(true);
 
 		if (eng_data != NULL) {
 			// if eng_data already initialized, allow user to re-select frames
-			ui.txt_start_frame->setEnabled(true);
-			ui.txt_end_frame->setEnabled(true);
-			ui.btn_get_frames->setEnabled(true);
+			txt_start_frame->setEnabled(true);
+			txt_end_frame->setEnabled(true);
+			btn_get_frames->setEnabled(true);
 
 		}
 
@@ -386,22 +802,22 @@ void QtGuiApplication1::load_osm_data()
 			
 	INFO << "GUI: OSM file has valid path";
 
-	ui.lbl_file_load->setText(file_data.info_msg);
-	ui.lbl_file_name->setText(file_data.file_name);
-	ui.lbl_file_name->setToolTip(file_data.directory_path);
+	lbl_file_load->setText(file_data.info_msg);
+	lbl_file_name->setText(file_data.file_name);
+	lbl_file_name->setToolTip(file_data.directory_path);
 
 	if (valid_files) {
-		ui.txt_start_frame->setEnabled(true);
-		ui.txt_end_frame->setEnabled(true);
-		ui.btn_get_frames->setEnabled(true);
+		txt_start_frame->setEnabled(true);
+		txt_end_frame->setEnabled(true);
+		btn_get_frames->setEnabled(true);
 
 		QString osm_max_frames = QString::number(file_data.osm_data.num_messages);
-		ui.txt_start_frame->setText(QString("1"));
-		ui.txt_end_frame->setText(osm_max_frames);
+		txt_start_frame->setText(QString("1"));
+		txt_end_frame->setText(osm_max_frames);
 
 		QString max_frame_text("Max Frames: ");
 		max_frame_text.append(osm_max_frames);
-		ui.lbl_max_frames->setText(max_frame_text);
+		lbl_max_frames->setText(max_frame_text);
 
 		if (eng_data != NULL) {
 				
@@ -425,7 +841,7 @@ void QtGuiApplication1::load_osm_data()
 			clear_frame_label();
 
 			video_layout->addWidget(ir_video->label);
-			ui.frm_video->setLayout(video_layout);
+			frm_video->setLayout(video_layout);
 		}
 
 		DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
@@ -457,8 +873,8 @@ void QtGuiApplication1::load_osm_data()
 
 		//--------------------------------------------------------------------------------
 		// Enable setting of epoch
-		ui.dt_epoch->setEnabled(true);
-		ui.btn_apply_epoch->setEnabled(true);
+		dt_epoch->setEnabled(true);
+		btn_apply_epoch->setEnabled(true);
 				
 		std::vector<double> epoch0 = eng_data->get_epoch();
 		std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
@@ -470,16 +886,16 @@ void QtGuiApplication1::load_osm_data()
 		QDate min_date(epoch_min[0], epoch_min[1], epoch_min[2]);
 		QDate max_date(epoch_max[0], epoch_max[1], epoch_max[2]);
 
-		ui.dt_epoch->setDate(new_date);
-		ui.dt_epoch->setMinimumDate(min_date);
-		ui.dt_epoch->setMaximumDate(max_date);
+		dt_epoch->setDate(new_date);
+		dt_epoch->setMinimumDate(min_date);
+		dt_epoch->setMaximumDate(max_date);
 
-		ui.dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
+		dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
 		//--------------------------------------------------------------------------------
 
 		engineering_plot_layout = new QGridLayout();
 		engineering_plot_layout->addWidget(data_plots->chart_view);
-		ui.frm_plots->setLayout(engineering_plot_layout);
+		frm_plots->setLayout(engineering_plot_layout);
 
 		//--------------------------------------------------------------------------------
 		
@@ -513,8 +929,8 @@ void QtGuiApplication1::load_osm_data()
 		INFO << "GUI: OSM successfully loaded";
 	}
 
-	ui.btn_load_osm->setEnabled(true);
-	ui.btn_copy_directory->setEnabled(true);
+	btn_load_osm->setEnabled(true);
+	btn_copy_directory->setEnabled(true);
 
 	return;
 }
@@ -522,20 +938,20 @@ void QtGuiApplication1::load_osm_data()
 void QtGuiApplication1::load_abir_data()
 {
 
-	ui.btn_get_frames->setEnabled(false);
+	btn_get_frames->setEnabled(false);
 
 	INFO << "GUI: Starting ABIR load process";
 
 	// -----------------------------------------------------------------------------------------
 
 	// Get frame numbers from text boxes
-	int min_frame = get_integer_from_txt_box(ui.txt_start_frame->text());
-	int max_frame = get_integer_from_txt_box(ui.txt_end_frame->text());
+	int min_frame = get_integer_from_txt_box(txt_start_frame->text());
+	int max_frame = get_integer_from_txt_box(txt_end_frame->text());
 
 	bool check_data = check_min_max_frame_input(min_frame, max_frame);
 
 	if (!check_data) {
-		ui.btn_get_frames->setEnabled(true);
+		btn_get_frames->setEnabled(true);
 
 		INFO << "GUI: No video loaded";
 		return;
@@ -596,7 +1012,7 @@ void QtGuiApplication1::load_abir_data()
 		msgBox.exec();
 
 		INFO << "GUI: Video import stopped. File version not within range";
-		ui.btn_get_frames->setEnabled(true);
+		btn_get_frames->setEnabled(true);
 		return;
 	}
 		
@@ -611,7 +1027,7 @@ void QtGuiApplication1::load_abir_data()
 	videos->something.push_back(primary);
 		
 	int number_frames = primary.frames_16bit.size();
-	QString status_txt = ui.lbl_file_load->text();
+	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
 	update_text.append(QString::number(min_frame));
 	update_text.append(" to ");
@@ -619,12 +1035,12 @@ void QtGuiApplication1::load_abir_data()
 	update_text.append(" were loaded");
 
 	status_txt.append(update_text);
-	ui.lbl_file_load->setText(status_txt);
+	lbl_file_load->setText(status_txt);
 
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
-	ui.sldrVideo->setRange(0, number_frames);	
+	sldrVideo->setRange(0, number_frames);	
 
 	//---------------------------------------------------------------------------
 	// Set the video and histogram plots to this data
@@ -651,14 +1067,14 @@ void QtGuiApplication1::load_abir_data()
 	playback_controller->set_speed_index(10);
 	update_fps();
 
-	ui.tabPlots->setCurrentIndex(1);
+	tabPlots->setCurrentIndex(1);
 	plot_full_data();
 	plot_current_frame_marker();
 
-	ui.btn_get_frames->setEnabled(true);
+	btn_get_frames->setEnabled(true);
 
-	ui.tabMenu->setTabEnabled(1, true);
-	ui.tabMenu->setTabEnabled(2, true);
+	tabMenu->setTabEnabled(1, true);
+	tabMenu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
 
@@ -681,10 +1097,10 @@ void QtGuiApplication1::start_stop_video_record()
 
 		QPixmap record_image("icons/record.png");
 		QIcon record_icon(record_image);
-		ui.btn_frame_record->setIcon(record_icon);
-		ui.btn_frame_record->setText("");
-		ui.btn_frame_record->setToolTip("Start Record");
-		ui.btn_frame_record->setEnabled(true);
+		btn_frame_record->setIcon(record_icon);
+		btn_frame_record->setText("");
+		btn_frame_record->setToolTip("Start Record");
+		btn_frame_record->setEnabled(true);
 
 		record_video = false;
 	}
@@ -696,10 +1112,10 @@ void QtGuiApplication1::start_stop_video_record()
 
 			QPixmap stop_image("icons/stop.png");
 			QIcon stop_icon(stop_image);
-			ui.btn_frame_record->setIcon(stop_icon);
-			ui.btn_frame_record->setText("");
-			ui.btn_frame_record->setToolTip("Stop Record");
-			ui.btn_frame_record->setEnabled(true);
+			btn_frame_record->setIcon(stop_icon);
+			btn_frame_record->setText("");
+			btn_frame_record->setToolTip("Stop Record");
+			btn_frame_record->setEnabled(true);
 
 			record_video = true;
 		}
@@ -723,7 +1139,7 @@ void QtGuiApplication1::update_fps()
 	QString fps = QString::number(playback_controller->speeds[playback_controller->index_speed], 'g', 2);
 	fps.append(" fps");
 
-	ui.lbl_fps->setText(fps);
+	lbl_fps->setText(fps);
 }
 
 
@@ -731,8 +1147,8 @@ void QtGuiApplication1::histogram_clicked(double x0, double x1) {
 	// connects the clickable histogram to the main program 
 
 	// get current lift/gain values
-	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
 
 	// defines the space around limit lines that will allow user to adjust limits
 	double click_spacing = 0.015;
@@ -770,7 +1186,7 @@ void QtGuiApplication1::histogram_clicked(double x0, double x1) {
 		if (x1 < lift_value + 0.01)
 			x1 = lift_value + 0.01;
 
-		ui.slider_gain->setValue(color_correction.get_ui_slider_value(x1));
+		slider_gain->setValue(color_correction.get_ui_slider_value(x1));
 	}
 
 	// if user click is closest to lift limit, adjust value
@@ -785,7 +1201,7 @@ void QtGuiApplication1::histogram_clicked(double x0, double x1) {
 		if (x1 > gain_value - 0.01)
 			x1 = gain_value - 0.01;
 
-		ui.slider_lift->setValue(color_correction.get_ui_slider_value(x1));
+		slider_lift->setValue(color_correction.get_ui_slider_value(x1));
 	}
 
 }
@@ -793,15 +1209,15 @@ void QtGuiApplication1::histogram_clicked(double x0, double x1) {
 
 void QtGuiApplication1::lift_slider_toggled(int value) {
 
-	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
 
 	//Prevent lift from being higher than gain value
 	if (lift_value >= gain_value) {
 
 		int new_value = color_correction.get_ui_slider_value(gain_value);
-		ui.slider_lift->setValue(new_value - 1);
-		lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());;
+		slider_lift->setValue(new_value - 1);
+		lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());;
 	}
 
 	color_correction_toggled(lift_value, gain_value);
@@ -809,15 +1225,15 @@ void QtGuiApplication1::lift_slider_toggled(int value) {
 
 void QtGuiApplication1::gain_slider_toggled(int value) {
 
-	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
 
 	// Prevent gain going below lift value
 	if (gain_value <= lift_value) {
 
 		int new_value = color_correction.get_ui_slider_value(lift_value);
-		ui.slider_gain->setValue(new_value + 1);
-		gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());;
+		slider_gain->setValue(new_value + 1);
+		gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());;
 	}
 
 	color_correction_toggled(lift_value, gain_value);
@@ -842,9 +1258,9 @@ void QtGuiApplication1::color_correction_toggled(double lift_value, double gain_
 void QtGuiApplication1::reset_color_correction()
 {
 			
-	ui.slider_lift->setValue(0);
-	ui.slider_gain->setValue(1000);
-	ui.chk_relative_histogram->setChecked(false);
+	slider_lift->setValue(0);
+	slider_gain->setValue(1000);
+	chk_relative_histogram->setChecked(false);
 
 	DEBUG << "GUI: Color correction reset";
 }
@@ -897,12 +1313,12 @@ void QtGuiApplication1::auto_change_plot_display(int index)
 {
 	// When color tab is selected, the histogram is automatically displayed
 	if (index == 1) {
-		ui.tabPlots->setCurrentIndex(0);
+		tabPlots->setCurrentIndex(0);
 	}
 
 	// When processing tab is selected, the engineering plots are automically displayed
 	if (index == 2) {
-		ui.tabPlots->setCurrentIndex(1);
+		tabPlots->setCurrentIndex(1);
 	}
 }
 
@@ -996,12 +1412,27 @@ void QtGuiApplication1::create_menu_actions()
 	menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
 	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
 
-	// Connect x-axis and y-axis changes to functions
-	connect(ui.cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
-	connect(ui.cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+	// ---------------------- Set Acctions to Menu --------------------
 
-	// Connect save button functions
-	connect(ui.btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
+	menu = new QMenu(this);
+	menu->addAction(menu_osm);
+	menu->addAction(menu_add_primary_data);
+	menu->addAction(menu_sensor_boresight);
+	menu->addAction(menu_add_banner);
+	menu->addAction(menu_change_color_banner);
+	menu->addAction(menu_change_color_tracker);
+	menu->addAction(menu_change_color_map);
+	menu->addAction(menu_annotate);
+
+	plot_menu = new QMenu(this);
+	plot_menu->addAction(menu_plot_all_data);
+	plot_menu->addAction(menu_plot_primary);
+	plot_menu->addAction(menu_plot_frame_marker);
+	plot_menu->addAction(menu_plot_edit_banner);
+
+	btn_video_menu->setMenu(menu);
+	btn_plot_menu->setMenu(plot_menu);
+
 
 }
 
@@ -1165,15 +1596,15 @@ void QtGuiApplication1::plot_change(int index)
 	// Index 1 - Azimuth
 	// Index 2 - Elevation
 
-	int x_index = ui.cmb_plot_xaxis->currentIndex();
-	int y_index = ui.cmb_plot_yaxis->currentIndex();
+	int x_index = cmb_plot_xaxis->currentIndex();
+	int y_index = cmb_plot_yaxis->currentIndex();
 
 	// Check that indices are all positive
 	if (x_index >= 0 && y_index >= 0)
 	{
 
-		bool scientific_is_checked = ui.rad_scientific->isChecked();
-		bool log_is_checked = ui.rad_log->isChecked();
+		bool scientific_is_checked = rad_scientific->isChecked();
+		bool log_is_checked = rad_log->isChecked();
 		data_plots->toggle_yaxis_log(log_is_checked);
 		data_plots->toggle_yaxis_scientific(scientific_is_checked);
 
@@ -1311,12 +1742,12 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 	int frame_number = eng_data->frame_numbers[index + counter];
 	QString frame_text("Frame # ");
 	frame_text.append(QString::number(frame_number));
-	ui.lbl_video_frame->setText(frame_text);
+	lbl_video_frame->setText(frame_text);
 
 	double seconds_midnight = eng_data->seconds_from_midnight[index + counter];
 	QString seconds_text("From Midnight ");
 	seconds_text.append(QString::number(seconds_midnight, 'g', 8));
-	ui.lbl_video_time_midnight->setText(seconds_text);
+	lbl_video_time_midnight->setText(seconds_text);
 
 }
 
@@ -1324,10 +1755,10 @@ void QtGuiApplication1::clear_frame_label()
 {
 
 	QString frame_text("");
-	ui.lbl_video_frame->setText(frame_text);
+	lbl_video_frame->setText(frame_text);
 
 	QString seconds_text("");
-	ui.lbl_video_time_midnight->setText(seconds_text);
+	lbl_video_time_midnight->setText(seconds_text);
 
 }
 
@@ -1350,8 +1781,8 @@ void QtGuiApplication1::toggle_relative_histogram(bool input)
 
 		ir_video->show_relative_histogram = true;
 
-		ui.frm_histogram_abs->move(10, 300);
-		ui.frm_histogram_abs->resize(651, 281);
+		frm_histogram_abs->move(10, 300);
+		frm_histogram_abs->resize(651, 281);
 
 		ir_video->update_display_frame();
 
@@ -1360,8 +1791,8 @@ void QtGuiApplication1::toggle_relative_histogram(bool input)
 	{
 		ir_video->show_relative_histogram = false;
 
-		ui.frm_histogram_abs->move(10, 10);
-		ui.frm_histogram_abs->resize(651, 571);
+		frm_histogram_abs->move(10, 10);
+		frm_histogram_abs->resize(651, 571);
 	}
 }
 
@@ -1373,8 +1804,8 @@ void QtGuiApplication1::apply_epoch_time()
 	// --------------------------------------------------------------------
 	// Get new date
 
-	QDate date = ui.dt_epoch->date();
-	QTime time = ui.dt_epoch->time();
+	QDate date = dt_epoch->date();
+	QTime time = dt_epoch->time();
 
 	year = date.year();
 	month = date.month();
@@ -1407,8 +1838,8 @@ void QtGuiApplication1::create_non_uniformity_correction()
 		
 	//----------------------------------------------------------------------------------------------------
 	// Get frame numbers from text boxes
-	int min_frame = get_integer_from_txt_box(ui.txt_nuc_start->text());
-	int max_frame = get_integer_from_txt_box(ui.txt_nuc_stop->text());
+	int min_frame = get_integer_from_txt_box(txt_nuc_start->text());
+	int max_frame = get_integer_from_txt_box(txt_nuc_stop->text());
 
 	bool check_data = check_min_max_frame_input(min_frame, max_frame);
 
@@ -1508,8 +1939,8 @@ void QtGuiApplication1::create_deinterlace()
 {
 	INFO << "GUI: Creating de-interlace file from original data";
 		
-	deinterlace_type deinterlace_method_type = find_deinterlace_type(ui.cmb_deinterlace_options->currentIndex());
-	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+	deinterlace_type deinterlace_method_type = find_deinterlace_type(cmb_deinterlace_options->currentIndex());
+	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
 	
 	video_details deinterlace_video;
 	video_details current_state = get_current_filter_state();
@@ -1673,18 +2104,18 @@ void QtGuiApplication1::clear_image_processing()
 	
 	int n = videos->something.size();
 
-	ui.txt_nuc_start->setText("");
-	ui.txt_nuc_stop->setText("");
-	ui.txt_bgs_num_frames->setText("");
+	txt_nuc_start->setText("");
+	txt_nuc_stop->setText("");
+	txt_bgs_num_frames->setText("");
 
 	int num_videos = videos->something.size();
 	if (num_videos > 0)
 	{
 		videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
 
-		ui.chk_apply_nuc->setChecked(false);
-		ui.chk_bgs->setChecked(false);
-		ui.chk_deinterlace->setChecked(false);
+		chk_apply_nuc->setChecked(false);
+		chk_bgs->setChecked(false);
+		chk_deinterlace->setChecked(false);
 
 		show_available_filter_options();
 	}
@@ -1696,16 +2127,16 @@ video_details QtGuiApplication1::get_current_filter_state()
 	video_details current_status;
 	bool no_filters_applied = true;
 
-	if (ui.chk_apply_nuc->isChecked()) {
+	if (chk_apply_nuc->isChecked()) {
 		current_status.properties[Video_Parameters::non_uniformity_correction] = true;
 		no_filters_applied = false;
 	}
-	if (ui.chk_bgs->isChecked()) {
+	if (chk_bgs->isChecked()) {
 		current_status.properties[Video_Parameters::background_subtraction] = true;
 		no_filters_applied = false;
 	}
-	if (ui.chk_deinterlace->isChecked()) {
-		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+	if (chk_deinterlace->isChecked()) {
+		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
 		current_status.properties[deinterlace_video_type] = true;
 
 		no_filters_applied = false;
@@ -1739,10 +2170,10 @@ void QtGuiApplication1::show_available_filter_options()
 		current_state.properties[Video_Parameters::original] = false;
 		current_state.properties[Video_Parameters::non_uniformity_correction] = true;
 		if (check_filter_selection(current_state))
-			ui.chk_apply_nuc->setEnabled(true);
+			chk_apply_nuc->setEnabled(true);
 		else {
-			ui.chk_apply_nuc->setChecked(false);
-			ui.chk_apply_nuc->setEnabled(false);
+			chk_apply_nuc->setChecked(false);
+			chk_apply_nuc->setEnabled(false);
 		}
 
 		//reset filter state
@@ -1755,10 +2186,10 @@ void QtGuiApplication1::show_available_filter_options()
 		current_state.properties[Video_Parameters::original] = false;
 		current_state.properties[Video_Parameters::background_subtraction] = true;
 		if (check_filter_selection(current_state))
-			ui.chk_bgs->setEnabled(true);
+			chk_bgs->setEnabled(true);
 		else {
-			ui.chk_bgs->setChecked(false);
-			ui.chk_bgs->setEnabled(false);
+			chk_bgs->setChecked(false);
+			chk_bgs->setEnabled(false);
 		}
 
 		//reset filter state
@@ -1766,16 +2197,16 @@ void QtGuiApplication1::show_available_filter_options()
 	}
 
 	//Check De-interlace
-	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(ui.cmb_deinterlace_options->currentIndex());
+	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
 	if (!current_state.properties[deinterlace_video_type])
 	{
 		current_state.properties[Video_Parameters::original] = false;
 		current_state.properties[deinterlace_video_type] = true;
 		if (check_filter_selection(current_state))
-			ui.chk_deinterlace->setEnabled(true);
+			chk_deinterlace->setEnabled(true);
 		else {
-			ui.chk_deinterlace->setChecked(false);
-			ui.chk_deinterlace->setEnabled(false);
+			chk_deinterlace->setChecked(false);
+			chk_deinterlace->setEnabled(false);
 		}
 
 		//reset filter state
@@ -1790,12 +2221,12 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	
 	//-----------------------------------------------------------------------------------------------
 	// Get frame numbers from text boxes
-	int num_frames_subtract = get_integer_from_txt_box(ui.txt_bgs_num_frames->text());
+	int num_frames_subtract = get_integer_from_txt_box(txt_bgs_num_frames->text());
 
 	// if non-numeric data is entered...
 	if (num_frames_subtract < 0)
 	{
-		DEBUG << "GUI: User entered non-numeric data in number of frames for background subtraction. Entered: " << ui.txt_bgs_num_frames->text().toLocal8Bit().constData();
+		DEBUG << "GUI: User entered non-numeric data in number of frames for background subtraction. Entered: " << txt_bgs_num_frames->text().toLocal8Bit().constData();
 			
 		INFO << "GUI: Background subtraction not completed";
 
@@ -1911,9 +2342,9 @@ void QtGuiApplication1::toggle_video_filters()
 	bool request_exists = check_filter_selection(user_requested);
 
 	if (!request_exists) {
-		ui.chk_apply_nuc->setChecked(false);
-		ui.chk_bgs->setChecked(false);
-		ui.chk_deinterlace->setChecked(false);
+		chk_apply_nuc->setChecked(false);
+		chk_bgs->setChecked(false);
+		chk_deinterlace->setChecked(false);
 
 		INFO << "GUI: No matching video. Resetting filters";
 	}
@@ -1932,34 +2363,34 @@ void QtGuiApplication1::toggle_video_filters()
 
 void QtGuiApplication1::set_color_correction_slider_labels()
 {
-	double lift_value = color_correction.min_convert_slider_to_value(ui.slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(ui.slider_gain->value());
+	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
+	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
 		
 	QString lift_string;
 	lift_string.setNum(lift_value);
-	ui.lbl_lift_value->setText(lift_string);
+	lbl_lift_value->setText(lift_string);
 
 	QString gain_string;
 	gain_string.setNum(gain_value);
-	ui.lbl_gain_value->setText(gain_string);
+	lbl_gain_value->setText(gain_string);
 }
 
 void QtGuiApplication1::toggle_video_playback_options(bool input)
 {
-	ui.btn_fast_forward->setEnabled(input);
-	ui.btn_slow_back->setEnabled(input);
-	ui.btn_video_menu->setEnabled(input);
+	btn_fast_forward->setEnabled(input);
+	btn_slow_back->setEnabled(input);
+	btn_video_menu->setEnabled(input);
 
-	ui.btn_frame_record->setEnabled(input);
-	ui.btn_frame_save->setEnabled(input);
+	btn_frame_record->setEnabled(input);
+	btn_frame_save->setEnabled(input);
 
-	ui.sldrVideo->setEnabled(input);
-	ui.btn_play->setEnabled(input);
-	ui.btn_pause->setEnabled(input);
-	ui.btn_next_frame->setEnabled(input);
-	ui.btn_prev_frame->setEnabled(input);
-	ui.btn_reverse->setEnabled(input);
-	ui.btn_video_menu->setEnabled(input);
+	sldrVideo->setEnabled(input);
+	btn_play->setEnabled(input);
+	btn_pause->setEnabled(input);
+	btn_next_frame->setEnabled(input);
+	btn_prev_frame->setEnabled(input);
+	btn_reverse->setEnabled(input);
+	btn_video_menu->setEnabled(input);
 
 	if (input)
 	{
@@ -1968,49 +2399,49 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	else
 	{
 		playback_controller->stop_timer();
-		ui.sldrVideo->setValue(1);
-		ui.lbl_video_time_midnight->setText("");
-		ui.lbl_video_frame->setText("");
-		ui.lbl_fps->setText("");
+		sldrVideo->setValue(1);
+		lbl_video_time_midnight->setText("");
+		lbl_video_frame->setText("");
+		lbl_fps->setText("");
 	}
 }
 
 void QtGuiApplication1::enable_engineering_plot_options(bool input)
 {
 	// ------------------------------------------ Set Dropdown Menu ------------------------------------------
-	ui.tabPlots->setCurrentIndex(1);
+	tabPlots->setCurrentIndex(1);
 
-	ui.cmb_plot_xaxis->clear();
-	ui.cmb_plot_yaxis->clear();
-	ui.rad_linear->setChecked(true);
-	ui.rad_linear->setChecked(true);
+	cmb_plot_xaxis->clear();
+	cmb_plot_yaxis->clear();
+	rad_linear->setChecked(true);
+	rad_linear->setChecked(true);
 
-	ui.cmb_plot_yaxis->setEnabled(input);
-	ui.cmb_plot_yaxis->addItem(QString("Irradiance"));
-	ui.cmb_plot_yaxis->addItem(QString("Azimuth"));
-	ui.cmb_plot_yaxis->addItem(QString("Elevation"));
-	ui.cmb_plot_yaxis->setCurrentIndex(0);
+	cmb_plot_yaxis->setEnabled(input);
+	cmb_plot_yaxis->addItem(QString("Irradiance"));
+	cmb_plot_yaxis->addItem(QString("Azimuth"));
+	cmb_plot_yaxis->addItem(QString("Elevation"));
+	cmb_plot_yaxis->setCurrentIndex(0);
 
-	ui.cmb_plot_xaxis->setEnabled(input);
-	ui.cmb_plot_xaxis->addItem(QString("Frames"));
-	ui.cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-	ui.cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
-	ui.cmb_plot_xaxis->setCurrentIndex(0);
+	cmb_plot_xaxis->setEnabled(input);
+	cmb_plot_xaxis->addItem(QString("Frames"));
+	cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
+	cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
+	cmb_plot_xaxis->setCurrentIndex(0);
 
 	// ------------------------------------------ Set Plot Options ------------------------------------------
 
-	ui.rad_decimal->setEnabled(input);
-	ui.rad_scientific->setEnabled(input);
+	rad_decimal->setEnabled(input);
+	rad_scientific->setEnabled(input);
 
-	ui.rad_log->setEnabled(input);
-	ui.rad_linear->setEnabled(input);
+	rad_log->setEnabled(input);
+	rad_linear->setEnabled(input);
 
-	ui.btn_plot_menu->setEnabled(input);
-	ui.btn_save_plot->setEnabled(input);
+	btn_plot_menu->setEnabled(input);
+	btn_save_plot->setEnabled(input);
 
-	ui.chk_plot_full_data->setEnabled(input);
-	ui.chk_plot_primary_data->setEnabled(input);
-	ui.chk_plot_show_line->setEnabled(input);
+	// chk_plot_full_data->setEnabled(input);
+	// chk_plot_primary_data->setEnabled(input);
+	// chk_plot_show_line->setEnabled(input);
 
 }
 
@@ -2021,9 +2452,9 @@ bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
 	if ((min_frame < 0) || (max_frame < 0))
 	{
 		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << ui.txt_nuc_start->text().toLocal8Bit().constData();
+			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << txt_nuc_start->text().toLocal8Bit().constData();
 		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << ui.txt_nuc_stop->text().toLocal8Bit().constData();
+			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << txt_nuc_stop->text().toLocal8Bit().constData();
 		
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Non-Numeric Data"));
@@ -2086,7 +2517,7 @@ void QtGuiApplication1::update_epoch_string(QString new_epoch_string)
 
 	QString out = "Applied Epoch: ";
 	out = out +new_epoch_string;
-	ui.lbl_current_epoch->setText(out);
+	lbl_current_epoch->setText(out);
 	
 }
 
@@ -2094,7 +2525,7 @@ void QtGuiApplication1::display_original_epoch(QString new_epoch_string)
 {
 	QString out = "Original Epoch: ";
 	out = out + new_epoch_string;
-	ui.lbl_current_epoch->setToolTip(out);
+	lbl_current_epoch->setToolTip(out);
 }
 
 QString QtGuiApplication1::create_epoch_string(std::vector<double> new_epoch) {
