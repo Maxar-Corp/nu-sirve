@@ -25,6 +25,8 @@
 
 #include <qlabel.h>
 #include <qgridlayout.h>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <qthread.h>
 #include <qobject.h>
 #include <qcheckbox.h>
@@ -66,6 +68,27 @@ public:
 	Min_Max_Value color_correction;
 	Playback *playback_controller;
 	QMenu *menu, *plot_menu;
+
+	/* --------------------------------------------------------------------------------------------
+	Qt Elements for user interface
+	----------------------------------------------------------------------------------------------- */
+
+	QTabWidget* tabMenu, * tabPlots;
+	QDateTimeEdit* dt_epoch;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, *lbl_current_epoch;
+	QSlider* slider_lift, * slider_gain, * sldrVideo;
+	QLineEdit* txt_start_frame, * txt_end_frame, * txt_nuc_start, * txt_nuc_stop, * txt_bgs_num_frames;
+	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
+		* btn_deinterlace, * btn_clear_filters, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
+		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu;
+	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
+	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis;
+	QFrame* frame_video_player, * frm_video, *frame_plots, * frm_plots, *frm_histogram, *frm_histogram_abs;
+	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
+
+	/* --------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------- */
+
 	
 	Video_Container *videos;
 	Video *ir_video;
@@ -79,6 +102,8 @@ public:
 	QtGuiApplication1(QWidget *parent = Q_NULLPTR);
 	~QtGuiApplication1();
 
+	void setup_ui();
+	void setup_connections();
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
 	void enable_engineering_plot_options(bool input);
@@ -153,6 +178,9 @@ private:
 	Ui::QtGuiApplication1Class ui;
 	QClipboard *clipboard;
 	int max_used_bits;
+
+	
+
 
 	void create_menu_actions();
 	void edit_color_map();
