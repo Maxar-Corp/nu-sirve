@@ -103,6 +103,12 @@ public:
 	~QtGuiApplication1();
 
 	void setup_ui();
+	QWidget* setup_file_import_tab();
+	QWidget* setup_color_correction_tab();
+	QWidget* setup_filter_tab();
+	void setup_video_frame();
+	void setup_plot_frame();
+
 	void setup_connections();
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
