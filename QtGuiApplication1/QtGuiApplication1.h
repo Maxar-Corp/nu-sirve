@@ -83,7 +83,7 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu;
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis;
-	QFrame* frame_video_player, * frm_video, *frame_plots, * frm_plots, *frm_histogram, *frm_histogram_abs;
+	QFrame* frame_video_player, * frm_video, * frm_plots, *frm_histogram, *frm_histogram_abs;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 
 	/* --------------------------------------------------------------------------------------------
@@ -92,7 +92,6 @@ public:
 	
 	Video_Container *videos;
 	Video *ir_video;
-	//HistogramLine_Plot *histogram_plot;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;
