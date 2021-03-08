@@ -141,35 +141,54 @@ void QtGuiApplication1::setup_ui() {
 	// Define complete tab widget
 	// ------------------------------------------------------------------------
 	
-	QWidget *widget_tab_import = new QWidget(tabMenu);
-	QWidget* widget_tab_color = new QWidget(tabMenu);
-	QWidget* widget_tab_processing = new QWidget(tabMenu);
-
-	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
-	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
-	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
+	// Add all to tab widget
+	tabMenu->addTab(setup_file_import_tab(), "Import");
+	tabMenu->addTab(setup_color_correction_tab(), "Color");
+	tabMenu->addTab(setup_filter_tab(), "Processing");
+		
+	setup_video_frame();
+	setup_plot_frame();
 
 	// ------------------------------------------------------------------------
-	// Define first tab
+	// Adds all elements to main UI
+
+	main_layout->addWidget(tabMenu);
+	main_layout->addWidget(frame_video_player);
+	main_layout->addWidget(tabPlots);
+
+	QFrame* frame_main = new QFrame();
+	frame_main->setLayout(main_layout);
+
+	this->setCentralWidget(frame_main);
+	//this->resize();
+	this->show();
+
+}
+
+QWidget* QtGuiApplication1::setup_file_import_tab() {
+
+	
+	QWidget* widget_tab_import = new QWidget(tabMenu);
+	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
 
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load OSM File");
 	btn_copy_directory = new QPushButton("Copy File Path");
-	
+
 	QFrame* horizontal_segment1 = new QFrame();
 	horizontal_segment1->setFrameShape(QFrame::HLine);
 
-	QGridLayout* grid_import_file = new QGridLayout(tabMenu);
+	QGridLayout* grid_import_file = new QGridLayout();
 	grid_import_file->addWidget(lbl_file_name, 0, 0);
 	grid_import_file->addWidget(btn_load_osm, 1, 0);
 	grid_import_file->addWidget(btn_copy_directory, 1, 1);
 	grid_import_file->addWidget(horizontal_segment1, 2, 0, 1, 2);
 
-	QWidget* widget_tab_import_file = new QWidget();
-	widget_tab_import_file->setLayout(grid_import_file);
+	// QWidget* widget_tab_import_file = new QWidget();
+	// widget_tab_import_file->setLayout(grid_import_file);
 
-	vlayout_tab_import->addWidget(widget_tab_import_file);
-	
+	vlayout_tab_import->addLayout(grid_import_file);
+
 	// ------------------------------------------------------------------------
 
 	QLabel* label_start_frame = new QLabel("Start Frame");
@@ -183,7 +202,7 @@ void QtGuiApplication1::setup_ui() {
 	QFrame* horizontal_segment2 = new QFrame();
 	horizontal_segment2->setFrameShape(QFrame::HLine);
 
-	QGridLayout* grid_tab_import_frames = new QGridLayout(tabMenu);
+	QGridLayout* grid_tab_import_frames = new QGridLayout();
 	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
 	grid_tab_import_frames->addWidget(label_stop_frame, 0, 1);
 	grid_tab_import_frames->addWidget(txt_start_frame, 1, 0);
@@ -192,16 +211,16 @@ void QtGuiApplication1::setup_ui() {
 	grid_tab_import_frames->addWidget(btn_get_frames, 3, 0, 1, 2);
 	grid_tab_import_frames->addWidget(horizontal_segment2, 4, 0, 1, 2);
 
-	QWidget* widget_tab_import_frame = new QWidget();
-	widget_tab_import_frame->setLayout(grid_tab_import_frames);
+	//QWidget* widget_tab_import_frame = new QWidget();
+	//widget_tab_import_frame->setLayout(grid_tab_import_frames);
 
-	vlayout_tab_import->addWidget(widget_tab_import_frame);
+	vlayout_tab_import->addLayout(grid_tab_import_frames);
 
 	// ------------------------------------------------------------------------
 
-	QLabel *label_epoch = new QLabel("Epoch");
-	QLabel *label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
-	
+	QLabel* label_epoch = new QLabel("Epoch");
+	QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
+
 	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
 	dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
 	lbl_current_epoch = new QLabel("Applied Epoch: ");
@@ -210,18 +229,18 @@ void QtGuiApplication1::setup_ui() {
 	QFrame* horizontal_segment3 = new QFrame();
 	horizontal_segment3->setFrameShape(QFrame::HLine);
 
-	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout(tabMenu);
+	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
 	vlayout_tab_import_epoch->addWidget(label_epoch);
 	vlayout_tab_import_epoch->addWidget(dt_epoch);
 	vlayout_tab_import_epoch->addWidget(label_date_format);
 	vlayout_tab_import_epoch->addWidget(lbl_current_epoch);
 	vlayout_tab_import_epoch->addWidget(btn_apply_epoch);
 	vlayout_tab_import_epoch->addWidget(horizontal_segment3);
-	
-	QWidget* widget_tab_import_epoch = new QWidget();
-	widget_tab_import_epoch->setLayout(vlayout_tab_import_epoch);
 
-	vlayout_tab_import->addWidget(widget_tab_import_epoch);
+	//QWidget* widget_tab_import_epoch = new QWidget();
+	//widget_tab_import_epoch->setLayout(vlayout_tab_import_epoch);
+
+	vlayout_tab_import->addLayout(vlayout_tab_import_epoch);
 
 	// ------------------------------------------------------------------------
 	lbl_file_load = new QLabel("File Load Status: ");
@@ -231,9 +250,14 @@ void QtGuiApplication1::setup_ui() {
 
 	vlayout_tab_import->addWidget(lbl_file_load);
 	vlayout_tab_import->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-	
-	// ------------------------------------------------------------------------
-	// Define second tab
+
+	return widget_tab_import;
+}
+
+QWidget* QtGuiApplication1::setup_color_correction_tab() {
+
+	QWidget* widget_tab_color = new QWidget(tabMenu);
+	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 	
 	QWidget* widget_tab_color_sliders = new QWidget(tabMenu);
 	QWidget* widget_tab_color_controls = new QWidget(tabMenu);
@@ -246,10 +270,10 @@ void QtGuiApplication1::setup_ui() {
 	chk_relative_histogram = new QCheckBox("Show Relative Histogram");
 	btn_reset_color_correction = new QPushButton("Reset");
 
-	QFrame* horizontal_segment4= new QFrame();
+	QFrame* horizontal_segment4 = new QFrame();
 	horizontal_segment4->setFrameShape(QFrame::HLine);
 
-    // Set attributes for all qwidgets
+	// Set attributes for all qwidgets
 	label_lift->setToolTip("Dark Set Point pushes the image darker");
 	label_gain->setToolTip("Light Set Point pushes the image lighter");
 	slider_lift->setOrientation(Qt::Horizontal);
@@ -286,7 +310,7 @@ void QtGuiApplication1::setup_ui() {
 
 	hlayout_tab_color_controls->addWidget(chk_relative_histogram);
 	hlayout_tab_color_controls->addWidget(btn_reset_color_correction);
-	
+
 	widget_tab_color_sliders->setLayout(grid_tab_color_sliders);
 	widget_tab_color_controls->setLayout(hlayout_tab_color_controls);
 
@@ -295,9 +319,15 @@ void QtGuiApplication1::setup_ui() {
 	vlayout_tab_color->addWidget(horizontal_segment4);
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
-	// ------------------------------------------------------------------------
-	// Define third tab
 
+	return widget_tab_color;
+}
+
+QWidget* QtGuiApplication1::setup_filter_tab() {
+
+	QWidget* widget_tab_processing = new QWidget(tabMenu);
+	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
+	
 	QLabel* label_nuc = new QLabel("Non-Uniformity Correction (NUC)");
 	QLabel* label_nuc_start = new QLabel("Start Frame");
 	QLabel* label_nuc_stop = new QLabel("Stop Frame");
@@ -322,7 +352,8 @@ void QtGuiApplication1::setup_ui() {
 	grid_tab_processing_nuc->addWidget(horizontal_segment5, 5, 0, 1, 2);
 
 	vlayout_tab_processing->addWidget(widget_tab_processing_nuc);
-	
+
+
 	// ------------------------------------------------------------------------
 
 	QLabel* label_background_subtraction = new QLabel("Background Subtraction");
@@ -369,23 +400,18 @@ void QtGuiApplication1::setup_ui() {
 	grid_tab_processing_deinterlace->addWidget(horizontal_segment7, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addWidget(widget_tab_processing_deinterlace);
-	
+
 	// ------------------------------------------------------------------------
 	btn_clear_filters = new QPushButton("Clear All Image Processing Filters");
-	
+
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 	vlayout_tab_processing->addWidget(btn_clear_filters);
 
-	// ------------------------------------------------------------------------
-	// Add all to tab widget
 
-	tabMenu->addTab(widget_tab_import, "Import");
-	tabMenu->addTab(widget_tab_color, "Color");
-	tabMenu->addTab(widget_tab_processing, "Processing");
+	return widget_tab_processing;
+}
 
-	// ------------------------------------------------------------------------
-	// Define complete video frame
-	// ------------------------------------------------------------------------
+void QtGuiApplication1::setup_video_frame(){
 
 	frame_video_player->setFrameShape(QFrame::Box);
 	QVBoxLayout* vlayout_frame_video = new QVBoxLayout(frame_video_player);
@@ -405,8 +431,8 @@ void QtGuiApplication1::setup_ui() {
 
 	lbl_video_time_midnight = new QLabel("Time");
 	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
-	
-	lbl_fps = new QLabel("fps"); 
+
+	lbl_fps = new QLabel("fps");
 	lbl_fps->setAlignment(Qt::AlignRight);
 
 	QWidget* widget_video_label_descriptions = new QWidget();
@@ -453,7 +479,7 @@ void QtGuiApplication1::setup_ui() {
 	btn_reverse->setToolTip("Reverse Video");
 
 	QPixmap speed_up_image("icons/chevron-double-up.png");
-	QIcon speed_up_icon(speed_up_image); 
+	QIcon speed_up_icon(speed_up_image);
 	btn_fast_forward = new QPushButton();
 	btn_fast_forward->resize(button_video_width, button_video_height);
 	btn_fast_forward->setIcon(speed_up_icon);
@@ -518,11 +544,17 @@ void QtGuiApplication1::setup_ui() {
 
 	vlayout_frame_video->addWidget(widget_video_buttons);
 
-	// ------------------------------------------------------------------------
-	// Define complete plots frame
-	// ------------------------------------------------------------------------
+}
+
+void QtGuiApplication1::setup_plot_frame() {
 
 	tabPlots->setTabPosition(QTabWidget::South);
+
+	QPixmap save_frame("icons/content-save.png");
+	QIcon save_frame_icon(save_frame);
+
+	QPixmap menu_image("icons/menu.png");
+	QIcon menu_icon(menu_image);
 
 	frm_histogram = new QFrame();
 	frm_histogram_abs = new QFrame();
@@ -556,12 +588,12 @@ void QtGuiApplication1::setup_ui() {
 	cmb_plot_xaxis->addItem(QString("Frames"));
 	cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
 	cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
-	
+
 	cmb_plot_yaxis = new QComboBox();
 	cmb_plot_yaxis->addItem(QString("Irradiance"));
 	cmb_plot_yaxis->addItem(QString("Azimuth"));
 	cmb_plot_yaxis->addItem(QString("Elevation"));
-	
+
 	// create buttons in the plot controls
 	btn_save_plot = new QPushButton();
 	btn_save_plot->setIcon(save_frame_icon);
@@ -584,7 +616,7 @@ void QtGuiApplication1::setup_ui() {
 	grid_plots_tab_color_combobox->addWidget(label_y_axis_option, 0, 1);
 	grid_plots_tab_color_combobox->addWidget(cmb_plot_xaxis, 1, 0);
 	grid_plots_tab_color_combobox->addWidget(cmb_plot_yaxis, 1, 1);
-	
+
 	QWidget* widget_plots_tab_color_control = new QWidget();
 	QHBoxLayout* hlayout_widget_plots_tab_color_control = new QHBoxLayout(widget_plots_tab_color_control);
 
@@ -604,20 +636,6 @@ void QtGuiApplication1::setup_ui() {
 
 	tabPlots->addTab(widget_tab_histogram, "Histogram");
 	tabPlots->addTab(widget_plots_tab_color, "Plots");
-
-	// ------------------------------------------------------------------------
-
-	main_layout->addWidget(tabMenu);
-	main_layout->addWidget(frame_video_player);
-	main_layout->addWidget(tabPlots);
-
-	QFrame* frame_main = new QFrame();
-	frame_main->setLayout(main_layout);
-
-	this->setCentralWidget(frame_main);
-	//this->resize();
-	this->show();
-
 }
 
 void QtGuiApplication1::setup_connections() {
