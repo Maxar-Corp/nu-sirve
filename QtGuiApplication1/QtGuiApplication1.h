@@ -108,8 +108,8 @@ public:
 	QWidget* setup_filter_tab();
 	void setup_video_frame();
 	void setup_plot_frame();
-
 	void setup_connections();
+
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
 	void enable_engineering_plot_options(bool input);
