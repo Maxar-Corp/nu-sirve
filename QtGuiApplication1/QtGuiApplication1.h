@@ -23,6 +23,7 @@
 #include "annotations.h"
 #include "custom_input_dialog.h"
 
+#include <qstackedlayout.h>
 #include <qlabel.h>
 #include <qgridlayout.h>
 #include <QVBoxLayout>
@@ -56,7 +57,7 @@ public:
 	Process_File file_data;
 	
 	QWidget *main_widget;
-	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *color_plot_layout;
+	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *histogram_abs_layout_full, *color_plot_layout;
 	
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
@@ -83,8 +84,9 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu;
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis;
-	QFrame* frame_video_player, * frm_video, * frm_plots, *frm_histogram, *frm_histogram_abs;
+	QFrame* frame_video_player, * frm_video, * frm_plots, *frm_histogram, *frm_histogram_abs, *frm_histogram_abs_full;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
+	QStackedLayout* stacked_layout_histograms;
 
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
