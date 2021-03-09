@@ -4,14 +4,17 @@
 HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 {
 	chart = new QChart();
+	chart_full = new QChart();
 	rel_chart = new QChart();
 
 	chart_view = new Clickable_QChartView(chart);
+	chart_full_view = new Clickable_QChartView(chart_full);
 	rel_chart_view = new QChartView(rel_chart);
 
 	text = new QLabel(this);
 
 	chart->legend()->hide();
+	chart_full->legend()->hide();
 	rel_chart->legend()->hide();
 
 	pen.setColor(colors.GetCurrentColor());
@@ -31,13 +34,20 @@ HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 	initialize_histogram_plot();
 
 	connect(chart_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
+	connect(chart_full_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
 }
 
 HistogramLine_Plot::~HistogramLine_Plot(){
 
 	delete chart;
-	delete text;
+	delete chart_full;
+	delete rel_chart;
+	
 	delete chart_view;
+	delete chart_full_view;
+	delete rel_chart_view;
+	
+	delete text;
 }
 
 void HistogramLine_Plot::receive_video_data(video_details &new_input)
@@ -92,8 +102,6 @@ void HistogramLine_Plot::update_histogram_chart() {
 	color_correction.get_updated_color(color_corrected_matrix, max_value, normalized_min_value, normalized_max_value);
 
 	color_corrected_matrix = color_corrected_matrix * 255;
-
-	//---------------------------------------------------------------------------------
 	
 	// ------------------------------------------------------------------------------
 	//Setup box-whiskers plot
@@ -337,16 +345,23 @@ void HistogramLine_Plot::initialize_histogram_plot()
 	// Initialize the histogram plots for displaying
 	QLineSeries *series1 = new QLineSeries();
 	QLineSeries *series2 = new QLineSeries();
+	QLineSeries* series3 = new QLineSeries();
 
 	series1->append(QPointF(0, 0));
 	series1->append(QPointF(0, 0));
+	
 	series2->append(QPointF(0, 0));
 	series2->append(QPointF(0, 0));
+	
+	series3->append(QPointF(0, 0));
+	series3->append(QPointF(0, 0));
 
 	chart->addSeries(series1);
+	chart_full->addSeries(series3);
 	rel_chart->addSeries(series2);
 
 	setup_histogram_plot(chart);
+	setup_histogram_plot(chart_full);
 	setup_histogram_plot(rel_chart);
 
 }
@@ -354,6 +369,7 @@ void HistogramLine_Plot::initialize_histogram_plot()
 void HistogramLine_Plot::remove_histogram_plots()
 {
 	chart->removeAllSeries();
+	chart_full->removeAllSeries();
 	rel_chart->removeAllSeries();
 }
 
@@ -432,6 +448,7 @@ void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min,
 
 	double max_hist_value = bin_counts.max();
 	plot_histogram(histogram_line, min, max, max_hist_value, chart);
+	plot_histogram(histogram_line, min, max, max_hist_value, chart_full);
 
 }
 
