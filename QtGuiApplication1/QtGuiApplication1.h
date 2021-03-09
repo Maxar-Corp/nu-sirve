@@ -58,7 +58,7 @@ public:
 	Process_File file_data;
 	
 	QWidget *main_widget;
-	QGridLayout *video_layout, *engineering_plot_layout, *color_plot_layout;
+	QGridLayout *video_layout, *engineering_plot_layout;
 	
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
@@ -73,17 +73,17 @@ public:
 	Qt Elements for user interface
 	----------------------------------------------------------------------------------------------- */
 
-	QTabWidget* tabMenu, * tabPlots;
+	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
 	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, *lbl_current_epoch;
-	QSlider* slider_lift, * slider_gain, * sldrVideo;
+	QSlider* slider_lift, * slider_gain, * slider_video;
 	QLineEdit* txt_start_frame, * txt_end_frame, * txt_nuc_start, * txt_nuc_stop, * txt_bgs_num_frames;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
 		* btn_deinterlace, * btn_clear_filters, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu;
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis;
-	QFrame* frame_video_player, * frm_video, * frm_plots, *frm_histogram, *frm_histogram_abs, *frm_histogram_abs_full;
+	QFrame* frame_video_player, * frame_video, * frame_plots, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 	QStackedLayout* stacked_layout_histograms;
 
