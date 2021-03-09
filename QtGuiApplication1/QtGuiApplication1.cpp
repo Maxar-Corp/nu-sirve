@@ -150,6 +150,11 @@ void QtGuiApplication1::setup_ui() {
 	tab_menu->addTab(setup_file_import_tab(), "Import");
 	tab_menu->addTab(setup_color_correction_tab(), "Color");
 	tab_menu->addTab(setup_filter_tab(), "Processing");
+
+	QSizePolicy fixed_width;
+	fixed_width.setHorizontalPolicy(QSizePolicy::Fixed);
+	fixed_width.setVerticalPolicy(QSizePolicy::Preferred);
+	tab_menu->setSizePolicy(fixed_width);
 		
 	setup_video_frame();
 	setup_plot_frame();
