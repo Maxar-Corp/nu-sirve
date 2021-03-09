@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
-#include "ui_QtGuiApplication1.h"
 
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
@@ -44,6 +43,8 @@
 #include <QButtonGroup.h>
 #include <QRadioButton.h>
 #include <qdatetime.h>
+#include <qdatetimeedit.h>
+#include <qgroupbox>
 #include <qmenu.h>
 
 
@@ -57,12 +58,10 @@ public:
 	Process_File file_data;
 	
 	QWidget *main_widget;
-	QGridLayout *video_layout, *engineering_plot_layout, *histogram_layout, *histogram_abs_layout, *histogram_abs_layout_full, *color_plot_layout;
+	QGridLayout *video_layout, *engineering_plot_layout, *color_plot_layout;
 	
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
-
-	QButtonGroup data_plot_yformat, data_plot_yloglinear;
 
 	QThread thread_video, thread_timer;
 
@@ -98,7 +97,6 @@ public:
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;
 	bool record_video;
-
 	
 	QtGuiApplication1(QWidget *parent = Q_NULLPTR);
 	~QtGuiApplication1();
@@ -129,65 +127,61 @@ public:
 
 	public slots:
 	
-	void histogram_clicked(double x0, double x1);
-	void lift_slider_toggled(int value);
-	void gain_slider_toggled(int value);
-	void color_correction_toggled(double lift_value, double gain_value);
+		void histogram_clicked(double x0, double x1);
+		void lift_slider_toggled(int value);
+		void gain_slider_toggled(int value);
+		void color_correction_toggled(double lift_value, double gain_value);
 
-	void load_osm_data();
-	void load_abir_data();
+		void load_osm_data();
+		void load_abir_data();
 
-	void start_stop_video_record();
+		void start_stop_video_record();
 
-	void update_fps();
-	void reset_color_correction();
+		void update_fps();
+		void reset_color_correction();
 	
-	void plot_full_data();
-	void plot_primary_only();
-	void plot_current_frame_marker();
+		void plot_full_data();
+		void plot_primary_only();
+		void plot_current_frame_marker();
 
-	void auto_change_plot_display(int index);
+		void auto_change_plot_display(int index);	
+
+
+		void save_plot();
+		void save_frame();
+		void set_frame_number_label(int counter);
+		void copy_osm_directory();
+		void update_enhanced_range(bool input);
+		void toggle_relative_histogram(bool input);
+		void apply_epoch_time();
 	
+		void create_non_uniformity_correction();
+		void create_background_subtraction_correction();
+		void toggle_video_filters();
+		void create_deinterlace();
+
+		void toggle_osm_tracks();
+		void toggle_primary_track_data();
+		void toggle_sensor_track_data();
+
+		void yaxis_log_toggled(bool input);
+		void yaxis_linear_toggled(bool input);
+		void yaxis_decimal_toggled(bool input);
+		void yaxis_scientific_toggled(bool input);
 
 
-	void save_plot();
-	void save_frame();
-	void set_frame_number_label(int counter);
-	void copy_osm_directory();
-	void update_enhanced_range(bool input);
-	void toggle_relative_histogram(bool input);
-	void apply_epoch_time();
-	
-	void create_non_uniformity_correction();
-	void create_background_subtraction_correction();
-	void toggle_video_filters();
-	void create_deinterlace();
+		deinterlace_type find_deinterlace_type(int index);
+		Video_Parameters find_deinterlace_video_type(int index);
+		void clear_image_processing();
 
-	void toggle_osm_tracks();
-	void toggle_primary_track_data();
-	void toggle_sensor_track_data();
-
-	void yaxis_log_toggled(bool input);
-	void yaxis_linear_toggled(bool input);
-	void yaxis_decimal_toggled(bool input);
-	void yaxis_scientific_toggled(bool input);
-
-
-	deinterlace_type find_deinterlace_type(int index);
-	Video_Parameters find_deinterlace_video_type(int index);
-	void clear_image_processing();
-
-	video_details get_current_filter_state();
-	bool check_filter_selection(video_details filter_state);
-	void show_available_filter_options();
+		video_details get_current_filter_state();
+		bool check_filter_selection(video_details filter_state);
+		void show_available_filter_options();
 	
 private:
-	Ui::QtGuiApplication1Class ui;
-	QClipboard *clipboard;
-	int max_used_bits;
-
 	
-
+	QClipboard *clipboard;
+	int max_used_bits;	
 
 	void create_menu_actions();
 	void edit_color_map();
