@@ -77,17 +77,17 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	
 	// links chart with frame where it will be contained
-	histogram_layout = new QGridLayout();
+	QVBoxLayout *histogram_layout = new QVBoxLayout();
 	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
 	frm_histogram->setLayout(histogram_layout);
 
 	// links chart with frame where it will be contained
-	QVBoxLayout* histogram_abs_layout = new QVBoxLayout();
+	QVBoxLayout *histogram_abs_layout = new QVBoxLayout();
 	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
 	frm_histogram_abs->setLayout(histogram_abs_layout);	
 	
 	// links chart with frame where it will be contained
-	histogram_abs_layout_full = new QGridLayout();
+	QVBoxLayout *histogram_abs_layout_full = new QVBoxLayout();
 	histogram_abs_layout_full->addWidget(ir_video->histogram_plot->chart_full_view);
 	frm_histogram_abs_full->setLayout(histogram_abs_layout_full);
 
@@ -596,6 +596,7 @@ void QtGuiApplication1::setup_plot_frame() {
 	rad_log = new QRadioButton("Log");
 	rad_linear = new QRadioButton("Linear");
 
+	QButtonGroup data_plot_yformat, data_plot_yloglinear;
 	data_plot_yformat.addButton(rad_decimal);
 	data_plot_yformat.addButton(rad_scientific);
 	data_plot_yloglinear.addButton(rad_log);
