@@ -35,14 +35,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 
-	//tabMenu->setTabEnabled(1, false);
-	//tabMenu->setTabEnabled(2, false);
-
-	btn_copy_directory->setEnabled(true);
-
-	rad_decimal->setChecked(true);
-	rad_linear->setChecked(true);
-
 	// establish object to control playback timer and move to a new thread
 	playback_controller = new Playback(1);
 	playback_controller->moveToThread(&thread_timer);
@@ -73,23 +65,23 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	// links label showing the video to the video frame
 	video_layout = new QGridLayout();
 	video_layout->addWidget(ir_video->label);
-	frm_video->setLayout(video_layout);
+	frame_video->setLayout(video_layout);
 
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_layout = new QVBoxLayout();
 	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
-	frm_histogram->setLayout(histogram_layout);
+	frame_histogram->setLayout(histogram_layout);
 
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_abs_layout = new QVBoxLayout();
 	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
-	frm_histogram_abs->setLayout(histogram_abs_layout);	
+	frame_histogram_abs->setLayout(histogram_abs_layout);	
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_abs_layout_full = new QVBoxLayout();
 	histogram_abs_layout_full->addWidget(ir_video->histogram_plot->chart_full_view);
-	frm_histogram_abs_full->setLayout(histogram_abs_layout_full);
+	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
 
 	//---------------------------------------------------------------------------
 	//---------------------------------------------------------------------------
@@ -109,8 +101,9 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	// establish connections to all qwidgets	
 	setup_connections();
 	
-	tabMenu->setCurrentIndex(0);
 	toggle_relative_histogram(false);
+	toggle_video_playback_options(false);
+	enable_engineering_plot_options(false);
 
 	create_menu_actions();
 		
@@ -145,18 +138,18 @@ void QtGuiApplication1::setup_ui() {
 	QHBoxLayout* main_layout = new QHBoxLayout();
 
 	// Define main widgets in UI
-	tabMenu = new QTabWidget();
+	tab_menu = new QTabWidget();
 	frame_video_player = new QFrame();
-	tabPlots = new QTabWidget();
+	tab_plots = new QTabWidget();
 
 	// ------------------------------------------------------------------------
 	// Define complete tab widget
 	// ------------------------------------------------------------------------
 	
 	// Add all to tab widget
-	tabMenu->addTab(setup_file_import_tab(), "Import");
-	tabMenu->addTab(setup_color_correction_tab(), "Color");
-	tabMenu->addTab(setup_filter_tab(), "Processing");
+	tab_menu->addTab(setup_file_import_tab(), "Import");
+	tab_menu->addTab(setup_color_correction_tab(), "Color");
+	tab_menu->addTab(setup_filter_tab(), "Processing");
 		
 	setup_video_frame();
 	setup_plot_frame();
@@ -164,12 +157,34 @@ void QtGuiApplication1::setup_ui() {
 	// ------------------------------------------------------------------------
 	// Adds all elements to main UI
 
-	main_layout->addWidget(tabMenu);
+	main_layout->addWidget(tab_menu);
 	main_layout->addWidget(frame_video_player);
-	main_layout->addWidget(tabPlots);
+	main_layout->addWidget(tab_plots);
 
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
+
+	// ------------------------------------------------------------------------
+	// initialize ui elements 
+
+	tab_menu->setCurrentIndex(0);
+	tab_menu->setTabEnabled(1, false);
+	tab_menu->setTabEnabled(2, false);
+
+	btn_load_osm->setEnabled(true);
+	btn_copy_directory->setEnabled(true);
+
+	txt_start_frame->setEnabled(false);
+	txt_end_frame->setEnabled(false);
+	btn_get_frames->setEnabled(false);
+
+	dt_epoch->setEnabled(false);
+	btn_apply_epoch->setEnabled(false);
+
+	rad_decimal->setChecked(true);
+	rad_linear->setChecked(true);
+
+	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
 	//this->resize();
@@ -180,7 +195,7 @@ void QtGuiApplication1::setup_ui() {
 QWidget* QtGuiApplication1::setup_file_import_tab() {
 
 	
-	QWidget* widget_tab_import = new QWidget(tabMenu);
+	QWidget* widget_tab_import = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
 
 	// ------------------------------------------------------------------------
@@ -269,11 +284,11 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 
 QWidget* QtGuiApplication1::setup_color_correction_tab() {
 
-	QWidget* widget_tab_color = new QWidget(tabMenu);
+	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 	
-	QWidget* widget_tab_color_sliders = new QWidget(tabMenu);
-	QWidget* widget_tab_color_controls = new QWidget(tabMenu);
+	QWidget* widget_tab_color_sliders = new QWidget(tab_menu);
+	QWidget* widget_tab_color_controls = new QWidget(tab_menu);
 	QLabel* label_lift = new QLabel("Dark \nSet Point");
 	QLabel* label_gain = new QLabel("Ligt \nSet Point");
 	lbl_lift_value = new QLabel("0.0");
@@ -310,8 +325,8 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	// End set attributes 
 
 	// define layouts
-	QGridLayout* grid_tab_color_sliders = new QGridLayout(tabMenu);
-	QHBoxLayout* hlayout_tab_color_controls = new QHBoxLayout(tabMenu);
+	QGridLayout* grid_tab_color_sliders = new QGridLayout(tab_menu);
+	QHBoxLayout* hlayout_tab_color_controls = new QHBoxLayout(tab_menu);
 
 	// add widgets to layouts
 	grid_tab_color_sliders->addWidget(label_lift, 0, 0);
@@ -338,7 +353,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 
 QWidget* QtGuiApplication1::setup_filter_tab() {
 
-	QWidget* widget_tab_processing = new QWidget(tabMenu);
+	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
 	
 	QLabel* label_nuc = new QLabel("Non-Uniformity Correction (NUC)");
@@ -430,11 +445,11 @@ void QtGuiApplication1::setup_video_frame(){
 
 	// ------------------------------------------------------------------------
 
-	frm_video = new QFrame();
-	frm_video->setMinimumHeight(480);
-	frm_video->setMinimumWidth(640);
+	frame_video = new QFrame();
+	frame_video->setMinimumHeight(480);
+	frame_video->setMinimumWidth(640);
 
-	vlayout_frame_video->addWidget(frm_video);
+	vlayout_frame_video->addWidget(frame_video);
 
 	// ------------------------------------------------------------------------
 
@@ -458,10 +473,10 @@ void QtGuiApplication1::setup_video_frame(){
 
 	// ------------------------------------------------------------------------
 
-	sldrVideo = new QSlider();
-	sldrVideo->setOrientation(Qt::Horizontal);
+	slider_video = new QSlider();
+	slider_video->setOrientation(Qt::Horizontal);
 
-	vlayout_frame_video->addWidget(sldrVideo);
+	vlayout_frame_video->addWidget(slider_video);
 
 	// ------------------------------------------------------------------------
 
@@ -560,24 +575,24 @@ void QtGuiApplication1::setup_video_frame(){
 
 void QtGuiApplication1::setup_plot_frame() {
 
-	tabPlots->setTabPosition(QTabWidget::South);
+	tab_plots->setTabPosition(QTabWidget::South);
 
 	// ------------------------------------------------------------------------
 
-	frm_histogram = new QFrame();
-	frm_histogram_abs = new QFrame();
-	frm_histogram_abs_full = new QFrame();
+	frame_histogram = new QFrame();
+	frame_histogram_abs = new QFrame();
+	frame_histogram_abs_full = new QFrame();
 
 	QWidget* widget_tab_histogram_split = new QWidget();
 	QVBoxLayout* vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram_split);
 
-	vlayout_tab_histogram->addWidget(frm_histogram);
-	vlayout_tab_histogram->addWidget(frm_histogram_abs);
+	vlayout_tab_histogram->addWidget(frame_histogram);
+	vlayout_tab_histogram->addWidget(frame_histogram_abs);
 	vlayout_tab_histogram->setStretch(0, 1);
 	vlayout_tab_histogram->setStretch(1, 1);
 
 	stacked_layout_histograms = new QStackedLayout();
-	stacked_layout_histograms->addWidget(frm_histogram_abs_full);
+	stacked_layout_histograms->addWidget(frame_histogram_abs_full);
 	stacked_layout_histograms->addWidget(widget_tab_histogram_split);
 	
 	QWidget* widget_tab_histogram = new QWidget();
@@ -585,7 +600,7 @@ void QtGuiApplication1::setup_plot_frame() {
 
 	// ------------------------------------------------------------------------
 
-	frm_plots = new QFrame();
+	frame_plots = new QFrame();
 	QLabel* label_x_axis_option = new QLabel("X-Axis");
 	QLabel* label_y_axis_option = new QLabel("Y-Axis");
 	QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
@@ -656,7 +671,7 @@ void QtGuiApplication1::setup_plot_frame() {
 	QWidget* widget_plots_tab_color = new QWidget();
 	QVBoxLayout* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
 	
-	vlayout_widget_plots_tab_color->addWidget(frm_plots);
+	vlayout_widget_plots_tab_color->addWidget(frame_plots);
 	vlayout_widget_plots_tab_color->addLayout(hlayout_widget_plots_tab_color_control);
 
 	// ------------------------------------------------------------------------
@@ -666,8 +681,8 @@ void QtGuiApplication1::setup_plot_frame() {
 	vlayout_widget_plots_tab_color->setStretch(0, 7);
 	vlayout_widget_plots_tab_color->setStretch(1, 1);
 
-	tabPlots->addTab(widget_tab_histogram, "Histogram");
-	tabPlots->addTab(widget_plots_tab_color, "Plots");
+	tab_plots->addTab(widget_tab_histogram, "Histogram");
+	tab_plots->addTab(widget_plots_tab_color, "Plots");
 }
 
 void QtGuiApplication1::setup_connections() {
@@ -685,7 +700,7 @@ void QtGuiApplication1::setup_connections() {
 
 	//---------------------------------------------------------------------------	
 	
-	QObject::connect(tabMenu, &QTabWidget::currentChanged, this, &QtGuiApplication1::auto_change_plot_display);
+	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &QtGuiApplication1::auto_change_plot_display);
 	QObject::connect(chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
 	
 	//---------------------------------------------------------------------------	
@@ -704,8 +719,8 @@ void QtGuiApplication1::setup_connections() {
 	//---------------------------------------------------------------------------
 
 	// Link horizontal slider to playback controller
-	QObject::connect(playback_controller, &Playback::update_frame, sldrVideo, &QSlider::setValue);
-	QObject::connect(sldrVideo, &QSlider::valueChanged, playback_controller, &Playback::set_counter);
+	QObject::connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
+	QObject::connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_counter);
 
 	//---------------------------------------------------------------------------
 
@@ -882,7 +897,7 @@ void QtGuiApplication1::load_osm_data()
 			clear_frame_label();
 
 			video_layout->addWidget(ir_video->label);
-			frm_video->setLayout(video_layout);
+			frame_video->setLayout(video_layout);
 		}
 
 		DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
@@ -936,7 +951,7 @@ void QtGuiApplication1::load_osm_data()
 
 		engineering_plot_layout = new QGridLayout();
 		engineering_plot_layout->addWidget(data_plots->chart_view);
-		frm_plots->setLayout(engineering_plot_layout);
+		frame_plots->setLayout(engineering_plot_layout);
 
 		//--------------------------------------------------------------------------------
 		
@@ -1081,7 +1096,7 @@ void QtGuiApplication1::load_abir_data()
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
-	sldrVideo->setRange(0, number_frames);	
+	slider_video->setRange(0, number_frames);	
 
 	//---------------------------------------------------------------------------
 	// Set the video and histogram plots to this data
@@ -1108,14 +1123,14 @@ void QtGuiApplication1::load_abir_data()
 	playback_controller->set_speed_index(10);
 	update_fps();
 
-	tabPlots->setCurrentIndex(1);
+	tab_plots->setCurrentIndex(1);
 	plot_full_data();
 	plot_current_frame_marker();
 
 	btn_get_frames->setEnabled(true);
 
-	tabMenu->setTabEnabled(1, true);
-	tabMenu->setTabEnabled(2, true);
+	tab_menu->setTabEnabled(1, true);
+	tab_menu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
 
@@ -1354,12 +1369,12 @@ void QtGuiApplication1::auto_change_plot_display(int index)
 {
 	// When color tab is selected, the histogram is automatically displayed
 	if (index == 1) {
-		tabPlots->setCurrentIndex(0);
+		tab_plots->setCurrentIndex(0);
 	}
 
 	// When processing tab is selected, the engineering plots are automically displayed
 	if (index == 2) {
-		tabPlots->setCurrentIndex(1);
+		tab_plots->setCurrentIndex(1);
 	}
 }
 
@@ -1641,7 +1656,7 @@ void QtGuiApplication1::plot_change(int index)
 	int y_index = cmb_plot_yaxis->currentIndex();
 
 	// Check that indices are all positive
-	if (x_index >= 0 && y_index >= 0)
+	if (x_index >= 0 && y_index >= 0 && eng_data)
 	{
 
 		bool scientific_is_checked = rad_scientific->isChecked();
@@ -1777,18 +1792,20 @@ bool QtGuiApplication1::check_value_within_range(int input_value, int min_value,
 
 void QtGuiApplication1::set_frame_number_label(int counter)
 {
+	// check that engineering is non-null before accessing
+	if (eng_data) {
+		int index = data_plots->index_sub_plot_xmin;
 
-	int index = data_plots->index_sub_plot_xmin;
-		
-	int frame_number = eng_data->frame_numbers[index + counter];
-	QString frame_text("Frame # ");
-	frame_text.append(QString::number(frame_number));
-	lbl_video_frame->setText(frame_text);
+		int frame_number = eng_data->frame_numbers[index + counter];
+		QString frame_text("Frame # ");
+		frame_text.append(QString::number(frame_number));
+		lbl_video_frame->setText(frame_text);
 
-	double seconds_midnight = eng_data->seconds_from_midnight[index + counter];
-	QString seconds_text("From Midnight ");
-	seconds_text.append(QString::number(seconds_midnight, 'g', 8));
-	lbl_video_time_midnight->setText(seconds_text);
+		double seconds_midnight = eng_data->seconds_from_midnight[index + counter];
+		QString seconds_text("From Midnight ");
+		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
+		lbl_video_time_midnight->setText(seconds_text);
+	}
 
 }
 
@@ -2422,7 +2439,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	btn_frame_record->setEnabled(input);
 	btn_frame_save->setEnabled(input);
 
-	sldrVideo->setEnabled(input);
+	slider_video->setEnabled(input);
 	btn_play->setEnabled(input);
 	btn_pause->setEnabled(input);
 	btn_next_frame->setEnabled(input);
@@ -2437,7 +2454,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	else
 	{
 		playback_controller->stop_timer();
-		sldrVideo->setValue(1);
+		slider_video->setValue(1);
 		lbl_video_time_midnight->setText("");
 		lbl_video_frame->setText("");
 		lbl_fps->setText("");
@@ -2447,7 +2464,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 void QtGuiApplication1::enable_engineering_plot_options(bool input)
 {
 	// ------------------------------------------ Set Dropdown Menu ------------------------------------------
-	tabPlots->setCurrentIndex(1);
+	tab_plots->setCurrentIndex(1);
 
 	cmb_plot_xaxis->clear();
 	cmb_plot_yaxis->clear();
@@ -2476,10 +2493,6 @@ void QtGuiApplication1::enable_engineering_plot_options(bool input)
 
 	btn_plot_menu->setEnabled(input);
 	btn_save_plot->setEnabled(input);
-
-	// chk_plot_full_data->setEnabled(input);
-	// chk_plot_primary_data->setEnabled(input);
-	// chk_plot_show_line->setEnabled(input);
 
 }
 
