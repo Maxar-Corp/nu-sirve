@@ -37,9 +37,9 @@ class HistogramLine_Plot : public QWidget //public QChartView
         
 		Lift_Gamma_Gain color_correction;
         
-		QChart *chart, *rel_chart;
+		QChart *chart, *chart_full, *rel_chart;
 		QChartView *rel_chart_view;
-		Clickable_QChartView *chart_view;
+		Clickable_QChartView *chart_view, *chart_full_view;
 
 		QLabel *text;
 		unsigned int maximum_levels;

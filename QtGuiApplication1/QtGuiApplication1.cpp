@@ -67,20 +67,32 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	int number_bits = max_used_bits;
 
+	//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
+
 	// links label showing the video to the video frame
 	video_layout = new QGridLayout();
 	video_layout->addWidget(ir_video->label);
 	frm_video->setLayout(video_layout);
 
+	
 	// links chart with frame where it will be contained
 	histogram_layout = new QGridLayout();
 	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
 	frm_histogram->setLayout(histogram_layout);
 
 	// links chart with frame where it will be contained
-	histogram_abs_layout = new QGridLayout();
+	QVBoxLayout* histogram_abs_layout = new QVBoxLayout();
 	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
 	frm_histogram_abs->setLayout(histogram_abs_layout);	
+	
+	// links chart with frame where it will be contained
+	histogram_abs_layout_full = new QGridLayout();
+	histogram_abs_layout_full->addWidget(ir_video->histogram_plot->chart_full_view);
+	frm_histogram_abs_full->setLayout(histogram_abs_layout_full);
+
+	//---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 
 	// setup color correction class based on slider values
 	int max_lift, min_lift, max_gain, min_gain;
@@ -554,15 +566,22 @@ void QtGuiApplication1::setup_plot_frame() {
 
 	frm_histogram = new QFrame();
 	frm_histogram_abs = new QFrame();
+	frm_histogram_abs_full = new QFrame();
 
-	QWidget* widget_tab_histogram = new QWidget();
-	QVBoxLayout* vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram);
+	QWidget* widget_tab_histogram_split = new QWidget();
+	QVBoxLayout* vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram_split);
 
 	vlayout_tab_histogram->addWidget(frm_histogram);
 	vlayout_tab_histogram->addWidget(frm_histogram_abs);
-
 	vlayout_tab_histogram->setStretch(0, 1);
 	vlayout_tab_histogram->setStretch(1, 1);
+
+	stacked_layout_histograms = new QStackedLayout();
+	stacked_layout_histograms->addWidget(frm_histogram_abs_full);
+	stacked_layout_histograms->addWidget(widget_tab_histogram_split);
+	
+	QWidget* widget_tab_histogram = new QWidget();
+	widget_tab_histogram->setLayout(stacked_layout_histograms);
 
 	// ------------------------------------------------------------------------
 
@@ -747,15 +766,6 @@ void QtGuiApplication1::setup_connections() {
 
 	// Connect save button functions
 	connect(btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
-
-	//---------------------------------------------------------------------------	
-
-
-	//---------------------------------------------------------------------------	
-
-
-	//---------------------------------------------------------------------------	
-
 
 	//---------------------------------------------------------------------------
 	// connect the plot radial buttons to adjust plot
@@ -1811,18 +1821,15 @@ void QtGuiApplication1::toggle_relative_histogram(bool input)
 
 		ir_video->show_relative_histogram = true;
 
-		frm_histogram_abs->move(10, 300);
-		frm_histogram_abs->resize(651, 281);
-
+		stacked_layout_histograms->setCurrentIndex(1);
 		ir_video->update_display_frame();
 
 	}
 	else
 	{
 		ir_video->show_relative_histogram = false;
+		stacked_layout_histograms->setCurrentIndex(0);
 
-		frm_histogram_abs->move(10, 10);
-		frm_histogram_abs->resize(651, 571);
 	}
 }
 
