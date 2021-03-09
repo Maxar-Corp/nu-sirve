@@ -663,14 +663,18 @@ void QtGuiApplication1::setup_plot_frame() {
 	vlayout_x_axis_options->addWidget(cmb_plot_xaxis);
 	vlayout_x_axis_options->setAlignment(Qt::AlignTop);
 
+	QHBoxLayout* hlayout_buttons = new QHBoxLayout();
+	hlayout_buttons->addWidget(btn_plot_menu);
+	hlayout_buttons->addWidget(btn_save_plot);
+	hlayout_buttons->setAlignment(Qt::AlignTop);
+
 	// set layout for everything below the plot
 	QHBoxLayout* hlayout_widget_plots_tab_color_control = new QHBoxLayout();
 	hlayout_widget_plots_tab_color_control->addLayout(vlayout_y_axis_options);
 	hlayout_widget_plots_tab_color_control->addLayout(vlayout_x_axis_options);
 	hlayout_widget_plots_tab_color_control->addWidget(plot_groupbox);
 	hlayout_widget_plots_tab_color_control->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-	hlayout_widget_plots_tab_color_control->addWidget(btn_plot_menu);
-	hlayout_widget_plots_tab_color_control->addWidget(btn_save_plot);
+	hlayout_widget_plots_tab_color_control->addLayout(hlayout_buttons);
 
 	// set layout for engineering plots tab
 	QWidget* widget_plots_tab_color = new QWidget();
