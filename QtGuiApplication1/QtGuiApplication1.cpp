@@ -90,7 +90,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	int max_lift, min_lift, max_gain, min_gain;
 	color_correction.get_min_slider_range(min_lift, max_lift);
 	color_correction.get_max_slider_range(min_gain, max_gain);
-
+	
 	slider_lift->setMinimum(min_lift);
 	slider_lift->setMaximum(max_lift);
 	slider_gain->setMinimum(min_gain);
@@ -106,6 +106,8 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	enable_engineering_plot_options(false);
 
 	create_menu_actions();
+
+	this->resize(0, 0);
 		
 	INFO << "GUI: GUI Initialized";
 }
@@ -188,7 +190,7 @@ void QtGuiApplication1::setup_ui() {
 
 	rad_decimal->setChecked(true);
 	rad_linear->setChecked(true);
-
+	
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -605,7 +607,8 @@ void QtGuiApplication1::setup_plot_frame() {
 
 	// ------------------------------------------------------------------------
 
-	frame_plots = new QFrame();
+	frame_plots = new FixedAspectRatioFrame();
+	frame_plots->enable_fixed_aspect_ratio(true);
 	QLabel* label_x_axis_option = new QLabel("X-Axis");
 	QLabel* label_y_axis_option = new QLabel("Y-Axis");
 	QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");

@@ -47,9 +47,6 @@ void EnhancedLabel::mouseMoveEvent(QMouseEvent *event)
 void EnhancedLabel::mouseReleaseEvent(QMouseEvent *event)
 {
 	
-	
-
-
 	if (right_button_clicked == false) {
 		
 		// find rectangle edge point
