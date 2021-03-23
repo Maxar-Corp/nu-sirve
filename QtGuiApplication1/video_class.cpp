@@ -236,6 +236,54 @@ void Video::unzoom(QPoint origin)
 	}
 }
 
+std::vector<int> Video::get_position_within_zoom(int x0, int y0)
+{
+	
+	int num_zooms = zoom_list.size();
+	bool pt_within_area = true;
+
+	int x_center = x0;
+	int y_center = y0;
+
+	// for each zoom level ...
+	for (int j = 0; j < num_zooms; j++)
+	{
+		// define object location relative to zoom frame
+		QRect sub_frame = zoom_list[j];
+		x_center = x_center - sub_frame.x();
+		y_center = y_center - sub_frame.y();
+
+		// if object location exceeds frame, stop and prevent drawing
+		if (x_center < 0 || x_center > sub_frame.width())
+		{
+			pt_within_area = false;
+			break;
+		}
+
+		if (y_center < 0 || y_center > sub_frame.height())
+		{
+			pt_within_area = false;
+			break;
+		}
+
+		// rescale pixels to image frame
+		double temp_x = x_center * 1.0 / sub_frame.width() * image_x;
+		double temp_y = y_center * 1.0 / sub_frame.height() * image_y;
+
+		x_center = std::round(temp_x);
+		y_center = std::round(temp_y);
+
+	}
+
+	// if point is within all zoom frames ...
+	if (pt_within_area)
+	{
+		return std::vector<int> {x_center, y_center};
+	}
+	else
+		return std::vector<int> {-1, -1};
+}
+
 void Video::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
@@ -257,7 +305,6 @@ void Video::update_display_frame()
 	histogram_plot->plot_absolute_histogram(image_vector, color_correction.get_min(), color_correction.get_max());
 
 	// Correct image based on min/max value inputs
-	double normalized_min_value, normalized_max_value;
 	color_correction.get_updated_color(image_vector);
 
 	// Create points for the relative histogram
@@ -304,6 +351,9 @@ void Video::update_display_frame()
 		// scale to initial aspect ratio
 		frame = frame.scaled(image_x, image_y);
 	}
+
+	// -----------------------------------------------------------
+	// loop thru all tracks and plot thru lowest zoom
 
 	int num_tracks = display_data[counter].ir_data.size();
 	int num_zooms = zoom_list.size();
@@ -416,14 +466,19 @@ void Video::update_display_frame()
 				QString annotation_color = a.color;
 				int font_size = a.font_size;
 				QString annotation_text = a.text;
-				int x = a.x_pixel;
-				int y = a.y_pixel;
 
-				// write text
-				QPainter p_a(&frame);
-				p_a.setPen(QPen(annotation_color));
-				p_a.setFont(QFont("Times", font_size));
-				p_a.drawText(x, y, annotation_text);
+				std::vector<int> loc = get_position_within_zoom(a.x_pixel, a.y_pixel);
+				int x = loc[0];
+				int y = loc[1];
+
+				if (loc[0] >= 0)
+				{
+					// write text
+					QPainter p_a(&frame);
+					p_a.setPen(QPen(annotation_color));
+					p_a.setFont(QFont("Times", font_size));
+					p_a.drawText(x, y, annotation_text);
+				}
 			}
 		}
 
