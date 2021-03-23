@@ -103,6 +103,7 @@ private:
     unsigned int counter;
 
 	std::vector<Plotting_Frame_Data> display_data;
+	std::vector<int> get_position_within_zoom(int x0, int y0);
 	
 };
 
