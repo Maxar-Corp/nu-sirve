@@ -161,6 +161,12 @@ void QtGuiApplication1::setup_ui() {
 	setup_video_frame();
 	setup_plot_frame();
 
+	// set size policy for video controls
+	QSizePolicy fixed_width_video;
+	fixed_width_video.setHorizontalPolicy(QSizePolicy::Fixed);
+	fixed_width_video.setVerticalPolicy(QSizePolicy::Preferred);
+	frame_video_player->setSizePolicy(fixed_width_video);
+
 	// ------------------------------------------------------------------------
 	// Adds all elements to main UI
 

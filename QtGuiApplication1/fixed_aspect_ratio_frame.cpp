@@ -29,6 +29,7 @@ void FixedAspectRatioFrame::enable_fixed_aspect_ratio(bool enable)
 
 void FixedAspectRatioFrame::resizeEvent(QResizeEvent* event)
 {
+	// for all resize events, adjust minimum width to match the new height
 
 	if (fixed_aspect_ratio) {
 
