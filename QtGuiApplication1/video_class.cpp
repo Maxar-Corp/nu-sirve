@@ -358,7 +358,7 @@ void Video::update_display_frame()
 	int num_tracks = display_data[counter].ir_data.size();
 	int num_zooms = zoom_list.size();
 
-	if (plot_tracks & num_tracks > 0) {
+	if (plot_tracks && num_tracks > 0) {
 
 		for (int i = 0; i < num_tracks; i++)
 		{
@@ -369,46 +369,18 @@ void Video::update_display_frame()
 			int x_center = image_x / 2 + x_pixel;
 			int y_center = image_y / 2 + y_pixel;
 
-			bool pt_within_area = true;
-
-			// for each zoom level ...
-			for (int j = 0; j < num_zooms; j++)
-			{
-				// define object location relative to zoom frame
-				QRect sub_frame = zoom_list[j];
-				x_center = x_center - sub_frame.x();
-				y_center = y_center - sub_frame.y();
-
-				// if object location exceeds frame, stop and prevent drawing
-				if (x_center < 0 || x_center > sub_frame.width())
-				{
-					pt_within_area = false;
-					break;
-				}
-
-				if (y_center < 0 || y_center > sub_frame.height())
-				{
-					pt_within_area = false;
-					break;
-				}
-
-				// rescale pixels to image frame
-				double temp_x = x_center  * 1.0 / sub_frame.width() * image_x;
-				double temp_y = y_center * 1.0 / sub_frame.height() * image_y;
-
-				x_center = std::round(temp_x);
-				y_center = std::round(temp_y);
-
-			}
+			std::vector<int> loc = get_position_within_zoom(x_center, y_center);
+			int x = loc[0];
+			int y = loc[1];
 
 			// if point is within all zoom frames ...
-			if (pt_within_area)
+			if (loc[0] >= 0)
 			{
 				// draw rectangle around object				
 				QPainter rectangle_painter(&frame);
 				
 				int box_size = 5;
-				QRectF rectangle(x_center - box_size, y_center - box_size, box_size * 2, box_size * 2);
+				QRectF rectangle(x - box_size, y - box_size, box_size * 2, box_size * 2);
 
 				rectangle_painter.setPen(QPen(tracker_color));
 				rectangle_painter.drawRect(rectangle);
