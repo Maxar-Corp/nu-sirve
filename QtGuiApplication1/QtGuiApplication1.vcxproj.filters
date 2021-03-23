@@ -129,6 +129,9 @@
     <ClCompile Include="clickable_chartview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fixed_aspect_ratio_frame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="clickable_chartview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="fixed_aspect_ratio_frame.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

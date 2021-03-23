@@ -147,6 +147,7 @@
     <ClCompile Include="plot_engineering_data.cpp" />
     <ClCompile Include="process_file.cpp" />
     <ClCompile Include="QtGuiApplication1.cpp" />
+    <ClCompile Include="fixed_aspect_ratio_frame.cpp" />
     <ClCompile Include="Section.cpp" />
     <ClCompile Include="video_class.cpp" />
     <ClCompile Include="video_container.cpp" />
@@ -169,6 +170,12 @@
     <ClInclude Include="abir_reader.h" />
     <ClInclude Include="background_subtraction.h" />
     <ClInclude Include="binary_file_reader.h" />
+    <QtMoc Include="fixed_aspect_ratio_frame.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\boost_1_70_0;C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtUiTools</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ARMA_USE_LAPACK;ARMA_USE_BLAS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_UITOOLS_LIB;%(PreprocessorDefinitions)</Define>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\opencv\build\x64\vc15\bin;C:\opencv\build\x64\vc15\lib;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\boost_1_70_0;C:\opencv\build\include;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\fftw-3.3.5-dll64;C:\Users\stephanos.tongelidis\Documents\VisualStudio_Addons\armadillo-9.300.2\include;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtUiTools</IncludePath>
+      <Define Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ARMA_USE_LAPACK;ARMA_USE_BLAS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_UITOOLS_LIB;%(PreprocessorDefinitions)</Define>
+    </QtMoc>
     <QtMoc Include="process_file.h" />
     <QtMoc Include="video_container.h" />
     <QtMoc Include="engineering_data.h" />
