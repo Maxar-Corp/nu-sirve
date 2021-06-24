@@ -213,10 +213,10 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 
 	// ------------------------------------------------------------------------
 	
-	
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load OSM File");
 	btn_copy_directory = new QPushButton("Copy File Path");
+	btn_calibration_dialog = new QPushButton("Setup Calibration");
 
 	btn_load_osm->setMinimumWidth(45);
 	btn_copy_directory->setMinimumWidth(45);
@@ -228,7 +228,8 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 	grid_import_file->addWidget(lbl_file_name, 0, 0);
 	grid_import_file->addWidget(btn_load_osm, 1, 0);
 	grid_import_file->addWidget(btn_copy_directory, 1, 1);
-	grid_import_file->addWidget(horizontal_segment1, 2, 0, 1, 2);
+	grid_import_file->addWidget(btn_calibration_dialog, 2, 0, 1, 2);
+	grid_import_file->addWidget(horizontal_segment1, 3, 0, 1, 2);
 
 	vlayout_tab_import->addLayout(grid_import_file);
 
@@ -761,6 +762,7 @@ void QtGuiApplication1::setup_connections() {
 
 	//Link buttons to functions
 	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &QtGuiApplication1::load_osm_data);
+	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &QtGuiApplication1::show_calibration_dialog);
 	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
 	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
 
@@ -1393,6 +1395,19 @@ void QtGuiApplication1::auto_change_plot_display(int index)
 	// When processing tab is selected, the engineering plots are automically displayed
 	if (index == 2) {
 		tab_plots->setCurrentIndex(1);
+	}
+}
+
+void QtGuiApplication1::show_calibration_dialog()
+{
+	CalibrationDialog calibrate_dialog;
+	
+	auto response = calibrate_dialog.exec();
+
+	if (response == 0) {
+
+
+		return;
 	}
 }
 
