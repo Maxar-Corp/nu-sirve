@@ -135,6 +135,9 @@
     <ClCompile Include="calibration_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="abpnuc_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -258,6 +261,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="color_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="abpnuc_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

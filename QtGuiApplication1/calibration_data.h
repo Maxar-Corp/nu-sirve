@@ -9,7 +9,11 @@
 #include <armadillo>
 
 #include "logging.h"
+#include "fixed_aspect_ratio_frame.h"
+#include "abpnuc_reader.h"
 
+#include <qfiledialog.h>
+#include <qlineedit.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qobject.h>
@@ -44,12 +48,16 @@ public:
 
 private:
 
-	QPushButton* btn_ok, * btn_cancel;
-	QLabel* lbl_display;
+	QVBoxLayout* mainLayout;
 
-	QGridLayout* mainLayout;
+	QPushButton* btn_get_nuc_file, *btn_select_temp1, *btn_select_temp2, * btn_ok, * btn_cancel;
+	QLabel* lbl_nuc_filename, *lbl_temp1, *lbl_temp2;
+	FixedAspectRatioFrame* frame_plot;
+	QLineEdit* txt_additional_frames;
 
 	void initialize_gui();
+	void import_nuc_file();
+
 	void ok();
 	void close_window();
 	void closeEvent(QCloseEvent* event);

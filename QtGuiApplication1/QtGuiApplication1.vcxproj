@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="abir_reader.cpp" />
+    <ClCompile Include="abpnuc_reader.cpp" />
     <ClCompile Include="annotations.cpp" />
     <ClCompile Include="annotation_new.cpp" />
     <ClCompile Include="background_subtraction.cpp" />
@@ -169,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="abir_reader.h" />
+    <ClInclude Include="abpnuc_reader.h" />
     <ClInclude Include="background_subtraction.h" />
     <ClInclude Include="binary_file_reader.h" />
     <QtMoc Include="fixed_aspect_ratio_frame.h">
