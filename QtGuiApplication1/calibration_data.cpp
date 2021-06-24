@@ -82,9 +82,58 @@ void CalibrationDialog::initialize_gui()
 
 	mainLayout->addLayout(hlayout_buttons);
 
+	// ------------------------------------------------------------
+	// setup connections
+	QObject::connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::import_nuc_file);
+
+	// ------------------------------------------------------------
+
 	setLayout(mainLayout);
 	setWindowTitle("Set Calibration Data");
 
+}
+
+void CalibrationDialog::import_nuc_file()
+{
+	// -----------------------------------------------------------------------------
+	// get image path
+
+	QString image_path = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
+	;
+	QByteArray ba = image_path.toLocal8Bit();
+	char* file_path = ba.data();
+
+	ABPNUC_Data nuc_data(file_path);
+	// nuc_data.read_apbnuc_file();
+
+	if (nuc_data.read_status == 0) {
+
+		// Add error message on import
+
+		return;
+	}
+
+	if (nuc_data.number_of_frames == 0) {
+		// Add error message saying file data was not imported
+
+		return;
+	}
+
+
+
+	// -----------------------------------------------------------------------------
+	// get file name to display
+	int index_file_start, index_file_end;
+	index_file_start = image_path.lastIndexOf("/");
+	index_file_end = image_path.lastIndexOf(".");
+	
+	QString filename = QString("File: ");
+	filename.append(image_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
+
+	lbl_nuc_filename->setText(filename);
+
+
+	return;
 }
 
 void CalibrationDialog::ok()
@@ -95,10 +144,6 @@ void CalibrationDialog::ok()
 void CalibrationDialog::close_window()
 {
 	done(QDialog::Rejected);
-}
-
-void CalibrationDialog::import_nuc_file()
-{
 }
 
 void CalibrationDialog::closeEvent(QCloseEvent* event)
