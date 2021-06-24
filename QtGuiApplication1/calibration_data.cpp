@@ -22,41 +22,65 @@ CalibrationDialog::CalibrationDialog(QWidget* parent)
 
 CalibrationDialog::~CalibrationDialog()
 {
+
 }
 
 void CalibrationDialog::initialize_gui()
 {
 
-	// define buttons
+	// define dialog buttons
 	btn_ok = new QPushButton(tr("Ok"));
 	btn_cancel = new QPushButton(tr("Cancel"));
 
 	connect(btn_ok, &QPushButton::pressed, this, &CalibrationDialog::ok);
 	connect(btn_cancel, &QPushButton::pressed, this, &CalibrationDialog::close_window);
 
-	// ---------------------------------------------------------------------------
+	// ------------------------------------------------------------
+	// set layout
+
+	mainLayout = new QVBoxLayout();
+
+	btn_get_nuc_file = new QPushButton("Import NUC File");
+	lbl_nuc_filename = new QLabel("File: ");
+
+	QFrame* horizontal_segment1 = new QFrame();
+	horizontal_segment1->setFrameShape(QFrame::HLine);
+
+	mainLayout->addWidget(btn_get_nuc_file, Qt::AlignCenter);
+	mainLayout->addWidget(lbl_nuc_filename, Qt::AlignCenter);
+	mainLayout->addWidget(horizontal_segment1);
 
 	// ------------------------------------------------------------
-	// set gridlayout
+	
+	frame_plot = new FixedAspectRatioFrame();
+	frame_plot->enable_fixed_aspect_ratio(true);
+	frame_plot->resize(640, 480);
 
-	mainLayout = new QGridLayout;
+	lbl_temp1 = new QLabel("Temperature 1: ");
+	lbl_temp2 = new QLabel("Temperature 2: ");
+	QLabel* lbl_additional_frames = new QLabel("Additional Frames Used for Averaging:");
+	txt_additional_frames = new QLineEdit("0");
 
-	QLabel *lbl_display = new QLabel("Test Label");
-	mainLayout->addWidget(lbl_display, 0, 0, 1, 2, Qt::AlignCenter);
+	QHBoxLayout* hlayout_plot_row = new QHBoxLayout();
+	hlayout_plot_row->addWidget(frame_plot);
 
-	mainLayout->addWidget(btn_ok, 2, 0, 1, 1, Qt::AlignCenter);
-	mainLayout->addWidget(btn_cancel, 2, 1, 1, 1, Qt::AlignCenter);
+	QVBoxLayout* vlayout_temperature_info = new QVBoxLayout();
+	vlayout_temperature_info->addWidget(lbl_temp1);
+	vlayout_temperature_info->addWidget(lbl_temp2);
+	vlayout_temperature_info->addWidget(lbl_additional_frames);
+	vlayout_temperature_info->addWidget(txt_additional_frames);
 
-	mainLayout->setColumnMinimumWidth(0, 100);
-	mainLayout->setColumnMinimumWidth(1, 100);
+	hlayout_plot_row->addLayout(vlayout_temperature_info);
 
-	// set grid characterestics
-	mainLayout->setRowStretch(0, 1);
-	mainLayout->setRowStretch(1, 1);
-	mainLayout->setRowStretch(2, 1);
+	mainLayout->addLayout(hlayout_plot_row);
 
-	mainLayout->setColumnStretch(0, 1);
-	mainLayout->setColumnStretch(1, 1);
+	// ------------------------------------------------------------
+
+	QHBoxLayout* hlayout_buttons = new QHBoxLayout();
+	hlayout_buttons->addWidget(btn_ok, Qt::AlignCenter);
+	hlayout_buttons->addWidget(btn_cancel, Qt::AlignCenter);
+
+	mainLayout->addLayout(hlayout_buttons);
 
 	setLayout(mainLayout);
 	setWindowTitle("Set Calibration Data");
@@ -71,6 +95,10 @@ void CalibrationDialog::ok()
 void CalibrationDialog::close_window()
 {
 	done(QDialog::Rejected);
+}
+
+void CalibrationDialog::import_nuc_file()
+{
 }
 
 void CalibrationDialog::closeEvent(QCloseEvent* event)
