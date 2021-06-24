@@ -22,6 +22,7 @@
 #include "annotations.h"
 #include "custom_input_dialog.h"
 #include "fixed_aspect_ratio_frame.h"
+#include "calibration_data.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -79,7 +80,7 @@ public:
 	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, *lbl_current_epoch;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	QLineEdit* txt_start_frame, * txt_end_frame, * txt_nuc_start, * txt_nuc_stop, * txt_bgs_num_frames;
-	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
+	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc, * btn_calibration_dialog,
 		* btn_deinterlace, * btn_clear_filters, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu;
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
@@ -148,6 +149,7 @@ public:
 
 		void auto_change_plot_display(int index);	
 
+		void show_calibration_dialog();
 
 		void save_plot();
 		void save_frame();
