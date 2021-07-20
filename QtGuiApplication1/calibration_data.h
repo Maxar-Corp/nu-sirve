@@ -11,6 +11,8 @@
 #include "logging.h"
 #include "fixed_aspect_ratio_frame.h"
 #include "abpnuc_reader.h"
+#include "clickable_chartview.h"
+#include "color_scheme.h"
 
 #include <qfiledialog.h>
 #include <qlineedit.h>
@@ -20,8 +22,31 @@
 #include <qdialog.h>
 #include <qcombobox.h>
 #include <qmessagebox.h>
+#include <qradiobutton.h>
+#include <qbuttongroup.h>
+
+#include <QtCharts/QChartView>
+#include <QtCharts/QAbstractAxis>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QLineSeries>
+#include <QList>
+#include <QPointF>
 
 #include <qgridlayout.h>
+
+
+struct SelectedData {
+
+	bool valid_data;
+	double temperature_mean, temperature_std;
+	int num_frames, initial_frame;
+	double calculated_irradiance;
+
+	QString color;
+
+	QLineSeries *series;
+};
+
 
 class CalibrationData {
 
@@ -46,22 +71,34 @@ public:
 	CalibrationDialog(QWidget* parent = nullptr);
 	~CalibrationDialog();
 
+	public slots:
+		void point_selected(double x0, double x1);
+
 private:
 
-	QVBoxLayout* mainLayout;
+	
+	ColorScheme colors;
+	QList<QPointF> temperature;
+	SelectedData user_selection1, user_selection2;
 
-	QPushButton* btn_get_nuc_file, *btn_select_temp1, *btn_select_temp2, * btn_ok, * btn_cancel;
-	QLabel* lbl_nuc_filename, *lbl_temp1, *lbl_temp2;
+	QVBoxLayout* mainLayout;
+	QChart* chart_temperature;
+	Clickable_QChartView* chart_view_temperatures;
+	QPushButton* btn_get_nuc_file, *btn_ok, *btn_cancel;
+	QLabel* lbl_nuc_filename;
 	FixedAspectRatioFrame* frame_plot;
-	QLineEdit* txt_additional_frames;
+	QRadioButton *radio_temperature1, *radio_temperature2;
 
 	void initialize_gui();
 	void import_nuc_file();
+	void get_plotting_data(ABPNUC_Data &nuc_data);
+	void create_temperature_plot(QList<QPointF> temperature);
+	void show_user_selection(SelectedData &user_selection, double x0, double x1);
+	void draw_axes();
 
 	void ok();
 	void close_window();
 	void closeEvent(QCloseEvent* event);
 };
-
 
 #endif
