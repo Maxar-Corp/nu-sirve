@@ -40,7 +40,7 @@ void ABPNUC_Data::read_apbnuc_file()
         uint64_t tsize = ReadValue<uint64_t>();
 
         // check that tsize is zero or empty 
-        if (tsize == 0 || tsize)
+        if (tsize == 0)
             break;
 
         temp.seconds = sec + nsec * 1e-9;
@@ -50,7 +50,7 @@ void ABPNUC_Data::read_apbnuc_file()
         // Load the OSM
         std::vector<uint32_t> guid = ReadMultipleValuesIntoVector<uint32_t>(5);
         std::vector<uint32_t> source_guid = ReadMultipleValuesIntoVector<uint32_t>(5);
-        uint16_t sensorId = ReadValue<uint64_t>();
+        uint16_t sensorId = ReadValue<uint16_t>();
 
         // skip 2 bytes here
         int buffer = ReadValue<int16_t>();
@@ -63,7 +63,7 @@ void ABPNUC_Data::read_apbnuc_file()
         temp.tec_temperature_t3_x100 = ReadValue<uint32_t>();
         temp.ambient = ReadValue<float>();
         temp.afocal1 = ReadValue<float>();
-        temp.afocal1 = ReadValue<float>();
+        temp.afocal2 = ReadValue<float>();
         temp.ir_atherm = ReadValue<float>();
         temp.ir_integration_time_usec = ReadValue<uint16_t>();
 
