@@ -63,7 +63,7 @@ class CalibrationData {
 public:
 	CalibrationData();
 
-	double measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col);
+	double measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x);
 	void setup_model(arma::mat input_m, arma::mat input_b);
 
 private:
@@ -81,6 +81,8 @@ public:
 
 	CalibrationDialog(QWidget* parent = nullptr);
 	~CalibrationDialog();
+
+	CalibrationData model;
 
 	public slots:
 		void point_selected(double x0, double x1);

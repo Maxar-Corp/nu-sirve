@@ -1409,6 +1409,8 @@ void QtGuiApplication1::show_calibration_dialog()
 
 		return;
 	}
+
+	calibration_model = calibrate_dialog.model;
 }
 
 void QtGuiApplication1::save_plot()
