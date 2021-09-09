@@ -159,37 +159,7 @@ void CalibrationDialog::import_nuc_file()
 		return;
 	}
 
-	bool valid_nuc_extension = path_nuc.endsWith(".abpnuc", Qt::CaseInsensitive);
-	bool nuc_file_exists = check_path(path_nuc);
-
-	if (!valid_nuc_extension && !nuc_file_exists) {
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Issue Loading File"));
-		QString box_text("abpnuc file could not be found");
-		msgBox.setText(box_text);
-		
-		return;
-	}
-	 
-	// -----------------------------------------------------------------------------
-	// check if corresponding image file is located in same directory 
-
-	path_image = path_nuc;
-	path_image.replace(QString(".abpnuc"), QString(".abposm"), Qt::CaseInsensitive);
-	bool image_file_exists = check_path(path_image);
-
-	// check file extension and that path exists
-	if (!image_file_exists) {
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Issue Loading File"));
-		QString box_text("Corresponding abpimage file could not be found in the same directory");
-		msgBox.setText(box_text);
-
-		return;
-	}
-
+		 
 	// -----------------------------------------------------------------------------
 	// import the abpnuc data 
 
