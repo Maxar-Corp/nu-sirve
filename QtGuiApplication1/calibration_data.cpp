@@ -13,6 +13,13 @@ double CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, i
 	return 0.0;
 }
 
+void CalibrationData::setup_model(arma::mat input_m, arma::mat input_b)
+{
+	calibration_available = true;
+	m = input_m;
+	b = input_b;
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 CalibrationDialog::CalibrationDialog(QWidget* parent)
@@ -144,23 +151,68 @@ void CalibrationDialog::import_nuc_file()
 	// -----------------------------------------------------------------------------
 	// get image path
 
-	QString image_path = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
-	QByteArray ba = image_path.toLocal8Bit();
+	path_nuc = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
+	
+	// if no image path is selected then reset image path and return
+	int compare = QString::compare(path_nuc, "", Qt::CaseInsensitive);
+	if (compare == 0) {
+		return;
+	}
+
+	bool valid_nuc_extension = path_nuc.endsWith(".abpnuc", Qt::CaseInsensitive);
+	bool nuc_file_exists = check_path(path_nuc);
+
+	if (!valid_nuc_extension && !nuc_file_exists) {
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Issue Loading File"));
+		QString box_text("abpnuc file could not be found");
+		msgBox.setText(box_text);
+		
+		return;
+	}
+	 
+	// -----------------------------------------------------------------------------
+	// check if corresponding image file is located in same directory 
+
+	path_image = path_nuc;
+	path_image.replace(QString(".abpnuc"), QString(".abposm"), Qt::CaseInsensitive);
+	bool image_file_exists = check_path(path_image);
+
+	// check file extension and that path exists
+	if (!image_file_exists) {
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Issue Loading File"));
+		QString box_text("Corresponding abpimage file could not be found in the same directory");
+		msgBox.setText(box_text);
+
+		return;
+	}
+
+	// -----------------------------------------------------------------------------
+	// import the abpnuc data 
+
+	QByteArray ba = path_nuc.toLocal8Bit();
 	char* file_path = ba.data();
-
 	ABPNUC_Data nuc_data(file_path);
-	// nuc_data.read_apbnuc_file();
-
+	
 	if (nuc_data.read_status == 0) {
 
-		// Add error message on import
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Issue Reading File"));
+		QString box_text("Error occurred when reading from apbnuc file");
+		msgBox.setText(box_text);
 
 		return;
 	}
 
 	if (nuc_data.number_of_frames == 0) {
 		
-		// Add error message saying file data was not imported
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Issue Reading File"));
+		QString box_text("Zero frames read from apbnuc file");
+		msgBox.setText(box_text);
 
 		return;
 	}
@@ -172,18 +224,16 @@ void CalibrationDialog::import_nuc_file()
 	// -----------------------------------------------------------------------------
 	// get file name to display
 	int index_file_start, index_file_end;
-	index_file_start = image_path.lastIndexOf("/");
-	index_file_end = image_path.lastIndexOf(".");
+	index_file_start = path_nuc.lastIndexOf("/");
+	index_file_end = path_nuc.lastIndexOf(".");
 	
 	QString filename = QString("File: ");
-	filename.append(image_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
+	filename.append(path_nuc.mid(index_file_start + 1, index_file_end - index_file_start - 1));
 
 	lbl_nuc_filename->setText(filename);
 
-
 	return;
 }
-
 
 void CalibrationDialog::point_selected(double x0, double x1) {
 
@@ -244,9 +294,9 @@ void CalibrationDialog::show_user_selection(SelectedData &user_selection, double
 			vector_temperature.push_back(temperature[i].y());
 
 			if (vector_temperature.size() == 1) {
-				initial_frame = temperature[i].x();
+				user_selection.start_time = all_frame_times[i];
+				user_selection.initial_frame = i;
 			}
-
 		}
 	}
 
@@ -255,9 +305,8 @@ void CalibrationDialog::show_user_selection(SelectedData &user_selection, double
 	user_selection.temperature_mean = arma::mean(arma_temperatures);
 	user_selection.num_frames = arma_temperatures.size();
 	user_selection.temperature_std = arma::stddev(arma_temperatures);
-	user_selection.initial_frame = initial_frame;
+	user_selection.stop_time = all_frame_times[(user_selection.initial_frame + user_selection.num_frames) - 1];
 	
-
 	if (user_selection.series->count() > 0) {
 
 		user_selection.valid_data = true;
@@ -282,7 +331,123 @@ void CalibrationDialog::show_user_selection(SelectedData &user_selection, double
 
 void CalibrationDialog::ok()
 {
-	done(QDialog::Accepted);
+	
+	file_data.load_osm_file();
+
+	//----------------------------------------------------------------------------
+	QString path = "config/config.json";
+	QFile file(path);
+	double version = 0;
+
+	if (!file.open(QFile::ReadOnly)) {
+		INFO << "CALIBRATION: Cannot open configuration file " + path.toStdString();
+		INFO << "CALIBRATION: Version file being set on loading of image data";
+	}
+	else {
+		QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+		QJsonObject jsonObj = jsonDoc.object();
+
+		if (jsonObj.contains("version")) {
+			version = jsonObj.value("version").toDouble();
+			INFO << "CALIBRATION: Overriding version of image file to " << version;
+		}
+		else {
+			INFO << "CALIBRATION: Cannot find key 'version' in configuration file " + path.toStdString();
+			INFO << "CALIBRATION: Version file being set on loading of image data";
+		}
+	}
+	//----------------------------------------------------------------------------
+
+	ImportFrames abp_frames = find_frames_in_osm();
+
+	if (abp_frames.all_frames_found) {
+
+		// get wavelength in microns
+		double wavelength = QInputDialog::getDouble(this, "Input Wavelength", "Input wavelength in microns: ", 0, 0, 200, 5);
+
+		double irradiance1 = calculate_black_body_radiance(wavelength * std::pow(10, -6), user_selection1.temperature_mean + 273.15);
+		double irradiance2 = calculate_black_body_radiance(wavelength * std::pow(10, -6), user_selection2.temperature_mean + 273.15);
+
+		std::vector<std::vector<uint16_t>> video_frames1 = file_data.load_image_file(abp_frames.start_frame1, abp_frames.stop_frame1, version);
+		std::vector<std::vector<uint16_t>> video_frames2 = file_data.load_image_file(abp_frames.start_frame2, abp_frames.stop_frame2, version);
+
+		arma::mat average_count1 = average_multiple_frames(video_frames1);
+		arma::mat average_count2 = average_multiple_frames(video_frames2);
+
+		arma::mat dx = average_count2 - average_count1;
+		double dy = irradiance2 - irradiance1;
+
+		arma::mat m = dy / dx;
+		arma::mat b = irradiance1 - m % average_count1;
+
+		CalibrationData model;
+		model.setup_model(m, b);
+
+		done(QDialog::Accepted);
+	}
+	else {
+
+		INFO << "CALIBRATION: Cannot find the calibration frames within the selected abpimage file.";
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Data Not Found"));
+		QString box_text("Cannot find the calibration frames within the selected abpimage file.");
+		msgBox.setText(box_text);
+
+		msgBox.exec();
+
+	}
+
+}
+
+ImportFrames CalibrationDialog::find_frames_in_osm() {
+
+	
+	// initialize ImportFrames struct
+	ImportFrames output;
+
+	output.start_frame1 = -1;
+	output.start_frame2 = -1;
+	output.stop_frame1 = -1;
+	output.stop_frame2 = -1;
+	output.all_frames_found = false;
+
+	double frame_time;
+	
+	int num_messages = file_data.osm_data.num_messages;
+	for (int i = 0; i < num_messages; i++)
+	{
+		
+		frame_time = file_data.osm_data.data[i].data.frametime;
+
+		if (frame_time >= user_selection1.start_time && frame_time <= user_selection1.stop_time)
+		{
+
+			output.stop_frame1 = i;
+			if (output.start_frame1 < 0)
+				output.start_frame1 = i;
+
+		}
+
+		if (frame_time >= user_selection2.start_time && frame_time <= user_selection2.stop_time)
+		{
+
+			output.stop_frame2 = i;
+			if (output.start_frame2 < 0)
+				output.start_frame2 = i;
+
+		}
+
+		if (frame_time > user_selection1.stop_time && frame_time > user_selection2.stop_time)
+			break;
+	}
+
+	if (output.start_frame1 >= 0 && output.start_frame2 >= 0)
+	{
+		output.all_frames_found = true;
+	}
+
+	return output;
 }
 
 void CalibrationDialog::close_window()
@@ -306,14 +471,15 @@ void CalibrationDialog::get_plotting_data(ABPNUC_Data &nuc_data)
 
 	for (int i = 0; i < nuc_data.number_of_frames; i++) {
 
-		QPointF temp_pt1(nuc_data.data[i].frame_number, nuc_data.data[i].tec_temperature_x100 / 100.0);
+		QPointF temp_pt1(i + 1, nuc_data.data[i].tec_temperature_x100 / 100.0);
 		temperature.push_back(temp_pt1);
+
+		all_frame_times.push_back(nuc_data.data[i].frame_time);
 	}
 
 	create_temperature_plot(temperature);
 
 }
-
 
 void CalibrationDialog::draw_axes() {
 
@@ -368,4 +534,57 @@ void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
 	// ----------------------------------------------------------------------------------------------------------------
 
 	draw_axes();
+}
+
+bool CalibrationDialog::check_path(QString path)
+{
+
+	QString info_msg("");
+
+	QFileInfo check_file(path);
+	bool file_isFile = check_file.isFile();
+	bool file_exists = check_file.exists();
+
+	return file_exists && file_isFile;
+}
+
+double CalibrationDialog::calculate_black_body_radiance(double wavelength, double temperature) {
+
+	// wavelength should have units of meters
+	// temperature should have units of K
+
+	double speed_light = 299792458;  // m/s
+	double planks_constant = 6.626068963 * std::pow(10, -34);  // m^2 * kg / s
+	double boltzmann_constant = 1.3806504 * std::pow(10, -23);  // J / K
+
+	double c1 = 2 * planks_constant * std::pow(speed_light, 2);  // W / m^3
+	double c2 = planks_constant * speed_light / boltzmann_constant;  // K * m
+
+	double radiance = c1 / (std::pow(wavelength, 5) * (std::exp(c2 / (wavelength * temperature)) - 1));
+
+	// returns radiance in W/m^3
+	return radiance;
+}
+
+arma::mat CalibrationDialog::average_multiple_frames(std::vector<std::vector<uint16_t>> &frames) {
+
+
+	int num_pixels = frames[0].size();
+	int num_frames = frames.size();
+
+	arma::vec data = arma::zeros(num_pixels);
+
+	for (int i = 0; i < num_frames; i++)
+	{
+
+		std::vector<double> converted_values(frames[i].begin(), frames[i].end());
+		arma::vec original_frame(converted_values);
+
+		data = data + original_frame;
+	}
+
+	// average all frames
+	data = data / num_frames;
+
+	return data;
 }
