@@ -82,7 +82,7 @@ public:
 	QLineEdit* txt_start_frame, * txt_end_frame, * txt_nuc_start, * txt_nuc_stop, * txt_bgs_num_frames;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc, * btn_calibration_dialog,
 		* btn_deinterlace, * btn_clear_filters, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
-		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu;
+		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance;
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis;
 	QFrame* frame_video_player, * frame_video, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;

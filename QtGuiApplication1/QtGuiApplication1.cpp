@@ -567,11 +567,27 @@ void QtGuiApplication1::setup_video_frame(){
 	btn_video_menu->resize(button_video_width, button_video_height);
 	btn_video_menu->setIcon(menu_icon);
 
+	QPixmap zoom_image("icons/magnify.png");
+	QIcon zoom_icon(zoom_image);
+	btn_zoom = new QPushButton();
+	btn_zoom->resize(button_video_width, button_video_height);
+	btn_zoom->setIcon(zoom_icon);
+	btn_zoom->setCheckable(true);
+
+	QPixmap signal_image("icons/signal.png");
+	QIcon signal_icon(signal_image);
+	btn_calculate_radiance = new QPushButton();
+	btn_calculate_radiance->resize(button_video_width, button_video_height);
+	btn_calculate_radiance->setIcon(signal_icon);
+	btn_calculate_radiance->setCheckable(true);
+
 	QWidget* widget_video_buttons = new QWidget();
 	QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
 
 	hlayout_video_buttons->addWidget(btn_frame_save);
 	hlayout_video_buttons->addWidget(btn_frame_record);
+	hlayout_video_buttons->addWidget(btn_zoom);
+	hlayout_video_buttons->addWidget(btn_calculate_radiance);
 	hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 	hlayout_video_buttons->addWidget(btn_prev_frame);
 	hlayout_video_buttons->addWidget(btn_reverse);
@@ -984,6 +1000,10 @@ void QtGuiApplication1::load_osm_data()
 
 		menu_sensor_boresight->setIconVisibleInMenu(false);
 		ir_video->toggle_sensor_boresight_data(false);
+
+		btn_calculate_radiance->setChecked(false);
+		btn_calculate_radiance->setEnabled(false);
+		calibration_model = CalibrationData();
 
 		ir_video->banner_color = QString("red");
 		ir_video->banner_text = QString("EDIT CLASSIFICATION");
@@ -1406,11 +1426,11 @@ void QtGuiApplication1::show_calibration_dialog()
 
 	if (response == 0) {
 
-
 		return;
 	}
 
 	calibration_model = calibrate_dialog.model;
+	btn_calculate_radiance->setEnabled(true);
 }
 
 void QtGuiApplication1::save_plot()
@@ -2473,6 +2493,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 
 	btn_frame_record->setEnabled(input);
 	btn_frame_save->setEnabled(input);
+	btn_zoom->setEnabled(input);
 
 	slider_video->setEnabled(input);
 	btn_play->setEnabled(input);
