@@ -7,10 +7,17 @@ CalibrationData::CalibrationData()
 
 }
 
-double CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col)
+double CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x)
 {
 	
-	return 0.0;
+	arma::mat sub_b = b.submat(ul_row, ul_col, lr_row, lr_col);
+	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
+
+	arma::mat radiance = sub_m * x + sub_b;
+
+	double average_radiance = arma::mean(arma::mean(radiance));
+
+	return average_radiance;
 }
 
 void CalibrationData::setup_model(arma::mat input_m, arma::mat input_b)
@@ -350,9 +357,17 @@ void CalibrationDialog::ok()
 		arma::mat m = dy / dx;
 		arma::mat b = irradiance1 - m % average_count1;
 
-		CalibrationData model;
-		model.setup_model(m, b);
+		// reshape arrays to image size
+		int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
+		int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
 
+		m.reshape(x_pixels, y_pixels);
+		m = m.t();
+
+		b.reshape(x_pixels, y_pixels);
+		b = b.t();
+
+		model.setup_model(m, b);
 		done(QDialog::Accepted);
 	}
 	else {

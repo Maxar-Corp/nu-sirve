@@ -201,6 +201,7 @@ private:
 	int get_integer_from_txt_box(QString input);
 	bool check_value_within_range(int input_value, int min_value, int max_value);
 	int get_color_index(QVector<QString> colors, QColor input_color);
+	CalibrationData calibration_model;
 	
 	
 };
