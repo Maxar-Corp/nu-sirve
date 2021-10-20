@@ -8,7 +8,9 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	label->setScaledContents(true);
 
-	
+	is_zoom_active = false;
+	is_calculate_active = false;
+
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
 	counter = 0;
@@ -148,8 +150,45 @@ void Video::toggle_relative_histogram()
 		show_relative_histogram = true;
 }
 
+void Video::toggle_action_zoom(bool status)
+{
+
+	if (status) {
+
+		is_zoom_active = true;
+		is_calculate_active = false;
+	}
+	else {
+		is_zoom_active = false;
+	}
+
+}
+
+void Video::toggle_action_calculate_radiance(bool status)
+{
+	if (status) {
+
+		is_zoom_active = false;
+		is_calculate_active = true;
+	}
+	else {
+		is_calculate_active = false;
+	}
+}
+
 void Video::zoom_image(QRect info)
 {
+	// if zoom is turned off then no zoom is recorded
+	if (!is_zoom_active)
+	{
+
+		if (is_zoom_active) {
+
+			calculation_region = info;
+		}
+		
+		return;
+	}
 
 	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
 	if (info.x() + info.width() > image_x)
