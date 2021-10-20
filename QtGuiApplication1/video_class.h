@@ -70,6 +70,9 @@ public:
 	void toggle_osm_tracks(bool input);
 	void toggle_primary_track_data(bool input);
 	void toggle_sensor_boresight_data(bool input);
+
+	void toggle_action_zoom(bool status);
+	void toggle_action_calculate_radiance(bool status);
 	
 	bool plot_tracks, display_boresight_txt, display_tgt_pos_txt;
 	void save_frame();
@@ -96,8 +99,11 @@ public slots:
 	void unzoom(QPoint origin);
 
 private:
-		
+	
+	bool is_zoom_active, is_calculate_active;
 	std::vector<QRect> zoom_list;
+
+	QRect calculation_region;
 	
 	std::vector<std::vector<uint16_t>> frame_data;
     unsigned int counter;

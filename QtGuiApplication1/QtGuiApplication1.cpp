@@ -774,6 +774,9 @@ void QtGuiApplication1::setup_connections() {
 	QObject::connect(btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 	QObject::connect(btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
 
+	QObject::connect(btn_zoom, &QPushButton::clicked, this, &QtGuiApplication1::toggle_zoom_on_video);
+	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &QtGuiApplication1::toggle_calculation_on_video);
+
 	//---------------------------------------------------------------------------
 
 	//Link buttons to functions
@@ -1228,6 +1231,38 @@ void QtGuiApplication1::start_stop_video_record()
 
 	}
 
+}
+
+
+void QtGuiApplication1::toggle_zoom_on_video() {
+
+	bool status_zoom_btn = btn_zoom->isChecked();
+	
+	if (status_zoom_btn)
+	{
+		ir_video->toggle_action_zoom(true);
+		btn_calculate_radiance->setChecked(false);
+	}
+	else {
+		ir_video->toggle_action_zoom(false);
+	}
+
+}
+
+
+void QtGuiApplication1::toggle_calculation_on_video()
+{
+
+	bool status_calculation_btn = btn_calculate_radiance->isChecked();
+
+	if (status_calculation_btn) {
+
+		ir_video->toggle_action_calculate_radiance(true);
+		btn_zoom->setChecked(false);
+	}
+	else {
+		ir_video->toggle_action_calculate_radiance(false);
+	}
 }
 
 void QtGuiApplication1::update_fps()

@@ -139,6 +139,8 @@ public:
 		void load_abir_data();
 
 		void start_stop_video_record();
+		void toggle_zoom_on_video();
+		void toggle_calculation_on_video();
 
 		void update_fps();
 		void reset_color_correction();
