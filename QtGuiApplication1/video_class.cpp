@@ -182,7 +182,7 @@ void Video::zoom_image(QRect info)
 	if (!is_zoom_active)
 	{
 
-		if (is_zoom_active) {
+		if (is_calculate_active) {
 
 			calculation_region = info;
 		}
@@ -495,6 +495,20 @@ void Video::update_display_frame()
 
 	}
 	// ---------------------------------------------------------------------------------------
+
+
+	if (is_calculate_active) {
+
+		// draw rectangle around object				
+		QPainter calculation_painter(&frame);
+
+		int box_size = 5;
+		
+		QColor calculation_color = QColor("Yellow");
+		calculation_painter.setPen(QPen(calculation_color));
+		calculation_painter.drawRect(calculation_region);
+	}
+
 
 	// Draw banner text
 	QPainter p1(&frame);
