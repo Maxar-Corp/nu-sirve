@@ -496,19 +496,34 @@ void Video::update_display_frame()
 	}
 	// ---------------------------------------------------------------------------------------
 
-
 	if (is_calculate_active) {
 
-		// draw rectangle around object				
-		QPainter calculation_painter(&frame);
+		bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
 
-		int box_size = 5;
-		
-		QColor calculation_color = QColor("Yellow");
-		calculation_painter.setPen(QPen(calculation_color));
-		calculation_painter.drawRect(calculation_region);
+		if (rectangle_drawn) {
+			
+			QString calculation_text = "Calculated Irradiance: \n " + QString::number(display_data[counter].azimuth_sensor) + " W/sr";
+
+			QPainter painter_calculation_text(&frame);
+			painter_calculation_text.setPen(QPen(banner_color));
+			painter_calculation_text.setFont(QFont("Times", 8, QFont::Bold));
+			painter_calculation_text.drawText(frame.rect(), Qt::AlignTop | Qt::AlignRight, calculation_text);
+		}
+
+		if (rectangle_drawn)
+		{
+			// draw rectangle of calculation region			
+			QPainter calculation_area_painter(&frame);
+
+			QPen pen_calculation_area;
+			pen_calculation_area.setStyle(Qt::DashDotLine);
+			pen_calculation_area.setWidth(3);
+			pen_calculation_area.setBrush(tracker_color);
+
+			calculation_area_painter.setPen(pen_calculation_area);
+			calculation_area_painter.drawRect(calculation_region);
+		}			
 	}
-
 
 	// Draw banner text
 	QPainter p1(&frame);
@@ -524,8 +539,7 @@ void Video::update_display_frame()
 	}
 
 	label->setPixmap(QPixmap::fromImage(frame));
-
-	
+		
 	label->update();
 	label->repaint();
 
