@@ -5,6 +5,17 @@ CalibrationData::CalibrationData()
 	// set check variable to false to start
 	calibration_available = false;
 
+	user_selection1.series = NULL;
+	user_selection2.series = NULL;
+
+}
+
+CalibrationData::~CalibrationData()
+{
+
+	delete user_selection1.series;
+	delete user_selection2.series;
+
 }
 
 double CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x)
@@ -25,6 +36,34 @@ void CalibrationData::setup_model(arma::mat input_m, arma::mat input_b)
 	calibration_available = true;
 	m = input_m;
 	b = input_b;
+}
+
+bool CalibrationData::set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2)
+{
+
+	bool valid_paths = check_path(path_to_nuc) && check_path(path_to_image);
+
+	if (!valid_paths)
+		return false;
+		
+	path_nuc = path_to_nuc;
+	path_image = path_to_image;
+	
+	user_selection1 = selection1;
+	user_selection2 = selection2;
+
+	return true;
+}
+
+bool CalibrationData::check_path(QString path)
+{
+	QString info_msg("");
+
+	QFileInfo check_file(path);
+	bool file_isFile = check_file.isFile();
+	bool file_exists = check_file.exists();
+
+	return file_exists && file_isFile;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -368,6 +407,8 @@ void CalibrationDialog::ok()
 		b = b.t();
 
 		model.setup_model(m, b);
+		//model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2);
+
 		done(QDialog::Accepted);
 	}
 	else {

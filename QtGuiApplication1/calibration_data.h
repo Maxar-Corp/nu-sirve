@@ -62,13 +62,19 @@ class CalibrationData {
 
 public:
 	CalibrationData();
+	~CalibrationData();
 
 	double measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x);
 	void setup_model(arma::mat input_m, arma::mat input_b);
+	bool set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2);
+	bool check_path(QString path);
 
 	bool calibration_available;
 private:
 	
+	QString path_nuc, path_image;
+	SelectedData user_selection1, user_selection2;
+
 	arma::mat m, b;
 };
 

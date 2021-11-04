@@ -1006,7 +1006,9 @@ void QtGuiApplication1::load_osm_data()
 
 		btn_calculate_radiance->setChecked(false);
 		btn_calculate_radiance->setEnabled(false);
-		calibration_model = CalibrationData();
+
+		CalibrationData temp;
+		calibration_model = temp;
 
 		ir_video->banner_color = QString("red");
 		ir_video->banner_text = QString("EDIT CLASSIFICATION");
