@@ -1457,7 +1457,7 @@ void QtGuiApplication1::auto_change_plot_display(int index)
 
 void QtGuiApplication1::show_calibration_dialog()
 {
-	CalibrationDialog calibrate_dialog;
+	CalibrationDialog calibrate_dialog(calibration_model);
 	
 	auto response = calibrate_dialog.exec();
 
