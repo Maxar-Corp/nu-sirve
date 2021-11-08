@@ -48,13 +48,12 @@ struct SelectedData {
 
 	bool valid_data;
 	double temperature_mean, temperature_std;
-	int num_frames, initial_frame;
+	int num_frames, initial_frame, id;
 	double start_time, stop_time;
 	double calculated_irradiance;
 
 	QString color;
-
-	QLineSeries *series;
+	QList<QPointF> points;
 };
 
 
@@ -70,10 +69,10 @@ public:
 	bool check_path(QString path);
 
 	bool calibration_available;
-private:
-	
 	QString path_nuc, path_image;
 	SelectedData user_selection1, user_selection2;
+
+private:
 
 	arma::mat m, b;
 };
@@ -86,7 +85,7 @@ class CalibrationDialog : public QDialog
 
 public:
 
-	CalibrationDialog(QWidget* parent = nullptr);
+	CalibrationDialog(CalibrationData & input_model, QWidget* parent = nullptr);
 	~CalibrationDialog();
 
 	CalibrationData model;
@@ -111,14 +110,19 @@ private:
 	QLabel* lbl_nuc_filename;
 	FixedAspectRatioFrame* frame_plot;
 	QRadioButton *radio_temperature1, *radio_temperature2;
+	QLineSeries* selection1, * selection2;
 
 	Process_File file_data;
 
 	void initialize_gui();
+	void get_new_nuc_file();
 	void import_nuc_file();
 	void get_plotting_data(ABPNUC_Data &nuc_data);
 	void create_temperature_plot(QList<QPointF> temperature);
+	
 	void show_user_selection(SelectedData &user_selection, double x0, double x1);
+	void draw_series(SelectedData& data);
+	void update_user_selection_labels(SelectedData &data);
 	void draw_axes();
 	bool check_path(QString path);
 	ImportFrames find_frames_in_osm();

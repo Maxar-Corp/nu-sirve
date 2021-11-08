@@ -5,16 +5,10 @@ CalibrationData::CalibrationData()
 	// set check variable to false to start
 	calibration_available = false;
 
-	user_selection1.series = NULL;
-	user_selection2.series = NULL;
-
 }
 
 CalibrationData::~CalibrationData()
 {
-
-	delete user_selection1.series;
-	delete user_selection2.series;
 
 }
 
@@ -68,7 +62,7 @@ bool CalibrationData::check_path(QString path)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-CalibrationDialog::CalibrationDialog(QWidget* parent)
+CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* parent)
 {
 
 	// initiliaze chart parameters
@@ -77,19 +71,43 @@ CalibrationDialog::CalibrationDialog(QWidget* parent)
 
 	initialize_gui();
 
-	user_selection1.valid_data = false;
-	user_selection1.series = new QLineSeries();
-	user_selection1.color = colors.Get_Color(1);
+	selection1 = new QLineSeries();
+	selection2 = new QLineSeries();
 
-	user_selection2.valid_data = false;
-	user_selection2.series = new QLineSeries();
-	user_selection2.color = colors.Get_Color(3);
+	if (input_model.calibration_available) {
+
+		user_selection1 = input_model.user_selection1;
+		user_selection2 = input_model.user_selection2;
+
+		path_nuc = input_model.path_nuc;
+		path_image = input_model.path_image;
+
+		import_nuc_file();
+
+		draw_series(user_selection1);
+		update_user_selection_labels(user_selection1);
+
+		draw_series(user_selection2);
+		update_user_selection_labels(user_selection2);
+	}
+
+	else {
+
+		user_selection1.valid_data = false;
+		user_selection1.color = colors.Get_Color(1);
+		user_selection1.id = 1;
+
+		user_selection2.valid_data = false;
+		user_selection2.color = colors.Get_Color(3);
+		user_selection2.id = 2;
+	}
 
 }
 
 CalibrationDialog::~CalibrationDialog()
 {
-
+	delete selection1;
+	delete selection2;
 }
 
 void CalibrationDialog::initialize_gui()
@@ -177,7 +195,7 @@ void CalibrationDialog::initialize_gui()
 
 	// ------------------------------------------------------------
 	// setup connections
-	QObject::connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::import_nuc_file);
+	QObject::connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::get_new_nuc_file);
 
 	// ------------------------------------------------------------
 
@@ -192,20 +210,26 @@ void CalibrationDialog::initialize_gui()
 
 }
 
-void CalibrationDialog::import_nuc_file()
-{
-	// -----------------------------------------------------------------------------
-	// get image path
+void CalibrationDialog::get_new_nuc_file()
 
-	path_nuc = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
-	
+{
+	QString user_selection = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
+
 	// if no image path is selected then reset image path and return
-	int compare = QString::compare(path_nuc, "", Qt::CaseInsensitive);
+	int compare = QString::compare(user_selection, "", Qt::CaseInsensitive);
 	if (compare == 0) {
+	
 		return;
 	}
 
-		 
+	path_nuc = user_selection;
+
+	import_nuc_file();
+}
+
+void CalibrationDialog::import_nuc_file()
+{
+			 
 	// -----------------------------------------------------------------------------
 	// import the abpnuc data 
 
@@ -256,25 +280,13 @@ void CalibrationDialog::point_selected(double x0, double x1) {
 	if (radio_temperature1->isChecked())
 	{
 		show_user_selection(user_selection1, x0, x1);
-
-		if (user_selection1.valid_data) {
-			radio_temperature1->setText(QString("Temperature #1: %1C, +/- %2 [Over %3 frames]").arg(user_selection1.temperature_mean, 0, 'f', 2).arg(user_selection1.temperature_std, 0, 'f', 3).arg(user_selection1.num_frames));
-		}
-		else {
-			radio_temperature1->setText(QString("Temperature #1: No data available"));
-		}
+		update_user_selection_labels(user_selection1);
 
 	}
 	else
 	{
 		show_user_selection(user_selection2, x0, x1);
-		if (user_selection2.valid_data)
-		{
-			radio_temperature2->setText(QString("Temperature #2: %1C, +/- %2 [Over %3 frames]").arg(user_selection2.temperature_mean, 0, 'f', 2).arg(user_selection2.temperature_std, 0, 'f', 3).arg(user_selection2.num_frames));
-		}
-		else {
-			radio_temperature2->setText(QString("Temperature #2: No data available"));
-		}
+		update_user_selection_labels(user_selection2);
 
 	}
 
@@ -294,9 +306,8 @@ void CalibrationDialog::show_user_selection(SelectedData &user_selection, double
 	std::vector<double> vector_temperature;
 	
 	
-	if (user_selection.series->count() > 0) {
-		chart_temperature->removeSeries(user_selection.series);
-		user_selection.series->clear();
+	if (user_selection.points.size() > 0) {
+		user_selection.points.clear();
 	}
 
 	int num_points = temperature.length();
@@ -305,8 +316,7 @@ void CalibrationDialog::show_user_selection(SelectedData &user_selection, double
 	for (int i = 0; i < num_points; i++)
 	{
 		if (temperature[i].x() >= std::floor(x0) && temperature[i].x() < std::ceil(x1)) {
-			user_selection.series->append(temperature[i].x(), temperature[i].y());
-
+			user_selection.points.append(temperature[i]);
 			vector_temperature.push_back(temperature[i].y());
 
 			if (vector_temperature.size() == 1) {
@@ -323,25 +333,66 @@ void CalibrationDialog::show_user_selection(SelectedData &user_selection, double
 	user_selection.temperature_std = arma::stddev(arma_temperatures);
 	user_selection.stop_time = all_frame_times[(user_selection.initial_frame + user_selection.num_frames) - 1];
 	
-	if (user_selection.series->count() > 0) {
+	if (user_selection.points.size() > 0) {
 
 		user_selection.valid_data = true;
-
-		QPen pen;
-		pen.setColor(user_selection.color);
-		pen.setStyle(Qt::SolidLine);
-		pen.setWidth(3);
-
-		user_selection.series->setPen(pen);
-
-		// Add all series to chart
-		chart_temperature->addSeries(user_selection.series);
-		draw_axes();
+		draw_series(user_selection);
 	}
 	else {
 		user_selection.valid_data = false;
 	}
 
+
+}
+
+void CalibrationDialog::draw_series(SelectedData& data)
+{
+	data.valid_data = true;
+
+	QPen pen;
+	pen.setColor(data.color);
+	pen.setStyle(Qt::SolidLine);
+	pen.setWidth(3);
+
+	QLineSeries* series;
+
+	if (data.id == 1) {
+		series = selection1;
+	}
+	if (data.id == 2) {
+		series = selection2;
+	}
+
+
+	series->clear();
+	for (int i = 0; i < data.points.size(); i++)
+	{
+		series->append(data.points[i].x(), data.points[i].y());
+	}
+
+	series->setPen(pen);
+	chart_temperature->addSeries(series);
+	draw_axes();
+}
+
+void CalibrationDialog::update_user_selection_labels(SelectedData& data) {
+
+	QRadioButton* radio_temperature;
+
+	if (data.id == 1) {
+		radio_temperature = radio_temperature1;
+	}
+	if (data.id == 2) {
+		radio_temperature = radio_temperature2;
+	}
+
+
+	if (data.valid_data) {
+		radio_temperature->setText(QString("Temperature #%4: %1C, +/- %2 [Over %3 frames]").arg(data.temperature_mean, 0, 'f', 2).arg(data.temperature_std, 0, 'f', 3).arg(data.num_frames).arg(data.id));
+	}
+	else {
+		radio_temperature->setText(QString("Temperature #%1: No data available").arg(data.id));
+	}
 
 }
 
@@ -375,6 +426,7 @@ void CalibrationDialog::ok()
 	//----------------------------------------------------------------------------
 
 	ImportFrames abp_frames = find_frames_in_osm();
+	path_image = file_data.image_path;
 
 	if (abp_frames.all_frames_found) {
 
@@ -407,7 +459,7 @@ void CalibrationDialog::ok()
 		b = b.t();
 
 		model.setup_model(m, b);
-		//model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2);
+		model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2);
 
 		done(QDialog::Accepted);
 	}
