@@ -5,7 +5,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
 	label->setBackgroundRole(QPalette::Base);
-	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	label->setScaledContents(true);
 
 	is_zoom_active = false;
@@ -68,8 +68,8 @@ void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, in
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
 
-
-
+	label->setMinimumHeight(y_pixels);
+	label->setMinimumWidth(x_pixels);
 }
 
 void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
@@ -183,8 +183,43 @@ void Video::zoom_image(QRect info)
 	{
 
 		if (is_calculate_active) {
+			
+			int num_zooms = zoom_list.size();
 
-			calculation_region = info;
+			if (num_zooms == 1) {
+				calculation_region = info;
+				return;
+			}
+
+			QRect adjusted_area = info;
+
+			for (int i = num_zooms - 1; i > 0; i--)
+			{
+				
+				int *x1, *y1, *x2, *y2;
+				x1 = new int;
+				y1 = new int;
+				x2 = new int;
+				y2 = new int;
+
+				adjusted_area.getCoords(x1, y1, x2, y2);
+
+				QRect zoom = zoom_list[i];
+
+				double x1_position = *x1 * 1.0 / image_x;
+				double y1_position = *y1 * 1.0 / image_y;
+				int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
+				int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
+
+				double x2_position = *x2 * 1.0 / image_x;
+				double y2_position = *y2 * 1.0 / image_y;
+				int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
+				int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
+
+				adjusted_area.setCoords(new_x1, new_y1, new_x2, new_y2);
+			}
+
+			calculation_region = adjusted_area;
 		}
 		
 		return;
@@ -500,7 +535,18 @@ void Video::update_display_frame()
 
 		bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
 
-		if (rectangle_drawn) {
+		int* x1 = new int;
+		int* x2 = new int;
+		int* y1 = new int;
+		int* y2 = new int;
+
+		calculation_region.getCoords(x1, y1, x2, y2);
+		std::vector<int> pt1 = get_position_within_zoom(*x1, *y1);
+		std::vector<int> pt2 = get_position_within_zoom(*x2, *y2);
+
+		bool region_within_zoom = pt1[0] >= 0 && pt2[0] >= 0;
+
+		if (rectangle_drawn && region_within_zoom) {
 			
 			QString calculation_text = "Calculated Irradiance: \n " + QString::number(display_data[counter].azimuth_sensor) + " W/sr";
 
@@ -510,7 +556,7 @@ void Video::update_display_frame()
 			painter_calculation_text.drawText(frame.rect(), Qt::AlignTop | Qt::AlignRight, calculation_text);
 		}
 
-		if (rectangle_drawn)
+		if (rectangle_drawn && region_within_zoom)
 		{
 			// draw rectangle of calculation region			
 			QPainter calculation_area_painter(&frame);
@@ -520,8 +566,12 @@ void Video::update_display_frame()
 			pen_calculation_area.setWidth(3);
 			pen_calculation_area.setBrush(tracker_color);
 
+			QPoint top_left(pt1[0], pt1[1]);
+			QPoint bottom_right(pt2[0], pt2[1]);
+			QRect zoomed_rectange(top_left, bottom_right);
+
 			calculation_area_painter.setPen(pen_calculation_area);
-			calculation_area_painter.drawRect(calculation_region);
+			calculation_area_painter.drawRect(zoomed_rectange);
 		}			
 	}
 
@@ -545,7 +595,6 @@ void Video::update_display_frame()
 
 	//counter++;
 }
-
 
 void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
 {
@@ -621,15 +670,6 @@ void Video::update_specific_frame(unsigned int frame_number)
 	counter = frame_number;
 	update_display_frame();
 }
-
-/*
-void Video::update_color_correction(double lift, double gamma, double gain)
-{
-	color_correction.set_min(lift);
-	color_correction.set_max(gamma);
-	color_correction.set_gain(gain);
-}
-*/
 
 void Video::update_color_correction(double new_min_value, double new_max_value)
 {
