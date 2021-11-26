@@ -164,7 +164,7 @@ void QtGuiApplication1::setup_ui() {
 	// set size policy for video controls
 	QSizePolicy fixed_width_video;
 	fixed_width_video.setHorizontalPolicy(QSizePolicy::Fixed);
-	fixed_width_video.setVerticalPolicy(QSizePolicy::Preferred);
+	fixed_width_video.setVerticalPolicy(QSizePolicy::Minimum);
 	frame_video_player->setSizePolicy(fixed_width_video);
 
 	// ------------------------------------------------------------------------
@@ -200,7 +200,6 @@ void QtGuiApplication1::setup_ui() {
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
-	//this->resize();
 	this->show();
 
 }
@@ -462,7 +461,8 @@ void QtGuiApplication1::setup_video_frame(){
 	frame_video = new QFrame();
 	frame_video->setMinimumHeight(480);
 	frame_video->setMinimumWidth(640);
-
+	frame_video->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	
 	vlayout_frame_video->addWidget(frame_video);
 
 	// ------------------------------------------------------------------------
@@ -937,6 +937,7 @@ void QtGuiApplication1::load_osm_data()
 
 			video_layout->addWidget(ir_video->label);
 			frame_video->setLayout(video_layout);
+
 		}
 
 		DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
@@ -1126,7 +1127,10 @@ void QtGuiApplication1::load_abir_data()
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
 	videos->something.push_back(primary);
-		
+
+	frame_video->setMinimumHeight(y_pixels);
+	frame_video->setMinimumWidth(x_pixels);
+	
 	int number_frames = primary.frames_16bit.size();
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
