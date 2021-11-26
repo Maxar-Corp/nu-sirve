@@ -89,6 +89,8 @@ CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* par
 
 		draw_series(user_selection2);
 		update_user_selection_labels(user_selection2);
+
+		btn_ok->setEnabled(true);
 	}
 
 	else {
