@@ -3,6 +3,9 @@
 #define CALIBRATION_DATA_H
 
 #include <iostream>
+#include <fstream>
+#include <qjsonobject.h>
+#include <qjsondocument.h>
 #include <string>
 #include <math.h>
 
@@ -95,10 +98,10 @@ public:
 
 private:
 
-	
 	ColorScheme colors;
 	QList<QPointF> temperature;
-	std::vector<double>all_frame_times;
+	std::vector<double>all_frame_times, vector_wavelength, vector_filter;
+
 	SelectedData user_selection1, user_selection2;
 
 	QString path_nuc, path_image;
@@ -129,6 +132,13 @@ private:
 	double calculate_black_body_radiance(double wavelength, double temperature);
 	arma::mat average_multiple_frames(std::vector<std::vector<uint16_t>>& frames);
 
+	bool check_configuration_values();
+	bool check_filter_file(QString path);
+	arma::vec get_total_filter_response();
+	double trapezoidal_integration(arma::vec x, arma::vec y);
+
+
+	arma::vec plank_equation(double temperature);
 
 	void ok();
 	void close_window();

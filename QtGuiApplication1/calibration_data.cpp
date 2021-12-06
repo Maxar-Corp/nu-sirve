@@ -398,9 +398,200 @@ void CalibrationDialog::update_user_selection_labels(SelectedData& data) {
 
 }
 
+arma::vec CalibrationDialog::get_total_filter_response()
+{
+	// read in configuration file 
+	QString path = "config/config.json";
+	QFile file(path);
+
+	// read json configuration
+	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+	QJsonObject jsonObj = jsonDoc.object();
+	QJsonObject calibration_object = jsonObj.value("calibration data").toObject();
+		
+	// check and retrieve other variables from calibration section
+	double min, max, sharpness, width, center;
+	min = calibration_object.value("min transmittance").toDouble();
+	max = calibration_object.value("max transmittance").toDouble();
+	sharpness = calibration_object.value("sharpness cutoff").toDouble();
+	center = calibration_object.value("min_transmittance").toDouble();
+	width = calibration_object.value("width").toDouble();
+
+	file.close();
+	// ----------------------------------------------------------------------------------
+
+	// convert to armadillo vectors
+	arma::vec wavelengths(vector_wavelength);
+	arma::vec filter(vector_filter);
+	
+	arma::vec filter1 = min + (max - min) * arma::exp(-arma::pow(2 * (wavelengths - center) / width, sharpness));
+	arma::vec filter2(vector_filter);
+
+	arma::vec response = filter1 % filter2;
+
+	return response;
+}
+
+arma::vec CalibrationDialog::plank_equation(double temperature)
+{
+	
+	arma::vec wavelengths(vector_wavelength);
+
+	double speed_light = 299792458;  // m/s
+	double planks_constant = 6.626068963 * std::pow(10, -34);  // m^2 * kg / s
+	double boltzmann_constant = 1.3806504 * std::pow(10, -23);  // J / K
+
+	double c1 = 2 * planks_constant * std::pow(speed_light, 2);  // W / m^3
+	double c2 = planks_constant * speed_light / boltzmann_constant;  // K * m
+
+	double constant1 = 1;
+	double constant2 = planks_constant * speed_light / boltzmann_constant * std::pow(10, 6);
+
+	//arma::vec out = 3.7418301e8 / (arma::pow(wavelengths, 5) % (arma::exp(constant2 / (wavelengths * temperature)) - 1));
+	arma::vec out = 3.7418301e8 / (arma::pow(wavelengths, 5) % (arma::exp(14387.86 / (wavelengths * temperature)) - 1));
+	
+	return out;
+}
+
+bool CalibrationDialog::check_configuration_values()
+{
+	// read in configuration file 
+	QString path = "config/config.json";
+	QFile file(path);
+
+	// check that configuration file can be opened
+	if (!file.open(QFile::ReadOnly)) {
+		INFO << "Calibration: Cannot open configuration file " + path.toStdString();
+		return false;
+	}
+
+	// read json configuration
+	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+	QJsonObject jsonObj = jsonDoc.object();
+
+	// check that there is a calibration section within json
+	if (!jsonObj.contains("calibration data")) {
+		INFO << "Calibration: No calibration data block found within the configuration file";
+		return false;
+	}
+
+	// check that path is defined within calibration object
+	QJsonObject calibration_object = jsonObj.value("calibration data").toObject();
+	if (!calibration_object.contains("path")) {
+		INFO << "Calibration: No calibration data block found within the configuration file";
+		return false;
+	}
+
+	// retrieve det file path and check that it is accessable
+	QString path_det(calibration_object.value("path").toString());
+	bool file_path_exists = check_path(path_det);
+	if (!file_path_exists) {
+		INFO << "Calibration: Calibration data file was not found along path";
+		return false;
+	}
+
+	bool file_acceptable = check_filter_file(path_det);
+	if (!file_acceptable) {
+		return false;
+	}
+
+	// check and retrieve other variables from calibration section
+	if (!calibration_object.contains("min transmittance")) {
+		INFO << "Calibration: Min transmittance variable not found in calibration data block";
+		return false;
+	}
+
+	if (!calibration_object.contains("max transmittance")) {
+		INFO << "Calibration: Max transmittance variable not found in calibration data block";
+		return false;
+	}
+
+	if (!calibration_object.contains("sharpness cutoff")) {
+		INFO << "Calibration: Sharpness cutoff variable not found in calibration data block";
+		return false;
+	}
+
+	if (!calibration_object.contains("center wavelength um")) {
+		INFO << "Calibration: Center wavelegnth variable not found in calibration data block";
+		return false;
+	}
+
+	if (!calibration_object.contains("width")) {
+		INFO << "Calibration: Width variable not found in calibration data block";
+		return false;
+	}
+
+	file.close();
+
+	return true;
+}
+
+bool CalibrationDialog::check_filter_file(QString path)
+{
+
+	double temp_wavelength, temp_filter;
+	bool check1, check2;
+	vector_filter.clear();
+	vector_wavelength.clear();
+
+	QFile file_det(path);
+	if (!file_det.open(QIODevice::ReadOnly)) {
+		QMessageBox::information(0, "error", file_det.errorString());
+	}
+
+	QTextStream in(&file_det);
+
+	while (!in.atEnd()) {
+		QString line = in.readLine();
+		QStringList fields = line.split(" ");
+
+		int length = fields.size();
+		if (length != 2) {
+			INFO << "Calibration: Number of values does not match the 2 expected";
+			return false;
+		}
+
+		temp_wavelength = fields[0].toDouble(&check1);
+		if (!check1) {
+			INFO << "Calibration: Error in importing wavelength data";
+			return false;
+		}
+
+		temp_filter = fields[1].toDouble(&check2);
+		if (!check2) {
+			INFO << "Calibration: Error in importing filter value";
+			return false;
+		}
+
+		vector_wavelength.push_back(temp_wavelength);
+		vector_filter.push_back(temp_filter);
+	}
+
+	file_det.close();
+
+	return true;
+}
+
 void CalibrationDialog::ok()
 {
 	
+	// check that proper variables are in place
+	bool check = check_configuration_values();
+	if (!check) {
+
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("Error With Calibration Process"));
+		QString box_text("Error occurred accessing inputs for calibration process. See log for more details");
+		msgBox.setText(box_text);
+
+		msgBox.exec();
+
+		close_window();
+
+		return;
+	}
+
+
 	file_data.load_osm_file();
 
 	//----------------------------------------------------------------------------
@@ -432,12 +623,18 @@ void CalibrationDialog::ok()
 
 	if (abp_frames.all_frames_found) {
 
-		// get wavelength in microns
-		double wavelength = QInputDialog::getDouble(this, "Input Wavelength", "Input wavelength in microns: ", 0, 0, 200, 5);
+		arma::vec filter = get_total_filter_response();
+		arma::vec irradiance_vector1 = plank_equation(user_selection1.temperature_mean + 273.15);
+		arma::vec irradiance_vector2 = plank_equation(user_selection2.temperature_mean + 273.15);
 
-		double irradiance1 = calculate_black_body_radiance(wavelength * std::pow(10, -6), user_selection1.temperature_mean + 273.15);
-		double irradiance2 = calculate_black_body_radiance(wavelength * std::pow(10, -6), user_selection2.temperature_mean + 273.15);
+		arma::vec response1 = filter * irradiance_vector1;
+		arma::vec response2 = filter * irradiance_vector2;
 
+		arma::vec x(vector_wavelength);
+		double irradiance1 = trapezoidal_integration(x, response1);
+		double irradiance2 = trapezoidal_integration(x, response2);
+
+		// get counts from abp image file
 		std::vector<std::vector<uint16_t>> video_frames1 = file_data.load_image_file(abp_frames.start_frame1, abp_frames.stop_frame1, version);
 		std::vector<std::vector<uint16_t>> video_frames2 = file_data.load_image_file(abp_frames.start_frame2, abp_frames.stop_frame2, version);
 
@@ -475,7 +672,7 @@ void CalibrationDialog::ok()
 		msgBox.setText(box_text);
 
 		msgBox.exec();
-
+		close_window();
 	}
 
 }
@@ -644,6 +841,21 @@ double CalibrationDialog::calculate_black_body_radiance(double wavelength, doubl
 
 	// returns radiance in W/m^3
 	return radiance;
+}
+
+double CalibrationDialog::trapezoidal_integration(arma::vec x, arma::vec y) {
+
+	double delta_x = x[1] - x[0];
+	int last_index = y.size() - 1;
+
+	arma::vec temp = 2 * y;
+	temp = temp - y[0] - y[last_index];
+
+	double sum = arma::accu(temp);
+
+	double area = delta_x / 2 * sum;
+
+	return area;
 }
 
 arma::mat CalibrationDialog::average_multiple_frames(std::vector<std::vector<uint16_t>> &frames) {
