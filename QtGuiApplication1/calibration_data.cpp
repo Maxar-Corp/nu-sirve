@@ -12,17 +12,22 @@ CalibrationData::~CalibrationData()
 
 }
 
-double CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x)
+std::vector<double> CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time)
 {
-	
+	double scale_factor = integration_time / frame_integration_time;
+
 	arma::mat sub_b = b.submat(ul_row, ul_col, lr_row, lr_col);
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
-	arma::mat radiance = sub_m * x + sub_b;
+	arma::mat radiance = (sub_m * x + sub_b) * scale_factor;
 
+	double max_pixel = arma::max(arma::max(radiance));
+	double area_sum = arma::accu(radiance);
 	double average_radiance = arma::mean(arma::mean(radiance));
 
-	return average_radiance;
+	std::vector<double> output{ max_pixel, average_radiance, area_sum };
+
+	return output;
 }
 
 void CalibrationData::setup_model(arma::mat input_m, arma::mat input_b)
@@ -32,7 +37,7 @@ void CalibrationData::setup_model(arma::mat input_m, arma::mat input_b)
 	b = input_b;
 }
 
-bool CalibrationData::set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2)
+bool CalibrationData::set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2, double int_time)
 {
 
 	bool valid_paths = check_path(path_to_nuc) && check_path(path_to_image);
@@ -42,6 +47,7 @@ bool CalibrationData::set_calibration_details(QString path_to_nuc, QString path_
 		
 	path_nuc = path_to_nuc;
 	path_image = path_to_image;
+	integration_time = int_time;
 	
 	user_selection1 = selection1;
 	user_selection2 = selection2;
@@ -638,6 +644,8 @@ void CalibrationDialog::ok()
 		std::vector<std::vector<uint16_t>> video_frames1 = file_data.load_image_file(abp_frames.start_frame1, abp_frames.stop_frame1, version);
 		std::vector<std::vector<uint16_t>> video_frames2 = file_data.load_image_file(abp_frames.start_frame2, abp_frames.stop_frame2, version);
 
+		double integration_time = file_data.abir_data.ir_data[0].header.int_time;
+
 		arma::mat average_count1 = average_multiple_frames(video_frames1);
 		arma::mat average_count2 = average_multiple_frames(video_frames2);
 
@@ -658,7 +666,7 @@ void CalibrationDialog::ok()
 		b = b.t();
 
 		model.setup_model(m, b);
-		model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2);
+		model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2, integration_time);
 
 		done(QDialog::Accepted);
 	}
@@ -815,8 +823,6 @@ void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
 
 bool CalibrationDialog::check_path(QString path)
 {
-
-	QString info_msg("");
 
 	QFileInfo check_file(path);
 	bool file_isFile = check_file.isFile();
