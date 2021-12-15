@@ -1159,7 +1159,7 @@ void QtGuiApplication1::load_abir_data()
 	std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;
 	std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame) + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> subset_data(first, last);
-	ir_video->set_frame_data(subset_data);
+	ir_video->set_frame_data(subset_data, file_data.abir_data.ir_data);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1471,6 +1471,7 @@ void QtGuiApplication1::show_calibration_dialog()
 	}
 
 	calibration_model = calibrate_dialog.model;
+	ir_video->set_calibration_model(calibrate_dialog.model);
 	btn_calculate_radiance->setEnabled(true);
 }
 
