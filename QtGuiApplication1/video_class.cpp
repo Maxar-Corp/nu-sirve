@@ -170,9 +170,11 @@ void Video::toggle_action_calculate_radiance(bool status)
 
 		is_zoom_active = false;
 		is_calculate_active = true;
+		update_display_frame();
 	}
 	else {
 		is_calculate_active = false;
+		update_display_frame();
 	}
 }
 
@@ -183,43 +185,46 @@ void Video::zoom_image(QRect info)
 	{
 
 		if (is_calculate_active) {
-			
+
 			int num_zooms = zoom_list.size();
 
 			if (num_zooms == 1) {
 				calculation_region = info;
-				return;
 			}
 
-			QRect adjusted_area = info;
+			else {
+				QRect adjusted_area = info;
 
-			for (int i = num_zooms - 1; i > 0; i--)
-			{
-				
-				int *x1, *y1, *x2, *y2;
-				x1 = new int;
-				y1 = new int;
-				x2 = new int;
-				y2 = new int;
+				for (int i = num_zooms - 1; i > 0; i--)
+				{
 
-				adjusted_area.getCoords(x1, y1, x2, y2);
+					int* x1, * y1, * x2, * y2;
+					x1 = new int;
+					y1 = new int;
+					x2 = new int;
+					y2 = new int;
 
-				QRect zoom = zoom_list[i];
+					adjusted_area.getCoords(x1, y1, x2, y2);
 
-				double x1_position = *x1 * 1.0 / image_x;
-				double y1_position = *y1 * 1.0 / image_y;
-				int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
-				int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
+					QRect zoom = zoom_list[i];
 
-				double x2_position = *x2 * 1.0 / image_x;
-				double y2_position = *y2 * 1.0 / image_y;
-				int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
-				int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
+					double x1_position = *x1 * 1.0 / image_x;
+					double y1_position = *y1 * 1.0 / image_y;
+					int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
+					int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
 
-				adjusted_area.setCoords(new_x1, new_y1, new_x2, new_y2);
+					double x2_position = *x2 * 1.0 / image_x;
+					double y2_position = *y2 * 1.0 / image_y;
+					int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
+					int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
+
+					adjusted_area.setCoords(new_x1, new_y1, new_x2, new_y2);
+				}
+
+				calculation_region = adjusted_area;
 			}
 
-			calculation_region = adjusted_area;
+			update_display_frame();
 		}
 		
 		return;
