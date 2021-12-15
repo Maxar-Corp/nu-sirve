@@ -19,7 +19,7 @@ std::vector<double> CalibrationData::measure_irradiance(int ul_row, int ul_col, 
 	arma::mat sub_b = b.submat(ul_row, ul_col, lr_row, lr_col);
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
-	arma::mat radiance = (sub_m * x + sub_b) * scale_factor;
+	arma::mat radiance = (sub_m % x + sub_b) * scale_factor;
 
 	double max_pixel = arma::max(arma::max(radiance));
 	double area_sum = arma::accu(radiance);
@@ -409,18 +409,19 @@ arma::vec CalibrationDialog::get_total_filter_response()
 	// read in configuration file 
 	QString path = "config/config.json";
 	QFile file(path);
+	file.open(QFile::ReadOnly);
 
 	// read json configuration
 	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
 	QJsonObject jsonObj = jsonDoc.object();
 	QJsonObject calibration_object = jsonObj.value("calibration data").toObject();
-		
+
 	// check and retrieve other variables from calibration section
 	double min, max, sharpness, width, center;
 	min = calibration_object.value("min transmittance").toDouble();
 	max = calibration_object.value("max transmittance").toDouble();
 	sharpness = calibration_object.value("sharpness cutoff").toDouble();
-	center = calibration_object.value("min_transmittance").toDouble();
+	center = calibration_object.value("center wavelength um").toDouble();
 	width = calibration_object.value("width").toDouble();
 
 	file.close();
@@ -633,8 +634,8 @@ void CalibrationDialog::ok()
 		arma::vec irradiance_vector1 = plank_equation(user_selection1.temperature_mean + 273.15);
 		arma::vec irradiance_vector2 = plank_equation(user_selection2.temperature_mean + 273.15);
 
-		arma::vec response1 = filter * irradiance_vector1;
-		arma::vec response2 = filter * irradiance_vector2;
+		arma::vec response1 = filter % irradiance_vector1;
+		arma::vec response2 = filter % irradiance_vector2;
 
 		arma::vec x(vector_wavelength);
 		double irradiance1 = trapezoidal_integration(x, response1);
