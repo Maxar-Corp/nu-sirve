@@ -370,6 +370,29 @@ void Video::update_display_frame()
 	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
 	arma::vec image_vector(frame_vector);
 
+	arma::mat counts;
+	bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
+	if (is_calculate_active && rectangle_drawn) {
+
+		arma::mat mat_frame(image_vector);
+		mat_frame.reshape(image_x, image_y);
+		mat_frame = mat_frame.t();
+
+		int* x1 = new int;
+		int* x2 = new int;
+		int* y1 = new int;
+		int* y2 = new int;
+
+		calculation_region.getCoords(x1, y1, x2, y2);
+
+		unsigned int ux1 = (unsigned int)*x1;
+		unsigned int uy1 = (unsigned int)*y1;
+		unsigned int ux2 = (unsigned int)*x2;
+		unsigned int uy2 = (unsigned int)*y2;
+
+		counts = mat_frame.submat(ux1, uy1, ux2, uy2);
+	}
+
 	//Normalie the image to values between 0 - 1
 	int max_value = std::pow(2, max_bit_level);
 	image_vector = image_vector / max_value;
@@ -531,9 +554,7 @@ void Video::update_display_frame()
 	}
 	// ---------------------------------------------------------------------------------------
 
-	if (is_calculate_active) {
-
-		bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
+	if (is_calculate_active && rectangle_drawn) {
 
 		int* x1 = new int;
 		int* x2 = new int;
@@ -547,8 +568,18 @@ void Video::update_display_frame()
 		bool region_within_zoom = pt1[0] >= 0 && pt2[0] >= 0;
 
 		if (rectangle_drawn && region_within_zoom) {
-			
-			QString calculation_text = "Calculated Irradiance: \n " + QString::number(display_data[counter].azimuth_sensor) + " W/sr";
+
+			double frame_integration_time = frame_headers[counter].header.int_time;  
+			std::vector<double>measurements = model.measure_irradiance(*x1, *y1, *x2, *y2, counts, frame_integration_time);
+
+			QString max_value = QString::number(measurements[0]) + " W/sr";
+			QString avg_value = QString::number(measurements[1]) + " W/sr";
+			QString sum_value = QString::number(measurements[2]) + " W/sr";
+
+			QString calculation_text = "***** Beta Calculation *****\n";
+			calculation_text.append("Max Pixel: " + max_value + "\n");
+			calculation_text.append("Avg Pixel: " + avg_value + "\n");
+			calculation_text.append("Total: " + sum_value);
 
 			QPainter painter_calculation_text(&frame);
 			painter_calculation_text.setPen(QPen(banner_color));
@@ -596,9 +627,15 @@ void Video::update_display_frame()
 	//counter++;
 }
 
-void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data)
+void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
 	display_data = input_data;
+	frame_headers = input_frame_header;
+}
+
+void Video::set_calibration_model(CalibrationData input)
+{
+	model = input;
 }
 
 bool Video::start_recording(double fps)
