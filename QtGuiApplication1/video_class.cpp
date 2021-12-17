@@ -180,6 +180,23 @@ void Video::toggle_action_calculate_radiance(bool status)
 
 void Video::zoom_image(QRect info)
 {
+	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
+	if (info.x() + info.width() > image_x)
+	{
+		info.setWidth(image_x - info.x());
+	}
+
+	if (info.y() + info.height() > image_y)
+	{
+		info.setHeight(image_y - info.y());
+	}
+
+	// if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
+	if (info.width() < 10 || info.height() < 10)
+	{
+		return;
+	}
+
 	// if zoom is turned off then no zoom is recorded
 	if (!is_zoom_active)
 	{
@@ -227,23 +244,6 @@ void Video::zoom_image(QRect info)
 			update_display_frame();
 		}
 		
-		return;
-	}
-
-	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
-	if (info.x() + info.width() > image_x)
-	{
-		info.setWidth(image_x - info.x());
-	}
-
-	if (info.y() + info.height() > image_y)
-	{
-		info.setHeight(image_y - info.y());
-	}
-
-	// if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
-	if (info.width() < 10 || info.height() < 10)
-	{
 		return;
 	}
 
@@ -383,19 +383,19 @@ void Video::update_display_frame()
 		mat_frame.reshape(image_x, image_y);
 		mat_frame = mat_frame.t();
 
-		int* x1 = new int;
-		int* x2 = new int;
-		int* y1 = new int;
-		int* y2 = new int;
+		int* r1 = new int;
+		int* r2 = new int;
+		int* c1 = new int;
+		int* c2 = new int;
 
-		calculation_region.getCoords(x1, y1, x2, y2);
+		calculation_region.getCoords(c1, r1, c2, r2);
 
-		unsigned int ux1 = (unsigned int)*x1;
-		unsigned int uy1 = (unsigned int)*y1;
-		unsigned int ux2 = (unsigned int)*x2;
-		unsigned int uy2 = (unsigned int)*y2;
+		unsigned int ur1 = (unsigned int)*r1;
+		unsigned int uc1 = (unsigned int)*c1;
+		unsigned int ur2 = (unsigned int)*r2;
+		unsigned int uc2 = (unsigned int)*c2;
 
-		counts = mat_frame.submat(ux1, uy1, ux2, uy2);
+		counts = mat_frame.submat(ur1, uc1, ur2, uc2);
 	}
 
 	//Normalie the image to values between 0 - 1
@@ -561,21 +561,21 @@ void Video::update_display_frame()
 
 	if (is_calculate_active && rectangle_drawn) {
 
-		int* x1 = new int;
-		int* x2 = new int;
-		int* y1 = new int;
-		int* y2 = new int;
+		int* r1 = new int;
+		int* r2 = new int;
+		int* c1 = new int;
+		int* c2 = new int;
 
-		calculation_region.getCoords(x1, y1, x2, y2);
-		std::vector<int> pt1 = get_position_within_zoom(*x1, *y1);
-		std::vector<int> pt2 = get_position_within_zoom(*x2, *y2);
+		calculation_region.getCoords(c1, r1, c2, r2);
+		std::vector<int> pt1 = get_position_within_zoom(*c1, *r1);
+		std::vector<int> pt2 = get_position_within_zoom(*c2, *r2);
 
 		bool region_within_zoom = pt1[0] >= 0 && pt2[0] >= 0;
 
 		if (rectangle_drawn && region_within_zoom) {
 
 			double frame_integration_time = frame_headers[counter].header.int_time;  
-			std::vector<double>measurements = model.measure_irradiance(*x1, *y1, *x2, *y2, counts, frame_integration_time);
+			std::vector<double>measurements = model.measure_irradiance(*r1, *c1, *r2, *c2, counts, frame_integration_time);
 
 			QString max_value = QString::number(measurements[0]) + " W/sr";
 			QString avg_value = QString::number(measurements[1]) + " W/sr";
