@@ -603,6 +603,14 @@ void CalibrationDialog::ok()
 		return;
 	}
 
+	QMessageBox msgBox;
+	msgBox.setWindowTitle(QString("Select Associated ABP Frames"));
+	QString box_text = QString("Select the associated *.abpframe file for the temperature profile used.");
+	msgBox.setText(box_text);
+
+	msgBox.setStandardButtons(QMessageBox::Ok);
+	msgBox.setDefaultButton(QMessageBox::Ok);
+	msgBox.exec();
 
 	file_data.load_osm_file();
 
@@ -634,6 +642,9 @@ void CalibrationDialog::ok()
 	path_image = file_data.image_path;
 
 	if (abp_frames.all_frames_found) {
+
+		btn_ok->setEnabled(false);
+		btn_cancel->setEnabled(false);
 
 		arma::vec filter = get_total_filter_response();
 		arma::vec irradiance_vector1 = plank_equation(user_selection1.temperature_mean + 273.15);
