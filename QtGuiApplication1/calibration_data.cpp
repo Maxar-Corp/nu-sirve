@@ -20,10 +20,15 @@ std::vector<double> CalibrationData::measure_irradiance(int ul_row, int ul_col, 
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
 	arma::mat radiance = (sub_m % x + sub_b) * scale_factor;
+	
+	// remove any non-finite numbers
+	arma::vec vector_radiance = arma::vectorise(radiance);
+	arma::uvec indices_finite = arma::find_finite(vector_radiance);
+	arma::vec vector_radiance_norm = vector_radiance(indices_finite);
 
-	double max_pixel = arma::max(arma::max(radiance));
-	double area_sum = arma::accu(radiance);
-	double average_radiance = arma::mean(arma::mean(radiance));
+	double max_pixel = arma::max(vector_radiance_norm);
+	double area_sum = arma::accu(vector_radiance_norm);
+	double average_radiance = arma::mean(vector_radiance_norm);
 
 	std::vector<double> output{ max_pixel, average_radiance, area_sum };
 
