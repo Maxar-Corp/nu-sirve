@@ -453,14 +453,14 @@ arma::vec CalibrationDialog::plank_equation(double temperature)
 	double planks_constant = 6.626068963 * std::pow(10, -34);  // m^2 * kg / s
 	double boltzmann_constant = 1.3806504 * std::pow(10, -23);  // J / K
 
-	double c1 = 2 * planks_constant * std::pow(speed_light, 2);  // W / m^3
-	double c2 = planks_constant * speed_light / boltzmann_constant;  // K * m
+	double c_um = speed_light * std::pow(10, 6);
+	double planks_um = planks_constant * std::pow(10, 12);
 
-	double constant1 = 1;
-	double constant2 = planks_constant * speed_light / boltzmann_constant * std::pow(10, 6);
+	double constant1 = 2 * std::_Pi * planks_um * std::pow(c_um, 2);
+	double constant2 = planks_constant * c_um / boltzmann_constant;
 
-	//arma::vec out = 3.7418301e8 / (arma::pow(wavelengths, 5) % (arma::exp(constant2 / (wavelengths * temperature)) - 1));
-	arma::vec out = 3.7418301e8 / (arma::pow(wavelengths, 5) % (arma::exp(14387.86 / (wavelengths * temperature)) - 1));
+	arma::vec out = constant1 / (arma::pow(wavelengths, 5) % (arma::exp(constant2 / (wavelengths * temperature)) - 1));
+	//arma::vec out = 3.7418301e8 / (arma::pow(wavelengths, 5) % (arma::exp(14387.86 / (wavelengths * temperature)) - 1));
 	
 	return out;
 }
