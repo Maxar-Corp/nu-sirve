@@ -577,9 +577,9 @@ void Video::update_display_frame()
 			double frame_integration_time = frame_headers[counter].header.int_time;  
 			std::vector<double>measurements = model.measure_irradiance(*r1, *c1, *r2, *c2, counts, frame_integration_time);
 
-			QString max_value = QString::number(measurements[0]) + " W/sr";
-			QString avg_value = QString::number(measurements[1]) + " W/sr";
-			QString sum_value = QString::number(measurements[2]) + " W/sr";
+			QString max_value = QString::number(measurements[0]) + " W/m^2/sr";
+			QString avg_value = QString::number(measurements[1]) + " W/m^2/sr";
+			QString sum_value = QString::number(measurements[2]) + " W/m^2/sr";
 
 			QString calculation_text = "***** Beta Calculation *****\n";
 			calculation_text.append("Max Pixel: " + max_value + "\n");
