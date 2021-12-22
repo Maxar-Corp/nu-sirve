@@ -190,6 +190,7 @@ void QtGuiApplication1::setup_ui() {
 	txt_start_frame->setEnabled(false);
 	txt_end_frame->setEnabled(false);
 	btn_get_frames->setEnabled(false);
+	btn_calibration_dialog->setEnabled(false);
 
 	dt_epoch->setEnabled(false);
 	btn_apply_epoch->setEnabled(false);
@@ -844,6 +845,7 @@ void QtGuiApplication1::load_osm_data()
 	btn_get_frames->setEnabled(false);
 	btn_load_osm->setEnabled(false);
 	btn_copy_directory->setEnabled(false);
+	btn_calibration_dialog->setEnabled(false);
 
 	INFO << "GUI: Loading OSM data";
 	int valid_files = file_data.load_osm_file();
@@ -860,7 +862,7 @@ void QtGuiApplication1::load_osm_data()
 			txt_start_frame->setEnabled(true);
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);
-
+			btn_calibration_dialog->setEnabled(true);
 		}
 
 		QString error_status;
@@ -1177,6 +1179,7 @@ void QtGuiApplication1::load_abir_data()
 	plot_current_frame_marker();
 
 	btn_get_frames->setEnabled(true);
+	btn_calibration_dialog->setEnabled(true);
 
 	tab_menu->setTabEnabled(1, true);
 	tab_menu->setTabEnabled(2, true);
