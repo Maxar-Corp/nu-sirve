@@ -46,7 +46,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	//---------------------------------------------------------------------------
 	// setup container to store all videos
-	videos = new Video_Container();
 	eng_data = NULL;
 
 	// establish object that will hold video and connect it to the playback thread
@@ -118,9 +117,6 @@ QtGuiApplication1::~QtGuiApplication1() {
 	delete ir_video;
 	delete playback_controller;
 	//delete histogram_plot;
-
-	videos->something.clear();
-	delete videos;
 
 	//delete ir_video;
 	//delete histogram_plot;
@@ -729,7 +725,7 @@ void QtGuiApplication1::setup_connections() {
 	
 	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
 
-	QObject::connect(videos, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
+	QObject::connect(&ir_video->container, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
 	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &QtGuiApplication1::histogram_clicked);
@@ -932,7 +928,7 @@ void QtGuiApplication1::load_osm_data()
 			delete data_plots;
 			delete engineering_plot_layout;			
 
-			videos->something.clear();
+			ir_video->container.something.clear();
 			ir_video->remove_frame();
 
 			clear_frame_label();
@@ -1069,7 +1065,7 @@ void QtGuiApplication1::load_abir_data()
 
 	// Load the ABIR data
 	
-	videos->something.clear();
+	ir_video->container.something.clear();
 	
 	// Create the video properties data
 	video_details primary;
@@ -1128,7 +1124,7 @@ void QtGuiApplication1::load_abir_data()
 	ir_video->clear_all_zoom_levels(x_pixels, y_pixels);
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
-	videos->something.push_back(primary);
+	ir_video->container.something.push_back(primary);
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
@@ -1151,7 +1147,7 @@ void QtGuiApplication1::load_abir_data()
 
 	//---------------------------------------------------------------------------
 	// Set the video and histogram plots to this data
-	videos->display_original_data();	
+	ir_video->container.display_original_data();	
 	
 	//playback_controller->start_timer();
 	// Start threads...
@@ -2028,9 +2024,9 @@ void QtGuiApplication1::create_non_uniformity_correction()
 
 	video_details nuc_video;
 	video_details current_state = get_current_filter_state();
-	int index_current_state = videos->find_data_index(current_state);
+	int index_current_state = ir_video->container.find_data_index(current_state);
 
-	video_details original = videos->something[index_current_state];
+	video_details original = ir_video->container.something[index_current_state];
 
 	nuc_video = original;
 	nuc_video.clear_16bit_vector();
@@ -2073,16 +2069,16 @@ void QtGuiApplication1::create_non_uniformity_correction()
 	//nuc_video.create_histogram_data();		
 
 	bool nuc_exists = false;
-	int index_nuc = videos->find_data_index(nuc_video);
+	int index_nuc = ir_video->container.find_data_index(nuc_video);
 	if (index_nuc > 0) {
 		nuc_exists = true;
-		videos->something[index_nuc] = nuc_video;
+		ir_video->container.something[index_nuc] = nuc_video;
 
 		INFO << "GUI: Previous NUC video was replaced";
 	}
 	else
 	{
-		videos->something.push_back(nuc_video);
+		ir_video->container.something.push_back(nuc_video);
 		INFO << "GUI: NUC video added";
 	}
 	
@@ -2099,9 +2095,9 @@ void QtGuiApplication1::create_deinterlace()
 	
 	video_details deinterlace_video;
 	video_details current_state = get_current_filter_state();
-	int index_current_state = videos->find_data_index(current_state);
+	int index_current_state = ir_video->container.find_data_index(current_state);
 
-	video_details original = videos->something[index_current_state];
+	video_details original = ir_video->container.something[index_current_state];
 
 	DEBUG << "GUI: Found de-interlacing method type and video type";
 	Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
@@ -2147,15 +2143,15 @@ void QtGuiApplication1::create_deinterlace()
 	//deinterlace_video.create_histogram_data();
 
 	bool deinterlace_exists = false;
-	int index_deinterlace = videos->find_data_index(deinterlace_video);
+	int index_deinterlace = ir_video->container.find_data_index(deinterlace_video);
 	if (index_deinterlace > 0) {
 		deinterlace_exists = true;
-		videos->something[index_deinterlace] = deinterlace_video;
+		ir_video->container.something[index_deinterlace] = deinterlace_video;
 		INFO << "GUI: Previous de-interlace video was replaced";
 	}
 	else
 	{
-		videos->something.push_back(deinterlace_video);
+		ir_video->container.something.push_back(deinterlace_video);
 		INFO << "GUI: De-interlace video was added";
 	}
 
@@ -2257,16 +2253,16 @@ Video_Parameters QtGuiApplication1::find_deinterlace_video_type(int index)
 void QtGuiApplication1::clear_image_processing()
 {
 	
-	int n = videos->something.size();
+	int n = ir_video->container.something.size();
 
 	txt_nuc_start->setText("");
 	txt_nuc_stop->setText("");
 	txt_bgs_num_frames->setText("");
 
-	int num_videos = videos->something.size();
+	int num_videos = ir_video->container.something.size();
 	if (num_videos > 0)
 	{
-		videos->something.erase(videos->something.begin() + 1, videos->something.begin() + 1 + (n - 1));
+		ir_video->container.something.erase(ir_video->container.something.begin() + 1, ir_video->container.something.begin() + 1 + (n - 1));
 
 		chk_apply_nuc->setChecked(false);
 		chk_bgs->setChecked(false);
@@ -2306,7 +2302,7 @@ video_details QtGuiApplication1::get_current_filter_state()
 bool QtGuiApplication1::check_filter_selection(video_details filter_state)
 {
 		
-	int index_exists = videos->find_data_index(filter_state);
+	int index_exists = ir_video->container.find_data_index(filter_state);
 	
 	if (index_exists >= 0)
 		return true;
@@ -2422,9 +2418,9 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 
 	video_details background_subraction_video;
 	video_details current_state = get_current_filter_state();
-	int index_current_state = videos->find_data_index(current_state);
+	int index_current_state = ir_video->container.find_data_index(current_state);
 
-	video_details original = videos->something[index_current_state];
+	video_details original = ir_video->container.something[index_current_state];
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
@@ -2474,15 +2470,15 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	//background_subraction_video.create_histogram_data();
 
 	bool background_subtraction_exists = false;
-	int index_background_subtraction = videos->find_data_index(background_subraction_video);
+	int index_background_subtraction = ir_video->container.find_data_index(background_subraction_video);
 	if (index_background_subtraction > 0) {
 		background_subtraction_exists = true;
-		videos->something[index_background_subtraction] = background_subraction_video;
+		ir_video->container.something[index_background_subtraction] = background_subraction_video;
 		INFO << "GUI: Background subtraction video was replaced";
 	}
 	else
 	{
-		videos->something.push_back(background_subraction_video);
+		ir_video->container.something.push_back(background_subraction_video);
 		INFO << "GUI: Background subtraction video was added";
 	}
 
@@ -2507,10 +2503,10 @@ void QtGuiApplication1::toggle_video_filters()
 	show_available_filter_options();
 
 	if (request_exists)
-		videos->display_data(user_requested);
+		ir_video->container.display_data(user_requested);
 	else {
 		video_details updated_user_request = get_current_filter_state();
-		videos->display_data(updated_user_request);
+		ir_video->container.display_data(updated_user_request);
 	}
 
 	emit playback_controller->update_frame(playback_controller->get_counter());
