@@ -21,6 +21,13 @@ std::vector<double> CalibrationData::measure_irradiance(int ul_row, int ul_col, 
 
 	arma::mat radiance = (sub_m % x + sub_b) * scale_factor;
 	
+	arma::uvec indices_inf = arma::find_nonfinite(m);
+	std::vector<unsigned int> vector_inf = arma::conv_to<std::vector<unsigned int>>::from(indices_inf);
+
+	int r2 = indices_inf(0) % 480;
+	int c2 = indices_inf(0) / 480;
+	double check2 = m(r2, c2);
+
 	// remove any non-finite numbers
 	arma::vec vector_radiance = arma::vectorise(radiance);
 	arma::uvec indices_finite = arma::find_finite(vector_radiance);
