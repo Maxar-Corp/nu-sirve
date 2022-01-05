@@ -89,7 +89,7 @@ public slots:
 	void update_specific_frame(unsigned int frame_number);
 	//void update_color_correction(double lift, double gamma, double gain);
 	void update_color_correction(double new_min_value, double new_max_value);
-	void update_video_file(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
+	void update_video_file(int x_pixels, int y_pixels);
 	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
@@ -105,6 +105,7 @@ private:
 	
 	bool is_zoom_active, is_calculate_active;
 	std::vector<QRect> zoom_list;
+	int index_current_video;
 
 	QRect calculation_region;
 	

@@ -15,6 +15,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 
 	counter = 0;
 	counter_record = 0;
+	index_current_video = -1;
 	record_frame = false;
 	show_relative_histogram = false;
 
@@ -58,11 +59,11 @@ Video::~Video()
 	delete  label;
 }
 
-void Video::update_video_file(std::vector<std::vector<uint16_t>>& video_data, int x_pixels, int y_pixels)
+void Video::update_video_file(int x_pixels, int y_pixels)
 {
 	
-	frame_data = video_data;
-	number_of_frames = video_data.size();
+	//frame_data = video_data;
+	number_of_frames = container.something[index_current_video].frames_16bit.size();
 	
 	image_x = x_pixels;
 	image_y = y_pixels;
@@ -86,8 +87,8 @@ void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 void Video::receive_video_data(video_details &new_input)
 {
-
-	update_video_file(new_input.frames_16bit, new_input.x_pixels, new_input.y_pixels);
+	index_current_video = container.find_data_index(new_input);
+	update_video_file(new_input.x_pixels, new_input.y_pixels);
 
 }
 
@@ -366,13 +367,14 @@ std::vector<int> Video::get_position_within_zoom(int x0, int y0)
 void Video::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
-	if (frame_data.size() < counter)
+	if (number_of_frames < counter)
 		return;
 	
 	//------------------------------------------------------------------------------------------------
 
 	//Convert current frame to armadillo matrix
-	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
+	std::vector<double> frame_vector(container.something[index_current_video].frames_16bit[counter].begin(), 
+		container.something[index_current_video].frames_16bit[counter].end());
 	arma::vec image_vector(frame_vector);
 
 	//Normalize the image to values between 0 - 1
