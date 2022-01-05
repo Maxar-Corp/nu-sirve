@@ -375,30 +375,7 @@ void Video::update_display_frame()
 	std::vector<double> frame_vector(frame_data[counter].begin(), frame_data[counter].end());
 	arma::vec image_vector(frame_vector);
 
-	arma::mat counts;
-	bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
-	if (is_calculate_active && rectangle_drawn) {
-
-		arma::mat mat_frame(image_vector);
-		mat_frame.reshape(image_x, image_y);
-		mat_frame = mat_frame.t();
-
-		int* r1 = new int;
-		int* r2 = new int;
-		int* c1 = new int;
-		int* c2 = new int;
-
-		calculation_region.getCoords(c1, r1, c2, r2);
-
-		unsigned int ur1 = (unsigned int)*r1;
-		unsigned int uc1 = (unsigned int)*c1;
-		unsigned int ur2 = (unsigned int)*r2;
-		unsigned int uc2 = (unsigned int)*c2;
-
-		counts = mat_frame.submat(ur1, uc1, ur2, uc2);
-	}
-
-	//Normalie the image to values between 0 - 1
+	//Normalize the image to values between 0 - 1
 	int max_value = std::pow(2, max_bit_level);
 	image_vector = image_vector / max_value;
 	
@@ -559,24 +536,49 @@ void Video::update_display_frame()
 	}
 	// ---------------------------------------------------------------------------------------
 
+	// determine if radiance calculation is selected
+	bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
 	if (is_calculate_active && rectangle_drawn) {
 
 		int* r1 = new int;
 		int* r2 = new int;
 		int* c1 = new int;
 		int* c2 = new int;
-
+		
+		// get the coordinates of calculation region
 		calculation_region.getCoords(c1, r1, c2, r2);
 		std::vector<int> pt1 = get_position_within_zoom(*c1, *r1);
 		std::vector<int> pt2 = get_position_within_zoom(*c2, *r2);
 
+		// determine if calculation region is within zoomed image
 		bool region_within_zoom = pt1[0] >= 0 && pt2[0] >= 0;
-
 		if (rectangle_drawn && region_within_zoom) {
+
+			// get frame data from original data set and convert mat
+			std::vector<double> original_frame_vector(container.something[0].frames_16bit[counter].begin(), container.something[0].frames_16bit[counter].end());
+			arma::vec original_image_vector(original_frame_vector);
+			arma::mat original_mat_frame(original_image_vector);
+			original_mat_frame.reshape(image_x, image_y);
+			original_mat_frame = original_mat_frame.t();
+
+			// get counts sub-matrix corresponding to the calculation region 
+			unsigned int ur1 = (unsigned int)*r1;
+			unsigned int uc1 = (unsigned int)*c1;
+			unsigned int ur2 = (unsigned int)*r2;
+			unsigned int uc2 = (unsigned int)*c2;
+			
+			arma::mat counts = original_mat_frame.submat(ur1, uc1, ur2, uc2);
+
+			// clear all temporary variables
+			original_frame_vector.clear();
+			original_frame_vector.clear();
+			original_mat_frame.clear();
 
 			double frame_integration_time = frame_headers[counter].header.int_time;  
 			std::vector<double>measurements = model.measure_irradiance(*r1, *c1, *r2, *c2, counts, frame_integration_time);
 
+			// -----------------------------------------------------------------------------------
+			// print radiance calculation data onto frame
 			QString max_value = QString::number(measurements[0]) + " W/m^2/sr";
 			QString avg_value = QString::number(measurements[1]) + " W/m^2/sr";
 			QString sum_value = QString::number(measurements[2]) + " W/m^2/sr";
@@ -590,10 +592,9 @@ void Video::update_display_frame()
 			painter_calculation_text.setPen(QPen(banner_color));
 			painter_calculation_text.setFont(QFont("Times", 8, QFont::Bold));
 			painter_calculation_text.drawText(frame.rect(), Qt::AlignTop | Qt::AlignRight, calculation_text);
-		}
+			painter_calculation_text.end();
 
-		if (rectangle_drawn && region_within_zoom)
-		{
+			// -----------------------------------------------------------------------------------
 			// draw rectangle of calculation region			
 			QPainter calculation_area_painter(&frame);
 
