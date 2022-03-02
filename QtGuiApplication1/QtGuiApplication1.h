@@ -89,6 +89,7 @@ public:
 	FixedAspectRatioFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 	QStackedLayout* stacked_layout_histograms;
+	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
