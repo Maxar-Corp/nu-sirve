@@ -5,8 +5,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 {
 	
 	INFO << "GUI: Initializing GUI";
-	
-	setup_ui();
 
 	//---------------------------------------------------------------------------
 	// read in configuration file 
@@ -33,6 +31,13 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 		}
 	}
 
+	// establish object that will hold video and connect it to the playback thread
+	ir_video = new Video(1, 1, max_used_bits);
+	ir_video->moveToThread(&thread_video);
+	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
+
+	setup_ui();
+
 	//---------------------------------------------------------------------------
 
 	// establish object to control playback timer and move to a new thread
@@ -47,11 +52,6 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	//---------------------------------------------------------------------------
 	// setup container to store all videos
 	eng_data = NULL;
-
-	// establish object that will hold video and connect it to the playback thread
-	ir_video = new Video(1, 1, max_used_bits);
-	ir_video->moveToThread(&thread_video);
-	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
 
 	// default recording video to false
 	record_video = false;
@@ -362,6 +362,22 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	vlayout_tab_color->addWidget(widget_tab_color_sliders);
 	vlayout_tab_color->addWidget(widget_tab_color_controls);
 	vlayout_tab_color->addWidget(horizontal_segment4);
+
+	QLabel* lbl_colormap = new QLabel("Set Colormap:");
+	cmb_color_maps = new QComboBox();
+
+	int number_maps = ir_video->video_colors.maps.size();
+	for (int i = 0; i < number_maps; i++)
+		cmb_color_maps->addItem(ir_video->video_colors.maps[i].name);
+	
+
+	QHBoxLayout* hlayout_colormap = new QHBoxLayout(widget_tab_color);
+	hlayout_colormap->addWidget(lbl_colormap);
+	hlayout_colormap->addWidget(cmb_color_maps);
+	hlayout_colormap->insertStretch(-1, 0);
+
+	vlayout_tab_color->addLayout(hlayout_colormap);
+
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
 
@@ -752,6 +768,7 @@ void QtGuiApplication1::setup_connections() {
 	//---------------------------------------------------------------------------	
 
 	QObject::connect(btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
+	QObject::connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_color_map);
 	
 	//---------------------------------------------------------------------------
 
@@ -1582,7 +1599,7 @@ void QtGuiApplication1::create_menu_actions()
 	menu->addAction(menu_add_banner);
 	menu->addAction(menu_change_color_banner);
 	menu->addAction(menu_change_color_tracker);
-	menu->addAction(menu_change_color_map);
+	//menu->addAction(menu_change_color_map);
 	menu->addAction(menu_annotate);
 
 	plot_menu = new QMenu(this);
@@ -1665,7 +1682,7 @@ int QtGuiApplication1::get_color_index(QVector<QString> colors, QColor input_col
 
 void QtGuiApplication1::edit_color_map()
 {
-	
+	/*
 	QVector<QString>color_maps{};
 	int number_maps = ir_video->video_colors.maps.size();
 
@@ -1685,6 +1702,12 @@ void QtGuiApplication1::edit_color_map()
 
 		return;
 	}
+	*/
+
+	int index = cmb_color_maps->currentIndex();
+	QString color = cmb_color_maps->currentText();
+	ir_video->update_color_map(color);
+
 }
 
 void QtGuiApplication1::edit_banner_color()
