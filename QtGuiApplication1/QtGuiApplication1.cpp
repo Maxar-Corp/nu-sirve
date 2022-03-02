@@ -140,6 +140,9 @@ void QtGuiApplication1::setup_ui() {
 	frame_video_player = new QFrame();
 	tab_plots = new QTabWidget();
 
+	//tab_menu->setMinimumWidth(200);
+	tab_menu->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+
 	// ------------------------------------------------------------------------
 	// Define complete tab widget
 	// ------------------------------------------------------------------------
@@ -150,7 +153,7 @@ void QtGuiApplication1::setup_ui() {
 	tab_menu->addTab(setup_filter_tab(), "Processing");
 
 	QSizePolicy fixed_width;
-	fixed_width.setHorizontalPolicy(QSizePolicy::Fixed);
+	fixed_width.setHorizontalPolicy(QSizePolicy::Minimum);
 	fixed_width.setVerticalPolicy(QSizePolicy::Preferred);
 	tab_menu->setSizePolicy(fixed_width);
 		
@@ -214,9 +217,9 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 	btn_copy_directory = new QPushButton("Copy File Path");
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
 
-	btn_load_osm->setMinimumWidth(45);
-	btn_copy_directory->setMinimumWidth(45);
-
+	//btn_load_osm->setMinimumWidth(30);
+	//btn_copy_directory->setMinimumWidth(30);
+	
 	QFrame* horizontal_segment1 = new QFrame();
 	horizontal_segment1->setFrameShape(QFrame::HLine);
 
@@ -253,6 +256,9 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 	grid_tab_import_frames->addWidget(btn_get_frames, 3, 0, 1, 2);
 	grid_tab_import_frames->addWidget(horizontal_segment2, 4, 0, 1, 2);
 
+	grid_tab_import_frames->setColumnMinimumWidth(0, 30);
+	grid_tab_import_frames->setColumnMinimumWidth(1, 30);
+
 	vlayout_tab_import->addLayout(grid_tab_import_frames);
 
 	// ------------------------------------------------------------------------
@@ -266,6 +272,7 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 
 	lbl_current_epoch = new QLabel("Applied Epoch: ");
 	btn_apply_epoch = new QPushButton("Apply Epoch");
+	//btn_apply_epoch->setMinimumWidth(30);
 
 	QFrame* horizontal_segment3 = new QFrame();
 	horizontal_segment3->setFrameShape(QFrame::HLine);
@@ -305,7 +312,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	lbl_gain_value = new QLabel("1.0");
 	slider_lift = new QSlider();
 	slider_gain = new QSlider();
-	chk_relative_histogram = new QCheckBox("Show Relative Histogram");
+	chk_relative_histogram = new QCheckBox("Relative Histogram");
 	btn_reset_color_correction = new QPushButton("Reset");
 
 	QFrame* horizontal_segment4 = new QFrame();
@@ -639,11 +646,13 @@ void QtGuiApplication1::setup_plot_frame() {
 	rad_log = new QRadioButton("Log");
 	rad_linear = new QRadioButton("Linear");
 
-	QButtonGroup data_plot_yformat, data_plot_yloglinear;
-	data_plot_yformat.addButton(rad_decimal);
-	data_plot_yformat.addButton(rad_scientific);
-	data_plot_yloglinear.addButton(rad_log);
-	data_plot_yloglinear.addButton(rad_linear);
+	//QButtonGroup data_plot_yformat, data_plot_yloglinear;
+	data_plot_yformat = new QButtonGroup();
+	data_plot_yloglinear = new QButtonGroup();
+	data_plot_yformat->addButton(rad_decimal);
+	data_plot_yformat->addButton(rad_scientific);
+	data_plot_yloglinear->addButton(rad_log);
+	data_plot_yloglinear->addButton(rad_linear);
 
 	// create comboboxes and add options
 	cmb_plot_xaxis = new QComboBox();
@@ -1393,7 +1402,7 @@ void QtGuiApplication1::color_correction_toggled(double lift_value, double gain_
 
 void QtGuiApplication1::reset_color_correction()
 {
-			
+		
 	slider_lift->setValue(0);
 	slider_gain->setValue(1000);
 	chk_relative_histogram->setChecked(false);
