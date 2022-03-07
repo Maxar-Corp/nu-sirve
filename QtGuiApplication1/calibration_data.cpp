@@ -233,30 +233,30 @@ void CalibrationDialog::initialize_gui()
 void CalibrationDialog::get_new_nuc_file()
 
 {
-	QString user_selection = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
+QString user_selection = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
 
-	// if no image path is selected then reset image path and return
-	int compare = QString::compare(user_selection, "", Qt::CaseInsensitive);
-	if (compare == 0) {
-	
-		return;
-	}
+// if no image path is selected then reset image path and return
+int compare = QString::compare(user_selection, "", Qt::CaseInsensitive);
+if (compare == 0) {
 
-	path_nuc = user_selection;
+	return;
+}
 
-	import_nuc_file();
+path_nuc = user_selection;
+
+import_nuc_file();
 }
 
 void CalibrationDialog::import_nuc_file()
 {
-			 
+
 	// -----------------------------------------------------------------------------
 	// import the abpnuc data 
 
 	QByteArray ba = path_nuc.toLocal8Bit();
 	char* file_path = ba.data();
 	ABPNUC_Data nuc_data(file_path);
-	
+
 	if (nuc_data.read_status == 0) {
 
 		QMessageBox msgBox;
@@ -268,7 +268,7 @@ void CalibrationDialog::import_nuc_file()
 	}
 
 	if (nuc_data.number_of_frames == 0) {
-		
+
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Issue Reading File"));
 		QString box_text("Zero frames read from apbnuc file");
@@ -286,7 +286,7 @@ void CalibrationDialog::import_nuc_file()
 	int index_file_start, index_file_end;
 	index_file_start = path_nuc.lastIndexOf("/");
 	index_file_end = path_nuc.lastIndexOf(".");
-	
+
 	QString filename = QString("File: ");
 	filename.append(path_nuc.mid(index_file_start + 1, index_file_end - index_file_start - 1));
 
@@ -320,11 +320,27 @@ void CalibrationDialog::point_selected(double x0, double x1) {
 
 }
 
-void CalibrationDialog::show_user_selection(SelectedData &user_selection, double x0, double x1) {
+void CalibrationDialog::show_user_selection(SelectedData& user_selection, double x0, double x1) {
 
-	
+
 	std::vector<double> vector_temperature;
-	
+
+	int temp;
+	if (x1 < x0) {
+		temp = x1;
+		x1 = x0;
+		x0 = temp;
+	}
+
+	if (x0 < temperature[0].x()) {
+		x0 = temperature[0].x();
+	}
+
+	int max_t = temperature[temperature.length() - 1].x();
+	if (x1 > temperature[temperature.length() - 1].x()) {
+		x1 = temperature[temperature.length() - 1].x();
+	}
+
 	
 	if (user_selection.points.size() > 0) {
 		user_selection.points.clear();
