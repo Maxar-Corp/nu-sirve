@@ -120,6 +120,8 @@ void Video::update_color_map(QString input_map)
 
 	// sets color table
 	colorTable = video_colors.maps[index_video_color].colors;
+
+	update_display_frame();
 }
 
 void Video::update_tracker_color(QString input_color)
