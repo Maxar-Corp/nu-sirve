@@ -269,8 +269,8 @@ void NewAnnotation::initialize_gui()
 	lbl_num_frames = new QLabel(tr("# of Frames"));
 	lbl_color = new QLabel(tr("Color"));
 	lbl_size = new QLabel(tr("Font Size (pt)"));
-	lbl_x = new QLabel(tr("X Position"));
-	lbl_y = new QLabel(tr("Y Position"));
+	lbl_x = new QLabel(tr("X Position (1 - 640)"));
+	lbl_y = new QLabel(tr("Y Position (1 - 480)"));
 
 	btn_add = new QPushButton(tr("Add"));
 	btn_cancel = new QPushButton(tr("Cancel"));
