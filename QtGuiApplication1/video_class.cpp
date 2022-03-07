@@ -50,7 +50,7 @@ Video::Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y
 	text = new QLabel(this);
 
 	counter = 0;
-	
+
 	update_video_file(video_data, x_pixels, y_pixels);
 }
 */
@@ -61,10 +61,10 @@ Video::~Video()
 
 void Video::update_video_file(int x_pixels, int y_pixels)
 {
-	
+
 	//frame_data = video_data;
 	number_of_frames = container.something[index_current_video].frames_16bit.size();
-	
+
 	image_x = x_pixels;
 	image_y = y_pixels;
 	number_pixels = image_x * image_y;
@@ -85,7 +85,7 @@ void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 }
 
-void Video::receive_video_data(video_details &new_input)
+void Video::receive_video_data(video_details& new_input)
 {
 	index_current_video = container.find_data_index(new_input);
 	update_video_file(new_input.x_pixels, new_input.y_pixels);
@@ -106,10 +106,10 @@ void Video::update_banner_color(QString input_color)
 
 void Video::update_color_map(QString input_map)
 {
-	
+
 	// find number of color maps
 	int number_maps = video_colors.maps.size();
-	
+
 	// cycle through all color maps
 	for (int i = 0; i < number_maps; i++)
 	{
@@ -246,7 +246,7 @@ void Video::zoom_image(QRect info)
 
 			update_display_frame();
 		}
-		
+
 		return;
 	}
 
@@ -263,17 +263,17 @@ void Video::zoom_image(QRect info)
 
 	// adjust size of box to fit aspect ratio and encompass the highlighted area selected
 	if (adj_width > width) {
-		
-		width  = adj_width;	
+
+		width = adj_width;
 		height = adj_width / aspect_ratio;
 	}
 	else if (adj_height > height) {
-		
+
 		width = adj_height * aspect_ratio;
 		height = adj_height;
 	}
 	else {
-		
+
 	}
 
 	// if updated area exceeds width, move origin to left
@@ -282,7 +282,7 @@ void Video::zoom_image(QRect info)
 		int delta = x + width - image_x;
 		x = x - delta;
 	}
-	
+
 	// if updated area exceeds height, move origin up
 	if (y + height > image_y)
 	{
@@ -303,13 +303,13 @@ void Video::zoom_image(QRect info)
 
 void Video::unzoom(QPoint origin)
 {
-	
+
 	if (zoom_list.size() > 1)
 	{
 		zoom_list.pop_back();
 		update_display_frame();
 	}
-	
+
 	// resets border color when not zoomed
 	if (zoom_list.size() == 1)
 	{
@@ -320,7 +320,7 @@ void Video::unzoom(QPoint origin)
 
 std::vector<int> Video::get_position_within_zoom(int x0, int y0)
 {
-	
+
 	int num_zooms = zoom_list.size();
 	bool pt_within_area = true;
 
@@ -371,18 +371,18 @@ void Video::update_display_frame()
 	// In case update_display_frame is called before a video is fully placed 
 	if (number_of_frames < counter)
 		return;
-	
+
 	//------------------------------------------------------------------------------------------------
 
 	//Convert current frame to armadillo matrix
-	std::vector<double> frame_vector(container.something[index_current_video].frames_16bit[counter].begin(), 
+	std::vector<double> frame_vector(container.something[index_current_video].frames_16bit[counter].begin(),
 		container.something[index_current_video].frames_16bit[counter].end());
 	arma::vec image_vector(frame_vector);
 
 	//Normalize the image to values between 0 - 1
 	int max_value = std::pow(2, max_bit_level);
 	image_vector = image_vector / max_value;
-	
+
 	//------------------------------------------------------------------------------------------------
 	// Update the absolute histogram
 	histogram_plot->plot_absolute_histogram(image_vector, color_correction.get_min(), color_correction.get_max());
@@ -403,17 +403,17 @@ void Video::update_display_frame()
 
 	// Put image into 8-bit format for displaying
 	image_vector = image_vector * 255;
-	
+
 	//arma::vec out_frame_flat = arma::vectorise(image_vector);
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
 	std::vector<uint8_t> converted_values(out_vector.begin(), out_vector.end());
-	uint8_t *color_corrected_frame = converted_values.data();
+	uint8_t* color_corrected_frame = converted_values.data();
 
 	//------------------------------------------------------------------------------------------------
 
 	//------------------------------------------------------------------------------------------------
 
-	frame = QImage((uchar *)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
+	frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
 	// Convert image to format_indexed. allows color table to take effect on image
 	frame = frame.convertToFormat(QImage::Format_Indexed8);
@@ -427,7 +427,7 @@ void Video::update_display_frame()
 	for (int i = 0; i < zoom_list.size(); i++)
 	{
 		QRect sub_frame = zoom_list[i];
-		
+
 		// get sub-image
 		frame = frame.copy(sub_frame);
 
@@ -461,7 +461,7 @@ void Video::update_display_frame()
 			{
 				// draw rectangle around object				
 				QPainter rectangle_painter(&frame);
-				
+
 				int box_size = 5;
 				QRectF rectangle(x - box_size, y - box_size, box_size * 2, box_size * 2);
 
@@ -501,7 +501,7 @@ void Video::update_display_frame()
 	// ---------------------------------------------------------------------------------------
 
 	// Draw annotations
-	
+
 	int num_annotations = annotation_list.size();
 
 	// if there are annotations ...
@@ -514,7 +514,7 @@ void Video::update_display_frame()
 			annotation_info a = annotation_list[i];
 			int initial_frame_annotation = a.frame_start - a.min_frame;
 			int last_frame_annotation = initial_frame_annotation + a.num_frames;
-			
+
 			// check that current frame is within bounds
 			if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
 
@@ -548,7 +548,7 @@ void Video::update_display_frame()
 		int* r2 = new int;
 		int* c1 = new int;
 		int* c2 = new int;
-		
+
 		// get the coordinates of calculation region
 		calculation_region.getCoords(c1, r1, c2, r2);
 		std::vector<int> pt1 = get_position_within_zoom(*c1, *r1);
@@ -570,7 +570,7 @@ void Video::update_display_frame()
 			unsigned int uc1 = (unsigned int)*c1;
 			unsigned int ur2 = (unsigned int)*r2;
 			unsigned int uc2 = (unsigned int)*c2;
-			
+
 			arma::mat counts = original_mat_frame.submat(ur1, uc1, ur2, uc2);
 
 			// clear all temporary variables
@@ -578,7 +578,7 @@ void Video::update_display_frame()
 			original_frame_vector.clear();
 			original_mat_frame.clear();
 
-			double frame_integration_time = frame_headers[counter].header.int_time;  
+			double frame_integration_time = frame_headers[counter].header.int_time;
 			std::vector<double>measurements = model.measure_irradiance(*r1, *c1, *r2, *c2, counts, frame_integration_time);
 
 			// -----------------------------------------------------------------------------------
@@ -613,7 +613,7 @@ void Video::update_display_frame()
 
 			calculation_area_painter.setPen(pen_calculation_area);
 			calculation_area_painter.drawRect(zoomed_rectange);
-		}			
+		}
 	}
 
 	// Draw banner text
@@ -630,7 +630,7 @@ void Video::update_display_frame()
 	}
 
 	label->setPixmap(QPixmap::fromImage(frame));
-		
+
 	label->update();
 	label->repaint();
 
@@ -650,28 +650,28 @@ void Video::set_calibration_model(CalibrationData input)
 
 bool Video::start_recording(double fps)
 {
-	
-	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "","Video (*.avi)");
-	
+
+	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "", "Video (*.avi)");
+
 	if (file_name.isEmpty())
 		return false;
-	
+
 	std::string file_string = file_name.toLocal8Bit().constData();
-	
+
 	video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(image_x, image_y));
 
 	bool video_opened = video.isOpened();
-	
+
 	if (video_opened)
 		record_frame = true;
 
 	return video_opened;
 }
 
-void Video::add_new_frame(QImage &img, int format)
+void Video::add_new_frame(QImage& img, int format)
 {
 	QImage image = img.rgbSwapped();
-	cv::Mat output_frame(image.height(), image.width(),	format, image.bits(), image.bytesPerLine());
+	cv::Mat output_frame(image.height(), image.width(), format, image.bits(), image.bytesPerLine());
 	video.write(output_frame);
 }
 
