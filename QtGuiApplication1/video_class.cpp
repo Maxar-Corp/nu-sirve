@@ -684,7 +684,7 @@ void Video::stop_recording()
 void Video::save_frame()
 {
 	const QPixmap* pix = label->pixmap();
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "untitled.png", tr("Images (*.png)"));
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
 
 	if (!fileName.isEmpty()) {
 		//pix->save(fileName);

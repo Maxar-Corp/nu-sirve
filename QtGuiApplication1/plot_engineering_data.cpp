@@ -622,7 +622,7 @@ void QtPlotting::save_plot()
 {
 
 	QPixmap p = chart_view->grab();
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "untitled.png", tr("Images (*.png)"));
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
 	
 	if (!fileName.isEmpty())
 		p.save(fileName, "PNG");
