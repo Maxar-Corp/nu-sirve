@@ -166,6 +166,8 @@ void Annotations::edit()
 			data[index] = old_data;
 		}
 
+		repopulate_list();
+
 		if (data.size() > 0) {
 			//show_annotation(index);
 			lst_annotations->setCurrentRow(index);
