@@ -116,6 +116,7 @@ private:
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
+	void setup_connections();
 	
 };
 

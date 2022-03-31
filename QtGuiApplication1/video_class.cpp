@@ -36,27 +36,21 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
 
-	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
-	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
+	setup_connections();
 
 	label->setObjectName("video_object");
 	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 }
 
-/*
-Video::Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels)
-{
-	label = new QLabel(this);
-	text = new QLabel(this);
-
-	counter = 0;
-
-	update_video_file(video_data, x_pixels, y_pixels);
-}
-*/
 Video::~Video()
 {
 	delete  label;
+}
+
+void Video::setup_connections() {
+
+	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
+	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
 }
 
 void Video::update_video_file(int x_pixels, int y_pixels)
@@ -702,6 +696,8 @@ void Video::remove_frame()
 
 	histogram_plot->remove_histogram_plots();
 	histogram_plot->initialize_histogram_plot();
+
+	setup_connections();
 
 	frame_data.clear();
 	number_of_frames = 0;
