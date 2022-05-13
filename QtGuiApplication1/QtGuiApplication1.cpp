@@ -149,7 +149,7 @@ void QtGuiApplication1::setup_ui() {
 	
 	// Add all to tab widget
 	tab_menu->addTab(setup_file_import_tab(), "Import");
-	tab_menu->addTab(setup_color_correction_tab(), "Color");
+	tab_menu->addTab(setup_color_correction_tab(), "Color/Overlays");
 	tab_menu->addTab(setup_filter_tab(), "Processing");
 
 	QSizePolicy fixed_width;
@@ -313,7 +313,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	slider_lift = new QSlider();
 	slider_gain = new QSlider();
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset");
+	btn_reset_color_correction = new QPushButton("Reset Set Points");
 
 	QFrame* horizontal_segment4 = new QFrame();
 	horizontal_segment4->setFrameShape(QFrame::HLine);
@@ -413,7 +413,10 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	
 	cmb_tracker_color->addItems(colors);
 	cmb_text_color->addItems(colors);
-	cmb_primary_tracker_color->addItems(colors);	
+	cmb_primary_tracker_color->addItems(colors);
+
+	cmb_tracker_color->setEnabled(false);
+	cmb_primary_tracker_color->setEnabled(false);
 
 	// --------------------------------------------------------------------------
 	hlayout_osm_tracks->addWidget(chk_show_tracks);
@@ -833,6 +836,7 @@ void QtGuiApplication1::setup_connections() {
 	//---------------------------------------------------------------------------
 		
 	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_osm_tracks);
+	connect(cmb_primary_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_primary_tracker_color);
 	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_tracker_color);
 	
 	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_primary_track_data);
@@ -1718,10 +1722,15 @@ void QtGuiApplication1::edit_banner_color()
 
 void QtGuiApplication1::edit_tracker_color()
 {
-
-
 	QString tracker_color = cmb_tracker_color->currentText();
 	ir_video->update_tracker_color(tracker_color);
+	ir_video->update_display_frame();
+}
+
+void QtGuiApplication1::edit_primary_tracker_color()
+{
+	QString tracker_color = cmb_primary_tracker_color->currentText();
+	ir_video->update_tracker_primary_color(tracker_color);
 	ir_video->update_display_frame();
 }
 
