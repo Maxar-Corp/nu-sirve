@@ -363,20 +363,86 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	vlayout_tab_color->addWidget(widget_tab_color_controls);
 	vlayout_tab_color->addWidget(horizontal_segment4);
 
-	QLabel* lbl_colormap = new QLabel("Set Colormap:");
-	cmb_color_maps = new QComboBox();
 
+	 // --------------------------------------------------------------------------
+
+	QGridLayout* grid_tracker = new QGridLayout(widget_tab_color);
+	QHBoxLayout* hlayout_osm_tracks = new QHBoxLayout(widget_tab_color);
+	QHBoxLayout* hlayout_primary_track = new QHBoxLayout(widget_tab_color);
+	QHBoxLayout* hlayout_text_color = new QHBoxLayout(widget_tab_color);
+	QHBoxLayout* hlayout_color_map = new QHBoxLayout(widget_tab_color);
+
+	QLabel* lbl_colormap = new QLabel("Set Colormap:");
+	QLabel* lbl_primary_track = new QLabel("Set Primary Track Color:");
+	QLabel* lbl_text_color = new QLabel("Set Text Color:");
+
+	chk_show_tracks = new QCheckBox("Show OSM Tracks");
+	chk_primary_track_data = new QCheckBox("Show Primary Track Info");
+	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
+
+	btn_change_banner_text = new QPushButton("Change Banner Text");
+	btn_add_annotations = new QPushButton("Add/Edit Annotations");
+
+	QFrame* horizontal_segment5 = new QFrame();
+	QFrame* horizontal_segment6 = new QFrame();
+	QFrame* horizontal_segment7 = new QFrame();
+	QFrame* horizontal_segment8 = new QFrame();
+	horizontal_segment5->setFrameShape(QFrame::HLine);
+	horizontal_segment6->setFrameShape(QFrame::HLine);
+	horizontal_segment7->setFrameShape(QFrame::HLine);
+	horizontal_segment8->setFrameShape(QFrame::HLine);
+	
+	cmb_color_maps = new QComboBox();
 	int number_maps = ir_video->video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(ir_video->video_colors.maps[i].name);
 	
+	QList<QString> colors{};
+	colors.append("red");
+	colors.append("orange");
+	colors.append("yellow");
+	colors.append("green");
+	colors.append("blue");
+	colors.append("violet");
+	colors.append("black");
+	colors.append("white");
 
-	QHBoxLayout* hlayout_colormap = new QHBoxLayout(widget_tab_color);
-	hlayout_colormap->addWidget(lbl_colormap);
-	hlayout_colormap->addWidget(cmb_color_maps);
-	hlayout_colormap->insertStretch(-1, 0);
+	cmb_tracker_color = new QComboBox();
+	cmb_text_color = new QComboBox();
+	cmb_primary_tracker_color = new QComboBox();
+	
+	cmb_tracker_color->addItems(colors);
+	cmb_text_color->addItems(colors);
+	cmb_primary_tracker_color->addItems(colors);	
 
-	vlayout_tab_color->addLayout(hlayout_colormap);
+	// --------------------------------------------------------------------------
+	hlayout_osm_tracks->addWidget(chk_show_tracks);
+	hlayout_osm_tracks->addStretch();
+	hlayout_osm_tracks->addWidget(cmb_tracker_color);	
+	
+	hlayout_primary_track->addWidget(lbl_primary_track);
+	hlayout_primary_track->addStretch(); 
+	hlayout_primary_track->addWidget(cmb_primary_tracker_color);
+	
+	hlayout_text_color->addWidget(lbl_text_color);
+	hlayout_text_color->addStretch();
+	hlayout_text_color->addWidget(cmb_text_color);
+	
+	hlayout_color_map->addWidget(lbl_colormap);
+	hlayout_color_map->addStretch();
+	hlayout_color_map->addWidget(cmb_color_maps);
+	
+	vlayout_tab_color->addLayout(hlayout_osm_tracks);
+	vlayout_tab_color->addLayout(hlayout_primary_track);
+	vlayout_tab_color->addWidget(horizontal_segment5);
+	vlayout_tab_color->addWidget(chk_primary_track_data);
+	vlayout_tab_color->addWidget(chk_sensor_track_data);
+	vlayout_tab_color->addLayout(hlayout_text_color);
+	vlayout_tab_color->addWidget(btn_change_banner_text);
+	vlayout_tab_color->addWidget(horizontal_segment6);
+	vlayout_tab_color->addLayout(hlayout_color_map);
+	vlayout_tab_color->addWidget(horizontal_segment7);
+	vlayout_tab_color->addWidget(btn_add_annotations);
 
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
@@ -491,7 +557,8 @@ void QtGuiApplication1::setup_video_frame(){
 	lbl_video_frame->setAlignment(Qt::AlignLeft);
 
 	lbl_video_time_midnight = new QLabel("Time");
-	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	//lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	lbl_video_time_midnight->setAlignment(Qt::AlignRight);
 
 	lbl_fps = new QLabel("fps");
 	lbl_fps->setAlignment(Qt::AlignRight);
@@ -501,7 +568,6 @@ void QtGuiApplication1::setup_video_frame(){
 
 	hlayout_video_label_description->addWidget(lbl_video_frame);
 	hlayout_video_label_description->addWidget(lbl_video_time_midnight);
-	hlayout_video_label_description->addWidget(lbl_fps);
 
 	vlayout_frame_video->addLayout(hlayout_video_label_description);
 
@@ -544,7 +610,7 @@ void QtGuiApplication1::setup_video_frame(){
 	btn_fast_forward = new QPushButton();
 	btn_fast_forward->resize(button_video_width, button_video_height);
 	btn_fast_forward->setIcon(speed_up_icon);
-	btn_fast_forward->setToolTip("Speed Up");
+	btn_fast_forward->setToolTip("Increase FPS");
 
 	QPixmap next_frame_image("icons/skip-next.png");
 	QIcon next_frame_icon(next_frame_image);
@@ -558,7 +624,7 @@ void QtGuiApplication1::setup_video_frame(){
 	btn_slow_back = new QPushButton();
 	btn_slow_back->resize(button_video_width, button_video_height);
 	btn_slow_back->setIcon(slow_down_icon);
-	btn_slow_back->setToolTip("Slow Down");
+	btn_slow_back->setToolTip("Decrease FPS");
 
 	QPixmap prev_frame_image("icons/skip-previous.png");
 	QIcon prev_frame_icon(prev_frame_image);
@@ -580,12 +646,6 @@ void QtGuiApplication1::setup_video_frame(){
 	btn_frame_save->resize(button_video_width, button_video_height);
 	btn_frame_save->setIcon(save_frame_icon);
 	btn_frame_save->setToolTip("Save Frame");
-
-	QPixmap menu_image("icons/menu.png");
-	QIcon menu_icon(menu_image);
-	btn_video_menu = new QPushButton();
-	btn_video_menu->resize(button_video_width, button_video_height);
-	btn_video_menu->setIcon(menu_icon);
 
 	QPixmap zoom_image("icons/magnify.png");
 	QIcon zoom_icon(zoom_image);
@@ -615,9 +675,9 @@ void QtGuiApplication1::setup_video_frame(){
 	hlayout_video_buttons->addWidget(btn_play);
 	hlayout_video_buttons->addWidget(btn_next_frame);
 	hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+	hlayout_video_buttons->addWidget(lbl_fps);
 	hlayout_video_buttons->addWidget(btn_fast_forward);
 	hlayout_video_buttons->addWidget(btn_slow_back);
-	hlayout_video_buttons->addWidget(btn_video_menu);
 
 	vlayout_frame_video->addLayout(hlayout_video_buttons);
 
@@ -768,8 +828,21 @@ void QtGuiApplication1::setup_connections() {
 	//---------------------------------------------------------------------------	
 
 	QObject::connect(btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
-	QObject::connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_color_map);
 	
+	
+	//---------------------------------------------------------------------------
+		
+	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_osm_tracks);
+	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_tracker_color);
+	
+	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_primary_track_data);
+	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_sensor_track_data);
+	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_color_map);
+	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_banner_color);
+
+	connect(btn_add_annotations, &QPushButton::clicked, this, &QtGuiApplication1::annotate_video);
+	connect(btn_change_banner_text, &QPushButton::clicked, this, &QtGuiApplication1::edit_banner_text);
+
 	//---------------------------------------------------------------------------
 
 	QObject::connect(cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::toggle_video_filters);
@@ -1020,13 +1093,11 @@ void QtGuiApplication1::load_osm_data()
 		//--------------------------------------------------------------------------------
 		
 		// Reset settings on video playback to defaults
-		menu_osm->setIconVisibleInMenu(false);
 		ir_video->toggle_osm_tracks(false);
 
-		menu_add_primary_data->setIconVisibleInMenu(false);
 		ir_video->toggle_primary_track_data(false);
 
-		menu_sensor_boresight->setIconVisibleInMenu(false);
+		//menu_sensor_boresight->setIconVisibleInMenu(false);
 		ir_video->toggle_sensor_boresight_data(false);
 
 		btn_calculate_radiance->setChecked(false);
@@ -1522,50 +1593,6 @@ void QtGuiApplication1::create_menu_actions()
 {
 	QIcon on("icons/check.png");
 
-	// ------------------------- VIDEO MENU ACTIONS -------------------------
-
-	menu_osm = new QAction(tr("&Toggle OSM Tracks"), this);
-	menu_osm->setIcon(on);
-	menu_osm->setStatusTip(tr("Shows pixels OSM is tracking"));
-	menu_osm->setIconVisibleInMenu(false);
-	connect(menu_osm, &QAction::triggered, this, &QtGuiApplication1::toggle_osm_tracks);
-
-	menu_add_primary_data = new QAction(tr("&Toggle Primary Tgt Metrics"), this);
-	menu_add_primary_data->setIcon(on);
-	menu_add_primary_data->setStatusTip(tr("Shows Az/El of Primary Tgt"));
-	menu_add_primary_data->setIconVisibleInMenu(false);
-	connect(menu_add_primary_data, &QAction::triggered, this, &QtGuiApplication1::toggle_primary_track_data);
-
-	menu_sensor_boresight = new QAction(tr("&Toggle Sensor Metrics"), this);
-	menu_sensor_boresight->setIcon(on);
-	menu_sensor_boresight->setStatusTip(tr("Shows Az/El of Sensor Pointing"));
-	menu_sensor_boresight->setIconVisibleInMenu(false);
-	connect(menu_sensor_boresight, &QAction::triggered, this, &QtGuiApplication1::toggle_sensor_track_data);
-
-	menu_add_banner = new QAction(tr("&Edit Banner Text"), this);
-	menu_add_banner->setStatusTip(tr("Edit banner text to video"));
-	menu_add_banner->setIconVisibleInMenu(false);
-	connect(menu_add_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_text);
-	connect(this, &QtGuiApplication1::change_banner, ir_video, &Video::update_banner_text);
-	
-	menu_change_color_banner = new QAction(tr("&Change Text Color"), this);
-	menu_change_color_banner->setStatusTip(tr("Change frame text color"));
-	connect(menu_change_color_banner, &QAction::triggered, this, &QtGuiApplication1::edit_banner_color);
-	connect(this, &QtGuiApplication1::change_banner_color, ir_video, &Video::update_banner_color);
-
-	menu_change_color_tracker = new QAction(tr("&Change Tracker Color"), this);
-	menu_change_color_tracker->setStatusTip(tr("Change color of tracking boxes "));
-	connect(menu_change_color_tracker, &QAction::triggered, this, &QtGuiApplication1::edit_tracker_color);
-	connect(this, &QtGuiApplication1::change_tracker_color, ir_video, &Video::update_tracker_color);
-
-	menu_change_color_map = new QAction(tr("&Change Color Map"), this);
-	menu_change_color_map->setStatusTip(tr("Change color map applied to frames "));
-	connect(menu_change_color_map, &QAction::triggered, this, &QtGuiApplication1::edit_color_map);
-	
-	menu_annotate = new QAction(tr("&Annotate Video"), this);
-	menu_annotate->setStatusTip(tr("Add text to video display "));
-	connect(menu_annotate, &QAction::triggered, this, &QtGuiApplication1::annotate_video);
-	
 	// ------------------------- PLOT MENU ACTIONS -------------------------
 
 	menu_plot_all_data = new QAction(tr("&Plot all frame data"), this);
@@ -1591,26 +1618,14 @@ void QtGuiApplication1::create_menu_actions()
 	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
 
 	// ---------------------- Set Acctions to Menu --------------------
-
-	menu = new QMenu(this);
-	menu->addAction(menu_osm);
-	menu->addAction(menu_add_primary_data);
-	menu->addAction(menu_sensor_boresight);
-	menu->addAction(menu_add_banner);
-	menu->addAction(menu_change_color_banner);
-	menu->addAction(menu_change_color_tracker);
-	//menu->addAction(menu_change_color_map);
-	menu->addAction(menu_annotate);
-
+	
 	plot_menu = new QMenu(this);
 	plot_menu->addAction(menu_plot_all_data);
 	plot_menu->addAction(menu_plot_primary);
 	plot_menu->addAction(menu_plot_frame_marker);
 	plot_menu->addAction(menu_plot_edit_banner);
 
-	btn_video_menu->setMenu(menu);
 	btn_plot_menu->setMenu(plot_menu);
-
 
 }
 
@@ -1682,27 +1697,6 @@ int QtGuiApplication1::get_color_index(QVector<QString> colors, QColor input_col
 
 void QtGuiApplication1::edit_color_map()
 {
-	/*
-	QVector<QString>color_maps{};
-	int number_maps = ir_video->video_colors.maps.size();
-
-	for (int i = 0; i < number_maps; i++)
-		color_maps.append(ir_video->video_colors.maps[i].name);
-
-	int initial_index = ir_video->index_video_color;
-	
-	CustomInputDialog color_map_dialog(color_maps, QString("Update Colormap"), QString("Available Colormaps:"), initial_index);
-	connect(color_map_dialog.cmb_options, &QComboBox::currentTextChanged, ir_video, &Video::update_color_map);
-
-	auto response = color_map_dialog.exec();
-
-	if (response == 0) {
-
-		ir_video->update_color_map(color_maps[initial_index]);
-
-		return;
-	}
-	*/
 
 	int index = cmb_color_maps->currentIndex();
 	QString color = cmb_color_maps->currentText();
@@ -1713,59 +1707,22 @@ void QtGuiApplication1::edit_color_map()
 void QtGuiApplication1::edit_banner_color()
 {
 	
-	QVector<QString>colors{};
+	int index = cmb_text_color->currentIndex();
+	QString color = cmb_text_color->currentText();
 
-	colors.append("red");
-	colors.append("orange");
-	colors.append("yellow");
-	colors.append("green");
-	colors.append("blue");
-	colors.append("violet");
-	colors.append("black");
-	colors.append("white");
+	ir_video->update_banner_color(color);
 
-	int initial_index = get_color_index(colors, ir_video->banner_color);
-
-	CustomInputDialog banner_color_dialog(colors, QString("Update Banner Colors"), QString("Available Colors:"), initial_index);
-	connect(banner_color_dialog.cmb_options, &QComboBox::currentTextChanged, ir_video, &Video::update_banner_color);
-
-	auto response = banner_color_dialog.exec();
-
-	if (response == 0) {
-
-		ir_video->update_banner_color(colors[initial_index]);
-
-		return;
-	}
+	return;
+	//}
 }
 
 void QtGuiApplication1::edit_tracker_color()
 {
 
-	QVector<QString> colors{};
-	colors.append("red");
-	colors.append("orange");
-	colors.append("yellow");
-	colors.append("green");
-	colors.append("blue");
-	colors.append("violet");
-	colors.append("black");
-	colors.append("white");
 
-	int initial_index = get_color_index(colors, ir_video->tracker_color);
-
-	CustomInputDialog tracker_color_dialog(colors, QString("Update Tracker Colors"), QString("Available Colors:"), initial_index);
-	connect(tracker_color_dialog.cmb_options, &QComboBox::currentTextChanged, ir_video, &Video::update_tracker_color);
-
-	auto response = tracker_color_dialog.exec();
-
-	if (response == 0) {
-
-		ir_video->update_tracker_color(colors[initial_index]);
-
-		return;
-	}
-
+	QString tracker_color = cmb_tracker_color->currentText();
+	ir_video->update_tracker_color(tracker_color);
+	ir_video->update_display_frame();
 }
 
 void QtGuiApplication1::plot_change(int index)
@@ -2193,31 +2150,27 @@ void QtGuiApplication1::create_deinterlace()
 
 void QtGuiApplication1::toggle_osm_tracks()
 {
-	bool current_status = menu_osm->isIconVisibleInMenu();
-	
-	if (current_status) {
-		menu_osm->setIconVisibleInMenu(false);
-	}
-	else {
-		menu_osm->setIconVisibleInMenu(true);
-	}
-	
-	ir_video->toggle_osm_tracks(!current_status);
-	ir_video->update_display_frame();
 
+	bool current_status = ir_video->plot_tracks;
+	ir_video->toggle_osm_tracks(!current_status);
+	
+	if (!current_status) {
+		cmb_tracker_color->setEnabled(true);
+		cmb_primary_tracker_color->setEnabled(true);
+	}
+	else
+	{
+		cmb_tracker_color->setEnabled(false);
+		cmb_primary_tracker_color->setEnabled(false);
+	}
+	
+	ir_video->update_display_frame();
 }
 
 void QtGuiApplication1::toggle_primary_track_data()
 {
 
-	bool current_status = menu_add_primary_data->isIconVisibleInMenu();
-
-	if (current_status) {
-		menu_add_primary_data->setIconVisibleInMenu(false);
-	}
-	else {
-		menu_add_primary_data->setIconVisibleInMenu(true);
-	}
+	bool current_status = ir_video->display_tgt_pos_txt;
 
 	ir_video->toggle_primary_track_data(!current_status);
 	ir_video->update_display_frame();
@@ -2227,15 +2180,7 @@ void QtGuiApplication1::toggle_primary_track_data()
 void QtGuiApplication1::toggle_sensor_track_data()
 {
 
-
-	bool current_status = menu_sensor_boresight->isIconVisibleInMenu();
-
-	if (current_status) {
-		menu_sensor_boresight->setIconVisibleInMenu(false);
-	}
-	else {
-		menu_sensor_boresight->setIconVisibleInMenu(true);
-	}
+	bool current_status = ir_video->display_boresight_txt;
 
 	ir_video->toggle_sensor_boresight_data(!current_status);
 	ir_video->update_display_frame();
@@ -2562,7 +2507,6 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 {
 	btn_fast_forward->setEnabled(input);
 	btn_slow_back->setEnabled(input);
-	btn_video_menu->setEnabled(input);
 
 	btn_frame_record->setEnabled(input);
 	btn_frame_save->setEnabled(input);
@@ -2574,7 +2518,6 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	btn_next_frame->setEnabled(input);
 	btn_prev_frame->setEnabled(input);
 	btn_reverse->setEnabled(input);
-	btn_video_menu->setEnabled(input);
 
 	if (input)
 	{

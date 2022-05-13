@@ -91,6 +91,10 @@ public:
 	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
+	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data;
+	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
+	QPushButton* btn_change_banner_text, * btn_add_annotations;
+
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
 
