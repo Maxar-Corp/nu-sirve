@@ -77,7 +77,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, *lbl_current_epoch;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, *lbl_zulu_time, *lbl_current_epoch;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	QLineEdit* txt_start_frame, * txt_end_frame, * txt_nuc_start, * txt_nuc_stop, * txt_bgs_num_frames;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc, * btn_calibration_dialog,
