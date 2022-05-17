@@ -560,8 +560,9 @@ void QtGuiApplication1::setup_video_frame(){
 	lbl_video_frame->setAlignment(Qt::AlignLeft);
 
 	lbl_video_time_midnight = new QLabel("Time");
-	//lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
-	lbl_video_time_midnight->setAlignment(Qt::AlignRight);
+	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	lbl_zulu_time = new QLabel("Zulu");
+	lbl_zulu_time->setAlignment(Qt::AlignRight);
 
 	lbl_fps = new QLabel("fps");
 	lbl_fps->setAlignment(Qt::AlignRight);
@@ -571,6 +572,7 @@ void QtGuiApplication1::setup_video_frame(){
 
 	hlayout_video_label_description->addWidget(lbl_video_frame);
 	hlayout_video_label_description->addWidget(lbl_video_time_midnight);
+	hlayout_video_label_description->addWidget(lbl_zulu_time);
 
 	vlayout_frame_video->addLayout(hlayout_video_label_description);
 
@@ -1899,6 +1901,30 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 		QString seconds_text("From Midnight ");
 		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
 		lbl_video_time_midnight->setText(seconds_text);
+
+		// ------------------------------------------------------------------------------------
+		int hour = seconds_midnight / 3600;
+		int minutes = (seconds_midnight - hour * 3600) / 60;
+		double seconds = seconds_midnight - hour * 3600 - minutes * 60;
+
+		QString zulu_time("");
+		if (hour < 10)
+			zulu_time.append("0");
+		zulu_time.append(QString::number(hour));
+		zulu_time.append(":");
+
+		if (minutes < 10)
+			zulu_time.append("0");
+		zulu_time.append(QString::number(minutes));
+		zulu_time.append(":");
+
+		if (seconds < 10)
+			zulu_time.append("0");
+		zulu_time.append(QString::number(seconds, 'f', 3));
+
+		zulu_time.append("Z");
+		lbl_zulu_time->setText(zulu_time);
+
 	}
 
 }
@@ -1912,6 +1938,8 @@ void QtGuiApplication1::clear_frame_label()
 	QString seconds_text("");
 	lbl_video_time_midnight->setText(seconds_text);
 
+	QString zulu_text("");
+	lbl_zulu_time->setText(zulu_text);
 }
 
 
@@ -2537,6 +2565,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 		playback_controller->stop_timer();
 		slider_video->setValue(1);
 		lbl_video_time_midnight->setText("");
+		lbl_zulu_time->setText("");
 		lbl_video_frame->setText("");
 		lbl_fps->setText("");
 	}
