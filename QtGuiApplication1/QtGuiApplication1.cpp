@@ -2633,7 +2633,7 @@ bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
 	{
 		if (min_frame < 0)
 			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << txt_nuc_start->text().toLocal8Bit().constData();
-		if (min_frame < 0)
+		if (max_frame < 0)
 			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << txt_nuc_stop->text().toLocal8Bit().constData();
 		
 		QMessageBox msgBox;
