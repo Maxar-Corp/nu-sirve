@@ -30,6 +30,8 @@ class ExternalNUCInformationWidget : public QDialog
 public:
 	ExternalNUCInformationWidget();
 	~ExternalNUCInformationWidget();
+	Process_File file_data;
+	int start_frame, stop_frame;
 
 public slots:
 
@@ -38,11 +40,9 @@ public slots:
 private:
 
 	QString file_path, instructions;
-	Process_File file_data;
+	
 	Engineering_Data *engineering_data;
-	Engineering_Plots* plot_data;
-
-	int start_frame, stop_frame;
+	Engineering_Plots* plot_data;	
 
 	QPushButton* btn_load_file, *btn_load_frames, *btn_close;
 	QLabel * lbl_data, *lbl_instructions;
