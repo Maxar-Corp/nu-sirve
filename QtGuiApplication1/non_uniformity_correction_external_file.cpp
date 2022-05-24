@@ -17,7 +17,7 @@ void ExternalNUCInformationWidget::initialize_gui()
 {
     mainLayout = new QGridLayout();
 
-    instructions = "Open the desired *.abpimage file corresponding to the frames to use with the NUC. When frames have been identified load frames into NUC.";
+    instructions = "Open the desired *.abpimage file corresponding to the frames to use with the NUC. When frames have been identified, 'Load Frames' for the NUC.";
    
     lbl_instructions = new QLabel(instructions);
     lbl_instructions->setWordWrap(true);
@@ -101,7 +101,7 @@ void ExternalNUCInformationWidget::plot_osm()
     plot_data->past_epoch = engineering_data->seconds_from_epoch;
     plot_data->index_sub_plot_xmin = 0;
     plot_data->index_sub_plot_xmax = plot_data->frame_numbers.size() - 1;
-    plot_data->set_plot_title("Irradiance Counts");
+    plot_data->set_plot_title("");
 
     plot_data->track_irradiance_data = engineering_data->track_irradiance_data;
     frame_layout->addWidget(plot_data->chart_view);
@@ -132,21 +132,22 @@ void ExternalNUCInformationWidget::get_frames()
     // get min frame for nuc while limiting input between 1 and total messages
     start_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt1, 1, 1, num_messages, 1, &ok);
     if (!ok)
-        close();
+        return;
 
     // get max frame for nuc while limiting input between min and total messages
     stop_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt2, start_frame, start_frame, num_messages, 1, &ok);
     if (!ok)
-        close();
+        return;
 
+    done(QDialog::Accepted);
 }
 
 void ExternalNUCInformationWidget::close_window()
 {
-
+    done(QDialog::Rejected);
 }
 
 void ExternalNUCInformationWidget::closeEvent(QCloseEvent* event)
 {
-
+    close_window();
 }
