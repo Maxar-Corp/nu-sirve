@@ -123,7 +123,7 @@ public:
 	QString create_epoch_string(std::vector<double> new_epoch);
 	void clear_frame_label();
 
-	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame, double version);
+	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	signals:
 		void change_banner(QString banner_text);

@@ -2019,65 +2019,23 @@ void QtGuiApplication1::apply_epoch_time()
 
 void QtGuiApplication1::create_non_uniformity_correction_from_external_file()
 {
+	ExternalNUCInformationWidget external_nuc_dialog;
 
-	QMessageBox msgBox;
-	msgBox.setWindowTitle(QString("NUC Correction from External File"));
-	QString box_text = "Select the external *.abpimage file and the start/end frames for the ";
-	msgBox.setText(box_text);
+	auto response = external_nuc_dialog.exec();
 
-	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-	msgBox.setDefaultButton(QMessageBox::Ok);
-	int response = msgBox.exec();
-
-	if (response == 1)
-		return;
-
-	Process_File temp_file_data;
-	temp_file_data.load_osm_file();
-	
-	// check that osm and image files are present
-	if (!temp_file_data.valid_osm || !temp_file_data.valid_image)
-	{
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("NUC Correction from External File"));
-		QString box_text = "OSM and image file could not be found in the same directory. Select a new file and try again.";
-		msgBox.setText(box_text);
-		msgBox.setIcon(QMessageBox::Warning);
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+	if (response == 0) {
 
 		return;
 	}
 
-	// get total number of frames
-	int num_messages = temp_file_data.osm_data.num_messages;
-
-	QString prompt1 = "Start Frame (";
-	prompt1.append(QString::number(num_messages));
-	prompt1.append(" frames total)");
-
-	QString prompt2 = "Stop Frame (";
-	prompt2.append(QString::number(num_messages));
-	prompt2.append(" frames total)");
-
-	bool ok;
-
-	// get min frame for nuc while limiting input between 1 and total messages
-	int min_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt1, 1, 1, num_messages, 1, &ok);
-	if (!ok)
-		return;
-
-	// get max frame for nuc while limiting input between min and total messages
-	int max_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt2, min_frame, min_frame, num_messages, 1, &ok);
-	if (!ok)
-		return;
+	QString image_path = external_nuc_dialog.file_data.image_path;
+	unsigned int min_frame = external_nuc_dialog.start_frame;
+	unsigned int max_frame = external_nuc_dialog.stop_frame;
 
 	try {
 
 		// assumes file version is same as base file opened
-		create_non_uniformity_correction(temp_file_data.image_path, min_frame, max_frame, file_data.file_version);
+		create_non_uniformity_correction(image_path, min_frame, max_frame);
 	}
 	catch (const std::exception& e)
 	{
@@ -2114,15 +2072,15 @@ void QtGuiApplication1::create_non_uniformity_correction_from_same_file()
 		return;
 	}
 
-	create_non_uniformity_correction(file_data.image_path, min_frame, max_frame, file_data.file_version);
+	create_non_uniformity_correction(file_data.image_path, min_frame, max_frame);
 
 }
 
-void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame, double version)
+void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
 	//----------------------------------------------------------------------------------------------------
 
-	NUC nuc(file_path, min_frame, max_frame, version);
+	NUC nuc(file_path, min_frame, max_frame, file_data.file_version);
 	std::vector<double> nuc_correction = nuc.get_nuc_correction();
 
 	if (nuc_correction.size() == 0)
