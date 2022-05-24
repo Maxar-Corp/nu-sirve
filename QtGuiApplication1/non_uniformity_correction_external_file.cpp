@@ -1,0 +1,152 @@
+#include "non_uniformity_correction_external_file.h"
+
+ExternalNUCInformationWidget::ExternalNUCInformationWidget()
+{
+
+    initialize_gui();
+	engineering_data = NULL;
+    
+    this->show();
+}
+
+ExternalNUCInformationWidget::~ExternalNUCInformationWidget()
+{
+}
+
+void ExternalNUCInformationWidget::initialize_gui()
+{
+    mainLayout = new QGridLayout();
+
+    instructions = "Open the desired *.abpimage file corresponding to the frames to use with the NUC. When frames have been identified load frames into NUC.";
+   
+    lbl_instructions = new QLabel(instructions);
+    lbl_instructions->setWordWrap(true);
+
+    btn_load_file = new QPushButton("Load OSM File");
+    btn_load_frames = new QPushButton("Load Frames");
+    btn_load_frames->setEnabled(false);
+    btn_close = new QPushButton("Cancel");
+
+    QSizePolicy sp_frame(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+    frame_plot = new FixedAspectRatioFrame(this);
+    frame_plot->enable_fixed_aspect_ratio(true);
+    frame_plot->setSizePolicy(sp_frame);
+
+    frame_layout = new QVBoxLayout();
+    frame_plot->setLayout(frame_layout);
+
+    lbl_instructions->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    btn_load_file->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);   
+    btn_load_frames->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+        
+    mainLayout->addWidget(lbl_instructions, 0, 0);
+    mainLayout->addWidget(btn_load_file, 1, 0);
+    mainLayout->addWidget(frame_plot, 2, 0);
+    mainLayout->addWidget(btn_load_frames, 3, 0);
+
+    this->setLayout(mainLayout);
+
+    QObject::connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_osm_file);
+    QObject::connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_frames);
+    QObject::connect(btn_close, &QPushButton::clicked, this, &ExternalNUCInformationWidget::close);
+}
+
+void ExternalNUCInformationWidget::get_osm_file()
+{
+    file_data.load_osm_file();
+
+    // check that osm and image files are present
+    if (!file_data.valid_osm || !file_data.valid_image)
+    {
+
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(QString("NUC Correction from External File"));
+        QString box_text = "OSM and image file could not be found in the same directory. Select a new file and try again.";
+        msgBox.setText(box_text);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.exec();
+
+        return;
+    }
+
+    plot_osm();
+
+}
+
+void ExternalNUCInformationWidget::plot_osm()
+{
+
+    if (engineering_data != NULL) {
+
+        // delete objects with existing data within them
+        frame_layout->removeWidget(plot_data->chart_view);
+        delete engineering_data;
+    }
+
+    int width, height;
+    width = this->width();
+    height = this->height();
+
+    if (height < 500)
+        this->resize(500, 500);
+
+    engineering_data = new Engineering_Data(file_data.osm_data.data);
+    plot_data = new Engineering_Plots();
+
+    plot_data->frame_numbers = engineering_data->frame_numbers;
+    plot_data->past_midnight = engineering_data->seconds_from_midnight;
+    plot_data->past_epoch = engineering_data->seconds_from_epoch;
+    plot_data->index_sub_plot_xmin = 0;
+    plot_data->index_sub_plot_xmax = plot_data->frame_numbers.size() - 1;
+    plot_data->set_plot_title("Irradiance Counts");
+
+    plot_data->track_irradiance_data = engineering_data->track_irradiance_data;
+    frame_layout->addWidget(plot_data->chart_view);
+
+    plot_data->toggle_yaxis_log(true);
+    plot_data->plot_irradiance(engineering_data->max_number_tracks);
+
+    btn_load_frames->setEnabled(true);    
+    
+}
+
+void ExternalNUCInformationWidget::get_frames()
+{
+    
+    // get total number of frames
+    int num_messages = file_data.osm_data.num_messages;
+
+    QString prompt1 = "Start Frame (";
+    prompt1.append(QString::number(num_messages));
+    prompt1.append(" frames total)");
+
+    QString prompt2 = "Stop Frame (";
+    prompt2.append(QString::number(num_messages));
+    prompt2.append(" frames total)");
+
+    bool ok;
+
+    // get min frame for nuc while limiting input between 1 and total messages
+    start_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt1, 1, 1, num_messages, 1, &ok);
+    if (!ok)
+        close();
+
+    // get max frame for nuc while limiting input between min and total messages
+    stop_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt2, start_frame, start_frame, num_messages, 1, &ok);
+    if (!ok)
+        close();
+
+}
+
+void ExternalNUCInformationWidget::close_window()
+{
+
+}
+
+void ExternalNUCInformationWidget::closeEvent(QCloseEvent* event)
+{
+
+}
