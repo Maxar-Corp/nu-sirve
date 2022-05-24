@@ -138,6 +138,9 @@
     <ClCompile Include="abpnuc_reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="non_uniformity_correction_external_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="QtGuiApplication1.h">
@@ -198,6 +201,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="calibration_data.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="non_uniformity_correction_external_file.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
