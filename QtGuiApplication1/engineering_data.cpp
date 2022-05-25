@@ -71,7 +71,7 @@ void Engineering_Data::write_track_date_to_csv(std::string save_path)
 	std::string epoch_seconds, track_id, azimuth, elevation, counts;
 
 	// export header
-	myfile << "Epoch Second, Track ID, Azimuth (deg), Elevation (deg), Sensor Counts" << std::endl;
+	myfile << "Epoch Second,Track ID,Azimuth (deg),Elevation (deg),Sensor Counts" << std::endl;
 
 	for (unsigned int i = 0; i < num_frames; i++)
 	{
