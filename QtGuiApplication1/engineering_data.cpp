@@ -62,6 +62,44 @@ std::vector<double> Engineering_Data::get_adj_epoch(double num_days)
 	return out;
 }
 
+void Engineering_Data::write_track_date_to_csv(std::string save_path)
+{
+	std::ofstream myfile;
+	myfile.open(save_path);
+
+	unsigned int num_frames = frame_data.size();
+	std::string epoch_seconds, track_id, azimuth, elevation, counts;
+
+	// export header
+	myfile << "Epoch Second, Track ID, Azimuth (deg), Elevation (deg), Sensor Counts" << std::endl;
+
+	for (unsigned int i = 0; i < num_frames; i++)
+	{
+		
+		epoch_seconds = std::to_string(frame_data[i].seconds_past_midnight);
+		track_id = std::to_string(0);
+		azimuth = std::to_string(frame_data[i].azimuth_sensor);
+		elevation = std::to_string(frame_data[i].elevation_sensor);
+		counts = std::to_string(0);
+
+		myfile << epoch_seconds << ", " << track_id << ", " << azimuth  << ", " << elevation << ", " << counts << std::endl;
+
+		unsigned int num_points = frame_data[i].ir_data.size();
+		for (unsigned int j = 0; j < num_points; j++)
+		{
+			track_id = std::to_string(frame_data[i].ir_data[j].track_id);
+			azimuth = std::to_string(frame_data[i].ir_data[j].azimuth);
+			elevation = std::to_string(frame_data[i].ir_data[j].elevation);
+			counts = std::to_string(frame_data[i].ir_data[j].irradiance);
+
+			myfile << epoch_seconds << ", " << track_id << ", " << azimuth << ", " << elevation << ", " << counts << std::endl;
+		}
+
+	}
+
+	myfile.close();
+}
+
 void Engineering_Data::extract_engineering_data()
 {
 	for (unsigned int i = 0; i < osm.size(); i++) {
@@ -117,7 +155,6 @@ void Engineering_Data::extract_engineering_data()
 		seconds_from_epoch.push_back(osm[i].data.seconds_past_midnight);
 		frame_numbers.push_back(i + 1);
 	}
-
 }
 
 void Engineering_Data::fill_irradiance_vector()
