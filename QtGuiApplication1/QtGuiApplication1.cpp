@@ -1590,6 +1590,10 @@ void QtGuiApplication1::create_menu_actions()
 	menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
 	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
 
+	menu_plot_edit_banner = new QAction(tr("&Export Tracking Data"), this);
+	menu_plot_edit_banner->setStatusTip(tr("Export the plotted data to file"));
+	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::export_plot_data);
+
 	// ---------------------- Set Acctions to Menu --------------------
 
 	menu = new QMenu(this);
@@ -1660,6 +1664,47 @@ void QtGuiApplication1::edit_plot_text()
 	else {
 		DEBUG << "GUI: Plot header text change cancelled";
 	}
+}
+
+void QtGuiApplication1::export_plot_data()
+{
+	
+	QStringList items;
+	items << "Export All Data" << "Export Only Selected Data";
+
+	bool ok;
+	QString item = QInputDialog::getItem(this, "Export Data", "Select Data to Export", items, 0, false, &ok);
+	
+	if (!ok && !item.isEmpty())
+		return;
+
+	QString path = QFileDialog::getSaveFileName(this, ("Save File"), "", ("csv(*.csv)"));
+	std::string save_path = path.toStdString();
+
+	if (path.size() == 0)
+		return;
+
+	int min_frame, max_frame;
+	if (item == "Export All Data") 
+	{
+		min_frame = 0;
+		max_frame = eng_data->frame_data.size() - 1;
+
+		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
+	}
+	else {
+		min_frame = data_plots->index_sub_plot_xmin;
+		max_frame = data_plots->index_sub_plot_xmax;
+
+		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
+	}
+
+	QMessageBox msgBox;
+	msgBox.setWindowTitle("Export Data");
+	msgBox.setText("Successfully exported track data to file");
+	msgBox.setStandardButtons(QMessageBox::Ok);
+	msgBox.setDefaultButton(QMessageBox::Ok);
+	msgBox.exec();
 }
 
 int QtGuiApplication1::get_color_index(QVector<QString> colors, QColor input_color) {
