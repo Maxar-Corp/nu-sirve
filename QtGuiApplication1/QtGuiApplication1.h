@@ -194,6 +194,7 @@ private:
 	void edit_color_map();
 	void edit_banner_text();
 	void edit_plot_text();
+	void export_plot_data();
 	void edit_banner_color();
 	void edit_tracker_color();
 	void plot_change(int index);
