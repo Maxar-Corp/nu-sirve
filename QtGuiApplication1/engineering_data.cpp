@@ -62,18 +62,20 @@ std::vector<double> Engineering_Data::get_adj_epoch(double num_days)
 	return out;
 }
 
-void Engineering_Data::write_track_date_to_csv(std::string save_path)
+void Engineering_Data::write_track_date_to_csv(std::string save_path, int min_frame, int max_frame)
 {
 	std::ofstream myfile;
 	myfile.open(save_path);
 
-	unsigned int num_frames = frame_data.size();
+	unsigned int initial_frame = min_frame;
+	unsigned int final_frame = max_frame;
+
 	std::string epoch_seconds, track_id, azimuth, elevation, counts;
 
 	// export header
 	myfile << "Epoch Second,Track ID,Azimuth (deg),Elevation (deg),Sensor Counts" << std::endl;
 
-	for (unsigned int i = 0; i < num_frames; i++)
+	for (unsigned int i = initial_frame; i <= final_frame; i++)
 	{
 		
 		epoch_seconds = std::to_string(frame_data[i].seconds_past_midnight);
