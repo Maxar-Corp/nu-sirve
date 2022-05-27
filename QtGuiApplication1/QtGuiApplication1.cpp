@@ -1082,7 +1082,7 @@ void QtGuiApplication1::load_abir_data()
 		INFO << "GUI: No video loaded";
 		return;
 	}
-	
+
 	//-----------------------------------------------------------------------------------
 
 	DEBUG << "GUI: Frame numbers are valid";
@@ -1090,13 +1090,13 @@ void QtGuiApplication1::load_abir_data()
 	//---------------------------------------------------------------------------
 
 	// Load the ABIR data
-	
+	playback_controller->stop_timer();
 	ir_video->container.something.clear();
-	
+
 	// Create the video properties data
 	video_details primary;
 	primary.properties[Video_Parameters::original] = true;
-		
+
 	INFO << "GUI: Reading in video data";
 	primary.set_number_of_bits(max_used_bits);
 
@@ -1141,12 +1141,12 @@ void QtGuiApplication1::load_abir_data()
 		btn_get_frames->setEnabled(true);
 		return;
 	}
-		
+
 	int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
 	int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
-	
+
 	ir_video->clear_all_zoom_levels(x_pixels, y_pixels);
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
@@ -1154,7 +1154,7 @@ void QtGuiApplication1::load_abir_data()
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
-	
+
 	int number_frames = primary.frames_16bit.size();
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
@@ -1169,16 +1169,19 @@ void QtGuiApplication1::load_abir_data()
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
-	slider_video->setRange(0, number_frames);	
+	slider_video->setRange(0, number_frames);
 
 	//---------------------------------------------------------------------------
 	// Set the video and histogram plots to this data
-	ir_video->container.display_original_data();	
+	ir_video->container.display_original_data();
+
 	
-	//playback_controller->start_timer();
 	// Start threads...
-	thread_video.start();
-	thread_timer.start();
+	if (!thread_timer.isRunning())
+	{
+		thread_video.start();
+		thread_timer.start();
+	}
 
 	std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;
 	std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame) + (max_frame - min_frame);
