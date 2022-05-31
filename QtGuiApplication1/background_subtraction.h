@@ -8,11 +8,11 @@
 #include <armadillo>
 #include <qstring.h>
 
-class BackgroundSubtraction
+class AdaptiveNoiseSuppression
 {
 public:
-	BackgroundSubtraction(int number_of_frames_input);
-	~BackgroundSubtraction();
+	AdaptiveNoiseSuppression(int number_of_frames_input);
+	~AdaptiveNoiseSuppression();
 
 	int number_of_frames;
 

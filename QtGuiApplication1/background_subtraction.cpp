@@ -1,15 +1,15 @@
 #include "background_subtraction.h"
 
-BackgroundSubtraction::BackgroundSubtraction(int number_of_frames_input)
+AdaptiveNoiseSuppression::AdaptiveNoiseSuppression(int number_of_frames_input)
 {
 	number_of_frames = number_of_frames_input;
 }
 
-BackgroundSubtraction::~BackgroundSubtraction()
+AdaptiveNoiseSuppression::~AdaptiveNoiseSuppression()
 {
 }
 
-std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_details & original)
+std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_details & original)
 {
 	INFO << "Background Subtraction: Process started";
 
@@ -68,7 +68,7 @@ std::vector<std::vector<double>> BackgroundSubtraction::get_correction(video_det
 	return out;
 }
 
-std::vector<uint16_t> BackgroundSubtraction::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction)
+std::vector<uint16_t> AdaptiveNoiseSuppression::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction)
 {
 
 	std::vector<double> converted_values(frame.begin(), frame.end());
