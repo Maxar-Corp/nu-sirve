@@ -2582,8 +2582,15 @@ void QtGuiApplication1::toggle_video_filters()
 
 	show_available_filter_options();
 
-	if (request_exists)
+	if (request_exists) {
 		ir_video->container.display_data(user_requested);
+
+		bool background_subtraction_active = user_requested.properties[Video_Parameters::background_subtraction];
+		if (background_subtraction_active) {
+			slider_lift->setValue(0);
+			slider_gain->setValue(1);
+		}
+	}
 	else {
 		video_details updated_user_request = get_current_filter_state();
 		ir_video->container.display_data(updated_user_request);
