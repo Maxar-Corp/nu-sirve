@@ -11,10 +11,10 @@
 class AdaptiveNoiseSuppression
 {
 public:
-	AdaptiveNoiseSuppression(int number_of_frames_input);
+	AdaptiveNoiseSuppression(int start_frame, int number_of_frames_input);
 	~AdaptiveNoiseSuppression();
 
-	int number_of_frames;
+	int number_of_frames, relative_start_frame;
 
 	std::vector<std::vector<double>> get_correction(video_details & original);
 	std::vector<uint16_t> apply_correction(std::vector<uint16_t> frame, std::vector<double> correction);

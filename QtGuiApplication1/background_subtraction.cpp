@@ -1,7 +1,8 @@
 #include "background_subtraction.h"
 
-AdaptiveNoiseSuppression::AdaptiveNoiseSuppression(int number_of_frames_input)
+AdaptiveNoiseSuppression::AdaptiveNoiseSuppression(int start_frame, int number_of_frames_input)
 {
+	relative_start_frame = start_frame;
 	number_of_frames = number_of_frames_input;
 }
 
@@ -31,28 +32,50 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_
 
 	progress.setMinimumWidth(300);
 
+	// initialize noise frames
+	int index_first_frame, index_last_frame;
+	if (relative_start_frame < 0) {
+		index_first_frame = 0;
+		index_last_frame = number_of_frames - 1;
+	}
+	else {
+		index_first_frame = relative_start_frame - (number_of_frames - 1);
+		index_last_frame = relative_start_frame;
+	}
+	
+	for (int i = index_last_frame; i >= index_first_frame; i--)
+	{
+		std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
+		arma::vec frame_vector(frame_values);
+
+		if (i == index_last_frame)
+			frame_data.col(0) = frame_vector;
+		else
+			frame_data.insert_cols(0, frame_vector);
+	}
+	
+	//iterate through frames to calculate suppression for each individual frame
 	for (int i = 0; i < num_video_frames; i++)
 	{
 		DEBUG << "Background Subtraction: Processing adjustment for frame #" << i + 1;
 		progress.setValue(i);
 
-		std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
-		arma::vec frame_vector(frame_values);
+		if (i > 0) {
 
-		if (i == 0)
-		{
-			frame_data.col(0) = frame_vector;
-		}
-		else
-		{
-			int num_cols = frame_data.n_cols;
-			frame_data.insert_cols(num_cols, frame_vector);
+			index_first_frame = i + relative_start_frame - (number_of_frames - 1);
+			index_last_frame = i + relative_start_frame;
+			
+			if (index_first_frame > 0 && index_last_frame < num_video_frames)
+			{
+				std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
+				arma::vec frame_vector(frame_values);
 
-			if (num_cols >= number_of_frames)
+				int num_cols = frame_data.n_cols;
+				frame_data.insert_cols(num_cols, frame_vector);
 				frame_data.shed_col(0);
-
+			}
 		}
-		
+
 		DEBUG << "Background Subtraction: Value of first pixel of the last frame used is " << std::to_string(frame_data(0, 0));
 
 		// Take the mean of each row
