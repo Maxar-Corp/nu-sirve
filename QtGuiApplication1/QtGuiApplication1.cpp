@@ -224,7 +224,7 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 	horizontal_segment1->setFrameShape(QFrame::HLine);
 
 	QGridLayout* grid_import_file = new QGridLayout();
-	grid_import_file->addWidget(lbl_file_name, 0, 0);
+	grid_import_file->addWidget(lbl_file_name, 0, 0, 1, 2);
 	grid_import_file->addWidget(btn_load_osm, 1, 0);
 	grid_import_file->addWidget(btn_copy_directory, 1, 1);
 	grid_import_file->addWidget(btn_calibration_dialog, 2, 0, 1, 2);
@@ -307,7 +307,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	QWidget* widget_tab_color_sliders = new QWidget(tab_menu);
 	QWidget* widget_tab_color_controls = new QWidget(tab_menu);
 	QLabel* label_lift = new QLabel("Dark \nSet Point");
-	QLabel* label_gain = new QLabel("Ligt \nSet Point");
+	QLabel* label_gain = new QLabel("Light \nSet Point");
 	lbl_lift_value = new QLabel("0.0");
 	lbl_gain_value = new QLabel("1.0");
 	slider_lift = new QSlider();
@@ -389,14 +389,11 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
 	
-	QLabel* label_nuc = new QLabel("Non-Uniformity Correction (NUC)");
-	QLabel* label_nuc_start = new QLabel("Start Frame");
-	QLabel* label_nuc_stop = new QLabel("Stop Frame");
-	txt_nuc_start = new QLineEdit();
-	txt_nuc_stop = new QLineEdit();
-	btn_create_nuc = new QPushButton("Create NUC");
-	btn_create_nuc_external = new QPushButton("Create NUC from External File");
-	chk_apply_nuc = new QCheckBox("Apply NUC");
+	QLabel* label_nuc = new QLabel("Fixed Background Suppression");
+	lbl_fixed_suppression = new QLabel("No Frames Selected");
+
+	btn_create_nuc = new QPushButton("Create Filter");
+	chk_apply_nuc = new QCheckBox("Apply Filter");
 
 	QFrame* horizontal_segment5 = new QFrame();
 	horizontal_segment5->setFrameShape(QFrame::HLine);
@@ -405,14 +402,10 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
 
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(label_nuc_start, 1, 0);
-	grid_tab_processing_nuc->addWidget(label_nuc_stop, 1, 1);
-	grid_tab_processing_nuc->addWidget(txt_nuc_start, 2, 0);
-	grid_tab_processing_nuc->addWidget(txt_nuc_stop, 2, 1);
-	grid_tab_processing_nuc->addWidget(btn_create_nuc, 3, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(btn_create_nuc_external, 4, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(chk_apply_nuc, 5, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(horizontal_segment5, 6, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 1, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(btn_create_nuc, 2, 1);
+	grid_tab_processing_nuc->addWidget(chk_apply_nuc, 2, 0);
+	grid_tab_processing_nuc->addWidget(horizontal_segment5, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
 
@@ -420,9 +413,8 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 
 	QLabel* label_background_subtraction = new QLabel("Adaptive Background Suppression");
 	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
-	//txt_bgs_num_frames = new QLineEdit();
 	btn_bgs = new QPushButton("Create Filter");
-	chk_bgs = new QCheckBox("Apply Background Subtraction");
+	chk_bgs = new QCheckBox("Apply Filter");
 
 	QFrame* horizontal_segment6 = new QFrame();
 	horizontal_segment6->setFrameShape(QFrame::HLine);
@@ -431,9 +423,9 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
 	grid_tab_processing_bgs->addWidget(label_background_subtraction, 0, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(lbl_adaptive_background_suppression, 1, 0);
-	grid_tab_processing_bgs->addWidget(btn_bgs, 1, 1);
-	grid_tab_processing_bgs->addWidget(chk_bgs, 2, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(lbl_adaptive_background_suppression, 1, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
+	grid_tab_processing_bgs->addWidget(chk_bgs, 2, 0);
 	grid_tab_processing_bgs->addWidget(horizontal_segment6, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
@@ -442,7 +434,7 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	QLabel* label_deinterlace = new QLabel("De-Interlace Methods");
 	cmb_deinterlace_options = new QComboBox();
 	btn_deinterlace = new QPushButton("Create Filter");
-	chk_deinterlace = new QCheckBox("Apply De-Interlace Method");
+	chk_deinterlace = new QCheckBox("Apply De-Interlace");
 
 	QFrame* horizontal_segment7 = new QFrame();
 	horizontal_segment7->setFrameShape(QFrame::HLine);
@@ -451,13 +443,12 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	cmb_deinterlace_options->addItem("Centroid");
 	cmb_deinterlace_options->addItem("Avg Cross Correlation");
 
-	//QWidget* widget_tab_processing_deinterlace = new QWidget();
 	QGridLayout* grid_tab_processing_deinterlace = new QGridLayout();
 
 	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 2);
-	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0);
-	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 1, 1);
-	grid_tab_processing_deinterlace->addWidget(chk_deinterlace, 2, 0, 1, 2);
+	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
+	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 2, 1);
+	grid_tab_processing_deinterlace->addWidget(chk_deinterlace, 2, 0);
 	grid_tab_processing_deinterlace->addWidget(horizontal_segment7, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
@@ -809,9 +800,7 @@ void QtGuiApplication1::setup_connections() {
 	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
 	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
 
-	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction_from_same_file);
-	QObject::connect(txt_nuc_stop, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_non_uniformity_correction_from_same_file);
-	QObject::connect(btn_create_nuc_external, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction_from_external_file);
+	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction_selection_option);
 
 	QObject::connect(btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
 	
@@ -2099,27 +2088,56 @@ void QtGuiApplication1::create_non_uniformity_correction_from_external_file()
 	
 	}
 
+	
+
 }
 
-void QtGuiApplication1::create_non_uniformity_correction_from_same_file()
+void QtGuiApplication1::create_non_uniformity_correction_selection_option()
 {
-	INFO << "GUI: Creating non-uniformity correction file from original data";
+	
+	
+	QStringList options;
+	options << tr("From Current File") << tr("From External File");
 
-	//----------------------------------------------------------------------------------------------------
-	// Get frame numbers from text boxes
-	int min_frame = get_integer_from_txt_box(txt_nuc_start->text());
-	int max_frame = get_integer_from_txt_box(txt_nuc_stop->text());
-
-	bool check_data = check_min_max_frame_input(min_frame, max_frame);
-
-	if (!check_data) {
-
-		INFO << "GUI: NUC correction not completed";
+	bool ok;
+	QString item = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", options, 0, false, &ok);
+	
+	if (!ok)
 		return;
+
+	if (item == "From Current File") {
+
+
+		// get total number of frames
+		int num_messages = file_data.osm_data.num_messages;
+
+		QString prompt1 = "Start Frame (";
+		prompt1.append(QString::number(num_messages));
+		prompt1.append(" frames total)");
+
+		QString prompt2 = "Stop Frame (";
+		prompt2.append(QString::number(num_messages));
+		prompt2.append(" frames total)");
+
+		bool ok;
+
+		// get min frame for nuc while limiting input between 1 and total messages
+		int start_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt1, 1, 1, num_messages, 1, &ok);
+		if (!ok)
+			return;
+
+		// get max frame for nuc while limiting input between min and total messages
+		int stop_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt2, start_frame, start_frame, num_messages, 1, &ok);
+		if (!ok)
+			return;
+
+		create_non_uniformity_correction(file_data.image_path, start_frame, stop_frame);
+
 	}
-
-	create_non_uniformity_correction(file_data.image_path, min_frame, max_frame);
-
+	else {
+		create_non_uniformity_correction_from_external_file();
+	}
+	
 }
 
 void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
@@ -2204,6 +2222,15 @@ void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsi
 	}
 	
 	show_available_filter_options();
+
+	QFileInfo fi(file_path);
+	QString fileName = fi.fileName();
+
+	QString description = "File: " + fileName + "\n";
+	description += "From frame " + QString::number(min_frame) + " to " + QString::number(max_frame);
+
+	lbl_fixed_suppression->setText(description);
+
 }
 
 void QtGuiApplication1::create_deinterlace()
@@ -2375,8 +2402,7 @@ void QtGuiApplication1::clear_image_processing()
 	
 	int n = ir_video->container.something.size();
 
-	txt_nuc_start->setText("");
-	txt_nuc_stop->setText("");
+	lbl_fixed_suppression->setText("No Frames Setup");
 	lbl_adaptive_background_suppression->setText("No Frames Setup");
 
 
@@ -2707,9 +2733,9 @@ bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
 	if ((min_frame < 0) || (max_frame < 0))
 	{
 		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << txt_nuc_start->text().toLocal8Bit().constData();
+			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << txt_start_frame->text().toLocal8Bit().constData();
 		if (max_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << txt_nuc_stop->text().toLocal8Bit().constData();
+			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << txt_end_frame->text().toLocal8Bit().constData();
 		
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Non-Numeric Data"));
