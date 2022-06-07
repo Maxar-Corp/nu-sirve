@@ -45,6 +45,7 @@ int Process_File::load_osm_file()
 
 	if (valid_image_extension && image_file_exists) {
 		info_msg.append("Image file found with correct extension \n");
+		valid_image = true;
 	}
 	else
 	{
