@@ -1190,8 +1190,12 @@ void QtGuiApplication1::load_abir_data()
 	update_fps();
 
 	tab_plots->setCurrentIndex(1);
-	plot_full_data();
-	plot_current_frame_marker();
+
+	bool current_plot_state = data_plots->plot_all_data;
+	if(!current_plot_state)
+		plot_full_data();
+
+	//plot_current_frame_marker();
 
 	btn_get_frames->setEnabled(true);
 	btn_calibration_dialog->setEnabled(true);
