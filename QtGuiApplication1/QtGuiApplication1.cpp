@@ -417,8 +417,8 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	// ------------------------------------------------------------------------
 
 	QLabel* label_background_subtraction = new QLabel("Adaptive Background Suppression");
-	QLabel* label_bgs_frames = new QLabel("Number of Frames");
-	txt_bgs_num_frames = new QLineEdit();
+	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
+	//txt_bgs_num_frames = new QLineEdit();
 	btn_bgs = new QPushButton("Create Filter");
 	chk_bgs = new QCheckBox("Apply Background Subtraction");
 
@@ -429,11 +429,10 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
 	grid_tab_processing_bgs->addWidget(label_background_subtraction, 0, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(label_bgs_frames, 1, 0);
-	grid_tab_processing_bgs->addWidget(txt_bgs_num_frames, 2, 0);
-	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
-	grid_tab_processing_bgs->addWidget(chk_bgs, 3, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(horizontal_segment6, 4, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(lbl_adaptive_background_suppression, 1, 0);
+	grid_tab_processing_bgs->addWidget(btn_bgs, 1, 1);
+	grid_tab_processing_bgs->addWidget(chk_bgs, 2, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(horizontal_segment6, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
 
@@ -812,8 +811,7 @@ void QtGuiApplication1::setup_connections() {
 	QObject::connect(txt_nuc_stop, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_non_uniformity_correction);
 
 	QObject::connect(btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
-	QObject::connect(txt_bgs_num_frames, &QLineEdit::returnPressed, this, &QtGuiApplication1::create_background_subtraction_correction);
-
+	
 	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &QtGuiApplication1::create_deinterlace);
 
 	QObject::connect(chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
@@ -2337,7 +2335,8 @@ void QtGuiApplication1::clear_image_processing()
 
 	txt_nuc_start->setText("");
 	txt_nuc_stop->setText("");
-	txt_bgs_num_frames->setText("");
+	lbl_adaptive_background_suppression->setText("No Frames Setup");
+
 
 	int num_videos = ir_video->container.something.size();
 	if (num_videos > 0)
@@ -2516,9 +2515,18 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
-	//background_subraction_video.convert_16bit_to_8bit();
-	//background_subraction_video.create_histogram_data();
+	// -------------------------------------------------------------------------------------
+	// write description of filter
+	
+	QString description = "Filter starts at "; 
+	if (relative_start_frame > 0)
+		description += "+";
+	description += QString::number(relative_start_frame) + " frames\nand averages " + QString::number(number_of_frames) + " frames";
+	
+	lbl_adaptive_background_suppression->setText(description);
 
+	// -------------------------------------------------------------------------------------
+	
 	bool background_subtraction_exists = false;
 	int index_background_subtraction = ir_video->container.find_data_index(background_subraction_video);
 	if (index_background_subtraction > 0) {
