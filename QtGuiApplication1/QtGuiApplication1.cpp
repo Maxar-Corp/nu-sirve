@@ -416,7 +416,7 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 
 	// ------------------------------------------------------------------------
 
-	QLabel* label_background_subtraction = new QLabel("Background Subtraction");
+	QLabel* label_background_subtraction = new QLabel("Adaptive Background Suppression");
 	QLabel* label_bgs_frames = new QLabel("Number of Frames");
 	txt_bgs_num_frames = new QLineEdit();
 	btn_bgs = new QPushButton("Create Filter");
@@ -2451,48 +2451,18 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	INFO << "GUI: Background subtraction video being created";
 	
 	//-----------------------------------------------------------------------------------------------
-	// Get frame numbers from text boxes
-	int num_frames_subtract = get_integer_from_txt_box(txt_bgs_num_frames->text());
+	// get user selected frames for suppression
 
-	// if non-numeric data is entered...
-	if (num_frames_subtract < 0)
-	{
-		DEBUG << "GUI: User entered non-numeric data in number of frames for background subtraction. Entered: " << txt_bgs_num_frames->text().toLocal8Bit().constData();
-			
-		INFO << "GUI: Background subtraction not completed";
+	int delta_frames = file_data.frame_end - file_data.frame_start;
 
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Non-Numeric Data"));
-		msgBox.setText("Non-numeric data entered for background subtraction");
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+	bool ok;
+	int relative_start_frame = QInputDialog::getInt(this, "Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
+	if (!ok)
 		return;
-	}
 
-	//find frame start / stop 
-	int frame_start = 1;
-	int frame_stop = eng_data->frame_numbers.back();
-
-	bool num_within_range = check_value_within_range(num_frames_subtract, frame_start, frame_stop);
-
-	// if values outside range...
-	if (!num_within_range)
-	{
-		DEBUG << "GUI: Number of frames provided is not within the range 0 - " << frame_stop << ". Value entered: " << num_frames_subtract;
-		INFO << "GUI: Background subtraction not completed";
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Outside of Data Range"));
-		QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+	int number_of_frames = QInputDialog::getInt(this, "Background Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
+	if (!ok)
 		return;
-	}
 
 	//-----------------------------------------------------------------------------------------------------
 
@@ -2504,7 +2474,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
-	BackgroundSubtraction background(num_frames_subtract);
+	AdaptiveNoiseSuppression background(relative_start_frame, number_of_frames);
 	std::vector<std::vector<double>> background_correction = background.get_correction(original);
 
 	INFO << "GUI: Background subtraction adjustment for video is completed";
