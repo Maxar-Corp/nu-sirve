@@ -912,7 +912,7 @@ void QtGuiApplication1::load_osm_data()
 	INFO << "GUI: OSM file has valid path";
 
 	lbl_file_load->setText(file_data.info_msg);
-	lbl_file_name->setText(file_data.file_name);
+	lbl_file_name->setText("File: " + file_data.file_name);
 	lbl_file_name->setToolTip(file_data.directory_path);
 
 	if (valid_files) {
@@ -2092,8 +2092,6 @@ void QtGuiApplication1::create_non_uniformity_correction_from_external_file()
 	
 	}
 
-	
-
 }
 
 void QtGuiApplication1::create_non_uniformity_correction_selection_option()
@@ -2188,11 +2186,11 @@ void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsi
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
-	progress.setWindowTitle(QString("Non-Uniformity Correction"));
+	progress.setWindowTitle(QString("Fixed Background Suppression"));
 		
 	progress.setMinimum(0);
 	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Applying non-uniformity correction..."));
+	progress.setLabelText(QString("Applying correction..."));
 
 	progress.setMinimumWidth(300);
 
@@ -2228,7 +2226,11 @@ void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsi
 	show_available_filter_options();
 
 	QFileInfo fi(file_path);
-	QString fileName = fi.fileName();
+	QString fileName = fi.fileName().toLower();
+	QString current_filename = file_data.file_name.toLower() + ".abpimage";
+
+	if (fileName == current_filename)
+		fileName = "Current File";
 
 	QString description = "File: " + fileName + "\n";
 	description += "From frame " + QString::number(min_frame) + " to " + QString::number(max_frame);
@@ -2527,11 +2529,11 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	int delta_frames = file_data.frame_end - file_data.frame_start;
 
 	bool ok;
-	int relative_start_frame = QInputDialog::getInt(this, "Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
+	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
 	if (!ok)
 		return;
 
-	int number_of_frames = QInputDialog::getInt(this, "Background Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
+	int number_of_frames = QInputDialog::getInt(this, "Adaptive Background Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
 	if (!ok)
 		return;
 
@@ -2554,7 +2556,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
 	progress.setLabelText(QString("Copying data for processing..."));
-	progress.setWindowTitle(QString("Background Subtraction"));
+	progress.setWindowTitle(QString("Adaptive Background Suppression"));
 
 	progress.setMinimumWidth(300);
 
@@ -2570,7 +2572,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	int number_frames = original.frames_16bit.size();
 
 	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Subtracting frames..."));
+	progress.setLabelText(QString("Adjusting frames..."));
 
 	for (int i = 0; i < number_frames; i++) {
 		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
@@ -2593,7 +2595,9 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	QString description = "Filter starts at "; 
 	if (relative_start_frame > 0)
 		description += "+";
-	description += QString::number(relative_start_frame) + " frames\nand averages " + QString::number(number_of_frames) + " frames";
+
+	lbl_adaptive_background_suppression->setWordWrap(true);
+	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
 	
 	lbl_adaptive_background_suppression->setText(description);
 
