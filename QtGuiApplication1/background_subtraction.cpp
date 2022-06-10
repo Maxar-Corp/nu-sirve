@@ -27,8 +27,8 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setMinimum(0);
 	progress.setMaximum(num_video_frames);
-	progress.setWindowTitle(QString("Background Subtraction"));
-	progress.setLabelText(QString("Creating adjustment for background subtraction..."));
+	progress.setWindowTitle(QString("Adaptive Background Suppression"));
+	progress.setLabelText(QString("Creating adjustment on per frame basis..."));
 
 	progress.setMinimumWidth(300);
 
