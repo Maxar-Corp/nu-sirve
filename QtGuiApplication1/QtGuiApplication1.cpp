@@ -1859,7 +1859,7 @@ void QtGuiApplication1::plot_change(int index)
 		switch (y_index)
 		{
 		case 0:
-			data_plots->plot_irradiance(eng_data->max_number_tracks);
+			data_plots->plot_irradiance();
 			break;
 
 		case 1:

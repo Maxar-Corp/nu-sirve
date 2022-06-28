@@ -27,11 +27,18 @@ QT_CHARTS_USE_NAMESPACE
 
 class NewChartView : public QChartView {
 
+	Q_OBJECT
 	public:
 		NewChartView(QChart *chart);
 		void mouseReleaseEvent(QMouseEvent *e);
+		void apply_nice_numbers();
 
 		QChart *newchart;
+		bool chart_zoomed;
+
+	signals:
+		void zoom_changed(bool active_zoom);
+		
 };
 
 
@@ -67,14 +74,15 @@ class QtPlotting : public QWidget
 
 class Engineering_Plots : public QtPlotting 
 {
+	Q_OBJECT 
 	public:
 
 		x_plot_variables x_axis_units;
 		
 		// Parameters to display subplot
-		bool plot_all_data, plot_primary_only, plot_current_marker;
+		bool plot_all_data, plot_primary_only, plot_current_marker, chart_is_zoomed;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-		int index_sub_plot_xmin, index_sub_plot_xmax;
+		int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
 
 		// plot axes titles
 		QString x_title, y_title, title;
@@ -91,7 +99,7 @@ class Engineering_Plots : public QtPlotting
 		
 		void plot_azimuth();
 		void plot_elevation();
-		void plot_irradiance(int number_tracks);
+		void plot_irradiance();
 
 		std::vector<double> get_individual_x_track(int i);
 		void establish_plot_limits();
@@ -109,6 +117,7 @@ class Engineering_Plots : public QtPlotting
 		void toggle_subplot();
 		void plot_current_step(int counter);
 		void set_plot_title(QString input_title);
+		void set_zoom_limits(bool active_zoom);
 
 };
 
