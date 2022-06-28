@@ -379,6 +379,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	chk_show_tracks = new QCheckBox("Show OSM Tracks");
 	chk_primary_track_data = new QCheckBox("Show Primary Track Info");
 	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
+	chk_show_time = new QCheckBox("Show Zulu Time");
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
@@ -440,6 +441,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	vlayout_tab_color->addWidget(horizontal_segment5);
 	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
+	vlayout_tab_color->addWidget(chk_show_time);
 	vlayout_tab_color->addLayout(hlayout_text_color);
 	vlayout_tab_color->addWidget(btn_change_banner_text);
 	vlayout_tab_color->addWidget(horizontal_segment6);
@@ -835,6 +837,7 @@ void QtGuiApplication1::setup_connections() {
 	
 	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_primary_track_data);
 	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_sensor_track_data);
+	connect(chk_show_time, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_frame_time);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_color_map);
 	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_banner_color);
 
@@ -2343,6 +2346,13 @@ void QtGuiApplication1::toggle_sensor_track_data()
 	ir_video->toggle_sensor_boresight_data(!current_status);
 	ir_video->update_display_frame();
 
+}
+
+void QtGuiApplication1::toggle_frame_time()
+{
+	bool current_status = chk_show_time->isChecked();
+	ir_video->display_time = current_status;
+	ir_video->update_display_frame();
 }
 
 deinterlace_type QtGuiApplication1::find_deinterlace_type(int index) {
