@@ -11,6 +11,10 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 	yaxis_is_log = false;
 	yaxis_is_scientific = false;
 	set_plot_title("EDIT CLASSIFICATION");
+	chart_is_zoomed = false;
+	current_chart_id = 0;
+
+	QObject::connect(chart_view, &NewChartView::zoom_changed, this, &Engineering_Plots::set_zoom_limits);
 }
 
 Engineering_Plots::~Engineering_Plots()
@@ -25,8 +29,10 @@ void Engineering_Plots::plot_azimuth() {
 	colors.reset_colors();
 	start_new_chart();
 	create_current_marker();
+
+	current_chart_id = 1;
 	// ---------------------------------------------------------------------------------------------------------------
-	
+
 	std::vector<double> x_points, y_points;
 
 	int number_tracks = track_irradiance_data.size();
@@ -36,7 +42,7 @@ void Engineering_Plots::plot_azimuth() {
 
 	for (int i = 0; i < plot_number_tracks; i++)
 	{
-		QLineSeries *series = new QLineSeries();
+		QLineSeries* series = new QLineSeries();
 		QColor base_color(colors.GetCurrentColor());
 		series->setColor(base_color);
 
@@ -58,13 +64,20 @@ void Engineering_Plots::plot_azimuth() {
 	//min_max_y = find_min_max(y_points);
 
 	establish_plot_limits();
-	
+
 	y_title = QString("Azimuth (deg)");
 
-	if (plot_all_data)
+	if (chart_is_zoomed) {
+		std::vector<double> x_data;
+		get_xaxis_value(x_data);
+		chart_options(x_data[index_zoom_min], x_data[index_zoom_max], 0, 360, x_title, y_title);
+	}
+	else if (plot_all_data) {
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
-	else
+	}
+	else{
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title);
+	}
 
 
 	draw_title();
@@ -79,6 +92,8 @@ void Engineering_Plots::plot_elevation() {
 	colors.reset_colors();
 	start_new_chart();
 	create_current_marker();
+
+	current_chart_id = 2;
 	// ---------------------------------------------------------------------------------------------------------------
 
 	std::vector<double> x_points, y_points;
@@ -115,7 +130,12 @@ void Engineering_Plots::plot_elevation() {
 
 	y_title = QString("Elevation (deg)");
 
-	if (plot_all_data)
+	if (chart_is_zoomed) {
+		std::vector<double> x_data;
+		get_xaxis_value(x_data);
+		chart_options(x_data[index_zoom_min], x_data[index_zoom_max], 0, 90, x_title, y_title);
+	}
+	else if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
@@ -124,7 +144,7 @@ void Engineering_Plots::plot_elevation() {
 	draw_title();
 }
 
-void Engineering_Plots::plot_irradiance(int number_tracks)
+void Engineering_Plots::plot_irradiance()
 {
 	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
@@ -132,10 +152,13 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 	colors.reset_colors();
 	start_new_chart();
 	create_current_marker();
+
+	current_chart_id = 0;
 	// ---------------------------------------------------------------------------------------------------------------
 	
 	std::vector<double> x_points, y_points;
 
+	int number_tracks = track_irradiance_data.size();
 	int plot_number_tracks = number_tracks;
 	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
@@ -166,7 +189,12 @@ void Engineering_Plots::plot_irradiance(int number_tracks)
 
 	y_title = QString("Irradiance Counts");
 
-	if (plot_all_data)
+	if (chart_is_zoomed) {
+		std::vector<double> x_data;
+		get_xaxis_value(x_data);
+		chart_options(x_data[index_zoom_min], x_data[index_zoom_max], 0, find_max_for_axis(min_max_y), x_title, y_title);
+	}
+	else if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
@@ -367,6 +395,69 @@ void Engineering_Plots::toggle_subplot()
 	}
 }
 
+void Engineering_Plots::set_zoom_limits(bool active_zoom) {
+
+	chart_is_zoomed = active_zoom;
+
+	if (!chart_is_zoomed) {
+
+		switch (current_chart_id)
+		{
+
+		case 0:
+			plot_irradiance();
+			break;
+		case 1:
+			plot_azimuth();
+			break;
+		case 2:
+			plot_elevation();
+			break;
+
+		default:
+			break;
+		}
+
+		return;
+	}
+
+	std::vector<double> x_data;
+	get_xaxis_value(x_data);
+
+	int length = x_data.size();
+	double min_value = axis_x->min();
+	double max_value = axis_x->max();
+
+	if (min_value < x_data[0])
+		min_value = x_data[0];
+	if (max_value > x_data[length - 1])
+		max_value = x_data[length - 1];
+
+	int index0 = 0;
+	int index1 = 0;
+
+	double check_value = x_data[index0];
+	while (check_value < min_value)
+	{
+		index0++;
+		check_value = x_data[index0];
+	}
+	index0 = index0 - 1;
+	if (index0 < 0)
+		index0 = 0;
+	index1 = index0;
+
+	check_value = x_data[index1];
+	while (check_value < max_value)
+	{
+		index1++;
+		check_value = x_data[index1];
+	}
+
+	index_zoom_min = index0;
+	index_zoom_max = index1;
+}
+
 // ---------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------
 // Generic plotting functions
@@ -379,6 +470,9 @@ NewChartView::NewChartView(QChart* chart)
 	setMouseTracking(true);
 	setInteractive(true);
 	setRubberBand(RectangleRubberBand);
+	
+	chart_zoomed = false;
+
 }
 
 void NewChartView::mouseReleaseEvent(QMouseEvent *e)
@@ -386,10 +480,33 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 	if (e->button() == Qt::RightButton)
 	{
 		newchart->zoomReset();
+		chart_zoomed = false;
+
+		emit zoom_changed(chart_zoomed);
 		return; //event doesn't go further
 	}
+	
 	QChartView::mouseReleaseEvent(e);//any other event
+	
+	chart_zoomed = true;
+	emit zoom_changed(chart_zoomed);
 }
+
+
+
+void NewChartView::apply_nice_numbers()
+{
+	QList<QAbstractAxis*> axes_list = newchart->axes();
+	for each (QAbstractAxis * abstract_axis in axes_list)
+	{
+		QValueAxis* value_axis = qobject_cast<QValueAxis*>(abstract_axis);
+		if (value_axis)
+		{
+			value_axis->applyNiceNumbers();
+		}
+	}
+}
+
 
 // ---------------------------------------------------------------------------------------------
 
