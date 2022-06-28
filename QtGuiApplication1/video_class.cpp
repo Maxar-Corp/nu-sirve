@@ -33,6 +33,7 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	plot_tracks = false;
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
+	display_time = false;
 
 	// intializes color map to gray scale
 	index_video_color = 0;
@@ -487,6 +488,35 @@ void Video::update_display_frame()
 		QString boresight_txt = "Sensor Boresight \n Az: " + QString::number(display_data[counter].azimuth_sensor) + "\n El " + QString::number(display_data[counter].elevation_sensor);
 
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignLeft, boresight_txt);
+	}
+
+	if (display_time) {
+		QPainter p2(&frame);
+		p2.setPen(QPen(banner_color));
+		p2.setFont(QFont("Times", 8, QFont::Bold));
+
+		double seconds_midnight = display_data[counter].seconds_past_midnight;
+		int hour = seconds_midnight / 3600;
+		int minutes = (seconds_midnight - hour * 3600) / 60;
+		double seconds = seconds_midnight - hour * 3600 - minutes * 60;
+
+		QString zulu_time("");
+		if (hour < 10)
+			zulu_time.append("0");
+		zulu_time.append(QString::number(hour));
+		zulu_time.append(":");
+
+		if (minutes < 10)
+			zulu_time.append("0");
+		zulu_time.append(QString::number(minutes));
+		zulu_time.append(":");
+
+		if (seconds < 10)
+			zulu_time.append("0");
+		zulu_time.append(QString::number(seconds, 'f', 3));
+		zulu_time.append("Z");
+
+		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignRight, zulu_time);
 	}
 
 	if (display_tgt_pos_txt) {
