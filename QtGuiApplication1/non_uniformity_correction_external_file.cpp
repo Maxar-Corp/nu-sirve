@@ -107,7 +107,7 @@ void ExternalNUCInformationWidget::plot_osm()
     frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);
-    plot_data->plot_irradiance(engineering_data->max_number_tracks);
+    plot_data->plot_irradiance();
 
     btn_load_frames->setEnabled(true);    
     
