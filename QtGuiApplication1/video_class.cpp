@@ -28,6 +28,8 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	banner_text = QString("EDIT CLASSIFICATION");
 	banner_color = QColor("Red");
 	tracker_color = QColor("Red");
+	tracker_primary_color = QColor("Red");
+
 	plot_tracks = false;
 	display_boresight_txt = false;
 	display_tgt_pos_txt = false;
@@ -96,6 +98,7 @@ void Video::update_banner_color(QString input_color)
 {
 	QColor new_color(input_color);
 	banner_color = new_color;
+	update_display_frame();
 }
 
 void Video::update_color_map(QString input_map)
@@ -116,6 +119,11 @@ void Video::update_color_map(QString input_map)
 	colorTable = video_colors.maps[index_video_color].colors;
 
 	update_display_frame();
+}
+
+void Video::update_tracker_primary_color(QString input_color) {
+	QColor new_color(input_color);
+	tracker_primary_color = new_color;
 }
 
 void Video::update_tracker_color(QString input_color)
@@ -459,7 +467,13 @@ void Video::update_display_frame()
 				int box_size = 5;
 				QRectF rectangle(x - box_size, y - box_size, box_size * 2, box_size * 2);
 
-				rectangle_painter.setPen(QPen(tracker_color));
+				if (i == 0) {
+					rectangle_painter.setPen(QPen(tracker_primary_color));
+				}
+				else
+				{
+					rectangle_painter.setPen(QPen(tracker_color));
+				}
 				rectangle_painter.drawRect(rectangle);
 			}
 		}
