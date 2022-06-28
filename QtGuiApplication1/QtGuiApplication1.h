@@ -78,7 +78,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, * lbl_zulu_time, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -93,6 +93,10 @@ public:
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
+
+	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data;
+	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
+	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
@@ -204,6 +208,7 @@ private:
 	void export_plot_data();
 	void edit_banner_color();
 	void edit_tracker_color();
+	void edit_primary_tracker_color();
 	void plot_change(int index);
 	void annotate_video();
 	
