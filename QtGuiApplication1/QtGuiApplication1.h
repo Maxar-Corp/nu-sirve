@@ -49,6 +49,7 @@
 #include <qdatetimeedit.h>
 #include <qgroupbox>
 #include <qmenu.h>
+#include <qmenubar.h>
 
 
 class QtGuiApplication1 : public QMainWindow
@@ -162,6 +163,9 @@ public:
 		void auto_change_plot_display(int index);	
 
 		void show_calibration_dialog();
+		
+		void set_data_timing_offset();
+		void close_window();
 
 		void save_plot();
 		void save_frame();
@@ -214,6 +218,9 @@ private:
 	void annotate_video();
 	
 	void resize_ui();
+
+	QMenu *menu_file, *menu_settings;
+	QAction *action_close, *action_set_timing_offset;
 
 	int get_integer_from_txt_box(QString input);
 	bool check_value_within_range(int input_value, int min_value, int max_value);
