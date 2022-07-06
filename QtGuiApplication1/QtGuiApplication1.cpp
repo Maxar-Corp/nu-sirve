@@ -1042,12 +1042,12 @@ void QtGuiApplication1::load_osm_data()
 		data_plots = new Engineering_Plots();
 
 		data_plots->frame_numbers = eng_data->frame_numbers;
-		data_plots->past_midnight = eng_data->seconds_from_midnight;
-		data_plots->past_epoch = eng_data->seconds_from_epoch;
+		data_plots->past_midnight = eng_data->get_seconds_from_midnight();
+		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 		data_plots->index_sub_plot_xmin = 0;
 		data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
 
-		data_plots->track_irradiance_data = eng_data->track_irradiance_data;
+		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 				
 		//--------------------------------------------------------------------------------
 		int num_tracks = data_plots->track_irradiance_data.size();
@@ -1253,10 +1253,14 @@ void QtGuiApplication1::load_abir_data()
 		thread_timer.start();
 	}
 
-	std::vector<Plotting_Frame_Data>::const_iterator first = eng_data->frame_data.begin() + min_frame - 1;
-	std::vector<Plotting_Frame_Data>::const_iterator last = eng_data->frame_data.begin() + (min_frame) + (max_frame - min_frame);
-	std::vector<Plotting_Frame_Data> subset_data(first, last);
-	ir_video->set_frame_data(subset_data, file_data.abir_data.ir_data);
+	//std::vector<Plotting_Frame_Data> temp_data = eng_data->get_plotting_frame_data();
+	//std::vector<Plotting_Frame_Data>::const_iterator first = temp_data.begin() + min_frame - 1;
+	//std::vector<Plotting_Frame_Data>::const_iterator last = temp_data.begin() + (min_frame) + (max_frame - min_frame);
+	//std::vector<Plotting_Frame_Data> subset_data(first, last);
+	int index0 = min_frame - 1;
+	int index1 = min_frame + (max_frame - min_frame);
+	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
+	ir_video->set_frame_data(temp, file_data.abir_data.ir_data);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1577,6 +1581,36 @@ void QtGuiApplication1::show_calibration_dialog()
 	btn_calculate_radiance->setEnabled(true);
 }
 
+void QtGuiApplication1::set_data_timing_offset()
+{
+
+	if (!eng_data)
+		return;
+
+	bool ok;
+	double d = QInputDialog::getDouble(this, "Set Offset Time for Data", "Offset (seconds):", eng_data->get_offset_time(), -86400, 86400, 3, &ok, Qt::WindowFlags(), 1);
+	if (ok) {
+		eng_data->set_offset_time(d);
+
+		data_plots->past_midnight = eng_data->get_seconds_from_midnight();
+		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
+
+		int index0 = data_plots->index_sub_plot_xmin;;
+		int index1 = data_plots->index_sub_plot_xmax;
+
+		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
+		ir_video->update_frame_data(temp);
+
+		plot_change(0);
+	}
+}
+
+void QtGuiApplication1::close_window()
+{
+	close();
+}
+
 void QtGuiApplication1::save_plot()
 {
 	data_plots->save_plot();
@@ -1598,6 +1632,21 @@ void QtGuiApplication1::save_frame()
 void QtGuiApplication1::create_menu_actions()
 {
 	QIcon on("icons/check.png");
+
+	action_close = new QAction("Close");
+	action_close->setStatusTip("Close main window");
+	connect(action_close, &QAction::triggered, this, &QtGuiApplication1::close_window);
+
+	action_set_timing_offset = new QAction("Set Timing Offset");
+	action_set_timing_offset->setStatusTip("Set a time offset to apply to collected data");
+	connect(action_set_timing_offset, &QAction::triggered, this, &QtGuiApplication1::set_data_timing_offset);
+
+	menu_file = menuBar()->addMenu(tr("&File"));
+	menu_file->addAction(action_close);
+
+	menu_settings = menuBar()->addMenu(tr("&Settings"));
+	menu_settings->addAction(action_set_timing_offset);
+
 
 	// ------------------------- PLOT MENU ACTIONS -------------------------
 
@@ -1942,7 +1991,7 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 		frame_text.append(QString::number(frame_number));
 		lbl_video_frame->setText(frame_text);
 
-		double seconds_midnight = eng_data->seconds_from_midnight[index + counter];
+		double seconds_midnight = eng_data->get_epoch_time_from_index(index + counter);
 		QString seconds_text("From Midnight ");
 		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
 		lbl_video_time_midnight->setText(seconds_text);
@@ -2047,8 +2096,8 @@ void QtGuiApplication1::apply_epoch_time()
 	epoch_jdate = jtime::JulianDate(year, month, day, hr, min, sec);
 	eng_data->update_epoch_time(epoch_jdate);
 	
-	data_plots->past_epoch = eng_data->seconds_from_epoch;
-	data_plots->track_irradiance_data = eng_data->track_irradiance_data;
+	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 	plot_change(0);
 	
 }
