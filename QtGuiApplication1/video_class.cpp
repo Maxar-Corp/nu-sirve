@@ -675,7 +675,13 @@ void Video::update_display_frame()
 	//counter++;
 }
 
-void Video::set_frame_data(std::vector<Plotting_Frame_Data>& input_data, std::vector<ABIR_Frame>& input_frame_header)
+void Video::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
+{
+	display_data = input_data;
+}
+
+
+void Video::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
 	display_data = input_data;
 	frame_headers = input_frame_header;
@@ -718,6 +724,7 @@ void Video::stop_recording()
 	video.release();
 	record_frame = false;
 }
+
 
 void Video::save_frame()
 {
