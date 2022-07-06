@@ -710,7 +710,7 @@ void QtGuiApplication1::setup_plot_frame() {
 	// ------------------------------------------------------------------------
 
 	frame_plots = new FixedAspectRatioFrame();
-	frame_plots->enable_fixed_aspect_ratio(true);
+	frame_plots->enable_fixed_aspect_ratio(false);
 	QLabel* label_x_axis_option = new QLabel("X-Axis");
 	QLabel* label_y_axis_option = new QLabel("Y-Axis");
 	QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
@@ -1601,6 +1601,7 @@ void QtGuiApplication1::set_data_timing_offset()
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		ir_video->update_frame_data(temp);
+		ir_video->update_display_frame();
 
 		plot_change(0);
 	}
