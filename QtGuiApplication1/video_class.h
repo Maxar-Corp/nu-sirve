@@ -63,8 +63,9 @@ public:
 	ColorMap video_colors;
 	int index_video_color;
 	QVector<QRgb> colorTable;
-	
-	void set_frame_data(std::vector<Plotting_Frame_Data> &input_data, std::vector<ABIR_Frame>& input_frame_header);
+
+	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
+	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
