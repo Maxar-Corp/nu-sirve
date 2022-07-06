@@ -32,12 +32,24 @@ class Engineering_Data : public	QWidget
 		std::vector<double>get_adj_epoch(double num_days);
 		void write_track_date_to_csv(std::string save_path, int min_frame, int max_frame);
 		
+		double get_offset_time();
+		void set_offset_time(double offset);
+
+		double get_epoch_time_from_index(int index);
+		std::vector<double> get_julian_date();
+		std::vector<double> get_seconds_from_midnight();
+		std::vector<double> get_seconds_from_epoch();
+		std::vector<Plotting_Frame_Data> get_plotting_frame_data();
+		std::vector<Plotting_Frame_Data> get_subset_plotting_frame_data(int index0, int index1);
+		std::vector<Track_Irradiance> get_track_irradiance_data();
+				
 		int max_number_tracks;
 
 	private:
 
 		std::vector<Frame> osm;
 		Plotting_Data data;
+		double timing_offset, data_epoch_date, user_epoch_date;
 				
 		void extract_engineering_data();
 		void fill_irradiance_vector();
