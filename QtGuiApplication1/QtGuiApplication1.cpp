@@ -1696,8 +1696,8 @@ void QtGuiApplication1::edit_banner_text()
 	
 	if (ok) {
 
-		emit change_banner(input_text);
 		DEBUG << "GUI: Banner text changed";
+		ir_video->update_banner_text(input_text);
 
 		// checks if banners are the same and asks user if they want them to be the same
 		QString plot_banner_text = data_plots->title;
@@ -1714,6 +1714,7 @@ void QtGuiApplication1::edit_banner_text()
 			if (ret == QMessageBox::Yes)
 			{
 				data_plots->set_plot_title(input_text);
+				
 			}
 		}
 	}
