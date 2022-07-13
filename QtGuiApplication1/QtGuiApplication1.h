@@ -170,6 +170,7 @@ public:
 		void save_plot();
 		void save_frame();
 		void set_frame_number_label(int counter);
+		void set_zulu_label();
 		void copy_osm_directory();
 		void update_enhanced_range(bool input);
 		void toggle_relative_histogram(bool input);

@@ -34,7 +34,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	// establish object that will hold video and connect it to the playback thread
 	ir_video = new Video(1, 1, max_used_bits);
 	ir_video->moveToThread(&thread_video);
-	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
+	//QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
 
 	setup_ui();
 
@@ -1603,6 +1603,8 @@ void QtGuiApplication1::set_data_timing_offset()
 		ir_video->update_frame_data(temp);
 		ir_video->update_display_frame();
 
+		set_zulu_label();
+
 		plot_change(0);
 	}
 }
@@ -1999,29 +2001,42 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 		lbl_video_time_midnight->setText(seconds_text);
 
 		// ------------------------------------------------------------------------------------
-		int hour = seconds_midnight / 3600;
-		int minutes = (seconds_midnight - hour * 3600) / 60;
-		double seconds = seconds_midnight - hour * 3600 - minutes * 60;
-
-		QString zulu_time("");
-		if (hour < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(hour));
-		zulu_time.append(":");
-
-		if (minutes < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(minutes));
-		zulu_time.append(":");
-
-		if (seconds < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(seconds, 'f', 3));
-
-		zulu_time.append("Z");
-		lbl_zulu_time->setText(zulu_time);
+		set_zulu_label();
 
 	}
+
+}
+
+void QtGuiApplication1::set_zulu_label()
+{
+
+	int index = data_plots->index_sub_plot_xmin;
+	int counter = playback_controller->get_counter();
+
+	double seconds_midnight = eng_data->get_epoch_time_from_index(index + counter);
+
+	// ------------------------------------------------------------------------------------
+	int hour = seconds_midnight / 3600;
+	int minutes = (seconds_midnight - hour * 3600) / 60;
+	double seconds = seconds_midnight - hour * 3600 - minutes * 60;
+
+	QString zulu_time("");
+	if (hour < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(hour));
+	zulu_time.append(":");
+
+	if (minutes < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(minutes));
+	zulu_time.append(":");
+
+	if (seconds < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(seconds, 'f', 3));
+
+	zulu_time.append("Z");
+	lbl_zulu_time->setText(zulu_time);
 
 }
 
