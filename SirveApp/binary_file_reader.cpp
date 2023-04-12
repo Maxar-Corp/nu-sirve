@@ -15,18 +15,6 @@ BinaryFileReader::~BinaryFileReader()
 }
 
 template<typename T>
-size_t BinaryFileReader::FindArraySize(T data)
-{
-
-	int size_total_array = sizeof(data);
-	int size_element = sizeof(data[0]);
-	size_t num_elements = size_total_array / size_element;
-
-	//return *(&data + 1) - data;
-	return num_elements;
-}
-
-template<typename T>
 void BinaryFileReader::ByteSwap(void *v, int num_bytes) {
 
 	//https://stackoverflow.com/questions/4949144/how-to-byteswap-a-double
