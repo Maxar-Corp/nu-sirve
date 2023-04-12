@@ -20,7 +20,6 @@ public:
 	FILE *fp;
 
 	//Helper Functions
-    template<typename T> inline size_t FindArraySize(T data);
 
     template<typename T> inline size_t ReadMultipleValues(T &data, bool convert_endian = false, uint64_t force_num_elements = 0);
     template<typename T> inline std::vector<T> ReadMultipleValuesIntoVector(int number_values, bool convert_endian = false);
