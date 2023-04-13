@@ -60,6 +60,7 @@ public:
 
 	//Variables
 	Process_File file_data;
+	AbpFileMetadata abp_file_metadata;
 	
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout;

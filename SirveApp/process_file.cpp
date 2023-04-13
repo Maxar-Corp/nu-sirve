@@ -8,82 +8,79 @@ Process_File::~Process_File()
 {
 }
 
-QString Process_File::load_osm_file()
+AbpFileMetadata Process_File::load_osm_file()
 {
 	/*
-	return empty string if the files were loaded correctly
-
-	returns QString with an error message if there was an error during the loading process
+	The returned struct will have error_msg and info_msg populated if there was an error
+	Otherwise, the returned struct will have all the values populated except error_msg, which will be empty
 	*/
-	
-	info_msg = QString("File Load Status: \n");
-	
-	// -----------------------------------------------------------------------------
-	// get image path
+	AbpFileMetadata abp_data;
+	abp_data.error_msg = QString();
+	abp_data.info_msg = QString("File Load Status: \n");
 	
 	QString candidate_image_path = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
 	
-	// if no image path is selected then reset image path and return
+	// ensure a file was selected
 	int compare = QString::compare(candidate_image_path, "", Qt::CaseInsensitive);
 	if (compare == 0) {
-		info_msg.append("No file was selected \n");
-		return QString("No image file was selected");
+		abp_data.info_msg.append("No file was selected \n");
+		abp_data.error_msg = QString("No file was selected");
+		return abp_data;
 	}
-
-	info_msg.append("Image file selected \n");
+	abp_data.info_msg.append("File selected \n");
 
 	// -----------------------------------------------------------------------------
-	// check image file is valid
-
+	// check abpimage file is valid
 	bool valid_image_extension = candidate_image_path.endsWith(".abpimage", Qt::CaseInsensitive);
 	bool image_file_exists = check_path(candidate_image_path);
 
 	if (!valid_image_extension || !image_file_exists) {
-		info_msg.append("File with .abpimage extension not found \n");
-		return QString("Image file issue");
+		abp_data.info_msg.append("File with .abpimage extension not found \n");
+		abp_data.error_msg = QString("Image file issue");
+		return abp_data;
 	}
-	info_msg.append("File found with correct extension \n");
+	abp_data.info_msg.append("File found with correct extension \n");
 
 	// -----------------------------------------------------------------------------
 	// get and check if a valid osm file exists
-
 	QString candidate_osm_path = candidate_image_path;
 	candidate_osm_path.replace(QString(".abpimage"), QString(".abposm"), Qt::CaseInsensitive);
 
 	if (!check_path(candidate_osm_path)) {
-		info_msg.append("Corresponding file with .abposm extension not found \n");
-		return QString("No OSM file found that matches the image file name");
+		abp_data.info_msg.append("Corresponding file with .abposm extension not found \n");
+		abp_data.error_msg = QString("No OSM file found that matches the image file name");
+		return abp_data;
 	}
-	
-	info_msg.append("Corresponding OSM file found with correction extension \n");
+	abp_data.info_msg.append("Corresponding OSM file found with correction extension \n");
 
 	// -----------------------------------------------------------------------------
 	// read osm file
-
 	INFO << "Importing file " << candidate_osm_path.toStdString();
 
 	bool check_read = read_osm_file(candidate_osm_path);
 	if (!check_read) {
 		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
-		info_msg.append("Error while reading OSM file. Close program and open logs for details \n");
-		return QString("Error while reading OSM file. Close program and open logs for details.");
+		abp_data.info_msg.append("Error while reading OSM file. Close program and open logs for details \n");
+		abp_data.error_msg = QString("Error while reading OSM file. Close program and open logs for details.");
+		return abp_data;
 	}
-
-	image_path = candidate_image_path;
-	osm_path = candidate_osm_path;
 
 	// -----------------------------------------------------------------------------
 	// get file name to display
 	int index_file_start, index_file_end;
-	index_file_start = osm_path.lastIndexOf("/");
-	index_file_end = osm_path.lastIndexOf(".");
+	index_file_start = candidate_osm_path.lastIndexOf("/");
+	index_file_end = candidate_osm_path.lastIndexOf(".");
 
-	directory_path = osm_path.left(index_file_start);;
-	file_name = QString("");
+	QString directory_path = candidate_osm_path.left(index_file_start);
 
-	file_name.append(osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
+	QString file_name = QString("File: ");
+	file_name.append(candidate_osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
 
-	return QString();
+	abp_data.image_path = candidate_image_path;
+	abp_data.osm_path = candidate_osm_path;
+	abp_data.directory_path = directory_path;
+	abp_data.file_name = file_name;
+	return abp_data;
 }
 
 bool Process_File::read_osm_file(QString path)
@@ -101,9 +98,6 @@ bool Process_File::read_osm_file(QString path)
 
 bool Process_File::check_path(QString path)
 {
-	
-	QString info_msg("");
-
 	QFileInfo check_file(path);
 	bool file_isFile = check_file.isFile();
 	bool file_exists = check_file.exists();
@@ -112,7 +106,7 @@ bool Process_File::check_path(QString path)
 
 }
 
-std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame, int last_frame, double version)
+std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_path, int first_frame, int last_frame, double version)
 {
 
 	std::vector<std::vector<uint16_t>> video_frames_16bit;
