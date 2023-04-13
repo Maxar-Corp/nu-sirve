@@ -47,6 +47,7 @@ HEADERS += abir_reader.h \
             play_back.h \
             plot_engineering_data.h \
             process_file.h \
+            qthelpers.h \
             Section.h \
             SirveApp.h \
             video_class.h \
@@ -86,6 +87,7 @@ SOURCES += abir_reader.cpp \
             playback.cpp \
             plot_engineering_data.cpp \
             process_file.cpp \
+            qthelpers.cpp \
             Section.cpp \
             SirveApp.cpp \
             video_class.cpp \
