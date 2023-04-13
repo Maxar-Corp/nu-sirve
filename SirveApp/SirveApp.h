@@ -24,6 +24,7 @@
 #include "fixed_aspect_ratio_frame.h"
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
+#include "qthelpers.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -38,7 +39,6 @@
 #include <qinputdialog.h>
 #include <qdialogbuttonbox.h>
 #include <qprogressdialog.h>
-#include <qmessagebox.h>
 #include <qjsonobject.h>
 #include <qjsondocument.h>
 #include <qclipboard.h>

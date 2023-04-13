@@ -960,14 +960,8 @@ void SirveApp::load_osm_data()
 			btn_calibration_dialog->setEnabled(true);
 		}
 
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Issue Loading File"));
-		msgBox.setText(error_message);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-
+		QtHelpers::LaunchMessageBox(QString("Issue Loading File"), error_message);
+		
 		return;
 	}
 			
@@ -1030,14 +1024,7 @@ void SirveApp::load_osm_data()
 	int num_tracks = data_plots->track_irradiance_data.size();
 	if (num_tracks == 0)
 	{
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("No Tracking Data"));
-		QString box_text = "No tracking data was found within the file. No data will be plotted.";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
 	}
 	
 	//--------------------------------------------------------------------------------
@@ -1173,14 +1160,7 @@ void SirveApp::load_abir_data()
 
 	if (video_frames.size() == 0) {
 
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("File Version Not Within Range"));
-		QString box_text = "File version was not within valid range. See log for more details";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+		QtHelpers::LaunchMessageBox(QString("File Version Not Within Range"), "File version was not within valid range. See log for more details");
 
 		INFO << "GUI: Video import stopped. File version not within range";
 		btn_get_frames->setEnabled(true);
@@ -1307,13 +1287,7 @@ void SirveApp::start_stop_video_record()
 		}
 		else
 		{
-			QMessageBox msgBox;
-			msgBox.setWindowTitle(QString("Video Record Failed "));
-			msgBox.setText("Video file could not be saved to this location");
-
-			msgBox.setStandardButtons(QMessageBox::Ok);
-			msgBox.setDefaultButton(QMessageBox::Ok);
-			msgBox.exec();
+			QtHelpers::LaunchMessageBox(QString("Video Record Failed "), "Video file could not be saved to this location");
 		}
 
 	}
@@ -2189,15 +2163,8 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	if (nuc_correction.size() == 0)
 	{
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("File Version Not Within Range"));
-		QString box_text = "File version was not within valid range. See log for more details";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
-
+		QtHelpers::LaunchMessageBox(QString("File Version Not Within Range"), "File version was not within valid range. See log for more details");
+		
 		INFO << "GUI: NUC correction not completed";
 		return;
 	}
@@ -2777,13 +2744,8 @@ bool SirveApp::check_min_max_frame_input(int min_frame, int max_frame)
 		if (max_frame < 0)
 			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << txt_end_frame->text().toLocal8Bit().constData();
 		
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Non-Numeric Data"));
-		msgBox.setText("Non-numeric data entered for the start/end frames");
+		QtHelpers::LaunchMessageBox(QString("Non-Numeric Data"), "Non-numeric data entered for the start/end frames");
 
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
 		return false;
 	}
 
@@ -2792,13 +2754,7 @@ bool SirveApp::check_min_max_frame_input(int min_frame, int max_frame)
 	{
 		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
 		
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Bad Data Entered"));
-		msgBox.setText("Start frame is greater than the end frame");
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+		QtHelpers::LaunchMessageBox(QString("Bad Data Entered"), "Start frame is greater than the end frame");
 
 		return false;
 	}
@@ -2818,14 +2774,8 @@ bool SirveApp::check_min_max_frame_input(int min_frame, int max_frame)
 		if (min_frame < 0)
 			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
 
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Outside of Data Range"));
-		QString box_text = "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")";
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Ok);
-		msgBox.setDefaultButton(QMessageBox::Ok);
-		msgBox.exec();
+		QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")");
+		
 		return false;
 	}
 	
