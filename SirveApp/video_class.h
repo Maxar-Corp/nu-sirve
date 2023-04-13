@@ -36,7 +36,7 @@ class Video : public QWidget
     Q_OBJECT
 public:
    
-	Video(int x_pixles, int y_pixels, int input_bit_level);
+	Video(int x_pixels, int y_pixels, int input_bit_level);
 	//Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
 	~Video();
 
