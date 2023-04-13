@@ -635,7 +635,7 @@ void CalibrationDialog::ok()
 	msgBox.setDefaultButton(QMessageBox::Ok);
 	msgBox.exec();
 
-	file_data.load_osm_file();
+	abp_metadata = file_data.load_osm_file();
 
 	//----------------------------------------------------------------------------
 	QString path = "config/config.json";
@@ -662,7 +662,7 @@ void CalibrationDialog::ok()
 	//----------------------------------------------------------------------------
 
 	ImportFrames abp_frames = find_frames_in_osm();
-	path_image = file_data.image_path;
+	path_image = abp_metadata.image_path;
 
 	if (abp_frames.all_frames_found) {
 
@@ -681,8 +681,8 @@ void CalibrationDialog::ok()
 		double irradiance2 = trapezoidal_integration(x, response2);
 
 		// get counts from abp image file
-		std::vector<std::vector<uint16_t>> video_frames1 = file_data.load_image_file(abp_frames.start_frame1, abp_frames.stop_frame1, version);
-		std::vector<std::vector<uint16_t>> video_frames2 = file_data.load_image_file(abp_frames.start_frame2, abp_frames.stop_frame2, version);
+		std::vector<std::vector<uint16_t>> video_frames1 = file_data.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
+		std::vector<std::vector<uint16_t>> video_frames2 = file_data.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
 
 		double integration_time = file_data.abir_data.ir_data[0].header.int_time;
 

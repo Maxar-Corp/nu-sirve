@@ -117,6 +117,7 @@ private:
 	QLineSeries* selection1, * selection2;
 
 	Process_File file_data;
+	AbpFileMetadata abp_metadata;
 
 	void initialize_gui();
 	void get_new_nuc_file();

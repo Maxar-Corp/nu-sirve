@@ -941,13 +941,13 @@ void SirveApp::load_osm_data()
 	btn_calibration_dialog->setEnabled(false);
 	lbl_file_load->setText("");
 
-	QString error_message = file_data.load_osm_file();
+	AbpFileMetadata possible_abp_file_metadata = file_data.load_osm_file();
 	
-	if (!error_message.isEmpty())
-	{		
-		INFO << "GUI: No file selected for load";
-
-		lbl_file_load->setText(file_data.info_msg);
+	if (!possible_abp_file_metadata.error_msg.isEmpty())
+	{
+		INFO << "GUI: No valid file selected for load";
+		
+		lbl_file_load->setText(possible_abp_file_metadata.info_msg);
 
 		btn_load_osm->setEnabled(true);
 		btn_copy_directory->setEnabled(true);
@@ -960,16 +960,17 @@ void SirveApp::load_osm_data()
 			btn_calibration_dialog->setEnabled(true);
 		}
 
-		QtHelpers::LaunchMessageBox(QString("Issue Loading File"), error_message);
+		QtHelpers::LaunchMessageBox(QString("Issue Loading File"), possible_abp_file_metadata.error_msg);
 		
 		return;
 	}
-			
+	abp_file_metadata = possible_abp_file_metadata;
+
 	INFO << "GUI: OSM file has valid path";
 
-	lbl_file_load->setText(file_data.info_msg);
-	lbl_file_name->setText("File: " + file_data.file_name);
-	lbl_file_name->setToolTip(file_data.directory_path);
+	lbl_file_load->setText(abp_file_metadata.info_msg);
+	lbl_file_name->setText("File: " + abp_file_metadata.file_name);
+	lbl_file_name->setToolTip(abp_file_metadata.directory_path);
 
 	txt_start_frame->setEnabled(true);
 	txt_end_frame->setEnabled(true);
@@ -1156,7 +1157,7 @@ void SirveApp::load_abir_data()
 	}
 	//----------------------------------------------------------------------------
 
-	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(min_frame, max_frame, version);
+	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, version);
 
 	if (video_frames.size() == 0) {
 
@@ -2005,7 +2006,7 @@ void SirveApp::clear_frame_label()
 
 void SirveApp::copy_osm_directory()
 {
-	clipboard->setText(file_data.osm_path);
+	clipboard->setText(abp_file_metadata.osm_path);
 }
 
 void SirveApp::update_enhanced_range(bool input)
@@ -2079,7 +2080,7 @@ void SirveApp::create_non_uniformity_correction_from_external_file()
 		return;
 	}
 
-	QString image_path = external_nuc_dialog.file_data.image_path;
+	QString image_path = external_nuc_dialog.abp_metadata.image_path;
 	unsigned int min_frame = external_nuc_dialog.start_frame;
 	unsigned int max_frame = external_nuc_dialog.stop_frame;
 
@@ -2145,7 +2146,7 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 		if (!ok)
 			return;
 
-		create_non_uniformity_correction(file_data.image_path, start_frame, stop_frame);
+		create_non_uniformity_correction(abp_file_metadata.image_path, start_frame, stop_frame);
 
 	}
 	else {
@@ -2158,7 +2159,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 {
 	//----------------------------------------------------------------------------------------------------
 
-	NUC nuc(file_path, min_frame, max_frame, file_data.file_version);
+	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, file_data.file_version);
 	std::vector<double> nuc_correction = nuc.get_nuc_correction();
 
 	if (nuc_correction.size() == 0)
@@ -2232,7 +2233,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	QFileInfo fi(file_path);
 	QString fileName = fi.fileName().toLower();
-	QString current_filename = file_data.file_name.toLower() + ".abpimage";
+	QString current_filename = abp_file_metadata.file_name.toLower() + ".abpimage";
 
 	if (fileName == current_filename)
 		fileName = "Current File";
