@@ -28,7 +28,8 @@ The specific `aqt` command executed to install QT (along with the `QtCharts` mod
 ##### Boost: The boost library, used for logging, is installed by following these steps:
     1. Download the boost library from https://www.boost.org/doc/libs/1_81_0/more/getting_started/windows.html#get-boost
     2. Execute the `bootstrap` and `b2` commands per these installation instructions: https://www.boost.org/doc/libs/1_81_0/more/getting_started/windows.html#simplified-build-from-source
-    3. NOTE: There is an annoying bug in the current source of the boost library for our configuration. In order to fix it, you must modify the `include/boost/mpl/bitand.hpp` file per this PR: https://github.com/boostorg/mpl/pull/57
+    3. NOTE: There is an annoying bug in the current source of the boost library for our configuration. 
+	- In order to fix it, you must modify the `boost/mpl/bitand.hpp` file by adding the two changes in this PR: https://github.com/boostorg/mpl/pull/57
         - A reference to this bug causing issues with QT can be found here: https://bugreports.qt.io/projects/QBS/issues/QBS-1632?filter=allopenissues
         - We so far only need to patch the `bitand.hpp` file but we may need to fix the other files as well.  
     POSTREQ: Ensure the `boost_1_81_0` folder exists alongside this README.md file and it contains a `stage` folder.
