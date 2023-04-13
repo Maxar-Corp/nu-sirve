@@ -16,7 +16,6 @@ OSMReader::~OSMReader()
 int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 {
 	INFO << "OSM Load: Loading OSM data";
-    combine_tracks = input_combine_tracks;
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
@@ -33,8 +32,8 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 	try
 	{
 		FindMessageNumber();
-		InitializeVariables();
-		LoadData();
+		InitializeVariables(input_combine_tracks);
+		LoadData(input_combine_tracks);
 	}
 	catch (const std::exception& e)
 	{
@@ -114,7 +113,7 @@ void OSMReader::FindMessageNumber()
 	INFO << "OSM Load: " << num_messages << " entries found";
 }
 
-void OSMReader::InitializeVariables()
+void OSMReader::InitializeVariables(bool combine_tracks)
 {
 
     int size_allocation = 1;
@@ -132,7 +131,7 @@ void OSMReader::InitializeVariables()
     data.reserve(size_allocation);
 }
 
-void OSMReader::LoadData()
+void OSMReader::LoadData(bool combine_tracks)
 {
     int return_code;
     return_code = fseek(fp, 0, SEEK_SET);

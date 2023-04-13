@@ -40,14 +40,11 @@ public:
     int LoadFile(char *file_path, bool input_combine_tracks = false);
     
 private:
-
-	bool combine_tracks;	
-
 	std::vector<double> frame_time;
 
     void FindMessageNumber();
-    void InitializeVariables();
-    void LoadData();
+    void InitializeVariables(bool combine_tracks);
+    void LoadData(bool combine_tracks);
     void AddTrackToLastFrame();
 	std::vector<double> get_lat_lon_alt(std::vector<double> ecf);
 
