@@ -151,20 +151,18 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(int first_frame
 
 	try
 	{
+		QByteArray array = image_path.toLocal8Bit();
+		char* buffer = array.data();
 
-	QByteArray array = image_path.toLocal8Bit();
-	char* buffer = array.data();
+		std::vector<unsigned int> frame_numbers{ frame_start, frame_end };
+		int check_value = abir_data.File_Setup(buffer, version);
 
-	std::vector<unsigned int> frame_numbers{ frame_start, frame_end };
-	int check_value = abir_data.File_Setup(buffer, version);
+		if (check_value < 0)
+			return video_frames_16bit;
 
-	if (check_value < 0)
-		return video_frames_16bit;
+		video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
 
-	video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
-
-	INFO << "Number of frames imported: " << video_frames_16bit.size();
-
+		INFO << "Number of frames imported: " << video_frames_16bit.size();
 	}
 	catch (const std::exception& e)
 	{
