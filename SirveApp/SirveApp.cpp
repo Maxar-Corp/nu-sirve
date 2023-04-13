@@ -939,8 +939,8 @@ void SirveApp::load_osm_data()
 	btn_load_osm->setEnabled(false);
 	btn_copy_directory->setEnabled(false);
 	btn_calibration_dialog->setEnabled(false);
+	lbl_file_load->setText("");
 
-	INFO << "GUI: Loading OSM data";
 	QString error_message = file_data.load_osm_file();
 	
 	if (!error_message.isEmpty())
@@ -948,7 +948,7 @@ void SirveApp::load_osm_data()
 		INFO << "GUI: No file selected for load";
 
 		lbl_file_load->setText(file_data.info_msg);
-		
+
 		btn_load_osm->setEnabled(true);
 		btn_copy_directory->setEnabled(true);
 
