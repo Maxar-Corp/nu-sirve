@@ -21,7 +21,6 @@ class Process_File : public QWidget
 public:
 
 	QString osm_path, image_path, directory_path, file_name, info_msg;
-	bool valid_osm, valid_image;
 
 	OSMReader osm_data;
 	ABIR_Data abir_data;
@@ -32,8 +31,8 @@ public:
 	Process_File();
 	~Process_File();
 
-	int load_osm_file();
-	bool read_osm_file();
+	QString load_osm_file();
+	bool read_osm_file(QString path);
 
 	bool check_path(QString path);
 	std::vector<std::vector<uint16_t>> load_image_file(int first_frame, int last_frame, double version);
