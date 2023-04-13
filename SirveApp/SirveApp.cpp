@@ -931,7 +931,6 @@ void SirveApp::setup_connections() {
 
 void SirveApp::load_osm_data()
 {
-
 	INFO << "GUI: Start OSM load process";
 
 	txt_start_frame->setEnabled(false);
@@ -942,12 +941,14 @@ void SirveApp::load_osm_data()
 	btn_calibration_dialog->setEnabled(false);
 
 	INFO << "GUI: Loading OSM data";
-	int valid_files = file_data.load_osm_file();
+	QString error_message = file_data.load_osm_file();
 	
-	if (valid_files != 1)
+	if (!error_message.isEmpty())
 	{		
 		INFO << "GUI: No file selected for load";
 
+		lbl_file_load->setText(file_data.info_msg);
+		
 		btn_load_osm->setEnabled(true);
 		btn_copy_directory->setEnabled(true);
 
@@ -959,30 +960,9 @@ void SirveApp::load_osm_data()
 			btn_calibration_dialog->setEnabled(true);
 		}
 
-		QString error_status;
-		switch (valid_files)
-		{
-		case 2:
-			error_status = "No image file was selcted";
-			break;
-		case 3:
-			error_status = "Image file issue";
-			break;
-		case 4: 
-			error_status = "No OSM file found that matches the image file name";
-			break;
-		case 5:
-			error_status = "Error while reading OSM file. Close program and open logs for details";
-			break;
-		default:
-			return;
-			break;
-		}
-		
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Issue Loading File"));
-		QString box_text = error_status;
-		msgBox.setText(box_text);
+		msgBox.setText(error_message);
 
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		msgBox.setDefaultButton(QMessageBox::Ok);
@@ -997,133 +977,128 @@ void SirveApp::load_osm_data()
 	lbl_file_name->setText("File: " + file_data.file_name);
 	lbl_file_name->setToolTip(file_data.directory_path);
 
-	if (valid_files) {
-		txt_start_frame->setEnabled(true);
-		txt_end_frame->setEnabled(true);
-		btn_get_frames->setEnabled(true);
+	txt_start_frame->setEnabled(true);
+	txt_end_frame->setEnabled(true);
+	btn_get_frames->setEnabled(true);
 
-		QString osm_max_frames = QString::number(file_data.osm_data.num_messages);
-		txt_start_frame->setText(QString("1"));
-		txt_end_frame->setText(osm_max_frames);
+	QString osm_max_frames = QString::number(file_data.osm_data.num_messages);
+	txt_start_frame->setText(QString("1"));
+	txt_end_frame->setText(osm_max_frames);
 
-		QString max_frame_text("Max Frames: ");
-		max_frame_text.append(osm_max_frames);
-		lbl_max_frames->setText(max_frame_text);
+	QString max_frame_text("Max Frames: ");
+	max_frame_text.append(osm_max_frames);
+	lbl_max_frames->setText(max_frame_text);
 
-		if (eng_data != NULL) {
-				
-			DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
+	if (eng_data != NULL) {
+			
+		DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
 
-			toggle_video_playback_options(false);
+		toggle_video_playback_options(false);
 
-			// Reset video frame
-			playback_controller->stop_timer();
-			reset_color_correction();
-			clear_image_processing();
+		// Reset video frame
+		playback_controller->stop_timer();
+		reset_color_correction();
+		clear_image_processing();
 
-			// delete objects with existing data within them
-			delete eng_data;
-			delete data_plots;
-			delete engineering_plot_layout;			
-
-			ir_video->container.something.clear();
-			ir_video->remove_frame();
-
-			clear_frame_label();
-
-			video_layout->addWidget(ir_video->label);
-			frame_video->setLayout(video_layout);
-
-		}
-
-		DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
-
-		eng_data = new Engineering_Data(file_data.osm_data.data);
-		data_plots = new Engineering_Plots();
-
-		data_plots->frame_numbers = eng_data->frame_numbers;
-		data_plots->past_midnight = eng_data->get_seconds_from_midnight();
-		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-		data_plots->index_sub_plot_xmin = 0;
-		data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
-
-		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
-				
-		//--------------------------------------------------------------------------------
-		int num_tracks = data_plots->track_irradiance_data.size();
-		if (num_tracks == 0)
-		{
-			QMessageBox msgBox;
-			msgBox.setWindowTitle(QString("No Tracking Data"));
-			QString box_text = "No tracking data was found within the file. No data will be plotted.";
-			msgBox.setText(box_text);
-
-			msgBox.setStandardButtons(QMessageBox::Ok);
-			msgBox.setDefaultButton(QMessageBox::Ok);
-			msgBox.exec();
-		}
-
-		//--------------------------------------------------------------------------------
-		// Enable setting of epoch
-		dt_epoch->setEnabled(true);
-		btn_apply_epoch->setEnabled(true);
-				
-		std::vector<double> epoch0 = eng_data->get_epoch();
-		std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
-		std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
-		update_epoch_string(create_epoch_string(epoch0));
-		display_original_epoch(create_epoch_string(epoch0));
-
-		QDate new_date(epoch0[0], epoch0[1], epoch0[2]);
-		QDate min_date(epoch_min[0], epoch_min[1], epoch_min[2]);
-		QDate max_date(epoch_max[0], epoch_max[1], epoch_max[2]);
-
-		dt_epoch->setDate(new_date);
-		dt_epoch->setMinimumDate(min_date);
-		dt_epoch->setMaximumDate(max_date);
-
-		dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
-		//--------------------------------------------------------------------------------
-
-		engineering_plot_layout = new QGridLayout();
-		engineering_plot_layout->addWidget(data_plots->chart_view);
-		frame_plots->setLayout(engineering_plot_layout);
-
-		//--------------------------------------------------------------------------------
+		// delete objects with existing data within them
+		delete eng_data;
+		delete data_plots;
+		delete engineering_plot_layout;			
 		
-		// Reset settings on video playback to defaults
-		ir_video->toggle_osm_tracks(false);
+		ir_video->container.something.clear();
+		ir_video->remove_frame();
 
-		ir_video->toggle_primary_track_data(false);
-
-		//menu_sensor_boresight->setIconVisibleInMenu(false);
-		ir_video->toggle_sensor_boresight_data(false);
-
-		btn_calculate_radiance->setChecked(false);
-		btn_calculate_radiance->setEnabled(false);
-
-		CalibrationData temp;
-		calibration_model = temp;
-
-		ir_video->banner_color = QString("red");
-		ir_video->banner_text = QString("EDIT CLASSIFICATION");
-		ir_video->tracker_color = QString("red");
+		clear_frame_label();
 		
-		// Reset setting engineering plot defaults
-		data_plots->plot_all_data = true;
-		menu_plot_all_data->setIconVisibleInMenu(true);
-		
-		data_plots->plot_primary_only = false;
-		menu_plot_primary->setIconVisibleInMenu(false);
-
-		data_plots->plot_current_marker = false;
-		menu_plot_frame_marker->setIconVisibleInMenu(false);
-		
-		enable_engineering_plot_options(true);
-		data_plots->set_plot_title(QString("EDIT CLASSIFICATION"));
-
-		INFO << "GUI: OSM successfully loaded";
+		video_layout->addWidget(ir_video->label);
+		frame_video->setLayout(video_layout);
 	}
+
+	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
+
+	eng_data = new Engineering_Data(file_data.osm_data.data);
+	data_plots = new Engineering_Plots();
+
+	data_plots->frame_numbers = eng_data->frame_numbers;
+	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
+	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+	data_plots->index_sub_plot_xmin = 0;
+	data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
+
+	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
+
+	int num_tracks = data_plots->track_irradiance_data.size();
+	if (num_tracks == 0)
+	{
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(QString("No Tracking Data"));
+		QString box_text = "No tracking data was found within the file. No data will be plotted.";
+		msgBox.setText(box_text);
+
+		msgBox.setStandardButtons(QMessageBox::Ok);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		msgBox.exec();
+	}
+	
+	//--------------------------------------------------------------------------------
+	// Enable setting of epoch
+	dt_epoch->setEnabled(true);
+	btn_apply_epoch->setEnabled(true);
+	
+	std::vector<double> epoch0 = eng_data->get_epoch();
+	std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
+	std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
+	update_epoch_string(create_epoch_string(epoch0));
+	display_original_epoch(create_epoch_string(epoch0));
+	
+	QDate new_date(epoch0[0], epoch0[1], epoch0[2]);
+	QDate min_date(epoch_min[0], epoch_min[1], epoch_min[2]);
+	QDate max_date(epoch_max[0], epoch_max[1], epoch_max[2]);
+
+	dt_epoch->setDate(new_date);
+	dt_epoch->setMinimumDate(min_date);
+	dt_epoch->setMaximumDate(max_date);
+
+	dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
+	
+	//--------------------------------------------------------------------------------
+
+	engineering_plot_layout = new QGridLayout();
+	engineering_plot_layout->addWidget(data_plots->chart_view);
+	frame_plots->setLayout(engineering_plot_layout);
+
+	// Reset settings on video playback to defaults
+	ir_video->toggle_osm_tracks(false);
+
+	ir_video->toggle_primary_track_data(false);
+
+	//menu_sensor_boresight->setIconVisibleInMenu(false);
+	ir_video->toggle_sensor_boresight_data(false);
+
+	btn_calculate_radiance->setChecked(false);
+	btn_calculate_radiance->setEnabled(false);
+
+	CalibrationData temp;
+	calibration_model = temp;
+
+	ir_video->banner_color = QString("red");
+	ir_video->banner_text = QString("EDIT CLASSIFICATION");
+	ir_video->tracker_color = QString("red");
+	
+	// Reset setting engineering plot defaults
+	data_plots->plot_all_data = true;
+	menu_plot_all_data->setIconVisibleInMenu(true);
+	
+	data_plots->plot_primary_only = false;
+	menu_plot_primary->setIconVisibleInMenu(false);
+
+	data_plots->plot_current_marker = false;
+	menu_plot_frame_marker->setIconVisibleInMenu(false);
+	
+	enable_engineering_plot_options(true);
+	data_plots->set_plot_title(QString("EDIT CLASSIFICATION"));
+
+	INFO << "GUI: OSM successfully loaded";
 
 	btn_load_osm->setEnabled(true);
 	btn_copy_directory->setEnabled(true);
@@ -1488,7 +1463,7 @@ void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
 	
 	set_color_correction_slider_labels();
 
-	if (!playback_controller->timer->isActive() && file_data.valid_image)
+	if (!playback_controller->timer->isActive() && false)
 	{
 		int counter_value = playback_controller->get_counter();
 		ir_video->update_specific_frame(counter_value);
