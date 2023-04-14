@@ -941,7 +941,8 @@ void SirveApp::load_osm_data()
 	btn_calibration_dialog->setEnabled(false);
 	lbl_file_load->setText("");
 
-	AbpFileMetadata possible_abp_file_metadata = file_data.locate_abp_files();
+	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
+	AbpFileMetadata possible_abp_file_metadata = file_data.locate_abp_files(file_selection);
 	
 	btn_load_osm->setEnabled(true);
 	btn_copy_directory->setEnabled(true);

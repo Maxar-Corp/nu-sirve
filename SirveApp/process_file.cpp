@@ -8,7 +8,7 @@ Process_File::~Process_File()
 {
 }
 
-AbpFileMetadata Process_File::locate_abp_files()
+AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 {
 	/*
 	The returned struct will have error_msg populated if there was an error
@@ -17,8 +17,6 @@ AbpFileMetadata Process_File::locate_abp_files()
 	AbpFileMetadata abp_data;
 	abp_data.error_msg = QString();
 	abp_data.info_msg = QString("File Load Status: \n");
-	
-	QString candidate_image_path = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
 	
 	// ensure a file was selected
 	int compare = QString::compare(candidate_image_path, "", Qt::CaseInsensitive);
