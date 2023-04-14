@@ -635,7 +635,20 @@ void CalibrationDialog::ok()
 	msgBox.setDefaultButton(QMessageBox::Ok);
 	msgBox.exec();
 
-	abp_metadata = file_data.load_osm_file();
+	abp_metadata = file_data.locate_abp_files();
+	
+	if (!abp_metadata.error_msg.isEmpty())
+	{
+		INFO << "CALIBRATION: Cannot find files: " + abp_metadata.info_msg.toStdString();
+		return;
+	}
+
+	bool osm_read_success = file_data.read_osm_file(abp_metadata.osm_path);
+	if (!osm_read_success)
+	{
+		WARN << "CALIBRATION: OSM load process quit early. File not loaded correctly";
+		return;
+	}
 
 	//----------------------------------------------------------------------------
 	QString path = "config/config.json";

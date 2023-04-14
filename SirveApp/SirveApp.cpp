@@ -941,16 +941,16 @@ void SirveApp::load_osm_data()
 	btn_calibration_dialog->setEnabled(false);
 	lbl_file_load->setText("");
 
-	AbpFileMetadata possible_abp_file_metadata = file_data.load_osm_file();
+	AbpFileMetadata possible_abp_file_metadata = file_data.locate_abp_files();
 	
+	btn_load_osm->setEnabled(true);
+	btn_copy_directory->setEnabled(true);
+
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
 		INFO << "GUI: No valid file selected for load";
 		
 		lbl_file_load->setText(possible_abp_file_metadata.info_msg);
-
-		btn_load_osm->setEnabled(true);
-		btn_copy_directory->setEnabled(true);
 
 		if (eng_data != NULL) {
 			// if eng_data already initialized, allow user to re-select frames
@@ -960,13 +960,23 @@ void SirveApp::load_osm_data()
 			btn_calibration_dialog->setEnabled(true);
 		}
 
-		QtHelpers::LaunchMessageBox(QString("Issue Loading File"), possible_abp_file_metadata.error_msg);
+		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), possible_abp_file_metadata.error_msg);
 		
 		return;
 	}
+
 	abp_file_metadata = possible_abp_file_metadata;
 
-	INFO << "GUI: OSM file has valid path";
+	INFO << "GUI: ABPIMAGE and ABPOSM file have valid paths";
+
+	bool osm_read_success = file_data.read_osm_file(abp_file_metadata.osm_path);
+	if (!osm_read_success) {
+		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
+		
+		QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
+		return;
+	}
+
 
 	lbl_file_load->setText(abp_file_metadata.info_msg);
 	lbl_file_name->setText("File: " + abp_file_metadata.file_name);
@@ -1087,9 +1097,6 @@ void SirveApp::load_osm_data()
 	data_plots->set_plot_title(QString("EDIT CLASSIFICATION"));
 
 	INFO << "GUI: OSM successfully loaded";
-
-	btn_load_osm->setEnabled(true);
-	btn_copy_directory->setEnabled(true);
 
 	return;
 }
