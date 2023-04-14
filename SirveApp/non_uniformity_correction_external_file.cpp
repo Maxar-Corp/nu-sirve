@@ -54,24 +54,21 @@ void ExternalNUCInformationWidget::initialize_gui()
 
 void ExternalNUCInformationWidget::get_osm_file()
 {
-    abp_metadata = file_data.load_osm_file();
+    abp_metadata = file_data.locate_abp_files();
 
     // check that osm and image files are present
     if (!abp_metadata.error_msg.isEmpty())
     {
-
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(QString("NUC Correction from External File"));
-        QString box_text = "Error identifying OSM and ABPImage files. Select a new file and try again.\n";
-        box_text += abp_metadata.error_msg;
-        msgBox.setText(box_text);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-        msgBox.exec();
-
+        QtHelpers::LaunchMessageBox(QString("Issue Loading File"), abp_metadata.error_msg);
         return;
     }
+
+    bool osm_read_success = file_data.read_osm_file(abp_metadata.osm_path);
+    if (!osm_read_success)
+	{
+        QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
+		return;
+	}
 
     plot_osm();
 
