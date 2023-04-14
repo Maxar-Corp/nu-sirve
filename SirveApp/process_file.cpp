@@ -8,10 +8,10 @@ Process_File::~Process_File()
 {
 }
 
-AbpFileMetadata Process_File::load_osm_file()
+AbpFileMetadata Process_File::locate_abp_files()
 {
 	/*
-	The returned struct will have error_msg and info_msg populated if there was an error
+	The returned struct will have error_msg populated if there was an error
 	Otherwise, the returned struct will have all the values populated except error_msg, which will be empty
 	*/
 	AbpFileMetadata abp_data;
@@ -23,7 +23,6 @@ AbpFileMetadata Process_File::load_osm_file()
 	// ensure a file was selected
 	int compare = QString::compare(candidate_image_path, "", Qt::CaseInsensitive);
 	if (compare == 0) {
-		abp_data.info_msg.append("No file was selected \n");
 		abp_data.error_msg = QString("No file was selected");
 		return abp_data;
 	}
@@ -35,8 +34,7 @@ AbpFileMetadata Process_File::load_osm_file()
 	bool image_file_exists = check_path(candidate_image_path);
 
 	if (!valid_image_extension || !image_file_exists) {
-		abp_data.info_msg.append("File with .abpimage extension not found \n");
-		abp_data.error_msg = QString("Image file issue");
+		abp_data.error_msg = QString("File with .abpimage extension not found");
 		return abp_data;
 	}
 	abp_data.info_msg.append("File found with correct extension \n");
@@ -47,23 +45,10 @@ AbpFileMetadata Process_File::load_osm_file()
 	candidate_osm_path.replace(QString(".abpimage"), QString(".abposm"), Qt::CaseInsensitive);
 
 	if (!check_path(candidate_osm_path)) {
-		abp_data.info_msg.append("Corresponding file with .abposm extension not found \n");
-		abp_data.error_msg = QString("No OSM file found that matches the image file name");
+		abp_data.error_msg = QString("No corresponding file found with .abposm extension that matches the image file name");
 		return abp_data;
 	}
 	abp_data.info_msg.append("Corresponding OSM file found with correction extension \n");
-
-	// -----------------------------------------------------------------------------
-	// read osm file
-	INFO << "Importing file " << candidate_osm_path.toStdString();
-
-	bool check_read = read_osm_file(candidate_osm_path);
-	if (!check_read) {
-		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
-		abp_data.info_msg.append("Error while reading OSM file. Close program and open logs for details \n");
-		abp_data.error_msg = QString("Error while reading OSM file. Close program and open logs for details.");
-		return abp_data;
-	}
 
 	// -----------------------------------------------------------------------------
 	// get file name to display
@@ -85,6 +70,7 @@ AbpFileMetadata Process_File::load_osm_file()
 
 bool Process_File::read_osm_file(QString path)
 {
+	INFO << "Importing file " << path.toStdString();
 	
 	QByteArray array = path.toLocal8Bit();
 	char* buffer = array.data();
