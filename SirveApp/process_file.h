@@ -34,7 +34,7 @@ public:
 	Process_File();
 	~Process_File();
 
-	AbpFileMetadata locate_abp_files();
+	AbpFileMetadata locate_abp_files(QString candidate_image_path);
 	bool read_osm_file(QString path);
 
 	bool check_path(QString path);
