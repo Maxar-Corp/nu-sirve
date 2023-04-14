@@ -25,6 +25,7 @@
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
 #include "qthelpers.h"
+#include "workspace.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -61,6 +62,7 @@ public:
 	//Variables
 	Process_File file_data;
 	AbpFileMetadata abp_file_metadata;
+	Workspace workspace;
 	
 	QWidget *main_widget;
 	QGridLayout *video_layout, *engineering_plot_layout;

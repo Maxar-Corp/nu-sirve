@@ -51,7 +51,8 @@ HEADERS += abir_reader.h \
             Section.h \
             SirveApp.h \
             video_class.h \
-            video_container.h
+            video_container.h \
+            workspace.h
 
 FORMS += location_gui.ui new_location.ui SirveApp.ui
 
@@ -91,7 +92,8 @@ SOURCES += abir_reader.cpp \
             Section.cpp \
             SirveApp.cpp \
             video_class.cpp \
-            video_container.cpp
+            video_container.cpp \
+            workspace.cpp
 
 QT += charts widgets
 
