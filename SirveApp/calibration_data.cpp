@@ -635,7 +635,8 @@ void CalibrationDialog::ok()
 	msgBox.setDefaultButton(QMessageBox::Ok);
 	msgBox.exec();
 
-	abp_metadata = file_data.locate_abp_files();
+	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
+	abp_metadata = file_data.locate_abp_files(file_selection);
 	
 	if (!abp_metadata.error_msg.isEmpty())
 	{
