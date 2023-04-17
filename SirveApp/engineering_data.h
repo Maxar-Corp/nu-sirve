@@ -11,7 +11,7 @@
 #include <qwidget.h>
 
 #include <armadillo>
-#include "jtime.h"
+#include "support/jtime.h"
 #include "osm_reader.h"
 #include "Data_Structures.h"
 

@@ -8,7 +8,7 @@
 #include "logging.h"
 
 #include "new_location.h"
-#include "earth.h"
+#include "support/earth.h"
 
 #include <qlabel.h>
 #include <qpushbutton.h>

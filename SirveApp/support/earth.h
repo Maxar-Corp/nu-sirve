@@ -20,8 +20,8 @@
 #include <random>
 #include <stdexcept>
 
-#include "Euler.h"
-#include "JTime.h"
+#include "support/Euler.h"
+#include "support/JTime.h"
 
 namespace earth {
 
