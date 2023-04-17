@@ -31,12 +31,9 @@ HEADERS += abir_reader.h \
             custom_input_dialog.h \
             Data_Structures.h \
             deinterlace.h \
-            earth.h \
             engineering_data.h \
-            euler.h \
             fixed_aspect_ratio_frame.h \
             histogram_plotter.h \
-            jtime.h \
             location_input.h \
             logging.h \
             new_location.h \
@@ -47,12 +44,15 @@ HEADERS += abir_reader.h \
             play_back.h \
             plot_engineering_data.h \
             process_file.h \
-            qthelpers.h \
             Section.h \
             SirveApp.h \
             video_class.h \
             video_container.h \
-            workspace.h
+            workspace.h \
+            support/earth.h \
+            support/euler.h \
+            support/jtime.h \
+	        support/qthelpers.h
 
 FORMS += location_gui.ui new_location.ui SirveApp.ui
 
@@ -71,12 +71,9 @@ SOURCES += abir_reader.cpp \
             color_scheme.cpp \
             custom_input_dialog.cpp \
             deinterlace.cpp \
-            earth.cpp \
             engineering_data.cpp \
-            euler.cpp \
             fixed_aspect_ratio_frame.cpp \
             histogram_plotter.cpp \
-            jtime.cpp \
             location_input.cpp \
             logging.cpp \
             main.cpp \
@@ -88,12 +85,15 @@ SOURCES += abir_reader.cpp \
             playback.cpp \
             plot_engineering_data.cpp \
             process_file.cpp \
-            qthelpers.cpp \
             Section.cpp \
             SirveApp.cpp \
             video_class.cpp \
             video_container.cpp \
-            workspace.cpp
+            workspace.cpp \
+            support/earth.cpp \
+            support/euler.cpp \
+            support/jtime.cpp \
+            support/qthelpers.cpp
 
 QT += charts widgets
 

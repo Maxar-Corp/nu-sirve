@@ -18,13 +18,13 @@
 #include "background_subtraction.h"
 #include "deinterlace.h"
 #include "logging.h"
-#include "jtime.h"
 #include "annotations.h"
 #include "custom_input_dialog.h"
 #include "fixed_aspect_ratio_frame.h"
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
-#include "qthelpers.h"
+#include "support/jtime.h"
+#include "support/qthelpers.h"
 #include "workspace.h"
 
 #include <qstackedlayout.h>

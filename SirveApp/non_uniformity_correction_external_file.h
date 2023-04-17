@@ -22,7 +22,7 @@
 #include "plot_engineering_data.h"
 #include "fixed_aspect_ratio_frame.h"
 #include "process_file.h"
-#include "qthelpers.h"
+#include "support/qthelpers.h"
 
 
 class ExternalNUCInformationWidget : public QDialog
