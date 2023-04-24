@@ -228,7 +228,7 @@ private:
 	void edit_banner_color();
 	void edit_tracker_color();
 	void edit_primary_tracker_color();
-	void plot_change(int index);
+	void plot_change();
 	void annotate_video();
 	
 	void resize_ui();
