@@ -1242,7 +1242,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
 	data_plots->index_sub_plot_xmax = max_frame - 1;
-	plot_change(1);
+	plot_change();
 
 	//Update frame marker on engineering plot
 	QObject::connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
@@ -1500,7 +1500,7 @@ void SirveApp::plot_primary_only()
 	data_plots->plot_primary_only = new_state;
 	menu_plot_primary->setIconVisibleInMenu(new_state);
 
-	plot_change(1);
+	plot_change();
 
 	DEBUG << "GUI: Plot primary data changed from " << current_state << " to " << new_state;
 }
@@ -1508,8 +1508,8 @@ void SirveApp::plot_primary_only()
 void SirveApp::plot_current_frame_marker() {
 	data_plots->plot_current_marker = !data_plots->plot_current_marker;
 	menu_plot_frame_marker->setIconVisibleInMenu(data_plots->plot_current_marker);
-	
-	plot_change(1);
+
+	plot_change();
 	DEBUG << "GUI: Toggled plot current frame marker";
 }
 
@@ -1566,7 +1566,7 @@ void SirveApp::set_data_timing_offset()
 
 		set_zulu_label();
 
-		plot_change(0);
+		plot_change();
 	}
 }
 
@@ -1795,7 +1795,7 @@ void SirveApp::edit_primary_tracker_color()
 	ir_video->update_display_frame();
 }
 
-void SirveApp::plot_change(int index)
+void SirveApp::plot_change()
 {
 	// x - axis
 	// Index 0 - Frames
@@ -1885,7 +1885,7 @@ void SirveApp::yaxis_log_toggled(bool input)
 {
 	if (input)
 	{
-		plot_change(1);
+		plot_change();
 	}
 	
 }
@@ -1894,7 +1894,7 @@ void SirveApp::yaxis_linear_toggled(bool input)
 {
 	if (input)
 	{
-		plot_change(1);
+		plot_change();
 	}
 }
 
@@ -1902,7 +1902,7 @@ void SirveApp::yaxis_decimal_toggled(bool input)
 {
 	if (input)
 	{
-		plot_change(1);
+		plot_change();
 	}
 }
 
@@ -1910,7 +1910,7 @@ void SirveApp::yaxis_scientific_toggled(bool input)
 {
 	if (input)
 	{
-		plot_change(1);
+		plot_change();
 	}
 }
 
@@ -2060,8 +2060,7 @@ void SirveApp::apply_epoch_time()
 	
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
-	plot_change(0);
-	
+	plot_change();
 }
 
 void SirveApp::create_non_uniformity_correction_from_external_file()
