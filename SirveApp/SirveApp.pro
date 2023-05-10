@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = QtGuiApplication1
+TARGET = SirveApp
 INCLUDEPATH += .
 DESTDIR = ../release
 
@@ -40,12 +40,12 @@ HEADERS += abir_reader.h \
            play_back.h \
            plot_engineering_data.h \
            process_file.h \
-           QtGuiApplication1.h \
+           SirveApp.h \
            Section.h \
            video_class.h \
            video_container.h
 
-FORMS += location_gui.ui new_location.ui QtGuiApplication1.ui
+FORMS += location_gui.ui new_location.ui SirveApp.ui
 
 SOURCES += abir_reader.cpp \
            annotation_new.cpp \
@@ -72,7 +72,7 @@ SOURCES += abir_reader.cpp \
            playback.cpp \
            plot_engineering_data.cpp \
            process_file.cpp \
-           QtGuiApplication1.cpp \
+           SirveApp.cpp \
            Section.cpp \
            video_class.cpp \
            video_container.cpp
