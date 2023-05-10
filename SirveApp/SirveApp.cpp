@@ -1,6 +1,6 @@
-#include "QtGuiApplication1.h"
+#include "SirveApp.h"
 
-QtGuiApplication1::QtGuiApplication1(QWidget *parent)
+SirveApp::SirveApp(QWidget *parent)
 	: QMainWindow(parent)
 {
 	
@@ -47,7 +47,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 
 	// establish copy copy 
 	clipboard = QApplication::clipboard();
-	QObject::connect(btn_copy_directory, &QPushButton::clicked, this, &QtGuiApplication1::copy_osm_directory);
+	QObject::connect(btn_copy_directory, &QPushButton::clicked, this, &SirveApp::copy_osm_directory);
 
 	//---------------------------------------------------------------------------
 	// setup container to store all videos
@@ -111,7 +111,7 @@ QtGuiApplication1::QtGuiApplication1(QWidget *parent)
 	INFO << "GUI: GUI Initialized";
 }
 
-QtGuiApplication1::~QtGuiApplication1() {
+SirveApp::~SirveApp() {
 
 	
 	delete ir_video;
@@ -131,7 +131,7 @@ QtGuiApplication1::~QtGuiApplication1() {
 
 }
 
-void QtGuiApplication1::setup_ui() {
+void SirveApp::setup_ui() {
 
 	QHBoxLayout* main_layout = new QHBoxLayout();
 
@@ -204,7 +204,7 @@ void QtGuiApplication1::setup_ui() {
 
 }
 
-QWidget* QtGuiApplication1::setup_file_import_tab() {
+QWidget* SirveApp::setup_file_import_tab() {
 
 	
 	QWidget* widget_tab_import = new QWidget(tab_menu);
@@ -299,7 +299,7 @@ QWidget* QtGuiApplication1::setup_file_import_tab() {
 	return widget_tab_import;
 }
 
-QWidget* QtGuiApplication1::setup_color_correction_tab() {
+QWidget* SirveApp::setup_color_correction_tab() {
 
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
@@ -455,7 +455,7 @@ QWidget* QtGuiApplication1::setup_color_correction_tab() {
 	return widget_tab_color;
 }
 
-QWidget* QtGuiApplication1::setup_filter_tab() {
+QWidget* SirveApp::setup_filter_tab() {
 
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
@@ -534,7 +534,7 @@ QWidget* QtGuiApplication1::setup_filter_tab() {
 	return widget_tab_processing;
 }
 
-void QtGuiApplication1::setup_video_frame(){
+void SirveApp::setup_video_frame(){
 
 	frame_video_player->setFrameShape(QFrame::Box);
 	QVBoxLayout* vlayout_frame_video = new QVBoxLayout(frame_video_player);
@@ -682,7 +682,7 @@ void QtGuiApplication1::setup_video_frame(){
 
 }
 
-void QtGuiApplication1::setup_plot_frame() {
+void SirveApp::setup_plot_frame() {
 
 	tab_plots->setTabPosition(QTabWidget::South);
 
@@ -801,7 +801,7 @@ void QtGuiApplication1::setup_plot_frame() {
 	tab_plots->addTab(widget_plots_tab_color, "Plots");
 }
 
-void QtGuiApplication1::setup_connections() {
+void SirveApp::setup_connections() {
 
 
 	//---------------------------------------------------------------------------	
@@ -812,41 +812,41 @@ void QtGuiApplication1::setup_connections() {
 	QObject::connect(&ir_video->container, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
 	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
-	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &QtGuiApplication1::histogram_clicked);
+	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	//---------------------------------------------------------------------------	
 	
-	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &QtGuiApplication1::auto_change_plot_display);
-	QObject::connect(chk_relative_histogram, &QCheckBox::toggled, this, &QtGuiApplication1::toggle_relative_histogram);
+	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
+	QObject::connect(chk_relative_histogram, &QCheckBox::toggled, this, &SirveApp::toggle_relative_histogram);
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
-	QObject::connect(slider_gain, &QSlider::valueChanged, this, &QtGuiApplication1::gain_slider_toggled);
-	QObject::connect(slider_lift, &QSlider::valueChanged, this, &QtGuiApplication1::lift_slider_toggled);
+	QObject::connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
+	QObject::connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
 	//---------------------------------------------------------------------------	
 
-	QObject::connect(btn_reset_color_correction, &QPushButton::clicked, this, &QtGuiApplication1::reset_color_correction);
+	QObject::connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
 	
 	
 	//---------------------------------------------------------------------------
 		
-	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_osm_tracks);
-	connect(cmb_primary_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_primary_tracker_color);
-	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_tracker_color);
+	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::toggle_osm_tracks);
+	connect(cmb_primary_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_primary_tracker_color);
+	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_tracker_color);
 	
-	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_primary_track_data);
-	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_sensor_track_data);
-	connect(chk_show_time, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_frame_time);
-	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_color_map);
-	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::edit_banner_color);
+	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_primary_track_data);
+	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
+	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
+	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
+	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_banner_color);
 
-	connect(btn_add_annotations, &QPushButton::clicked, this, &QtGuiApplication1::annotate_video);
-	connect(btn_change_banner_text, &QPushButton::clicked, this, &QtGuiApplication1::edit_banner_text);
+	connect(btn_add_annotations, &QPushButton::clicked, this, &SirveApp::annotate_video);
+	connect(btn_change_banner_text, &QPushButton::clicked, this, &SirveApp::edit_banner_text);
 
 	//---------------------------------------------------------------------------
 
-	QObject::connect(cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::toggle_video_filters);
+	QObject::connect(cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
 
@@ -866,70 +866,70 @@ void QtGuiApplication1::setup_connections() {
 	QObject::connect(btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
 	QObject::connect(btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
 	QObject::connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
-	QObject::connect(btn_frame_record, &QPushButton::clicked, this, &QtGuiApplication1::start_stop_video_record);
+	QObject::connect(btn_frame_record, &QPushButton::clicked, this, &SirveApp::start_stop_video_record);
 
-	QObject::connect(btn_fast_forward, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
-	QObject::connect(btn_slow_back, &QPushButton::clicked, this, &QtGuiApplication1::update_fps);
+	QObject::connect(btn_fast_forward, &QPushButton::clicked, this, &SirveApp::update_fps);
+	QObject::connect(btn_slow_back, &QPushButton::clicked, this, &SirveApp::update_fps);
 
-	QObject::connect(btn_zoom, &QPushButton::clicked, this, &QtGuiApplication1::toggle_zoom_on_video);
-	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &QtGuiApplication1::toggle_calculation_on_video);
+	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
+	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
 
 	//---------------------------------------------------------------------------
 
 	//Link buttons to functions
-	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &QtGuiApplication1::load_osm_data);
-	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &QtGuiApplication1::show_calibration_dialog);
-	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &QtGuiApplication1::load_abir_data);
-	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &QtGuiApplication1::load_abir_data);
+	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &SirveApp::load_osm_data);
+	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &SirveApp::show_calibration_dialog);
+	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::load_abir_data);
+	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::load_abir_data);
 
-	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &QtGuiApplication1::create_non_uniformity_correction_selection_option);
+	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::create_non_uniformity_correction_selection_option);
 
-	QObject::connect(btn_bgs, &QPushButton::clicked, this, &QtGuiApplication1::create_background_subtraction_correction);
+	QObject::connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::create_background_subtraction_correction);
 	
-	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &QtGuiApplication1::create_deinterlace);
+	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::create_deinterlace);
 
-	QObject::connect(chk_apply_nuc, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
-	QObject::connect(chk_bgs, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
-	QObject::connect(chk_deinterlace, &QCheckBox::stateChanged, this, &QtGuiApplication1::toggle_video_filters);
+	QObject::connect(chk_apply_nuc, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
+	QObject::connect(chk_bgs, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
+	QObject::connect(chk_deinterlace, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
 
 	// Connect epoch button click to function
-	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &QtGuiApplication1::apply_epoch_time);
+	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
 
 	//---------------------------------------------------------------------------
 
 	//Enable clearing image processing filters
-	QObject::connect(btn_clear_filters, &QPushButton::clicked, this, &QtGuiApplication1::clear_image_processing);
+	QObject::connect(btn_clear_filters, &QPushButton::clicked, this, &SirveApp::clear_image_processing);
 
 	//Enable saving frame
-	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &QtGuiApplication1::save_frame);
+	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::save_frame);
 
 	//Update frame number label
-	QObject::connect(playback_controller, &Playback::update_frame, this, &QtGuiApplication1::set_frame_number_label);
+	QObject::connect(playback_controller, &Playback::update_frame, this, &SirveApp::set_frame_number_label);
 
 
 	//---------------------------------------------------------------------------	
 	// Connect x-axis and y-axis changes to functions
-	connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
-	connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &QtGuiApplication1::plot_change);
+	connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::plot_change);
+	connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::plot_change);
 
 	// Connect save button functions
-	connect(btn_save_plot, &QPushButton::clicked, this, &QtGuiApplication1::save_plot);
+	connect(btn_save_plot, &QPushButton::clicked, this, &SirveApp::save_plot);
 
 	//---------------------------------------------------------------------------
 	// connect the plot radial buttons to adjust plot
 
-	connect(rad_log, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_log_toggled);
-	connect(rad_decimal, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_decimal_toggled);
-	connect(rad_linear, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_linear_toggled);
-	connect(rad_scientific, &QRadioButton::toggled, this, &QtGuiApplication1::yaxis_scientific_toggled);
+	connect(rad_log, &QRadioButton::toggled, this, &SirveApp::yaxis_log_toggled);
+	connect(rad_decimal, &QRadioButton::toggled, this, &SirveApp::yaxis_decimal_toggled);
+	connect(rad_linear, &QRadioButton::toggled, this, &SirveApp::yaxis_linear_toggled);
+	connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::yaxis_scientific_toggled);
 
 	//---------------------------------------------------------------------------
 
 }
 
-void QtGuiApplication1::load_osm_data()
+void SirveApp::load_osm_data()
 {
 
 	INFO << "GUI: Start OSM load process";
@@ -1131,7 +1131,7 @@ void QtGuiApplication1::load_osm_data()
 	return;
 }
 
-void QtGuiApplication1::load_abir_data()
+void SirveApp::load_abir_data()
 {
 
 	btn_get_frames->setEnabled(false);
@@ -1297,7 +1297,7 @@ void QtGuiApplication1::load_abir_data()
 	//---------------------------------------------------------------------------
 }
 
-void QtGuiApplication1::start_stop_video_record()
+void SirveApp::start_stop_video_record()
 {
 
 	if (record_video)
@@ -1346,7 +1346,7 @@ void QtGuiApplication1::start_stop_video_record()
 }
 
 
-void QtGuiApplication1::toggle_zoom_on_video() {
+void SirveApp::toggle_zoom_on_video() {
 
 	bool status_zoom_btn = btn_zoom->isChecked();
 	
@@ -1362,7 +1362,7 @@ void QtGuiApplication1::toggle_zoom_on_video() {
 }
 
 
-void QtGuiApplication1::toggle_calculation_on_video()
+void SirveApp::toggle_calculation_on_video()
 {
 
 	bool status_calculation_btn = btn_calculate_radiance->isChecked();
@@ -1377,7 +1377,7 @@ void QtGuiApplication1::toggle_calculation_on_video()
 	}
 }
 
-void QtGuiApplication1::update_fps()
+void SirveApp::update_fps()
 {
 	QString fps = QString::number(playback_controller->speeds[playback_controller->index_speed], 'g', 2);
 	fps.append(" fps");
@@ -1386,7 +1386,7 @@ void QtGuiApplication1::update_fps()
 }
 
 
-void QtGuiApplication1::histogram_clicked(double x0, double x1) {
+void SirveApp::histogram_clicked(double x0, double x1) {
 	// connects the clickable histogram to the main program 
 
 	// get current lift/gain values
@@ -1450,7 +1450,7 @@ void QtGuiApplication1::histogram_clicked(double x0, double x1) {
 }
 
 
-void QtGuiApplication1::lift_slider_toggled(int value) {
+void SirveApp::lift_slider_toggled(int value) {
 
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -1466,7 +1466,7 @@ void QtGuiApplication1::lift_slider_toggled(int value) {
 	color_correction_toggled(lift_value, gain_value);
 }
 
-void QtGuiApplication1::gain_slider_toggled(int value) {
+void SirveApp::gain_slider_toggled(int value) {
 
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -1482,7 +1482,7 @@ void QtGuiApplication1::gain_slider_toggled(int value) {
 	color_correction_toggled(lift_value, gain_value);
 }
 
-void QtGuiApplication1::color_correction_toggled(double lift_value, double gain_value) {
+void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
 		
 	emit color_correction.update_min_max(lift_value, gain_value);
 	
@@ -1498,7 +1498,7 @@ void QtGuiApplication1::color_correction_toggled(double lift_value, double gain_
 	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
 }
 
-void QtGuiApplication1::reset_color_correction()
+void SirveApp::reset_color_correction()
 {
 		
 	slider_lift->setValue(0);
@@ -1509,7 +1509,7 @@ void QtGuiApplication1::reset_color_correction()
 }
 
 
-void QtGuiApplication1::plot_full_data()
+void SirveApp::plot_full_data()
 {
 	bool current_state = data_plots->plot_all_data;
 	bool new_state = !current_state;
@@ -1522,7 +1522,7 @@ void QtGuiApplication1::plot_full_data()
 	
 }
 
-void QtGuiApplication1::plot_primary_only()
+void SirveApp::plot_primary_only()
 {
 	bool current_state = data_plots->plot_primary_only;
 	bool new_state = !current_state;
@@ -1535,7 +1535,7 @@ void QtGuiApplication1::plot_primary_only()
 	DEBUG << "GUI: Plot primary data changed from " << current_state << " to " << new_state;
 }
 
-void QtGuiApplication1::plot_current_frame_marker() {
+void SirveApp::plot_current_frame_marker() {
 
 	bool current_state = data_plots->plot_current_marker;
 	bool new_state = !current_state;
@@ -1552,7 +1552,7 @@ void QtGuiApplication1::plot_current_frame_marker() {
 	DEBUG << "GUI: Show video marker changed from " << current_state << " to " << new_state;
 }
 
-void QtGuiApplication1::auto_change_plot_display(int index)
+void SirveApp::auto_change_plot_display(int index)
 {
 	// When color tab is selected, the histogram is automatically displayed
 	if (index == 1) {
@@ -1565,7 +1565,7 @@ void QtGuiApplication1::auto_change_plot_display(int index)
 	}
 }
 
-void QtGuiApplication1::show_calibration_dialog()
+void SirveApp::show_calibration_dialog()
 {
 	CalibrationDialog calibrate_dialog(calibration_model);
 	
@@ -1581,7 +1581,7 @@ void QtGuiApplication1::show_calibration_dialog()
 	btn_calculate_radiance->setEnabled(true);
 }
 
-void QtGuiApplication1::set_data_timing_offset()
+void SirveApp::set_data_timing_offset()
 {
 
 	if (!eng_data)
@@ -1609,18 +1609,18 @@ void QtGuiApplication1::set_data_timing_offset()
 	}
 }
 
-void QtGuiApplication1::close_window()
+void SirveApp::close_window()
 {
 	close();
 }
 
-void QtGuiApplication1::save_plot()
+void SirveApp::save_plot()
 {
 	data_plots->save_plot();
 	INFO << "GUI: Plot saved";
 }
 
-void QtGuiApplication1::save_frame()
+void SirveApp::save_frame()
 {
 	if(playback_controller->is_running())
 		playback_controller->stop_timer();
@@ -1632,17 +1632,17 @@ void QtGuiApplication1::save_frame()
 		playback_controller->start_timer();
 }
 
-void QtGuiApplication1::create_menu_actions()
+void SirveApp::create_menu_actions()
 {
 	QIcon on("icons/check.png");
 
 	action_close = new QAction("Close");
 	action_close->setStatusTip("Close main window");
-	connect(action_close, &QAction::triggered, this, &QtGuiApplication1::close_window);
+	connect(action_close, &QAction::triggered, this, &SirveApp::close_window);
 
 	action_set_timing_offset = new QAction("Set Timing Offset");
 	action_set_timing_offset->setStatusTip("Set a time offset to apply to collected data");
-	connect(action_set_timing_offset, &QAction::triggered, this, &QtGuiApplication1::set_data_timing_offset);
+	connect(action_set_timing_offset, &QAction::triggered, this, &SirveApp::set_data_timing_offset);
 
 	menu_file = menuBar()->addMenu(tr("&File"));
 	menu_file->addAction(action_close);
@@ -1657,27 +1657,27 @@ void QtGuiApplication1::create_menu_actions()
 	menu_plot_all_data->setIcon(on);
 	menu_plot_all_data->setStatusTip(tr("Plot all data from OSM file"));
 	menu_plot_all_data->setIconVisibleInMenu(true);
-	connect(menu_plot_all_data, &QAction::triggered, this, &QtGuiApplication1::plot_full_data);
+	connect(menu_plot_all_data, &QAction::triggered, this, &SirveApp::plot_full_data);
 
 	menu_plot_primary = new QAction(tr("&Plot Primary Data Only"), this);
 	menu_plot_primary->setIcon(on);
 	menu_plot_primary->setStatusTip(tr("Plot only the primary object"));
 	menu_plot_primary->setIconVisibleInMenu(false);
-	connect(menu_plot_primary, &QAction::triggered, this, &QtGuiApplication1::plot_primary_only);
+	connect(menu_plot_primary, &QAction::triggered, this, &SirveApp::plot_primary_only);
 	
 	menu_plot_frame_marker = new QAction(tr("&Plot Marker for Current Frame"), this);
 	menu_plot_frame_marker->setIcon(on);
 	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video frame"));
 	menu_plot_frame_marker->setIconVisibleInMenu(false);
-	connect(menu_plot_frame_marker, &QAction::triggered, this, &QtGuiApplication1::plot_current_frame_marker);
+	connect(menu_plot_frame_marker, &QAction::triggered, this, &SirveApp::plot_current_frame_marker);
 
 	menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
 	menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
-	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::edit_plot_text);
+	connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::edit_plot_text);
 
 	menu_plot_edit_banner = new QAction(tr("&Export Tracking Data"), this);
 	menu_plot_edit_banner->setStatusTip(tr("Export the plotted data to file"));
-	connect(menu_plot_edit_banner, &QAction::triggered, this, &QtGuiApplication1::export_plot_data);
+	connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::export_plot_data);
 
 	// ---------------------- Set Acctions to Menu --------------------
 	
@@ -1691,7 +1691,7 @@ void QtGuiApplication1::create_menu_actions()
 
 }
 
-void QtGuiApplication1::edit_banner_text()
+void SirveApp::edit_banner_text()
 {	
 	bool ok;
 	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text, &ok);
@@ -1725,7 +1725,7 @@ void QtGuiApplication1::edit_banner_text()
 	}
 }
 
-void QtGuiApplication1::edit_plot_text()
+void SirveApp::edit_plot_text()
 {
 	bool ok;
 	QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, data_plots->title, &ok);
@@ -1740,7 +1740,7 @@ void QtGuiApplication1::edit_plot_text()
 	}
 }
 
-void QtGuiApplication1::export_plot_data()
+void SirveApp::export_plot_data()
 {
 	
 	QStringList items;
@@ -1781,7 +1781,7 @@ void QtGuiApplication1::export_plot_data()
 	msgBox.exec();
 }
 
-int QtGuiApplication1::get_color_index(QVector<QString> colors, QColor input_color) {
+int SirveApp::get_color_index(QVector<QString> colors, QColor input_color) {
 
 	int index_current_color;
 	QString current_banner_color = input_color.name();
@@ -1799,7 +1799,7 @@ int QtGuiApplication1::get_color_index(QVector<QString> colors, QColor input_col
 }
 
 
-void QtGuiApplication1::edit_color_map()
+void SirveApp::edit_color_map()
 {
 
 	int index = cmb_color_maps->currentIndex();
@@ -1808,7 +1808,7 @@ void QtGuiApplication1::edit_color_map()
 
 }
 
-void QtGuiApplication1::edit_banner_color()
+void SirveApp::edit_banner_color()
 {
 	
 	int index = cmb_text_color->currentIndex();
@@ -1820,21 +1820,21 @@ void QtGuiApplication1::edit_banner_color()
 	//}
 }
 
-void QtGuiApplication1::edit_tracker_color()
+void SirveApp::edit_tracker_color()
 {
 	QString tracker_color = cmb_tracker_color->currentText();
 	ir_video->update_tracker_color(tracker_color);
 	ir_video->update_display_frame();
 }
 
-void QtGuiApplication1::edit_primary_tracker_color()
+void SirveApp::edit_primary_tracker_color()
 {
 	QString tracker_color = cmb_primary_tracker_color->currentText();
 	ir_video->update_tracker_primary_color(tracker_color);
 	ir_video->update_display_frame();
 }
 
-void QtGuiApplication1::plot_change(int index)
+void SirveApp::plot_change(int index)
 {
 	// x - axis
 	// Index 0 - Frames
@@ -1903,7 +1903,7 @@ void QtGuiApplication1::plot_change(int index)
 
 }
 
-void QtGuiApplication1::annotate_video()
+void SirveApp::annotate_video()
 {
 	video_info standard_info;
 	standard_info.x_pixels = ir_video->image_x;
@@ -1920,7 +1920,7 @@ void QtGuiApplication1::annotate_video()
 	annotate_gui.exec();
 }
 
-void QtGuiApplication1::yaxis_log_toggled(bool input)
+void SirveApp::yaxis_log_toggled(bool input)
 {
 	if (input)
 	{
@@ -1929,7 +1929,7 @@ void QtGuiApplication1::yaxis_log_toggled(bool input)
 	
 }
 
-void QtGuiApplication1::yaxis_linear_toggled(bool input)
+void SirveApp::yaxis_linear_toggled(bool input)
 {
 	if (input)
 	{
@@ -1937,7 +1937,7 @@ void QtGuiApplication1::yaxis_linear_toggled(bool input)
 	}
 }
 
-void QtGuiApplication1::yaxis_decimal_toggled(bool input)
+void SirveApp::yaxis_decimal_toggled(bool input)
 {
 	if (input)
 	{
@@ -1945,7 +1945,7 @@ void QtGuiApplication1::yaxis_decimal_toggled(bool input)
 	}
 }
 
-void QtGuiApplication1::yaxis_scientific_toggled(bool input)
+void SirveApp::yaxis_scientific_toggled(bool input)
 {
 	if (input)
 	{
@@ -1953,7 +1953,7 @@ void QtGuiApplication1::yaxis_scientific_toggled(bool input)
 	}
 }
 
-int QtGuiApplication1::get_integer_from_txt_box(QString input)
+int SirveApp::get_integer_from_txt_box(QString input)
 {
 	bool convert_value_numeric;
 	int value = input.toInt(&convert_value_numeric);
@@ -1968,7 +1968,7 @@ int QtGuiApplication1::get_integer_from_txt_box(QString input)
 	}
 }
 
-bool QtGuiApplication1::check_value_within_range(int input_value, int min_value, int max_value)
+bool SirveApp::check_value_within_range(int input_value, int min_value, int max_value)
 {
 	if (input_value < min_value) {
 		DEBUG << "GUI: " << input_value << "is less than min value of " << min_value;
@@ -1984,7 +1984,7 @@ bool QtGuiApplication1::check_value_within_range(int input_value, int min_value,
 	return true;
 }
 
-void QtGuiApplication1::set_frame_number_label(int counter)
+void SirveApp::set_frame_number_label(int counter)
 {
 	// check that engineering is non-null before accessing
 	if (eng_data) {
@@ -2007,7 +2007,7 @@ void QtGuiApplication1::set_frame_number_label(int counter)
 
 }
 
-void QtGuiApplication1::set_zulu_label()
+void SirveApp::set_zulu_label()
 {
 
 	int index = data_plots->index_sub_plot_xmin;
@@ -2040,7 +2040,7 @@ void QtGuiApplication1::set_zulu_label()
 
 }
 
-void QtGuiApplication1::clear_frame_label()
+void SirveApp::clear_frame_label()
 {
 
 	QString frame_text("");
@@ -2054,19 +2054,19 @@ void QtGuiApplication1::clear_frame_label()
 }
 
 
-void QtGuiApplication1::copy_osm_directory()
+void SirveApp::copy_osm_directory()
 {
 	clipboard->setText(file_data.osm_path);
 }
 
-void QtGuiApplication1::update_enhanced_range(bool input)
+void SirveApp::update_enhanced_range(bool input)
 {
 
 	emit enhanced_dynamic_range(input);
 
 }
 
-void QtGuiApplication1::toggle_relative_histogram(bool input)
+void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
 
@@ -2084,7 +2084,7 @@ void QtGuiApplication1::toggle_relative_histogram(bool input)
 	}
 }
 
-void QtGuiApplication1::apply_epoch_time()
+void SirveApp::apply_epoch_time()
 {
 	double year, month, day, hr, min;
 	double sec, msec, epoch_jdate;
@@ -2119,7 +2119,7 @@ void QtGuiApplication1::apply_epoch_time()
 	
 }
 
-void QtGuiApplication1::create_non_uniformity_correction_from_external_file()
+void SirveApp::create_non_uniformity_correction_from_external_file()
 {
 	ExternalNUCInformationWidget external_nuc_dialog;
 
@@ -2157,7 +2157,7 @@ void QtGuiApplication1::create_non_uniformity_correction_from_external_file()
 
 }
 
-void QtGuiApplication1::create_non_uniformity_correction_selection_option()
+void SirveApp::create_non_uniformity_correction_selection_option()
 {
 	
 	
@@ -2205,7 +2205,7 @@ void QtGuiApplication1::create_non_uniformity_correction_selection_option()
 	
 }
 
-void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
+void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
 	//----------------------------------------------------------------------------------------------------
 
@@ -2302,7 +2302,7 @@ void QtGuiApplication1::create_non_uniformity_correction(QString file_path, unsi
 
 }
 
-void QtGuiApplication1::create_deinterlace()
+void SirveApp::create_deinterlace()
 {
 	INFO << "GUI: Creating de-interlace file from original data";
 		
@@ -2375,7 +2375,7 @@ void QtGuiApplication1::create_deinterlace()
 	
 }
 
-void QtGuiApplication1::toggle_osm_tracks()
+void SirveApp::toggle_osm_tracks()
 {
 
 	bool current_status = ir_video->plot_tracks;
@@ -2394,7 +2394,7 @@ void QtGuiApplication1::toggle_osm_tracks()
 	ir_video->update_display_frame();
 }
 
-void QtGuiApplication1::toggle_primary_track_data()
+void SirveApp::toggle_primary_track_data()
 {
 
 	bool current_status = ir_video->display_tgt_pos_txt;
@@ -2404,7 +2404,7 @@ void QtGuiApplication1::toggle_primary_track_data()
 
 }
 
-void QtGuiApplication1::toggle_sensor_track_data()
+void SirveApp::toggle_sensor_track_data()
 {
 
 	bool current_status = ir_video->display_boresight_txt;
@@ -2414,14 +2414,14 @@ void QtGuiApplication1::toggle_sensor_track_data()
 
 }
 
-void QtGuiApplication1::toggle_frame_time()
+void SirveApp::toggle_frame_time()
 {
 	bool current_status = chk_show_time->isChecked();
 	ir_video->display_time = current_status;
 	ir_video->update_display_frame();
 }
 
-deinterlace_type QtGuiApplication1::find_deinterlace_type(int index) {
+deinterlace_type SirveApp::find_deinterlace_type(int index) {
 
 	switch (index)
 	{
@@ -2443,7 +2443,7 @@ deinterlace_type QtGuiApplication1::find_deinterlace_type(int index) {
 	return deinterlace_type::max_absolute_value;
 }
 
-Video_Parameters QtGuiApplication1::find_deinterlace_video_type(int index)
+Video_Parameters SirveApp::find_deinterlace_video_type(int index)
 {
 	switch (index)
 	{
@@ -2461,7 +2461,7 @@ Video_Parameters QtGuiApplication1::find_deinterlace_video_type(int index)
 	return Video_Parameters::deinterlace_max_absolute_value;
 }
 
-void QtGuiApplication1::clear_image_processing()
+void SirveApp::clear_image_processing()
 {
 	
 	int n = ir_video->container.something.size();
@@ -2484,7 +2484,7 @@ void QtGuiApplication1::clear_image_processing()
 
 }
 
-video_details QtGuiApplication1::get_current_filter_state()
+video_details SirveApp::get_current_filter_state()
 {
 	video_details current_status;
 	bool no_filters_applied = true;
@@ -2510,7 +2510,7 @@ video_details QtGuiApplication1::get_current_filter_state()
 	return current_status;
 }
 
-bool QtGuiApplication1::check_filter_selection(video_details filter_state)
+bool SirveApp::check_filter_selection(video_details filter_state)
 {
 		
 	int index_exists = ir_video->container.find_data_index(filter_state);
@@ -2521,7 +2521,7 @@ bool QtGuiApplication1::check_filter_selection(video_details filter_state)
 	return false;
 }
 
-void QtGuiApplication1::show_available_filter_options()
+void SirveApp::show_available_filter_options()
 {
 	video_details current_state = get_current_filter_state();
 	DEBUG << "GUI: Finding all available filters that can now be applied";
@@ -2577,7 +2577,7 @@ void QtGuiApplication1::show_available_filter_options()
 
 }
 
-void QtGuiApplication1::create_background_subtraction_correction() {
+void SirveApp::create_background_subtraction_correction() {
 
 	INFO << "GUI: Background subtraction video being created";
 	
@@ -2677,7 +2677,7 @@ void QtGuiApplication1::create_background_subtraction_correction() {
 	show_available_filter_options();
 }
 
-void QtGuiApplication1::toggle_video_filters()
+void SirveApp::toggle_video_filters()
 {
 	INFO << "GUI: User toggled new video for display";
 
@@ -2711,7 +2711,7 @@ void QtGuiApplication1::toggle_video_filters()
 	emit playback_controller->update_frame(playback_controller->get_counter());
 }
 
-void QtGuiApplication1::set_color_correction_slider_labels()
+void SirveApp::set_color_correction_slider_labels()
 {
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -2725,7 +2725,7 @@ void QtGuiApplication1::set_color_correction_slider_labels()
 	lbl_gain_value->setText(gain_string);
 }
 
-void QtGuiApplication1::toggle_video_playback_options(bool input)
+void SirveApp::toggle_video_playback_options(bool input)
 {
 	btn_fast_forward->setEnabled(input);
 	btn_slow_back->setEnabled(input);
@@ -2756,7 +2756,7 @@ void QtGuiApplication1::toggle_video_playback_options(bool input)
 	}
 }
 
-void QtGuiApplication1::enable_engineering_plot_options(bool input)
+void SirveApp::enable_engineering_plot_options(bool input)
 {
 	// ------------------------------------------ Set Dropdown Menu ------------------------------------------
 	tab_plots->setCurrentIndex(1);
@@ -2791,7 +2791,7 @@ void QtGuiApplication1::enable_engineering_plot_options(bool input)
 
 }
 
-bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
+bool SirveApp::check_min_max_frame_input(int min_frame, int max_frame)
 {
 	
 	// if non-numeric data is entered...
@@ -2858,7 +2858,7 @@ bool QtGuiApplication1::check_min_max_frame_input(int min_frame, int max_frame)
 	return true;
 }
 
-void QtGuiApplication1::update_epoch_string(QString new_epoch_string)
+void SirveApp::update_epoch_string(QString new_epoch_string)
 {
 
 	QString out = "Applied Epoch: ";
@@ -2867,14 +2867,14 @@ void QtGuiApplication1::update_epoch_string(QString new_epoch_string)
 	
 }
 
-void QtGuiApplication1::display_original_epoch(QString new_epoch_string) 
+void SirveApp::display_original_epoch(QString new_epoch_string) 
 {
 	QString out = "Original Epoch: ";
 	out = out + new_epoch_string;
 	lbl_current_epoch->setToolTip(out);
 }
 
-QString QtGuiApplication1::create_epoch_string(std::vector<double> new_epoch) {
+QString SirveApp::create_epoch_string(std::vector<double> new_epoch) {
 
 	QString out = "";
 	
