@@ -16,66 +16,80 @@ DESTDIR = ../release
 
 # Input
 HEADERS += abir_reader.h \
-           annotation_new.h \
-           annotations.h \
-           background_subtraction.h \
-           binary_file_reader.h \
-           clickable_label.h \
-           color_correction.h \
-           color_correction_plot.h \
-           color_scheme.h \
-           Data_Structures.h \
-           deinterlace.h \
-           earth.h \
-           engineering_data.h \
-           euler.h \
-           histogram_plotter.h \
-           jtime.h \
-           location_input.h \
-           logging.h \
-           new_location.h \
-           non_uniformity_correction.h \
-           osm_plotter.h \
-           osm_reader.h \
-           play_back.h \
-           plot_engineering_data.h \
-           process_file.h \
-           SirveApp.h \
-           Section.h \
-           video_class.h \
-           video_container.h
+            abpnuc_reader.h \
+            annotation_new.h \
+            annotations.h \
+            background_subtraction.h \
+            binary_file_reader.h \
+            calibration_data.h \
+            clickable_chartview.h \
+            clickable_label.h \
+            color_correction.h \
+            color_correction_plot.h \
+            color_map.h \
+            color_scheme.h \
+            custom_input_dialog.h \
+            Data_Structures.h \
+            deinterlace.h \
+            earth.h \
+            engineering_data.h \
+            euler.h \
+            fixed_aspect_ratio_frame.h \
+            histogram_plotter.h \
+            jtime.h \
+            location_input.h \
+            logging.h \
+            new_location.h \
+            non_uniformity_correction_external_file.h \
+            non_uniformity_correction.h \
+            osm_plotter.h \
+            osm_reader.h \
+            play_back.h \
+            plot_engineering_data.h \
+            process_file.h \
+            Section.h \
+            SirveApp.h \
+            video_class.h \
+            video_container.h
 
 FORMS += location_gui.ui new_location.ui SirveApp.ui
 
 SOURCES += abir_reader.cpp \
-           annotation_new.cpp \
-           annotations.cpp \
-           background_subtraction.cpp \
-           binary_file_reader.cpp \
-           clickable_label.cpp \
-           color_correction.cpp \
-           color_correction_plot.cpp \
-           color_scheme.cpp \
-           deinterlace.cpp \
-           earth.cpp \
-           engineering_data.cpp \
-           euler.cpp \
-           histogram_plotter.cpp \
-           jtime.cpp \
-           location_input.cpp \
-           logging.cpp \
-           main.cpp \
-           new_location.cpp \
-           non_uniformity_correction.cpp \
-           osm_plotter.cpp \
-           osm_reader.cpp \
-           playback.cpp \
-           plot_engineering_data.cpp \
-           process_file.cpp \
-           SirveApp.cpp \
-           Section.cpp \
-           video_class.cpp \
-           video_container.cpp
+            abpnuc_reader.cpp \
+            annotation_new.cpp \
+            annotations.cpp \
+            background_subtraction.cpp \
+            binary_file_reader.cpp \
+            calibration_data.cpp \
+            clickable_chartview.cpp \
+            clickable_label.cpp \
+            color_correction_plot.cpp \
+            color_correction.cpp \
+            color_map.cpp \
+            color_scheme.cpp \
+            custom_input_dialog.cpp \
+            deinterlace.cpp \
+            earth.cpp \
+            engineering_data.cpp \
+            euler.cpp \
+            fixed_aspect_ratio_frame.cpp \
+            histogram_plotter.cpp \
+            jtime.cpp \
+            location_input.cpp \
+            logging.cpp \
+            main.cpp \
+            new_location.cpp \
+            non_uniformity_correction_external_file.cpp \
+            non_uniformity_correction.cpp \
+            osm_plotter.cpp \
+            osm_reader.cpp \
+            playback.cpp \
+            plot_engineering_data.cpp \
+            process_file.cpp \
+            Section.cpp \
+            SirveApp.cpp \
+            video_class.cpp \
+            video_container.cpp
 
 QT += charts widgets
 
