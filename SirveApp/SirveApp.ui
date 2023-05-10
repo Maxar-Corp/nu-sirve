@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QtGuiApplication1Class</class>
- <widget class="QMainWindow" name="QtGuiApplication1Class">
+ <class>SirveAppClass</class>
+ <widget class="QMainWindow" name="SirveAppClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -1411,7 +1411,7 @@ Subtraction</string>
   <tabstop>chk_plot_show_line</tabstop>
  </tabstops>
  <resources>
-  <include location="QtGuiApplication1.qrc"/>
+  <include location="SirveApp.qrc"/>
  </resources>
  <connections/>
 </ui>

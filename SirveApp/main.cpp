@@ -1,5 +1,5 @@
 //#define _CRTDBG_MAP_ALLOC
-#include "QtGuiApplication1.h"
+#include "SirveApp.h"
 #include <QtWidgets/QApplication>
 
 #include <iostream>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	INFO << "Main: Application started";
 
 	QApplication a(argc, argv);
-	QtGuiApplication1 w;
+	SirveApp w;
 	w.show();
 	
 	a.exec();

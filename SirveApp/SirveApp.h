@@ -52,7 +52,7 @@
 #include <qmenubar.h>
 
 
-class QtGuiApplication1 : public QMainWindow
+class SirveApp : public QMainWindow
 {
 	Q_OBJECT
 
@@ -110,8 +110,8 @@ public:
 	ColorPlotter color_correction_plot;
 	bool record_video;
 	
-	QtGuiApplication1(QWidget *parent = Q_NULLPTR);
-	~QtGuiApplication1();
+	SirveApp(QWidget *parent = Q_NULLPTR);
+	~SirveApp();
 
 	void setup_ui();
 	QWidget* setup_file_import_tab();

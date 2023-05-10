@@ -66,7 +66,7 @@ Once the pre-requisites are properly installed, the included `.pro` file can be 
 
 1. Open the "x64 Native Tools Command Prompt for VS 2019". This will open a `cmd` prompt with the right environment variables set to build the `.exe`.
     - Alternative method to configure the right environment variables: open a regular command prompt and execute the `vcvars64.bat` file from "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build"
-2. Navigate to the subdirectory in this repo with the source code (one folder down, `QtGuiApplication1`)
+2. Navigate to the subdirectory in this repo with the source code (one folder down, `SirveApp`)
 3. Run the following command: `..\5.15.2\msvc2019_64\bin\qmake.exe`.
     This will generate three `Makefile` files.
 4. Run the following command: `nmake`.
