@@ -54,15 +54,16 @@ void ExternalNUCInformationWidget::initialize_gui()
 
 void ExternalNUCInformationWidget::get_osm_file()
 {
-    file_data.load_osm_file();
+    QString msg = file_data.load_osm_file();
 
     // check that osm and image files are present
-    if (!file_data.valid_osm || !file_data.valid_image)
+    if (msg != "")
     {
 
         QMessageBox msgBox;
         msgBox.setWindowTitle(QString("NUC Correction from External File"));
         QString box_text = "OSM and image file could not be found in the same directory. Select a new file and try again.";
+        box_text += msg;
         msgBox.setText(box_text);
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setStandardButtons(QMessageBox::Ok);
