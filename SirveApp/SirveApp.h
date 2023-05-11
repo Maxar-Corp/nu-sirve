@@ -61,6 +61,7 @@ public:
 
 	//Variables
 	Process_File file_processor;
+	OSMReader osm_reader;
 	AbpFileMetadata abp_file_metadata;
 	Workspace workspace;
 	

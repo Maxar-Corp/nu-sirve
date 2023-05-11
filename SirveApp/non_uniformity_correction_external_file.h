@@ -22,6 +22,7 @@
 #include "plot_engineering_data.h"
 #include "fixed_aspect_ratio_frame.h"
 #include "process_file.h"
+#include "osm_reader.h"
 #include "support/qthelpers.h"
 
 
@@ -33,6 +34,7 @@ public:
 	ExternalNUCInformationWidget();
 	~ExternalNUCInformationWidget();
 	Process_File file_processor;
+	OSMReader osm_reader;
 	AbpFileMetadata abp_metadata;
 	int start_frame, stop_frame;
 

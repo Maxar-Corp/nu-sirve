@@ -17,6 +17,7 @@
 #include "clickable_chartview.h"
 #include "color_scheme.h"
 #include "process_file.h"
+#include "osm_reader.h"
 
 #include <qfiledialog.h>
 #include <qlineedit.h>
@@ -117,6 +118,7 @@ private:
 	QLineSeries* selection1, * selection2;
 
 	Process_File file_processor;
+	OSMReader osm_reader;
 	AbpFileMetadata abp_metadata;
 
 	void initialize_gui();
