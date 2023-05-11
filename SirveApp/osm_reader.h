@@ -28,9 +28,7 @@ const double kSMALL_NUMBER = 0.000001;
 class OSMReader: private BinaryFileReader
 {
 public:
-    std::vector<Frame> data;
-
-	bool read_osm_file(QString path);
+	std::vector<Frame> read_osm_file(QString path);
 
 	OSMReader();
 	~OSMReader();
@@ -40,12 +38,11 @@ private:
 	std::vector<double> file_ecef_vector;
 	std::vector<double> frame_time;
 	
-    int LoadFile(char *file_path, bool input_combine_tracks = false);
+    std::vector<Frame> LoadFile(const char *file_path, bool input_combine_tracks = false);
 
     uint32_t FindMessageNumber();
-    void InitializeVariables(uint32_t num_messages, bool combine_tracks);
-    void LoadData(uint32_t num_messages, bool combine_tracks);
-    void AddTrackToLastFrame();
+    std::vector<Frame> LoadData(uint32_t num_messages, bool combine_tracks);
+    void AddTrackToLastFrame(std::vector<Frame> &data);
 	std::vector<double> get_lat_lon_alt(std::vector<double> ecf);
 
 	MessageHeader ReadMessageHeader();

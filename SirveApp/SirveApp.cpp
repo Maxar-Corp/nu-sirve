@@ -1022,15 +1022,13 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 
 void SirveApp::load_osm_data()
 {
-
-	bool osm_read_success = osm_reader.read_osm_file(abp_file_metadata.osm_path);
-	if (!osm_read_success) {
+	osm_data = osm_reader.read_osm_file(abp_file_metadata.osm_path);
+	if (osm_data.size() == 0) {
 		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
 		
 		QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
 		return;
 	}
-
 
 	lbl_file_load->setText(abp_file_metadata.info_msg);
 	lbl_file_name->setText("File: " + abp_file_metadata.file_name);
@@ -1040,7 +1038,7 @@ void SirveApp::load_osm_data()
 	txt_end_frame->setEnabled(true);
 	btn_get_frames->setEnabled(true);
 
-	QString osm_max_frames = QString::number(osm_reader.data.size());
+	QString osm_max_frames = QString::number(osm_data.size());
 	txt_start_frame->setText(QString("1"));
 	txt_end_frame->setText(osm_max_frames);
 
@@ -1075,7 +1073,7 @@ void SirveApp::load_osm_data()
 
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
-	eng_data = new Engineering_Data(osm_reader.data);
+	eng_data = new Engineering_Data(osm_data);
 	data_plots = new Engineering_Plots();
 
 	data_plots->frame_numbers = eng_data->frame_numbers;
@@ -2185,7 +2183,7 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 
 
 		// get total number of frames
-		int num_messages = osm_reader.data.size();
+		int num_messages = osm_data.size();
 
 		QString prompt1 = "Start Frame (";
 		prompt1.append(QString::number(num_messages));
