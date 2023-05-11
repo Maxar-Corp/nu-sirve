@@ -21,6 +21,7 @@
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "fixed_aspect_ratio_frame.h"
+#include "application_data.h"
 #include "process_file.h"
 #include "osm_reader.h"
 #include "support/qthelpers.h"

@@ -23,6 +23,7 @@
 #include "fixed_aspect_ratio_frame.h"
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
+#include "application_data.h"
 #include "support/jtime.h"
 #include "support/qthelpers.h"
 #include "workspace.h"
