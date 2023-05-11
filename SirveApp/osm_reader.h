@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <armadillo>
 #include <math.h>
+#include <qstring.h>
 
 #include <excpt.h>
 
@@ -35,12 +36,15 @@ public:
 	std::vector<double> file_ecef_vector;
 	double small_value;
 
+	bool read_osm_file(QString path);
+
 	OSMReader();
 	~OSMReader();
-    int LoadFile(char *file_path, bool input_combine_tracks = false);
     
 private:
 	std::vector<double> frame_time;
+	
+    int LoadFile(char *file_path, bool input_combine_tracks = false);
 
     void FindMessageNumber();
     void InitializeVariables(bool combine_tracks);

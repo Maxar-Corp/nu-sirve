@@ -58,20 +58,6 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	return abp_data;
 }
 
-bool Process_File::read_osm_file(QString path)
-{
-	INFO << "Importing file " << path.toStdString();
-	
-	QByteArray array = path.toLocal8Bit();
-	char* buffer = array.data();
-	
-	int check = osm_data.LoadFile(buffer, false);
-	if (check != 0)
-		return false;
-	
-	return true;
-}
-
 bool Process_File::check_path(QString path)
 {
 	QFileInfo check_file(path);
@@ -79,7 +65,6 @@ bool Process_File::check_path(QString path)
 	bool file_exists = check_file.exists();
 
 	return file_exists && file_isFile;
-
 }
 
 std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_path, int first_frame, int last_frame, double version)
