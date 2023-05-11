@@ -991,7 +991,7 @@ void SirveApp::ui_choose_abp_file()
 
 bool SirveApp::validate_abp_files(QString path_to_image_file)
 {
-	AbpFileMetadata possible_abp_file_metadata = file_data.locate_abp_files(path_to_image_file);
+	AbpFileMetadata possible_abp_file_metadata = file_processor.locate_abp_files(path_to_image_file);
 
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
@@ -1023,7 +1023,7 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 void SirveApp::load_osm_data()
 {
 
-	bool osm_read_success = file_data.read_osm_file(abp_file_metadata.osm_path);
+	bool osm_read_success = file_processor.read_osm_file(abp_file_metadata.osm_path);
 	if (!osm_read_success) {
 		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
 		
@@ -1040,7 +1040,7 @@ void SirveApp::load_osm_data()
 	txt_end_frame->setEnabled(true);
 	btn_get_frames->setEnabled(true);
 
-	QString osm_max_frames = QString::number(file_data.osm_data.num_messages);
+	QString osm_max_frames = QString::number(file_processor.osm_data.num_messages);
 	txt_start_frame->setText(QString("1"));
 	txt_end_frame->setText(osm_max_frames);
 
@@ -1075,7 +1075,7 @@ void SirveApp::load_osm_data()
 
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
-	eng_data = new Engineering_Data(file_data.osm_data.data);
+	eng_data = new Engineering_Data(file_processor.osm_data.data);
 	data_plots = new Engineering_Plots();
 
 	data_plots->frame_numbers = eng_data->frame_numbers;
@@ -1218,7 +1218,7 @@ void SirveApp::load_abir_data()
 	}
 	//----------------------------------------------------------------------------
 
-	std::vector<std::vector<uint16_t>> video_frames = file_data.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, version);
+	std::vector<std::vector<uint16_t>> video_frames = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, version);
 
 	if (video_frames.size() == 0) {
 
@@ -1229,8 +1229,8 @@ void SirveApp::load_abir_data()
 		return;
 	}
 
-	int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
-	int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
+	int x_pixels = file_processor.abir_data.ir_data[0].header.image_x_size;
+	int y_pixels = file_processor.abir_data.ir_data[0].header.image_y_size;
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
@@ -1277,7 +1277,7 @@ void SirveApp::load_abir_data()
 	int index0 = min_frame - 1;
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
-	ir_video->set_frame_data(temp, file_data.abir_data.ir_data);
+	ir_video->set_frame_data(temp, file_processor.abir_data.ir_data);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -2185,7 +2185,7 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 
 
 		// get total number of frames
-		int num_messages = file_data.osm_data.num_messages;
+		int num_messages = file_processor.osm_data.num_messages;
 
 		QString prompt1 = "Start Frame (";
 		prompt1.append(QString::number(num_messages));
@@ -2220,7 +2220,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 {
 	//----------------------------------------------------------------------------------------------------
 
-	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, file_data.file_version);
+	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, file_processor.file_version);
 	std::vector<double> nuc_correction = nuc.get_nuc_correction();
 
 	if (nuc_correction.size() == 0)
@@ -2588,7 +2588,7 @@ void SirveApp::create_background_subtraction_correction() {
 	//-----------------------------------------------------------------------------------------------
 	// get user selected frames for suppression
 
-	int delta_frames = file_data.frame_end - file_data.frame_start;
+	int delta_frames = file_processor.frame_end - file_processor.frame_start;
 
 	bool ok;
 	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);

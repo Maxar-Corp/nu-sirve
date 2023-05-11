@@ -55,7 +55,7 @@ void ExternalNUCInformationWidget::initialize_gui()
 void ExternalNUCInformationWidget::get_osm_file()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-    abp_metadata = file_data.locate_abp_files(file_selection);
+    abp_metadata = file_processor.locate_abp_files(file_selection);
 
     // check that osm and image files are present
     if (!abp_metadata.error_msg.isEmpty())
@@ -64,7 +64,7 @@ void ExternalNUCInformationWidget::get_osm_file()
         return;
     }
 
-    bool osm_read_success = file_data.read_osm_file(abp_metadata.osm_path);
+    bool osm_read_success = file_processor.read_osm_file(abp_metadata.osm_path);
     if (!osm_read_success)
 	{
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -92,7 +92,7 @@ void ExternalNUCInformationWidget::plot_osm()
     if (height < 500)
         this->resize(500, 500);
 
-    engineering_data = new Engineering_Data(file_data.osm_data.data);
+    engineering_data = new Engineering_Data(file_processor.osm_data.data);
     plot_data = new Engineering_Plots();
 
     plot_data->frame_numbers = engineering_data->frame_numbers;
@@ -116,7 +116,7 @@ void ExternalNUCInformationWidget::get_frames()
 {
     
     // get total number of frames
-    int num_messages = file_data.osm_data.num_messages;
+    int num_messages = file_processor.osm_data.num_messages;
 
     QString prompt1 = "Start Frame (";
     prompt1.append(QString::number(num_messages));
