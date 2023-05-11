@@ -21,7 +21,6 @@ public:
 	ABIR_Data abir_data;
 
 	unsigned int frame_start, frame_end;
-	double file_version;
 
 	Process_File();
 	~Process_File();
