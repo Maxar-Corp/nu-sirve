@@ -6,33 +6,10 @@ SirveApp::SirveApp(QWidget *parent)
 	
 	INFO << "GUI: Initializing GUI";
 
-	//---------------------------------------------------------------------------
-	// read in configuration file 
-	QString path = "config/config.json";
-	QFile file(path);
-
-	if (!file.open(QFile::ReadOnly)) {
-		INFO << "GUI: Cannot open configuration file " + path.toStdString();
-		INFO << "GUI: Setting maximum bit level to 14 bits";
-		max_used_bits = 14;
-	}
-	else {
-		QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
-		QJsonObject jsonObj = jsonDoc.object();
-
-		if (jsonObj.contains("max number of bits")) {
-			max_used_bits = jsonObj.value("max number of bits").toInt();
-			INFO << "GUI: Setting maximum bit level of image file to " << max_used_bits << " bits";
-		}
-		else {
-			INFO << "GUI: Cannot find key 'max number of bits' in configuration file " + path.toStdString();
-			INFO << "GUI: Setting maximum bit level to 14 bits";
-			max_used_bits = 14;
-		}
-	}
+	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	ir_video = new Video(1, 1, max_used_bits);
+	ir_video = new Video(1, 1, config_values.max_used_bits);
 	ir_video->moveToThread(&thread_video);
 	//QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
 
@@ -55,8 +32,6 @@ SirveApp::SirveApp(QWidget *parent)
 
 	// default recording video to false
 	record_video = false;
-
-	int number_bits = max_used_bits;
 
 	//---------------------------------------------------------------------------
 	//---------------------------------------------------------------------------
@@ -1190,33 +1165,13 @@ void SirveApp::load_abir_data()
 	primary.properties[Video_Parameters::original] = true;
 
 	INFO << "GUI: Reading in video data";
-	primary.set_number_of_bits(max_used_bits);
+	primary.set_number_of_bits(config_values.max_used_bits);
 
 	//----------------------------------------------------------------------------
-	QString path = "config/config.json";
-	QFile file(path);
-	double version = 0;
-
-	if (!file.open(QFile::ReadOnly)) {
-		INFO << "GUI: Cannot open configuration file " + path.toStdString();
-		INFO << "GUI: Version file being set on loading of image data";
-	}
-	else {
-		QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
-		QJsonObject jsonObj = jsonDoc.object();
-
-		if (jsonObj.contains("version")) {
-			version = jsonObj.value("version").toDouble();
-			INFO << "GUI: Overriding version of image file to " << version;
-		}
-		else {
-			INFO << "GUI: Cannot find key 'version' in configuration file " + path.toStdString();
-			INFO << "GUI: Version file being set on loading of image data";
-		}
-	}
+	
 	//----------------------------------------------------------------------------
 
-	std::vector<std::vector<uint16_t>> video_frames = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, version);
+	std::vector<std::vector<uint16_t>> video_frames = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
 	if (video_frames.size() == 0) {
 
@@ -2218,7 +2173,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 {
 	//----------------------------------------------------------------------------------------------------
 
-	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, file_processor.file_version);
+	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 	std::vector<double> nuc_correction = nuc.get_nuc_correction();
 
 	if (nuc_correction.size() == 0)

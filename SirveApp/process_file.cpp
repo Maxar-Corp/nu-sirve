@@ -77,7 +77,6 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_p
 
 	frame_start = first_frame;
 	frame_end = last_frame;
-	file_version = version;
 
 	try
 	{

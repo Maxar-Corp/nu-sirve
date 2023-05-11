@@ -29,6 +29,7 @@ HEADERS += abir_reader.h \
             color_correction_plot.h \
             color_map.h \
             color_scheme.h \
+            config.h \
             custom_input_dialog.h \
             Data_Structures.h \
             deinterlace.h \
@@ -70,6 +71,7 @@ SOURCES += abir_reader.cpp \
             color_correction.cpp \
             color_map.cpp \
             color_scheme.cpp \
+            config.cpp \
             custom_input_dialog.cpp \
             deinterlace.cpp \
             engineering_data.cpp \
