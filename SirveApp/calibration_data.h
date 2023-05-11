@@ -19,6 +19,7 @@
 #include "application_data.h"
 #include "process_file.h"
 #include "osm_reader.h"
+#include "Data_Structures.h"
 
 #include <qfiledialog.h>
 #include <qlineedit.h>
@@ -120,6 +121,7 @@ private:
 
 	Process_File file_processor;
 	OSMReader osm_reader;
+	std::vector<Frame> osm_data;
 	AbpFileMetadata abp_metadata;
 
 	void initialize_gui();

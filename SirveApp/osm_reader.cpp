@@ -9,40 +9,35 @@ OSMReader::~OSMReader()
 {
 }
 
-bool OSMReader::read_osm_file(QString path)
+std::vector<Frame> OSMReader::read_osm_file(QString path)
 {
 	INFO << "Importing file " << path.toStdString();
 	
 	QByteArray array = path.toLocal8Bit();
-	char* buffer = array.data();
+	const char* buffer = array.constData();
 	
-	int check = LoadFile(buffer, false);
-	if (check != 0)
-		return false;
-	
-	return true;
+	return LoadFile(buffer, false);
 }
 
-int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
+std::vector<Frame> OSMReader::LoadFile(const char *file_path, bool input_combine_tracks)
 {
 	INFO << "OSM Load: Loading OSM data";
+	std::vector<Frame> data = std::vector<Frame>();
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
 	if (err != 0) {
 		WARN << "OSM Load: Error opening file";
-		return err;
+		return data;
 	}
 
-	data.clear();
 	frame_time.clear();
 
 	uint32_t num_messages = 0;
 	try
 	{
 		num_messages = FindMessageNumber();
-		InitializeVariables(num_messages, input_combine_tracks);
-		LoadData(num_messages, input_combine_tracks);
+		data = LoadData(num_messages, input_combine_tracks);
 	}
 	catch (const std::exception& e)
 	{
@@ -65,14 +60,14 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 
 	if (data.size() < num_messages) {
 		INFO << "OSM Load: Quit unexpectedly. Only " << data.size() << " messages were loaded of " << num_messages;
-		return 5;
+		return std::vector<Frame>();
 	}
 
 	INFO << "OSM Load: OSM data loaded complete";
 
 	location_from_file = false;
 
-    return err;
+    return data;
 }
 
 uint32_t OSMReader::FindMessageNumber()
@@ -121,31 +116,22 @@ uint32_t OSMReader::FindMessageNumber()
 	return num_messages;
 }
 
-void OSMReader::InitializeVariables(uint32_t num_messages, bool combine_tracks)
+std::vector<Frame> OSMReader::LoadData(uint32_t num_messages, bool combine_tracks)
 {
-
-    int size_allocation = 1;
+	std::vector<Frame> data = std::vector<Frame>();
 
     if (combine_tracks) {
 		arma::vec frame_time_vec(frame_time);
 		arma::vec diff = arma::diff(frame_time_vec);
 		arma::uvec index = arma::find(diff != 0);
-		size_allocation = index.n_elem;
+		data.reserve(index.n_elem);
     }
     else {
-        size_allocation = num_messages;
+		data.reserve(num_messages);
     }
-    
-    data.reserve(size_allocation);
-}
 
-void OSMReader::LoadData(uint32_t num_messages, bool combine_tracks)
-{
-    int return_code;
-    return_code = fseek(fp, 0, SEEK_SET);
-	data.clear();
+    fseek(fp, 0, SEEK_SET);
 
-    int num_iterations = -1;
     for (int i = 0; i < num_messages; i++)
     {
 		INFO << "OSM Load: Reading message #" << i + 1;
@@ -157,27 +143,28 @@ void OSMReader::LoadData(uint32_t num_messages, bool combine_tracks)
 
             current_frame.msg_header = ReadMessageHeader();
 			if (current_frame.msg_header.size < 0)
-				return;
+				return std::vector<Frame>();
 
 
             current_frame.frame_header = ReadFrameHeader();
             current_frame.data = ReadFrameData();
 
 			if (current_frame.data.ecf.size() == 0)
-				return;
+				return std::vector<Frame>();
 			
             data.push_back(current_frame);
         }
         else
         {
 			INFO << "OSM Load: Adding track to last frame";
-			AddTrackToLastFrame();
+			AddTrackToLastFrame(data);
         }
-
     }
+
+	return data;
 }
 
-void OSMReader::AddTrackToLastFrame()
+void OSMReader::AddTrackToLastFrame(std::vector<Frame> &data)
 {
     //TODO Verify that this adding track to last frame works correctly.....
     int return_code;
