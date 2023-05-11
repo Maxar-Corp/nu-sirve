@@ -116,7 +116,7 @@ void ExternalNUCInformationWidget::get_frames()
 {
     
     // get total number of frames
-    int num_messages = osm_reader.num_messages;
+    int num_messages = osm_reader.data.size();
 
     QString prompt1 = "Start Frame (";
     prompt1.append(QString::number(num_messages));

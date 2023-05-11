@@ -753,7 +753,7 @@ ImportFrames CalibrationDialog::find_frames_in_osm() {
 
 	double frame_time;
 	
-	int num_messages = osm_reader.num_messages;
+	int num_messages = osm_reader.data.size();
 	for (int i = 0; i < num_messages; i++)
 	{
 		

@@ -18,7 +18,6 @@
 #include <armadillo>
 
 #include "color_scheme.h"
-#include "osm_reader.h"
 #include "Data_Structures.h"
 #include <armadillo>
 
