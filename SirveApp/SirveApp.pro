@@ -16,6 +16,7 @@ DESTDIR = ../release
 
 # Input
 HEADERS += abir_reader.h \
+            application_data.h \
             abpnuc_reader.h \
             annotation_new.h \
             annotations.h \
