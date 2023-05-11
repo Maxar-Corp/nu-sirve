@@ -644,8 +644,8 @@ void CalibrationDialog::ok()
 		return;
 	}
 
-	osm_data = osm_reader.read_osm_file(abp_metadata.osm_path);
-	if (osm_data.size() == 0)
+	osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
+	if (osm_frames.size() == 0)
 	{
 		WARN << "CALIBRATION: OSM load process quit early. File not loaded correctly";
 		return;
@@ -753,11 +753,11 @@ ImportFrames CalibrationDialog::find_frames_in_osm() {
 
 	double frame_time;
 	
-	int num_messages = osm_data.size();
+	int num_messages = osm_frames.size();
 	for (int i = 0; i < num_messages; i++)
 	{
 		
-		frame_time = osm_data[i].data.frametime;
+		frame_time = osm_frames[i].data.frametime;
 
 		if (frame_time >= user_selection1.start_time && frame_time <= user_selection1.stop_time)
 		{

@@ -121,7 +121,7 @@ private:
 
 	Process_File file_processor;
 	OSMReader osm_reader;
-	std::vector<Frame> osm_data;
+	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_metadata;
 
 	void initialize_gui();

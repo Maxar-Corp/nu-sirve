@@ -64,8 +64,8 @@ void ExternalNUCInformationWidget::get_osm_file()
         return;
     }
 
-    osm_data = osm_reader.read_osm_file(abp_metadata.osm_path);
-    if (osm_data.size() == 0)
+    osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
+    if (osm_frames.size() == 0)
 	{
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
 		return;
@@ -92,7 +92,7 @@ void ExternalNUCInformationWidget::plot_osm()
     if (height < 500)
         this->resize(500, 500);
 
-    engineering_data = new Engineering_Data(osm_data);
+    engineering_data = new Engineering_Data(osm_frames);
     plot_data = new Engineering_Plots();
 
     plot_data->frame_numbers = engineering_data->frame_numbers;
@@ -116,7 +116,7 @@ void ExternalNUCInformationWidget::get_frames()
 {
     
     // get total number of frames
-    int num_messages = osm_data.size();
+    int num_messages = osm_frames.size();
 
     QString prompt1 = "Start Frame (";
     prompt1.append(QString::number(num_messages));
