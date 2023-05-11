@@ -151,6 +151,7 @@ void SirveApp::setup_ui() {
 	tab_menu->addTab(setup_file_import_tab(), "Import");
 	tab_menu->addTab(setup_color_correction_tab(), "Color/Overlays");
 	tab_menu->addTab(setup_filter_tab(), "Processing");
+	tab_menu->addTab(setup_workspace_tab(), "Workspace");
 
 	QSizePolicy fixed_width;
 	fixed_width.setHorizontalPolicy(QSizePolicy::Minimum);
@@ -197,6 +198,8 @@ void SirveApp::setup_ui() {
 	rad_decimal->setChecked(true);
 	rad_linear->setChecked(true);
 	
+	btn_workspace_save->setEnabled(true);
+	btn_workspace_load->setEnabled(true);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -213,7 +216,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 	// ------------------------------------------------------------------------
 	
 	lbl_file_name = new QLabel("File Name:");
-	btn_load_osm = new QPushButton("Load OSM File");
+	btn_load_osm = new QPushButton("Load Image File");
 	btn_copy_directory = new QPushButton("Copy File Path");
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
 
@@ -532,6 +535,22 @@ QWidget* SirveApp::setup_filter_tab() {
 
 
 	return widget_tab_processing;
+}
+
+QWidget* SirveApp::setup_workspace_tab(){
+	QWidget* widget_tab_workspace = new QWidget(tab_menu);
+	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
+
+	btn_workspace_load = new QPushButton("Load Workspace");
+	btn_workspace_save = new QPushButton("Save Workspace");
+	
+	QGridLayout* grid_workspace = new QGridLayout();
+	grid_workspace->addWidget(btn_workspace_load, 0, 0);
+	grid_workspace->addWidget(btn_workspace_save, 0, 1);
+
+
+	vlayout_tab_workspace->addLayout(grid_workspace);
+	return widget_tab_workspace;
 }
 
 void SirveApp::setup_video_frame(){
@@ -877,7 +896,7 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 
 	//Link buttons to functions
-	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &SirveApp::load_osm_data);
+	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &SirveApp::ui_choose_abp_file);
 	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &SirveApp::show_calibration_dialog);
 	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::load_abir_data);
 	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::load_abir_data);
@@ -893,6 +912,9 @@ void SirveApp::setup_connections() {
 	QObject::connect(chk_deinterlace, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
 
 	//---------------------------------------------------------------------------
+
+	QObject::connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
+	QObject::connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
 
 	// Connect epoch button click to function
 	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
@@ -929,23 +951,47 @@ void SirveApp::setup_connections() {
 
 }
 
-void SirveApp::load_osm_data()
+void SirveApp::save_workspace()
 {
-	INFO << "GUI: Start OSM load process";
+	workspace.save_state(abp_file_metadata.image_path);
+}
+void SirveApp::load_workspace()
+{
+	INFO << "WORKSPACE: Start ABP load process";
 
-	txt_start_frame->setEnabled(false);
-	txt_end_frame->setEnabled(false);
-	btn_get_frames->setEnabled(false);
-	btn_load_osm->setEnabled(false);
-	btn_copy_directory->setEnabled(false);
-	btn_calibration_dialog->setEnabled(false);
-	lbl_file_load->setText("");
+	QString saved_image_path = workspace.load_state();
+	int compare = QString::compare(saved_image_path, "", Qt::CaseInsensitive);
+	if (compare == 0) {
+		QtHelpers::LaunchMessageBox(QString("Issue Loading Workspace"), "Either no workspace exists or the workspace is empty.");
+		return;
+	}
+
+	bool validated = validate_abp_files(saved_image_path);
+	if (validated) {
+		load_osm_data();
+	}
+}
+
+void SirveApp::ui_choose_abp_file()
+{
+	INFO << "GUI: Starting ABP selection and load process";
 
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-	AbpFileMetadata possible_abp_file_metadata = file_data.locate_abp_files(file_selection);
+	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
+	if (compare == 0) {
+		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No file was selected.");
+		return;
+	}
 	
-	btn_load_osm->setEnabled(true);
-	btn_copy_directory->setEnabled(true);
+	bool validated = validate_abp_files(file_selection);
+	if (validated) {
+		load_osm_data();
+	}
+};
+
+bool SirveApp::validate_abp_files(QString path_to_image_file)
+{
+	AbpFileMetadata possible_abp_file_metadata = file_data.locate_abp_files(path_to_image_file);
 
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
@@ -961,14 +1007,21 @@ void SirveApp::load_osm_data()
 			btn_calibration_dialog->setEnabled(true);
 		}
 
+		INFO << "FILE SELECTION: Unable to load valid files";
+
 		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), possible_abp_file_metadata.error_msg);
 		
-		return;
+		return false;
 	}
 
 	abp_file_metadata = possible_abp_file_metadata;
 
-	INFO << "GUI: ABPIMAGE and ABPOSM file have valid paths";
+	INFO << "FILE SELECTION: Success - both .abpimage and .abposm files exist";
+	return true;
+};
+
+void SirveApp::load_osm_data()
+{
 
 	bool osm_read_success = file_data.read_osm_file(abp_file_metadata.osm_path);
 	if (!osm_read_success) {
