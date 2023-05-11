@@ -18,14 +18,6 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	abp_data.error_msg = QString();
 	abp_data.info_msg = QString("File Load Status: \n");
 	
-	// ensure a file was selected
-	int compare = QString::compare(candidate_image_path, "", Qt::CaseInsensitive);
-	if (compare == 0) {
-		abp_data.error_msg = QString("No file was selected");
-		return abp_data;
-	}
-	abp_data.info_msg.append("File selected \n");
-
 	// -----------------------------------------------------------------------------
 	// check abpimage file is valid
 	bool valid_image_extension = candidate_image_path.endsWith(".abpimage", Qt::CaseInsensitive);
