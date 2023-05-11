@@ -1022,8 +1022,8 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 
 void SirveApp::load_osm_data()
 {
-	osm_data = osm_reader.read_osm_file(abp_file_metadata.osm_path);
-	if (osm_data.size() == 0) {
+	osm_frames = osm_reader.read_osm_file(abp_file_metadata.osm_path);
+	if (osm_frames.size() == 0) {
 		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
 		
 		QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -1038,7 +1038,7 @@ void SirveApp::load_osm_data()
 	txt_end_frame->setEnabled(true);
 	btn_get_frames->setEnabled(true);
 
-	QString osm_max_frames = QString::number(osm_data.size());
+	QString osm_max_frames = QString::number(osm_frames.size());
 	txt_start_frame->setText(QString("1"));
 	txt_end_frame->setText(osm_max_frames);
 
@@ -1073,7 +1073,7 @@ void SirveApp::load_osm_data()
 
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
-	eng_data = new Engineering_Data(osm_data);
+	eng_data = new Engineering_Data(osm_frames);
 	data_plots = new Engineering_Plots();
 
 	data_plots->frame_numbers = eng_data->frame_numbers;
@@ -1095,9 +1095,9 @@ void SirveApp::load_osm_data()
 	dt_epoch->setEnabled(true);
 	btn_apply_epoch->setEnabled(true);
 	
-	std::vector<double> epoch0 = eng_data->get_epoch(osm_data);
-	std::vector<double> epoch_min = eng_data->get_adj_epoch(-2, osm_data);
-	std::vector<double> epoch_max = eng_data->get_adj_epoch(2, osm_data);
+	std::vector<double> epoch0 = eng_data->get_epoch(osm_frames);
+	std::vector<double> epoch_min = eng_data->get_adj_epoch(-2, osm_frames);
+	std::vector<double> epoch_max = eng_data->get_adj_epoch(2, osm_frames);
 	update_epoch_string(create_epoch_string(epoch0));
 	display_original_epoch(create_epoch_string(epoch0));
 	
@@ -2183,7 +2183,7 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 
 
 		// get total number of frames
-		int num_messages = osm_data.size();
+		int num_messages = osm_frames.size();
 
 		QString prompt1 = "Start Frame (";
 		prompt1.append(QString::number(num_messages));
