@@ -64,7 +64,7 @@ public:
 	//Variables
 	Process_File file_processor;
 	OSMReader osm_reader;
-	std::vector<Frame> osm_data;
+	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
 	Workspace workspace;
 	
