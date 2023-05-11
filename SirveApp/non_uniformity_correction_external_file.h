@@ -36,6 +36,7 @@ public:
 	~ExternalNUCInformationWidget();
 	Process_File file_processor;
 	OSMReader osm_reader;
+	std::vector<Frame> osm_data;
 	AbpFileMetadata abp_metadata;
 	int start_frame, stop_frame;
 

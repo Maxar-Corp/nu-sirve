@@ -27,6 +27,7 @@
 #include "support/jtime.h"
 #include "support/qthelpers.h"
 #include "workspace.h"
+#include "Data_Structures.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -63,6 +64,7 @@ public:
 	//Variables
 	Process_File file_processor;
 	OSMReader osm_reader;
+	std::vector<Frame> osm_data;
 	AbpFileMetadata abp_file_metadata;
 	Workspace workspace;
 	
