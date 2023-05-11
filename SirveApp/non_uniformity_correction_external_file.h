@@ -32,7 +32,7 @@ class ExternalNUCInformationWidget : public QDialog
 public:
 	ExternalNUCInformationWidget();
 	~ExternalNUCInformationWidget();
-	Process_File file_data;
+	Process_File file_processor;
 	AbpFileMetadata abp_metadata;
 	int start_frame, stop_frame;
 

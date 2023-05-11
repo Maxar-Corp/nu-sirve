@@ -636,7 +636,7 @@ void CalibrationDialog::ok()
 	msgBox.exec();
 
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-	abp_metadata = file_data.locate_abp_files(file_selection);
+	abp_metadata = file_processor.locate_abp_files(file_selection);
 	
 	if (!abp_metadata.error_msg.isEmpty())
 	{
@@ -644,7 +644,7 @@ void CalibrationDialog::ok()
 		return;
 	}
 
-	bool osm_read_success = file_data.read_osm_file(abp_metadata.osm_path);
+	bool osm_read_success = file_processor.read_osm_file(abp_metadata.osm_path);
 	if (!osm_read_success)
 	{
 		WARN << "CALIBRATION: OSM load process quit early. File not loaded correctly";
@@ -695,10 +695,10 @@ void CalibrationDialog::ok()
 		double irradiance2 = trapezoidal_integration(x, response2);
 
 		// get counts from abp image file
-		std::vector<std::vector<uint16_t>> video_frames1 = file_data.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
-		std::vector<std::vector<uint16_t>> video_frames2 = file_data.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
+		std::vector<std::vector<uint16_t>> video_frames1 = file_processor.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
+		std::vector<std::vector<uint16_t>> video_frames2 = file_processor.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
 
-		double integration_time = file_data.abir_data.ir_data[0].header.int_time;
+		double integration_time = file_processor.abir_data.ir_data[0].header.int_time;
 
 		arma::mat average_count1 = average_multiple_frames(video_frames1);
 		arma::mat average_count2 = average_multiple_frames(video_frames2);
@@ -710,8 +710,8 @@ void CalibrationDialog::ok()
 		arma::mat b = irradiance1 - m % average_count1;
 
 		// reshape arrays to image size
-		int x_pixels = file_data.abir_data.ir_data[0].header.image_x_size;
-		int y_pixels = file_data.abir_data.ir_data[0].header.image_y_size;
+		int x_pixels = file_processor.abir_data.ir_data[0].header.image_x_size;
+		int y_pixels = file_processor.abir_data.ir_data[0].header.image_y_size;
 
 		m.reshape(x_pixels, y_pixels);
 		m = m.t();
@@ -753,11 +753,11 @@ ImportFrames CalibrationDialog::find_frames_in_osm() {
 
 	double frame_time;
 	
-	int num_messages = file_data.osm_data.num_messages;
+	int num_messages = file_processor.osm_data.num_messages;
 	for (int i = 0; i < num_messages; i++)
 	{
 		
-		frame_time = file_data.osm_data.data[i].data.frametime;
+		frame_time = file_processor.osm_data.data[i].data.frametime;
 
 		if (frame_time >= user_selection1.start_time && frame_time <= user_selection1.stop_time)
 		{
