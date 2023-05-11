@@ -10,15 +10,9 @@
 #include <qstring.h>
 
 #include "abir_reader.h"
+#include "application_data.h"
 #include "logging.h"
 #include <qfiledialog.h>
-
-struct AbpFileMetadata {
-	QString osm_path, image_path, directory_path, file_name, info_msg, error_msg;
-	AbpFileMetadata() {
-		error_msg = "ABP Files Not Yet Configured.";
-	}
-};
 
 class Process_File : public QWidget
 {

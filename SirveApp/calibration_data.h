@@ -16,6 +16,7 @@
 #include "abpnuc_reader.h"
 #include "clickable_chartview.h"
 #include "color_scheme.h"
+#include "application_data.h"
 #include "process_file.h"
 #include "osm_reader.h"
 
