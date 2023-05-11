@@ -22,19 +22,13 @@
 #include "support/earth.h"
 
 const int kMAX_NUMBER_ITERATIONS = 100000;
-const double kSMALL_NUMBER = 1e-8;
+const double kSMALL_NUMBER = 0.000001;
 
 
 class OSMReader: private BinaryFileReader
 {
 public:
-
-    uint32_t num_messages;
     std::vector<Frame> data;
-    bool contains_data;
-	bool location_from_file;
-	std::vector<double> file_ecef_vector;
-	double small_value;
 
 	bool read_osm_file(QString path);
 
@@ -42,13 +36,15 @@ public:
 	~OSMReader();
     
 private:
+	bool location_from_file;
+	std::vector<double> file_ecef_vector;
 	std::vector<double> frame_time;
 	
     int LoadFile(char *file_path, bool input_combine_tracks = false);
 
-    void FindMessageNumber();
-    void InitializeVariables(bool combine_tracks);
-    void LoadData(bool combine_tracks);
+    uint32_t FindMessageNumber();
+    void InitializeVariables(uint32_t num_messages, bool combine_tracks);
+    void LoadData(uint32_t num_messages, bool combine_tracks);
     void AddTrackToLastFrame();
 	std::vector<double> get_lat_lon_alt(std::vector<double> ecf);
 

@@ -1040,7 +1040,7 @@ void SirveApp::load_osm_data()
 	txt_end_frame->setEnabled(true);
 	btn_get_frames->setEnabled(true);
 
-	QString osm_max_frames = QString::number(osm_reader.num_messages);
+	QString osm_max_frames = QString::number(osm_reader.data.size());
 	txt_start_frame->setText(QString("1"));
 	txt_end_frame->setText(osm_max_frames);
 
@@ -2185,7 +2185,7 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 
 
 		// get total number of frames
-		int num_messages = osm_reader.num_messages;
+		int num_messages = osm_reader.data.size();
 
 		QString prompt1 = "Start Frame (";
 		prompt1.append(QString::number(num_messages));
