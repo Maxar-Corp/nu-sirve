@@ -1095,9 +1095,9 @@ void SirveApp::load_osm_data()
 	dt_epoch->setEnabled(true);
 	btn_apply_epoch->setEnabled(true);
 	
-	std::vector<double> epoch0 = eng_data->get_epoch();
-	std::vector<double> epoch_min = eng_data->get_adj_epoch(-2);
-	std::vector<double> epoch_max = eng_data->get_adj_epoch(2);
+	std::vector<double> epoch0 = eng_data->get_epoch(osm_data);
+	std::vector<double> epoch_min = eng_data->get_adj_epoch(-2, osm_data);
+	std::vector<double> epoch_max = eng_data->get_adj_epoch(2, osm_data);
 	update_epoch_string(create_epoch_string(epoch0));
 	display_original_epoch(create_epoch_string(epoch0));
 	
