@@ -60,7 +60,7 @@ class SirveApp : public QMainWindow
 public:
 
 	//Variables
-	Process_File file_data;
+	Process_File file_processor;
 	AbpFileMetadata abp_file_metadata;
 	Workspace workspace;
 	

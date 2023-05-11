@@ -116,7 +116,7 @@ private:
 	QRadioButton *radio_temperature1, *radio_temperature2;
 	QLineSeries* selection1, * selection2;
 
-	Process_File file_data;
+	Process_File file_processor;
 	AbpFileMetadata abp_metadata;
 
 	void initialize_gui();
