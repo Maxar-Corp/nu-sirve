@@ -24,6 +24,7 @@
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
 #include "application_data.h"
+#include "config.h"
 #include "support/jtime.h"
 #include "support/qthelpers.h"
 #include "workspace.h"
@@ -66,6 +67,7 @@ public:
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
+	ConfigValues config_values;
 	Workspace workspace;
 	
 	QWidget *main_widget;
@@ -218,7 +220,6 @@ public:
 private:
 	
 	QClipboard *clipboard;
-	int max_used_bits;	
 
 	void create_menu_actions();
 	void edit_color_map();
