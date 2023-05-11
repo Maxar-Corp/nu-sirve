@@ -2,11 +2,7 @@
 
 OSMReader::OSMReader()
 {
-    num_messages = 0;
-    contains_data = false;
 	location_from_file = false;
-	small_value = 0.000001;
-
 }
 
 OSMReader::~OSMReader()
@@ -38,16 +34,15 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 		return err;
 	}
 
-	contains_data = false;
-	num_messages = 0;
 	data.clear();
 	frame_time.clear();
 
+	uint32_t num_messages = 0;
 	try
 	{
-		FindMessageNumber();
-		InitializeVariables(input_combine_tracks);
-		LoadData(input_combine_tracks);
+		num_messages = FindMessageNumber();
+		InitializeVariables(num_messages, input_combine_tracks);
+		LoadData(num_messages, input_combine_tracks);
 	}
 	catch (const std::exception& e)
 	{
@@ -69,11 +64,9 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
     fclose(fp);
 
 	if (data.size() < num_messages) {
-		INFO << "OSM Load: Quit unexepectedly. Only " << data.size() << " messages were loaded of " << num_messages;
+		INFO << "OSM Load: Quit unexpectedly. Only " << data.size() << " messages were loaded of " << num_messages;
 		return 5;
 	}
-
-    contains_data = true;
 
 	INFO << "OSM Load: OSM data loaded complete";
 
@@ -82,9 +75,9 @@ int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
     return err;
 }
 
-void OSMReader::FindMessageNumber()
+uint32_t OSMReader::FindMessageNumber()
 {
-
+	uint32_t num_messages = 0;
     int number_iterations = 0;
     long int seek_position, current_p, current_p1, current_p2;
     size_t status_code;
@@ -125,9 +118,10 @@ void OSMReader::FindMessageNumber()
 
 	INFO << "OSM Load: " << number_iterations << " iterations executed";
 	INFO << "OSM Load: " << num_messages << " entries found";
+	return num_messages;
 }
 
-void OSMReader::InitializeVariables(bool combine_tracks)
+void OSMReader::InitializeVariables(uint32_t num_messages, bool combine_tracks)
 {
 
     int size_allocation = 1;
@@ -145,7 +139,7 @@ void OSMReader::InitializeVariables(bool combine_tracks)
     data.reserve(size_allocation);
 }
 
-void OSMReader::LoadData(bool combine_tracks)
+void OSMReader::LoadData(uint32_t num_messages, bool combine_tracks)
 {
     int return_code;
     return_code = fseek(fp, 0, SEEK_SET);
@@ -223,7 +217,7 @@ MessageHeader OSMReader::ReadMessageHeader()
     uint64_t tsize = ReadValue<uint64_t>();
 
 	MessageHeader current_message;
-    if (tsize < small_value) {
+    if (tsize < kSMALL_NUMBER) {
 		WARN << "OSM Load: Invalid tsize value in message header";
 
 		current_message.size = -1;
@@ -293,7 +287,7 @@ FrameData OSMReader::ReadFrameData() {
 	DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
 	double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
 
-	if (sum < small_value)
+	if (sum < kSMALL_NUMBER)
 	{
 		if (location_from_file) {
 			data.ecf = file_ecef_vector;
