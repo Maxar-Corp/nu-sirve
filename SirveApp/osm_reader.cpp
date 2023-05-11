@@ -13,6 +13,20 @@ OSMReader::~OSMReader()
 {
 }
 
+bool OSMReader::read_osm_file(QString path)
+{
+	INFO << "Importing file " << path.toStdString();
+	
+	QByteArray array = path.toLocal8Bit();
+	char* buffer = array.data();
+	
+	int check = LoadFile(buffer, false);
+	if (check != 0)
+		return false;
+	
+	return true;
+}
+
 int OSMReader::LoadFile(char *file_path, bool input_combine_tracks)
 {
 	INFO << "OSM Load: Loading OSM data";
