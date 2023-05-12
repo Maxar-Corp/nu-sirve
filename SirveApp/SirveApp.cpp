@@ -917,10 +917,10 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 	// connect the plot radial buttons to adjust plot
 
-	connect(rad_log, &QRadioButton::toggled, this, &SirveApp::yaxis_log_toggled);
-	connect(rad_decimal, &QRadioButton::toggled, this, &SirveApp::yaxis_decimal_toggled);
-	connect(rad_linear, &QRadioButton::toggled, this, &SirveApp::yaxis_linear_toggled);
-	connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::yaxis_scientific_toggled);
+	connect(rad_log, &QRadioButton::toggled, this, &SirveApp::plot_change);
+	connect(rad_decimal, &QRadioButton::toggled, this, &SirveApp::plot_change);
+	connect(rad_linear, &QRadioButton::toggled, this, &SirveApp::plot_change);
+	connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::plot_change);
 
 	//---------------------------------------------------------------------------
 
@@ -1879,39 +1879,6 @@ void SirveApp::annotate_video()
 
 	Annotations annotate_gui(ir_video->annotation_list, standard_info, ir_video);
 	annotate_gui.exec();
-}
-
-void SirveApp::yaxis_log_toggled(bool input)
-{
-	if (input)
-	{
-		plot_change();
-	}
-	
-}
-
-void SirveApp::yaxis_linear_toggled(bool input)
-{
-	if (input)
-	{
-		plot_change();
-	}
-}
-
-void SirveApp::yaxis_decimal_toggled(bool input)
-{
-	if (input)
-	{
-		plot_change();
-	}
-}
-
-void SirveApp::yaxis_scientific_toggled(bool input)
-{
-	if (input)
-	{
-		plot_change();
-	}
 }
 
 int SirveApp::get_integer_from_txt_box(QString input)
