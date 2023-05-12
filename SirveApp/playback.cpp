@@ -1,16 +1,16 @@
 #include "play_back.h"
 
-Playback::Playback(int number_frames)
+Playback::Playback(unsigned int number_frames)
 {
 	timer = new QTimer(this);
 	timer->setInterval(1000);
 	timer->setSingleShot(false);
 
 	timer->stop();
-	max_counter = number_frames;
-	is_reverse = false;
 
-	counter = 0;
+	current_frame_number = 0;
+	max_frame_number = number_frames;
+	is_reverse = false;
 
 	// Speeds in frames per second
 	speeds = {1/15.0, 0.10, 0.20, .25, 1/3.0, .5, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30};
@@ -24,20 +24,20 @@ Playback::~Playback() {
 	delete timer;
 }
 
-void Playback::set_number_of_frames(int value)
+void Playback::set_number_of_frames(unsigned int value)
 {
-	max_counter = value - 1;
-	counter = 0;
+	max_frame_number = value - 1;
+	current_frame_number = 0;
 }
 
-int Playback::get_counter()
+unsigned int Playback::get_current_frame_number()
 {
-	return counter;
+	return current_frame_number;
 }
 
-int Playback::get_max_counter()
+unsigned int Playback::get_max_frame_number()
 {
-	return max_counter;
+	return max_frame_number;
 }
 
 void Playback::speed_timer() {
@@ -79,62 +79,67 @@ void Playback::start_timer() {
 
 	is_reverse = false;
 	timer->start();
-	emit update_frame(counter);
+	emit update_frame(current_frame_number);
 }
 
 void Playback::timer_update()
 {
 	if (is_reverse)
-		counter--;
-	else
-		counter++;
-
-	if (counter < 0)
 	{
-		counter = max_counter;
+		if (current_frame_number == 0) {
+			current_frame_number = max_frame_number;
+		}
+		else {
+			current_frame_number--;
+		}
+	}
+	else {
+		if (current_frame_number == max_frame_number){
+			current_frame_number = 0;
+		}
+		else {
+			current_frame_number++;
+		}
 	}
 
-	if (counter > max_counter)
-	{
-		counter = 0;
-	}	
-
-	emit update_frame(counter);
+	emit update_frame(current_frame_number);
 }
 
-void Playback::set_counter(int value)
+void Playback::set_current_frame_number(unsigned int value)
 {
-	if (value > max_counter)
-		counter = 0;
+	if (value == current_frame_number)
+		return;
+	
+	if (value > max_frame_number)
+		current_frame_number = 0;
 	else
-		counter = value;
+		current_frame_number = value;
 
-	emit update_frame(counter);
+	emit update_frame(current_frame_number);
 }
 
 void Playback::prev_frame()
 {
 	timer->stop();
-	counter--;
+	if (current_frame_number == 0)
+		current_frame_number = max_frame_number;
+	else
+		current_frame_number--;
 
-	if (counter < 0)
-		counter = max_counter;
-
-	emit update_frame(counter);
-
+	emit update_frame(current_frame_number);
 }
 
 void Playback::next_frame()
 {
 	
 	timer->stop();
-	counter++;
-		
-	if (counter > max_counter)
-		counter = 0;
-
-	emit update_frame(counter);
 	
+	if (current_frame_number == max_frame_number)
+		current_frame_number = 0;
+	else
+		current_frame_number++;
+
+	emit update_frame(current_frame_number);
 }
 
 void Playback::stop_timer() {
@@ -147,7 +152,7 @@ void Playback::reverse() {
 	is_reverse = true;
 	timer->start();
 
-	emit update_frame(counter);
+	emit update_frame(current_frame_number);
 }
 
 bool Playback::is_running()

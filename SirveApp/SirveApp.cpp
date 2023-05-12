@@ -846,7 +846,7 @@ void SirveApp::setup_connections() {
 
 	// Link horizontal slider to playback controller
 	QObject::connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
-	QObject::connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_counter);
+	QObject::connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_current_frame_number);
 
 	//---------------------------------------------------------------------------
 
@@ -1461,9 +1461,8 @@ void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
 
 	if (!playback_controller->timer->isActive() && false)
 	{
-		int counter_value = playback_controller->get_counter();
-		ir_video->update_specific_frame(counter_value);
-		//histogram_plot->update_specific_histogram(counter_value);
+		unsigned int current_frame_number = playback_controller->get_current_frame_number();
+		ir_video->update_specific_frame(current_frame_number);
 	}		
 
 	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
@@ -1860,7 +1859,7 @@ void SirveApp::plot_change(int index)
 			break;
 		}
 
-		data_plots->plot_current_step(playback_controller->get_counter());
+		data_plots->plot_current_step(playback_controller->get_current_frame_number());
 	}
 
 }
@@ -1873,7 +1872,7 @@ void SirveApp::annotate_video()
 
 	int index = data_plots->index_sub_plot_xmin;
 	int min_frame = eng_data->frame_numbers[index];
-	int num_frames = playback_controller->get_max_counter();
+	unsigned int num_frames = playback_controller->get_max_frame_number();
 
 	standard_info.min_frame = min_frame;
 	standard_info.max_frame = min_frame + num_frames;
@@ -1930,18 +1929,18 @@ int SirveApp::get_integer_from_txt_box(QString input)
 	}
 }
 
-void SirveApp::set_frame_number_label(int counter)
+void SirveApp::set_frame_number_label(unsigned int current_frame_number)
 {
 	// check that engineering is non-null before accessing
 	if (eng_data) {
 		int index = data_plots->index_sub_plot_xmin;
 
-		int frame_number = eng_data->frame_numbers[index + counter];
+		int frame_number = eng_data->frame_numbers[index + current_frame_number];
 		QString frame_text("Frame # ");
 		frame_text.append(QString::number(frame_number));
 		lbl_video_frame->setText(frame_text);
 
-		double seconds_midnight = eng_data->get_epoch_time_from_index(index + counter);
+		double seconds_midnight = eng_data->get_epoch_time_from_index(index + current_frame_number);
 		QString seconds_text("From Midnight ");
 		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
 		lbl_video_time_midnight->setText(seconds_text);
@@ -1957,9 +1956,9 @@ void SirveApp::set_zulu_label()
 {
 
 	int index = data_plots->index_sub_plot_xmin;
-	int counter = playback_controller->get_counter();
+	unsigned int current_frame_number = playback_controller->get_current_frame_number();
 
-	double seconds_midnight = eng_data->get_epoch_time_from_index(index + counter);
+	double seconds_midnight = eng_data->get_epoch_time_from_index(index + current_frame_number);
 
 	// ------------------------------------------------------------------------------------
 	int hour = seconds_midnight / 3600;
@@ -2653,7 +2652,7 @@ void SirveApp::toggle_video_filters()
 		ir_video->container.display_data(updated_user_request);
 	}
 
-	emit playback_controller->update_frame(playback_controller->get_counter());
+	emit playback_controller->update_frame(playback_controller->get_current_frame_number());
 }
 
 void SirveApp::set_color_correction_slider_labels()
