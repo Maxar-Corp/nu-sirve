@@ -81,21 +81,20 @@ class Engineering_Plots : public QtPlotting
 		// Parameters to display subplot
 		bool plot_all_data, plot_primary_only, plot_current_marker, chart_is_zoomed;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-		int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
+		unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
+		std::vector<double>past_midnight,past_epoch;
 
 		// plot axes titles
 		QString x_title, y_title, title;
 		QXYSeries *current_frame_marker;
 
-		Engineering_Plots(QWidget *parent = nullptr);
+		Engineering_Plots(int number_of_frames, QWidget *parent = nullptr);
 		~Engineering_Plots();
 
+		int num_frames;
 		std::vector<Plotting_Frame_Data> engineering_data;
 		std::vector<Track_Irradiance> track_irradiance_data;
-		std::vector<double>frame_numbers;
-		std::vector<double>past_midnight;
-		std::vector<double>past_epoch;
-		
+
 		void plot_azimuth();
 		void plot_elevation();
 		void plot_irradiance();
@@ -118,6 +117,8 @@ class Engineering_Plots : public QtPlotting
 		void set_plot_title(QString input_title);
 		void set_zoom_limits(bool active_zoom);
 
+	private:
+		std::vector<double> frame_indeces;
 };
 
 #endif

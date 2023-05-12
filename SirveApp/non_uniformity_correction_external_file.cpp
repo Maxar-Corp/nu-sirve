@@ -93,13 +93,10 @@ void ExternalNUCInformationWidget::plot_osm()
         this->resize(500, 500);
 
     engineering_data = new Engineering_Data(osm_frames);
-    plot_data = new Engineering_Plots();
+    plot_data = new Engineering_Plots(osm_frames.size());
 
-    plot_data->frame_numbers = engineering_data->frame_numbers;
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
-    plot_data->index_sub_plot_xmin = 0;
-    plot_data->index_sub_plot_xmax = plot_data->frame_numbers.size() - 1;
     plot_data->set_plot_title("");
 
     plot_data->track_irradiance_data = engineering_data->get_track_irradiance_data();
