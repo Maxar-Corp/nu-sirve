@@ -6,16 +6,6 @@ ABIR_Data::ABIR_Data()
 
 ABIR_Data::~ABIR_Data()
 {
-
-	//delete full_file_path;
-
-	//int num_frames = video_frames_16bit.size();
-	//for (int i = 0; i < num_frames; i++)
-	//{
-	//	delete[] video_frames_16bit[i];
-	//}
-
-	//video_frames_16bit.clear();
 }
 
 int ABIR_Data::File_Setup(const char* file_path, double version_number)
@@ -28,13 +18,19 @@ int ABIR_Data::File_Setup(const char* file_path, double version_number)
 		return err;
 	}
 
-    //full_file_path = file_path;
-    file_version = GetVersionNumber(version_number);
-	if (file_version < 0)
-		return -1;
+    if (version_number > 0) {
+        INFO << "ABIR Load: File version is being overriden to " << version_number;
+        file_version = version_number;
+    }
+    else {
+        file_version = GetVersionNumberFromFile();
+        if (file_version < 0) {
+            return -1;
+        }
+    }
 	
     full_file_path = file_path;
-   
+
     fclose(fp);
 
     return err;
@@ -311,16 +307,10 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int m
 	return video_frames_16bit;
 }
 
-double ABIR_Data::GetVersionNumber(double version_number)
+double ABIR_Data::GetVersionNumberFromFile()
 {
-
-	if (version_number > 0) {
-		INFO << "ABIR Load: File version is being overridden to " << version_number;
-		return version_number;
-	}
-
     int return_code = fseek(fp, 36, SEEK_SET);
-    version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct
+    double version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct
 
 	bool ok;
 	double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version", "Enter File Version to Use:", version_number, 1, 4.2, 2, &ok);
@@ -347,5 +337,4 @@ double ABIR_Data::GetVersionNumber(double version_number)
 	INFO << "ABIR Load: File version is " << version_number;
 
     return version_number;
-
 }
