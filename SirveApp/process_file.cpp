@@ -75,8 +75,8 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_p
 	if (first_frame < 0 || last_frame < 0)
 		return video_frames_16bit;
 
-	frame_start = first_frame;
-	frame_end = last_frame;
+	unsigned int frame_start = first_frame;
+	unsigned int frame_end = last_frame;
 
 	try
 	{

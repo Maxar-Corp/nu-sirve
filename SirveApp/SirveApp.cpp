@@ -873,8 +873,8 @@ void SirveApp::setup_connections() {
 	//Link buttons to functions
 	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &SirveApp::ui_choose_abp_file);
 	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &SirveApp::show_calibration_dialog);
-	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::load_abir_data);
-	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::load_abir_data);
+	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
+	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
 
 	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::create_non_uniformity_correction_selection_option);
 
@@ -928,22 +928,33 @@ void SirveApp::setup_connections() {
 
 void SirveApp::save_workspace()
 {
-	workspace.save_state(abp_file_metadata.image_path);
+	workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1);
 }
 void SirveApp::load_workspace()
 {
 	INFO << "WORKSPACE: Start ABP load process";
 
-	QString saved_image_path = workspace.load_state();
-	int compare = QString::compare(saved_image_path, "", Qt::CaseInsensitive);
+	WorkspaceValues workspace_vals = workspace.load_state();
+
+	int compare = QString::compare(workspace_vals.image_path, "", Qt::CaseInsensitive);
 	if (compare == 0) {
 		QtHelpers::LaunchMessageBox(QString("Issue Loading Workspace"), "Either no workspace exists or the workspace is empty.");
 		return;
 	}
 
-	bool validated = validate_abp_files(saved_image_path);
+	INFO << "WORKSPACE: ABP image path in workspace, attempting to load";
+
+	bool validated = validate_abp_files(workspace_vals.image_path);
 	if (validated) {
 		load_osm_data();
+	}
+
+	if (workspace_vals.start_frame == 0 || workspace_vals.end_frame == 0) {
+		INFO << "No frames selected in the workspace";
+		return;
+	}
+	else {
+		load_abir_data(workspace_vals.start_frame, workspace_vals.end_frame);
 	}
 }
 
@@ -1128,34 +1139,29 @@ void SirveApp::load_osm_data()
 	return;
 }
 
-void SirveApp::load_abir_data()
+void SirveApp::ui_load_abir_data()
 {
-
 	btn_get_frames->setEnabled(false);
 
 	INFO << "GUI: Starting ABIR load process";
 
-	// -----------------------------------------------------------------------------------------
-
-	// Get frame numbers from text boxes
 	int min_frame = get_integer_from_txt_box(txt_start_frame->text());
 	int max_frame = get_integer_from_txt_box(txt_end_frame->text());
 
-	bool check_data = check_min_max_frame_input(min_frame, max_frame);
-
-	if (!check_data) {
+	if (!verify_frame_selection(min_frame, max_frame)) {
 		btn_get_frames->setEnabled(true);
 
 		INFO << "GUI: No video loaded";
 		return;
 	}
 
-	//-----------------------------------------------------------------------------------
+	DEBUG << "GUI: Frame numbers are valid, loading ABIR data";
 
-	DEBUG << "GUI: Frame numbers are valid";
+	load_abir_data(min_frame, max_frame);
+}
 
-	//---------------------------------------------------------------------------
-
+void SirveApp::load_abir_data(int min_frame, int max_frame)
+{
 	// Load the ABIR data
 	playback_controller->stop_timer();
 	ir_video->container.something.clear();
@@ -1205,7 +1211,9 @@ void SirveApp::load_abir_data()
 
 	status_txt.append(update_text);
 	lbl_file_load->setText(status_txt);
-
+	txt_start_frame->setText(QString::number(min_frame));
+	txt_end_frame->setText(QString::number(max_frame));
+	
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
@@ -1932,22 +1940,6 @@ int SirveApp::get_integer_from_txt_box(QString input)
 	}
 }
 
-bool SirveApp::check_value_within_range(int input_value, int min_value, int max_value)
-{
-	if (input_value < min_value) {
-		DEBUG << "GUI: " << input_value << "is less than min value of " << min_value;
-		return false;
-	}
-	if (input_value > max_value) {
-		DEBUG << "GUI: " << input_value << "is more than max value of " << max_value;
-		return false;
-	}
-		
-	DEBUG << "GUI: " << input_value << " is between " << min_value << " and " << max_value;
-
-	return true;
-}
-
 void SirveApp::set_frame_number_label(int counter)
 {
 	// check that engineering is non-null before accessing
@@ -2172,6 +2164,12 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
 	//----------------------------------------------------------------------------------------------------
+	if (!verify_frame_selection(min_frame, max_frame)) {
+		INFO << "GUI: NUC correction not completed, invalid frame selection";
+		
+		QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "NUC correction not completed, invalid frame selection");
+		return;
+	}
 
 	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 	std::vector<double> nuc_correction = nuc.get_nuc_correction();
@@ -2541,7 +2539,7 @@ void SirveApp::create_background_subtraction_correction() {
 	//-----------------------------------------------------------------------------------------------
 	// get user selected frames for suppression
 
-	int delta_frames = file_processor.frame_end - file_processor.frame_start;
+	int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
 
 	bool ok;
 	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
@@ -2748,56 +2746,6 @@ void SirveApp::enable_engineering_plot_options(bool input)
 
 }
 
-bool SirveApp::check_min_max_frame_input(int min_frame, int max_frame)
-{
-	
-	// if non-numeric data is entered...
-	if ((min_frame < 0) || (max_frame < 0))
-	{
-		if (min_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to start frame. Entered: " << txt_start_frame->text().toLocal8Bit().constData();
-		if (max_frame < 0)
-			DEBUG << "GUI: User entered non-numeric data to stop frame. Entered: " << txt_end_frame->text().toLocal8Bit().constData();
-		
-		QtHelpers::LaunchMessageBox(QString("Non-Numeric Data"), "Non-numeric data entered for the start/end frames");
-
-		return false;
-	}
-
-	// if minimum frame is greater than maximum frame...
-	if (min_frame > max_frame)
-	{
-		DEBUG << "GUI: User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
-		
-		QtHelpers::LaunchMessageBox(QString("Bad Data Entered"), "Start frame is greater than the end frame");
-
-		return false;
-	}
-
-	//find frame start / stop 
-	int frame_start = 1;
-	int frame_stop = eng_data->frame_numbers.back();
-
-	bool min_within_range = check_value_within_range(min_frame, frame_start, frame_stop);
-	bool max_within_range = check_value_within_range(max_frame, frame_start, frame_stop);
-
-	// if values outside range...
-	if (!min_within_range || !max_within_range)
-	{
-		if (min_frame < frame_start)
-			DEBUG << "GUI: Start frame before minimum frame. Entered: " << min_frame << " Minimum: " << frame_start;
-		if (min_frame < 0)
-			DEBUG << "GUI: Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
-
-		QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (" + QString::number(frame_start) + "-" + QString::number(frame_stop) + ")");
-		
-		return false;
-	}
-	
-	
-	return true;
-}
-
 void SirveApp::update_epoch_string(QString new_epoch_string)
 {
 
@@ -2856,4 +2804,35 @@ QString SirveApp::create_epoch_string(std::vector<double> new_epoch) {
 	}
 
 	return out;
+}
+
+bool SirveApp::verify_frame_selection(int min_frame, int max_frame)
+{
+	if (min_frame < 1) {
+		DEBUG << "Invalid choice for start frame. Entered: " << min_frame;
+		QtHelpers::LaunchMessageBox(QString("Non-Numeric Data"), "Invalid data entered for the start frame");
+		return false;
+	}
+
+	if (max_frame < 1) {
+		DEBUG << "Invalid choice for end frame. Entered: " << max_frame;
+		QtHelpers::LaunchMessageBox(QString("Non-Numeric Data"), "Invalid data entered for the end frame");
+		return false;
+	}
+
+	if (min_frame > max_frame) {
+		DEBUG << "User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
+		QtHelpers::LaunchMessageBox(QString("Bad Data Entered"), "Start frame is greater than the end frame");
+		return false;
+	}
+
+	int frame_stop = eng_data->frame_numbers.back();
+
+	if (max_frame > frame_stop) {
+		DEBUG << "Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
+		QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (1-" + QString::number(frame_stop) + ")");
+		return false;
+	}
+
+	return true;
 }
