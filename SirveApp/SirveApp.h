@@ -134,7 +134,7 @@ public:
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
 	void enable_engineering_plot_options(bool input);
-	bool check_min_max_frame_input(int min_frame, int max_frame);
+	bool verify_frame_selection(int min_frame, int max_frame);
 	void update_epoch_string(QString new_epoch_string);
 	void display_original_epoch(QString new_epoch_string);
 	QString create_epoch_string(std::vector<double> new_epoch);
@@ -161,8 +161,7 @@ public:
 
 		void ui_choose_abp_file();
 		bool validate_abp_files(QString path_to_image_file);
-		void load_osm_data();
-		void load_abir_data();
+		void ui_load_abir_data();
 
 		void start_stop_video_record();
 		void toggle_zoom_on_video();
@@ -238,9 +237,9 @@ private:
 	QAction *action_close, *action_set_timing_offset;
 
 	int get_integer_from_txt_box(QString input);
-	bool check_value_within_range(int input_value, int min_value, int max_value);
 	int get_color_index(QVector<QString> colors, QColor input_color);
 	CalibrationData calibration_model;
 	
-	
+	void load_osm_data();
+	void load_abir_data(int start_frame, int end_frame);
 };

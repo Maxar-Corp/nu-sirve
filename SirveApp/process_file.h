@@ -20,8 +20,6 @@ class Process_File : public QWidget
 public:
 	ABIR_Data abir_data;
 
-	unsigned int frame_start, frame_end;
-
 	Process_File();
 	~Process_File();
 
