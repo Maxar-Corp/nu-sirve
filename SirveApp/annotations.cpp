@@ -117,7 +117,7 @@ void Annotations::add()
 	new_data.x_pixel = 50;
 	new_data.y_pixel = 50;
 	new_data.frame_start = base_data.min_frame;
-	new_data.num_frames = base_data.max_frame - base_data.min_frame;
+	new_data.num_frames = base_data.max_frame - base_data.min_frame + 1;
 	new_data.text = "Add Text";
 
 	// set attributes for checking data

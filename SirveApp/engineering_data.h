@@ -22,7 +22,7 @@ class Engineering_Data : public	QWidget
 		Engineering_Data(const std::vector<Frame> & osm_frames);
 		~Engineering_Data();
 
-		std::vector<double>frame_numbers, julian_date, seconds_from_midnight, seconds_from_epoch;
+		std::vector<double>julian_date, seconds_from_midnight, seconds_from_epoch;
 		
 		std::vector<Plotting_Frame_Data> frame_data;
 		std::vector<Track_Irradiance> track_irradiance_data;

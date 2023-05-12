@@ -9,7 +9,7 @@ Playback::Playback(unsigned int number_frames)
 	timer->stop();
 
 	current_frame_number = 0;
-	max_frame_number = number_frames;
+	max_frame_number = number_frames - 1;
 	is_reverse = false;
 
 	// Speeds in frames per second
