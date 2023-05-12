@@ -202,12 +202,6 @@ public:
 		void toggle_sensor_track_data();
 		void toggle_frame_time();
 
-		void yaxis_log_toggled(bool input);
-		void yaxis_linear_toggled(bool input);
-		void yaxis_decimal_toggled(bool input);
-		void yaxis_scientific_toggled(bool input);
-
-
 		deinterlace_type find_deinterlace_type(int index);
 		Video_Parameters find_deinterlace_video_type(int index);
 		void clear_image_processing();
