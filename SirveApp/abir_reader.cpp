@@ -40,8 +40,10 @@ int ABIR_Data::File_Setup(char* file_path, double version_number)
     return err;
 }
 
-std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(std::vector<unsigned int> valid_frames, bool header_only)
+std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int min_frame, unsigned int max_frame, bool header_only)
 {
+    std::vector<unsigned int> valid_frames { min_frame, max_frame };
+
 	INFO << "ABIR Load: Getting ABIR data";
 
 	QProgressDialog progress("", QString(), 0, 10);

@@ -1,12 +1,10 @@
 #include "non_uniformity_correction.h"
 
-NUC::NUC(QString path_video_file, unsigned int first_frame, unsigned int last_frame, double version)
+NUC::NUC(QString path_video_file, double version)
 {
 
 	file_version = version;
 	input_video_file = path_video_file;
-
-	frame_numbers = { first_frame, last_frame };
 
 	kernel = { {0, 0, 1, 0, 0},
 		       {0, 0, 1, 0, 0},
@@ -19,7 +17,7 @@ NUC::~NUC()
 {
 }
 
-std::vector<double> NUC::get_nuc_correction()
+std::vector<double> NUC::get_nuc_correction(unsigned int min_frame, unsigned int max_frame)
 {
 	INFO << "NUC: Starting correction process";
 	std::vector<double>out;
@@ -32,7 +30,7 @@ std::vector<double> NUC::get_nuc_correction()
 
 		return out;
 	}
-	std::vector<std::vector<uint16_t>> video_frames_16bit = import_frames();
+	std::vector<std::vector<uint16_t>> video_frames_16bit = import_frames(min_frame, max_frame);
 
 	int number_frames = video_frames_16bit.size();
 	int number_pixels = video_frames_16bit[0].size();
@@ -269,14 +267,14 @@ arma::vec NUC::apply_kernel(arma::vec data, arma::uvec indices)
 	return output;
 }
 
-std::vector<std::vector<uint16_t>> NUC::import_frames() {
+std::vector<std::vector<uint16_t>> NUC::import_frames(unsigned int min_frame, unsigned int max_frame) {
 
 	std::vector<std::vector<uint16_t>> video_frames_16bit;
 
-	if (frame_numbers[0] < 0 || frame_numbers[1] < 0)
+	if (min_frame < 0 || max_frame < 0)
 		return video_frames_16bit;
 
-	video_frames_16bit = abir_data.Get_Data_and_Frames(frame_numbers, false);
+	video_frames_16bit = abir_data.Get_Data_and_Frames(min_frame, max_frame, false);
 
 	DEBUG << "NUC: Retrieved video frames from ABIR file";
 
@@ -288,8 +286,6 @@ std::vector<std::vector<uint16_t>> NUC::import_frames() {
 
 arma::vec NUC::replace_broken_pixels(arma::vec values)
 {
-	double eps = std::pow(10, -6);
-
 	// -------------------------------------------------------------
 	// Find values for happy/dead pixels in selected frames
 	arma::vec sorted_values = arma::sort(values);
