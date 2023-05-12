@@ -18,7 +18,7 @@ ABIR_Data::~ABIR_Data()
 	//video_frames_16bit.clear();
 }
 
-int ABIR_Data::File_Setup(char* file_path, double version_number)
+int ABIR_Data::File_Setup(const char* file_path, double version_number)
 {
 
     errno_t err = fopen_s(&fp, file_path, "rb");
