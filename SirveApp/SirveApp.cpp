@@ -2171,8 +2171,8 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 		return;
 	}
 
-	NUC nuc(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
-	std::vector<double> nuc_correction = nuc.get_nuc_correction();
+	NUC nuc(abp_file_metadata.image_path, config_values.version);
+	std::vector<double> nuc_correction = nuc.get_nuc_correction(min_frame, max_frame);
 
 	if (nuc_correction.size() == 0)
 	{
