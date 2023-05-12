@@ -114,7 +114,7 @@ public:
 	std::vector<ABIR_Frame> ir_data;
 	//std::vector<uint16_t*>video_frames_16bit;
 
-    int File_Setup(char* file_path, double version_number = -0.1);
+    int File_Setup(const char* file_path, double version_number = -0.1);
 	std::vector<std::vector<uint16_t>> Get_Data_and_Frames(unsigned int min_frame, unsigned int max_frame, bool header_only = false);
     double GetVersionNumber(double version_number);
 
