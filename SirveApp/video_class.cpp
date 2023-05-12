@@ -372,7 +372,7 @@ std::vector<int> Video::get_position_within_zoom(int x0, int y0)
 void Video::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
-	if (number_of_frames < counter)
+	if (number_of_frames == 0 || number_of_frames < counter)
 		return;
 
 	//------------------------------------------------------------------------------------------------

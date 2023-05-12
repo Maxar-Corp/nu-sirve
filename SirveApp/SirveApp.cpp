@@ -1060,13 +1060,12 @@ void SirveApp::load_osm_data()
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
 	eng_data = new Engineering_Data(osm_frames);
-	data_plots = new Engineering_Plots();
 
-	data_plots->frame_numbers = eng_data->frame_numbers;
+	unsigned int num_frames = osm_frames.size();
+	data_plots = new Engineering_Plots(num_frames);
+
 	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-	data_plots->index_sub_plot_xmin = 0;
-	data_plots->index_sub_plot_xmax = data_plots->frame_numbers.size() - 1;
 
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
@@ -1216,7 +1215,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
-	slider_video->setRange(0, number_frames);
+	slider_video->setRange(0, number_frames - 1);
 
 	//---------------------------------------------------------------------------
 	// Set the video and histogram plots to this data
@@ -1557,8 +1556,8 @@ void SirveApp::set_data_timing_offset()
 		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
-		int index0 = data_plots->index_sub_plot_xmin;;
-		int index1 = data_plots->index_sub_plot_xmax;
+		int index0 = data_plots->index_sub_plot_xmin + 1;
+		int index1 = data_plots->index_sub_plot_xmax + 1;
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		ir_video->update_frame_data(temp);
@@ -1728,8 +1727,8 @@ void SirveApp::export_plot_data()
 		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
 	}
 	else {
-		min_frame = data_plots->index_sub_plot_xmin;
-		max_frame = data_plots->index_sub_plot_xmax;
+		min_frame = data_plots->index_sub_plot_xmin + 1;
+		max_frame = data_plots->index_sub_plot_xmax + 1;
 
 		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
 	}
@@ -1870,12 +1869,8 @@ void SirveApp::annotate_video()
 	standard_info.x_pixels = ir_video->image_x;
 	standard_info.y_pixels = ir_video->image_y;
 
-	int index = data_plots->index_sub_plot_xmin;
-	int min_frame = eng_data->frame_numbers[index];
-	unsigned int num_frames = playback_controller->get_max_frame_number();
-
-	standard_info.min_frame = min_frame;
-	standard_info.max_frame = min_frame + num_frames;
+	standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
+	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
 	Annotations annotate_gui(ir_video->annotation_list, standard_info, ir_video);
 	annotate_gui.exec();
@@ -1902,7 +1897,7 @@ void SirveApp::set_frame_number_label(unsigned int current_frame_number)
 	if (eng_data) {
 		int index = data_plots->index_sub_plot_xmin;
 
-		int frame_number = eng_data->frame_numbers[index + current_frame_number];
+		int frame_number = index + current_frame_number + 1;
 		QString frame_text("Frame # ");
 		frame_text.append(QString::number(frame_number));
 		lbl_video_frame->setText(frame_text);
@@ -2781,7 +2776,7 @@ bool SirveApp::verify_frame_selection(int min_frame, int max_frame)
 		return false;
 	}
 
-	int frame_stop = eng_data->frame_numbers.back();
+	int frame_stop = data_plots->full_plot_xmax + 1;
 
 	if (max_frame > frame_stop) {
 		DEBUG << "Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;

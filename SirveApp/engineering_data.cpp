@@ -273,7 +273,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 		julian_date.push_back(osm_frames[i].data.julian_date);
 		seconds_from_midnight.push_back(osm_frames[i].data.seconds_past_midnight);
 		seconds_from_epoch.push_back(osm_frames[i].data.seconds_past_midnight);
-		frame_numbers.push_back(i + 1);
 	}
 
 	if (julian_date.size() > 0){

@@ -1,8 +1,12 @@
 #include "plot_engineering_data.h"
 
 
-Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
+Engineering_Plots::Engineering_Plots(int number_of_frames, QWidget *parent) : QtPlotting(parent)
 {
+	num_frames = number_of_frames;
+	for (unsigned int i = 0; i < num_frames; i++) {
+		frame_indeces.push_back(i);
+	}
 		
 	x_axis_units = frames;
 	plot_all_data = true;
@@ -13,6 +17,9 @@ Engineering_Plots::Engineering_Plots(QWidget *parent) : QtPlotting(parent)
 	set_plot_title("EDIT CLASSIFICATION");
 	chart_is_zoomed = false;
 	current_chart_id = 0;
+
+	index_sub_plot_xmin = 0;
+	index_sub_plot_xmax = num_frames - 1;
 
 	QObject::connect(chart_view, &NewChartView::zoom_changed, this, &Engineering_Plots::set_zoom_limits);
 }
@@ -233,29 +240,29 @@ void Engineering_Plots::establish_plot_limits() {
 
 	switch (x_axis_units)
 	{
-	case frames:
-		sub_plot_xmin = frame_numbers[index_sub_plot_xmin];
-		sub_plot_xmax = frame_numbers[index_sub_plot_xmax];
+		case frames:
+			sub_plot_xmin = index_sub_plot_xmin + 1;
+			sub_plot_xmax = index_sub_plot_xmax + 1;
 
-		full_plot_xmin = frame_numbers[0];
-		full_plot_xmax = frame_numbers[frame_numbers.size() - 1];
-		break;
-	case seconds_past_midnight:
-		sub_plot_xmin = past_midnight[index_sub_plot_xmin];
-		sub_plot_xmax = past_midnight[index_sub_plot_xmax];
+			full_plot_xmin = 1;
+			full_plot_xmax = num_frames;
+			break;
+		case seconds_past_midnight:
+			sub_plot_xmin = past_midnight[index_sub_plot_xmin];
+			sub_plot_xmax = past_midnight[index_sub_plot_xmax];
 
-		full_plot_xmin = past_midnight[0];
-		full_plot_xmax = past_midnight[past_midnight.size() - 1];
-		break;
-	case seconds_from_epoch:
-		sub_plot_xmin = past_epoch[index_sub_plot_xmin];
-		sub_plot_xmax = past_epoch[index_sub_plot_xmax];
+			full_plot_xmin = past_midnight[0];
+			full_plot_xmax = past_midnight[past_midnight.size() - 1];
+			break;
+		case seconds_from_epoch:
+			sub_plot_xmin = past_epoch[index_sub_plot_xmin];
+			sub_plot_xmax = past_epoch[index_sub_plot_xmax];
 
-		full_plot_xmin = past_epoch[0];
-		full_plot_xmax = past_epoch[past_epoch.size() - 1];
-		break;
-	default:
-		break;
+			full_plot_xmin = past_epoch[0];
+			full_plot_xmax = past_epoch[past_epoch.size() - 1];
+			break;
+		default:
+			break;
 	}
 }
 
@@ -278,20 +285,20 @@ void Engineering_Plots::get_xaxis_value(std::vector<double>& values)
 
 	switch (x_axis_units)
 	{
-	case frames:
-		values = frame_numbers;
-		x_title = "Frame #";
-		break;
-	case seconds_past_midnight:
-		values = past_midnight;
-		x_title = "Seconds Past Midnight";
-		break;
-	case seconds_from_epoch:
-		values = past_epoch;
-		x_title = "Seconds Past Epoch";
-		break;
-	default:
-		break;
+		case frames:
+			values = frame_indeces;
+			x_title = "Frame #";
+			break;
+		case seconds_past_midnight:
+			values = past_midnight;
+			x_title = "Seconds Past Midnight";
+			break;
+		case seconds_from_epoch:
+			values = past_epoch;
+			x_title = "Seconds Past Epoch";
+			break;
+		default:
+			break;
 	}
 }
 
@@ -335,7 +342,7 @@ void Engineering_Plots::plot_current_step(int counter)
 		std::vector<double> x;
 		get_xaxis_value(x);
 
-		double current_x = x[index_sub_plot_xmin + counter];
+		double current_x = x[index_sub_plot_xmin + counter + 1];
 		double min_y, max_y;
 
 		if (yaxis_is_log) {
