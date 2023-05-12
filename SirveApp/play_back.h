@@ -14,11 +14,11 @@ class Playback : public QWidget
 	Q_OBJECT
 public:
 
-	Playback(int number_frames);
+	Playback(unsigned int number_frames);
 	~Playback();
-	void set_number_of_frames(int value);
-	int get_counter();
-	int get_max_counter();
+	void set_number_of_frames(unsigned int value);
+	unsigned int get_current_frame_number();
+	unsigned int get_max_frame_number();
 
 	int timer_frequency, index_speed;
 	QTimer  *timer;
@@ -34,18 +34,17 @@ public slots:
 	void stop_timer();
 	void start_timer();
 	void timer_update();
-	void set_counter(int value);
+	void set_current_frame_number(unsigned int value);
 	void prev_frame();
 	void next_frame();
 	void reverse();
 	
 signals:
-	void update_frame(int counter);
+	void update_frame(unsigned int current_frame_number);
 
 private:
-
-	int counter;
-	unsigned int max_counter;
+	unsigned int current_frame_number;
+	unsigned int max_frame_number;
 };
 
 
