@@ -60,7 +60,6 @@ class Video_Container : public QObject
 	
 	public:
 		std::vector<video_details> something;
-		int current_index;
 
 		Video_Container();
 		~Video_Container();
