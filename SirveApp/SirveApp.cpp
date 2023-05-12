@@ -1508,20 +1508,11 @@ void SirveApp::plot_primary_only()
 }
 
 void SirveApp::plot_current_frame_marker() {
-
-	bool current_state = data_plots->plot_current_marker;
-	bool new_state = !current_state;
-
-	data_plots->plot_current_marker = new_state;
-	menu_plot_frame_marker->setIconVisibleInMenu(new_state);
-
-	if (ir_video->number_of_frames > 0)
-	{
-		plot_change(1);
-		emit data_plots->plot_current_step(playback_controller->get_counter());
-	}
+	data_plots->plot_current_marker = !data_plots->plot_current_marker;
+	menu_plot_frame_marker->setIconVisibleInMenu(data_plots->plot_current_marker);
 	
-	DEBUG << "GUI: Show video marker changed from " << current_state << " to " << new_state;
+	plot_change(1);
+	DEBUG << "GUI: Toggled plot current frame marker";
 }
 
 void SirveApp::auto_change_plot_display(int index)
