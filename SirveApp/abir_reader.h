@@ -116,10 +116,10 @@ public:
 
     int File_Setup(const char* file_path, double version_number = -0.1);
 	std::vector<std::vector<uint16_t>> Get_Data_and_Frames(unsigned int min_frame, unsigned int max_frame, bool header_only = false);
-    double GetVersionNumber(double version_number);
+    
 
 private:
-
+	double GetVersionNumberFromFile();
 };
 
 
