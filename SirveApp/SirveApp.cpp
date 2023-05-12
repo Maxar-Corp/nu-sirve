@@ -1177,19 +1177,18 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	
 	//----------------------------------------------------------------------------
 
-	std::vector<std::vector<uint16_t>> video_frames = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
-
-	if (video_frames.size() == 0) {
-
-		QtHelpers::LaunchMessageBox(QString("File Version Not Within Range"), "File version was not within valid range. See log for more details");
-
-		INFO << "GUI: Video import stopped. File version not within range";
+	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+	
+	if (abir_data_result.had_error) {
+		QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
+		INFO << "GUI: Video import stopped. An error occurred.";
 		btn_get_frames->setEnabled(true);
 		return;
 	}
 
-	int x_pixels = file_processor.abir_data.ir_data[0].header.image_x_size;
-	int y_pixels = file_processor.abir_data.ir_data[0].header.image_y_size;
+	int x_pixels = abir_data_result.x_pixels;
+	int y_pixels = abir_data_result.y_pixels;
+	std::vector<std::vector<uint16_t>> video_frames = abir_data_result.video_frames_16bit;
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 

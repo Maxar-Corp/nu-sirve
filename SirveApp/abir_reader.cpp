@@ -8,36 +8,17 @@ ABIR_Data::~ABIR_Data()
 {
 }
 
-int ABIR_Data::File_Setup(const char* file_path, double version_number)
+ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number, bool header_only)
 {
+    ABIR_Data_Result data_result;
+    data_result.had_error = false;
 
-    errno_t err = fopen_s(&fp, file_path, "rb");
-
-	if (err != 0) {
-		INFO << "ABIR Load: Error opening file";
-		return err;
+    int check_value = File_Setup(file_path, version_number);
+	if (check_value < 0) {
+        data_result.had_error = true;
+		return data_result;
 	}
 
-    if (version_number > 0) {
-        INFO << "ABIR Load: File version is being overriden to " << version_number;
-        file_version = version_number;
-    }
-    else {
-        file_version = GetVersionNumberFromFile();
-        if (file_version < 0) {
-            return -1;
-        }
-    }
-	
-    full_file_path = file_path;
-
-    fclose(fp);
-
-    return err;
-}
-
-std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int min_frame, unsigned int max_frame, bool header_only)
-{
     std::vector<unsigned int> valid_frames { min_frame, max_frame };
 
 	INFO << "ABIR Load: Getting ABIR data";
@@ -47,10 +28,10 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int m
 
 	std::vector<std::vector<uint16_t>>video_frames_16bit;
 
-	errno_t err = fopen_s(&fp, full_file_path, "rb");
+	fopen_s(&fp, full_file_path, "rb");
 
-    size_t return_code = fseek(fp, 16, SEEK_SET);
-    frame_size = ReadValue<uint64_t>();
+    fseek(fp, 16, SEEK_SET);
+    uint64_t frame_size = ReadValue<uint64_t>();
 
     if (file_version >= 2.1)
         frame_size += 40;
@@ -86,7 +67,7 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int m
 
 	progress.setMinimumWidth(300);
 
-    for (size_t frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
+    for (unsigned int frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
 		progress.setValue(frame_index);
 		INFO << "ABIR Load: Inputting frame " << frame_index + 1 << " of " << valid_frames[1] << " frames";
@@ -278,13 +259,16 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int m
         header_data.image_size = ReadValue<uint32_t>();
 
         if (header_data.image_size > 20e6) {
-			WARN << "ABIR Load: Image size exceeds max allowable. Check version type.";
-			fclose(fp);
+            WARN << "ABIR Load: Image size exceeds max allowable. Check version type.";
+            fclose(fp);
 
-			return video_frames_16bit;
+            data_result.x_pixels = ir_data[0].header.image_x_size;
+            data_result.y_pixels = ir_data[0].header.image_y_size;
+            data_result.video_frames_16bit = video_frames_16bit;
+            return data_result;
         }
 
-        uint16_t total_range = 65535 / 4;
+        //uint16_t total_range = 65535 / 4;
 
 		uint16_t *raw_16bit_data = new uint16_t[header_data.image_size];
 		
@@ -302,14 +286,44 @@ std::vector<std::vector<uint16_t>> ABIR_Data::Get_Data_and_Frames(unsigned int m
         ir_data.push_back(temp_frame);
     }
 
-	fclose(fp);
+    fclose(fp);
 
-	return video_frames_16bit;
+    data_result.x_pixels = ir_data[0].header.image_x_size;
+    data_result.y_pixels = ir_data[0].header.image_y_size;
+    data_result.video_frames_16bit = video_frames_16bit;
+    return data_result;
+}
+
+int ABIR_Data::File_Setup(const char* file_path, double version_number)
+{
+    errno_t err = fopen_s(&fp, file_path, "rb");
+
+    if (err != 0) {
+        INFO << "ABIR Load: Error opening file";
+        return err;
+    }
+
+	if (version_number > 0) {
+        INFO << "ABIR Load: File version is being overridden to " << version_number;
+        file_version = version_number;
+	}
+    else {
+        file_version = GetVersionNumberFromFile();
+        if (file_version < 0) {
+            return -1;
+        }
+    }
+
+    full_file_path = file_path;
+
+    fclose(fp);
+
+    return err;
 }
 
 double ABIR_Data::GetVersionNumberFromFile()
 {
-    int return_code = fseek(fp, 36, SEEK_SET);
+    fseek(fp, 36, SEEK_SET);
     double version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct
 
 	bool ok;

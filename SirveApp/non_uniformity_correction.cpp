@@ -17,22 +17,17 @@ std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned in
 {
 	INFO << "NUC: Starting correction process";
 	std::vector<double>out;
-		
-	int check_value = abir_data.File_Setup(path_video_file.toLocal8Bit().constData(), version);
-	if (check_value < 0) {
 
+	ABIR_Data_Result abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
+	if (abir_result.had_error) {
 		return out;
 	}
-	std::vector<std::vector<uint16_t>> video_frames_16bit;
-	
-	if (!(min_frame < 0 || max_frame < 0)) {
-		video_frames_16bit = abir_data.Get_Data_and_Frames(min_frame, max_frame, false);
-	}
+
+	std::vector<std::vector<uint16_t>> video_frames_16bit = abir_result.video_frames_16bit;
+	x_pixels = abir_result.x_pixels;
+	y_pixels = abir_result.y_pixels;
 
 	DEBUG << "NUC: Retrieved video frames from ABIR file";
-
-	x_pixels = abir_data.ir_data[0].header.image_x_size;
-	y_pixels = abir_data.ir_data[0].header.image_y_size;
 
 	int number_frames = video_frames_16bit.size();
 	int number_pixels = video_frames_16bit[0].size();
