@@ -26,7 +26,7 @@ public:
 	AbpFileMetadata locate_abp_files(QString candidate_image_path);
 
 	bool check_path(QString path);
-	std::vector<std::vector<uint16_t>> load_image_file(QString image_path, int first_frame, int last_frame, double version);
+	ABIR_Data_Result load_image_file(QString image_path, int first_frame, int last_frame, double version);
 
 private:
 

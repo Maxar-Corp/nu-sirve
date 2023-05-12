@@ -695,8 +695,10 @@ void CalibrationDialog::ok()
 		double irradiance2 = trapezoidal_integration(x, response2);
 
 		// get counts from abp image file
-		std::vector<std::vector<uint16_t>> video_frames1 = file_processor.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
-		std::vector<std::vector<uint16_t>> video_frames2 = file_processor.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
+		ABIR_Data_Result result1 = file_processor.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
+		std::vector<std::vector<uint16_t>> video_frames1 = result1.video_frames_16bit;
+		ABIR_Data_Result result2 = file_processor.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
+		std::vector<std::vector<uint16_t>> video_frames2 = result2.video_frames_16bit;
 
 		double integration_time = file_processor.abir_data.ir_data[0].header.int_time;
 
@@ -710,8 +712,8 @@ void CalibrationDialog::ok()
 		arma::mat b = irradiance1 - m % average_count1;
 
 		// reshape arrays to image size
-		int x_pixels = file_processor.abir_data.ir_data[0].header.image_x_size;
-		int y_pixels = file_processor.abir_data.ir_data[0].header.image_y_size;
+		int x_pixels = result2.x_pixels;
+		int y_pixels = result2.y_pixels;
 
 		m.reshape(x_pixels, y_pixels);
 		m = m.t();

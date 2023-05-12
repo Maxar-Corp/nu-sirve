@@ -17,7 +17,7 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	AbpFileMetadata abp_data;
 	abp_data.error_msg = QString();
 	abp_data.info_msg = QString("File Load Status: \n");
-	
+
 	// -----------------------------------------------------------------------------
 	// check abpimage file is valid
 	bool valid_image_extension = candidate_image_path.endsWith(".abpimage", Qt::CaseInsensitive);
@@ -67,13 +67,15 @@ bool Process_File::check_path(QString path)
 	return file_exists && file_isFile;
 }
 
-std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_path, int first_frame, int last_frame, double version)
+ABIR_Data_Result Process_File::load_image_file(QString image_path, int first_frame, int last_frame, double version)
 {
-
-	std::vector<std::vector<uint16_t>> video_frames_16bit;
-
+	ABIR_Data_Result data_result;
+	data_result.had_error = true;
+	
 	if (first_frame < 0 || last_frame < 0)
-		return video_frames_16bit;
+	{
+		return data_result;
+	}
 
 	unsigned int frame_start = first_frame;
 	unsigned int frame_end = last_frame;
@@ -83,14 +85,12 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_p
 		QByteArray array = image_path.toLocal8Bit();
 		char* buffer = array.data();
 
-		int check_value = abir_data.File_Setup(buffer, version);
+		data_result = abir_data.Get_Frames(buffer, frame_start, frame_end, version, false);
+		if (data_result.had_error) {
+			return data_result;
+		}
 
-		if (check_value < 0)
-			return video_frames_16bit;
-
-		video_frames_16bit = abir_data.Get_Data_and_Frames(frame_start, frame_end, false);
-
-		INFO << "Number of frames imported: " << video_frames_16bit.size();
+		INFO << "Number of frames imported: " << data_result.video_frames_16bit.size();
 	}
 	catch (const std::exception& e)
 	{
@@ -101,5 +101,5 @@ std::vector<std::vector<uint16_t>> Process_File::load_image_file(QString image_p
 		INFO << "File Processing: An OS/CPU level error occurred when loading video data and could not be handled. Save log for further investigation.";
 	}
 
-	return video_frames_16bit;
+	return data_result;
 }
