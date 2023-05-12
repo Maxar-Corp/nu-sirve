@@ -1,11 +1,7 @@
 #include "non_uniformity_correction.h"
 
-NUC::NUC(QString path_video_file, double version)
+NUC::NUC()
 {
-
-	file_version = version;
-	input_video_file = path_video_file;
-
 	kernel = { {0, 0, 1, 0, 0},
 		       {0, 0, 1, 0, 0},
 			   {1, 1, 0, 1, 1},
@@ -17,20 +13,26 @@ NUC::~NUC()
 {
 }
 
-std::vector<double> NUC::get_nuc_correction(unsigned int min_frame, unsigned int max_frame)
+std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version)
 {
 	INFO << "NUC: Starting correction process";
 	std::vector<double>out;
-
-	QByteArray array = input_video_file.toLocal8Bit();
-	buffer = array.data();
 		
-	int check_value = abir_data.File_Setup(buffer, file_version);
+	int check_value = abir_data.File_Setup(path_video_file.toLocal8Bit().constData(), version);
 	if (check_value < 0) {
 
 		return out;
 	}
-	std::vector<std::vector<uint16_t>> video_frames_16bit = import_frames(min_frame, max_frame);
+	std::vector<std::vector<uint16_t>> video_frames_16bit;
+	
+	if (!(min_frame < 0 || max_frame < 0)) {
+		video_frames_16bit = abir_data.Get_Data_and_Frames(min_frame, max_frame, false);
+	}
+
+	DEBUG << "NUC: Retrieved video frames from ABIR file";
+
+	x_pixels = abir_data.ir_data[0].header.image_x_size;
+	y_pixels = abir_data.ir_data[0].header.image_y_size;
 
 	int number_frames = video_frames_16bit.size();
 	int number_pixels = video_frames_16bit[0].size();
@@ -265,23 +267,6 @@ arma::vec NUC::apply_kernel(arma::vec data, arma::uvec indices)
 	}
 	
 	return output;
-}
-
-std::vector<std::vector<uint16_t>> NUC::import_frames(unsigned int min_frame, unsigned int max_frame) {
-
-	std::vector<std::vector<uint16_t>> video_frames_16bit;
-
-	if (min_frame < 0 || max_frame < 0)
-		return video_frames_16bit;
-
-	video_frames_16bit = abir_data.Get_Data_and_Frames(min_frame, max_frame, false);
-
-	DEBUG << "NUC: Retrieved video frames from ABIR file";
-
-	x_pixels = abir_data.ir_data[0].header.image_x_size;
-	y_pixels = abir_data.ir_data[0].header.image_y_size;
-
-	return video_frames_16bit;
 }
 
 arma::vec NUC::replace_broken_pixels(arma::vec values)

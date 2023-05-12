@@ -2171,8 +2171,8 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 		return;
 	}
 
-	NUC nuc(abp_file_metadata.image_path, config_values.version);
-	std::vector<double> nuc_correction = nuc.get_nuc_correction(min_frame, max_frame);
+	NUC nuc;
+	std::vector<double> nuc_correction = nuc.get_nuc_correction(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
 	if (nuc_correction.size() == 0)
 	{
@@ -2205,7 +2205,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
 	progress.setWindowTitle(QString("Fixed Background Suppression"));
-		
+
 	progress.setMinimum(0);
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Applying correction..."));
