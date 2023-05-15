@@ -1160,7 +1160,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 {
 	// Load the ABIR data
 	playback_controller->stop_timer();
-	ir_video->container.something.clear();
 
 	// Create the video properties data
 	video_details primary;
@@ -1191,7 +1190,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	ir_video->clear_all_zoom_levels(x_pixels, y_pixels);
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
-	ir_video->container.something.push_back(primary);
+	ir_video->container.reset(primary);
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
