@@ -8,6 +8,19 @@ Video_Container::Video_Container()
 Video_Container::~Video_Container()
 {
 	something.clear();
+	processing_states.clear();
+}
+
+void Video_Container::clear_processing_states()
+{
+	processing_states.clear();
+	emit processing_states_cleared();
+}
+
+void Video_Container::add_processing_state(video_details new_details)
+{
+	processing_states.push_back(new_details);
+	emit processing_state_added(QString::number(processing_states.size()));
 }
 
 void Video_Container::reset(video_details input)

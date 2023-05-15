@@ -175,6 +175,7 @@ void SirveApp::setup_ui() {
 	
 	btn_workspace_save->setEnabled(true);
 	btn_workspace_load->setEnabled(true);
+	cmb_processing_states->setEnabled(false);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -518,10 +519,12 @@ QWidget* SirveApp::setup_workspace_tab(){
 
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_save = new QPushButton("Save Workspace");
+	cmb_processing_states = new QComboBox();
 	
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(btn_workspace_load, 0, 0);
 	grid_workspace->addWidget(btn_workspace_save, 0, 1);
+	grid_workspace->addWidget(cmb_processing_states, 1, 0);
 
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
@@ -804,6 +807,10 @@ void SirveApp::setup_connections() {
 	QObject::connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
 	QObject::connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
+
+	QObject::connect(&video_display->container, &Video_Container::processing_states_cleared, this, &SirveApp::clear_processing_states);
+	QObject::connect(&video_display->container, &Video_Container::processing_state_added, this, &SirveApp::add_processing_state);
+
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
@@ -1048,8 +1055,11 @@ void SirveApp::load_osm_data()
 		delete data_plots;
 		delete engineering_plot_layout;			
 		
+		video_display->container.clear_processing_states();
 		video_display->container.something.clear();
 		video_display->remove_frame();
+
+		cmb_processing_states->setEnabled(false);
 
 		clear_frame_label();
 		
@@ -1191,6 +1201,8 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
 	video_display->container.reset(primary);
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(primary);
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
@@ -2176,6 +2188,8 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 		video_display->container.something.push_back(nuc_video);
 		INFO << "GUI: NUC video added";
 	}
+
+	video_display->container.add_processing_state(nuc_video);
 	
 	show_available_filter_options();
 
@@ -2260,6 +2274,8 @@ void SirveApp::create_deinterlace()
 		video_display->container.something.push_back(deinterlace_video);
 		INFO << "GUI: De-interlace video was added";
 	}
+
+	video_display->container.add_processing_state(deinterlace_video);
 
 	show_available_filter_options();
 	
@@ -2349,6 +2365,17 @@ Video_Parameters SirveApp::find_deinterlace_video_type(int index)
 	}
 
 	return Video_Parameters::deinterlace_max_absolute_value;
+}
+
+void SirveApp::clear_processing_states()
+{
+	cmb_processing_states->clear();
+}
+
+void SirveApp::add_processing_state(QString name)
+{
+	cmb_processing_states->addItem(name);
+	cmb_processing_states->setEnabled(true);
 }
 
 void SirveApp::clear_image_processing()
@@ -2562,6 +2589,8 @@ void SirveApp::create_background_subtraction_correction() {
 		video_display->container.something.push_back(background_subraction_video);
 		INFO << "GUI: Background subtraction video was added";
 	}
+
+	video_display->container.add_processing_state(background_subraction_video);
 
 	show_available_filter_options();
 }
