@@ -114,7 +114,7 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 
-	VideoDisplay *ir_video;
+	VideoDisplay *video_display;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;

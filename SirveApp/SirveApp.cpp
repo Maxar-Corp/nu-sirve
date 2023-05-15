@@ -9,9 +9,9 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	ir_video = new VideoDisplay(1, 1, config_values.max_used_bits);
-	ir_video->moveToThread(&thread_video);
-	//QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
+	video_display = new VideoDisplay(1, 1, config_values.max_used_bits);
+	video_display->moveToThread(&thread_video);
+	//QObject::connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
 
 	setup_ui();
 
@@ -38,23 +38,23 @@ SirveApp::SirveApp(QWidget *parent)
 
 	// links label showing the video to the video frame
 	video_layout = new QGridLayout();
-	video_layout->addWidget(ir_video->label);
+	video_layout->addWidget(video_display->label);
 	frame_video->setLayout(video_layout);
 
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_layout = new QVBoxLayout();
-	histogram_layout->addWidget(ir_video->histogram_plot->rel_chart_view);
+	histogram_layout->addWidget(video_display->histogram_plot->rel_chart_view);
 	frame_histogram->setLayout(histogram_layout);
 
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_abs_layout = new QVBoxLayout();
-	histogram_abs_layout->addWidget(ir_video->histogram_plot->chart_view);
+	histogram_abs_layout->addWidget(video_display->histogram_plot->chart_view);
 	frame_histogram_abs->setLayout(histogram_abs_layout);	
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_abs_layout_full = new QVBoxLayout();
-	histogram_abs_layout_full->addWidget(ir_video->histogram_plot->chart_full_view);
+	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
 	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
 
 	//---------------------------------------------------------------------------
@@ -89,11 +89,11 @@ SirveApp::SirveApp(QWidget *parent)
 SirveApp::~SirveApp() {
 
 	
-	delete ir_video;
+	delete video_display;
 	delete playback_controller;
 	//delete histogram_plot;
 
-	//delete ir_video;
+	//delete video_display;
 	//delete histogram_plot;
 	//delete data_plots;
 	
@@ -372,9 +372,9 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	horizontal_segment8->setFrameShape(QFrame::HLine);
 	
 	cmb_color_maps = new QComboBox();
-	int number_maps = ir_video->video_colors.maps.size();
+	int number_maps = video_display->video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
-		cmb_color_maps->addItem(ir_video->video_colors.maps[i].name);
+		cmb_color_maps->addItem(video_display->video_colors.maps[i].name);
 	
 	QList<QString> colors{};
 	colors.append("red");
@@ -801,12 +801,12 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------	
 	// 
 	
-	QObject::connect(&thread_video, &QThread::started, ir_video, &VideoDisplay::update_display_frame);
+	QObject::connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
-	QObject::connect(&ir_video->container, &Video_Container::update_display_video, ir_video, &VideoDisplay::receive_video_data);
-	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &VideoDisplay::update_specific_frame);
-	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &VideoDisplay::update_color_correction);
-	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	QObject::connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
+	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
+	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
+	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	//---------------------------------------------------------------------------	
 	
@@ -1048,12 +1048,12 @@ void SirveApp::load_osm_data()
 		delete data_plots;
 		delete engineering_plot_layout;			
 		
-		ir_video->container.something.clear();
-		ir_video->remove_frame();
+		video_display->container.something.clear();
+		video_display->remove_frame();
 
 		clear_frame_label();
 		
-		video_layout->addWidget(ir_video->label);
+		video_layout->addWidget(video_display->label);
 		frame_video->setLayout(video_layout);
 	}
 
@@ -1103,12 +1103,12 @@ void SirveApp::load_osm_data()
 	frame_plots->setLayout(engineering_plot_layout);
 
 	// Reset settings on video playback to defaults
-	ir_video->toggle_osm_tracks(false);
+	video_display->toggle_osm_tracks(false);
 
-	ir_video->toggle_primary_track_data(false);
+	video_display->toggle_primary_track_data(false);
 
 	//menu_sensor_boresight->setIconVisibleInMenu(false);
-	ir_video->toggle_sensor_boresight_data(false);
+	video_display->toggle_sensor_boresight_data(false);
 
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
@@ -1116,9 +1116,9 @@ void SirveApp::load_osm_data()
 	CalibrationData temp;
 	calibration_model = temp;
 
-	ir_video->banner_color = QString("red");
-	ir_video->banner_text = QString("EDIT CLASSIFICATION");
-	ir_video->tracker_color = QString("red");
+	video_display->banner_color = QString("red");
+	video_display->banner_text = QString("EDIT CLASSIFICATION");
+	video_display->tracker_color = QString("red");
 	
 	// Reset setting engineering plot defaults
 	menu_plot_all_data->setIconVisibleInMenu(true);
@@ -1187,10 +1187,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
-	ir_video->clear_all_zoom_levels(x_pixels, y_pixels);
+	video_display->clear_all_zoom_levels(x_pixels, y_pixels);
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
-	ir_video->container.reset(primary);
+	video_display->container.reset(primary);
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
@@ -1215,7 +1215,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	//---------------------------------------------------------------------------
 	// Set the video and histogram plots to this data
-	ir_video->container.display_original_data();
+	video_display->container.display_original_data();
 
 	
 	// Start threads...
@@ -1232,7 +1232,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	int index0 = min_frame - 1;
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
-	ir_video->set_frame_data(temp, file_processor.abir_data.ir_data);
+	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1274,7 +1274,7 @@ void SirveApp::start_stop_video_record()
 	{
 		//Stopping record video
 
-		ir_video->stop_recording();
+		video_display->stop_recording();
 
 		QPixmap record_image("icons/record.png");
 		QIcon record_icon(record_image);
@@ -1287,7 +1287,7 @@ void SirveApp::start_stop_video_record()
 	}
 	else {
 		//Starting record video
-		bool file_opened = ir_video->start_recording(playback_controller->get_fps());
+		bool file_opened = video_display->start_recording(playback_controller->get_fps());
 
 		if (file_opened) {
 
@@ -1316,11 +1316,11 @@ void SirveApp::toggle_zoom_on_video() {
 	
 	if (status_zoom_btn)
 	{
-		ir_video->toggle_action_zoom(true);
+		video_display->toggle_action_zoom(true);
 		btn_calculate_radiance->setChecked(false);
 	}
 	else {
-		ir_video->toggle_action_zoom(false);
+		video_display->toggle_action_zoom(false);
 	}
 
 }
@@ -1333,11 +1333,11 @@ void SirveApp::toggle_calculation_on_video()
 
 	if (status_calculation_btn) {
 
-		ir_video->toggle_action_calculate_radiance(true);
+		video_display->toggle_action_calculate_radiance(true);
 		btn_zoom->setChecked(false);
 	}
 	else {
-		ir_video->toggle_action_calculate_radiance(false);
+		video_display->toggle_action_calculate_radiance(false);
 	}
 }
 
@@ -1455,7 +1455,7 @@ void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
 	if (!playback_controller->timer->isActive() && false)
 	{
 		unsigned int current_frame_number = playback_controller->get_current_frame_number();
-		ir_video->update_specific_frame(current_frame_number);
+		video_display->update_specific_frame(current_frame_number);
 	}		
 
 	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
@@ -1524,7 +1524,7 @@ void SirveApp::show_calibration_dialog()
 	}
 
 	calibration_model = calibrate_dialog.model;
-	ir_video->set_calibration_model(calibrate_dialog.model);
+	video_display->set_calibration_model(calibrate_dialog.model);
 	btn_calculate_radiance->setEnabled(true);
 }
 
@@ -1547,8 +1547,8 @@ void SirveApp::set_data_timing_offset()
 		int index1 = data_plots->index_sub_plot_xmax + 1;
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
-		ir_video->update_frame_data(temp);
-		ir_video->update_display_frame();
+		video_display->update_frame_data(temp);
+		video_display->update_display_frame();
 
 		set_zulu_label();
 
@@ -1572,7 +1572,7 @@ void SirveApp::save_frame()
 	if(playback_controller->is_running())
 		playback_controller->stop_timer();
 	
-	ir_video->save_frame();
+	video_display->save_frame();
 	INFO << "GUI: Video frame saved  ";
 
 	if(playback_controller->is_running())
@@ -1641,12 +1641,12 @@ void SirveApp::create_menu_actions()
 void SirveApp::edit_banner_text()
 {	
 	bool ok;
-	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, ir_video->banner_text, &ok);
+	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, video_display->banner_text, &ok);
 	
 	if (ok) {
 
 		DEBUG << "GUI: Banner text changed";
-		ir_video->update_banner_text(input_text);
+		video_display->update_banner_text(input_text);
 
 		// checks if banners are the same and asks user if they want them to be the same
 		QString plot_banner_text = data_plots->title;
@@ -1751,7 +1751,7 @@ void SirveApp::edit_color_map()
 
 	int index = cmb_color_maps->currentIndex();
 	QString color = cmb_color_maps->currentText();
-	ir_video->update_color_map(color);
+	video_display->update_color_map(color);
 
 }
 
@@ -1761,7 +1761,7 @@ void SirveApp::edit_banner_color()
 	int index = cmb_text_color->currentIndex();
 	QString color = cmb_text_color->currentText();
 
-	ir_video->update_banner_color(color);
+	video_display->update_banner_color(color);
 
 	return;
 	//}
@@ -1770,15 +1770,15 @@ void SirveApp::edit_banner_color()
 void SirveApp::edit_tracker_color()
 {
 	QString tracker_color = cmb_tracker_color->currentText();
-	ir_video->update_tracker_color(tracker_color);
-	ir_video->update_display_frame();
+	video_display->update_tracker_color(tracker_color);
+	video_display->update_display_frame();
 }
 
 void SirveApp::edit_primary_tracker_color()
 {
 	QString tracker_color = cmb_primary_tracker_color->currentText();
-	ir_video->update_tracker_primary_color(tracker_color);
-	ir_video->update_display_frame();
+	video_display->update_tracker_primary_color(tracker_color);
+	video_display->update_display_frame();
 }
 
 void SirveApp::plot_change()
@@ -1853,13 +1853,13 @@ void SirveApp::plot_change()
 void SirveApp::annotate_video()
 {
 	video_info standard_info;
-	standard_info.x_pixels = ir_video->image_x;
-	standard_info.y_pixels = ir_video->image_y;
+	standard_info.x_pixels = video_display->image_x;
+	standard_info.y_pixels = video_display->image_y;
 
 	standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
-	Annotations annotate_gui(ir_video->annotation_list, standard_info, ir_video);
+	Annotations annotate_gui(video_display->annotation_list, standard_info, video_display);
 	annotate_gui.exec();
 }
 
@@ -1964,15 +1964,15 @@ void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
 
-		ir_video->show_relative_histogram = true;
+		video_display->show_relative_histogram = true;
 
 		stacked_layout_histograms->setCurrentIndex(1);
-		ir_video->update_display_frame();
+		video_display->update_display_frame();
 
 	}
 	else
 	{
-		ir_video->show_relative_histogram = false;
+		video_display->show_relative_histogram = false;
 		stacked_layout_histograms->setCurrentIndex(0);
 
 	}
@@ -2123,9 +2123,9 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	video_details nuc_video;
 	video_details current_state = get_current_filter_state();
-	int index_current_state = ir_video->container.find_data_index(current_state);
+	int index_current_state = video_display->container.find_data_index(current_state);
 
-	video_details original = ir_video->container.something[index_current_state];
+	video_details original = video_display->container.something[index_current_state];
 
 	nuc_video = original;
 	nuc_video.clear_16bit_vector();
@@ -2164,16 +2164,16 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 	bool nuc_exists = false;
-	int index_nuc = ir_video->container.find_data_index(nuc_video);
+	int index_nuc = video_display->container.find_data_index(nuc_video);
 	if (index_nuc > 0) {
 		nuc_exists = true;
-		ir_video->container.something[index_nuc] = nuc_video;
+		video_display->container.something[index_nuc] = nuc_video;
 
 		INFO << "GUI: Previous NUC video was replaced";
 	}
 	else
 	{
-		ir_video->container.something.push_back(nuc_video);
+		video_display->container.something.push_back(nuc_video);
 		INFO << "GUI: NUC video added";
 	}
 	
@@ -2202,9 +2202,9 @@ void SirveApp::create_deinterlace()
 	
 	video_details deinterlace_video;
 	video_details current_state = get_current_filter_state();
-	int index_current_state = ir_video->container.find_data_index(current_state);
+	int index_current_state = video_display->container.find_data_index(current_state);
 
-	video_details original = ir_video->container.something[index_current_state];
+	video_details original = video_display->container.something[index_current_state];
 
 	DEBUG << "GUI: Found de-interlacing method type and video type";
 	Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
@@ -2249,15 +2249,15 @@ void SirveApp::create_deinterlace()
 	//deinterlace_video.create_histogram_data();
 
 	bool deinterlace_exists = false;
-	int index_deinterlace = ir_video->container.find_data_index(deinterlace_video);
+	int index_deinterlace = video_display->container.find_data_index(deinterlace_video);
 	if (index_deinterlace > 0) {
 		deinterlace_exists = true;
-		ir_video->container.something[index_deinterlace] = deinterlace_video;
+		video_display->container.something[index_deinterlace] = deinterlace_video;
 		INFO << "GUI: Previous de-interlace video was replaced";
 	}
 	else
 	{
-		ir_video->container.something.push_back(deinterlace_video);
+		video_display->container.something.push_back(deinterlace_video);
 		INFO << "GUI: De-interlace video was added";
 	}
 
@@ -2268,8 +2268,8 @@ void SirveApp::create_deinterlace()
 void SirveApp::toggle_osm_tracks()
 {
 
-	bool current_status = ir_video->plot_tracks;
-	ir_video->toggle_osm_tracks(!current_status);
+	bool current_status = video_display->plot_tracks;
+	video_display->toggle_osm_tracks(!current_status);
 	
 	if (!current_status) {
 		cmb_tracker_color->setEnabled(true);
@@ -2281,34 +2281,34 @@ void SirveApp::toggle_osm_tracks()
 		cmb_primary_tracker_color->setEnabled(false);
 	}
 	
-	ir_video->update_display_frame();
+	video_display->update_display_frame();
 }
 
 void SirveApp::toggle_primary_track_data()
 {
 
-	bool current_status = ir_video->display_tgt_pos_txt;
+	bool current_status = video_display->display_tgt_pos_txt;
 
-	ir_video->toggle_primary_track_data(!current_status);
-	ir_video->update_display_frame();
+	video_display->toggle_primary_track_data(!current_status);
+	video_display->update_display_frame();
 
 }
 
 void SirveApp::toggle_sensor_track_data()
 {
 
-	bool current_status = ir_video->display_boresight_txt;
+	bool current_status = video_display->display_boresight_txt;
 
-	ir_video->toggle_sensor_boresight_data(!current_status);
-	ir_video->update_display_frame();
+	video_display->toggle_sensor_boresight_data(!current_status);
+	video_display->update_display_frame();
 
 }
 
 void SirveApp::toggle_frame_time()
 {
 	bool current_status = chk_show_time->isChecked();
-	ir_video->display_time = current_status;
-	ir_video->update_display_frame();
+	video_display->display_time = current_status;
+	video_display->update_display_frame();
 }
 
 deinterlace_type SirveApp::find_deinterlace_type(int index) {
@@ -2354,16 +2354,16 @@ Video_Parameters SirveApp::find_deinterlace_video_type(int index)
 void SirveApp::clear_image_processing()
 {
 	
-	int n = ir_video->container.something.size();
+	int n = video_display->container.something.size();
 
 	lbl_fixed_suppression->setText("No Frames Setup");
 	lbl_adaptive_background_suppression->setText("No Frames Setup");
 
 
-	int num_videos = ir_video->container.something.size();
+	int num_videos = video_display->container.something.size();
 	if (num_videos > 0)
 	{
-		ir_video->container.something.erase(ir_video->container.something.begin() + 1, ir_video->container.something.begin() + n);
+		video_display->container.something.erase(video_display->container.something.begin() + 1, video_display->container.something.begin() + n);
 
 		chk_apply_nuc->setChecked(false);
 		chk_bgs->setChecked(false);
@@ -2403,7 +2403,7 @@ video_details SirveApp::get_current_filter_state()
 bool SirveApp::check_filter_selection(video_details filter_state)
 {
 		
-	int index_exists = ir_video->container.find_data_index(filter_state);
+	int index_exists = video_display->container.find_data_index(filter_state);
 	
 	if (index_exists >= 0)
 		return true;
@@ -2489,9 +2489,9 @@ void SirveApp::create_background_subtraction_correction() {
 
 	video_details background_subraction_video;
 	video_details current_state = get_current_filter_state();
-	int index_current_state = ir_video->container.find_data_index(current_state);
+	int index_current_state = video_display->container.find_data_index(current_state);
 
-	video_details original = ir_video->container.something[index_current_state];
+	video_details original = video_display->container.something[index_current_state];
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
@@ -2551,15 +2551,15 @@ void SirveApp::create_background_subtraction_correction() {
 	// -------------------------------------------------------------------------------------
 	
 	bool background_subtraction_exists = false;
-	int index_background_subtraction = ir_video->container.find_data_index(background_subraction_video);
+	int index_background_subtraction = video_display->container.find_data_index(background_subraction_video);
 	if (index_background_subtraction > 0) {
 		background_subtraction_exists = true;
-		ir_video->container.something[index_background_subtraction] = background_subraction_video;
+		video_display->container.something[index_background_subtraction] = background_subraction_video;
 		INFO << "GUI: Background subtraction video was replaced";
 	}
 	else
 	{
-		ir_video->container.something.push_back(background_subraction_video);
+		video_display->container.something.push_back(background_subraction_video);
 		INFO << "GUI: Background subtraction video was added";
 	}
 
@@ -2584,7 +2584,7 @@ void SirveApp::toggle_video_filters()
 	show_available_filter_options();
 
 	if (request_exists) {
-		ir_video->container.display_data(user_requested);
+		video_display->container.display_data(user_requested);
 
 		bool background_subtraction_active = user_requested.properties[Video_Parameters::background_subtraction];
 		if (background_subtraction_active) {
@@ -2594,7 +2594,7 @@ void SirveApp::toggle_video_filters()
 	}
 	else {
 		video_details updated_user_request = get_current_filter_state();
-		ir_video->container.display_data(updated_user_request);
+		video_display->container.display_data(updated_user_request);
 	}
 
 	emit playback_controller->update_frame(playback_controller->get_current_frame_number());
