@@ -2129,7 +2129,6 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	nuc_video = original;
 	nuc_video.clear_16bit_vector();
-	nuc_video.clear_8bit_vector();
 	nuc_video.histogram_data.clear();
 	
 	nuc_video.properties[Video_Parameters::original] = false;
@@ -2212,7 +2211,6 @@ void SirveApp::create_deinterlace()
 
 	deinterlace_video = original;
 	deinterlace_video.clear_16bit_vector();
-	deinterlace_video.clear_8bit_vector();
 	deinterlace_video.histogram_data.clear();
 
 	deinterlace_video.properties[Video_Parameters::original] = false;
@@ -2514,7 +2512,6 @@ void SirveApp::create_background_subtraction_correction() {
 
 	background_subraction_video = original;
 	background_subraction_video.clear_16bit_vector();
-	background_subraction_video.clear_8bit_vector();
 	background_subraction_video.histogram_data.clear();
 
 	background_subraction_video.properties[Video_Parameters::original] = false;
