@@ -96,7 +96,7 @@ public:
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_clear_filters, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
-		* btn_workspace_load, * btn_workspace_save;
+		* btn_workspace_load, * btn_workspace_save, * btn_undo_step;
 	
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, *cmb_processing_states;
@@ -206,13 +206,12 @@ public:
 		Video_Parameters find_deinterlace_video_type(int index);
 		void clear_image_processing();
 
-		void clear_processing_states();
-		void add_processing_state(QString name);
-
 		video_details get_current_filter_state();
 		bool check_filter_selection(video_details filter_state);
 		void show_available_filter_options();
 	
+		void handle_new_processing_state(QString state_name, int index);
+
 private:
 	
 	QClipboard *clipboard;
