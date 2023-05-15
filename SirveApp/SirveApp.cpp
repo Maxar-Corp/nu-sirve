@@ -2498,8 +2498,7 @@ void SirveApp::create_background_subtraction_correction() {
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
-	AdaptiveNoiseSuppression background(relative_start_frame, number_of_frames);
-	std::vector<std::vector<double>> background_correction = background.get_correction(original);
+	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, number_of_frames, original);
 
 	INFO << "GUI: Background subtraction adjustment for video is completed";
 
@@ -2519,7 +2518,7 @@ void SirveApp::create_background_subtraction_correction() {
 	background_subraction_video.properties[Video_Parameters::original] = false;
 	background_subraction_video.properties[Video_Parameters::background_subtraction] = true;
 
-	// Apply background subtraction to the frames		
+	// Apply background subtraction to the frames
 	int number_frames = original.frames_16bit.size();
 
 	progress.setMaximum(number_frames - 1);
@@ -2528,7 +2527,7 @@ void SirveApp::create_background_subtraction_correction() {
 	for (int i = 0; i < number_frames; i++) {
 		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
 		progress.setValue(i);
-		background_subraction_video.frames_16bit.push_back(background.apply_correction(original.frames_16bit[i], background_correction[i]));
+		background_subraction_video.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.frames_16bit[i], background_correction[i]));
 		if (progress.wasCanceled())
 			break;
 	}
