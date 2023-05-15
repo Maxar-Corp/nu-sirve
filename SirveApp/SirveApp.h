@@ -12,6 +12,7 @@
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"
+#include "video_details.h"
 #include "process_file.h"
 #include "color_correction_plot.h"
 #include "non_uniformity_correction.h"
