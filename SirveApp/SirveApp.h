@@ -169,9 +169,9 @@ public:
 		void update_fps();
 		void reset_color_correction();
 	
-		void plot_full_data();
-		void plot_primary_only();
-		void plot_current_frame_marker();
+		void toggle_plot_full_data();
+		void toggle_plot_primary_only();
+		void toggle_plot_current_frame_marker();
 
 		void auto_change_plot_display(int index);	
 
