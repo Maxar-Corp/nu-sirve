@@ -1,6 +1,6 @@
 #include "annotation_new.h"
 
-NewAnnotation::NewAnnotation(annotation_info &data, Video *input_video, QWidget * parent)
+NewAnnotation::NewAnnotation(annotation_info &data, VideoDisplay *input_video, QWidget * parent)
 {
 	initialize_gui();
 
