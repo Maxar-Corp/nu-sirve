@@ -50,11 +50,12 @@ HEADERS += abir_reader.h \
             SirveApp.h \
             video_class.h \
             video_container.h \
+            video_details.h \
             workspace.h \
             support/earth.h \
             support/euler.h \
             support/jtime.h \
-	        support/qthelpers.h
+            support/qthelpers.h
 
 FORMS += location_gui.ui new_location.ui SirveApp.ui
 
@@ -92,6 +93,7 @@ SOURCES += abir_reader.cpp \
             SirveApp.cpp \
             video_class.cpp \
             video_container.cpp \
+            video_details.cpp \
             workspace.cpp \
             support/earth.cpp \
             support/euler.cpp \
