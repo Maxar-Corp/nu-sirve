@@ -64,7 +64,8 @@ class Video_Container : public QObject
 		Video_Container();
 		~Video_Container();
 
-		bool display_original_data();
+		void reset(video_details input);
+		void display_original_data();
 		bool display_data(video_details input);
 		int find_data_index(video_details input);
 

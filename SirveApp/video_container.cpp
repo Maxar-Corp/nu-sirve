@@ -169,41 +169,24 @@ Video_Container::Video_Container()
 
 Video_Container::~Video_Container()
 {
-	//int num_videos = something.size();
-	//for (int i = 0; i < num_videos; i++)
-	//{
-	//	int num_frames = something[i].frames_8bit.size();
-
-	//	for (int j = 0; j < num_frames; j++)
-	//	{
-	//		delete[] something[i].frames_8bit[j];
-	//		//delete[] something[i].frames_16bit[j];
-	//	}
-
-	//	something[i].frames_8bit.clear();
-	//	//something[i].frames_16bit.clear();
-	//}	
+	something.clear();
 }
 
-bool Video_Container::display_original_data()
+void Video_Container::reset(video_details input)
 {
-	int number_videos = something.size();
+	something.clear();
+	something.push_back(input);
+	emit update_display_video(input);
+}
 
-	if (number_videos > 0) {
-		
-		emit update_display_video(something[0]);
-
-		return true;
-	}
-
-	return false;
+void Video_Container::display_original_data()
+{
+	emit update_display_video(something[0]);
 }
 
 bool Video_Container::display_data(video_details input)
-{
-	int number_videos = something.size();
-	
-	for (int i = 0; i < number_videos; i++)
+{	
+	for (int i = 0; i < something.size(); i++)
 	{
 		if (input == something[i]) {
 			emit update_display_video(something[i]);
