@@ -99,7 +99,7 @@ public:
 		* btn_workspace_load, * btn_workspace_save;
 	
 	QCheckBox* chk_apply_nuc, * chk_relative_histogram, * chk_bgs, * chk_plot_primary_data, * chk_plot_show_line, * chk_deinterlace, * chk_plot_full_data;
-	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps;
+	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, *cmb_processing_states;
 	QFrame* frame_video_player, * frame_video, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
@@ -205,6 +205,9 @@ public:
 		deinterlace_type find_deinterlace_type(int index);
 		Video_Parameters find_deinterlace_video_type(int index);
 		void clear_image_processing();
+
+		void clear_processing_states();
+		void add_processing_state(QString name);
 
 		video_details get_current_filter_state();
 		bool check_filter_selection(video_details filter_state);
