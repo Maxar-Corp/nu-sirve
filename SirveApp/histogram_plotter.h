@@ -47,7 +47,6 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		HistogramLine_Plot(unsigned int max_levels, QWidget *parent = nullptr);
         ~HistogramLine_Plot();
 
-		QList<QPointF> create_qpoints();
 		QList<QPointF> create_qpoints(arma::vec & bins, arma::uvec & values);
 		arma::uvec create_histogram_data(arma::vec input);
 
@@ -66,18 +65,13 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
 
 	public slots:
-		void update_histogram_chart();
-		void update_specific_histogram(unsigned int frame_number);
 		void update_color_correction(double lift, double gamma, double gain);
-		void receive_video_data(video_details &new_input);
 		void toggle_enhanced_dynamic_range(bool input);
 		void adjust_color_correction(double x0, double x1);
 
     private:
 
 		//std::vector<uint8_t*> video_frames;
-		std::vector<std::vector<unsigned int>> histogram_data;
-		std::vector<std::vector<uint16_t>> video_frames;
 
 		unsigned int counter, number_of_bins, number_of_frames;
 
