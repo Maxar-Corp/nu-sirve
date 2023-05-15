@@ -520,12 +520,13 @@ QWidget* SirveApp::setup_workspace_tab(){
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_save = new QPushButton("Save Workspace");
 	cmb_processing_states = new QComboBox();
+	btn_undo_step = new QPushButton("Undo One Step");
 	
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(btn_workspace_load, 0, 0);
 	grid_workspace->addWidget(btn_workspace_save, 0, 1);
 	grid_workspace->addWidget(cmb_processing_states, 1, 0);
-
+	grid_workspace->addWidget(btn_undo_step, 1, 1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
 	return widget_tab_workspace;
@@ -807,9 +808,12 @@ void SirveApp::setup_connections() {
 	QObject::connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
 	QObject::connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
+	QObject::connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
 
-	QObject::connect(&video_display->container, &Video_Container::processing_states_cleared, this, &SirveApp::clear_processing_states);
-	QObject::connect(&video_display->container, &Video_Container::processing_state_added, this, &SirveApp::add_processing_state);
+	QObject::connect(&video_display->container, &Video_Container::states_cleared, cmb_processing_states, &QComboBox::clear);
+	QObject::connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
+	QObject::connect(&video_display->container, &Video_Container::state_removed, cmb_processing_states, &QComboBox::removeItem);
+	QObject::connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
@@ -1203,6 +1207,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->container.reset(primary);
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(primary);
+	cmb_processing_states->setEnabled(true);
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
@@ -2134,10 +2139,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	INFO << "Calculated NUC correction";
 
 	video_details nuc_video;
-	video_details current_state = get_current_filter_state();
-	int index_current_state = video_display->container.find_data_index(current_state);
-
-	video_details original = video_display->container.something[index_current_state];
+	video_details original = video_display->container.copy_current_state();
 
 	nuc_video = original;
 	nuc_video.clear_16bit_vector();
@@ -2215,10 +2217,7 @@ void SirveApp::create_deinterlace()
 	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
 	
 	video_details deinterlace_video;
-	video_details current_state = get_current_filter_state();
-	int index_current_state = video_display->container.find_data_index(current_state);
-
-	video_details original = video_display->container.something[index_current_state];
+	video_details original = video_display->container.copy_current_state();
 
 	DEBUG << "GUI: Found de-interlacing method type and video type";
 	Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
@@ -2367,15 +2366,10 @@ Video_Parameters SirveApp::find_deinterlace_video_type(int index)
 	return Video_Parameters::deinterlace_max_absolute_value;
 }
 
-void SirveApp::clear_processing_states()
+void SirveApp::handle_new_processing_state(QString state_name, int index)
 {
-	cmb_processing_states->clear();
-}
-
-void SirveApp::add_processing_state(QString name)
-{
-	cmb_processing_states->addItem(name);
-	cmb_processing_states->setEnabled(true);
+	cmb_processing_states->addItem(state_name);
+	cmb_processing_states->setCurrentIndex(index);
 }
 
 void SirveApp::clear_image_processing()
@@ -2515,10 +2509,7 @@ void SirveApp::create_background_subtraction_correction() {
 	//-----------------------------------------------------------------------------------------------------
 
 	video_details background_subraction_video;
-	video_details current_state = get_current_filter_state();
-	int index_current_state = video_display->container.find_data_index(current_state);
-
-	video_details original = video_display->container.something[index_current_state];
+	video_details original = video_display->container.copy_current_state();
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
