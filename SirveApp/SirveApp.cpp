@@ -1121,13 +1121,10 @@ void SirveApp::load_osm_data()
 	ir_video->tracker_color = QString("red");
 	
 	// Reset setting engineering plot defaults
-	data_plots->plot_all_data = true;
 	menu_plot_all_data->setIconVisibleInMenu(true);
 	
-	data_plots->plot_primary_only = false;
 	menu_plot_primary->setIconVisibleInMenu(false);
 
-	data_plots->plot_current_marker = false;
 	menu_plot_frame_marker->setIconVisibleInMenu(false);
 	
 	enable_engineering_plot_options();
@@ -1241,6 +1238,8 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
 	data_plots->index_sub_plot_xmax = max_frame - 1;
+	data_plots->plot_all_data = false;
+	data_plots->plot_current_marker = true;
 	plot_change();
 
 	//Update frame marker on engineering plot
@@ -1254,8 +1253,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	bool current_plot_state = data_plots->plot_all_data;
 	if(!current_plot_state)
 		plot_full_data();
-
-	//plot_current_frame_marker();
 
 	btn_get_frames->setEnabled(true);
 	btn_calibration_dialog->setEnabled(true);
@@ -2378,7 +2375,7 @@ void SirveApp::clear_image_processing()
 	int num_videos = ir_video->container.something.size();
 	if (num_videos > 0)
 	{
-		ir_video->container.something.erase(ir_video->container.something.begin() + 1, ir_video->container.something.begin() + 1 + (n - 1));
+		ir_video->container.something.erase(ir_video->container.something.begin() + 1, ir_video->container.something.begin() + n);
 
 		chk_apply_nuc->setChecked(false);
 		chk_bgs->setChecked(false);
