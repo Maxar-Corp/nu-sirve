@@ -1239,7 +1239,9 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	data_plots->index_sub_plot_xmin = min_frame - 1;
 	data_plots->index_sub_plot_xmax = max_frame - 1;
 	data_plots->plot_all_data = false;
+	menu_plot_all_data->setIconVisibleInMenu(false);
 	data_plots->plot_current_marker = true;
+	menu_plot_frame_marker->setIconVisibleInMenu(true);
 	plot_change();
 
 	//Update frame marker on engineering plot
@@ -1249,10 +1251,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	update_fps();
 
 	tab_plots->setCurrentIndex(1);
-
-	bool current_plot_state = data_plots->plot_all_data;
-	if(!current_plot_state)
-		plot_full_data();
 
 	btn_get_frames->setEnabled(true);
 	btn_calibration_dialog->setEnabled(true);
@@ -1475,33 +1473,26 @@ void SirveApp::reset_color_correction()
 }
 
 
-void SirveApp::plot_full_data()
+void SirveApp::toggle_plot_full_data()
 {
-	bool current_state = data_plots->plot_all_data;
-	bool new_state = !current_state;
+	data_plots->plot_all_data = !data_plots->plot_all_data;
+	menu_plot_all_data->setIconVisibleInMenu(data_plots->plot_all_data);
 
-	data_plots->plot_all_data = new_state;
-	data_plots->toggle_subplot();
-	menu_plot_all_data->setIconVisibleInMenu(new_state);
-
-	DEBUG << "GUI: Plot all data changed from " << current_state << " to " << new_state;
+	plot_change();
+	DEBUG << "GUI: Toggled plot full data";
 	
 }
 
-void SirveApp::plot_primary_only()
+void SirveApp::toggle_plot_primary_only()
 {
-	bool current_state = data_plots->plot_primary_only;
-	bool new_state = !current_state;
-
-	data_plots->plot_primary_only = new_state;
-	menu_plot_primary->setIconVisibleInMenu(new_state);
+	data_plots->plot_primary_only = !data_plots->plot_primary_only;
+	menu_plot_primary->setIconVisibleInMenu(data_plots->plot_primary_only);
 
 	plot_change();
-
-	DEBUG << "GUI: Plot primary data changed from " << current_state << " to " << new_state;
+	DEBUG << "GUI: Toggled plot primary data only";
 }
 
-void SirveApp::plot_current_frame_marker() {
+void SirveApp::toggle_plot_current_frame_marker() {
 	data_plots->plot_current_marker = !data_plots->plot_current_marker;
 	menu_plot_frame_marker->setIconVisibleInMenu(data_plots->plot_current_marker);
 
@@ -1614,19 +1605,19 @@ void SirveApp::create_menu_actions()
 	menu_plot_all_data->setIcon(on);
 	menu_plot_all_data->setStatusTip(tr("Plot all data from OSM file"));
 	menu_plot_all_data->setIconVisibleInMenu(true);
-	connect(menu_plot_all_data, &QAction::triggered, this, &SirveApp::plot_full_data);
+	connect(menu_plot_all_data, &QAction::triggered, this, &SirveApp::toggle_plot_full_data);
 
 	menu_plot_primary = new QAction(tr("&Plot Primary Data Only"), this);
 	menu_plot_primary->setIcon(on);
 	menu_plot_primary->setStatusTip(tr("Plot only the primary object"));
 	menu_plot_primary->setIconVisibleInMenu(false);
-	connect(menu_plot_primary, &QAction::triggered, this, &SirveApp::plot_primary_only);
+	connect(menu_plot_primary, &QAction::triggered, this, &SirveApp::toggle_plot_primary_only);
 	
 	menu_plot_frame_marker = new QAction(tr("&Plot Marker for Current Frame"), this);
 	menu_plot_frame_marker->setIcon(on);
 	menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video frame"));
 	menu_plot_frame_marker->setIconVisibleInMenu(false);
-	connect(menu_plot_frame_marker, &QAction::triggered, this, &SirveApp::plot_current_frame_marker);
+	connect(menu_plot_frame_marker, &QAction::triggered, this, &SirveApp::toggle_plot_current_frame_marker);
 
 	menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
 	menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
