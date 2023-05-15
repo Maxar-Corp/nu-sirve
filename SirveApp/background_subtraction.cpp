@@ -1,16 +1,6 @@
 #include "background_subtraction.h"
 
-AdaptiveNoiseSuppression::AdaptiveNoiseSuppression(int start_frame, int number_of_frames_input)
-{
-	relative_start_frame = start_frame;
-	number_of_frames = number_of_frames_input;
-}
-
-AdaptiveNoiseSuppression::~AdaptiveNoiseSuppression()
-{
-}
-
-std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_details & original)
+std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int start_frame, int number_of_frames, video_details & original)
 {
 	INFO << "Background Subtraction: Process started";
 
@@ -20,7 +10,7 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_
 	out.reserve(num_video_frames);
 
 	//Initialize video frame storage
-	int num_pixels = original.x_pixels * original.y_pixels;
+	int num_pixels = original.number_pixels;
 	arma::mat frame_data(num_pixels, 1);
 
 	QProgressDialog progress("", QString(), 0, 1000);
@@ -34,13 +24,13 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_
 
 	// initialize noise frames
 	int index_first_frame, index_last_frame;
-	if (relative_start_frame < 0) {
+	if (start_frame < 0) {
 		index_first_frame = 0;
 		index_last_frame = number_of_frames - 1;
 	}
 	else {
-		index_first_frame = relative_start_frame - (number_of_frames - 1);
-		index_last_frame = relative_start_frame;
+		index_first_frame = start_frame - (number_of_frames - 1);
+		index_last_frame = start_frame;
 	}
 	
 	for (int i = index_last_frame; i >= index_first_frame; i--)
@@ -62,8 +52,8 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(video_
 
 		if (i > 0) {
 
-			index_first_frame = i + relative_start_frame - (number_of_frames - 1);
-			index_last_frame = i + relative_start_frame;
+			index_first_frame = i + start_frame - (number_of_frames - 1);
+			index_last_frame = i + start_frame;
 			
 			if (index_first_frame > 0 && index_last_frame < num_video_frames)
 			{
