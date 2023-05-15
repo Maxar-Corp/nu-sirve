@@ -41,4 +41,7 @@ cp -r SirveApp/icons "$backupfolder"
 echo 'backing up config folder'
 cp -r SirveApp/config "$backupfolder"
 
+echo 'backing up README'
+cp README.md "$backupfolder"
+
 echo 'done'
