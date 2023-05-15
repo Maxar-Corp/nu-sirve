@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef VIDEO_CLASS_H
-#define VIDEO_CLASS_H
+#ifndef VIDEO_DISPLAY_H
+#define VIDEO_DISPLAY_H
 
 #include <iostream>
 #include <string>
@@ -32,14 +32,13 @@
 #include "color_map.h"
 #include "calibration_data.h"
 
-class Video : public QWidget
+class VideoDisplay : public QWidget
 {
     Q_OBJECT
 public:
    
-	Video(int x_pixels, int y_pixels, int input_bit_level);
-	//Video(std::vector<std::vector<uint16_t>> &video_data, int x_pixels, int y_pixels);
-	~Video();
+	VideoDisplay(int x_pixels, int y_pixels, int input_bit_level);
+	~VideoDisplay();
 
 	int counter_record, video_frame_number;
 	bool record_frame, show_relative_histogram;
@@ -123,4 +122,4 @@ private:
 	
 };
 
-#endif // VIDEO_CLASS_H
+#endif // VIDEO_DISPLAY_H

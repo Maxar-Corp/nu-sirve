@@ -13,7 +13,7 @@
 
 #include "annotation_new.h"
 #include "Data_Structures.h"
-#include "video_class.h"
+#include "video_display.h"
 
 
 class Annotations : public QDialog
@@ -21,7 +21,7 @@ class Annotations : public QDialog
 	Q_OBJECT
 
 public:
-	Annotations(std::vector<annotation_info> &input_vector, video_info details, Video *input_video, QWidget *parent = nullptr);
+	Annotations(std::vector<annotation_info> &input_vector, video_info details, VideoDisplay *input_video, QWidget *parent = nullptr);
 	~Annotations();
 
 	void show_annotation(int index);
@@ -35,7 +35,7 @@ private:
 	QLabel *lbl_annotations, *lbl_description;
 	QListWidget *lst_annotations;
 	QPushButton *btn_ok, *btn_edit, *btn_new, *btn_delete;
-	Video *current_video;
+	VideoDisplay *current_video;
 
 	void initialize_gui();
 	void ok();

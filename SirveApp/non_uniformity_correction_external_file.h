@@ -17,7 +17,6 @@
 #include <qgridlayout.h>
 
 #include "Data_Structures.h"
-#include "video_class.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "fixed_aspect_ratio_frame.h"

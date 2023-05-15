@@ -1,6 +1,6 @@
 #include "annotations.h"
 
-Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, Video *input_video, QWidget * parent) : data(input_vector)
+Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, VideoDisplay *input_video, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
 	

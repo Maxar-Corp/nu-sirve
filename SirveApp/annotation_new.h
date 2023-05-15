@@ -16,7 +16,7 @@
 #include <qgridlayout.h>
 
 #include "Data_Structures.h"
-#include "video_class.h"
+#include "video_display.h"
 
 
 class NewAnnotation : public QDialog
@@ -24,7 +24,7 @@ class NewAnnotation : public QDialog
 	Q_OBJECT
 
 public:
-	NewAnnotation(annotation_info &data, Video *input_video, QWidget *parent = nullptr);
+	NewAnnotation(annotation_info &data, VideoDisplay *input_video, QWidget *parent = nullptr);
 	~NewAnnotation();
 
 	int get_numeric_value(QString input);
@@ -55,7 +55,7 @@ private:
 
 	QGridLayout *mainLayout;
 
-	Video *current_video;		
+	VideoDisplay *current_video;		
 
 	void initialize_gui();
 	void display_error(QString msg);
