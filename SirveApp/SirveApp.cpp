@@ -77,7 +77,7 @@ SirveApp::SirveApp(QWidget *parent)
 	
 	toggle_relative_histogram(false);
 	toggle_video_playback_options(false);
-	enable_engineering_plot_options(false);
+	enable_engineering_plot_options();
 
 	create_menu_actions();
 
@@ -1130,7 +1130,7 @@ void SirveApp::load_osm_data()
 	data_plots->plot_current_marker = false;
 	menu_plot_frame_marker->setIconVisibleInMenu(false);
 	
-	enable_engineering_plot_options(true);
+	enable_engineering_plot_options();
 	data_plots->set_plot_title(QString("EDIT CLASSIFICATION"));
 
 	INFO << "GUI: OSM successfully loaded";
@@ -2661,39 +2661,38 @@ void SirveApp::toggle_video_playback_options(bool input)
 	}
 }
 
-void SirveApp::enable_engineering_plot_options(bool input)
+void SirveApp::enable_engineering_plot_options()
 {
-	// ------------------------------------------ Set Dropdown Menu ------------------------------------------
 	tab_plots->setCurrentIndex(1);
 
+	rad_linear->setChecked(true);
+	rad_linear->setChecked(true);
+
 	cmb_plot_xaxis->clear();
-	cmb_plot_yaxis->clear();
-	rad_linear->setChecked(true);
-	rad_linear->setChecked(true);
-
-	cmb_plot_yaxis->setEnabled(input);
-	cmb_plot_yaxis->addItem(QString("Irradiance"));
-	cmb_plot_yaxis->addItem(QString("Azimuth"));
-	cmb_plot_yaxis->addItem(QString("Elevation"));
-	cmb_plot_yaxis->setCurrentIndex(0);
-
-	cmb_plot_xaxis->setEnabled(input);
+	cmb_plot_xaxis->setEnabled(true);
 	cmb_plot_xaxis->addItem(QString("Frames"));
 	cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
 	cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
 	cmb_plot_xaxis->setCurrentIndex(0);
 
+	cmb_plot_yaxis->clear();
+	cmb_plot_yaxis->setEnabled(true);
+	cmb_plot_yaxis->addItem(QString("Irradiance"));
+	cmb_plot_yaxis->addItem(QString("Azimuth"));
+	cmb_plot_yaxis->addItem(QString("Elevation"));
+	cmb_plot_yaxis->setCurrentIndex(0);
+
+
 	// ------------------------------------------ Set Plot Options ------------------------------------------
 
-	rad_decimal->setEnabled(input);
-	rad_scientific->setEnabled(input);
+	rad_decimal->setEnabled(true);
+	rad_scientific->setEnabled(true);
 
-	rad_log->setEnabled(input);
-	rad_linear->setEnabled(input);
+	rad_log->setEnabled(true);
+	rad_linear->setEnabled(true);
 
-	btn_plot_menu->setEnabled(input);
-	btn_save_plot->setEnabled(input);
-
+	btn_plot_menu->setEnabled(true);
+	btn_save_plot->setEnabled(true);
 }
 
 void SirveApp::update_epoch_string(QString new_epoch_string)
