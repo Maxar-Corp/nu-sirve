@@ -133,7 +133,6 @@ public:
 
 	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
-	void enable_engineering_plot_options(bool input);
 	bool verify_frame_selection(int min_frame, int max_frame);
 	void update_epoch_string(QString new_epoch_string);
 	void display_original_epoch(QString new_epoch_string);
@@ -236,4 +235,6 @@ private:
 	
 	void load_osm_data();
 	void load_abir_data(int start_frame, int end_frame);
+
+	void enable_engineering_plot_options();
 };
