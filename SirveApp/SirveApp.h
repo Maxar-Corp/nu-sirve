@@ -4,7 +4,7 @@
 
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
-#include "video_class.h"
+#include "video_display.h"
 #include "histogram_plotter.h"
 #include "osm_plotter.h"
 #include "play_back.h"
@@ -114,7 +114,7 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 
-	Video *ir_video;
+	VideoDisplay *ir_video;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	ColorPlotter color_correction_plot;

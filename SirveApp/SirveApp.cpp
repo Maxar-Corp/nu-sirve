@@ -9,7 +9,7 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	ir_video = new Video(1, 1, config_values.max_used_bits);
+	ir_video = new VideoDisplay(1, 1, config_values.max_used_bits);
 	ir_video->moveToThread(&thread_video);
 	//QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
 
@@ -801,11 +801,11 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------	
 	// 
 	
-	QObject::connect(&thread_video, &QThread::started, ir_video, &Video::update_display_frame);
+	QObject::connect(&thread_video, &QThread::started, ir_video, &VideoDisplay::update_display_frame);
 
-	QObject::connect(&ir_video->container, &Video_Container::update_display_video, ir_video, &Video::receive_video_data);
-	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &Video::update_specific_frame);
-	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &Video::update_color_correction);
+	QObject::connect(&ir_video->container, &Video_Container::update_display_video, ir_video, &VideoDisplay::receive_video_data);
+	QObject::connect(playback_controller, &Playback::update_frame, ir_video, &VideoDisplay::update_specific_frame);
+	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, ir_video, &VideoDisplay::update_color_correction);
 	QObject::connect(ir_video->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	//---------------------------------------------------------------------------	

@@ -1,7 +1,7 @@
-#include "video_class.h"
+#include "video_display.h"
 
 
-Video::Video(int x_pixels, int y_pixels, int input_bit_level)
+VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
 	label->setBackgroundRole(QPalette::Base);
@@ -45,18 +45,18 @@ Video::Video(int x_pixels, int y_pixels, int input_bit_level)
 	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 }
 
-Video::~Video()
+VideoDisplay::~VideoDisplay()
 {
 	delete  label;
 }
 
-void Video::setup_connections() {
+void VideoDisplay::setup_connections() {
 
-	connect(label, &EnhancedLabel::highlighted_area, this, &Video::zoom_image);
-	connect(label, &EnhancedLabel::right_clicked, this, &Video::unzoom);
+	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
+	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
 }
 
-void Video::update_video_file(int x_pixels, int y_pixels)
+void VideoDisplay::update_video_file(int x_pixels, int y_pixels)
 {
 
 	//frame_data = video_data;
@@ -70,7 +70,7 @@ void Video::update_video_file(int x_pixels, int y_pixels)
 	label->setMinimumWidth(x_pixels);
 }
 
-void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
+void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 	zoom_list.clear();
 	QRect new_zoom(0, 0, x_pixels, y_pixels);
@@ -82,27 +82,27 @@ void Video::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 }
 
-void Video::receive_video_data(video_details& new_input)
+void VideoDisplay::receive_video_data(video_details& new_input)
 {
 	index_current_video = container.find_data_index(new_input);
 	update_video_file(new_input.x_pixels, new_input.y_pixels);
 
 }
 
-void Video::update_banner_text(QString input_banner_text)
+void VideoDisplay::update_banner_text(QString input_banner_text)
 {
 	banner_text = input_banner_text;
 	update_display_frame();
 }
 
-void Video::update_banner_color(QString input_color)
+void VideoDisplay::update_banner_color(QString input_color)
 {
 	QColor new_color(input_color);
 	banner_color = new_color;
 	update_display_frame();
 }
 
-void Video::update_color_map(QString input_map)
+void VideoDisplay::update_color_map(QString input_map)
 {
 
 	// find number of color maps
@@ -122,33 +122,33 @@ void Video::update_color_map(QString input_map)
 	update_display_frame();
 }
 
-void Video::update_tracker_primary_color(QString input_color) {
+void VideoDisplay::update_tracker_primary_color(QString input_color) {
 	QColor new_color(input_color);
 	tracker_primary_color = new_color;
 }
 
-void Video::update_tracker_color(QString input_color)
+void VideoDisplay::update_tracker_color(QString input_color)
 {
 	QColor new_color(input_color);
 	tracker_color = new_color;
 }
 
-void Video::toggle_osm_tracks(bool input)
+void VideoDisplay::toggle_osm_tracks(bool input)
 {
 	plot_tracks = input;
 }
 
-void Video::toggle_primary_track_data(bool input)
+void VideoDisplay::toggle_primary_track_data(bool input)
 {
 	display_tgt_pos_txt = input;
 }
 
-void Video::toggle_sensor_boresight_data(bool input)
+void VideoDisplay::toggle_sensor_boresight_data(bool input)
 {
 	display_boresight_txt = input;
 }
 
-void Video::toggle_relative_histogram()
+void VideoDisplay::toggle_relative_histogram()
 {
 	if (show_relative_histogram)
 		show_relative_histogram = false;
@@ -156,7 +156,7 @@ void Video::toggle_relative_histogram()
 		show_relative_histogram = true;
 }
 
-void Video::toggle_action_zoom(bool status)
+void VideoDisplay::toggle_action_zoom(bool status)
 {
 
 	if (status) {
@@ -170,7 +170,7 @@ void Video::toggle_action_zoom(bool status)
 
 }
 
-void Video::toggle_action_calculate_radiance(bool status)
+void VideoDisplay::toggle_action_calculate_radiance(bool status)
 {
 	if (status) {
 
@@ -184,7 +184,7 @@ void Video::toggle_action_calculate_radiance(bool status)
 	}
 }
 
-void Video::zoom_image(QRect info)
+void VideoDisplay::zoom_image(QRect info)
 {
 	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
 	if (info.x() + info.width() > image_x)
@@ -304,7 +304,7 @@ void Video::zoom_image(QRect info)
 	update_display_frame();
 }
 
-void Video::unzoom(QPoint origin)
+void VideoDisplay::unzoom(QPoint origin)
 {
 
 	if (zoom_list.size() > 1)
@@ -321,7 +321,7 @@ void Video::unzoom(QPoint origin)
 	}
 }
 
-std::vector<int> Video::get_position_within_zoom(int x0, int y0)
+std::vector<int> VideoDisplay::get_position_within_zoom(int x0, int y0)
 {
 
 	int num_zooms = zoom_list.size();
@@ -369,7 +369,7 @@ std::vector<int> Video::get_position_within_zoom(int x0, int y0)
 		return std::vector<int> {-1, -1};
 }
 
-void Video::update_display_frame()
+void VideoDisplay::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
 	if (number_of_frames == 0 || number_of_frames < counter)
@@ -675,24 +675,24 @@ void Video::update_display_frame()
 	//counter++;
 }
 
-void Video::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
+void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
 {
 	display_data = input_data;
 }
 
 
-void Video::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
+void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
 	display_data = input_data;
 	frame_headers = input_frame_header;
 }
 
-void Video::set_calibration_model(CalibrationData input)
+void VideoDisplay::set_calibration_model(CalibrationData input)
 {
 	model = input;
 }
 
-bool Video::start_recording(double fps)
+bool VideoDisplay::start_recording(double fps)
 {
 
 	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "", "Video (*.avi)");
@@ -712,21 +712,21 @@ bool Video::start_recording(double fps)
 	return video_opened;
 }
 
-void Video::add_new_frame(QImage& img, int format)
+void VideoDisplay::add_new_frame(QImage& img, int format)
 {
 	QImage image = img.rgbSwapped();
 	cv::Mat output_frame(image.height(), image.width(), format, image.bits(), image.bytesPerLine());
 	video.write(output_frame);
 }
 
-void Video::stop_recording()
+void VideoDisplay::stop_recording()
 {
 	video.release();
 	record_frame = false;
 }
 
 
-void Video::save_frame()
+void VideoDisplay::save_frame()
 {
 	const QPixmap* pix = label->pixmap();
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
@@ -737,7 +737,7 @@ void Video::save_frame()
 	}
 }
 
-void Video::remove_frame()
+void VideoDisplay::remove_frame()
 {
 	delete label;
 
@@ -759,13 +759,13 @@ void Video::remove_frame()
 
 }
 
-void Video::update_specific_frame(unsigned int frame_number)
+void VideoDisplay::update_specific_frame(unsigned int frame_number)
 {
 	counter = frame_number;
 	update_display_frame();
 }
 
-void Video::update_color_correction(double new_min_value, double new_max_value)
+void VideoDisplay::update_color_correction(double new_min_value, double new_max_value)
 {
 	color_correction.set_min(new_min_value);
 	color_correction.set_max(new_max_value);

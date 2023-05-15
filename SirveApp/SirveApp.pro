@@ -48,9 +48,9 @@ HEADERS += abir_reader.h \
             process_file.h \
             Section.h \
             SirveApp.h \
-            video_class.h \
             video_container.h \
             video_details.h \
+            video_display.h \
             workspace.h \
             support/earth.h \
             support/euler.h \
@@ -91,9 +91,9 @@ SOURCES += abir_reader.cpp \
             process_file.cpp \
             Section.cpp \
             SirveApp.cpp \
-            video_class.cpp \
             video_container.cpp \
             video_details.cpp \
+            video_display.cpp \
             workspace.cpp \
             support/earth.cpp \
             support/euler.cpp \
