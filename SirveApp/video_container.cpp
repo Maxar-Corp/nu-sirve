@@ -13,6 +13,11 @@ Video_Container::~Video_Container()
 
 void Video_Container::select_state(int idx)
 {
+	if (idx == -1)
+	{
+		return;
+	}
+
 	current_idx = idx;
 
 	emit update_display_video(processing_states[idx]);
