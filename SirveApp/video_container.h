@@ -16,6 +16,7 @@ class Video_Container : public QObject
 	public:
 		std::vector<video_details> something;
 		std::vector<video_details> processing_states;
+		int current_idx;
 
 		Video_Container();
 		~Video_Container();
@@ -43,6 +44,5 @@ class Video_Container : public QObject
 		void select_state(int idx);
 
 	private:
-		int current_idx;
 };
 
