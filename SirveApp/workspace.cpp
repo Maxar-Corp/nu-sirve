@@ -46,7 +46,7 @@ QJsonObject Workspace::state_to_json(const processing_state & state)
             break;
         case Processing_Method::deinterlace:
             state_object.insert("method", "Deinterlace");
-            state_object.insert("deint_type", QString::number(state.deint_type));
+            state_object.insert("deint_type", QString::number(static_cast<int>(state.deint_type)));
             break;
         case Processing_Method::non_uniformity_correction:
             state_object.insert("method", "NUC");
