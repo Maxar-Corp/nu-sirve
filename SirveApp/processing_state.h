@@ -1,3 +1,7 @@
+#pragma once
+#ifndef PROCESSING_STATE_H
+#define PROCESSING_STATE_H
+
 #include "video_details.h"
 #include "deinterlace_type.h"
 
@@ -49,3 +53,5 @@ struct processing_state {
         }
     };
 };
+
+#endif
