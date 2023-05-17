@@ -141,8 +141,6 @@ public:
 	QString create_epoch_string(std::vector<double> new_epoch);
 	void clear_frame_label();
 
-	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
-
 	signals:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
@@ -165,6 +163,7 @@ public:
 		void ui_load_abir_data();
 		void ui_execute_background_subtraction();
 		void ui_execute_deinterlace();
+		void ui_execute_non_uniformity_correction_selection_option();
 
 		void start_stop_video_record();
 		void toggle_zoom_on_video();
@@ -192,8 +191,7 @@ public:
 		void update_enhanced_range(bool input);
 		void toggle_relative_histogram(bool input);
 		void apply_epoch_time();
-		
-		void create_non_uniformity_correction_selection_option();
+
 		void create_non_uniformity_correction_from_external_file();
 
 		void toggle_osm_tracks();
@@ -232,6 +230,7 @@ private:
 
 	void create_background_subtraction_correction(int relative_start_frame, int num_frames);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
+	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 };

@@ -872,7 +872,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
 	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
 
-	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::create_non_uniformity_correction_selection_option);
+	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
 
 	QObject::connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::ui_execute_background_subtraction);
 	
@@ -947,19 +947,26 @@ void SirveApp::load_workspace()
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
 		processing_state current_state = workspace_vals.all_states[i];
-		if (current_state.method == Processing_Method::background_subtraction)
+		switch (current_state.method)
 		{
-			INFO << "Creating background subtraction from workspace.";
-			create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames);
-		}
-		else if (current_state.method == Processing_Method::deinterlace)
-		{
-			INFO << "Creating deinterlace from workspace.";
-			create_deinterlace(current_state.deint_type);
-		}
-		else
-		{
-			QtHelpers::LaunchMessageBox(QString("Skipping Processing State"), "Skipping this processing state: " + QString::number(static_cast<int>(current_state.method)));
+			case Processing_Method::background_subtraction:
+				INFO << "Creating background subtraction from workspace.";
+				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames);
+				break;
+
+			case Processing_Method::deinterlace:
+				INFO << "Creating deinterlace from workspace.";
+				create_deinterlace(current_state.deint_type);
+				break;
+
+			case Processing_Method::non_uniformity_correction:
+				INFO << "Creating non uniformity correction from workspace.";
+				create_non_uniformity_correction(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
+				break;
+
+			default:
+				INFO << "Unexpected processing method in workspace.";
+				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
 		}
 	}
 }
@@ -2053,10 +2060,8 @@ void SirveApp::create_non_uniformity_correction_from_external_file()
 
 }
 
-void SirveApp::create_non_uniformity_correction_selection_option()
+void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 {
-	
-	
 	QStringList options;
 	options << tr("From Current File") << tr("From External File");
 
@@ -2092,10 +2097,12 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 		if (!ok)
 			return;
 
+		INFO << "GUI: Creating NUC from current file.";
 		create_non_uniformity_correction(abp_file_metadata.image_path, start_frame, stop_frame);
 
 	}
 	else {
+		INFO << "GUI: Creating NUC from external file.";
 		create_non_uniformity_correction_from_external_file();
 	}
 	
@@ -2103,7 +2110,8 @@ void SirveApp::create_non_uniformity_correction_selection_option()
 
 void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
-	//----------------------------------------------------------------------------------------------------
+	INFO << "Creating non-uniformity correction.";
+
 	if (!verify_frame_selection(min_frame, max_frame)) {
 		INFO << "GUI: NUC correction not completed, invalid frame selection";
 		
@@ -2124,11 +2132,9 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	INFO << "Calculated NUC correction";
 
-	processing_state nuc_state;
-
 	processing_state original = video_display->container.copy_current_state();
 
-	nuc_state = original;
+	processing_state nuc_state = original;
 	nuc_state.details.frames_16bit.clear();
 	nuc_state.details.histogram_data.clear();
 
