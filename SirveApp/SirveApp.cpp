@@ -2141,6 +2141,9 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 	nuc_state.method = Processing_Method::non_uniformity_correction;
+	nuc_state.nuc_file_path = file_path;
+	nuc_state.nuc_start_frame = min_frame;
+	nuc_state.nuc_stop_frame = max_frame;
 	video_display->container.add_processing_state(nuc_state);
 
 	QFileInfo fi(file_path);
@@ -2199,6 +2202,7 @@ void SirveApp::create_deinterlace()
 	}
 
 	deinterlace_state.method = Processing_Method::deinterlace;
+	deinterlace_state.deint_type = deinterlace_method_type;
 	video_display->container.add_processing_state(deinterlace_state);
 }
 
@@ -2352,6 +2356,8 @@ void SirveApp::create_background_subtraction_correction() {
 	lbl_adaptive_background_suppression->setText(description);
 
 	background_subtraction_state.method = Processing_Method::background_subtraction;
+	background_subtraction_state.bgs_relative_start_frame = relative_start_frame;
+	background_subtraction_state.bgs_num_frames = number_of_frames;
 	video_display->container.add_processing_state(background_subtraction_state);
 }
 
