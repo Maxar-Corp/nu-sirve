@@ -7,22 +7,24 @@
 
 #include "logging.h"
 #include "video_details.h"
+#include "processing_state.h"
+#include "deinterlace_type.h"
 
 class Video_Container : public QObject
 {
 	Q_OBJECT
 	
 	public:
-		std::vector<video_details> processing_states;
+		std::vector<processing_state> processing_states;
 		int current_idx;
 
 		Video_Container();
 		~Video_Container();
 
 		void clear_processing_states();
-		void add_processing_state(video_details new_details);
+		void add_processing_state(processing_state new_details);
 
-		video_details copy_current_state();
+		processing_state copy_current_state();
 
 		void undo();
 
