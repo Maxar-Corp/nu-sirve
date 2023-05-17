@@ -35,7 +35,8 @@ void Video_Container::add_processing_state(processing_state new_state)
 	processing_states.push_back(new_state);
 	current_idx = processing_states.size() - 1;
 
-	emit state_added(QString::number(current_idx), current_idx);
+	QString state_name = QString::number(current_idx) + ": " + new_state.get_friendly_description();
+	emit state_added(state_name, current_idx);
 	emit update_display_video(new_state.details);
 }
 
