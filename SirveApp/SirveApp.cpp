@@ -2163,7 +2163,7 @@ void SirveApp::create_deinterlace()
 {
 	INFO << "GUI: Creating de-interlace file from original data";
 		
-	deinterlace_type deinterlace_method_type = find_deinterlace_type(cmb_deinterlace_options->currentIndex());
+	deinterlace_type deinterlace_method_type = static_cast<deinterlace_type>(cmb_deinterlace_options->currentIndex());
 	
 	processing_state deinterlace_state;
 	processing_state original = video_display->container.copy_current_state();
@@ -2250,28 +2250,6 @@ void SirveApp::toggle_frame_time()
 	bool current_status = chk_show_time->isChecked();
 	video_display->display_time = current_status;
 	video_display->update_display_frame();
-}
-
-deinterlace_type SirveApp::find_deinterlace_type(int index) {
-
-	switch (index)
-	{
-	case 0:
-		DEBUG << "GUI: De-interlace type max absolute value";
-		return deinterlace_type::max_absolute_value;
-	case 1:
-		DEBUG << "GUI: De-interlace type centroid";
-		return deinterlace_type::centroid;
-	case 2:
-		DEBUG << "GUI: De-interlace type avg cross correlation";
-		return deinterlace_type::avg_cross_correlation;
-		
-	default:
-		break;
-	}
-
-	INFO << "GUI: De-interlace type not found. Default to max absolute value";
-	return deinterlace_type::max_absolute_value;
 }
 
 void SirveApp::handle_new_processing_state(QString state_name, int index)
