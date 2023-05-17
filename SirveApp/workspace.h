@@ -8,7 +8,9 @@
 #include <QIODevice>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include "process_file.h"
+#include "processing_state.h"
 
 struct WorkspaceValues {
     QString image_path;
@@ -20,6 +22,8 @@ class Workspace {
         Workspace();
         ~Workspace();
 
-        void Workspace::save_state(QString image_path, int start_frame, int end_frame);
+        void Workspace::save_state(QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states);
         WorkspaceValues Workspace::load_state();
+    private:
+        QJsonObject state_to_json(const processing_state & state);
 };

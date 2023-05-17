@@ -28,6 +28,8 @@ class Video_Container : public QObject
 
 		void undo();
 
+		std::vector<processing_state> get_processing_states();
+
 	signals:
 		void update_display_video(video_details &update);
 
