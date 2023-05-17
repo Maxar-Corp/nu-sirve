@@ -874,7 +874,7 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::create_non_uniformity_correction_selection_option);
 
-	QObject::connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::create_background_subtraction_correction);
+	QObject::connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::ui_execute_background_subtraction);
 	
 	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::create_deinterlace);
 
@@ -944,9 +944,17 @@ void SirveApp::load_workspace()
 		load_abir_data(workspace_vals.start_frame, workspace_vals.end_frame);
 	}
 
-	for (auto state : workspace_vals.all_states)
+	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
-		QtHelpers::LaunchMessageBox(QString("Skipping Processing State"), "Skipping this processing state: " + QString::number(static_cast<int>(state.method)));
+		processing_state current_state = workspace_vals.all_states[i];
+		if (current_state.method == Processing_Method::background_subtraction)
+		{
+			create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames);
+		}
+		else
+		{
+			QtHelpers::LaunchMessageBox(QString("Skipping Processing State"), "Skipping this processing state: " + QString::number(static_cast<int>(current_state.method)));
+		}
 	}
 }
 
@@ -2263,7 +2271,7 @@ void SirveApp::handle_new_processing_state(QString state_name, int index)
 	cmb_processing_states->setCurrentIndex(index);
 }
 
-void SirveApp::create_background_subtraction_correction() {
+void SirveApp::ui_execute_background_subtraction() {
 
 	INFO << "GUI: Background subtraction video being created";
 	
@@ -2281,14 +2289,17 @@ void SirveApp::create_background_subtraction_correction() {
 	if (!ok)
 		return;
 
-	//-----------------------------------------------------------------------------------------------------
+	DEBUG << "GUI: Input value for background subtraction validated";
+	create_background_subtraction_correction(relative_start_frame, number_of_frames);
+}
 
-	processing_state background_subtraction_state;
+void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames)
+{
+	INFO << "GUI: Background subtraction video being created";
 	processing_state original = video_display->container.copy_current_state();
 
-	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
-	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, number_of_frames, original.details);
+	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details);
 
 	if (background_correction.size() == 0) {
 		INFO << "GUI: Background subtraction adjustment process was canceled or ended unexpectedly";
@@ -2303,7 +2314,7 @@ void SirveApp::create_background_subtraction_correction() {
 	progress.setWindowTitle(QString("Adaptive Background Suppression"));
 	progress.setMinimumWidth(300);
 
-	background_subtraction_state = original;
+	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
 	background_subtraction_state.details.histogram_data.clear();
 
@@ -2334,13 +2345,13 @@ void SirveApp::create_background_subtraction_correction() {
 		description += "+";
 
 	lbl_adaptive_background_suppression->setWordWrap(true);
-	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
+	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
 	
 	lbl_adaptive_background_suppression->setText(description);
 
 	background_subtraction_state.method = Processing_Method::background_subtraction;
 	background_subtraction_state.bgs_relative_start_frame = relative_start_frame;
-	background_subtraction_state.bgs_num_frames = number_of_frames;
+	background_subtraction_state.bgs_num_frames = num_frames;
 	video_display->container.add_processing_state(background_subtraction_state);
 }
 
