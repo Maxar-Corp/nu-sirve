@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <vector>
 #include <qobject.h>
 
@@ -14,7 +13,6 @@ class Video_Container : public QObject
 	Q_OBJECT
 	
 	public:
-		std::vector<video_details> something;
 		std::vector<video_details> processing_states;
 		int current_idx;
 
@@ -23,11 +21,6 @@ class Video_Container : public QObject
 
 		void clear_processing_states();
 		void add_processing_state(video_details new_details);
-
-		void reset(video_details input);
-		void display_original_data();
-		bool display_data(video_details input);
-		int find_data_index(video_details input);
 
 		video_details copy_current_state();
 

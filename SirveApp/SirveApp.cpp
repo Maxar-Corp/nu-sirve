@@ -443,7 +443,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 
 	btn_create_nuc = new QPushButton("Create Filter");
-	chk_apply_nuc = new QCheckBox("Apply Filter");
 
 	QFrame* horizontal_segment5 = new QFrame();
 	horizontal_segment5->setFrameShape(QFrame::HLine);
@@ -454,7 +453,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
 	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 1, 0, 1, 2);
 	grid_tab_processing_nuc->addWidget(btn_create_nuc, 2, 1);
-	grid_tab_processing_nuc->addWidget(chk_apply_nuc, 2, 0);
 	grid_tab_processing_nuc->addWidget(horizontal_segment5, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
@@ -464,7 +462,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	QLabel* label_background_subtraction = new QLabel("Adaptive Background Suppression");
 	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
 	btn_bgs = new QPushButton("Create Filter");
-	chk_bgs = new QCheckBox("Apply Filter");
 
 	QFrame* horizontal_segment6 = new QFrame();
 	horizontal_segment6->setFrameShape(QFrame::HLine);
@@ -475,7 +472,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_tab_processing_bgs->addWidget(label_background_subtraction, 0, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(lbl_adaptive_background_suppression, 1, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
-	grid_tab_processing_bgs->addWidget(chk_bgs, 2, 0);
 	grid_tab_processing_bgs->addWidget(horizontal_segment6, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
@@ -484,7 +480,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	QLabel* label_deinterlace = new QLabel("De-Interlace Methods");
 	cmb_deinterlace_options = new QComboBox();
 	btn_deinterlace = new QPushButton("Create Filter");
-	chk_deinterlace = new QCheckBox("Apply De-Interlace");
 
 	QFrame* horizontal_segment7 = new QFrame();
 	horizontal_segment7->setFrameShape(QFrame::HLine);
@@ -498,17 +493,11 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 2);
 	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
 	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 2, 1);
-	grid_tab_processing_deinterlace->addWidget(chk_deinterlace, 2, 0);
 	grid_tab_processing_deinterlace->addWidget(horizontal_segment7, 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
 
-	// ------------------------------------------------------------------------
-	btn_clear_filters = new QPushButton("Clear All Image Processing Filters");
-
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-	vlayout_tab_processing->addWidget(btn_clear_filters);
-
 
 	return widget_tab_processing;
 }
@@ -851,10 +840,6 @@ void SirveApp::setup_connections() {
 
 	//---------------------------------------------------------------------------
 
-	QObject::connect(cmb_deinterlace_options, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::toggle_video_filters);
-
-	//---------------------------------------------------------------------------
-
 	// Link horizontal slider to playback controller
 	QObject::connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
 	QObject::connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_current_frame_number);
@@ -893,10 +878,6 @@ void SirveApp::setup_connections() {
 	
 	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::create_deinterlace);
 
-	QObject::connect(chk_apply_nuc, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
-	QObject::connect(chk_bgs, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
-	QObject::connect(chk_deinterlace, &QCheckBox::stateChanged, this, &SirveApp::toggle_video_filters);
-
 	//---------------------------------------------------------------------------
 
 	QObject::connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
@@ -904,11 +885,6 @@ void SirveApp::setup_connections() {
 
 	// Connect epoch button click to function
 	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
-
-	//---------------------------------------------------------------------------
-
-	//Enable clearing image processing filters
-	QObject::connect(btn_clear_filters, &QPushButton::clicked, this, &SirveApp::clear_image_processing);
 
 	//Enable saving frame
 	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::save_frame);
@@ -1052,7 +1028,6 @@ void SirveApp::load_osm_data()
 		// Reset video frame
 		playback_controller->stop_timer();
 		reset_color_correction();
-		clear_image_processing();
 
 		// delete objects with existing data within them
 		delete eng_data;
@@ -1060,7 +1035,6 @@ void SirveApp::load_osm_data()
 		delete engineering_plot_layout;			
 		
 		video_display->container.clear_processing_states();
-		video_display->container.something.clear();
 		video_display->remove_frame();
 
 		cmb_processing_states->setEnabled(false);
@@ -1177,7 +1151,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	// Create the video properties data
 	video_details primary;
-	primary.properties[Video_Parameters::original] = true;
 
 	INFO << "GUI: Reading in video data";
 	primary.set_number_of_bits(config_values.max_used_bits);
@@ -1204,7 +1177,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->clear_all_zoom_levels(x_pixels, y_pixels);
 	primary.set_image_size(x_pixels, y_pixels);
 	primary.set_video_frames(video_frames);
-	video_display->container.reset(primary);
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(primary);
 	cmb_processing_states->setEnabled(true);
@@ -1229,10 +1201,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
 	slider_video->setRange(0, number_frames - 1);
-
-	//---------------------------------------------------------------------------
-	// Set the video and histogram plots to this data
-	video_display->container.display_original_data();
 
 	
 	// Start threads...
@@ -1275,8 +1243,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	tab_menu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
-
-	clear_image_processing();
 
 	toggle_video_playback_options(true);
 	playback_controller->start_timer();
@@ -2144,9 +2110,6 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	nuc_video = original;
 	nuc_video.clear_16bit_vector();
 	nuc_video.histogram_data.clear();
-	
-	nuc_video.properties[Video_Parameters::original] = false;
-	nuc_video.properties[Video_Parameters::non_uniformity_correction] = true;
 
 	// Apply NUC to the frames		
 	int number_frames = original.frames_16bit.size();
@@ -2177,23 +2140,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
-	bool nuc_exists = false;
-	int index_nuc = video_display->container.find_data_index(nuc_video);
-	if (index_nuc > 0) {
-		nuc_exists = true;
-		video_display->container.something[index_nuc] = nuc_video;
-
-		INFO << "GUI: Previous NUC video was replaced";
-	}
-	else
-	{
-		video_display->container.something.push_back(nuc_video);
-		INFO << "GUI: NUC video added";
-	}
-
 	video_display->container.add_processing_state(nuc_video);
-	
-	show_available_filter_options();
 
 	QFileInfo fi(file_path);
 	QString fileName = fi.fileName().toLower();
@@ -2206,7 +2153,6 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	description += "From frame " + QString::number(min_frame) + " to " + QString::number(max_frame);
 
 	lbl_fixed_suppression->setText(description);
-
 }
 
 void SirveApp::create_deinterlace()
@@ -2214,7 +2160,6 @@ void SirveApp::create_deinterlace()
 	INFO << "GUI: Creating de-interlace file from original data";
 		
 	deinterlace_type deinterlace_method_type = find_deinterlace_type(cmb_deinterlace_options->currentIndex());
-	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
 	
 	video_details deinterlace_video;
 	video_details original = video_display->container.copy_current_state();
@@ -2225,9 +2170,6 @@ void SirveApp::create_deinterlace()
 	deinterlace_video = original;
 	deinterlace_video.clear_16bit_vector();
 	deinterlace_video.histogram_data.clear();
-
-	deinterlace_video.properties[Video_Parameters::original] = false;
-	deinterlace_video.properties[deinterlace_video_type] = true;
 	
 	// Apply de-interlace to the frames		
 	
@@ -2257,27 +2199,7 @@ void SirveApp::create_deinterlace()
 		return;
 	}
 
-	
-	//deinterlace_video.convert_16bit_to_8bit();
-	//deinterlace_video.create_histogram_data();
-
-	bool deinterlace_exists = false;
-	int index_deinterlace = video_display->container.find_data_index(deinterlace_video);
-	if (index_deinterlace > 0) {
-		deinterlace_exists = true;
-		video_display->container.something[index_deinterlace] = deinterlace_video;
-		INFO << "GUI: Previous de-interlace video was replaced";
-	}
-	else
-	{
-		video_display->container.something.push_back(deinterlace_video);
-		INFO << "GUI: De-interlace video was added";
-	}
-
 	video_display->container.add_processing_state(deinterlace_video);
-
-	show_available_filter_options();
-	
 }
 
 void SirveApp::toggle_osm_tracks()
@@ -2348,144 +2270,10 @@ deinterlace_type SirveApp::find_deinterlace_type(int index) {
 	return deinterlace_type::max_absolute_value;
 }
 
-Video_Parameters SirveApp::find_deinterlace_video_type(int index)
-{
-	switch (index)
-	{
-	case 0:
-		return Video_Parameters::deinterlace_max_absolute_value;
-	case 1:
-		return Video_Parameters::deinterlace_centroid;
-	case 2:
-		return Video_Parameters::deinterlace_avg_cross_correlation;
-
-	default:
-		break;
-	}
-
-	return Video_Parameters::deinterlace_max_absolute_value;
-}
-
 void SirveApp::handle_new_processing_state(QString state_name, int index)
 {
 	cmb_processing_states->addItem(state_name);
 	cmb_processing_states->setCurrentIndex(index);
-}
-
-void SirveApp::clear_image_processing()
-{
-	
-	int n = video_display->container.something.size();
-
-	lbl_fixed_suppression->setText("No Frames Setup");
-	lbl_adaptive_background_suppression->setText("No Frames Setup");
-
-
-	int num_videos = video_display->container.something.size();
-	if (num_videos > 0)
-	{
-		video_display->container.something.erase(video_display->container.something.begin() + 1, video_display->container.something.begin() + n);
-
-		chk_apply_nuc->setChecked(false);
-		chk_bgs->setChecked(false);
-		chk_deinterlace->setChecked(false);
-
-		show_available_filter_options();
-	}
-
-}
-
-video_details SirveApp::get_current_filter_state()
-{
-	video_details current_status;
-	bool no_filters_applied = true;
-
-	if (chk_apply_nuc->isChecked()) {
-		current_status.properties[Video_Parameters::non_uniformity_correction] = true;
-		no_filters_applied = false;
-	}
-	if (chk_bgs->isChecked()) {
-		current_status.properties[Video_Parameters::background_subtraction] = true;
-		no_filters_applied = false;
-	}
-	if (chk_deinterlace->isChecked()) {
-		Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
-		current_status.properties[deinterlace_video_type] = true;
-
-		no_filters_applied = false;
-	}
-
-	if (no_filters_applied)
-		current_status.properties[Video_Parameters::original] = true;
-
-	return current_status;
-}
-
-bool SirveApp::check_filter_selection(video_details filter_state)
-{
-		
-	int index_exists = video_display->container.find_data_index(filter_state);
-	
-	if (index_exists >= 0)
-		return true;
-	
-	return false;
-}
-
-void SirveApp::show_available_filter_options()
-{
-	video_details current_state = get_current_filter_state();
-	DEBUG << "GUI: Finding all available filters that can now be applied";
-
-	//Check NUC
-	if (!current_state.properties[Video_Parameters::non_uniformity_correction])
-	{
-		current_state.properties[Video_Parameters::original] = false;
-		current_state.properties[Video_Parameters::non_uniformity_correction] = true;
-		if (check_filter_selection(current_state))
-			chk_apply_nuc->setEnabled(true);
-		else {
-			chk_apply_nuc->setChecked(false);
-			chk_apply_nuc->setEnabled(false);
-		}
-
-		//reset filter state
-		current_state.properties[Video_Parameters::non_uniformity_correction] = false;
-	}
-
-	//Check BGS
-	if (!current_state.properties[Video_Parameters::background_subtraction])
-	{
-		current_state.properties[Video_Parameters::original] = false;
-		current_state.properties[Video_Parameters::background_subtraction] = true;
-		if (check_filter_selection(current_state))
-			chk_bgs->setEnabled(true);
-		else {
-			chk_bgs->setChecked(false);
-			chk_bgs->setEnabled(false);
-		}
-
-		//reset filter state
-		current_state.properties[Video_Parameters::background_subtraction] = false;
-	}
-
-	//Check De-interlace
-	Video_Parameters deinterlace_video_type = find_deinterlace_video_type(cmb_deinterlace_options->currentIndex());
-	if (!current_state.properties[deinterlace_video_type])
-	{
-		current_state.properties[Video_Parameters::original] = false;
-		current_state.properties[deinterlace_video_type] = true;
-		if (check_filter_selection(current_state))
-			chk_deinterlace->setEnabled(true);
-		else {
-			chk_deinterlace->setChecked(false);
-			chk_deinterlace->setEnabled(false);
-		}
-
-		//reset filter state
-		current_state.properties[deinterlace_video_type] = false;
-	}
-
 }
 
 void SirveApp::create_background_subtraction_correction() {
@@ -2532,9 +2320,6 @@ void SirveApp::create_background_subtraction_correction() {
 	background_subraction_video.clear_16bit_vector();
 	background_subraction_video.histogram_data.clear();
 
-	background_subraction_video.properties[Video_Parameters::original] = false;
-	background_subraction_video.properties[Video_Parameters::background_subtraction] = true;
-
 	// Apply background subtraction to the frames
 	int number_frames = original.frames_16bit.size();
 
@@ -2566,58 +2351,7 @@ void SirveApp::create_background_subtraction_correction() {
 	
 	lbl_adaptive_background_suppression->setText(description);
 
-	// -------------------------------------------------------------------------------------
-	
-	bool background_subtraction_exists = false;
-	int index_background_subtraction = video_display->container.find_data_index(background_subraction_video);
-	if (index_background_subtraction > 0) {
-		background_subtraction_exists = true;
-		video_display->container.something[index_background_subtraction] = background_subraction_video;
-		INFO << "GUI: Background subtraction video was replaced";
-	}
-	else
-	{
-		video_display->container.something.push_back(background_subraction_video);
-		INFO << "GUI: Background subtraction video was added";
-	}
-
 	video_display->container.add_processing_state(background_subraction_video);
-
-	show_available_filter_options();
-}
-
-void SirveApp::toggle_video_filters()
-{
-	INFO << "GUI: User toggled new video for display";
-
-	video_details user_requested = get_current_filter_state();
-	bool request_exists = check_filter_selection(user_requested);
-
-	if (!request_exists) {
-		chk_apply_nuc->setChecked(false);
-		chk_bgs->setChecked(false);
-		chk_deinterlace->setChecked(false);
-
-		INFO << "GUI: No matching video. Resetting filters";
-	}
-
-	show_available_filter_options();
-
-	if (request_exists) {
-		video_display->container.display_data(user_requested);
-
-		bool background_subtraction_active = user_requested.properties[Video_Parameters::background_subtraction];
-		if (background_subtraction_active) {
-			slider_lift->setValue(0);
-			slider_gain->setValue(1);
-		}
-	}
-	else {
-		video_details updated_user_request = get_current_filter_state();
-		video_display->container.display_data(updated_user_request);
-	}
-
-	emit playback_controller->update_frame(playback_controller->get_current_frame_number());
 }
 
 void SirveApp::set_color_correction_slider_labels()

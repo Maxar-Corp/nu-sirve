@@ -84,7 +84,7 @@ void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 void VideoDisplay::receive_video_data(video_details& new_input)
 {
-	index_current_video = container.find_data_index(new_input);
+	//index_current_video = container.find_data_index(new_input);
 	update_video_file(new_input.x_pixels, new_input.y_pixels);
 
 }
