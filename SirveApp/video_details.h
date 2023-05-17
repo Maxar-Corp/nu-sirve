@@ -18,5 +18,4 @@ struct video_details {
 	void set_number_of_bits(int num_bits);
 
 	void set_video_frames(std::vector<std::vector<uint16_t>> video_in);
-	void clear_16bit_vector();
 };
