@@ -72,6 +72,46 @@ WorkspaceValues Workspace::load_state() {
     int start_frame = data_object.value("start_frame").toInt();
     int end_frame = data_object.value("end_frame").toInt();
 
+    std::vector<processing_state> states;
+    for (auto json_obj : data_object.value("processing_states").toArray())
+    {
+        processing_state state = json_to_state(json_obj.toObject());
+        states.push_back(state);
+    }
+
     file.close();
-    return WorkspaceValues { image_path, start_frame, end_frame };
+    return WorkspaceValues { image_path, start_frame, end_frame, states };
 };
+
+processing_state Workspace::json_to_state(const QJsonObject & json_obj)
+{
+    QString method = json_obj.value("method").toString();\
+
+    if (method == "Original")
+    {
+        return processing_state { Processing_Method::original };
+    }
+    if (method == "Background Subtraction")
+    {
+        processing_state temp = { Processing_Method::background_subtraction };
+        temp.bgs_relative_start_frame = json_obj.value("bgs_relative_start_frame").toInt();
+        temp.bgs_num_frames = json_obj.value("bgs_num_frames").toInt();
+        return temp;
+    }
+    if (method == "Deinterlace")
+    {
+        processing_state temp = { Processing_Method::deinterlace };
+        temp.deint_type = static_cast<deinterlace_type>(json_obj.value("deint_type").toInt());
+        return temp;
+    }
+    if (method == "NUC")
+    {
+        processing_state temp = { Processing_Method::non_uniformity_correction };
+        temp.nuc_start_frame = json_obj.value("nuc_start_frame").toInt();
+        temp.nuc_stop_frame = json_obj.value("nuc_stop_frame").toInt();
+        temp.nuc_file_path = json_obj.value("nuc_file_path").toInt();
+        return temp;
+    }
+
+    throw "Unexpected";
+}

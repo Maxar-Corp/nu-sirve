@@ -15,6 +15,7 @@
 struct WorkspaceValues {
     QString image_path;
     int start_frame, end_frame;
+    std::vector<processing_state> all_states;
 };
 
 class Workspace {
@@ -26,4 +27,5 @@ class Workspace {
         WorkspaceValues Workspace::load_state();
     private:
         QJsonObject state_to_json(const processing_state & state);
+        processing_state json_to_state(const QJsonObject & json_obj);
 };
