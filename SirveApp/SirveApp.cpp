@@ -876,7 +876,7 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::ui_execute_background_subtraction);
 	
-	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::create_deinterlace);
+	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ui_execute_deinterlace);
 
 	//---------------------------------------------------------------------------
 
@@ -949,7 +949,13 @@ void SirveApp::load_workspace()
 		processing_state current_state = workspace_vals.all_states[i];
 		if (current_state.method == Processing_Method::background_subtraction)
 		{
+			INFO << "Creating background subtraction from workspace.";
 			create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames);
+		}
+		else if (current_state.method == Processing_Method::deinterlace)
+		{
+			INFO << "Creating deinterlace from workspace.";
+			create_deinterlace(current_state.deint_type);
 		}
 		else
 		{
@@ -2172,19 +2178,23 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	lbl_fixed_suppression->setText(description);
 }
 
-void SirveApp::create_deinterlace()
+void SirveApp::ui_execute_deinterlace()
 {
-	INFO << "GUI: Creating de-interlace file from original data";
-		
 	deinterlace_type deinterlace_method_type = static_cast<deinterlace_type>(cmb_deinterlace_options->currentIndex());
 	
-	processing_state deinterlace_state;
+	DEBUG << "GUI: Found de-interlacing method type";
+	create_deinterlace(deinterlace_method_type);
+}
+
+void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
+{
+	INFO << "Creating deinterlace";
+
 	processing_state original = video_display->container.copy_current_state();
-
-	DEBUG << "GUI: Found de-interlacing method type and video type";
+	
 	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
-
-	deinterlace_state = original;
+	
+	processing_state deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
 	deinterlace_state.details.histogram_data.clear();
 	
