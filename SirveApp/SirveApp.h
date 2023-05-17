@@ -163,6 +163,7 @@ public:
 		void ui_choose_abp_file();
 		bool validate_abp_files(QString path_to_image_file);
 		void ui_load_abir_data();
+		void ui_execute_background_subtraction();
 
 		void start_stop_video_record();
 		void toggle_zoom_on_video();
@@ -194,7 +195,6 @@ public:
 		void create_non_uniformity_correction_selection_option();
 		void create_non_uniformity_correction_from_external_file();
 		
-		void create_background_subtraction_correction();
 		void create_deinterlace();
 
 		void toggle_osm_tracks();
@@ -230,6 +230,8 @@ private:
 	
 	void load_osm_data();
 	void load_abir_data(int start_frame, int end_frame);
+
+	void create_background_subtraction_correction(int relative_start_frame, int num_frames);
 
 	void enable_engineering_plot_options();
 };
