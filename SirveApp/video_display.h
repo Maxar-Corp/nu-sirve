@@ -90,7 +90,6 @@ public slots:
 	void update_specific_frame(unsigned int frame_number);
 	//void update_color_correction(double lift, double gamma, double gain);
 	void update_color_correction(double new_min_value, double new_max_value);
-	void update_video_file(int x_pixels, int y_pixels);
 	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
@@ -119,7 +118,8 @@ private:
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
 	void setup_connections();
-	
+
+	void update_video_file(int x_pixels, int y_pixels);
 };
 
 #endif // VIDEO_DISPLAY_H
