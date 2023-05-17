@@ -2115,7 +2115,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	processing_state original = video_display->container.copy_current_state();
 
 	nuc_state = original;
-	nuc_state.details.clear_16bit_vector();
+	nuc_state.details.frames_16bit.clear();
 	nuc_state.details.histogram_data.clear();
 
 	// Apply NUC to the frames		
@@ -2177,7 +2177,7 @@ void SirveApp::create_deinterlace()
 	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
 
 	deinterlace_state = original;
-	deinterlace_state.details.clear_16bit_vector();
+	deinterlace_state.details.frames_16bit.clear();
 	deinterlace_state.details.histogram_data.clear();
 	
 	// Apply de-interlace to the frames		
@@ -2304,7 +2304,7 @@ void SirveApp::create_background_subtraction_correction() {
 	progress.setMinimumWidth(300);
 
 	background_subtraction_state = original;
-	background_subtraction_state.details.clear_16bit_vector();
+	background_subtraction_state.details.frames_16bit.clear();
 	background_subtraction_state.details.histogram_data.clear();
 
 	// Apply background subtraction to the frames

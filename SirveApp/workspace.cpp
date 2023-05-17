@@ -85,7 +85,7 @@ WorkspaceValues Workspace::load_state() {
 
 processing_state Workspace::json_to_state(const QJsonObject & json_obj)
 {
-    QString method = json_obj.value("method").toString();\
+    QString method = json_obj.value("method").toString();
 
     if (method == "Original")
     {

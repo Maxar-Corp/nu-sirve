@@ -23,7 +23,7 @@ class Workspace {
         Workspace();
         ~Workspace();
 
-        void Workspace::save_state(QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states);
+        void Workspace::save_state(QString image_path, int start_frame, int end_frame, const std::vector<processing_state> all_states);
         WorkspaceValues Workspace::load_state();
     private:
         QJsonObject state_to_json(const processing_state & state);

@@ -7,7 +7,6 @@ Video_Container::Video_Container()
 
 Video_Container::~Video_Container()
 {
-	processing_states.clear();
 }
 
 void Video_Container::select_state(int idx)
