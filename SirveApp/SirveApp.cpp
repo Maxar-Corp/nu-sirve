@@ -2296,7 +2296,7 @@ void SirveApp::create_background_subtraction_correction() {
 
 	//-----------------------------------------------------------------------------------------------------
 
-	processing_state background_subraction_state;
+	processing_state background_subtraction_state;
 	processing_state original = video_display->container.copy_current_state();
 
 	DEBUG << "GUI: Input value for background subtraction validated";
@@ -2316,9 +2316,9 @@ void SirveApp::create_background_subtraction_correction() {
 	progress.setWindowTitle(QString("Adaptive Background Suppression"));
 	progress.setMinimumWidth(300);
 
-	background_subraction_state = original;
-	background_subraction_state.details.clear_16bit_vector();
-	background_subraction_state.details.histogram_data.clear();
+	background_subtraction_state = original;
+	background_subtraction_state.details.clear_16bit_vector();
+	background_subtraction_state.details.histogram_data.clear();
 
 	// Apply background subtraction to the frames
 	int number_frames = original.details.frames_16bit.size();
@@ -2329,7 +2329,7 @@ void SirveApp::create_background_subtraction_correction() {
 	for (int i = 0; i < number_frames; i++) {
 		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
 		progress.setValue(i);
-		background_subraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
+		background_subtraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
 		if (progress.wasCanceled())
 		{
 			INFO << "GUI: Background subtraction process was canceled";
@@ -2351,8 +2351,8 @@ void SirveApp::create_background_subtraction_correction() {
 	
 	lbl_adaptive_background_suppression->setText(description);
 
-	background_subraction_state.method = Processing_Method::background_subtraction;
-	video_display->container.add_processing_state(background_subraction_state);
+	background_subtraction_state.method = Processing_Method::background_subtraction;
+	video_display->container.add_processing_state(background_subtraction_state);
 }
 
 void SirveApp::set_color_correction_slider_labels()
