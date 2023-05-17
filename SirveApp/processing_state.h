@@ -1,6 +1,8 @@
 #include "video_details.h"
 #include "deinterlace_type.h"
 
+#include <QString>
+
 enum struct Processing_Method
 {
 	original,
@@ -24,4 +26,26 @@ struct processing_state {
     int nuc_stop_frame;
 
     deinterlace_type deint_type;
+
+    QString get_friendly_description() {
+       switch (method)
+        {
+            case Processing_Method::original:
+                return "Original";
+                break;
+            case Processing_Method::background_subtraction:
+                return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames";
+                break;
+            case Processing_Method::non_uniformity_correction:
+                //may potentially want to leave nuc_file_path empty if it isn't an external file?
+                return "NUC - " + QString::number(nuc_start_frame) + " to " + QString::number(nuc_stop_frame);
+                break;
+            case Processing_Method::deinterlace:
+                return "Deinterlace - " + QString::number(deint_type);
+                break;
+            default:
+                return "Unknown";
+                break;
+        }
+    };
 };
