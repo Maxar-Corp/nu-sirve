@@ -18,6 +18,7 @@
 #include "non_uniformity_correction.h"
 #include "background_subtraction.h"
 #include "deinterlace.h"
+#include "deinterlace_type.h"
 #include "logging.h"
 #include "annotations.h"
 #include "custom_input_dialog.h"
@@ -200,8 +201,6 @@ public:
 		void toggle_primary_track_data();
 		void toggle_sensor_track_data();
 		void toggle_frame_time();
-
-		deinterlace_type find_deinterlace_type(int index);
 
 		void handle_new_processing_state(QString state_name, int index);
 
