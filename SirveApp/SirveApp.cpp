@@ -943,6 +943,11 @@ void SirveApp::load_workspace()
 	else {
 		load_abir_data(workspace_vals.start_frame, workspace_vals.end_frame);
 	}
+
+	for (auto state : workspace_vals.all_states)
+	{
+		QtHelpers::LaunchMessageBox(QString("Skipping Processing State"), "Skipping this processing state: " + QString::number(static_cast<int>(state.method)));
+	}
 }
 
 void SirveApp::ui_choose_abp_file()
