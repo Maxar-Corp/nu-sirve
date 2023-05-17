@@ -60,7 +60,7 @@ void VideoDisplay::update_video_file(int x_pixels, int y_pixels)
 {
 
 	//frame_data = video_data;
-	number_of_frames = container.processing_states[container.current_idx].frames_16bit.size();
+	number_of_frames = container.processing_states[container.current_idx].details.frames_16bit.size();
 
 	image_x = x_pixels;
 	image_y = y_pixels;
@@ -378,8 +378,8 @@ void VideoDisplay::update_display_frame()
 	//------------------------------------------------------------------------------------------------
 
 	//Convert current frame to armadillo matrix
-	std::vector<double> frame_vector(container.processing_states[container.current_idx].frames_16bit[counter].begin(),
-		container.processing_states[container.current_idx].frames_16bit[counter].end());
+	std::vector<double> frame_vector(container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
+		container.processing_states[container.current_idx].details.frames_16bit[counter].end());
 	arma::vec image_vector(frame_vector);
 
 	//Normalize the image to values between 0 - 1
@@ -597,7 +597,7 @@ void VideoDisplay::update_display_frame()
 		if (rectangle_drawn && region_within_zoom) {
 
 			// get frame data from original data set and convert mat
-			std::vector<double> original_frame_vector(container.processing_states[0].frames_16bit[counter].begin(), container.processing_states[0].frames_16bit[counter].end());
+			std::vector<double> original_frame_vector(container.processing_states[0].details.frames_16bit[counter].begin(), container.processing_states[0].details.frames_16bit[counter].end());
 			arma::vec original_image_vector(original_frame_vector);
 			arma::mat original_mat_frame(original_image_vector);
 			original_mat_frame.reshape(image_x, image_y);

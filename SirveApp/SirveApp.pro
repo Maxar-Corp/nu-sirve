@@ -47,6 +47,7 @@ HEADERS += abir_reader.h \
             play_back.h \
             plot_engineering_data.h \
             process_file.h \
+            processing_state.h \
             Section.h \
             SirveApp.h \
             video_container.h \

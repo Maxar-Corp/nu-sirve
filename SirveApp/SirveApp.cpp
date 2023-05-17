@@ -1150,10 +1150,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	playback_controller->stop_timer();
 
 	// Create the video properties data
-	video_details primary;
+	video_details vid_details;
 
 	INFO << "GUI: Reading in video data";
-	primary.set_number_of_bits(config_values.max_used_bits);
+	vid_details.set_number_of_bits(config_values.max_used_bits);
 
 	//----------------------------------------------------------------------------
 	
@@ -1175,27 +1175,28 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
 	video_display->clear_all_zoom_levels(x_pixels, y_pixels);
-	primary.set_image_size(x_pixels, y_pixels);
-	primary.set_video_frames(video_frames);
-	video_display->container.clear_processing_states();
-	video_display->container.add_processing_state(primary);
-	cmb_processing_states->setEnabled(true);
+	vid_details.set_image_size(x_pixels, y_pixels);
+	vid_details.set_video_frames(video_frames);
 
 	frame_video->setMinimumHeight(y_pixels);
 	frame_video->setMinimumWidth(x_pixels);
 
-	int number_frames = primary.frames_16bit.size();
+	int number_frames = vid_details.frames_16bit.size();
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
 	update_text.append(QString::number(min_frame));
 	update_text.append(" to ");
 	update_text.append(QString::number(min_frame + number_frames - 1));
 	update_text.append(" were loaded");
-
 	status_txt.append(update_text);
 	lbl_file_load->setText(status_txt);
 	txt_start_frame->setText(QString::number(min_frame));
 	txt_end_frame->setText(QString::number(max_frame));
+
+	processing_state primary = { Processing_Method::original, vid_details };
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(primary);
+	cmb_processing_states->setEnabled(true);
 	
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
@@ -2104,31 +2105,30 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	INFO << "Calculated NUC correction";
 
-	video_details nuc_video;
-	video_details original = video_display->container.copy_current_state();
+	processing_state nuc_state;
 
-	nuc_video = original;
-	nuc_video.clear_16bit_vector();
-	nuc_video.histogram_data.clear();
+	processing_state original = video_display->container.copy_current_state();
+
+	nuc_state = original;
+	nuc_state.details.clear_16bit_vector();
+	nuc_state.details.histogram_data.clear();
 
 	// Apply NUC to the frames		
-	int number_frames = original.frames_16bit.size();
+	int number_frames = original.details.frames_16bit.size();
 
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
 	progress.setWindowTitle(QString("Fixed Background Suppression"));
-
 	progress.setMinimum(0);
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Applying correction..."));
-
 	progress.setMinimumWidth(300);
 
 	for (int i = 0; i < number_frames; i++) {
 		progress.setValue(i);
 		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << " frames";
-		nuc_video.frames_16bit.push_back(nuc.apply_nuc_correction(original.frames_16bit[i]));
+		nuc_state.details.frames_16bit.push_back(nuc.apply_nuc_correction(original.details.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
 	}
@@ -2140,7 +2140,8 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
-	video_display->container.add_processing_state(nuc_video);
+	nuc_state.method = Processing_Method::non_uniformity_correction;
+	video_display->container.add_processing_state(nuc_state);
 
 	QFileInfo fi(file_path);
 	QString fileName = fi.fileName().toLower();
@@ -2161,35 +2162,33 @@ void SirveApp::create_deinterlace()
 		
 	deinterlace_type deinterlace_method_type = find_deinterlace_type(cmb_deinterlace_options->currentIndex());
 	
-	video_details deinterlace_video;
-	video_details original = video_display->container.copy_current_state();
+	processing_state deinterlace_state;
+	processing_state original = video_display->container.copy_current_state();
 
 	DEBUG << "GUI: Found de-interlacing method type and video type";
-	Deinterlace deinterlace_method(deinterlace_method_type, original.x_pixels, original.y_pixels);
+	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
 
-	deinterlace_video = original;
-	deinterlace_video.clear_16bit_vector();
-	deinterlace_video.histogram_data.clear();
+	deinterlace_state = original;
+	deinterlace_state.details.clear_16bit_vector();
+	deinterlace_state.details.histogram_data.clear();
 	
 	// Apply de-interlace to the frames		
 	
-	int number_frames = original.frames_16bit.size();
+	int number_frames = original.details.frames_16bit.size();
 
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
 	progress.setWindowTitle(QString("De-interlace Frames"));
-
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Creating de-interlaced frames..."));
-
 	progress.setMinimumWidth(300);
 
 	for (int i = 0; i < number_frames; i++)
 	{
 		progress.setValue(i);
 		DEBUG << "GUI: Applying de-interlace to " << i + 1 << " of " << number_frames << " frames";
-		deinterlace_video.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.frames_16bit[i]));
+		deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
 	}
@@ -2199,7 +2198,8 @@ void SirveApp::create_deinterlace()
 		return;
 	}
 
-	video_display->container.add_processing_state(deinterlace_video);
+	deinterlace_state.method = Processing_Method::deinterlace;
+	video_display->container.add_processing_state(deinterlace_state);
 }
 
 void SirveApp::toggle_osm_tracks()
@@ -2296,12 +2296,12 @@ void SirveApp::create_background_subtraction_correction() {
 
 	//-----------------------------------------------------------------------------------------------------
 
-	video_details background_subraction_video;
-	video_details original = video_display->container.copy_current_state();
+	processing_state background_subraction_state;
+	processing_state original = video_display->container.copy_current_state();
 
 	DEBUG << "GUI: Input value for background subtraction validated";
 	INFO << "GUI: Creating adjustment for video";
-	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, number_of_frames, original);
+	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, number_of_frames, original.details);
 
 	if (background_correction.size() == 0) {
 		INFO << "GUI: Background subtraction adjustment process was canceled or ended unexpectedly";
@@ -2316,12 +2316,12 @@ void SirveApp::create_background_subtraction_correction() {
 	progress.setWindowTitle(QString("Adaptive Background Suppression"));
 	progress.setMinimumWidth(300);
 
-	background_subraction_video = original;
-	background_subraction_video.clear_16bit_vector();
-	background_subraction_video.histogram_data.clear();
+	background_subraction_state = original;
+	background_subraction_state.details.clear_16bit_vector();
+	background_subraction_state.details.histogram_data.clear();
 
 	// Apply background subtraction to the frames
-	int number_frames = original.frames_16bit.size();
+	int number_frames = original.details.frames_16bit.size();
 
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Adjusting frames..."));
@@ -2329,7 +2329,7 @@ void SirveApp::create_background_subtraction_correction() {
 	for (int i = 0; i < number_frames; i++) {
 		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
 		progress.setValue(i);
-		background_subraction_video.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.frames_16bit[i], background_correction[i]));
+		background_subraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
 		if (progress.wasCanceled())
 		{
 			INFO << "GUI: Background subtraction process was canceled";
@@ -2351,7 +2351,8 @@ void SirveApp::create_background_subtraction_correction() {
 	
 	lbl_adaptive_background_suppression->setText(description);
 
-	video_display->container.add_processing_state(background_subraction_video);
+	background_subraction_state.method = Processing_Method::background_subtraction;
+	video_display->container.add_processing_state(background_subraction_state);
 }
 
 void SirveApp::set_color_correction_slider_labels()
