@@ -915,7 +915,7 @@ void SirveApp::setup_connections() {
 
 void SirveApp::save_workspace()
 {
-	workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1);
+	workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states());
 }
 void SirveApp::load_workspace()
 {

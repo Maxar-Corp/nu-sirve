@@ -59,3 +59,8 @@ void Video_Container::undo()
 		emit update_display_video(processing_states[current_idx].details);
 	}
 }
+
+std::vector<processing_state> Video_Container::get_processing_states()
+{
+	return processing_states;
+}
