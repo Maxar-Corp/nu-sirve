@@ -33,6 +33,7 @@ HEADERS += abir_reader.h \
             custom_input_dialog.h \
             Data_Structures.h \
             deinterlace.h \
+            deinterlace_type.h \
             engineering_data.h \
             fixed_aspect_ratio_frame.h \
             histogram_plotter.h \

@@ -7,7 +7,7 @@
 #include <fftw3.h>
 #include "logging.h"
 
-enum deinterlace_type { max_absolute_value, centroid, avg_cross_correlation };
+#include "deinterlace_type.h"
 
 class Deinterlace
 {
