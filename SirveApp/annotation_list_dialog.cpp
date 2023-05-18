@@ -1,6 +1,6 @@
-#include "annotations.h"
+#include "annotation_list_dialog.h"
 
-Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info details, VideoDisplay *input_video, QWidget * parent) : data(input_vector)
+AnnotationListDialog::AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, VideoDisplay *input_video, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
 	
@@ -10,15 +10,15 @@ Annotations::Annotations(std::vector<annotation_info> &input_vector, video_info 
 	// pointer to video frame
 	current_video = input_video;
 
-	connect(btn_ok, &QPushButton::pressed, this, &Annotations::ok);
-	connect(btn_new, &QPushButton::pressed, this, &Annotations::add);
-	connect(btn_edit, &QPushButton::pressed, this, &Annotations::edit);
-	connect(btn_delete, &QPushButton::pressed, this, &Annotations::delete_object);
+	connect(btn_ok, &QPushButton::pressed, this, &AnnotationListDialog::ok);
+	connect(btn_new, &QPushButton::pressed, this, &AnnotationListDialog::add);
+	connect(btn_edit, &QPushButton::pressed, this, &AnnotationListDialog::edit);
+	connect(btn_delete, &QPushButton::pressed, this, &AnnotationListDialog::delete_object);
 
-	connect(lst_annotations, &QListWidget::currentRowChanged, this, &Annotations::show_annotation);
+	connect(lst_annotations, &QListWidget::currentRowChanged, this, &AnnotationListDialog::show_annotation);
 }
 
-Annotations::~Annotations() {
+AnnotationListDialog::~AnnotationListDialog() {
 
 	delete lbl_annotations;
 	delete lbl_description;
@@ -31,7 +31,7 @@ Annotations::~Annotations() {
 	delete lst_annotations;
 }
 
-void Annotations::show_annotation(int index)
+void AnnotationListDialog::show_annotation(int index)
 {
 	
 	QString output;
@@ -51,7 +51,7 @@ void Annotations::show_annotation(int index)
 	lbl_description->setText(output);
 }
 
-void Annotations::repopulate_list()
+void AnnotationListDialog::repopulate_list()
 {
 	lst_annotations->clear();
 
@@ -61,11 +61,11 @@ void Annotations::repopulate_list()
 	}
 }
 
-void Annotations::initialize_gui()
+void AnnotationListDialog::initialize_gui()
 {
 
 	// define objects
-	lbl_annotations = new QLabel(tr("Annotations"));
+	lbl_annotations = new QLabel(tr("AnnotationListDialog"));
 	lst_annotations = new QListWidget();
 	lbl_description = new QLabel(tr(""));
 
@@ -99,16 +99,16 @@ void Annotations::initialize_gui()
 	mainLayout->setColumnStretch(2, 0);
 
 	setLayout(mainLayout);
-	setWindowTitle(tr("Annotations"));
+	setWindowTitle(tr("AnnotationListDialog"));
 
 }
 
-void Annotations::ok()
+void AnnotationListDialog::ok()
 {
 	done(1);
 }
 
-void Annotations::add()
+void AnnotationListDialog::add()
 {
 	// set user definable attributes
 	annotation_info new_data;
@@ -131,8 +131,8 @@ void Annotations::add()
 	data.push_back(new_data);
 	
 	// display new annotation screen
-	AnnotationEditDialog add_annotation(data.back(), current_video);
-	auto response = add_annotation.exec();
+	AnnotationEditDialog annotation_edit_dialog(data.back(), current_video);
+	auto response = annotation_edit_dialog.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
 	if (response == 0) {
@@ -146,7 +146,7 @@ void Annotations::add()
 
 }
 
-void Annotations::edit()
+void AnnotationListDialog::edit()
 {
 	// set user definable attributes
 
@@ -157,8 +157,8 @@ void Annotations::edit()
 		annotation_info old_data = data[index];
 
 		// display new annotation screen
-		AnnotationEditDialog add_annotation(data[index], current_video);
-		auto response = add_annotation.exec();
+		AnnotationEditDialog annotation_edit_dialog(data[index], current_video);
+		auto response = annotation_edit_dialog.exec();
 
 		// if action was cancelled or window closed, then restore previous annotation
 		if (response == 0)
@@ -176,7 +176,7 @@ void Annotations::edit()
 
 }
 
-void Annotations::delete_object()
+void AnnotationListDialog::delete_object()
 {
 	int index = lst_annotations->currentRow();
 

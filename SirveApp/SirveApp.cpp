@@ -1869,7 +1869,7 @@ void SirveApp::annotate_video()
 	standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
-	Annotations annotate_gui(video_display->annotation_list, standard_info, video_display);
+	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info, video_display);
 	annotate_gui.exec();
 }
 
