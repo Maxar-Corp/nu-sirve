@@ -131,12 +131,15 @@ void AnnotationListDialog::add()
 	data.push_back(new_data);
 	
 	// display new annotation screen
-	AnnotationEditDialog annotation_edit_dialog(data.back(), current_video);
+	AnnotationEditDialog annotation_edit_dialog(data.back());
+	QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, current_video, &VideoDisplay::update_display_frame);
+
 	auto response = annotation_edit_dialog.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
 	if (response == 0) {
 		data.pop_back();
+		current_video->update_display_frame();
 		
 		return;
 	}
@@ -158,12 +161,16 @@ void AnnotationListDialog::edit()
 
 		// display new annotation screen
 		AnnotationEditDialog annotation_edit_dialog(data[index], current_video);
+		QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, current_video, &VideoDisplay::update_display_frame);
+		
 		auto response = annotation_edit_dialog.exec();
 
 		// if action was cancelled or window closed, then restore previous annotation
 		if (response == 0)
 		{
 			data[index] = old_data;
+
+			current_video->update_display_frame();
 		}
 
 		repopulate_list();
