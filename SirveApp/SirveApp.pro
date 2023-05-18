@@ -19,7 +19,7 @@ HEADERS += abir_reader.h \
             application_data.h \
             abpnuc_reader.h \
             annotation_edit_dialog.h \
-            annotations.h \
+            annotation_list_dialog.h \
             background_subtraction.h \
             binary_file_reader.h \
             calibration_data.h \
@@ -64,7 +64,7 @@ FORMS += location_gui.ui new_location.ui SirveApp.ui
 SOURCES += abir_reader.cpp \
             abpnuc_reader.cpp \
             annotation_edit_dialog.cpp \
-            annotations.cpp \
+            annotation_list_dialog.cpp \
             background_subtraction.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
