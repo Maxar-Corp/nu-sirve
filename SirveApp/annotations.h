@@ -11,7 +11,7 @@
 #include <qlistwidget.h>
 #include <qgridlayout.h>
 
-#include "annotation_new.h"
+#include "annotation_edit_dialog.h"
 #include "Data_Structures.h"
 #include "video_display.h"
 

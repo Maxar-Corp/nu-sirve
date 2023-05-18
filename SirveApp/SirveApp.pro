@@ -18,7 +18,7 @@ DESTDIR = ../release
 HEADERS += abir_reader.h \
             application_data.h \
             abpnuc_reader.h \
-            annotation_new.h \
+            annotation_edit_dialog.h \
             annotations.h \
             background_subtraction.h \
             binary_file_reader.h \
@@ -63,7 +63,7 @@ FORMS += location_gui.ui new_location.ui SirveApp.ui
 
 SOURCES += abir_reader.cpp \
             abpnuc_reader.cpp \
-            annotation_new.cpp \
+            annotation_edit_dialog.cpp \
             annotations.cpp \
             background_subtraction.cpp \
             binary_file_reader.cpp \
