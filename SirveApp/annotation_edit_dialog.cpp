@@ -1,14 +1,11 @@
 #include "annotation_edit_dialog.h"
 
-AnnotationEditDialog::AnnotationEditDialog(annotation_info &data, VideoDisplay *input_video, QWidget * parent)
+AnnotationEditDialog::AnnotationEditDialog(annotation_info &data, QWidget * parent)
 {
 	initialize_gui();
 
 	// store current annotation being worked on
 	current_data = &data;
-
-	// pointer to video frame
-	current_video = input_video;
 
 	// set check values for class
 	min_frame = data.min_frame;
@@ -88,8 +85,7 @@ void AnnotationEditDialog::text_changed() {
 	QString input = txt_annotation->text();
 	current_data->text = input;
 
-	current_video->update_display_frame();
-
+	emit annotation_changed();
 }
 
 void AnnotationEditDialog::frame_start_changed() {
@@ -113,7 +109,7 @@ void AnnotationEditDialog::frame_start_changed() {
 			current_data->num_frames = min_frame;
 			txt_frame_start->setText(QString::number(min_frame));
 
-			current_video->update_display_frame();
+			emit annotation_changed();
 		}
 	}
 	else
@@ -147,7 +143,7 @@ void AnnotationEditDialog::number_of_frames_changed()
 			txt_num_frames->setText(QString::number(max_frame - min_frame));
 		}
 
-		current_video->update_display_frame();
+		emit annotation_changed();
 	}
 	else
 	{
@@ -178,7 +174,7 @@ void AnnotationEditDialog::x_location_changed()
 		current_data->x_pixel = new_x_position;
 		txt_x_loc->setText(QString::number(new_x_position));
 
-		current_video->update_display_frame();
+		emit annotation_changed();
 	}
 	else
 	{
@@ -209,7 +205,7 @@ void AnnotationEditDialog::y_location_changed()
 		current_data->y_pixel = new_y_position;
 		txt_y_loc->setText(QString::number(new_y_position));
 
-		current_video->update_display_frame();
+		emit annotation_changed();
 	}
 	else
 	{
@@ -223,7 +219,7 @@ void AnnotationEditDialog::color_changed(const QString & text)
 	QString input = text;
 	current_data->color = input;
 
-	current_video->update_display_frame();
+	emit annotation_changed();
 
 }
 
@@ -232,7 +228,7 @@ void AnnotationEditDialog::font_size_changed(const QString & text)
 	int value = text.toInt();
 	current_data->font_size = value;
 
-	current_video->update_display_frame();
+	emit annotation_changed();
 }
 
 void AnnotationEditDialog::initialize_gui()
