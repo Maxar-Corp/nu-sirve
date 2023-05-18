@@ -131,7 +131,7 @@ void Annotations::add()
 	data.push_back(new_data);
 	
 	// display new annotation screen
-	NewAnnotation add_annotation(data.back(), current_video);
+	AnnotationEditDialog add_annotation(data.back(), current_video);
 	auto response = add_annotation.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
@@ -157,7 +157,7 @@ void Annotations::edit()
 		annotation_info old_data = data[index];
 
 		// display new annotation screen
-		NewAnnotation add_annotation(data[index], current_video);
+		AnnotationEditDialog add_annotation(data[index], current_video);
 		auto response = add_annotation.exec();
 
 		// if action was cancelled or window closed, then restore previous annotation

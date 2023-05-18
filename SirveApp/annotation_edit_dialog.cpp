@@ -1,6 +1,6 @@
-#include "annotation_new.h"
+#include "annotation_edit_dialog.h"
 
-NewAnnotation::NewAnnotation(annotation_info &data, VideoDisplay *input_video, QWidget * parent)
+AnnotationEditDialog::AnnotationEditDialog(annotation_info &data, VideoDisplay *input_video, QWidget * parent)
 {
 	initialize_gui();
 
@@ -29,21 +29,21 @@ NewAnnotation::NewAnnotation(annotation_info &data, VideoDisplay *input_video, Q
 	cmb_size->setCurrentIndex(index_size);
 
 	// set connections
-	connect(txt_annotation, &QLineEdit::editingFinished, this, &NewAnnotation::text_changed);
-	connect(txt_frame_start, &QLineEdit::editingFinished, this, &NewAnnotation::frame_start_changed);
-	connect(txt_num_frames, &QLineEdit::editingFinished, this, &NewAnnotation::number_of_frames_changed);
-	connect(txt_x_loc, &QLineEdit::editingFinished, this, &NewAnnotation::x_location_changed);
-	connect(txt_y_loc, &QLineEdit::editingFinished, this, &NewAnnotation::y_location_changed);
+	connect(txt_annotation, &QLineEdit::editingFinished, this, &AnnotationEditDialog::text_changed);
+	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::frame_start_changed);
+	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::number_of_frames_changed);
+	connect(txt_x_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::x_location_changed);
+	connect(txt_y_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::y_location_changed);
 
-	connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &NewAnnotation::color_changed);
-	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &NewAnnotation::font_size_changed);
+	connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::color_changed);
+	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::font_size_changed);
 
-	connect(btn_add, &QPushButton::pressed, this, &NewAnnotation::add);
-	connect(btn_cancel, &QPushButton::pressed, this, &NewAnnotation::close_window);
+	connect(btn_add, &QPushButton::pressed, this, &AnnotationEditDialog::add);
+	connect(btn_cancel, &QPushButton::pressed, this, &AnnotationEditDialog::close_window);
 
 }
 
-NewAnnotation::~NewAnnotation()
+AnnotationEditDialog::~AnnotationEditDialog()
 {
 	delete cmb_colors;
 	delete cmb_size;
@@ -67,7 +67,7 @@ NewAnnotation::~NewAnnotation()
 	delete mainLayout;
 }
 
-int NewAnnotation::get_numeric_value(QString input)
+int AnnotationEditDialog::get_numeric_value(QString input)
 {
 	bool convert_value_numeric;
 	int value = input.toInt(&convert_value_numeric);
@@ -75,7 +75,7 @@ int NewAnnotation::get_numeric_value(QString input)
 	return value;
 }
 
-bool NewAnnotation::check_numeric_value(QString input)
+bool AnnotationEditDialog::check_numeric_value(QString input)
 {
 	bool convert_value_numeric;
 	int value = input.toInt(&convert_value_numeric);
@@ -83,7 +83,7 @@ bool NewAnnotation::check_numeric_value(QString input)
 	return convert_value_numeric;
 }
 
-void NewAnnotation::text_changed() {
+void AnnotationEditDialog::text_changed() {
 
 	QString input = txt_annotation->text();
 	current_data->text = input;
@@ -92,7 +92,7 @@ void NewAnnotation::text_changed() {
 
 }
 
-void NewAnnotation::frame_start_changed() {
+void AnnotationEditDialog::frame_start_changed() {
 	
 	// gets text
 	QString input = txt_frame_start->text();
@@ -125,7 +125,7 @@ void NewAnnotation::frame_start_changed() {
 
 }
 
-void NewAnnotation::number_of_frames_changed()
+void AnnotationEditDialog::number_of_frames_changed()
 {
 	// gets text
 	QString input = txt_num_frames->text();
@@ -156,7 +156,7 @@ void NewAnnotation::number_of_frames_changed()
 	}
 }
 
-void NewAnnotation::x_location_changed()
+void AnnotationEditDialog::x_location_changed()
 {
 	// gets text
 	QString input = txt_x_loc->text();
@@ -187,7 +187,7 @@ void NewAnnotation::x_location_changed()
 	}
 }
 
-void NewAnnotation::y_location_changed()
+void AnnotationEditDialog::y_location_changed()
 {
 	// gets text
 	QString input = txt_y_loc->text();
@@ -218,7 +218,7 @@ void NewAnnotation::y_location_changed()
 	}
 }
 
-void NewAnnotation::color_changed(const QString & text)
+void AnnotationEditDialog::color_changed(const QString & text)
 {
 	QString input = text;
 	current_data->color = input;
@@ -227,7 +227,7 @@ void NewAnnotation::color_changed(const QString & text)
 
 }
 
-void NewAnnotation::font_size_changed(const QString & text)
+void AnnotationEditDialog::font_size_changed(const QString & text)
 {
 	int value = text.toInt();
 	current_data->font_size = value;
@@ -235,7 +235,7 @@ void NewAnnotation::font_size_changed(const QString & text)
 	current_video->update_display_frame();
 }
 
-void NewAnnotation::initialize_gui()
+void AnnotationEditDialog::initialize_gui()
 {
 	// ------------------------------------------------------------
 	// add colors and sizes
@@ -321,7 +321,7 @@ void NewAnnotation::initialize_gui()
 
 }
 
-void NewAnnotation::display_error(QString msg)
+void AnnotationEditDialog::display_error(QString msg)
 {
 
 	QMessageBox msgBox;
@@ -336,7 +336,7 @@ void NewAnnotation::display_error(QString msg)
 	return;
 }
 
-void NewAnnotation::add()
+void AnnotationEditDialog::add()
 {
 	
 	done(QDialog::Accepted);
@@ -344,7 +344,7 @@ void NewAnnotation::add()
 	current_data = NULL;
 }
 
-void NewAnnotation::close_window()
+void AnnotationEditDialog::close_window()
 {
 	
 	done(QDialog::Rejected);
@@ -352,7 +352,7 @@ void NewAnnotation::close_window()
 	current_data = NULL;
 }
 
-void NewAnnotation::closeEvent(QCloseEvent * event)
+void AnnotationEditDialog::closeEvent(QCloseEvent * event)
 {
 	close_window();
 }
