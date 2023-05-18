@@ -19,13 +19,13 @@
 #include "video_display.h"
 
 
-class NewAnnotation : public QDialog
+class AnnotationEditDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	NewAnnotation(annotation_info &data, VideoDisplay *input_video, QWidget *parent = nullptr);
-	~NewAnnotation();
+	AnnotationEditDialog(annotation_info &data, VideoDisplay *input_video, QWidget *parent = nullptr);
+	~AnnotationEditDialog();
 
 	int get_numeric_value(QString input);
 	bool check_numeric_value(QString input);
