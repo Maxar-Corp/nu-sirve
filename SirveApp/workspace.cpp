@@ -8,7 +8,7 @@ Workspace::~Workspace()
 {
 };
 
-void Workspace::save_state(QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states) {
+void Workspace::save_state(QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states, std::vector<annotation_info> annotations) {
     //Inspiration: https://forum.qt.io/topic/65874/create-json-using-qjsondocument
     QJsonObject json_object;
     json_object.insert("image_path", image_path);
@@ -22,6 +22,13 @@ void Workspace::save_state(QString image_path, int start_frame, int end_frame, s
         states.push_back(state_object);
     }
     json_object.insert("processing_states", states);
+
+    QJsonArray annos;
+    for (auto annotation : annotations)
+    {
+        annos.push_back(annotation.to_json());
+    }
+    json_object.insert("annotations", annos);
 
     QJsonDocument json_document(json_object);
 
