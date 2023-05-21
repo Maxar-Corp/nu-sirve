@@ -1869,7 +1869,8 @@ void SirveApp::annotate_video()
 	standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
-	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info, video_display);
+	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
+	QObject::connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_display_frame);
 	annotate_gui.exec();
 }
 
