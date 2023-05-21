@@ -12,7 +12,7 @@
 #include <qgridlayout.h>
 
 #include "annotation_edit_dialog.h"
-#include "Data_Structures.h"
+#include "annotation_info.h"
 #include "video_display.h"
 
 
