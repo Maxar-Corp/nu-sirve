@@ -1,14 +1,11 @@
 #include "annotation_list_dialog.h"
 
-AnnotationListDialog::AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, VideoDisplay *input_video, QWidget * parent) : data(input_vector)
+AnnotationListDialog::AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
 	
 	base_data = details;
 	repopulate_list();
-
-	// pointer to video frame
-	current_video = input_video;
 
 	connect(btn_ok, &QPushButton::pressed, this, &AnnotationListDialog::ok);
 	connect(btn_new, &QPushButton::pressed, this, &AnnotationListDialog::add);
@@ -132,14 +129,14 @@ void AnnotationListDialog::add()
 	
 	// display new annotation screen
 	AnnotationEditDialog annotation_edit_dialog(data.back());
-	QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, current_video, &VideoDisplay::update_display_frame);
+	QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
 
 	auto response = annotation_edit_dialog.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
 	if (response == 0) {
 		data.pop_back();
-		current_video->update_display_frame();
+		emit annotation_list_updated();
 		
 		return;
 	}
@@ -160,8 +157,8 @@ void AnnotationListDialog::edit()
 		annotation_info old_data = data[index];
 
 		// display new annotation screen
-		AnnotationEditDialog annotation_edit_dialog(data[index], current_video);
-		QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, current_video, &VideoDisplay::update_display_frame);
+		AnnotationEditDialog annotation_edit_dialog(data[index]);
+		QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
 		
 		auto response = annotation_edit_dialog.exec();
 
@@ -170,7 +167,7 @@ void AnnotationListDialog::edit()
 		{
 			data[index] = old_data;
 
-			current_video->update_display_frame();
+			emit annotation_list_updated();
 		}
 
 		repopulate_list();
@@ -207,6 +204,7 @@ void AnnotationListDialog::delete_object()
 
 			repopulate_list();
 			lst_annotations->setCurrentRow(-1);
+			emit annotation_list_updated();
 		}
 	}
 
