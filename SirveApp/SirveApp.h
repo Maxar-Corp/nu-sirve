@@ -20,6 +20,7 @@
 #include "deinterlace.h"
 #include "deinterlace_type.h"
 #include "logging.h"
+#include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
 #include "fixed_aspect_ratio_frame.h"

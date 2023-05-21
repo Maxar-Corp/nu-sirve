@@ -31,6 +31,7 @@
 #include "clickable_label.h"
 #include "color_map.h"
 #include "calibration_data.h"
+#include "annotation_info.h"
 
 class VideoDisplay : public QWidget
 {
