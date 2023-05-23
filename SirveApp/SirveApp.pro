@@ -64,6 +64,7 @@ FORMS += location_gui.ui new_location.ui SirveApp.ui
 SOURCES += abir_reader.cpp \
             abpnuc_reader.cpp \
             annotation_edit_dialog.cpp \
+            annotation_info.cpp \
             annotation_list_dialog.cpp \
             background_subtraction.cpp \
             binary_file_reader.cpp \

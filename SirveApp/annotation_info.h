@@ -30,4 +30,6 @@ struct annotation_info {
     }
 };
 
+annotation_info create_annotation_info_from_json(const QJsonObject & json_obj);
+
 #endif

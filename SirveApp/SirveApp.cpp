@@ -969,6 +969,12 @@ void SirveApp::load_workspace()
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
 		}
 	}
+
+	for (auto i = 0; i < workspace_vals.annotations.size(); i++)
+	{
+		annotation_info anno = workspace_vals.annotations[i];
+		video_display->annotation_list.push_back(anno);
+	}
 }
 
 void SirveApp::ui_choose_abp_file()
