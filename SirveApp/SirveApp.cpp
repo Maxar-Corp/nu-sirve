@@ -915,7 +915,7 @@ void SirveApp::setup_connections() {
 
 void SirveApp::save_workspace()
 {
-	workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states());
+	workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
 }
 void SirveApp::load_workspace()
 {
@@ -968,6 +968,12 @@ void SirveApp::load_workspace()
 				INFO << "Unexpected processing method in workspace.";
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
 		}
+	}
+
+	for (auto i = 0; i < workspace_vals.annotations.size(); i++)
+	{
+		annotation_info anno = workspace_vals.annotations[i];
+		video_display->annotation_list.push_back(anno);
 	}
 }
 
@@ -1869,7 +1875,8 @@ void SirveApp::annotate_video()
 	standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
-	Annotations annotate_gui(video_display->annotation_list, standard_info, video_display);
+	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
+	QObject::connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_display_frame);
 	annotate_gui.exec();
 }
 

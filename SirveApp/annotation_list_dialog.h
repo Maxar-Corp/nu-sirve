@@ -11,21 +11,24 @@
 #include <qlistwidget.h>
 #include <qgridlayout.h>
 
-#include "annotation_new.h"
-#include "Data_Structures.h"
+#include "annotation_edit_dialog.h"
+#include "annotation_info.h"
 #include "video_display.h"
 
 
-class Annotations : public QDialog
+class AnnotationListDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	Annotations(std::vector<annotation_info> &input_vector, video_info details, VideoDisplay *input_video, QWidget *parent = nullptr);
-	~Annotations();
+	AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, QWidget *parent = nullptr);
+	~AnnotationListDialog();
 
 	void show_annotation(int index);
 	void repopulate_list();
+
+signals:
+	void annotation_list_updated();
 
 private:
 
