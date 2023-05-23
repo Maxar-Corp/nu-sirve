@@ -15,20 +15,23 @@
 
 #include <qgridlayout.h>
 
-#include "Data_Structures.h"
+#include "annotation_info.h"
 #include "video_display.h"
 
 
-class NewAnnotation : public QDialog
+class AnnotationEditDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	NewAnnotation(annotation_info &data, VideoDisplay *input_video, QWidget *parent = nullptr);
-	~NewAnnotation();
+	AnnotationEditDialog(annotation_info &data, QWidget *parent = nullptr);
+	~AnnotationEditDialog();
 
 	int get_numeric_value(QString input);
 	bool check_numeric_value(QString input);
+
+signals:
+	void annotation_changed();
 
 public slots:
 
@@ -53,9 +56,7 @@ private:
 
 	QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size, *lbl_x, *lbl_y;
 
-	QGridLayout *mainLayout;
-
-	VideoDisplay *current_video;		
+	QGridLayout *mainLayout;	
 
 	void initialize_gui();
 	void display_error(QString msg);
