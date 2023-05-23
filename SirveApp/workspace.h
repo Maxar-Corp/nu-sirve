@@ -17,6 +17,7 @@ struct WorkspaceValues {
     QString image_path;
     int start_frame, end_frame;
     std::vector<processing_state> all_states;
+    std::vector<annotation_info> annotations;
 };
 
 class Workspace {

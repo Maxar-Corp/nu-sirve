@@ -86,8 +86,15 @@ WorkspaceValues Workspace::load_state() {
         states.push_back(state);
     }
 
+    std::vector<annotation_info> annotations;
+    for (auto json_obj : data_object.value("annotations").toArray())
+    {
+        annotation_info anno = create_annotation_info_from_json(json_obj.toObject());
+        annotations.push_back(anno);
+    }
+
     file.close();
-    return WorkspaceValues { image_path, start_frame, end_frame, states };
+    return WorkspaceValues { image_path, start_frame, end_frame, states, annotations };
 };
 
 processing_state Workspace::json_to_state(const QJsonObject & json_obj)
