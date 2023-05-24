@@ -507,7 +507,7 @@ QWidget* SirveApp::setup_workspace_tab(){
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
 	cmb_workspace_name = new QComboBox();
-	cmb_workspace_name->insertItem(0, "default_workspace");
+	cmb_workspace_name->addItems(workspace.get_workspace_names());
 
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_save = new QPushButton("Save Workspace");
@@ -928,7 +928,19 @@ void SirveApp::save_workspace()
 		QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "No frames are loaded, unable to save workspace.");
 	}
 	else {
-		workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+		bool ok;
+		QString current_workspace_name = cmb_workspace_name->currentText();
+		QString workspace_name = QInputDialog::getText(0, "Workspace Name", "Choose workspace file name (reusing a file will overwrite the workspace)", QLineEdit::Normal, current_workspace_name, &ok);
+		if (!ok)
+			return;
+		if (!workspace_name.endsWith(".json")) {
+			QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
+			return;
+		}
+		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+		cmb_workspace_name->clear();
+		cmb_workspace_name->addItems(workspace.get_workspace_names());
+		cmb_workspace_name->setCurrentText(workspace_name);
 	}
 }
 void SirveApp::load_workspace()
