@@ -8,7 +8,12 @@ Workspace::~Workspace()
 {
 };
 
-void Workspace::save_state(QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states, std::vector<annotation_info> annotations) {
+QStringList Workspace::get_workspace_names()
+{
+    return QDir(WORKSPACE_FOLDER).entryList(QStringList() << "*.json");
+};
+
+void Workspace::save_state(QString workspace_name, QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states, std::vector<annotation_info> annotations) {
     //Inspiration: https://forum.qt.io/topic/65874/create-json-using-qjsondocument
     QJsonObject json_object;
     json_object.insert("image_path", image_path);
@@ -32,7 +37,7 @@ void Workspace::save_state(QString image_path, int start_frame, int end_frame, s
 
     QJsonDocument json_document(json_object);
 
-    QFile file(QString(WORKSPACE_FOLDER) + "/" + QString(WORKSPACE_FILE));
+    QFile file(QString(WORKSPACE_FOLDER) + "/" + workspace_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
     file.write(json_document.toJson());
     file.close();
@@ -40,7 +45,7 @@ void Workspace::save_state(QString image_path, int start_frame, int end_frame, s
 
 WorkspaceValues Workspace::load_state(QString workspace_name) {
      //Inspiration: https://stackoverflow.com/questions/60723466/how-to-write-and-read-in-json-file-using-qt
-    QFile file(QString(WORKSPACE_FOLDER) + "/" + workspace_name + ".json");
+    QFile file(QString(WORKSPACE_FOLDER) + "/" + workspace_name);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
     QString dataString=file.readAll();
     QJsonDocument doc= QJsonDocument::fromJson(dataString.toUtf8());
