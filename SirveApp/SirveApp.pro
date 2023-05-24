@@ -92,6 +92,7 @@ SOURCES += abir_reader.cpp \
             playback.cpp \
             plot_engineering_data.cpp \
             process_file.cpp \
+            processing_state.cpp \
             Section.cpp \
             SirveApp.cpp \
             video_container.cpp \

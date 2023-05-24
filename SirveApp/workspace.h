@@ -27,7 +27,4 @@ class Workspace {
 
         void Workspace::save_state(QString image_path, int start_frame, int end_frame, const std::vector<processing_state> all_states, const std::vector<annotation_info> annotations);
         WorkspaceValues Workspace::load_state();
-    private:
-        QJsonObject state_to_json(const processing_state & state);
-        processing_state json_to_state(const QJsonObject & json_obj);
 };
