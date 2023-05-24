@@ -173,7 +173,7 @@ void SirveApp::setup_ui() {
 	rad_decimal->setChecked(true);
 	rad_linear->setChecked(true);
 	
-	btn_workspace_save->setEnabled(true);
+	btn_workspace_save->setEnabled(false);
 	btn_workspace_load->setEnabled(true);
 	cmb_processing_states->setEnabled(false);
 	// ------------------------------------------------------------------------
@@ -915,7 +915,12 @@ void SirveApp::setup_connections() {
 
 void SirveApp::save_workspace()
 {
-	workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+	if (abp_file_metadata.image_path == "" || video_display->container.get_processing_states().size() == 0) {
+		QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "No frames are loaded, unable to save workspace.");
+	}
+	else {
+		workspace.save_state(abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+	}
 }
 void SirveApp::load_workspace()
 {
@@ -1229,6 +1234,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(primary);
 	cmb_processing_states->setEnabled(true);
+	btn_workspace_save->setEnabled(true);
 	
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
