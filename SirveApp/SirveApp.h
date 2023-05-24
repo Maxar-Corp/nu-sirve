@@ -101,7 +101,7 @@ public:
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step;
 	
 	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
-	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, *cmb_processing_states;
+	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
 	QFrame* frame_video_player, * frame_video, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
