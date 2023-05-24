@@ -6,6 +6,7 @@
 #include "deinterlace_type.h"
 
 #include <QString>
+#include <QJsonObject>
 
 enum struct Processing_Method
 {
@@ -52,6 +53,36 @@ struct processing_state {
                 break;
         }
     };
+
+    QJsonObject to_json() {
+        QJsonObject state_object;
+        switch (method)
+        {
+            case Processing_Method::original:
+                state_object.insert("method", "Original");
+                break;
+            case Processing_Method::background_subtraction:
+                state_object.insert("method", "Background Subtraction");
+                state_object.insert("bgs_relative_start_frame", bgs_relative_start_frame);
+                state_object.insert("bgs_num_frames", bgs_num_frames);
+                break;
+            case Processing_Method::deinterlace:
+                state_object.insert("method", "Deinterlace");
+                state_object.insert("deint_type", QString::number(static_cast<int>(deint_type)));
+                break;
+            case Processing_Method::non_uniformity_correction:
+                state_object.insert("method", "NUC");
+                state_object.insert("nuc_start_frame", nuc_start_frame);
+                state_object.insert("nuc_stop_frame", nuc_stop_frame);
+                state_object.insert("nuc_file_path", nuc_file_path);
+                break;
+            default:
+                state_object.insert("method", "error");
+        }
+        return state_object;
+    };
 };
+
+processing_state create_processing_state_from_json(const QJsonObject & json_obj);
 
 #endif
