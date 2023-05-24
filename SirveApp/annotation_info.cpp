@@ -1,6 +1,6 @@
 #include "annotation_info.h"
 
-annotation_info annotation_info_from_json(const QJsonObject & json_obj)
+annotation_info create_annotation_info_from_json(const QJsonObject & json_obj)
 {
     annotation_info temp = {};
     temp.text = json_obj.value("text").toString();
