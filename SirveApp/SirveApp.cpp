@@ -506,16 +506,25 @@ QWidget* SirveApp::setup_workspace_tab(){
 	QWidget* widget_tab_workspace = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
+	cmb_workspace_name = new QComboBox();
+	cmb_workspace_name->insertItem(0, "default_workspace");
+
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_save = new QPushButton("Save Workspace");
+
+	QFrame* horizontal_segment = new QFrame();
+	horizontal_segment->setFrameShape(QFrame::HLine);
+
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
 	
 	QGridLayout* grid_workspace = new QGridLayout();
-	grid_workspace->addWidget(btn_workspace_load, 0, 0);
-	grid_workspace->addWidget(btn_workspace_save, 0, 1);
-	grid_workspace->addWidget(cmb_processing_states, 1, 0);
-	grid_workspace->addWidget(btn_undo_step, 1, 1);
+	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
+	grid_workspace->addWidget(btn_workspace_load, 1, 0, 1, 1);
+	grid_workspace->addWidget(btn_workspace_save, 1, 1, 1, 1);
+	grid_workspace->addWidget(horizontal_segment, 2, 0, 1, -1);
+	grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
+	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
 	return widget_tab_workspace;
@@ -926,11 +935,12 @@ void SirveApp::load_workspace()
 {
 	INFO << "WORKSPACE: Start ABP load process";
 
-	WorkspaceValues workspace_vals = workspace.load_state();
+	QString current_workspace_name = cmb_workspace_name->currentText();
+	WorkspaceValues workspace_vals = workspace.load_state(current_workspace_name);
 
 	int compare = QString::compare(workspace_vals.image_path, "", Qt::CaseInsensitive);
 	if (compare == 0) {
-		QtHelpers::LaunchMessageBox(QString("Issue Loading Workspace"), "Either no workspace exists or the workspace is empty.");
+		QtHelpers::LaunchMessageBox(QString("Issue Loading Workspace"), "The workspace is empty.");
 		return;
 	}
 
