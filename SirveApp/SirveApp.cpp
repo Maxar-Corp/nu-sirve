@@ -2404,6 +2404,8 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	background_subtraction_state.bgs_relative_start_frame = relative_start_frame;
 	background_subtraction_state.bgs_num_frames = num_frames;
 	video_display->container.add_processing_state(background_subtraction_state);
+
+	slider_gain->setValue(1);
 }
 
 void SirveApp::set_color_correction_slider_labels()
