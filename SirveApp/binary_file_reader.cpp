@@ -34,6 +34,9 @@ void BinaryFileReader::ByteSwap(void *v, int num_bytes) {
 	}
 
 	memcpy(v, out, number_of_bytes);
+
+	delete[] in;
+	delete[] out;
 }
 
 template<typename T>
