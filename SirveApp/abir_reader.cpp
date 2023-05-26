@@ -282,6 +282,7 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
         
 		std::vector<uint16_t> values(raw_16bit_data, raw_16bit_data + header_data.image_size);
 		video_frames_16bit.push_back(values);
+		delete[] raw_16bit_data;
 
         ir_data.push_back(temp_frame);
     }
