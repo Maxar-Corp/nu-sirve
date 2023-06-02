@@ -103,7 +103,8 @@ void ExternalNUCInformationWidget::plot_osm()
     frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);
-    plot_data->plot_irradiance();
+    plot_data->set_yaxis_chart_id(0);
+    plot_data->plot();
 
     btn_load_frames->setEnabled(true);    
     
