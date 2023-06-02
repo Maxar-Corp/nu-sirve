@@ -120,9 +120,9 @@ class Engineering_Plots : public QtPlotting
 		x_plot_variables x_axis_units;
 		std::vector<double> frame_indeces;
 
-		void plot_azimuth();
-		void plot_elevation();
-		void plot_irradiance();
+		void plot_azimuth(int plot_number_tracks);
+		void plot_elevation(int plot_number_tracks);
+		void plot_irradiance(int plot_number_tracks);
 };
 
 #endif
