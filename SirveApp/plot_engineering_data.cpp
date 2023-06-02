@@ -36,22 +36,6 @@ void Engineering_Plots::set_yaxis_chart_id(int yaxis_chart_id)
 
 void Engineering_Plots::plot()
 {
-	switch (current_chart_id) {
-		case 0:
-			plot_irradiance();
-			break;
-		case 1:
-			plot_azimuth();
-			break;
-		case 2:
-			plot_elevation();
-			break;
-		default:
-			break;
-	}
-}
-
-void Engineering_Plots::plot_azimuth() {
 	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
 	chart->removeAllSeries();
@@ -59,14 +43,29 @@ void Engineering_Plots::plot_azimuth() {
 	start_new_chart();
 	create_current_marker();
 
-	// ---------------------------------------------------------------------------------------------------------------
-
-	std::vector<double> x_points, y_points;
-
 	int number_tracks = track_irradiance_data.size();
 	int plot_number_tracks = number_tracks;
 	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
+
+	switch (current_chart_id) {
+		case 0:
+			plot_irradiance(plot_number_tracks);
+			break;
+		case 1:
+			plot_azimuth(plot_number_tracks);
+			break;
+		case 2:
+			plot_elevation(plot_number_tracks);
+			break;
+		default:
+			break;
+	}
+}
+
+void Engineering_Plots::plot_azimuth(int plot_number_tracks)
+{
+	std::vector<double> x_points, y_points;
 
 	for (int i = 0; i < plot_number_tracks; i++)
 	{
@@ -112,22 +111,9 @@ void Engineering_Plots::plot_azimuth() {
 	
 }
 
-void Engineering_Plots::plot_elevation() {
-	
-	// ---------------------------------------------------------------------------------------------------------------
-	// Clear chart
-	chart->removeAllSeries();
-	colors.reset_colors();
-	start_new_chart();
-	create_current_marker();
-	// ---------------------------------------------------------------------------------------------------------------
-
+void Engineering_Plots::plot_elevation(int plot_number_tracks)
+{
 	std::vector<double> x_points, y_points;
-
-	int number_tracks = track_irradiance_data.size();
-	int plot_number_tracks = number_tracks;
-	if (plot_primary_only && plot_number_tracks > 0)
-		plot_number_tracks = 1;
 
 	for (int i = 0; i < plot_number_tracks; i++)
 	{
@@ -170,22 +156,9 @@ void Engineering_Plots::plot_elevation() {
 	draw_title();
 }
 
-void Engineering_Plots::plot_irradiance()
+void Engineering_Plots::plot_irradiance(int plot_number_tracks)
 {
-	// ---------------------------------------------------------------------------------------------------------------
-	// Clear chart
-	chart->removeAllSeries();
-	colors.reset_colors();
-	start_new_chart();
-	create_current_marker();
-	// ---------------------------------------------------------------------------------------------------------------
-	
 	std::vector<double> x_points, y_points;
-
-	int number_tracks = track_irradiance_data.size();
-	int plot_number_tracks = number_tracks;
-	if (plot_primary_only && plot_number_tracks > 0)
-		plot_number_tracks = 1;
 
 	for (int i = 0; i < plot_number_tracks; i++)
 	{
