@@ -93,9 +93,8 @@ class Engineering_Plots : public QtPlotting
 		std::vector<Plotting_Frame_Data> engineering_data;
 		std::vector<Track_Irradiance> track_irradiance_data;
 
-		void plot_azimuth();
-		void plot_elevation();
-		void plot_irradiance();
+		void set_yaxis_chart_id(int yaxis_chart_id);
+		void plot();
 
 		std::vector<double> get_individual_x_track(int i);
 		void establish_plot_limits();
@@ -120,6 +119,10 @@ class Engineering_Plots : public QtPlotting
 	private:
 		x_plot_variables x_axis_units;
 		std::vector<double> frame_indeces;
+
+		void plot_azimuth();
+		void plot_elevation();
+		void plot_irradiance();
 };
 
 #endif

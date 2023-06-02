@@ -29,6 +29,28 @@ Engineering_Plots::~Engineering_Plots()
 
 }
 
+void Engineering_Plots::set_yaxis_chart_id(int yaxis_chart_id)
+{
+	current_chart_id = yaxis_chart_id;
+}
+
+void Engineering_Plots::plot()
+{
+	switch (current_chart_id) {
+		case 0:
+			plot_irradiance();
+			break;
+		case 1:
+			plot_azimuth();
+			break;
+		case 2:
+			plot_elevation();
+			break;
+		default:
+			break;
+	}
+}
+
 void Engineering_Plots::plot_azimuth() {
 	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
@@ -37,7 +59,6 @@ void Engineering_Plots::plot_azimuth() {
 	start_new_chart();
 	create_current_marker();
 
-	current_chart_id = 1;
 	// ---------------------------------------------------------------------------------------------------------------
 
 	std::vector<double> x_points, y_points;
@@ -99,8 +120,6 @@ void Engineering_Plots::plot_elevation() {
 	colors.reset_colors();
 	start_new_chart();
 	create_current_marker();
-
-	current_chart_id = 2;
 	// ---------------------------------------------------------------------------------------------------------------
 
 	std::vector<double> x_points, y_points;
@@ -159,8 +178,6 @@ void Engineering_Plots::plot_irradiance()
 	colors.reset_colors();
 	start_new_chart();
 	create_current_marker();
-
-	current_chart_id = 0;
 	// ---------------------------------------------------------------------------------------------------------------
 	
 	std::vector<double> x_points, y_points;
@@ -413,22 +430,7 @@ void Engineering_Plots::set_zoom_limits(bool active_zoom) {
 
 	if (!chart_is_zoomed) {
 
-		switch (current_chart_id)
-		{
-
-		case 0:
-			plot_irradiance();
-			break;
-		case 1:
-			plot_azimuth();
-			break;
-		case 2:
-			plot_elevation();
-			break;
-
-		default:
-			break;
-		}
+		plot();
 
 		return;
 	}

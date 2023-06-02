@@ -1870,24 +1870,8 @@ void SirveApp::plot_change()
 				break;
 		}
 
-
-		switch (y_index)
-		{
-			case 0:
-				data_plots->plot_irradiance();
-				break;
-
-			case 1:
-				data_plots->plot_azimuth();
-				break;
-
-			case 2:
-				data_plots->plot_elevation();
-				break;
-
-			default:
-				break;
-		}
+		data_plots->set_yaxis_chart_id(y_index);
+		data_plots->plot();
 
 		data_plots->plot_current_step(playback_controller->get_current_frame_number());
 	}
