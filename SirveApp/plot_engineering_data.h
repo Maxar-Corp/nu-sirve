@@ -70,6 +70,7 @@ class QtPlotting : public QWidget
 
 };
 
+enum x_plot_variables{frames , seconds_past_midnight, seconds_from_epoch};
 
 class Engineering_Plots : public QtPlotting 
 {
