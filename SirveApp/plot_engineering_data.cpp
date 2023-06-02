@@ -280,6 +280,11 @@ std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
 	return {min_value, max_value};
 }
 
+void Engineering_Plots::set_xaxis_units(x_plot_variables unit_choice)
+{
+	x_axis_units = unit_choice;
+}
+
 void Engineering_Plots::get_xaxis_value(std::vector<double>& values)
 {
 

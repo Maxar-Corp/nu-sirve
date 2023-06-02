@@ -76,9 +76,6 @@ class Engineering_Plots : public QtPlotting
 {
 	Q_OBJECT 
 	public:
-
-		x_plot_variables x_axis_units;
-		
 		// Parameters to display subplot
 		bool plot_all_data, plot_primary_only, plot_current_marker, chart_is_zoomed;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
@@ -111,6 +108,8 @@ class Engineering_Plots : public QtPlotting
 		void toggle_yaxis_scientific(bool input);
 		void draw_title();
 
+		void set_xaxis_units(x_plot_variables unit_choice);
+
 	public slots:
 
 		void toggle_subplot();
@@ -119,6 +118,7 @@ class Engineering_Plots : public QtPlotting
 		void set_zoom_limits(bool active_zoom);
 
 	private:
+		x_plot_variables x_axis_units;
 		std::vector<double> frame_indeces;
 };
 
