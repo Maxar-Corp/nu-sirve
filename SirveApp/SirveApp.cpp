@@ -1854,39 +1854,39 @@ void SirveApp::plot_change()
 
 		switch (x_index)
 		{
-		case 0:
-			data_plots->x_axis_units = frames;
-			break;
+			case 0:
+				data_plots->set_xaxis_units(frames);
+				break;
 
-		case 1:
-			data_plots->x_axis_units = seconds_past_midnight;
-			break;
+			case 1:
+				data_plots->set_xaxis_units(seconds_past_midnight);
+				break;
 
-		case 2:
-			data_plots->x_axis_units = seconds_from_epoch;
-			break;
+			case 2:
+				data_plots->set_xaxis_units(seconds_from_epoch);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 
 		switch (y_index)
 		{
-		case 0:
-			data_plots->plot_irradiance();
-			break;
+			case 0:
+				data_plots->plot_irradiance();
+				break;
 
-		case 1:
-			data_plots->plot_azimuth();
-			break;
+			case 1:
+				data_plots->plot_azimuth();
+				break;
 
-		case 2:
-			data_plots->plot_elevation();
-			break;
+			case 2:
+				data_plots->plot_elevation();
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
 		data_plots->plot_current_step(playback_controller->get_current_frame_number());
