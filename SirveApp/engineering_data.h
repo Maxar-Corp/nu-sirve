@@ -43,11 +43,11 @@ class Engineering_Data : public	QWidget
 		std::vector<Plotting_Frame_Data> get_subset_plotting_frame_data(int index0, int index1);
 		std::vector<Track_Irradiance> get_track_irradiance_data();
 				
-		int max_number_tracks;
 
 	private:
 		Plotting_Data data;
 		double timing_offset, data_epoch_date, user_epoch_date;
+		int number_tracks;
 				
 		void extract_engineering_data(const std::vector<Frame> & osm_frames);
 		void fill_irradiance_vector();
