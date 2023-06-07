@@ -89,23 +89,14 @@ class Engineering_Plots : public QtPlotting
 		Engineering_Plots(int number_of_frames, QWidget *parent = nullptr);
 		~Engineering_Plots();
 
-		int num_frames;
 		std::vector<Plotting_Frame_Data> engineering_data;
 		std::vector<Track_Irradiance> track_irradiance_data;
 
 		void set_yaxis_chart_id(int yaxis_chart_id);
 		void plot();
 
-		std::vector<double> get_individual_x_track(int i);
-		void establish_plot_limits();
-
-		std::vector<double> find_min_max(std::vector<double>data);
-		void get_xaxis_value(std::vector<double> &values);
-		void create_current_marker();
-		void reset_current_marker();
 		void toggle_yaxis_log(bool input);
 		void toggle_yaxis_scientific(bool input);
-		void draw_title();
 
 		void set_xaxis_units(x_plot_variables unit_choice);
 
@@ -117,12 +108,22 @@ class Engineering_Plots : public QtPlotting
 		void set_zoom_limits(bool active_zoom);
 
 	private:
+		int num_frames;
 		x_plot_variables x_axis_units;
 		std::vector<double> frame_indeces;
+
+		void establish_plot_limits();
+		void create_current_marker();
+		void reset_current_marker();
+		void draw_title();
 
 		void plot_azimuth(int plot_number_tracks);
 		void plot_elevation(int plot_number_tracks);
 		void plot_irradiance(int plot_number_tracks);
+
+		std::vector<double> get_individual_x_track(int i);
+		void get_xaxis_value(std::vector<double> &values);
+		std::vector<double> find_min_max(std::vector<double>data);
 };
 
 #endif
