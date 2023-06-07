@@ -106,11 +106,11 @@ double Engineering_Data::get_epoch_time_from_index(int index)
 
 std::vector<double> Engineering_Data::get_julian_date()
 {
-	std::vector<double> output;
-	int length = julian_date.size();
-
 	if (std::abs(timing_offset) < 0.001)
 		return julian_date;
+
+	std::vector<double> output;
+	int length = julian_date.size();
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -122,11 +122,11 @@ std::vector<double> Engineering_Data::get_julian_date()
 
 std::vector<double> Engineering_Data::get_seconds_from_midnight()
 {
-	std::vector<double> output;
-	int length = seconds_from_midnight.size();
-
 	if (std::abs(timing_offset) < 0.001)
 		return seconds_from_midnight;
+
+	std::vector<double> output;
+	int length = seconds_from_midnight.size();
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -138,11 +138,11 @@ std::vector<double> Engineering_Data::get_seconds_from_midnight()
 
 std::vector<double> Engineering_Data::get_seconds_from_epoch()
 {
-	std::vector<double> output;
-	int length = seconds_from_epoch.size();
-
 	if (std::abs(timing_offset) < 0.001 && std::abs(data_epoch_date - user_epoch_date) < 0.0000001)
 		return seconds_from_epoch;
+
+	std::vector<double> output;
+	int length = seconds_from_epoch.size();
 
 	for (size_t i = 0; i < length; i++)
 	{
