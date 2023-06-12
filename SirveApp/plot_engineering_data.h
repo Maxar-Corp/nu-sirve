@@ -33,11 +33,6 @@ class NewChartView : public QChartView {
 		void apply_nice_numbers();
 
 		QChart *newchart;
-		bool chart_zoomed;
-
-	signals:
-		void zoom_changed(bool active_zoom);
-		
 };
 
 
@@ -105,7 +100,6 @@ class Engineering_Plots : public QtPlotting
 		void toggle_subplot();
 		void plot_current_step(int counter);
 		void set_plot_title(QString input_title);
-		void set_zoom_limits(bool active_zoom);
 
 	private:
 		int num_frames;

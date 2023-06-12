@@ -20,8 +20,6 @@ Engineering_Plots::Engineering_Plots(int number_of_frames, QWidget *parent) : Qt
 
 	index_sub_plot_xmin = 0;
 	index_sub_plot_xmax = num_frames - 1;
-
-	QObject::connect(chart_view, &NewChartView::zoom_changed, this, &Engineering_Plots::set_zoom_limits);
 }
 
 Engineering_Plots::~Engineering_Plots()
@@ -397,54 +395,6 @@ void Engineering_Plots::toggle_subplot()
 	}
 }
 
-void Engineering_Plots::set_zoom_limits(bool active_zoom) {
-
-	chart_is_zoomed = active_zoom;
-
-	if (!chart_is_zoomed) {
-
-		plot();
-
-		return;
-	}
-
-	std::vector<double> x_data;
-	get_xaxis_value(x_data);
-
-	int length = x_data.size();
-	double min_value = axis_x->min();
-	double max_value = axis_x->max();
-
-	if (min_value < x_data[0])
-		min_value = x_data[0];
-	if (max_value > x_data[length - 1])
-		max_value = x_data[length - 1];
-
-	int index0 = 0;
-	int index1 = 0;
-
-	double check_value = x_data[index0];
-	while (check_value < min_value)
-	{
-		index0++;
-		check_value = x_data[index0];
-	}
-	index0 = index0 - 1;
-	if (index0 < 0)
-		index0 = 0;
-	index1 = index0;
-
-	check_value = x_data[index1];
-	while (check_value < max_value)
-	{
-		index1++;
-		check_value = x_data[index1];
-	}
-
-	index_zoom_min = index0;
-	index_zoom_max = index1;
-}
-
 // ---------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------
 // Generic plotting functions
@@ -457,9 +407,6 @@ NewChartView::NewChartView(QChart* chart)
 	setMouseTracking(true);
 	setInteractive(true);
 	setRubberBand(RectangleRubberBand);
-	
-	chart_zoomed = false;
-
 }
 
 void NewChartView::mouseReleaseEvent(QMouseEvent *e)
@@ -467,16 +414,10 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 	if (e->button() == Qt::RightButton)
 	{
 		newchart->zoomReset();
-		chart_zoomed = false;
-
-		emit zoom_changed(chart_zoomed);
-		return; //event doesn't go further
+		return;
 	}
 	
-	QChartView::mouseReleaseEvent(e);//any other event
-	
-	chart_zoomed = true;
-	emit zoom_changed(chart_zoomed);
+	QChartView::mouseReleaseEvent(e);
 }
 
 
