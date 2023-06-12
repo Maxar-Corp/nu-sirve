@@ -93,9 +93,7 @@ void Engineering_Plots::plot_azimuth(int plot_number_tracks)
 	y_title = QString("Azimuth (deg)");
 
 	if (chart_is_zoomed) {
-		std::vector<double> x_data;
-		get_xaxis_value(x_data);
-		chart_options(x_data[index_zoom_min], x_data[index_zoom_max], 0, 360, x_title, y_title);
+		chart_options(get_x_value(index_zoom_min), get_x_value(index_zoom_max), 0, 360, x_title, y_title);
 	}
 	else if (plot_all_data) {
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
@@ -141,9 +139,7 @@ void Engineering_Plots::plot_elevation(int plot_number_tracks)
 	y_title = QString("Elevation (deg)");
 
 	if (chart_is_zoomed) {
-		std::vector<double> x_data;
-		get_xaxis_value(x_data);
-		chart_options(x_data[index_zoom_min], x_data[index_zoom_max], 0, 90, x_title, y_title);
+		chart_options(get_x_value(index_zoom_min), get_x_value(index_zoom_max), 0, 90, x_title, y_title);
 	}
 	else if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
@@ -185,9 +181,7 @@ void Engineering_Plots::plot_irradiance(int plot_number_tracks)
 	y_title = QString("Irradiance Counts");
 
 	if (chart_is_zoomed) {
-		std::vector<double> x_data;
-		get_xaxis_value(x_data);
-		chart_options(x_data[index_zoom_min], x_data[index_zoom_max], 0, find_max_for_axis(min_max_y), x_title, y_title);
+		chart_options(get_x_value(index_zoom_min), get_x_value(index_zoom_max), 0, find_max_for_axis(min_max_y), x_title, y_title);
 	}
 	else if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
@@ -273,23 +267,19 @@ void Engineering_Plots::set_xaxis_units(x_plot_variables unit_choice)
 	x_axis_units = unit_choice;
 }
 
-void Engineering_Plots::get_xaxis_value(std::vector<double>& values)
+double Engineering_Plots::get_x_value(int x_index)
 {
-
 	switch (x_axis_units)
 	{
 		case frames:
-			values = frame_indeces;
 			x_title = "Frame #";
-			break;
+			return x_index;
 		case seconds_past_midnight:
-			values = past_midnight;
 			x_title = "Seconds Past Midnight";
-			break;
+			return past_midnight[x_index];
 		case seconds_from_epoch:
-			values = past_epoch;
 			x_title = "Seconds Past Epoch";
-			break;
+			return past_epoch[x_index];
 		default:
 			break;
 	}
@@ -332,10 +322,7 @@ void Engineering_Plots::plot_current_step(int counter)
 
 	if (plot_current_marker)
 	{
-		std::vector<double> x;
-		get_xaxis_value(x);
-
-		double current_x = x[index_sub_plot_xmin + counter + 1];
+		double current_x = get_x_value(index_sub_plot_xmin + counter + 1);
 		double min_y, max_y;
 
 		if (yaxis_is_log) {
