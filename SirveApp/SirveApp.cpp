@@ -1108,8 +1108,7 @@ void SirveApp::load_osm_data()
 
 	eng_data = new Engineering_Data(osm_frames);
 
-	unsigned int num_frames = osm_frames.size();
-	data_plots = new Engineering_Plots(num_frames);
+	data_plots = new Engineering_Plots(osm_frames);
 
 	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();

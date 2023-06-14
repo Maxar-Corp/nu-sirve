@@ -1,9 +1,15 @@
 #include "plot_engineering_data.h"
 
 
-Engineering_Plots::Engineering_Plots(int number_of_frames) : QtPlotting()
+Engineering_Plots::Engineering_Plots(std::vector<Frame> const &osm_frames) : QtPlotting()
 {
-	num_frames = number_of_frames;
+	num_frames = static_cast<unsigned int>(osm_frames.size());
+
+	for (size_t i = 0; i < num_frames; i++) {
+		sensor_i_fov_x.push_back(osm_frames[i].data.i_fov_x);
+		sensor_i_fov_y.push_back(osm_frames[i].data.i_fov_y);
+	}
+
 	x_axis_units = frames;
 	plot_all_data = true;
 	plot_primary_only = false;
