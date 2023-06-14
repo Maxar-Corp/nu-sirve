@@ -727,14 +727,7 @@ void SirveApp::setup_plot_frame() {
 
 	// create comboboxes and add options
 	cmb_plot_xaxis = new QComboBox();
-	cmb_plot_xaxis->addItem(QString("Frames"));
-	cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-	cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
-
 	cmb_plot_yaxis = new QComboBox();
-	cmb_plot_yaxis->addItem(QString("Irradiance"));
-	cmb_plot_yaxis->addItem(QString("Azimuth"));
-	cmb_plot_yaxis->addItem(QString("Elevation"));
 
 	// create buttons in the plot controls
 	btn_save_plot = new QPushButton();
