@@ -43,7 +43,7 @@ class QtPlotting : public QWidget
 		NewChartView *chart_view;
 		ColorScheme colors;
 		
-		QtPlotting(QWidget *parent = nullptr);
+		QtPlotting();
 		~QtPlotting();
 
 		QValueAxis *axis_x, *axis_y;
@@ -81,7 +81,7 @@ class Engineering_Plots : public QtPlotting
 		QString x_title, y_title, title;
 		QXYSeries *current_frame_marker;
 
-		Engineering_Plots(int number_of_frames, QWidget *parent = nullptr);
+		Engineering_Plots(int number_of_frames);
 		~Engineering_Plots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
@@ -110,11 +110,11 @@ class Engineering_Plots : public QtPlotting
 		void reset_current_marker();
 		void draw_title();
 
-		void plot_azimuth(int plot_number_tracks);
-		void plot_elevation(int plot_number_tracks);
-		void plot_irradiance(int plot_number_tracks);
+		void plot_azimuth(size_t plot_number_tracks);
+		void plot_elevation(size_t plot_number_tracks);
+		void plot_irradiance(size_t plot_number_tracks);
 
-		std::vector<double> get_individual_x_track(int i);
+		std::vector<double> get_individual_x_track(size_t i);
 		double get_x_value(int x_index);
 		double get_max_x_value();
 		std::vector<double> find_min_max(std::vector<double>data);
