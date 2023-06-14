@@ -15,7 +15,6 @@ Engineering_Plots::Engineering_Plots(int number_of_frames, QWidget *parent) : Qt
 	yaxis_is_log = false;
 	yaxis_is_scientific = false;
 	set_plot_title("EDIT CLASSIFICATION");
-	chart_is_zoomed = false;
 	current_chart_id = 0;
 
 	index_sub_plot_xmin = 0;
@@ -92,10 +91,7 @@ void Engineering_Plots::plot_azimuth(int plot_number_tracks)
 
 	y_title = QString("Azimuth (deg)");
 
-	if (chart_is_zoomed) {
-		chart_options(get_x_value(index_zoom_min), get_x_value(index_zoom_max), 0, 360, x_title, y_title);
-	}
-	else if (plot_all_data) {
+	if (plot_all_data) {
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
 	}
 	else{
@@ -138,10 +134,7 @@ void Engineering_Plots::plot_elevation(int plot_number_tracks)
 
 	y_title = QString("Elevation (deg)");
 
-	if (chart_is_zoomed) {
-		chart_options(get_x_value(index_zoom_min), get_x_value(index_zoom_max), 0, 90, x_title, y_title);
-	}
-	else if (plot_all_data)
+	if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
@@ -180,10 +173,7 @@ void Engineering_Plots::plot_irradiance(int plot_number_tracks)
 
 	y_title = QString("Irradiance Counts");
 
-	if (chart_is_zoomed) {
-		chart_options(get_x_value(index_zoom_min), get_x_value(index_zoom_max), 0, find_max_for_axis(min_max_y), x_title, y_title);
-	}
-	else if (plot_all_data)
+	if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
 	else
 		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
