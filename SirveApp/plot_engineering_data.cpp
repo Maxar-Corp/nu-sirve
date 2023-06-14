@@ -263,7 +263,7 @@ double Engineering_Plots::get_x_value(int x_index)
 	{
 		case frames:
 			x_title = "Frame #";
-			return x_index;
+			return x_index + 1;
 		case seconds_past_midnight:
 			x_title = "Seconds Past Midnight";
 			return past_midnight[x_index];
@@ -312,7 +312,7 @@ void Engineering_Plots::plot_current_step(int counter)
 
 	if (plot_current_marker)
 	{
-		double current_x = get_x_value(index_sub_plot_xmin + counter + 1);
+		double current_x = get_x_value(index_sub_plot_xmin + counter);
 		double min_y, max_y;
 
 		if (yaxis_is_log) {
