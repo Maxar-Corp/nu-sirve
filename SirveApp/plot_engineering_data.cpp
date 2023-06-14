@@ -209,11 +209,11 @@ std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 
 void Engineering_Plots::establish_plot_limits() {
 
-	sub_plot_xmin = get_x_value(index_sub_plot_xmin);
-	sub_plot_xmax = get_x_value(index_sub_plot_xmax);
+	sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
+	sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
 
-	full_plot_xmin = get_x_value(0);
-	full_plot_xmax = get_max_x_value();
+	full_plot_xmin = get_single_x_axis_value(0);
+	full_plot_xmax = get_max_x_axis_value();
 }
 
 std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
@@ -249,7 +249,7 @@ void Engineering_Plots::set_xaxis_units(x_plot_variables unit_choice)
 	}
 }
 
-double Engineering_Plots::get_x_value(int x_index)
+double Engineering_Plots::get_single_x_axis_value(int x_index)
 {
 	switch (x_axis_units)
 	{
@@ -264,7 +264,7 @@ double Engineering_Plots::get_x_value(int x_index)
 	}
 }
 
-double Engineering_Plots::get_max_x_value()
+double Engineering_Plots::get_max_x_axis_value()
 {
 	switch (x_axis_units)
 	{
@@ -316,7 +316,7 @@ void Engineering_Plots::plot_current_step(int counter)
 
 	if (plot_current_marker)
 	{
-		double current_x = get_x_value(index_sub_plot_xmin + counter);
+		double current_x = get_single_x_axis_value(index_sub_plot_xmin + counter);
 		double min_y, max_y;
 
 		if (yaxis_is_log) {
