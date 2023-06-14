@@ -1,7 +1,7 @@
 #include "plot_engineering_data.h"
 
 
-Engineering_Plots::Engineering_Plots(int number_of_frames, QWidget *parent) : QtPlotting(parent)
+Engineering_Plots::Engineering_Plots(int number_of_frames) : QtPlotting()
 {
 	num_frames = number_of_frames;
 	x_axis_units = frames;
@@ -36,8 +36,8 @@ void Engineering_Plots::plot()
 	start_new_chart();
 	create_current_marker();
 
-	int number_tracks = track_irradiance_data.size();
-	int plot_number_tracks = number_tracks;
+	size_t number_tracks = track_irradiance_data.size();
+	size_t plot_number_tracks = number_tracks;
 	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
 
@@ -56,11 +56,11 @@ void Engineering_Plots::plot()
 	}
 }
 
-void Engineering_Plots::plot_azimuth(int plot_number_tracks)
+void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 {
 	std::vector<double> x_points, y_points;
 
-	for (int i = 0; i < plot_number_tracks; i++)
+	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries* series = new QLineSeries();
 		QColor base_color(colors.GetCurrentColor());
@@ -99,11 +99,11 @@ void Engineering_Plots::plot_azimuth(int plot_number_tracks)
 	
 }
 
-void Engineering_Plots::plot_elevation(int plot_number_tracks)
+void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 {
 	std::vector<double> x_points, y_points;
 
-	for (int i = 0; i < plot_number_tracks; i++)
+	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries *series = new QLineSeries();
 		QColor base_color(colors.GetCurrentColor());
@@ -139,11 +139,11 @@ void Engineering_Plots::plot_elevation(int plot_number_tracks)
 	draw_title();
 }
 
-void Engineering_Plots::plot_irradiance(int plot_number_tracks)
+void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 {
 	std::vector<double> x_points, y_points;
 
-	for (int i = 0; i < plot_number_tracks; i++)
+	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries *series = new QLineSeries();
 		QColor base_color(colors.GetCurrentColor());
@@ -178,28 +178,28 @@ void Engineering_Plots::plot_irradiance(int plot_number_tracks)
 	draw_title();
 }
 
-std::vector<double> Engineering_Plots::get_individual_x_track(int i)
+std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 {
 
 	std::vector<double> x_values;
 
 	switch (x_axis_units)
 	{
-	case frames:
-		x_title = QString("Frame #");
-		x_values = track_irradiance_data[i].frame_number;
-		break;
-	case seconds_past_midnight:
-		x_title = QString("Seconds Past Midnight");
-		x_values = track_irradiance_data[i].past_midnight;
-		break;
-	case seconds_from_epoch:
-		x_title = QString("Seconds Past Epoch");
-		x_values = track_irradiance_data[i].past_epoch;
-		break;
-	default:
+		case frames:
+			x_title = QString("Frame #");
+			x_values = track_irradiance_data[i].frame_number;
+			break;
+		case seconds_past_midnight:
+			x_title = QString("Seconds Past Midnight");
+			x_values = track_irradiance_data[i].past_midnight;
+			break;
+		case seconds_from_epoch:
+			x_title = QString("Seconds Past Epoch");
+			x_values = track_irradiance_data[i].past_epoch;
+			break;
+		default:
 
-		break;
+			break;
 	}
 	return x_values;
 }
@@ -350,8 +350,6 @@ void Engineering_Plots::reset_current_marker() {
 
 void Engineering_Plots::toggle_subplot()
 {
-	double min_value, max_value;
-
 	if (plot_all_data)
 	{
 		set_xaxis_limits(full_plot_xmin, full_plot_xmax, x_title, y_title, title);
@@ -405,7 +403,7 @@ void NewChartView::apply_nice_numbers()
 
 // ---------------------------------------------------------------------------------------------
 
-QtPlotting::QtPlotting(QWidget *parent)
+QtPlotting::QtPlotting()
 {
 	chart = new QChart();
 	chart_view = new NewChartView(chart);
@@ -463,7 +461,7 @@ void QtPlotting::start_new_chart()
 void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
 {
 
-	uint num_data_pts = x.size();
+	size_t num_data_pts = x.size();
 	int num_breaks = 0;
 
 	double base_x_distance = 1;
@@ -477,12 +475,12 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 		
 	}
 
-	for (uint i = 0; i < num_data_pts; i++) {
+	for (size_t i = 0; i < num_data_pts; i++) {
 		if (i == 0) { //If first pt in series then continue...
 			series->append(x[i], y[i]);
 
 		}
-		else if (x[i] - x[i - 1] > base_x_distance & broken_data) { //if current point is greater than 1 frame away then start new series...
+		else if ((x[i] - x[i - 1] > base_x_distance) & broken_data) { //if current point is greater than 1 frame away then start new series...
 			
 			chart->addSeries(series);
 
@@ -500,7 +498,7 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 	}
 
 	chart->addSeries(series);
-	if (num_breaks > 0 & broken_data)
+	if ((num_breaks > 0) & broken_data)
 		remove_series_legend();
 }
 
