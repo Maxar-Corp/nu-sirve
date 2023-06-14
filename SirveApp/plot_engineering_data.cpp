@@ -186,15 +186,12 @@ std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 	switch (x_axis_units)
 	{
 		case frames:
-			x_title = QString("Frame #");
 			x_values = track_irradiance_data[i].frame_number;
 			break;
 		case seconds_past_midnight:
-			x_title = QString("Seconds Past Midnight");
 			x_values = track_irradiance_data[i].past_midnight;
 			break;
 		case seconds_from_epoch:
-			x_title = QString("Seconds Past Epoch");
 			x_values = track_irradiance_data[i].past_epoch;
 			break;
 		default:
@@ -230,6 +227,20 @@ std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
 void Engineering_Plots::set_xaxis_units(x_plot_variables unit_choice)
 {
 	x_axis_units = unit_choice;
+	switch (x_axis_units)
+	{
+		case frames:
+			x_title = "Frame #";
+			break;
+		case seconds_past_midnight:
+			x_title = "Seconds Past Midnight";
+			break;
+		case seconds_from_epoch:
+			x_title = "Seconds Past Epoch";
+			break;
+		default:
+			break;
+	}
 }
 
 double Engineering_Plots::get_x_value(int x_index)
@@ -237,13 +248,10 @@ double Engineering_Plots::get_x_value(int x_index)
 	switch (x_axis_units)
 	{
 		case frames:
-			x_title = "Frame #";
 			return x_index + 1;
 		case seconds_past_midnight:
-			x_title = "Seconds Past Midnight";
 			return past_midnight[x_index];
 		case seconds_from_epoch:
-			x_title = "Seconds Past Epoch";
 			return past_epoch[x_index];
 		default:
 			return 0;
