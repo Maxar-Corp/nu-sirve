@@ -72,7 +72,7 @@ class Engineering_Plots : public QtPlotting
 	Q_OBJECT 
 	public:
 		// Parameters to display subplot
-		bool plot_all_data, plot_primary_only, plot_current_marker, chart_is_zoomed;
+		bool plot_all_data, plot_primary_only, plot_current_marker;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
 		unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
 		std::vector<double>past_midnight,past_epoch;
