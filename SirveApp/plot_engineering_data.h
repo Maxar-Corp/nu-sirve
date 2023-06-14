@@ -75,13 +75,15 @@ class Engineering_Plots : public QtPlotting
 		bool plot_all_data, plot_primary_only, plot_current_marker;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
 		unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
-		std::vector<double>past_midnight,past_epoch;
+		
+		std::vector<double> past_midnight, past_epoch;
+		std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
 
 		// plot axes titles
 		QString x_title, y_title, title;
 		QXYSeries *current_frame_marker;
 
-		Engineering_Plots(int number_of_frames);
+		Engineering_Plots(std::vector<Frame> const &osm_frames);
 		~Engineering_Plots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
@@ -102,7 +104,7 @@ class Engineering_Plots : public QtPlotting
 		void set_plot_title(QString input_title);
 
 	private:
-		int num_frames;
+		unsigned int num_frames;
 		x_plot_variables x_axis_units;
 
 		void establish_plot_limits();

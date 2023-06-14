@@ -93,7 +93,7 @@ void ExternalNUCInformationWidget::plot_osm()
         this->resize(500, 500);
 
     engineering_data = new Engineering_Data(osm_frames);
-    plot_data = new Engineering_Plots(osm_frames.size());
+    plot_data = new Engineering_Plots(osm_frames);
 
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
