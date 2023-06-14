@@ -104,7 +104,6 @@ class Engineering_Plots : public QtPlotting
 	private:
 		int num_frames;
 		x_plot_variables x_axis_units;
-		std::vector<double> frame_indeces;
 
 		void establish_plot_limits();
 		void create_current_marker();
@@ -117,6 +116,7 @@ class Engineering_Plots : public QtPlotting
 
 		std::vector<double> get_individual_x_track(int i);
 		double get_x_value(int x_index);
+		double get_max_x_value();
 		std::vector<double> find_min_max(std::vector<double>data);
 };
 
