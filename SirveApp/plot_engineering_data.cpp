@@ -57,9 +57,63 @@ void Engineering_Plots::plot()
 		case 2:
 			plot_elevation(plot_number_tracks);
 			break;
+		case 3:
+			plot_fov_x();
+			break;
+		case 4:
+			plot_fov_y();
+			break;
 		default:
 			break;
 	}
+}
+
+void Engineering_Plots::plot_fov_x()
+{
+	establish_plot_limits();
+	y_title = QString("Sensor FOV (X)");
+	QLineSeries* series = new QLineSeries();
+	QColor base_color(colors.GetCurrentColor());
+	series->setColor(base_color);
+
+	if (plot_all_data) {
+		std::vector<double> y_values = sensor_i_fov_x;
+		
+		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+		chart_options(full_plot_xmin, full_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+	}
+	else{
+		std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
+
+		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+	}
+
+	draw_title();
+}
+
+void Engineering_Plots::plot_fov_y()
+{
+	establish_plot_limits();
+	y_title = QString("Sensor FOV (Y)");
+	QLineSeries* series = new QLineSeries();
+	QColor base_color(colors.GetCurrentColor());
+	series->setColor(base_color);
+
+	if (plot_all_data) {
+		std::vector<double> y_values = sensor_i_fov_y;
+		
+		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+		chart_options(full_plot_xmin, full_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+	}
+	else{
+		std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
+
+		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+	}
+
+	draw_title();
 }
 
 void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
@@ -246,6 +300,25 @@ void Engineering_Plots::set_xaxis_units(x_plot_variables unit_choice)
 			break;
 		default:
 			break;
+	}
+}
+
+std::vector<double> Engineering_Plots::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
+{
+	switch (x_axis_units)
+	{
+		case frames:
+		{
+			std::vector<double> x_values(end_idx - start_idx + 1);
+			std::iota(std::begin(x_values), std::end(x_values), start_idx + 1);
+			return x_values;
+		}
+		case seconds_past_midnight:
+			return std::vector<double>(past_midnight.begin() + start_idx, past_midnight.begin() + end_idx + 1);
+		case seconds_from_epoch:
+			return std::vector<double>(past_epoch.begin() + start_idx, past_epoch.begin() + end_idx + 1);
+		default:
+			return std::vector<double>();
 	}
 }
 
