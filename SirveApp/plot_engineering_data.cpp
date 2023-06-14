@@ -4,10 +4,6 @@
 Engineering_Plots::Engineering_Plots(int number_of_frames, QWidget *parent) : QtPlotting(parent)
 {
 	num_frames = number_of_frames;
-	for (unsigned int i = 0; i < num_frames; i++) {
-		frame_indeces.push_back(i);
-	}
-		
 	x_axis_units = frames;
 	plot_all_data = true;
 	plot_primary_only = false;
@@ -210,32 +206,11 @@ std::vector<double> Engineering_Plots::get_individual_x_track(int i)
 
 void Engineering_Plots::establish_plot_limits() {
 
-	switch (x_axis_units)
-	{
-		case frames:
-			sub_plot_xmin = index_sub_plot_xmin + 1;
-			sub_plot_xmax = index_sub_plot_xmax + 1;
+	sub_plot_xmin = get_x_value(index_sub_plot_xmin);
+	sub_plot_xmax = get_x_value(index_sub_plot_xmax);
 
-			full_plot_xmin = 1;
-			full_plot_xmax = num_frames;
-			break;
-		case seconds_past_midnight:
-			sub_plot_xmin = past_midnight[index_sub_plot_xmin];
-			sub_plot_xmax = past_midnight[index_sub_plot_xmax];
-
-			full_plot_xmin = past_midnight[0];
-			full_plot_xmax = past_midnight[past_midnight.size() - 1];
-			break;
-		case seconds_from_epoch:
-			sub_plot_xmin = past_epoch[index_sub_plot_xmin];
-			sub_plot_xmax = past_epoch[index_sub_plot_xmax];
-
-			full_plot_xmin = past_epoch[0];
-			full_plot_xmax = past_epoch[past_epoch.size() - 1];
-			break;
-		default:
-			break;
-	}
+	full_plot_xmin = get_x_value(0);
+	full_plot_xmax = get_max_x_value();
 }
 
 std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
@@ -271,7 +246,22 @@ double Engineering_Plots::get_x_value(int x_index)
 			x_title = "Seconds Past Epoch";
 			return past_epoch[x_index];
 		default:
-			break;
+			return 0;
+	}
+}
+
+double Engineering_Plots::get_max_x_value()
+{
+	switch (x_axis_units)
+	{
+		case frames:
+			return num_frames;
+		case seconds_past_midnight:
+			return past_midnight[past_midnight.size() - 1];
+		case seconds_from_epoch:
+			return past_epoch[past_epoch.size() - 1];
+		default:
+			return 0;
 	}
 }
 
