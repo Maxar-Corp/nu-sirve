@@ -2448,6 +2448,8 @@ void SirveApp::enable_engineering_plot_options()
 	cmb_plot_yaxis->addItem(QString("Irradiance"));
 	cmb_plot_yaxis->addItem(QString("Azimuth"));
 	cmb_plot_yaxis->addItem(QString("Elevation"));
+	cmb_plot_yaxis->addItem(QString("FOV - X"));
+	cmb_plot_yaxis->addItem(QString("FOV - Y"));
 	cmb_plot_yaxis->setCurrentIndex(0);
 
 
