@@ -727,14 +727,7 @@ void SirveApp::setup_plot_frame() {
 
 	// create comboboxes and add options
 	cmb_plot_xaxis = new QComboBox();
-	cmb_plot_xaxis->addItem(QString("Frames"));
-	cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-	cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
-
 	cmb_plot_yaxis = new QComboBox();
-	cmb_plot_yaxis->addItem(QString("Irradiance"));
-	cmb_plot_yaxis->addItem(QString("Azimuth"));
-	cmb_plot_yaxis->addItem(QString("Elevation"));
 
 	// create buttons in the plot controls
 	btn_save_plot = new QPushButton();
@@ -1108,8 +1101,7 @@ void SirveApp::load_osm_data()
 
 	eng_data = new Engineering_Data(osm_frames);
 
-	unsigned int num_frames = osm_frames.size();
-	data_plots = new Engineering_Plots(num_frames);
+	data_plots = new Engineering_Plots(osm_frames);
 
 	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
@@ -1854,40 +1846,24 @@ void SirveApp::plot_change()
 
 		switch (x_index)
 		{
-		case 0:
-			data_plots->x_axis_units = frames;
-			break;
+			case 0:
+				data_plots->set_xaxis_units(frames);
+				break;
 
-		case 1:
-			data_plots->x_axis_units = seconds_past_midnight;
-			break;
+			case 1:
+				data_plots->set_xaxis_units(seconds_past_midnight);
+				break;
 
-		case 2:
-			data_plots->x_axis_units = seconds_from_epoch;
-			break;
+			case 2:
+				data_plots->set_xaxis_units(seconds_from_epoch);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 
-
-		switch (y_index)
-		{
-		case 0:
-			data_plots->plot_irradiance();
-			break;
-
-		case 1:
-			data_plots->plot_azimuth();
-			break;
-
-		case 2:
-			data_plots->plot_elevation();
-			break;
-
-		default:
-			break;
-		}
+		data_plots->set_yaxis_chart_id(y_index);
+		data_plots->plot();
 
 		data_plots->plot_current_step(playback_controller->get_current_frame_number());
 	}
@@ -2472,6 +2448,8 @@ void SirveApp::enable_engineering_plot_options()
 	cmb_plot_yaxis->addItem(QString("Irradiance"));
 	cmb_plot_yaxis->addItem(QString("Azimuth"));
 	cmb_plot_yaxis->addItem(QString("Elevation"));
+	cmb_plot_yaxis->addItem(QString("FOV - X"));
+	cmb_plot_yaxis->addItem(QString("FOV - Y"));
 	cmb_plot_yaxis->setCurrentIndex(0);
 
 
