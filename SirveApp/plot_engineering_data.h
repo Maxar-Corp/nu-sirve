@@ -33,11 +33,6 @@ class NewChartView : public QChartView {
 		void apply_nice_numbers();
 
 		QChart *newchart;
-		bool chart_zoomed;
-
-	signals:
-		void zoom_changed(bool active_zoom);
-		
 };
 
 
@@ -48,7 +43,7 @@ class QtPlotting : public QWidget
 		NewChartView *chart_view;
 		ColorScheme colors;
 		
-		QtPlotting(QWidget *parent = nullptr);
+		QtPlotting();
 		~QtPlotting();
 
 		QValueAxis *axis_x, *axis_y;
@@ -70,55 +65,64 @@ class QtPlotting : public QWidget
 
 };
 
+enum x_plot_variables{frames , seconds_past_midnight, seconds_from_epoch};
 
 class Engineering_Plots : public QtPlotting 
 {
 	Q_OBJECT 
 	public:
-
-		x_plot_variables x_axis_units;
-		
 		// Parameters to display subplot
-		bool plot_all_data, plot_primary_only, plot_current_marker, chart_is_zoomed;
+		bool plot_all_data, plot_primary_only, plot_current_marker;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
 		unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
-		std::vector<double>past_midnight,past_epoch;
+		
+		std::vector<double> past_midnight, past_epoch;
+		std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
 
 		// plot axes titles
 		QString x_title, y_title, title;
 		QXYSeries *current_frame_marker;
 
-		Engineering_Plots(int number_of_frames, QWidget *parent = nullptr);
+		Engineering_Plots(std::vector<Frame> const &osm_frames);
 		~Engineering_Plots();
 
-		int num_frames;
 		std::vector<Plotting_Frame_Data> engineering_data;
 		std::vector<Track_Irradiance> track_irradiance_data;
 
-		void plot_azimuth();
-		void plot_elevation();
-		void plot_irradiance();
+		void set_yaxis_chart_id(int yaxis_chart_id);
+		void plot();
 
-		std::vector<double> get_individual_x_track(int i);
-		void establish_plot_limits();
-
-		std::vector<double> find_min_max(std::vector<double>data);
-		void get_xaxis_value(std::vector<double> &values);
-		void create_current_marker();
-		void reset_current_marker();
 		void toggle_yaxis_log(bool input);
 		void toggle_yaxis_scientific(bool input);
-		void draw_title();
+
+		void set_xaxis_units(x_plot_variables unit_choice);
 
 	public slots:
 
 		void toggle_subplot();
 		void plot_current_step(int counter);
 		void set_plot_title(QString input_title);
-		void set_zoom_limits(bool active_zoom);
 
 	private:
-		std::vector<double> frame_indeces;
+		unsigned int num_frames;
+		x_plot_variables x_axis_units;
+
+		void establish_plot_limits();
+		void create_current_marker();
+		void reset_current_marker();
+		void draw_title();
+
+		void plot_azimuth(size_t plot_number_tracks);
+		void plot_elevation(size_t plot_number_tracks);
+		void plot_irradiance(size_t plot_number_tracks);
+		void plot_fov_x();
+		void plot_fov_y();
+
+		std::vector<double> get_individual_x_track(size_t i);
+		std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+		double get_single_x_axis_value(int x_index);
+		double get_max_x_axis_value();
+		std::vector<double> find_min_max(std::vector<double>data);
 };
 
 #endif

@@ -2,11 +2,9 @@
 
 Engineering_Data::Engineering_Data(const std::vector<Frame> & osm_frames)
 {
-	max_number_tracks = 0;
 	extract_engineering_data(osm_frames);
 	fill_irradiance_vector();
 	timing_offset = 0;
-
 }
 
 Engineering_Data::~Engineering_Data()
@@ -106,11 +104,11 @@ double Engineering_Data::get_epoch_time_from_index(int index)
 
 std::vector<double> Engineering_Data::get_julian_date()
 {
-	std::vector<double> output;
-	int length = julian_date.size();
-
 	if (std::abs(timing_offset) < 0.001)
 		return julian_date;
+
+	std::vector<double> output;
+	int length = julian_date.size();
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -122,11 +120,11 @@ std::vector<double> Engineering_Data::get_julian_date()
 
 std::vector<double> Engineering_Data::get_seconds_from_midnight()
 {
-	std::vector<double> output;
-	int length = seconds_from_midnight.size();
-
 	if (std::abs(timing_offset) < 0.001)
 		return seconds_from_midnight;
+
+	std::vector<double> output;
+	int length = seconds_from_midnight.size();
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -138,11 +136,11 @@ std::vector<double> Engineering_Data::get_seconds_from_midnight()
 
 std::vector<double> Engineering_Data::get_seconds_from_epoch()
 {
-	std::vector<double> output;
-	int length = seconds_from_epoch.size();
-
 	if (std::abs(timing_offset) < 0.001 && std::abs(data_epoch_date - user_epoch_date) < 0.0000001)
 		return seconds_from_epoch;
+
+	std::vector<double> output;
+	int length = seconds_from_epoch.size();
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -235,14 +233,14 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 
 		// ----------------------------------------------------------------------------------------
 		// Get irradiance track data
-		unsigned int number_tracks = osm_frames[i].data.num_tracks;
-		if (number_tracks > max_number_tracks)
-		{
-			max_number_tracks = number_tracks;
+		number_tracks = osm_frames[i].data.num_tracks;
+
+		if (number_tracks == 0) {
+			// Dummy "azel values for primary target" when no tracks exist
+			temp.azimuth_p_tgt = -1001;
+			temp.elevation_p_tgt = -1001;
 		}
-
-		if (number_tracks > 0) {
-
+		else {
 			for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
 
 				Irradiance_Msrmnt ir_data;
@@ -262,11 +260,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 			// Get primary target az-el, when it exists
 			temp.azimuth_p_tgt = osm_frames[i].data.track_data[0].az_el_track[0];
 			temp.elevation_p_tgt = osm_frames[i].data.track_data[0].az_el_track[1];
-		}
-		else {
-			// Set values when no primary target
-			temp.azimuth_p_tgt = -1001;
-			temp.elevation_p_tgt = -1001;
 		}
 
 		frame_data.push_back(temp);
@@ -292,7 +285,7 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 void Engineering_Data::fill_irradiance_vector()
 {
 
-	track_irradiance_data.reserve(max_number_tracks);
+	track_irradiance_data.reserve(number_tracks);
 	int number_pts = frame_data.size();
 		
 	for (int i = 0; i < number_pts; i++)

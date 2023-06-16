@@ -310,11 +310,9 @@ FrameData OSMReader::ReadFrameData() {
 	std::vector<double> az_el_boresight = calculation_azimuth_elevation(0, 0, data);
 	data.az_el_boresight = az_el_boresight;
 
-    uint32_t start_track_index = 0;
-
 	DEBUG << "OSM Load: Reading all " << data.num_tracks << " tracks";
 
-    for (uint32_t j = start_track_index; j < data.num_tracks; j++)
+    for (uint32_t j = 0; j < data.num_tracks; j++)
     {
 		DEBUG << "OSM Load: Reading track data #" << j;
 		
