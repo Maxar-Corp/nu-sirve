@@ -44,7 +44,7 @@ HEADERS += abir_reader.h \
             non_uniformity_correction.h \
             osm_plotter.h \
             osm_reader.h \
-            play_back.h \
+            playback.h \
             plot_engineering_data.h \
             process_file.h \
             processing_state.h \
