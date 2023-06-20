@@ -6,8 +6,9 @@ Engineering_Plots::Engineering_Plots(std::vector<Frame> const &osm_frames) : QtP
 	num_frames = static_cast<unsigned int>(osm_frames.size());
 
 	for (size_t i = 0; i < num_frames; i++) {
-		sensor_i_fov_x.push_back(osm_frames[i].data.i_fov_x);
-		sensor_i_fov_y.push_back(osm_frames[i].data.i_fov_y);
+		/* Scaling each val by 1e6 to convert to microradians. */
+		sensor_i_fov_x.push_back(osm_frames[i].data.i_fov_x * 1e6);
+		sensor_i_fov_y.push_back(osm_frames[i].data.i_fov_y * 1e6);
 	}
 
 	x_axis_units = frames;
@@ -80,13 +81,13 @@ void Engineering_Plots::plot_fov_x()
 		std::vector<double> y_values = sensor_i_fov_x;
 		
 		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-		chart_options(full_plot_xmin, full_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 750, x_title, y_title);
 	}
 	else{
 		std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
 
 		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 750, x_title, y_title);
 	}
 
 	draw_title();
@@ -102,15 +103,15 @@ void Engineering_Plots::plot_fov_y()
 
 	if (plot_all_data) {
 		std::vector<double> y_values = sensor_i_fov_y;
-		
+
 		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-		chart_options(full_plot_xmin, full_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 750, x_title, y_title);
 	}
 	else{
 		std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
 
 		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0.00001, 0.00003, x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 750, x_title, y_title);
 	}
 
 	draw_title();
