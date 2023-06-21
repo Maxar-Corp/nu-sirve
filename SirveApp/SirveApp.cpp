@@ -33,14 +33,7 @@ SirveApp::SirveApp(QWidget *parent)
 	// default recording video to false
 	record_video = false;
 
-	//---------------------------------------------------------------------------
-	//---------------------------------------------------------------------------
-
-	// links label showing the video to the video frame
 	video_layout = new QGridLayout();
-	video_layout->addWidget(video_display->label);
-	frame_video->setLayout(video_layout);
-
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_layout = new QVBoxLayout();
@@ -1092,10 +1085,10 @@ void SirveApp::load_osm_data()
 		cmb_processing_states->setEnabled(false);
 
 		clear_frame_label();
-		
-		video_layout->addWidget(video_display->label);
-		frame_video->setLayout(video_layout);
 	}
+
+	video_layout->addWidget(video_display->label);
+	frame_video->setLayout(video_layout);
 
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
