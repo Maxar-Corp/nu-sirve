@@ -531,10 +531,6 @@ void SirveApp::setup_video_frame(){
 	// ------------------------------------------------------------------------
 
 	frame_video = new QFrame();
-	frame_video->setMinimumHeight(480);
-	frame_video->setMinimumWidth(640);
-	frame_video->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	
 	vlayout_frame_video->addWidget(frame_video);
 
 	// ------------------------------------------------------------------------
@@ -1221,9 +1217,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->clear_all_zoom_levels(x_pixels, y_pixels);
 	vid_details.set_image_size(x_pixels, y_pixels);
 	vid_details.set_video_frames(video_frames);
-
-	frame_video->setMinimumHeight(y_pixels);
-	frame_video->setMinimumWidth(x_pixels);
 
 	int number_frames = vid_details.frames_16bit.size();
 	QString status_txt = lbl_file_load->text();
