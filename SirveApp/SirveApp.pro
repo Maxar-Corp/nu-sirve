@@ -59,7 +59,7 @@ HEADERS += abir_reader.h \
             support/jtime.h \
             support/qthelpers.h
 
-FORMS += location_gui.ui new_location.ui SirveApp.ui
+FORMS += location_gui.ui new_location.ui
 
 SOURCES += abir_reader.cpp \
             abpnuc_reader.cpp \
