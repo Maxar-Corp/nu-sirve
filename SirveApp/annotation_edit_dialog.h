@@ -16,7 +16,6 @@
 #include <qgridlayout.h>
 
 #include "annotation_info.h"
-#include "video_display.h"
 
 
 class AnnotationEditDialog : public QDialog
