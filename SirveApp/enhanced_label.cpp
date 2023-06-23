@@ -108,8 +108,3 @@ void EnhancedLabel::mouseReleaseEvent(QMouseEvent *event)
 			emit highlighted_area(area);
 	}
 }
-
-void EnhancedLabel::mouseDoubleClickEvent(QMouseEvent * event)
-{
-	emit double_clicked(origin);
-}
