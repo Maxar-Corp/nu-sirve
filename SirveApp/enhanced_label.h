@@ -21,6 +21,9 @@ public:
 	int height, width;
 	bool right_button_clicked;
 
+	void disable();
+	void enable();
+
 signals:
 	void clicked(QPoint pt);
 	void right_clicked(QPoint pt);
@@ -31,6 +34,9 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+
+private:
+	bool enabled;
 };
 
 
