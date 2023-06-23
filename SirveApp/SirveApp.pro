@@ -24,7 +24,6 @@ HEADERS += abir_reader.h \
             binary_file_reader.h \
             calibration_data.h \
             clickable_chartview.h \
-            clickable_label.h \
             color_correction.h \
             color_correction_plot.h \
             color_map.h \
@@ -35,6 +34,7 @@ HEADERS += abir_reader.h \
             deinterlace.h \
             deinterlace_type.h \
             engineering_data.h \
+            enhanced_label.h \
             fixed_aspect_ratio_frame.h \
             histogram_plotter.h \
             location_input.h \
@@ -46,6 +46,7 @@ HEADERS += abir_reader.h \
             osm_reader.h \
             playback.h \
             plot_engineering_data.h \
+            popout_video_display.h \
             process_file.h \
             processing_state.h \
             Section.h \
@@ -59,7 +60,7 @@ HEADERS += abir_reader.h \
             support/jtime.h \
             support/qthelpers.h
 
-FORMS += location_gui.ui new_location.ui SirveApp.ui
+FORMS += location_gui.ui new_location.ui
 
 SOURCES += abir_reader.cpp \
             abpnuc_reader.cpp \
@@ -70,7 +71,6 @@ SOURCES += abir_reader.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
-            clickable_label.cpp \
             color_correction_plot.cpp \
             color_correction.cpp \
             color_map.cpp \
@@ -79,6 +79,7 @@ SOURCES += abir_reader.cpp \
             custom_input_dialog.cpp \
             deinterlace.cpp \
             engineering_data.cpp \
+            enhanced_label.cpp \
             fixed_aspect_ratio_frame.cpp \
             histogram_plotter.cpp \
             location_input.cpp \
@@ -91,6 +92,7 @@ SOURCES += abir_reader.cpp \
             osm_reader.cpp \
             playback.cpp \
             plot_engineering_data.cpp \
+            popout_video_display.cpp \
             process_file.cpp \
             processing_state.cpp \
             Section.cpp \
