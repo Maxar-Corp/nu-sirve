@@ -28,7 +28,7 @@
 #include "video_details.h"
 #include "Data_Structures.h"
 #include "histogram_plotter.h"
-#include "clickable_label.h"
+#include "enhanced_label.h"
 #include "color_map.h"
 #include "calibration_data.h"
 #include "annotation_info.h"
