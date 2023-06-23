@@ -1,6 +1,6 @@
 #pragma once
-#ifndef CLICKABLE_LABEL_H
-#define CLICKABLE_LABEL_H
+#ifndef ENHANCED_LABEL_H
+#define ENHANCED_LABEL_H
 
 #include <QLabel>
 #include <iostream>
@@ -21,6 +21,9 @@ public:
 	int height, width;
 	bool right_button_clicked;
 
+	void disable();
+	void enable();
+
 signals:
 	void clicked(QPoint pt);
 	void right_clicked(QPoint pt);
@@ -31,10 +34,10 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
-	
-	void mouseDoubleClickEvent(QMouseEvent *event);
 
+private:
+	bool enabled;
 };
 
 
-#endif // CLICKABLE_LABEL_H
+#endif // ENHANCED_LABEL_H

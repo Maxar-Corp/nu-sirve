@@ -4,9 +4,7 @@
 VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
-	label->setBackgroundRole(QPalette::Base);
-	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	label->setScaledContents(true);
+	setup_label();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
@@ -38,19 +36,21 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	// intializes color map to gray scale
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
-
-	setup_connections();
-
-	label->setObjectName("video_object");
-	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 }
 
 VideoDisplay::~VideoDisplay()
 {
-	delete  label;
+	delete label;
 }
 
-void VideoDisplay::setup_connections() {
+void VideoDisplay::setup_label()
+{
+	label->setBackgroundRole(QPalette::Base);
+	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	label->setScaledContents(true);
+
+	label->setObjectName("video_object");
+	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
@@ -77,7 +77,6 @@ void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 	zoom_list.push_back(new_zoom);
 
 	// resets border color
-	label->setObjectName("video_object");
 	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 
 }
@@ -298,7 +297,6 @@ void VideoDisplay::zoom_image(QRect info)
 	zoom_list.push_back(new_zoom);
 
 	// changes color of frame when zoomed within frame
-	label->setObjectName("video_object");
 	label->setStyleSheet("#video_object { border: 3px solid blue; }");
 
 	update_display_frame();
@@ -316,7 +314,6 @@ void VideoDisplay::unzoom(QPoint origin)
 	// resets border color when not zoomed
 	if (zoom_list.size() == 1)
 	{
-		label->setObjectName("video_object");
 		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 }
@@ -742,13 +739,10 @@ void VideoDisplay::remove_frame()
 	delete label;
 
 	label = new EnhancedLabel(this);
-	//label->update();
-	label->repaint();
+	setup_label();
 
 	histogram_plot->remove_histogram_plots();
 	histogram_plot->initialize_histogram_plot();
-
-	setup_connections();
 
 	frame_data.clear();
 	number_of_frames = 0;

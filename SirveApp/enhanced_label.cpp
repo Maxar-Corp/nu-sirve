@@ -1,18 +1,33 @@
-#include "clickable_label.h"
+#include "enhanced_label.h"
 
 
 EnhancedLabel::EnhancedLabel(QWidget *parent) :QLabel(parent)
 {
 	rubber_band = NULL;
+	enabled = true;
 }
 
 EnhancedLabel::~EnhancedLabel()
 {
 }
 
+void EnhancedLabel::disable()
+{
+	enabled = false;
+}
+
+void EnhancedLabel::enable()
+{
+	enabled = true;
+}
+
 void EnhancedLabel::mousePressEvent(QMouseEvent *event)
 {
-	
+	if (!enabled)
+	{
+		return;
+	}
+
 	origin = event->pos();
 
 	// if left button click then draw rectangle
@@ -40,13 +55,22 @@ void EnhancedLabel::mousePressEvent(QMouseEvent *event)
 
 void EnhancedLabel::mouseMoveEvent(QMouseEvent *event)
 {
+	if (!enabled)
+	{
+		return;
+	}
+
 	// resize rectangle when user is dragging mouse
 	rubber_band->setGeometry(QRect(origin, event->pos()).normalized());
 }
 
 void EnhancedLabel::mouseReleaseEvent(QMouseEvent *event)
 {
-	
+	if (!enabled)
+	{
+		return;
+	}
+
 	if (right_button_clicked == false) {
 		
 		// find rectangle edge point
@@ -107,9 +131,4 @@ void EnhancedLabel::mouseReleaseEvent(QMouseEvent *event)
 		if(area.width() > 10 && area.height() > 10)
 			emit highlighted_area(area);
 	}
-}
-
-void EnhancedLabel::mouseDoubleClickEvent(QMouseEvent * event)
-{
-	emit double_clicked(origin);
 }
