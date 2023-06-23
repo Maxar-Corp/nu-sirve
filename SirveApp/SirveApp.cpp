@@ -80,17 +80,12 @@ SirveApp::SirveApp(QWidget *parent)
 }
 
 SirveApp::~SirveApp() {
-
-	
 	delete video_display;
-	delete playback_controller;
-	//delete histogram_plot;
 
-	//delete video_display;
-	//delete histogram_plot;
-	//delete data_plots;
+	delete playback_controller;
 	
 	delete eng_data;
+	delete data_plots;
 
 	thread_video.terminate();
 	thread_timer.terminate();
@@ -645,6 +640,13 @@ void SirveApp::setup_video_frame(){
 	btn_calculate_radiance->setIcon(signal_icon);
 	btn_calculate_radiance->setCheckable(true);
 
+	QPixmap expand_image("icons/expand.png");
+	QIcon expand_icon(expand_image);
+	btn_popout_video = new QPushButton();
+	btn_popout_video->resize(button_video_width, button_video_height);
+	btn_popout_video->setIcon(expand_icon);
+	btn_popout_video->setCheckable(true);
+
 	QWidget* widget_video_buttons = new QWidget();
 	QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
 
@@ -652,6 +654,7 @@ void SirveApp::setup_video_frame(){
 	hlayout_video_buttons->addWidget(btn_frame_record);
 	hlayout_video_buttons->addWidget(btn_zoom);
 	hlayout_video_buttons->addWidget(btn_calculate_radiance);
+	hlayout_video_buttons->addWidget(btn_popout_video);
 	hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 	hlayout_video_buttons->addWidget(btn_prev_frame);
 	hlayout_video_buttons->addWidget(btn_reverse);
@@ -854,6 +857,8 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
 	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
+
+	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_button_press);
 
 	//---------------------------------------------------------------------------
 
@@ -1287,6 +1292,36 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	playback_controller->start_timer();
 
 	//---------------------------------------------------------------------------
+}
+
+void SirveApp::handle_popout_button_press(bool checked)
+{
+	if (checked) {
+		open_popout_video_display();
+	}
+	else {
+		popout_display->close();
+	}
+}
+
+void SirveApp::open_popout_video_display()
+{
+	video_display->label->disable();
+	video_display->label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	popout_display = new PopoutVideoDisplay(video_display->label);
+	QObject::connect(popout_display, &QDialog::finished, this, &SirveApp::popout_video_closed);
+	popout_display->open();
+}
+
+void SirveApp::popout_video_closed()
+{
+	video_display->label->enable();
+	video_display->label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	btn_popout_video->setChecked(false);
+	video_layout->addWidget(video_display->label);
+	frame_video->setLayout(video_layout);
+
+	delete popout_display;
 }
 
 void SirveApp::start_stop_video_record()
