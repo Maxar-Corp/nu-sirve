@@ -28,7 +28,7 @@
 #include "video_details.h"
 #include "Data_Structures.h"
 #include "histogram_plotter.h"
-#include "clickable_label.h"
+#include "enhanced_label.h"
 #include "color_map.h"
 #include "calibration_data.h"
 #include "annotation_info.h"
@@ -118,7 +118,7 @@ private:
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
-	void setup_connections();
+	void setup_label();
 
 	void update_video_file(int x_pixels, int y_pixels);
 };
