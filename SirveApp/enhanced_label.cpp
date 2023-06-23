@@ -1,4 +1,4 @@
-#include "clickable_label.h"
+#include "enhanced_label.h"
 
 
 EnhancedLabel::EnhancedLabel(QWidget *parent) :QLabel(parent)

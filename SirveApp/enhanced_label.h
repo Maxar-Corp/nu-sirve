@@ -1,6 +1,6 @@
 #pragma once
-#ifndef CLICKABLE_LABEL_H
-#define CLICKABLE_LABEL_H
+#ifndef ENHANCED_LABEL_H
+#define ENHANCED_LABEL_H
 
 #include <QLabel>
 #include <iostream>
@@ -37,4 +37,4 @@ protected:
 };
 
 
-#endif // CLICKABLE_LABEL_H
+#endif // ENHANCED_LABEL_H

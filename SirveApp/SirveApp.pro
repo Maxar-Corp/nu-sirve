@@ -24,7 +24,6 @@ HEADERS += abir_reader.h \
             binary_file_reader.h \
             calibration_data.h \
             clickable_chartview.h \
-            clickable_label.h \
             color_correction.h \
             color_correction_plot.h \
             color_map.h \
@@ -35,6 +34,7 @@ HEADERS += abir_reader.h \
             deinterlace.h \
             deinterlace_type.h \
             engineering_data.h \
+            enhanced_label.h \
             fixed_aspect_ratio_frame.h \
             histogram_plotter.h \
             location_input.h \
@@ -70,7 +70,6 @@ SOURCES += abir_reader.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
-            clickable_label.cpp \
             color_correction_plot.cpp \
             color_correction.cpp \
             color_map.cpp \
@@ -79,6 +78,7 @@ SOURCES += abir_reader.cpp \
             custom_input_dialog.cpp \
             deinterlace.cpp \
             engineering_data.cpp \
+            enhanced_label.cpp \
             fixed_aspect_ratio_frame.cpp \
             histogram_plotter.cpp \
             location_input.cpp \
