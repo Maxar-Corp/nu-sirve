@@ -219,7 +219,12 @@ arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec &values, arma::ve
 
 void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min, double max)
 {
-
+	double sigma = arma::stddev(values);
+	double meanVal = arma::mean(values);
+	if (values.max() < 1) {
+		//values = values / values.max();
+		values = values / (meanVal + 3. * sigma) - .5;
+	}
 	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
