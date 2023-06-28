@@ -7,6 +7,7 @@
 #include <QGridLayout>
 
 #include "enhanced_label.h"
+#include "clickable_chartview.h"
 
 class PopoutDialog : public QDialog
 {
@@ -14,6 +15,7 @@ class PopoutDialog : public QDialog
 
 public:
 	PopoutDialog(EnhancedLabel* label);
+	PopoutDialog(Clickable_QChartView* chart_view);
 	~PopoutDialog();
 
     QGridLayout * mainLayout;
