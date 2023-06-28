@@ -46,9 +46,15 @@ SirveApp::SirveApp(QWidget *parent)
 	frame_histogram_abs->setLayout(histogram_abs_layout);	
 	
 	// links chart with frame where it will be contained
-	QVBoxLayout *histogram_abs_layout_full = new QVBoxLayout();
+	// Note this QVBoxLayout is persistent so we can reattach the histogram popout to it later
+	histogram_abs_layout_full = new QVBoxLayout();
+	btn_popout_histogram = new QPushButton("Push to Popout Display");
+	btn_popout_histogram->resize(40, 40);
+	btn_popout_histogram->setCheckable(true);
+	histogram_abs_layout_full->addWidget(btn_popout_histogram);
 	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
 	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
+	
 
 	//---------------------------------------------------------------------------
 	//---------------------------------------------------------------------------
@@ -858,7 +864,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
 	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
 
-	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_button_press);
+	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_video_btn);
 
 	//---------------------------------------------------------------------------
 
@@ -906,7 +912,7 @@ void SirveApp::setup_connections() {
 	connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::plot_change);
 
 	//---------------------------------------------------------------------------
-
+	connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::handle_popout_histogram_btn);
 }
 
 void SirveApp::save_workspace()
@@ -1294,13 +1300,40 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	//---------------------------------------------------------------------------
 }
 
-void SirveApp::handle_popout_button_press(bool checked)
+void SirveApp::handle_popout_histogram_btn(bool checked)
+{
+	if (checked) {
+		open_popout_histogram_plot();
+	}
+	else
+	{
+		popout_histogram->close();
+	}
+}
+
+void SirveApp::open_popout_histogram_plot()
+{
+	popout_histogram = new PopoutDialog(video_display->histogram_plot->chart_full_view);
+	QObject::connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
+	popout_histogram->open();
+}
+
+void SirveApp::popout_histogram_closed()
+{
+	btn_popout_histogram->setChecked(false);
+	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
+	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
+
+	delete popout_histogram;
+}
+
+void SirveApp::handle_popout_video_btn(bool checked)
 {
 	if (checked) {
 		open_popout_video_display();
 	}
 	else {
-		popout_display->close();
+		popout_video->close();
 	}
 }
 
@@ -1308,9 +1341,9 @@ void SirveApp::open_popout_video_display()
 {
 	video_display->label->disable();
 	video_display->label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	popout_display = new PopoutVideoDisplay(video_display->label);
-	QObject::connect(popout_display, &QDialog::finished, this, &SirveApp::popout_video_closed);
-	popout_display->open();
+	popout_video = new PopoutDialog(video_display->label);
+	QObject::connect(popout_video, &QDialog::finished, this, &SirveApp::popout_video_closed);
+	popout_video->open();
 }
 
 void SirveApp::popout_video_closed()
@@ -1321,7 +1354,7 @@ void SirveApp::popout_video_closed()
 	video_layout->addWidget(video_display->label);
 	frame_video->setLayout(video_layout);
 
-	delete popout_display;
+	delete popout_video;
 }
 
 void SirveApp::start_stop_video_record()
@@ -2005,7 +2038,6 @@ void SirveApp::update_enhanced_range(bool input)
 void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
-
 		video_display->show_relative_histogram = true;
 
 		stacked_layout_histograms->setCurrentIndex(1);
