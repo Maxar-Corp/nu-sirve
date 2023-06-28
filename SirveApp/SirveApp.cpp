@@ -192,16 +192,13 @@ QWidget* SirveApp::setup_file_import_tab() {
 
 	//btn_load_osm->setMinimumWidth(30);
 	//btn_copy_directory->setMinimumWidth(30);
-	
-	QFrame* horizontal_segment1 = new QFrame();
-	horizontal_segment1->setFrameShape(QFrame::HLine);
 
 	QGridLayout* grid_import_file = new QGridLayout();
 	grid_import_file->addWidget(lbl_file_name, 0, 0, 1, 2);
 	grid_import_file->addWidget(btn_load_osm, 1, 0);
 	grid_import_file->addWidget(btn_copy_directory, 1, 1);
 	grid_import_file->addWidget(btn_calibration_dialog, 2, 0, 1, 2);
-	grid_import_file->addWidget(horizontal_segment1, 3, 0, 1, 2);
+	grid_import_file->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_import->addLayout(grid_import_file);
 
@@ -217,9 +214,6 @@ QWidget* SirveApp::setup_file_import_tab() {
 	txt_end_frame->setAlignment(Qt::AlignHCenter);
 	btn_get_frames = new QPushButton(" Load Frames");
 
-	QFrame* horizontal_segment2 = new QFrame();
-	horizontal_segment2->setFrameShape(QFrame::HLine);
-
 	QGridLayout* grid_tab_import_frames = new QGridLayout();
 	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
 	grid_tab_import_frames->addWidget(label_stop_frame, 0, 1);
@@ -227,7 +221,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 	grid_tab_import_frames->addWidget(txt_end_frame, 1, 1);
 	grid_tab_import_frames->addWidget(lbl_max_frames, 2, 0, 1, 2);
 	grid_tab_import_frames->addWidget(btn_get_frames, 3, 0, 1, 2);
-	grid_tab_import_frames->addWidget(horizontal_segment2, 4, 0, 1, 2);
+	grid_tab_import_frames->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 2);
 
 	grid_tab_import_frames->setColumnMinimumWidth(0, 30);
 	grid_tab_import_frames->setColumnMinimumWidth(1, 30);
@@ -247,16 +241,13 @@ QWidget* SirveApp::setup_file_import_tab() {
 	btn_apply_epoch = new QPushButton("Apply Epoch");
 	//btn_apply_epoch->setMinimumWidth(30);
 
-	QFrame* horizontal_segment3 = new QFrame();
-	horizontal_segment3->setFrameShape(QFrame::HLine);
-
 	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
 	vlayout_tab_import_epoch->addWidget(label_epoch);
 	vlayout_tab_import_epoch->addWidget(dt_epoch);
 	vlayout_tab_import_epoch->addWidget(label_date_format);
 	vlayout_tab_import_epoch->addWidget(lbl_current_epoch);
 	vlayout_tab_import_epoch->addWidget(btn_apply_epoch);
-	vlayout_tab_import_epoch->addWidget(horizontal_segment3);
+	vlayout_tab_import_epoch->addWidget(QtHelpers::HorizontalLine());
 
 	vlayout_tab_import->addLayout(vlayout_tab_import_epoch);
 
@@ -287,9 +278,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	slider_gain = new QSlider();
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
 	btn_reset_color_correction = new QPushButton("Reset Set Points");
-
-	QFrame* horizontal_segment4 = new QFrame();
-	horizontal_segment4->setFrameShape(QFrame::HLine);
 
 	// Set attributes for all qwidgets
 	label_lift->setToolTip("Dark Set Point pushes the image darker");
@@ -334,7 +322,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 
 	vlayout_tab_color->addWidget(widget_tab_color_sliders);
 	vlayout_tab_color->addWidget(widget_tab_color_controls);
-	vlayout_tab_color->addWidget(horizontal_segment4);
+	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 
 
 	 // --------------------------------------------------------------------------
@@ -356,15 +344,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
-
-	QFrame* horizontal_segment5 = new QFrame();
-	QFrame* horizontal_segment6 = new QFrame();
-	QFrame* horizontal_segment7 = new QFrame();
-	QFrame* horizontal_segment8 = new QFrame();
-	horizontal_segment5->setFrameShape(QFrame::HLine);
-	horizontal_segment6->setFrameShape(QFrame::HLine);
-	horizontal_segment7->setFrameShape(QFrame::HLine);
-	horizontal_segment8->setFrameShape(QFrame::HLine);
 	
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_display->video_colors.maps.size();
@@ -411,15 +390,15 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	
 	vlayout_tab_color->addLayout(hlayout_osm_tracks);
 	vlayout_tab_color->addLayout(hlayout_primary_track);
-	vlayout_tab_color->addWidget(horizontal_segment5);
+	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
 	vlayout_tab_color->addLayout(hlayout_text_color);
 	vlayout_tab_color->addWidget(btn_change_banner_text);
-	vlayout_tab_color->addWidget(horizontal_segment6);
+	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addLayout(hlayout_color_map);
-	vlayout_tab_color->addWidget(horizontal_segment7);
+	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(btn_add_annotations);
 
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
@@ -438,16 +417,13 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	btn_create_nuc = new QPushButton("Create Filter");
 
-	QFrame* horizontal_segment5 = new QFrame();
-	horizontal_segment5->setFrameShape(QFrame::HLine);
-
 	//QWidget* widget_tab_processing_nuc = new QWidget();
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
 
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
 	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 1, 0, 1, 2);
 	grid_tab_processing_nuc->addWidget(btn_create_nuc, 2, 1);
-	grid_tab_processing_nuc->addWidget(horizontal_segment5, 3, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
 
@@ -457,16 +433,13 @@ QWidget* SirveApp::setup_filter_tab() {
 	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
 	btn_bgs = new QPushButton("Create Filter");
 
-	QFrame* horizontal_segment6 = new QFrame();
-	horizontal_segment6->setFrameShape(QFrame::HLine);
-
 	//QWidget* widget_tab_processing_bgs = new QWidget();
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
 	grid_tab_processing_bgs->addWidget(label_background_subtraction, 0, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(lbl_adaptive_background_suppression, 1, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
-	grid_tab_processing_bgs->addWidget(horizontal_segment6, 3, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
 
@@ -474,9 +447,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	QLabel* label_deinterlace = new QLabel("De-Interlace Methods");
 	cmb_deinterlace_options = new QComboBox();
 	btn_deinterlace = new QPushButton("Create Filter");
-
-	QFrame* horizontal_segment7 = new QFrame();
-	horizontal_segment7->setFrameShape(QFrame::HLine);
 
 	cmb_deinterlace_options->addItem("Max Absolute Value");
 	cmb_deinterlace_options->addItem("Centroid");
@@ -487,7 +457,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 2);
 	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
 	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 2, 1);
-	grid_tab_processing_deinterlace->addWidget(horizontal_segment7, 3, 0, 1, 2);
+	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
 
@@ -499,12 +469,9 @@ QWidget* SirveApp::setup_filter_tab() {
 	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::identify_bad_pixels);
 	btn_bad_pixel_identification->setEnabled(false);
 
-	QFrame* horizontal_segment8 = new QFrame();
-	horizontal_segment8->setFrameShape(QFrame::HLine);
-
 	vlayout_tab_processing_bad_pixels->addWidget(label_bad_pixel);
 	vlayout_tab_processing_bad_pixels->addWidget(btn_bad_pixel_identification);
-	vlayout_tab_processing_bad_pixels->addWidget(horizontal_segment8);
+	vlayout_tab_processing_bad_pixels->addWidget(QtHelpers::HorizontalLine());
 
 	vlayout_tab_processing->addLayout(vlayout_tab_processing_bad_pixels);
 
@@ -525,9 +492,6 @@ QWidget* SirveApp::setup_workspace_tab(){
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_save = new QPushButton("Save Workspace");
 
-	QFrame* horizontal_segment = new QFrame();
-	horizontal_segment->setFrameShape(QFrame::HLine);
-
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
 	
@@ -535,7 +499,7 @@ QWidget* SirveApp::setup_workspace_tab(){
 	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
 	grid_workspace->addWidget(btn_workspace_load, 1, 0, 1, 1);
 	grid_workspace->addWidget(btn_workspace_save, 1, 1, 1, 1);
-	grid_workspace->addWidget(horizontal_segment, 2, 0, 1, -1);
+	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, -1);
 	grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
 	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
 
