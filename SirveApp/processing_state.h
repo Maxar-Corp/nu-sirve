@@ -13,7 +13,8 @@ enum struct Processing_Method
 	original,
 	background_subtraction,
 	non_uniformity_correction,
-    deinterlace
+    deinterlace,
+    bad_pixel_identification
 };
 
 struct processing_state {

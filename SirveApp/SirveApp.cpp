@@ -491,6 +491,25 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
 
+	// ------------------------------------------------------------------------
+	QLabel* label_bad_pixel = new QLabel("Bad Pixels");
+
+	QVBoxLayout* vlayout_tab_processing_bad_pixels = new QVBoxLayout();
+	btn_bad_pixel_identification = new QPushButton("Identify Bad Pixels");
+	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::identify_bad_pixels);
+	btn_bad_pixel_identification->setEnabled(false);
+
+	QFrame* horizontal_segment8 = new QFrame();
+	horizontal_segment8->setFrameShape(QFrame::HLine);
+
+	vlayout_tab_processing_bad_pixels->addWidget(label_bad_pixel);
+	vlayout_tab_processing_bad_pixels->addWidget(btn_bad_pixel_identification);
+	vlayout_tab_processing_bad_pixels->addWidget(horizontal_segment8);
+
+	vlayout_tab_processing->addLayout(vlayout_tab_processing_bad_pixels);
+
+	// ------------------------------------------------------------------------
+
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
 	return widget_tab_processing;
@@ -984,6 +1003,11 @@ void SirveApp::load_workspace()
 				create_non_uniformity_correction(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
 				break;
 
+			case Processing_Method::bad_pixel_identification:
+				INFO << "Identifying bad pixels from workspace.";
+				identify_bad_pixels();
+				break;
+
 			default:
 				INFO << "Unexpected processing method in workspace.";
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
@@ -1151,6 +1175,7 @@ void SirveApp::load_osm_data()
 
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
+	btn_bad_pixel_identification->setEnabled(false);
 
 	CalibrationData temp;
 	calibration_model = temp;
@@ -1288,6 +1313,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	btn_get_frames->setEnabled(true);
 	btn_calibration_dialog->setEnabled(true);
+	btn_bad_pixel_identification->setEnabled(true);
 
 	tab_menu->setTabEnabled(1, true);
 	tab_menu->setTabEnabled(2, true);
@@ -2084,6 +2110,11 @@ void SirveApp::apply_epoch_time()
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 	plot_change();
+}
+
+void SirveApp::identify_bad_pixels()
+{
+	QtHelpers::LaunchMessageBox(QString("Bad Pixel Identifcation"), "Identifying bad pixels in the display.");
 }
 
 void SirveApp::create_non_uniformity_correction_from_external_file()
