@@ -29,6 +29,10 @@ processing_state create_processing_state_from_json(const QJsonObject & json_obj)
         temp.nuc_file_path = json_obj.value("nuc_file_path").toInt();
         return temp;
     }
+    if (method == "Bad Pixel Identification")
+    {
+        return processing_state { Processing_Method::bad_pixel_identification };
+    }
 
     throw "Unexpected";
 }
