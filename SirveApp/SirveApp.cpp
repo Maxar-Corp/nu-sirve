@@ -858,7 +858,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
 	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
 
-	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_button_press);
+	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_video_btn);
 
 	//---------------------------------------------------------------------------
 
@@ -1294,13 +1294,13 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	//---------------------------------------------------------------------------
 }
 
-void SirveApp::handle_popout_button_press(bool checked)
+void SirveApp::handle_popout_video_btn(bool checked)
 {
 	if (checked) {
 		open_popout_video_display();
 	}
 	else {
-		popout_display->close();
+		popout_video->close();
 	}
 }
 
@@ -1308,9 +1308,9 @@ void SirveApp::open_popout_video_display()
 {
 	video_display->label->disable();
 	video_display->label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	popout_display = new PopoutVideoDisplay(video_display->label);
-	QObject::connect(popout_display, &QDialog::finished, this, &SirveApp::popout_video_closed);
-	popout_display->open();
+	popout_video = new PopoutDialog(video_display->label);
+	QObject::connect(popout_video, &QDialog::finished, this, &SirveApp::popout_video_closed);
+	popout_video->open();
 }
 
 void SirveApp::popout_video_closed()
@@ -1321,7 +1321,7 @@ void SirveApp::popout_video_closed()
 	video_layout->addWidget(video_display->label);
 	frame_video->setLayout(video_layout);
 
-	delete popout_display;
+	delete popout_video;
 }
 
 void SirveApp::start_stop_video_record()
