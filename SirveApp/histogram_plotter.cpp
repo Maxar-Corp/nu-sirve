@@ -109,10 +109,10 @@ void  HistogramLine_Plot::setup_histogram_plot(QChart *input_chart) {
 	x_axis->setLabelsVisible(true);
 	x_axis->setTitleText("Luminance");
 
-	if (input_chart == chart)
-		input_chart->setTitle(QString("Absolute Histogram"));
-	else
+	if (input_chart == rel_chart)
 		input_chart->setTitle(QString("Relative Histogram"));
+	else
+		input_chart->setTitle(QString("Absolute Histogram"));
 
 	input_chart->setMargins(QMargins(0.01, 0.01, 0.01, 0.01));
 	input_chart->setContentsMargins(0, 0, 0, 0);
