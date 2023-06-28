@@ -46,7 +46,7 @@ HEADERS += abir_reader.h \
             osm_reader.h \
             playback.h \
             plot_engineering_data.h \
-            popout_video_display.h \
+            popout_dialog.h \
             process_file.h \
             processing_state.h \
             Section.h \
@@ -92,7 +92,7 @@ SOURCES += abir_reader.cpp \
             osm_reader.cpp \
             playback.cpp \
             plot_engineering_data.cpp \
-            popout_video_display.cpp \
+            popout_dialog.cpp \
             process_file.cpp \
             processing_state.cpp \
             Section.cpp \

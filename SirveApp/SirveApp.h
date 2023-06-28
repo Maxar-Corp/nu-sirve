@@ -32,7 +32,7 @@
 #include "support/qthelpers.h"
 #include "workspace.h"
 #include "Data_Structures.h"
-#include "popout_video_display.h"
+#include "popout_dialog.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -99,7 +99,7 @@ public:
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
-		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video;
+		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram;
 	
 	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
@@ -204,12 +204,14 @@ public:
 		void handle_new_processing_state(QString state_name, int index);
 		
 		void popout_video_closed();
+		void popout_histogram_closed();
 
 private:
-	
+	QVBoxLayout *histogram_abs_layout_full;
 	QClipboard *clipboard;
 
-	PopoutVideoDisplay *popout_display;
+	PopoutDialog *popout_video;
+	PopoutDialog *popout_histogram;
 
 	void create_menu_actions();
 	void edit_color_map();
@@ -222,9 +224,12 @@ private:
 	void plot_change();
 	void annotate_video();
 
-	void handle_popout_button_press(bool checked);
+	void handle_popout_video_btn(bool checked);
 	void open_popout_video_display();
 	
+	void handle_popout_histogram_btn(bool checked);
+	void open_popout_histogram_plot();
+
 	void resize_ui();
 
 	QMenu *menu_file, *menu_settings;
