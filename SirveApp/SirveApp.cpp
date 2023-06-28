@@ -46,9 +46,15 @@ SirveApp::SirveApp(QWidget *parent)
 	frame_histogram_abs->setLayout(histogram_abs_layout);	
 	
 	// links chart with frame where it will be contained
-	QVBoxLayout *histogram_abs_layout_full = new QVBoxLayout();
+	// Note this QVBoxLayout is persistent so we can reattach the histogram popout to it later
+	histogram_abs_layout_full = new QVBoxLayout();
+	btn_popout_histogram = new QPushButton("Push to Popout Display");
+	btn_popout_histogram->resize(40, 40);
+	btn_popout_histogram->setCheckable(true);
+	histogram_abs_layout_full->addWidget(btn_popout_histogram);
 	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
 	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
+	
 
 	//---------------------------------------------------------------------------
 	//---------------------------------------------------------------------------
@@ -906,7 +912,7 @@ void SirveApp::setup_connections() {
 	connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::plot_change);
 
 	//---------------------------------------------------------------------------
-
+	connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::handle_popout_histogram_btn);
 }
 
 void SirveApp::save_workspace()
@@ -1292,6 +1298,33 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	playback_controller->start_timer();
 
 	//---------------------------------------------------------------------------
+}
+
+void SirveApp::handle_popout_histogram_btn(bool checked)
+{
+	if (checked) {
+		open_popout_histogram_plot();
+	}
+	else
+	{
+		popout_histogram->close();
+	}
+}
+
+void SirveApp::open_popout_histogram_plot()
+{
+	popout_histogram = new PopoutDialog(video_display->histogram_plot->chart_full_view);
+	QObject::connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
+	popout_histogram->open();
+}
+
+void SirveApp::popout_histogram_closed()
+{
+	btn_popout_histogram->setChecked(false);
+	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
+	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
+
+	delete popout_histogram;
 }
 
 void SirveApp::handle_popout_video_btn(bool checked)
@@ -2005,7 +2038,6 @@ void SirveApp::update_enhanced_range(bool input)
 void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
-
 		video_display->show_relative_histogram = true;
 
 		stacked_layout_histograms->setCurrentIndex(1);
