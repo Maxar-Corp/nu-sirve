@@ -32,7 +32,7 @@
 #include "support/qthelpers.h"
 #include "workspace.h"
 #include "Data_Structures.h"
-#include "popout_video_display.h"
+#include "popout_dialog.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -209,7 +209,7 @@ private:
 	
 	QClipboard *clipboard;
 
-	PopoutVideoDisplay *popout_display;
+	PopoutDialog *popout_video;
 
 	void create_menu_actions();
 	void edit_color_map();
@@ -222,7 +222,7 @@ private:
 	void plot_change();
 	void annotate_video();
 
-	void handle_popout_button_press(bool checked);
+	void handle_popout_video_btn(bool checked);
 	void open_popout_video_display();
 	
 	void resize_ui();
