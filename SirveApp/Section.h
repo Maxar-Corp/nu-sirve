@@ -23,6 +23,8 @@
 #ifndef SECTION_H
 #define SECTION_H
 
+#include "support/qthelpers.h"
+
 #include <QFrame>
 #include <QGridLayout>
 #include <QParallelAnimationGroup>

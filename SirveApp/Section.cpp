@@ -26,7 +26,7 @@ Section::Section(const QString & title, const int animationDuration, QWidget* pa
     : QWidget(parent), animationDuration(animationDuration)
 {
     toggleButton = new QToolButton(this);
-    headerLine = new QFrame(this);
+    headerLine = QtHelpers::HorizontalLine(this);
     toggleAnimation = new QParallelAnimationGroup(this);
     contentArea = new QScrollArea(this);
     mainLayout = new QGridLayout(this);
@@ -38,7 +38,6 @@ Section::Section(const QString & title, const int animationDuration, QWidget* pa
     toggleButton->setCheckable(true);
     toggleButton->setChecked(false);
 
-    headerLine->setFrameShape(QFrame::HLine);
     headerLine->setFrameShadow(QFrame::Sunken);
     headerLine->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
