@@ -19,6 +19,7 @@ HEADERS += abir_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
             background_subtraction.h \
+            bad_pixel_identification.h \
             binary_file_reader.h \
             calibration_data.h \
             clickable_chartview.h \
@@ -66,6 +67,7 @@ SOURCES += abir_reader.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \
             background_subtraction.cpp \
+            bad_pixel_identification.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
@@ -141,11 +143,13 @@ test {
     SOURCES -= main.cpp
 
     HEADERS += \
-        testing/test_example.h
+        testing/test_example.h \
+        testing/test_bad_pixel_identification.h
 
     SOURCES += \
         testing/run_all_tests.cpp \
-        testing/test_example.cpp
+        testing/test_example.cpp \
+        testing/test_bad_pixel_identification.cpp
 
     dlls.files += "../5.15.2/msvc2019_64/bin/Qt5Test.dll"
 }
