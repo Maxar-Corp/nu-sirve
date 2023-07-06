@@ -341,6 +341,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	chk_primary_track_data = new QCheckBox("Show Primary Track Info");
 	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
 	chk_show_time = new QCheckBox("Show Zulu Time");
+	chk_smooth_bad_pixels = new QCheckBox("Smooth Dead Pixels");
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
@@ -394,6 +395,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
+	vlayout_tab_color->addWidget(chk_smooth_bad_pixels);
 	vlayout_tab_color->addLayout(hlayout_text_color);
 	vlayout_tab_color->addWidget(btn_change_banner_text);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
@@ -815,6 +817,7 @@ void SirveApp::setup_connections() {
 	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_primary_track_data);
 	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
 	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
+	QObject::connect(chk_smooth_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_smooth_bad_pixels);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
 	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_banner_color);
 
@@ -1140,6 +1143,7 @@ void SirveApp::load_osm_data()
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
 	btn_bad_pixel_identification->setEnabled(false);
+	chk_smooth_bad_pixels->setChecked(false);
 
 	CalibrationData temp;
 	calibration_model = temp;
@@ -2078,7 +2082,13 @@ void SirveApp::apply_epoch_time()
 
 void SirveApp::identify_bad_pixels()
 {
-	QtHelpers::LaunchMessageBox(QString("Bad Pixel Identifcation"), "Identifying bad pixels in the display.");
+	chk_smooth_bad_pixels->setChecked(true);
+}
+
+void SirveApp::handle_chk_smooth_bad_pixels(bool checked)
+{
+	video_display->smooth_bad_pixels(checked);
+	video_display->update_display_frame();
 }
 
 void SirveApp::create_non_uniformity_correction_from_external_file()

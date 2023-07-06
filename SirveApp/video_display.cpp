@@ -672,6 +672,11 @@ void VideoDisplay::update_display_frame()
 	//counter++;
 }
 
+void VideoDisplay::smooth_bad_pixels(bool status)
+{
+	show_bad_pixels = status;
+}
+
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
 {
 	display_data = input_data;
