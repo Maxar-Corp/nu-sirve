@@ -65,6 +65,8 @@ public:
 	int index_video_color;
 	QVector<QRgb> colorTable;
 
+	void smooth_bad_pixels(bool status);
+
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
 	void set_calibration_model(CalibrationData input);
@@ -105,7 +107,7 @@ public slots:
 
 private:
 	
-	bool is_zoom_active, is_calculate_active;
+	bool is_zoom_active, is_calculate_active, show_bad_pixels;
 	std::vector<QRect> zoom_list;
 	int index_current_video;
 
