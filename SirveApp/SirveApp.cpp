@@ -341,7 +341,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	chk_primary_track_data = new QCheckBox("Show Primary Track Info");
 	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
 	chk_show_time = new QCheckBox("Show Zulu Time");
-	chk_smooth_bad_pixels = new QCheckBox("Smooth Dead Pixels");
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
@@ -395,7 +394,27 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
-	vlayout_tab_color->addWidget(chk_smooth_bad_pixels);
+	
+	// ------------------------------------------------------------------------
+	QVBoxLayout* vlayout_bad_pixels = new QVBoxLayout();
+	vlayout_bad_pixels->addWidget(QtHelpers::HorizontalLine());
+	
+	QLabel* label_bad_pixel = new QLabel("Bad Pixels");
+	vlayout_bad_pixels->addWidget(label_bad_pixel);
+	
+	btn_bad_pixel_identification = new QPushButton("Identify Dead Pixels");
+	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::identify_bad_pixels);
+	btn_bad_pixel_identification->setEnabled(false);
+	vlayout_bad_pixels->addWidget(btn_bad_pixel_identification);
+
+	chk_smooth_bad_pixels = new QCheckBox("Smooth Dead Pixels");
+	vlayout_bad_pixels->addWidget(chk_smooth_bad_pixels);
+
+	vlayout_bad_pixels->addWidget(QtHelpers::HorizontalLine());
+
+	vlayout_tab_color->addLayout(vlayout_bad_pixels);
+	// ------------------------------------------------------------------------
+
 	vlayout_tab_color->addLayout(hlayout_text_color);
 	vlayout_tab_color->addWidget(btn_change_banner_text);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
@@ -462,20 +481,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
-
-	// ------------------------------------------------------------------------
-	QLabel* label_bad_pixel = new QLabel("Bad Pixels");
-
-	QVBoxLayout* vlayout_tab_processing_bad_pixels = new QVBoxLayout();
-	btn_bad_pixel_identification = new QPushButton("Identify Bad Pixels");
-	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::identify_bad_pixels);
-	btn_bad_pixel_identification->setEnabled(false);
-
-	vlayout_tab_processing_bad_pixels->addWidget(label_bad_pixel);
-	vlayout_tab_processing_bad_pixels->addWidget(btn_bad_pixel_identification);
-	vlayout_tab_processing_bad_pixels->addWidget(QtHelpers::HorizontalLine());
-
-	vlayout_tab_processing->addLayout(vlayout_tab_processing_bad_pixels);
 
 	// ------------------------------------------------------------------------
 
