@@ -916,7 +916,7 @@ void SirveApp::save_workspace()
 			QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
 			return;
 		}
-		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list, video_display->get_bad_pixel_map());
 		cmb_workspace_name->clear();
 		cmb_workspace_name->addItems(workspace.get_workspace_names());
 		cmb_workspace_name->setCurrentText(workspace_name);
@@ -970,11 +970,6 @@ void SirveApp::load_workspace()
 				create_non_uniformity_correction(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
 				break;
 
-			case Processing_Method::bad_pixel_identification:
-				INFO << "Identifying bad pixels from workspace.";
-				identify_bad_pixels();
-				break;
-
 			default:
 				INFO << "Unexpected processing method in workspace.";
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
@@ -985,6 +980,21 @@ void SirveApp::load_workspace()
 	{
 		annotation_info anno = workspace_vals.annotations[i];
 		video_display->annotation_list.push_back(anno);
+	}
+
+	if (workspace_vals.bad_pixels.size() > 0)
+	{
+		std::vector<short> bad_pixel_mask(video_display->number_pixels, 0);
+
+		for (auto i = 0; i < workspace_vals.bad_pixels.size(); i++)
+		{
+			int index = workspace_vals.bad_pixels[i];
+			bad_pixel_mask[index] = 1;
+		}
+
+		video_display->set_bad_pixel_map(bad_pixel_mask);
+		chk_smooth_bad_pixels->setEnabled(true);
+		chk_smooth_bad_pixels->setChecked(true);
 	}
 }
 
@@ -1078,6 +1088,7 @@ void SirveApp::load_osm_data()
 		delete engineering_plot_layout;			
 		
 		video_display->container.clear_processing_states();
+		video_display->set_bad_pixel_map(std::vector<short>());
 		video_display->remove_frame();
 
 		cmb_processing_states->setEnabled(false);
