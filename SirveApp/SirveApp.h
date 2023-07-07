@@ -33,6 +33,7 @@
 #include "workspace.h"
 #include "Data_Structures.h"
 #include "popout_dialog.h"
+#include "bad_pixel_identification.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -99,7 +100,7 @@ public:
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
-		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram;
+		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_bad_pixel_identification;
 	
 	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
@@ -109,7 +110,7 @@ public:
 	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
-	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data, *chk_show_time;
+	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data, *chk_show_time, *chk_smooth_bad_pixels;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
@@ -200,6 +201,7 @@ public:
 		void toggle_primary_track_data();
 		void toggle_sensor_track_data();
 		void toggle_frame_time();
+		void handle_chk_smooth_bad_pixels(bool checked);
 
 		void handle_new_processing_state(QString state_name, int index);
 		
@@ -245,6 +247,7 @@ private:
 	void create_background_subtraction_correction(int relative_start_frame, int num_frames);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
 	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void identify_bad_pixels();
 
 	void enable_engineering_plot_options();
 };

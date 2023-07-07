@@ -18,6 +18,7 @@ struct WorkspaceValues {
     int start_frame, end_frame;
     std::vector<processing_state> all_states;
     std::vector<annotation_info> annotations;
+    std::vector<int> bad_pixels;
 };
 
 class Workspace {
@@ -26,6 +27,6 @@ class Workspace {
         ~Workspace();
 
         QStringList Workspace::get_workspace_names();
-        void Workspace::save_state(QString workspace_name, QString image_path, int start_frame, int end_frame, const std::vector<processing_state> all_states, const std::vector<annotation_info> annotations);
+        void Workspace::save_state(QString workspace_name, QString image_path, int start_frame, int end_frame, const std::vector<processing_state> all_states, const std::vector<annotation_info> annotations, std::vector<short> bad_pixels);
         WorkspaceValues Workspace::load_state(QString workspace_name);
 };
