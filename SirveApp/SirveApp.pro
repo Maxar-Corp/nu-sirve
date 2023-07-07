@@ -3,9 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = SirveApp
 INCLUDEPATH += .
-DESTDIR = ../release
 
 # You can make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -21,6 +19,7 @@ HEADERS += abir_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
             background_subtraction.h \
+            bad_pixel_identification.h \
             binary_file_reader.h \
             calibration_data.h \
             clickable_chartview.h \
@@ -68,6 +67,7 @@ SOURCES += abir_reader.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \
             background_subtraction.cpp \
+            bad_pixel_identification.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
@@ -123,27 +123,54 @@ LIBS += "-L../fftw-3.3.5-dll64/" -llibfftw3-3 -llibfftw3f-3 -llibfftw3l-3
 LIBS += "-L../5.15.2/msvc2019_64/lib/"
 
 #To copy all the required files alongside the exe, run `nmake install`
-dlls.files = "../fftw-3.3.5-dll64/libfftw3-3.dll" \
-		"../fftw-3.3.5-dll64/libfftw3f-3.dll" \
-		"../fftw-3.3.5-dll64/libfftw3l-3.dll" \
-		"../opencv/build/x64/vc16/bin/opencv_world470.dll" \
-		"../armadillo-12.2.0/examples/lib_win64/libopenblas.dll" \
-		"../5.15.2/msvc2019_64/bin/Qt5Charts.dll" \
-		"../5.15.2/msvc2019_64/bin/Qt5Core.dll" \
-		"../5.15.2/msvc2019_64/bin/Qt5Gui.dll" \
-		"../5.15.2/msvc2019_64/bin/Qt5Widgets.dll"
+dlls.files = "../5.15.2/msvc2019_64/bin/Qt5Charts.dll" \
+            "../5.15.2/msvc2019_64/bin/Qt5Core.dll" \
+            "../5.15.2/msvc2019_64/bin/Qt5Gui.dll" \
+            "../5.15.2/msvc2019_64/bin/Qt5Widgets.dll" \
+            "../fftw-3.3.5-dll64/libfftw3-3.dll" \
+            "../fftw-3.3.5-dll64/libfftw3f-3.dll" \
+            "../fftw-3.3.5-dll64/libfftw3l-3.dll" \
+            "../opencv/build/x64/vc16/bin/opencv_world470.dll" \
+            "../armadillo-12.2.0/examples/lib_win64/libopenblas.dll"
+
+test {
+    message(Building for test)
+
+    TARGET = run_all_tests
+    DESTDIR = ../tests
+
+    QT += testlib
+    SOURCES -= main.cpp
+
+    HEADERS += \
+        testing/test_example.h \
+        testing/test_bad_pixel_identification.h
+
+    SOURCES += \
+        testing/run_all_tests.cpp \
+        testing/test_example.cpp \
+        testing/test_bad_pixel_identification.cpp
+
+    dlls.files += "../5.15.2/msvc2019_64/bin/Qt5Test.dll"
+}
+else {
+    message(Building normally)
+
+    TARGET = SirveApp
+    DESTDIR = ../release
+
+    qwindows.files = "../5.15.2/msvc2019_64/plugins/platforms/qwindows.dll"
+    qwindows.path = $${DESTDIR}/platforms
+    INSTALLS += qwindows
+
+    icons.files = "icons/*"
+    icons.path = $${DESTDIR}/icons
+    INSTALLS += icons
+
+    configuration.files = "config/*"
+    configuration.path = $${DESTDIR}/config
+    INSTALLS += configuration
+}
 
 dlls.path = $${DESTDIR}
 INSTALLS += dlls
-
-qwindows.files = "../5.15.2/msvc2019_64/plugins/platforms/qwindows.dll"
-qwindows.path = $${DESTDIR}/platforms
-INSTALLS += qwindows
-
-icons.files = "icons/*"
-icons.path = $${DESTDIR}/icons
-INSTALLS += icons
-
-configuration.files = "config/*"
-configuration.path = $${DESTDIR}/config
-INSTALLS += configuration

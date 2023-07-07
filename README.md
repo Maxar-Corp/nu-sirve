@@ -12,3 +12,6 @@ See the [full installation requirements README](docs/INSTALLATION.md) for detail
 
 See the [debug instructions README](docs/DEBUG.md) for detailed debugging information.
 
+## Running Tests in SIRVE
+
+See the [test instructions README](docs/TESTING.md) for detailed testing instructions.
