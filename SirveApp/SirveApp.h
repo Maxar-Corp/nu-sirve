@@ -76,7 +76,7 @@ public:
 	Workspace workspace;
 	
 	QWidget *main_widget;
-	QGridLayout *video_layout, *engineering_plot_layout;
+	QGridLayout *engineering_plot_layout;
 	
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
@@ -104,7 +104,7 @@ public:
 	
 	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
-	QFrame* frame_video_player, * frame_video, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
+	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 	QStackedLayout* stacked_layout_histograms;

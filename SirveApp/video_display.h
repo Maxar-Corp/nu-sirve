@@ -41,6 +41,8 @@ public:
    
 	VideoDisplay(int x_pixels, int y_pixels, int input_bit_level);
 	~VideoDisplay();
+	QGridLayout *video_display_layout;
+	void reclaim_label();
 
 	int counter_record, video_frame_number;
 	bool record_frame, show_relative_histogram;
