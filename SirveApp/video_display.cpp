@@ -422,6 +422,31 @@ void VideoDisplay::update_display_frame()
 	// Convert image back to RGB to facilitate use of the colors 
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+	if (smooth_bad_pixels)
+	{
+		// For now, we will simply "smooth" bad pixels
+		// By copying the color from the pixel to their left
+		// If the bad pixel is the left-most pixel, grab the pixel to the right instead
+		// In the future, we will want this to be more sophisticated
+		for (auto i = 0; i < bad_pixel_map.size(); i++)
+		{
+			if (bad_pixel_map[i] == 1)
+			{
+				int pixel_x = i % image_x;
+				int pixel_y = i / image_x;
+
+				QRgb pixel_color;
+				if (pixel_x == 0) {
+					pixel_color = frame.pixel(1, pixel_y);
+				}
+				else {
+					pixel_color = frame.pixel(pixel_x - 1, pixel_y);
+				}
+				frame.setPixel(pixel_x, pixel_y, pixel_color);
+			}
+		}
+	}
+
 	// -----------------------------------------------------------
 	// loop thru all user set zooms
 	for (int i = 0; i < zoom_list.size(); i++)
@@ -672,9 +697,15 @@ void VideoDisplay::update_display_frame()
 	//counter++;
 }
 
+void VideoDisplay::set_bad_pixel_map(std::vector<short> bad_pixels)
+{
+	bad_pixel_map = bad_pixels;
+	smooth_bad_pixels = true;
+}
+
 void VideoDisplay::smooth_bad_pixels(bool status)
 {
-	show_bad_pixels = status;
+	smooth_bad_pixels = status;
 }
 
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
