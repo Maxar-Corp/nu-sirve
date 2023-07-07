@@ -32,8 +32,6 @@ SirveApp::SirveApp(QWidget *parent)
 
 	// default recording video to false
 	record_video = false;
-
-	video_layout = new QGridLayout();
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_layout = new QVBoxLayout();
@@ -519,9 +517,7 @@ void SirveApp::setup_video_frame(){
 	QVBoxLayout* vlayout_frame_video = new QVBoxLayout(frame_video_player);
 
 	// ------------------------------------------------------------------------
-
-	frame_video = new QFrame();
-	vlayout_frame_video->addWidget(frame_video);
+	vlayout_frame_video->addLayout(video_display->video_display_layout);
 
 	// ------------------------------------------------------------------------
 
@@ -1098,9 +1094,6 @@ void SirveApp::load_osm_data()
 		clear_frame_label();
 	}
 
-	video_layout->addWidget(video_display->label);
-	frame_video->setLayout(video_layout);
-
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
 	eng_data = new Engineering_Data(osm_frames);
@@ -1359,9 +1352,7 @@ void SirveApp::popout_video_closed()
 	video_display->label->enable();
 	video_display->label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	btn_popout_video->setChecked(false);
-	video_layout->addWidget(video_display->label);
-	frame_video->setLayout(video_layout);
-
+	video_display->reclaim_label();
 	delete popout_video;
 }
 

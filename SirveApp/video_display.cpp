@@ -4,6 +4,7 @@
 VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
+	video_display_layout = new QGridLayout();
 	setup_label();
 
 	is_zoom_active = false;
@@ -54,6 +55,13 @@ void VideoDisplay::setup_label()
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
+
+	video_display_layout->addWidget(label);
+}
+
+void VideoDisplay::reclaim_label()
+{
+	video_display_layout->addWidget(label);
 }
 
 void VideoDisplay::update_video_file(int x_pixels, int y_pixels)
