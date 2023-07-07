@@ -13,7 +13,8 @@ QStringList Workspace::get_workspace_names()
     return QDir(WORKSPACE_FOLDER).entryList(QStringList() << "*.json");
 };
 
-void Workspace::save_state(QString workspace_name, QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states, std::vector<annotation_info> annotations) {
+void Workspace::save_state(QString workspace_name, QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states, std::vector<annotation_info> annotations, std::vector<short> bad_pixel_map)
+{
     //Inspiration: https://forum.qt.io/topic/65874/create-json-using-qjsondocument
     QJsonObject json_object;
     json_object.insert("image_path", image_path);
@@ -34,6 +35,19 @@ void Workspace::save_state(QString workspace_name, QString image_path, int start
         annos.push_back(annotation.to_json());
     }
     json_object.insert("annotations", annos);
+
+    if (bad_pixel_map.size() > 1)
+    {
+        QJsonArray indeces;
+        for (auto i = 0; i < bad_pixel_map.size(); i++)
+        {
+            if (bad_pixel_map[i] == 1)
+            {
+                indeces.push_back(i);
+            }
+        }
+        json_object.insert("bad_pixel_indeces", indeces);
+    }
 
     QJsonDocument json_document(json_object);
 
@@ -69,6 +83,12 @@ WorkspaceValues Workspace::load_state(QString workspace_name) {
         annotations.push_back(anno);
     }
 
+    std::vector<int> bad_pixels;
+    for (auto json_obj : data_object.value("bad_pixel_indeces").toArray())
+    {
+        bad_pixels.push_back(json_obj.toInt());
+    }
+
     file.close();
-    return WorkspaceValues { image_path, start_frame, end_frame, states, annotations };
+    return WorkspaceValues { image_path, start_frame, end_frame, states, annotations, bad_pixels };
 };

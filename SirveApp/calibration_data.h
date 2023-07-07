@@ -20,6 +20,7 @@
 #include "process_file.h"
 #include "osm_reader.h"
 #include "Data_Structures.h"
+#include "support/qthelpers.h"
 
 #include <qfiledialog.h>
 #include <qlineedit.h>
