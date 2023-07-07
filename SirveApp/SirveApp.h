@@ -33,6 +33,7 @@
 #include "workspace.h"
 #include "Data_Structures.h"
 #include "popout_dialog.h"
+#include "bad_pixel_identification.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
