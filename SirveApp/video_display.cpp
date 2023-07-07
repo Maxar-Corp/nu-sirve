@@ -422,7 +422,7 @@ void VideoDisplay::update_display_frame()
 	// Convert image back to RGB to facilitate use of the colors 
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
-	if (smooth_bad_pixels)
+	if (should_smooth_bad_pixels)
 	{
 		// For now, we will simply "smooth" bad pixels
 		// By copying the color from the pixel to their left
@@ -700,12 +700,17 @@ void VideoDisplay::update_display_frame()
 void VideoDisplay::set_bad_pixel_map(std::vector<short> bad_pixels)
 {
 	bad_pixel_map = bad_pixels;
-	smooth_bad_pixels = true;
+	should_smooth_bad_pixels = true;
 }
 
 void VideoDisplay::smooth_bad_pixels(bool status)
 {
-	smooth_bad_pixels = status;
+	should_smooth_bad_pixels = status;
+}
+
+std::vector<short> VideoDisplay::get_bad_pixel_map()
+{
+	return bad_pixel_map;
 }
 
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)

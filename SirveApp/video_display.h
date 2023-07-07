@@ -68,6 +68,7 @@ public:
 
 	void set_bad_pixel_map(std::vector<short> bad_pixels);
 	void smooth_bad_pixels(bool status);
+	std::vector<short> get_bad_pixel_map();
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
@@ -109,7 +110,7 @@ public slots:
 
 private:
 	
-	bool is_zoom_active, is_calculate_active, smooth_bad_pixels;
+	bool is_zoom_active, is_calculate_active, should_smooth_bad_pixels;
 	std::vector<QRect> zoom_list;
 	int index_current_video;
 
