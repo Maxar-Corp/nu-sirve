@@ -327,7 +327,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 
 	 // --------------------------------------------------------------------------
 
-	QGridLayout* grid_tracker = new QGridLayout(widget_tab_color);
 	QHBoxLayout* hlayout_osm_tracks = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_primary_track = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_text_color = new QHBoxLayout(widget_tab_color);
@@ -537,7 +536,6 @@ void SirveApp::setup_video_frame(){
 	lbl_fps = new QLabel("fps");
 	lbl_fps->setAlignment(Qt::AlignRight);
 
-	//QWidget* widget_video_label_descriptions = new QWidget();
 	QHBoxLayout* hlayout_video_label_description = new QHBoxLayout();
 
 	hlayout_video_label_description->addWidget(lbl_video_frame);
@@ -643,7 +641,6 @@ void SirveApp::setup_video_frame(){
 	btn_popout_video->setIcon(expand_icon);
 	btn_popout_video->setCheckable(true);
 
-	QWidget* widget_video_buttons = new QWidget();
 	QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
 
 	hlayout_video_buttons->addWidget(btn_frame_save);
@@ -1115,7 +1112,7 @@ void SirveApp::load_osm_data()
 
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
-	int num_tracks = data_plots->track_irradiance_data.size();
+	size_t num_tracks = data_plots->track_irradiance_data.size();
 	if (num_tracks == 0)
 	{
 		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
@@ -1239,7 +1236,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	vid_details.set_image_size(x_pixels, y_pixels);
 	vid_details.set_video_frames(video_frames);
 
-	int number_frames = vid_details.frames_16bit.size();
+	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
 	update_text.append(QString::number(min_frame));
@@ -1515,7 +1512,7 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 }
 
 
-void SirveApp::lift_slider_toggled(int value) {
+void SirveApp::lift_slider_toggled() {
 
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -1531,7 +1528,7 @@ void SirveApp::lift_slider_toggled(int value) {
 	color_correction_toggled(lift_value, gain_value);
 }
 
-void SirveApp::gain_slider_toggled(int value) {
+void SirveApp::gain_slider_toggled() {
 
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -1806,11 +1803,11 @@ void SirveApp::export_plot_data()
 	if (path.size() == 0)
 		return;
 
-	int min_frame, max_frame;
+	unsigned int min_frame, max_frame;
 	if (item == "Export All Data") 
 	{
 		min_frame = 0;
-		max_frame = eng_data->frame_data.size() - 1;
+		max_frame = static_cast<unsigned int>(eng_data->frame_data.size() - 1);
 
 		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
 	}
@@ -1849,23 +1846,14 @@ int SirveApp::get_color_index(QVector<QString> colors, QColor input_color) {
 
 void SirveApp::edit_color_map()
 {
-
-	int index = cmb_color_maps->currentIndex();
 	QString color = cmb_color_maps->currentText();
 	video_display->update_color_map(color);
-
 }
 
 void SirveApp::edit_banner_color()
 {
-	
-	int index = cmb_text_color->currentIndex();
 	QString color = cmb_text_color->currentText();
-
 	video_display->update_banner_color(color);
-
-	return;
-	//}
 }
 
 void SirveApp::edit_tracker_color()
@@ -2169,10 +2157,8 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		return;
 
 	if (item == "From Current File") {
-
-
 		// get total number of frames
-		int num_messages = osm_frames.size();
+		int num_messages = static_cast<int>(osm_frames.size());
 
 		QString prompt1 = "Start Frame (";
 		prompt1.append(QString::number(num_messages));
@@ -2236,7 +2222,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	nuc_state.details.histogram_data.clear();
 
 	// Apply NUC to the frames		
-	int number_frames = original.details.frames_16bit.size();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
@@ -2247,7 +2233,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	progress.setLabelText(QString("Applying correction..."));
 	progress.setMinimumWidth(300);
 
-	for (int i = 0; i < number_frames; i++) {
+	for (auto i = 0; i < number_frames; i++) {
 		progress.setValue(i);
 		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << " frames";
 		nuc_state.details.frames_16bit.push_back(nuc.apply_nuc_correction(original.details.frames_16bit[i]));
@@ -2303,7 +2289,7 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 	
 	// Apply de-interlace to the frames		
 	
-	int number_frames = original.details.frames_16bit.size();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
@@ -2432,12 +2418,12 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	background_subtraction_state.details.histogram_data.clear();
 
 	// Apply background subtraction to the frames
-	int number_frames = original.details.frames_16bit.size();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Adjusting frames..."));
 
-	for (int i = 0; i < number_frames; i++) {
+	for (auto i = 0; i < number_frames; i++) {
 		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
 		progress.setValue(i);
 		background_subtraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
@@ -2572,7 +2558,7 @@ QString SirveApp::create_epoch_string(std::vector<double> new_epoch) {
 	QString out = "";
 	
 	int number;
-	int length = new_epoch.size();
+	int length = static_cast<int>(new_epoch.size());
 	for (int i = 0; i < length; i++)
 	{
 		if (i == 0)
