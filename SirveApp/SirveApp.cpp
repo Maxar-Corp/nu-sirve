@@ -1144,6 +1144,7 @@ void SirveApp::load_osm_data()
 	btn_calculate_radiance->setEnabled(false);
 	btn_bad_pixel_identification->setEnabled(false);
 	chk_smooth_bad_pixels->setChecked(false);
+	chk_smooth_bad_pixels->setEnabled(false);
 
 	CalibrationData temp;
 	calibration_model = temp;
@@ -2082,6 +2083,17 @@ void SirveApp::apply_epoch_time()
 
 void SirveApp::identify_bad_pixels()
 {
+	ABIR_Data_Result abir_first_50_frames = file_processor.load_image_file(abp_file_metadata.image_path, 1, 50, config_values.version);
+	
+	if (abir_first_50_frames.had_error) {
+		QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading first 50 frames from .abpimage file, cannot identify bad pixels.");
+		return;
+	}
+
+	std::vector<short> dead_pixel_mask = BadPixelIdentification::get_dead_pixel_mask(abir_first_50_frames.video_frames_16bit);
+
+	video_display->set_bad_pixel_map(dead_pixel_mask);
+	chk_smooth_bad_pixels->setEnabled(true);
 	chk_smooth_bad_pixels->setChecked(true);
 }
 
