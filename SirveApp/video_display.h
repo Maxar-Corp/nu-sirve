@@ -50,7 +50,7 @@ public:
 
 	int image_x, image_y, number_pixels, max_bit_level;
 
-    unsigned int number_of_frames;
+    size_t number_of_frames;
 	int timer_frequency;
 	QImage frame;
     EnhancedLabel  *label;
@@ -106,7 +106,7 @@ public slots:
 	void toggle_relative_histogram();
 	
 	void zoom_image(QRect info);
-	void unzoom(QPoint origin);
+	void unzoom();
 
 private:
 	

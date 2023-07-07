@@ -208,7 +208,7 @@ void VideoDisplay::zoom_image(QRect info)
 
 		if (is_calculate_active) {
 
-			int num_zooms = zoom_list.size();
+			size_t num_zooms = zoom_list.size();
 
 			if (num_zooms == 1) {
 				calculation_region = info;
@@ -217,7 +217,7 @@ void VideoDisplay::zoom_image(QRect info)
 			else {
 				QRect adjusted_area = info;
 
-				for (int i = num_zooms - 1; i > 0; i--)
+				for (auto i = num_zooms - 1; i > 0; i--)
 				{
 
 					int* x1, * y1, * x2, * y2;
@@ -302,7 +302,7 @@ void VideoDisplay::zoom_image(QRect info)
 	update_display_frame();
 }
 
-void VideoDisplay::unzoom(QPoint origin)
+void VideoDisplay::unzoom()
 {
 
 	if (zoom_list.size() > 1)
@@ -320,15 +320,14 @@ void VideoDisplay::unzoom(QPoint origin)
 
 std::vector<int> VideoDisplay::get_position_within_zoom(int x0, int y0)
 {
-
-	int num_zooms = zoom_list.size();
+	size_t num_zooms = zoom_list.size();
 	bool pt_within_area = true;
 
 	int x_center = x0;
 	int y_center = y0;
 
 	// for each zoom level ...
-	for (int j = 0; j < num_zooms; j++)
+	for (auto j = 0; j < num_zooms; j++)
 	{
 		// define object location relative to zoom frame
 		QRect sub_frame = zoom_list[j];
@@ -463,8 +462,7 @@ void VideoDisplay::update_display_frame()
 	// -----------------------------------------------------------
 	// loop thru all tracks and plot thru lowest zoom
 
-	int num_tracks = display_data[counter].ir_data.size();
-	int num_zooms = zoom_list.size();
+	size_t num_tracks = display_data[counter].ir_data.size();
 
 	if (plot_tracks && num_tracks > 0) {
 
@@ -562,18 +560,18 @@ void VideoDisplay::update_display_frame()
 
 	// Draw annotations
 
-	int num_annotations = annotation_list.size();
+	size_t num_annotations = annotation_list.size();
 
 	// if there are annotations ...
 	if (num_annotations > 0) {
 
 		// for each annotation ...
-		for (int i = 0; i < num_annotations; i++) {
+		for (auto i = 0; i < num_annotations; i++) {
 
 			// get frame information
 			annotation_info a = annotation_list[i];
-			int initial_frame_annotation = a.frame_start - a.min_frame;
-			int last_frame_annotation = initial_frame_annotation + a.num_frames;
+			unsigned int initial_frame_annotation = a.frame_start - a.min_frame;
+			unsigned int last_frame_annotation = initial_frame_annotation + a.num_frames;
 
 			// check that current frame is within bounds
 			if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
@@ -683,7 +681,6 @@ void VideoDisplay::update_display_frame()
 	p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
 	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
-	bool video_open;
 	if (record_frame && video_frame_number != counter) {
 		video_frame_number = counter;
 		add_new_frame(frame, CV_8UC3);
@@ -766,11 +763,9 @@ void VideoDisplay::stop_recording()
 
 void VideoDisplay::save_frame()
 {
-	const QPixmap* pix = label->pixmap();
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
 
 	if (!fileName.isEmpty()) {
-		//pix->save(fileName);
 		frame.save(fileName);
 	}
 }
