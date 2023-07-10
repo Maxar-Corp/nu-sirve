@@ -4,8 +4,8 @@
 VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
-	video_display_layout = new QGridLayout();
-	setup_label();
+	video_display_layout = new QVBoxLayout();
+	setup_labels();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
@@ -13,6 +13,7 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
 	counter = 0;
+	starting_frame_number = 0;
 	counter_record = 0;
 	index_current_video = -1;
 	record_frame = false;
@@ -42,9 +43,13 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 VideoDisplay::~VideoDisplay()
 {
 	delete label;
+
+	delete lbl_frame_number;
+	delete lbl_video_time_midnight;
+	delete lbl_zulu_time;
 }
 
-void VideoDisplay::setup_label()
+void VideoDisplay::setup_labels()
 {
 	label->setBackgroundRole(QPalette::Base);
 	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -56,12 +61,31 @@ void VideoDisplay::setup_label()
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
 
-	video_display_layout->addWidget(label);
+	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+
+	QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
+	lbl_frame_number = new QLabel("");
+	lbl_video_time_midnight = new QLabel("");
+	lbl_zulu_time = new QLabel("");
+	lbl_frame_number->setAlignment(Qt::AlignLeft);
+	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	lbl_zulu_time->setAlignment(Qt::AlignRight);
+
+	hlayout_video_labels->addWidget(lbl_frame_number);
+	hlayout_video_labels->addWidget(lbl_video_time_midnight);
+	hlayout_video_labels->addWidget(lbl_zulu_time);
+
+	video_display_layout->insertLayout(1, hlayout_video_labels);
+}
+
+void VideoDisplay::set_starting_frame_number(unsigned int frame_number)
+{
+	starting_frame_number = frame_number;
 }
 
 void VideoDisplay::reclaim_label()
 {
-	video_display_layout->addWidget(label);
+	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
 void VideoDisplay::update_video_file(int x_pixels, int y_pixels)
@@ -518,31 +542,18 @@ void VideoDisplay::update_display_frame()
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignLeft, boresight_txt);
 	}
 
+	lbl_frame_number->setText("Frame # " + QString::number(starting_frame_number + counter));
+
+	double seconds_midnight = display_data[counter].seconds_past_midnight;
+	lbl_video_time_midnight->setText("From Midnight " + QString::number(seconds_midnight, 'g', 8));
+
+	QString zulu_time = get_zulu_time_string(seconds_midnight);
+	lbl_zulu_time->setText(zulu_time);
+
 	if (display_time) {
 		QPainter p2(&frame);
 		p2.setPen(QPen(banner_color));
 		p2.setFont(QFont("Times", 8, QFont::Bold));
-
-		double seconds_midnight = display_data[counter].seconds_past_midnight;
-		int hour = seconds_midnight / 3600;
-		int minutes = (seconds_midnight - hour * 3600) / 60;
-		double seconds = seconds_midnight - hour * 3600 - minutes * 60;
-
-		QString zulu_time("");
-		if (hour < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(hour));
-		zulu_time.append(":");
-
-		if (minutes < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(minutes));
-		zulu_time.append(":");
-
-		if (seconds < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(seconds, 'f', 3));
-		zulu_time.append("Z");
 
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignRight, zulu_time);
 	}
@@ -702,6 +713,30 @@ void VideoDisplay::update_display_frame()
 	//counter++;
 }
 
+QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
+{
+	int hour = seconds_midnight / 3600;
+	int minutes = (seconds_midnight - hour * 3600) / 60;
+	double seconds = seconds_midnight - hour * 3600 - minutes * 60;
+
+	QString zulu_time("");
+	if (hour < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(hour));
+	zulu_time.append(":");
+
+	if (minutes < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(minutes));
+	zulu_time.append(":");
+
+	if (seconds < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(seconds, 'f', 3));
+	zulu_time.append("Z");
+	return zulu_time;
+}
+
 void VideoDisplay::set_bad_pixel_map(std::vector<short> bad_pixels)
 {
 	bad_pixel_map = bad_pixels;
@@ -781,9 +816,13 @@ void VideoDisplay::save_frame()
 void VideoDisplay::remove_frame()
 {
 	delete label;
+	
+	delete lbl_frame_number;
+	delete lbl_video_time_midnight;
+	delete lbl_zulu_time;
 
 	label = new EnhancedLabel(this);
-	setup_label();
+	setup_labels();
 
 	histogram_plot->remove_histogram_plots();
 	histogram_plot->initialize_histogram_plot();
