@@ -16,6 +16,8 @@
 #include <qpainter.h>
 #include <qbrush.h>
 #include <qfiledialog.h>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
@@ -41,7 +43,7 @@ public:
    
 	VideoDisplay(int x_pixels, int y_pixels, int input_bit_level);
 	~VideoDisplay();
-	QGridLayout *video_display_layout;
+	QVBoxLayout *video_display_layout;
 	void reclaim_label();
 
 	int counter_record, video_frame_number;
@@ -71,6 +73,8 @@ public:
 	void set_bad_pixel_map(std::vector<short> bad_pixels);
 	void smooth_bad_pixels(bool status);
 	std::vector<short> get_bad_pixel_map();
+
+	void set_starting_frame_number(unsigned int frame_number);
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
@@ -115,11 +119,12 @@ private:
 	bool is_zoom_active, is_calculate_active, should_smooth_bad_pixels;
 	std::vector<QRect> zoom_list;
 	int index_current_video;
+	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
 	QRect calculation_region;
 	
 	std::vector<std::vector<uint16_t>> frame_data;
-    unsigned int counter;
+    unsigned int counter, starting_frame_number;
 
 	std::vector<short> bad_pixel_map;
 
@@ -127,9 +132,11 @@ private:
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
-	void setup_label();
+	void setup_labels();
 
 	void update_video_file(int x_pixels, int y_pixels);
+
+	QString get_zulu_time_string(double seconds_midnight);
 };
 
 #endif // VIDEO_DISPLAY_H

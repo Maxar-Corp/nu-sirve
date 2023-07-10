@@ -1268,6 +1268,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
+	video_display->set_starting_frame_number(min_frame);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
