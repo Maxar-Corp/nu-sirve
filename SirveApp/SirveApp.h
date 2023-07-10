@@ -93,7 +93,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, * lbl_zulu_time, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -142,7 +142,6 @@ public:
 	void update_epoch_string(QString new_epoch_string);
 	void display_original_epoch(QString new_epoch_string);
 	QString create_epoch_string(std::vector<double> new_epoch);
-	void clear_frame_label();
 
 	signals:
 		void change_banner(QString banner_text);
@@ -188,8 +187,6 @@ public:
 
 		void save_plot();
 		void save_frame();
-		void set_frame_number_label(unsigned int current_frame_number);
-		void set_zulu_label();
 		void copy_osm_directory();
 		void update_enhanced_range(bool input);
 		void toggle_relative_histogram(bool input);

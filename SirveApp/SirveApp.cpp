@@ -521,24 +521,8 @@ void SirveApp::setup_video_frame(){
 
 	// ------------------------------------------------------------------------
 
-	lbl_video_frame = new QLabel("Frame");
-	lbl_video_frame->setAlignment(Qt::AlignLeft);
-
-	lbl_video_time_midnight = new QLabel("Time");
-	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
-	lbl_zulu_time = new QLabel("Zulu");
-	lbl_zulu_time->setAlignment(Qt::AlignRight);
-
 	lbl_fps = new QLabel("fps");
 	lbl_fps->setAlignment(Qt::AlignRight);
-
-	QHBoxLayout* hlayout_video_label_description = new QHBoxLayout();
-
-	hlayout_video_label_description->addWidget(lbl_video_frame);
-	hlayout_video_label_description->addWidget(lbl_video_time_midnight);
-	hlayout_video_label_description->addWidget(lbl_zulu_time);
-
-	vlayout_frame_video->addLayout(hlayout_video_label_description);
 
 	// ------------------------------------------------------------------------
 
@@ -875,10 +859,6 @@ void SirveApp::setup_connections() {
 	//Enable saving frame
 	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::save_frame);
 
-	//Update frame number label
-	QObject::connect(playback_controller, &Playback::update_frame, this, &SirveApp::set_frame_number_label);
-
-
 	//---------------------------------------------------------------------------	
 	// Connect x-axis and y-axis changes to functions
 	connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::plot_change);
@@ -1090,8 +1070,6 @@ void SirveApp::load_osm_data()
 		video_display->remove_frame();
 
 		cmb_processing_states->setEnabled(false);
-
-		clear_frame_label();
 	}
 
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
@@ -1640,8 +1618,6 @@ void SirveApp::set_data_timing_offset()
 		video_display->update_frame_data(temp);
 		video_display->update_display_frame();
 
-		set_zulu_label();
-
 		plot_change();
 	}
 }
@@ -1943,76 +1919,6 @@ int SirveApp::get_integer_from_txt_box(QString input)
 		return -1;
 	}
 }
-
-void SirveApp::set_frame_number_label(unsigned int current_frame_number)
-{
-	// check that engineering is non-null before accessing
-	if (eng_data) {
-		int index = data_plots->index_sub_plot_xmin;
-
-		int frame_number = index + current_frame_number + 1;
-		QString frame_text("Frame # ");
-		frame_text.append(QString::number(frame_number));
-		lbl_video_frame->setText(frame_text);
-
-		double seconds_midnight = eng_data->get_epoch_time_from_index(index + current_frame_number);
-		QString seconds_text("From Midnight ");
-		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
-		lbl_video_time_midnight->setText(seconds_text);
-
-		// ------------------------------------------------------------------------------------
-		set_zulu_label();
-
-	}
-
-}
-
-void SirveApp::set_zulu_label()
-{
-
-	int index = data_plots->index_sub_plot_xmin;
-	unsigned int current_frame_number = playback_controller->get_current_frame_number();
-
-	double seconds_midnight = eng_data->get_epoch_time_from_index(index + current_frame_number);
-
-	// ------------------------------------------------------------------------------------
-	int hour = seconds_midnight / 3600;
-	int minutes = (seconds_midnight - hour * 3600) / 60;
-	double seconds = seconds_midnight - hour * 3600 - minutes * 60;
-
-	QString zulu_time("");
-	if (hour < 10)
-		zulu_time.append("0");
-	zulu_time.append(QString::number(hour));
-	zulu_time.append(":");
-
-	if (minutes < 10)
-		zulu_time.append("0");
-	zulu_time.append(QString::number(minutes));
-	zulu_time.append(":");
-
-	if (seconds < 10)
-		zulu_time.append("0");
-	zulu_time.append(QString::number(seconds, 'f', 3));
-
-	zulu_time.append("Z");
-	lbl_zulu_time->setText(zulu_time);
-
-}
-
-void SirveApp::clear_frame_label()
-{
-
-	QString frame_text("");
-	lbl_video_frame->setText(frame_text);
-
-	QString seconds_text("");
-	lbl_video_time_midnight->setText(seconds_text);
-
-	QString zulu_text("");
-	lbl_zulu_time->setText(zulu_text);
-}
-
 
 void SirveApp::copy_osm_directory()
 {
@@ -2486,9 +2392,6 @@ void SirveApp::toggle_video_playback_options(bool input)
 	{
 		playback_controller->stop_timer();
 		slider_video->setValue(1);
-		lbl_video_time_midnight->setText("");
-		lbl_zulu_time->setText("");
-		lbl_video_frame->setText("");
 		lbl_fps->setText("");
 	}
 }
