@@ -1632,8 +1632,8 @@ void SirveApp::set_data_timing_offset()
 		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
-		int index0 = data_plots->index_sub_plot_xmin + 1;
-		int index1 = data_plots->index_sub_plot_xmax + 1;
+		int index0 = data_plots->index_sub_plot_xmin;
+		int index1 = data_plots->index_sub_plot_xmax;
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		video_display->update_frame_data(temp);
