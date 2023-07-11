@@ -134,8 +134,6 @@ private:
 	std::vector<int> get_position_within_zoom(int x0, int y0);
 	void setup_labels();
 
-	void update_video_file(int x_pixels, int y_pixels);
-
 	QString get_zulu_time_string(double seconds_midnight);
 };
 
