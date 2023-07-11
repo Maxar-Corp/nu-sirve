@@ -88,20 +88,6 @@ void VideoDisplay::reclaim_label()
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
-void VideoDisplay::update_video_file(int x_pixels, int y_pixels)
-{
-
-	//frame_data = video_data;
-	number_of_frames = container.processing_states[container.current_idx].details.frames_16bit.size();
-
-	image_x = x_pixels;
-	image_y = y_pixels;
-	number_pixels = image_x * image_y;
-
-	label->setMinimumHeight(y_pixels);
-	label->setMinimumWidth(x_pixels);
-}
-
 void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 	zoom_list.clear();
@@ -115,9 +101,16 @@ void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 void VideoDisplay::receive_video_data(video_details& new_input)
 {
-	//index_current_video = container.find_data_index(new_input);
-	update_video_file(new_input.x_pixels, new_input.y_pixels);
+	image_x = new_input.x_pixels;
+	image_y = new_input.y_pixels;
+	number_pixels = image_x*image_y;
+	
+	label->setMinimumWidth(image_x);
+	label->setMinimumHeight(image_y);
 
+	number_of_frames = new_input.frames_16bit.size();
+
+	update_display_frame();
 }
 
 void VideoDisplay::update_banner_text(QString input_banner_text)
