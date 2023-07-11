@@ -1218,12 +1218,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	lbl_file_load->setText(status_txt);
 	txt_start_frame->setText(QString::number(min_frame));
 	txt_end_frame->setText(QString::number(max_frame));
-
-	processing_state primary = { Processing_Method::original, vid_details };
-	video_display->container.clear_processing_states();
-	video_display->container.add_processing_state(primary);
-	cmb_processing_states->setEnabled(true);
-	btn_workspace_save->setEnabled(true);
 	
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
@@ -1273,6 +1267,12 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	tab_menu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
+
+	processing_state primary = { Processing_Method::original, vid_details };
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(primary);
+	cmb_processing_states->setEnabled(true);
+	btn_workspace_save->setEnabled(true);
 
 	toggle_video_playback_options(true);
 	playback_controller->start_timer();
