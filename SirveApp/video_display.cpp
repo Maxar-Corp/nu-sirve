@@ -56,7 +56,6 @@ void VideoDisplay::setup_labels()
 	label->setScaledContents(true);
 
 	label->setObjectName("video_object");
-	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
@@ -96,7 +95,6 @@ void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 	// resets border color
 	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
-
 }
 
 void VideoDisplay::receive_video_data(video_details& new_input)
