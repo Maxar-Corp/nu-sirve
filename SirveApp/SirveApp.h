@@ -170,6 +170,7 @@ public:
 		void start_stop_video_record();
 		void toggle_zoom_on_video();
 		void toggle_calculation_on_video();
+		void clear_zoom_and_calculation_buttons();
 
 		void update_fps();
 		void reset_color_correction();

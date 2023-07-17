@@ -774,7 +774,6 @@ void SirveApp::setup_connections() {
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
-
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -831,6 +830,7 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
 	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
+	QObject::connect(video_display, &VideoDisplay::clear_mouse_buttons, this, &SirveApp::clear_zoom_and_calculation_buttons);
 
 	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_video_btn);
 
@@ -1407,6 +1407,12 @@ void SirveApp::toggle_calculation_on_video()
 	else {
 		video_display->toggle_action_calculate_radiance(false);
 	}
+}
+
+void SirveApp::clear_zoom_and_calculation_buttons()
+{
+	btn_zoom->setChecked(false);
+	btn_calculate_radiance->setChecked(false);
 }
 
 void SirveApp::update_fps()
