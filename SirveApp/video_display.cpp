@@ -9,6 +9,7 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 
 	is_zoom_active = false;
 	is_calculate_active = false;
+	is_pinpoint_active = false;
 
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
@@ -59,6 +60,7 @@ void VideoDisplay::setup_labels()
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
+	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::pinpoint);
 
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 
@@ -75,6 +77,58 @@ void VideoDisplay::setup_labels()
 	hlayout_video_labels->addWidget(lbl_zulu_time);
 
 	video_display_layout->insertLayout(1, hlayout_video_labels);
+
+	
+
+	grp_pinpoint = new QGroupBox("Selected Pixels");
+	grp_pinpoint->setMaximumHeight(100);
+
+	pinpoint_layout = new QHBoxLayout();
+
+	lbl_pinpoint = new QLabel();
+
+	QPixmap pinpoint_image("icons/crosshair.png");
+	QIcon pinpoint_icon(pinpoint_image);
+	btn_pinpoint = new QPushButton();
+	btn_pinpoint->setMaximumSize(40, 40);
+	btn_pinpoint->setIcon(pinpoint_icon);
+	btn_pinpoint->setToolTip("Pinpoint");
+	btn_pinpoint->setCheckable(true);
+	connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
+
+	QPixmap clear_image("icons/cancel.png");
+	QIcon clear_icon(clear_image);
+	btn_clear_pinpoints = new QPushButton();
+	btn_clear_pinpoints->setMaximumSize(40, 40);
+	btn_clear_pinpoints->setIcon(clear_icon);
+	btn_clear_pinpoints->setToolTip("Clear");
+	connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::clear_pinpoints);
+
+	pinpoint_layout->addWidget(btn_pinpoint);
+	pinpoint_layout->addWidget(lbl_pinpoint);
+	pinpoint_layout->addStretch(1);
+	pinpoint_layout->addWidget(btn_clear_pinpoints);
+
+	grp_pinpoint->setLayout(pinpoint_layout);
+
+	video_display_layout->addStretch(1);
+	video_display_layout->addWidget(grp_pinpoint);
+}
+
+void VideoDisplay::handle_btn_pinpoint(bool checked)
+{
+	if (checked)
+	{
+		emit clear_mouse_buttons();
+		is_zoom_active = false;
+		is_calculate_active = false;
+		is_pinpoint_active = true;
+	}
+	else
+	{
+		is_pinpoint_active = false;
+	}
+	update_display_frame();
 }
 
 void VideoDisplay::set_starting_frame_number(unsigned int frame_number)
@@ -90,8 +144,11 @@ void VideoDisplay::reclaim_label()
 void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 	zoom_list.clear();
+	absolute_zoom_list.clear();
 	QRect new_zoom(0, 0, x_pixels, y_pixels);
 	zoom_list.push_back(new_zoom);
+	absolute_zoom_list.push_back(absolute_zoom_info {0, 0, 1.0*x_pixels, 1.0*y_pixels});
+	pinpoint_indeces.clear();
 
 	// resets border color
 	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
@@ -180,16 +237,17 @@ void VideoDisplay::toggle_relative_histogram()
 
 void VideoDisplay::toggle_action_zoom(bool status)
 {
-
 	if (status) {
-
 		is_zoom_active = true;
 		is_calculate_active = false;
+		is_pinpoint_active = false;
+		btn_pinpoint->setChecked(false);
 	}
 	else {
 		is_zoom_active = false;
 	}
 
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_action_calculate_radiance(bool status)
@@ -198,12 +256,14 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 
 		is_zoom_active = false;
 		is_calculate_active = true;
-		update_display_frame();
+		is_pinpoint_active = false;
+		btn_pinpoint->setChecked(false);
 	}
 	else {
 		is_calculate_active = false;
-		update_display_frame();
 	}
+	
+	update_display_frame();
 }
 
 void VideoDisplay::zoom_image(QRect info)
@@ -276,13 +336,13 @@ void VideoDisplay::zoom_image(QRect info)
 	}
 
 
-	int height = info.height();
-	int width = info.width();
+	double height = info.height();
+	double width = info.width();
 
-	int x = info.x();
-	int y = info.y();
+	double x = info.x();
+	double y = info.y();
 
-	double aspect_ratio = image_x * 1.0 / image_y;
+	double aspect_ratio = 1.0 * image_x / image_y;
 	double adj_width = height * aspect_ratio;
 	double adj_height = width / aspect_ratio;
 
@@ -304,20 +364,32 @@ void VideoDisplay::zoom_image(QRect info)
 	// if updated area exceeds width, move origin to left
 	if (x + width > image_x)
 	{
-		int delta = x + width - image_x;
+		double delta = x + width - (1.0 * image_x);
 		x = x - delta;
 	}
 
 	// if updated area exceeds height, move origin up
 	if (y + height > image_y)
 	{
-		int delta = y + height - image_y;
+		double delta = y + height - (1.0 * image_y);
 		y = y - delta;
 	}
+
+	x = std::round(x);
+	y = std::round(y);
+	width = std::round(width);
+	height = std::round(height);
 
 	// set zoom area to appropriate values
 	QRect new_zoom(x, y, width, height);
 	zoom_list.push_back(new_zoom);
+
+	absolute_zoom_info starting_rectangle = absolute_zoom_list[absolute_zoom_list.size() - 1];
+	double absolute_x = starting_rectangle.x + x * starting_rectangle.width / image_x;
+	double absolute_y = starting_rectangle.y + y * starting_rectangle.height / image_y;
+	double absolute_width = starting_rectangle.width * (1.0 * width / image_x);
+	double absolute_height = starting_rectangle.height * (1.0 * height / image_y);
+	absolute_zoom_list.push_back(absolute_zoom_info {absolute_x, absolute_y, absolute_width, absolute_height});
 
 	// changes color of frame when zoomed within frame
 	label->setStyleSheet("#video_object { border: 3px solid blue; }");
@@ -327,10 +399,10 @@ void VideoDisplay::zoom_image(QRect info)
 
 void VideoDisplay::unzoom()
 {
-
 	if (zoom_list.size() > 1)
 	{
 		zoom_list.pop_back();
+		absolute_zoom_list.pop_back();
 		update_display_frame();
 	}
 
@@ -339,6 +411,41 @@ void VideoDisplay::unzoom()
 	{
 		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
+}
+
+void VideoDisplay::pinpoint(QPoint origin)
+{
+	// Note that each element in zoom_list contains the _relative_ position within the previous zoom state
+	// Simply storing the absolute position within the image makes a lot of code simpler - like the calculations in this function
+	// However, due to the way we currently zoom using chained QImage.scaled calls (which require integer x/y/width/height) ...
+	// ... the code must still maintain the relative zoom chain.
+
+	// It may be worth "forcing" each view state to align (x/y/width/height) with pixel boundaries, which would enable us to ...
+	// ... maintain only the absolute_zoom_list, but this would have implications for aspect ratio.
+	// Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
+
+	if (is_pinpoint_active) {
+		absolute_zoom_info rectangle = absolute_zoom_list[zoom_list.size() - 1];
+		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
+		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
+
+		int pinpoint_x = std::floor(absolute_x);
+		int pinpoint_y = std::floor(absolute_y);
+		pinpoint_indeces.push_back(pinpoint_y * image_x + pinpoint_x);
+
+		if (pinpoint_indeces.size() > 3)
+		{
+			pinpoint_indeces.erase(pinpoint_indeces.begin());
+		}
+		// Should be able to just update_partial_frame here or something
+		update_display_frame();
+	}
+}
+
+void VideoDisplay::clear_pinpoints()
+{
+	pinpoint_indeces.clear();
+	update_display_frame();
 }
 
 std::vector<int> VideoDisplay::get_position_within_zoom(int x0, int y0)
@@ -443,6 +550,33 @@ void VideoDisplay::update_display_frame()
 
 	// Convert image back to RGB to facilitate use of the colors 
 	frame = frame.convertToFormat(QImage::Format_RGB888);
+
+	QString pinpoint_text("");
+	for (auto idx = 0; idx < pinpoint_indeces.size(); idx++)
+	{
+		int pinpoint_idx = pinpoint_indeces[idx];
+		
+		if (pinpoint_idx < frame_vector.size())
+		{
+			int irradiance_value = frame_vector[pinpoint_idx];
+			int pinpoint_x = pinpoint_idx % image_x;
+			int pinpoint_y = pinpoint_idx / image_x;
+			pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
+
+			if (is_pinpoint_active)
+			{
+				QRgb rgb_red = QColorConstants::Red.rgb();
+				frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);
+			}
+		}
+		else
+		{
+			pinpoint_text += "Clicked outside of valid x/y coordinate range.";
+		}
+
+		pinpoint_text += "\n";
+	}
+	lbl_pinpoint->setText(pinpoint_text);
 
 	if (should_smooth_bad_pixels)
 	{
@@ -811,6 +945,8 @@ void VideoDisplay::remove_frame()
 	delete lbl_frame_number;
 	delete lbl_video_time_midnight;
 	delete lbl_zulu_time;
+
+	delete lbl_pinpoint;
 
 	label = new EnhancedLabel(this);
 	setup_labels();
