@@ -18,6 +18,7 @@
 #include <qfiledialog.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGroupBox>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
@@ -35,6 +36,10 @@
 #include "color_map.h"
 #include "calibration_data.h"
 #include "annotation_info.h"
+
+struct absolute_zoom_info {
+	double x, y, width, height;
+};
 
 class VideoDisplay : public QWidget
 {
@@ -96,6 +101,8 @@ public:
 
 	void remove_frame();
 
+signals:
+	void clear_mouse_buttons();
 
 public slots:
     void update_display_frame();	
@@ -111,12 +118,23 @@ public slots:
 
 	void toggle_relative_histogram();
 	
+	void pinpoint(QPoint origin);
+	void clear_pinpoints();
+
 	void zoom_image(QRect info);
 	void unzoom();
 
+
 private:
+	QLabel *lbl_pinpoint;
+	QPushButton *btn_pinpoint, *btn_clear_pinpoints;
+	QGroupBox *grp_pinpoint;
+	QHBoxLayout *pinpoint_layout;
+	//int pinpoint_x, pinpoint_y;
+	std::vector<absolute_zoom_info> absolute_zoom_list;
+	std::vector<int> pinpoint_indeces;
 	
-	bool is_zoom_active, is_calculate_active, should_smooth_bad_pixels;
+	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_smooth_bad_pixels;
 	std::vector<QRect> zoom_list;
 	int index_current_video;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
@@ -133,6 +151,8 @@ private:
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
 	void setup_labels();
+
+	void handle_btn_pinpoint(bool checked);
 
 	QString get_zulu_time_string(double seconds_midnight);
 };
