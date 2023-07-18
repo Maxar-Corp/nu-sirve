@@ -52,22 +52,6 @@ SirveApp::SirveApp(QWidget *parent)
 	histogram_abs_layout_full->addWidget(btn_popout_histogram);
 	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
 	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
-	
-
-	//---------------------------------------------------------------------------
-	//---------------------------------------------------------------------------
-
-	// setup color correction class based on slider values
-	int max_lift, min_lift, max_gain, min_gain;
-	color_correction.get_min_slider_range(min_lift, max_lift);
-	color_correction.get_max_slider_range(min_gain, max_gain);
-	
-	slider_lift->setMinimum(min_lift);
-	slider_lift->setMaximum(max_lift);
-	slider_gain->setMinimum(min_gain);
-	slider_gain->setMaximum(max_gain);
-
-	reset_color_correction();
 
 	// establish connections to all qwidgets	
 	setup_connections();
@@ -1524,7 +1508,6 @@ void SirveApp::gain_slider_toggled() {
 
 void SirveApp::reset_color_correction()
 {
-		
 	slider_lift->setValue(0);
 	slider_gain->setValue(1000);
 	chk_relative_histogram->setChecked(false);
