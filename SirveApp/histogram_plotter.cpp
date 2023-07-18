@@ -50,11 +50,6 @@ HistogramLine_Plot::~HistogramLine_Plot(){
 	delete text;
 }
 
-void HistogramLine_Plot::toggle_enhanced_dynamic_range(bool input)
-{
-	color_correction.enhanced_dynamic_range = input;
-}
-
 void HistogramLine_Plot::adjust_color_correction(double x0, double x1)
 {
 	emit click_drag_histogram(x0, x1);
@@ -303,11 +298,4 @@ QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec &
 	}
 
 	return histogram_line;
-}
-
-void HistogramLine_Plot::update_color_correction(double lift, double gamma, double gain)
-{
-	color_correction.set_lift(lift);
-	color_correction.set_gamma(gamma);
-	color_correction.set_gain(gain);
 }

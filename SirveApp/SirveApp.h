@@ -147,7 +147,6 @@ public:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
-		void enhanced_dynamic_range(bool enhance_range);
 	
 
 	public slots:
@@ -189,7 +188,6 @@ public:
 		void save_plot();
 		void save_frame();
 		void copy_osm_directory();
-		void update_enhanced_range(bool input);
 		void toggle_relative_histogram(bool input);
 		void apply_epoch_time();
 

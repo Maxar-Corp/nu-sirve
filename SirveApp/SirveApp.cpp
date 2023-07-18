@@ -1925,13 +1925,6 @@ void SirveApp::copy_osm_directory()
 	clipboard->setText(abp_file_metadata.osm_path);
 }
 
-void SirveApp::update_enhanced_range(bool input)
-{
-
-	emit enhanced_dynamic_range(input);
-
-}
-
 void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
