@@ -14,7 +14,6 @@
 #include "video_container.h"
 #include "video_details.h"
 #include "process_file.h"
-#include "color_correction_plot.h"
 #include "non_uniformity_correction.h"
 #include "background_subtraction.h"
 #include "deinterlace.h"
@@ -121,7 +120,6 @@ public:
 	VideoDisplay *video_display;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
-	ColorPlotter color_correction_plot;
 	bool record_video;
 	
 	SirveApp(QWidget *parent = Q_NULLPTR);
