@@ -263,18 +263,6 @@ void Min_Max_Value::set_max(double value)
 	}
 }
 
-void Min_Max_Value::get_min_slider_range(int & min_value, int & max_value)
-{
-	min_value = 0;
-	max_value = 1000;
-}
-
-void Min_Max_Value::get_max_slider_range(int & min_value, int & max_value)
-{
-	min_value = 0;
-	max_value = 1000;
-}
-
 int Min_Max_Value::get_ui_slider_value(double input)
 {
 
