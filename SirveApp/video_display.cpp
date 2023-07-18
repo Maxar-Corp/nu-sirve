@@ -4,14 +4,17 @@
 VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
-	setup_label();
+	video_display_layout = new QVBoxLayout();
+	setup_labels();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
+	is_pinpoint_active = false;
 
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
 	counter = 0;
+	starting_frame_number = 0;
 	counter_record = 0;
 	index_current_video = -1;
 	record_frame = false;
@@ -41,51 +44,128 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 VideoDisplay::~VideoDisplay()
 {
 	delete label;
+
+	delete lbl_frame_number;
+	delete lbl_video_time_midnight;
+	delete lbl_zulu_time;
 }
 
-void VideoDisplay::setup_label()
+void VideoDisplay::setup_labels()
 {
 	label->setBackgroundRole(QPalette::Base);
 	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	label->setScaledContents(true);
 
 	label->setObjectName("video_object");
-	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
+	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::pinpoint);
+
+	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+
+	QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
+	lbl_frame_number = new QLabel("");
+	lbl_video_time_midnight = new QLabel("");
+	lbl_zulu_time = new QLabel("");
+	lbl_frame_number->setAlignment(Qt::AlignLeft);
+	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	lbl_zulu_time->setAlignment(Qt::AlignRight);
+
+	hlayout_video_labels->addWidget(lbl_frame_number);
+	hlayout_video_labels->addWidget(lbl_video_time_midnight);
+	hlayout_video_labels->addWidget(lbl_zulu_time);
+
+	video_display_layout->insertLayout(1, hlayout_video_labels);
+
+	
+
+	grp_pinpoint = new QGroupBox("Selected Pixels");
+	grp_pinpoint->setMaximumHeight(100);
+
+	pinpoint_layout = new QHBoxLayout();
+
+	lbl_pinpoint = new QLabel();
+
+	QPixmap pinpoint_image("icons/crosshair.png");
+	QIcon pinpoint_icon(pinpoint_image);
+	btn_pinpoint = new QPushButton();
+	btn_pinpoint->setMaximumSize(40, 40);
+	btn_pinpoint->setIcon(pinpoint_icon);
+	btn_pinpoint->setToolTip("Pinpoint");
+	btn_pinpoint->setCheckable(true);
+	connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
+
+	QPixmap clear_image("icons/cancel.png");
+	QIcon clear_icon(clear_image);
+	btn_clear_pinpoints = new QPushButton();
+	btn_clear_pinpoints->setMaximumSize(40, 40);
+	btn_clear_pinpoints->setIcon(clear_icon);
+	btn_clear_pinpoints->setToolTip("Clear");
+	connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::clear_pinpoints);
+
+	pinpoint_layout->addWidget(btn_pinpoint);
+	pinpoint_layout->addWidget(lbl_pinpoint);
+	pinpoint_layout->addStretch(1);
+	pinpoint_layout->addWidget(btn_clear_pinpoints);
+
+	grp_pinpoint->setLayout(pinpoint_layout);
+
+	video_display_layout->addStretch(1);
+	video_display_layout->addWidget(grp_pinpoint);
 }
 
-void VideoDisplay::update_video_file(int x_pixels, int y_pixels)
+void VideoDisplay::handle_btn_pinpoint(bool checked)
 {
+	if (checked)
+	{
+		emit clear_mouse_buttons();
+		is_zoom_active = false;
+		is_calculate_active = false;
+		is_pinpoint_active = true;
+	}
+	else
+	{
+		is_pinpoint_active = false;
+	}
+	update_display_frame();
+}
 
-	//frame_data = video_data;
-	number_of_frames = container.processing_states[container.current_idx].details.frames_16bit.size();
+void VideoDisplay::set_starting_frame_number(unsigned int frame_number)
+{
+	starting_frame_number = frame_number;
+}
 
-	image_x = x_pixels;
-	image_y = y_pixels;
-	number_pixels = image_x * image_y;
-
-	label->setMinimumHeight(y_pixels);
-	label->setMinimumWidth(x_pixels);
+void VideoDisplay::reclaim_label()
+{
+	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
 void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
 
 	zoom_list.clear();
+	absolute_zoom_list.clear();
 	QRect new_zoom(0, 0, x_pixels, y_pixels);
 	zoom_list.push_back(new_zoom);
+	absolute_zoom_list.push_back(absolute_zoom_info {0, 0, 1.0*x_pixels, 1.0*y_pixels});
+	pinpoint_indeces.clear();
 
 	// resets border color
 	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
-
 }
 
 void VideoDisplay::receive_video_data(video_details& new_input)
 {
-	//index_current_video = container.find_data_index(new_input);
-	update_video_file(new_input.x_pixels, new_input.y_pixels);
+	image_x = new_input.x_pixels;
+	image_y = new_input.y_pixels;
+	number_pixels = image_x*image_y;
+	
+	label->setMinimumWidth(image_x);
+	label->setMinimumHeight(image_y);
 
+	number_of_frames = new_input.frames_16bit.size();
+
+	update_display_frame();
 }
 
 void VideoDisplay::update_banner_text(QString input_banner_text)
@@ -157,16 +237,17 @@ void VideoDisplay::toggle_relative_histogram()
 
 void VideoDisplay::toggle_action_zoom(bool status)
 {
-
 	if (status) {
-
 		is_zoom_active = true;
 		is_calculate_active = false;
+		is_pinpoint_active = false;
+		btn_pinpoint->setChecked(false);
 	}
 	else {
 		is_zoom_active = false;
 	}
 
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_action_calculate_radiance(bool status)
@@ -175,12 +256,14 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 
 		is_zoom_active = false;
 		is_calculate_active = true;
-		update_display_frame();
+		is_pinpoint_active = false;
+		btn_pinpoint->setChecked(false);
 	}
 	else {
 		is_calculate_active = false;
-		update_display_frame();
 	}
+	
+	update_display_frame();
 }
 
 void VideoDisplay::zoom_image(QRect info)
@@ -208,7 +291,7 @@ void VideoDisplay::zoom_image(QRect info)
 
 		if (is_calculate_active) {
 
-			int num_zooms = zoom_list.size();
+			size_t num_zooms = zoom_list.size();
 
 			if (num_zooms == 1) {
 				calculation_region = info;
@@ -217,7 +300,7 @@ void VideoDisplay::zoom_image(QRect info)
 			else {
 				QRect adjusted_area = info;
 
-				for (int i = num_zooms - 1; i > 0; i--)
+				for (auto i = num_zooms - 1; i > 0; i--)
 				{
 
 					int* x1, * y1, * x2, * y2;
@@ -253,13 +336,13 @@ void VideoDisplay::zoom_image(QRect info)
 	}
 
 
-	int height = info.height();
-	int width = info.width();
+	double height = info.height();
+	double width = info.width();
 
-	int x = info.x();
-	int y = info.y();
+	double x = info.x();
+	double y = info.y();
 
-	double aspect_ratio = image_x * 1.0 / image_y;
+	double aspect_ratio = 1.0 * image_x / image_y;
 	double adj_width = height * aspect_ratio;
 	double adj_height = width / aspect_ratio;
 
@@ -281,20 +364,32 @@ void VideoDisplay::zoom_image(QRect info)
 	// if updated area exceeds width, move origin to left
 	if (x + width > image_x)
 	{
-		int delta = x + width - image_x;
+		double delta = x + width - (1.0 * image_x);
 		x = x - delta;
 	}
 
 	// if updated area exceeds height, move origin up
 	if (y + height > image_y)
 	{
-		int delta = y + height - image_y;
+		double delta = y + height - (1.0 * image_y);
 		y = y - delta;
 	}
+
+	x = std::round(x);
+	y = std::round(y);
+	width = std::round(width);
+	height = std::round(height);
 
 	// set zoom area to appropriate values
 	QRect new_zoom(x, y, width, height);
 	zoom_list.push_back(new_zoom);
+
+	absolute_zoom_info starting_rectangle = absolute_zoom_list[absolute_zoom_list.size() - 1];
+	double absolute_x = starting_rectangle.x + x * starting_rectangle.width / image_x;
+	double absolute_y = starting_rectangle.y + y * starting_rectangle.height / image_y;
+	double absolute_width = starting_rectangle.width * (1.0 * width / image_x);
+	double absolute_height = starting_rectangle.height * (1.0 * height / image_y);
+	absolute_zoom_list.push_back(absolute_zoom_info {absolute_x, absolute_y, absolute_width, absolute_height});
 
 	// changes color of frame when zoomed within frame
 	label->setStyleSheet("#video_object { border: 3px solid blue; }");
@@ -302,12 +397,12 @@ void VideoDisplay::zoom_image(QRect info)
 	update_display_frame();
 }
 
-void VideoDisplay::unzoom(QPoint origin)
+void VideoDisplay::unzoom()
 {
-
 	if (zoom_list.size() > 1)
 	{
 		zoom_list.pop_back();
+		absolute_zoom_list.pop_back();
 		update_display_frame();
 	}
 
@@ -318,17 +413,51 @@ void VideoDisplay::unzoom(QPoint origin)
 	}
 }
 
+void VideoDisplay::pinpoint(QPoint origin)
+{
+	// Note that each element in zoom_list contains the _relative_ position within the previous zoom state
+	// Simply storing the absolute position within the image makes a lot of code simpler - like the calculations in this function
+	// However, due to the way we currently zoom using chained QImage.scaled calls (which require integer x/y/width/height) ...
+	// ... the code must still maintain the relative zoom chain.
+
+	// It may be worth "forcing" each view state to align (x/y/width/height) with pixel boundaries, which would enable us to ...
+	// ... maintain only the absolute_zoom_list, but this would have implications for aspect ratio.
+	// Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
+
+	if (is_pinpoint_active) {
+		absolute_zoom_info rectangle = absolute_zoom_list[zoom_list.size() - 1];
+		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
+		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
+
+		int pinpoint_x = std::floor(absolute_x);
+		int pinpoint_y = std::floor(absolute_y);
+		pinpoint_indeces.push_back(pinpoint_y * image_x + pinpoint_x);
+
+		if (pinpoint_indeces.size() > 3)
+		{
+			pinpoint_indeces.erase(pinpoint_indeces.begin());
+		}
+		// Should be able to just update_partial_frame here or something
+		update_display_frame();
+	}
+}
+
+void VideoDisplay::clear_pinpoints()
+{
+	pinpoint_indeces.clear();
+	update_display_frame();
+}
+
 std::vector<int> VideoDisplay::get_position_within_zoom(int x0, int y0)
 {
-
-	int num_zooms = zoom_list.size();
+	size_t num_zooms = zoom_list.size();
 	bool pt_within_area = true;
 
 	int x_center = x0;
 	int y_center = y0;
 
 	// for each zoom level ...
-	for (int j = 0; j < num_zooms; j++)
+	for (auto j = 0; j < num_zooms; j++)
 	{
 		// define object location relative to zoom frame
 		QRect sub_frame = zoom_list[j];
@@ -422,6 +551,33 @@ void VideoDisplay::update_display_frame()
 	// Convert image back to RGB to facilitate use of the colors 
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+	QString pinpoint_text("");
+	for (auto idx = 0; idx < pinpoint_indeces.size(); idx++)
+	{
+		int pinpoint_idx = pinpoint_indeces[idx];
+		
+		if (pinpoint_idx < frame_vector.size())
+		{
+			int irradiance_value = frame_vector[pinpoint_idx];
+			int pinpoint_x = pinpoint_idx % image_x;
+			int pinpoint_y = pinpoint_idx / image_x;
+			pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
+
+			if (is_pinpoint_active)
+			{
+				QRgb rgb_red = QColorConstants::Red.rgb();
+				frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);
+			}
+		}
+		else
+		{
+			pinpoint_text += "Clicked outside of valid x/y coordinate range.";
+		}
+
+		pinpoint_text += "\n";
+	}
+	lbl_pinpoint->setText(pinpoint_text);
+
 	if (should_smooth_bad_pixels)
 	{
 		// For now, we will simply "smooth" bad pixels
@@ -463,8 +619,7 @@ void VideoDisplay::update_display_frame()
 	// -----------------------------------------------------------
 	// loop thru all tracks and plot thru lowest zoom
 
-	int num_tracks = display_data[counter].ir_data.size();
-	int num_zooms = zoom_list.size();
+	size_t num_tracks = display_data[counter].ir_data.size();
 
 	if (plot_tracks && num_tracks > 0) {
 
@@ -512,31 +667,18 @@ void VideoDisplay::update_display_frame()
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignLeft, boresight_txt);
 	}
 
+	lbl_frame_number->setText("Frame # " + QString::number(starting_frame_number + counter));
+
+	double seconds_midnight = display_data[counter].seconds_past_midnight;
+	lbl_video_time_midnight->setText("From Midnight " + QString::number(seconds_midnight, 'g', 8));
+
+	QString zulu_time = get_zulu_time_string(seconds_midnight);
+	lbl_zulu_time->setText(zulu_time);
+
 	if (display_time) {
 		QPainter p2(&frame);
 		p2.setPen(QPen(banner_color));
 		p2.setFont(QFont("Times", 8, QFont::Bold));
-
-		double seconds_midnight = display_data[counter].seconds_past_midnight;
-		int hour = seconds_midnight / 3600;
-		int minutes = (seconds_midnight - hour * 3600) / 60;
-		double seconds = seconds_midnight - hour * 3600 - minutes * 60;
-
-		QString zulu_time("");
-		if (hour < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(hour));
-		zulu_time.append(":");
-
-		if (minutes < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(minutes));
-		zulu_time.append(":");
-
-		if (seconds < 10)
-			zulu_time.append("0");
-		zulu_time.append(QString::number(seconds, 'f', 3));
-		zulu_time.append("Z");
 
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignRight, zulu_time);
 	}
@@ -562,18 +704,18 @@ void VideoDisplay::update_display_frame()
 
 	// Draw annotations
 
-	int num_annotations = annotation_list.size();
+	size_t num_annotations = annotation_list.size();
 
 	// if there are annotations ...
 	if (num_annotations > 0) {
 
 		// for each annotation ...
-		for (int i = 0; i < num_annotations; i++) {
+		for (auto i = 0; i < num_annotations; i++) {
 
 			// get frame information
 			annotation_info a = annotation_list[i];
-			int initial_frame_annotation = a.frame_start - a.min_frame;
-			int last_frame_annotation = initial_frame_annotation + a.num_frames;
+			unsigned int initial_frame_annotation = a.frame_start - a.min_frame;
+			unsigned int last_frame_annotation = initial_frame_annotation + a.num_frames;
 
 			// check that current frame is within bounds
 			if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
@@ -683,7 +825,6 @@ void VideoDisplay::update_display_frame()
 	p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
 	p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
-	bool video_open;
 	if (record_frame && video_frame_number != counter) {
 		video_frame_number = counter;
 		add_new_frame(frame, CV_8UC3);
@@ -695,6 +836,30 @@ void VideoDisplay::update_display_frame()
 	label->repaint();
 
 	//counter++;
+}
+
+QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
+{
+	int hour = seconds_midnight / 3600;
+	int minutes = (seconds_midnight - hour * 3600) / 60;
+	double seconds = seconds_midnight - hour * 3600 - minutes * 60;
+
+	QString zulu_time("");
+	if (hour < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(hour));
+	zulu_time.append(":");
+
+	if (minutes < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(minutes));
+	zulu_time.append(":");
+
+	if (seconds < 10)
+		zulu_time.append("0");
+	zulu_time.append(QString::number(seconds, 'f', 3));
+	zulu_time.append("Z");
+	return zulu_time;
 }
 
 void VideoDisplay::set_bad_pixel_map(std::vector<short> bad_pixels)
@@ -766,11 +931,9 @@ void VideoDisplay::stop_recording()
 
 void VideoDisplay::save_frame()
 {
-	const QPixmap* pix = label->pixmap();
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
 
 	if (!fileName.isEmpty()) {
-		//pix->save(fileName);
 		frame.save(fileName);
 	}
 }
@@ -778,9 +941,15 @@ void VideoDisplay::save_frame()
 void VideoDisplay::remove_frame()
 {
 	delete label;
+	
+	delete lbl_frame_number;
+	delete lbl_video_time_midnight;
+	delete lbl_zulu_time;
+
+	delete lbl_pinpoint;
 
 	label = new EnhancedLabel(this);
-	setup_label();
+	setup_labels();
 
 	histogram_plot->remove_histogram_plots();
 	histogram_plot->initialize_histogram_plot();
