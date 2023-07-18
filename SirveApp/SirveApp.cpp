@@ -1477,9 +1477,10 @@ void SirveApp::lift_slider_toggled() {
 
 	if (lift_value >= gain_value)
 	{
-		slider_lift->setValue(gain_value - 1);
+		lift_value = gain_value - 1;
 	}
 
+	slider_lift->setValue(lift_value);
 	lbl_lift_value->setText(QString::number(lift_value / 1000.));
 	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
@@ -1490,9 +1491,10 @@ void SirveApp::gain_slider_toggled() {
 
 	if (gain_value <= lift_value)
 	{
-		slider_gain->setValue(lift_value + 1);
+		gain_value = lift_value + 1;
 	}
 
+	slider_gain->setValue(gain_value);
 	lbl_gain_value->setText(QString::number(gain_value / 1000.));
 	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
