@@ -1412,8 +1412,8 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 	// connects the clickable histogram to the main program 
 
 	// get current lift/gain values
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
+	double lift_value = slider_lift->value() / 1000.;
+	double gain_value = slider_gain->value() / 1000.;
 
 	// defines the space around limit lines that will allow user to adjust limits
 	double click_spacing = 0.015;
@@ -1451,7 +1451,7 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 		if (x1 < lift_value + 0.01)
 			x1 = lift_value + 0.01;
 
-		slider_gain->setValue(color_correction.get_ui_slider_value(x1));
+		slider_gain->setValue(x1 * 1000);
 	}
 
 	// if user click is closest to lift limit, adjust value
@@ -1466,7 +1466,7 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 		if (x1 > gain_value - 0.01)
 			x1 = gain_value - 0.01;
 
-		slider_lift->setValue(color_correction.get_ui_slider_value(x1));
+		slider_lift->setValue(x1 * 1000);
 	}
 
 }
@@ -1474,15 +1474,15 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 
 void SirveApp::lift_slider_toggled() {
 
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
+	double lift_value = slider_lift->value() / 1000.;
+	double gain_value = slider_gain->value() / 1000.;
 
 	//Prevent lift from being higher than gain value
 	if (lift_value >= gain_value) {
 
-		int new_value = color_correction.get_ui_slider_value(gain_value);
+		int new_value = gain_value * 1000;
 		slider_lift->setValue(new_value - 1);
-		lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());;
+		lift_value = slider_lift->value() / 1000.;
 	}
 
 	lbl_lift_value->setText(QString::number(lift_value));
@@ -1491,15 +1491,15 @@ void SirveApp::lift_slider_toggled() {
 
 void SirveApp::gain_slider_toggled() {
 
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
+	double lift_value = slider_lift->value() / 1000.;
+	double gain_value = slider_gain->value() / 1000.;
 
 	// Prevent gain going below lift value
 	if (gain_value <= lift_value) {
 
-		int new_value = color_correction.get_ui_slider_value(lift_value);
+		int new_value = lift_value * 1000;
 		slider_gain->setValue(new_value + 1);
-		gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());;
+		gain_value = slider_gain->value() / 1000.;
 	}
 
 	lbl_gain_value->setText(QString::number(gain_value));

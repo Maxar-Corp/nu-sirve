@@ -220,26 +220,3 @@ void Min_Max_Value::set_max(double value)
 		max_value = value;
 	}
 }
-
-int Min_Max_Value::get_ui_slider_value(double input)
-{
-
-	return input * 1000;
-}
-
-// ------------------------------------------------------------------------------------------
-
-double Min_Max_Value::min_convert_slider_to_value(int value)
-{
-	return value / 1000.;
-}
-
-
-double Min_Max_Value::max_convert_slider_to_value(int value)
-{
-	return value / 1000.;
-}
-
-
-
-
