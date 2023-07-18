@@ -76,7 +76,7 @@ public:
 	Workspace workspace;
 	
 	QWidget *main_widget;
-	QGridLayout *video_layout, *engineering_plot_layout;
+	QGridLayout *engineering_plot_layout;
 	
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
@@ -93,7 +93,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_video_frame, *lbl_video_time_midnight, * lbl_zulu_time, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -104,7 +104,7 @@ public:
 	
 	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
-	QFrame* frame_video_player, * frame_video, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
+	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 	QStackedLayout* stacked_layout_histograms;
@@ -142,7 +142,6 @@ public:
 	void update_epoch_string(QString new_epoch_string);
 	void display_original_epoch(QString new_epoch_string);
 	QString create_epoch_string(std::vector<double> new_epoch);
-	void clear_frame_label();
 
 	signals:
 		void change_banner(QString banner_text);
@@ -154,8 +153,8 @@ public:
 	public slots:
 	
 		void histogram_clicked(double x0, double x1);
-		void lift_slider_toggled(int value);
-		void gain_slider_toggled(int value);
+		void lift_slider_toggled();
+		void gain_slider_toggled();
 		void color_correction_toggled(double lift_value, double gain_value);
 
 		void save_workspace();
@@ -171,6 +170,7 @@ public:
 		void start_stop_video_record();
 		void toggle_zoom_on_video();
 		void toggle_calculation_on_video();
+		void clear_zoom_and_calculation_buttons();
 
 		void update_fps();
 		void reset_color_correction();
@@ -188,8 +188,6 @@ public:
 
 		void save_plot();
 		void save_frame();
-		void set_frame_number_label(unsigned int current_frame_number);
-		void set_zulu_label();
 		void copy_osm_directory();
 		void update_enhanced_range(bool input);
 		void toggle_relative_histogram(bool input);

@@ -32,8 +32,6 @@ SirveApp::SirveApp(QWidget *parent)
 
 	// default recording video to false
 	record_video = false;
-
-	video_layout = new QGridLayout();
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_layout = new QVBoxLayout();
@@ -327,7 +325,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 
 	 // --------------------------------------------------------------------------
 
-	QGridLayout* grid_tracker = new QGridLayout(widget_tab_color);
 	QHBoxLayout* hlayout_osm_tracks = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_primary_track = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_text_color = new QHBoxLayout(widget_tab_color);
@@ -520,31 +517,12 @@ void SirveApp::setup_video_frame(){
 	QVBoxLayout* vlayout_frame_video = new QVBoxLayout(frame_video_player);
 
 	// ------------------------------------------------------------------------
-
-	frame_video = new QFrame();
-	vlayout_frame_video->addWidget(frame_video);
+	vlayout_frame_video->addLayout(video_display->video_display_layout);
 
 	// ------------------------------------------------------------------------
 
-	lbl_video_frame = new QLabel("Frame");
-	lbl_video_frame->setAlignment(Qt::AlignLeft);
-
-	lbl_video_time_midnight = new QLabel("Time");
-	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
-	lbl_zulu_time = new QLabel("Zulu");
-	lbl_zulu_time->setAlignment(Qt::AlignRight);
-
 	lbl_fps = new QLabel("fps");
 	lbl_fps->setAlignment(Qt::AlignRight);
-
-	//QWidget* widget_video_label_descriptions = new QWidget();
-	QHBoxLayout* hlayout_video_label_description = new QHBoxLayout();
-
-	hlayout_video_label_description->addWidget(lbl_video_frame);
-	hlayout_video_label_description->addWidget(lbl_video_time_midnight);
-	hlayout_video_label_description->addWidget(lbl_zulu_time);
-
-	vlayout_frame_video->addLayout(hlayout_video_label_description);
 
 	// ------------------------------------------------------------------------
 
@@ -643,7 +621,6 @@ void SirveApp::setup_video_frame(){
 	btn_popout_video->setIcon(expand_icon);
 	btn_popout_video->setCheckable(true);
 
-	QWidget* widget_video_buttons = new QWidget();
 	QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
 
 	hlayout_video_buttons->addWidget(btn_frame_save);
@@ -797,7 +774,6 @@ void SirveApp::setup_connections() {
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
 	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
-
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -854,6 +830,7 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
 	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
+	QObject::connect(video_display, &VideoDisplay::clear_mouse_buttons, this, &SirveApp::clear_zoom_and_calculation_buttons);
 
 	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_video_btn);
 
@@ -881,10 +858,6 @@ void SirveApp::setup_connections() {
 
 	//Enable saving frame
 	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::save_frame);
-
-	//Update frame number label
-	QObject::connect(playback_controller, &Playback::update_frame, this, &SirveApp::set_frame_number_label);
-
 
 	//---------------------------------------------------------------------------	
 	// Connect x-axis and y-axis changes to functions
@@ -1097,12 +1070,7 @@ void SirveApp::load_osm_data()
 		video_display->remove_frame();
 
 		cmb_processing_states->setEnabled(false);
-
-		clear_frame_label();
 	}
-
-	video_layout->addWidget(video_display->label);
-	frame_video->setLayout(video_layout);
 
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
@@ -1115,7 +1083,7 @@ void SirveApp::load_osm_data()
 
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
-	int num_tracks = data_plots->track_irradiance_data.size();
+	size_t num_tracks = data_plots->track_irradiance_data.size();
 	if (num_tracks == 0)
 	{
 		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
@@ -1239,7 +1207,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	vid_details.set_image_size(x_pixels, y_pixels);
 	vid_details.set_video_frames(video_frames);
 
-	int number_frames = vid_details.frames_16bit.size();
+	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
 	update_text.append(QString::number(min_frame));
@@ -1250,12 +1218,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	lbl_file_load->setText(status_txt);
 	txt_start_frame->setText(QString::number(min_frame));
 	txt_end_frame->setText(QString::number(max_frame));
-
-	processing_state primary = { Processing_Method::original, vid_details };
-	video_display->container.clear_processing_states();
-	video_display->container.add_processing_state(primary);
-	cmb_processing_states->setEnabled(true);
-	btn_workspace_save->setEnabled(true);
 	
 	//---------------------------------------------------------------------------
 	// Set frame number for playback controller and valid values for slider
@@ -1278,6 +1240,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
+	video_display->set_starting_frame_number(min_frame);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1304,6 +1267,12 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	tab_menu->setTabEnabled(2, true);
 
 	INFO << "GUI: ABIR file load complete";
+
+	processing_state primary = { Processing_Method::original, vid_details };
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(primary);
+	cmb_processing_states->setEnabled(true);
+	btn_workspace_save->setEnabled(true);
 
 	toggle_video_playback_options(true);
 	playback_controller->start_timer();
@@ -1362,9 +1331,7 @@ void SirveApp::popout_video_closed()
 	video_display->label->enable();
 	video_display->label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	btn_popout_video->setChecked(false);
-	video_layout->addWidget(video_display->label);
-	frame_video->setLayout(video_layout);
-
+	video_display->reclaim_label();
 	delete popout_video;
 }
 
@@ -1442,6 +1409,12 @@ void SirveApp::toggle_calculation_on_video()
 	}
 }
 
+void SirveApp::clear_zoom_and_calculation_buttons()
+{
+	btn_zoom->setChecked(false);
+	btn_calculate_radiance->setChecked(false);
+}
+
 void SirveApp::update_fps()
 {
 	QString fps = QString::number(playback_controller->speeds[playback_controller->index_speed], 'g', 2);
@@ -1515,7 +1488,7 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 }
 
 
-void SirveApp::lift_slider_toggled(int value) {
+void SirveApp::lift_slider_toggled() {
 
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -1531,7 +1504,7 @@ void SirveApp::lift_slider_toggled(int value) {
 	color_correction_toggled(lift_value, gain_value);
 }
 
-void SirveApp::gain_slider_toggled(int value) {
+void SirveApp::gain_slider_toggled() {
 
 	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
 	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
@@ -1644,14 +1617,12 @@ void SirveApp::set_data_timing_offset()
 		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
-		int index0 = data_plots->index_sub_plot_xmin + 1;
-		int index1 = data_plots->index_sub_plot_xmax + 1;
+		int index0 = data_plots->index_sub_plot_xmin;
+		int index1 = data_plots->index_sub_plot_xmax;
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		video_display->update_frame_data(temp);
 		video_display->update_display_frame();
-
-		set_zulu_label();
 
 		plot_change();
 	}
@@ -1806,11 +1777,11 @@ void SirveApp::export_plot_data()
 	if (path.size() == 0)
 		return;
 
-	int min_frame, max_frame;
+	unsigned int min_frame, max_frame;
 	if (item == "Export All Data") 
 	{
 		min_frame = 0;
-		max_frame = eng_data->frame_data.size() - 1;
+		max_frame = static_cast<unsigned int>(eng_data->frame_data.size() - 1);
 
 		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
 	}
@@ -1849,23 +1820,14 @@ int SirveApp::get_color_index(QVector<QString> colors, QColor input_color) {
 
 void SirveApp::edit_color_map()
 {
-
-	int index = cmb_color_maps->currentIndex();
 	QString color = cmb_color_maps->currentText();
 	video_display->update_color_map(color);
-
 }
 
 void SirveApp::edit_banner_color()
 {
-	
-	int index = cmb_text_color->currentIndex();
 	QString color = cmb_text_color->currentText();
-
 	video_display->update_banner_color(color);
-
-	return;
-	//}
 }
 
 void SirveApp::edit_tracker_color()
@@ -1963,76 +1925,6 @@ int SirveApp::get_integer_from_txt_box(QString input)
 		return -1;
 	}
 }
-
-void SirveApp::set_frame_number_label(unsigned int current_frame_number)
-{
-	// check that engineering is non-null before accessing
-	if (eng_data) {
-		int index = data_plots->index_sub_plot_xmin;
-
-		int frame_number = index + current_frame_number + 1;
-		QString frame_text("Frame # ");
-		frame_text.append(QString::number(frame_number));
-		lbl_video_frame->setText(frame_text);
-
-		double seconds_midnight = eng_data->get_epoch_time_from_index(index + current_frame_number);
-		QString seconds_text("From Midnight ");
-		seconds_text.append(QString::number(seconds_midnight, 'g', 8));
-		lbl_video_time_midnight->setText(seconds_text);
-
-		// ------------------------------------------------------------------------------------
-		set_zulu_label();
-
-	}
-
-}
-
-void SirveApp::set_zulu_label()
-{
-
-	int index = data_plots->index_sub_plot_xmin;
-	unsigned int current_frame_number = playback_controller->get_current_frame_number();
-
-	double seconds_midnight = eng_data->get_epoch_time_from_index(index + current_frame_number);
-
-	// ------------------------------------------------------------------------------------
-	int hour = seconds_midnight / 3600;
-	int minutes = (seconds_midnight - hour * 3600) / 60;
-	double seconds = seconds_midnight - hour * 3600 - minutes * 60;
-
-	QString zulu_time("");
-	if (hour < 10)
-		zulu_time.append("0");
-	zulu_time.append(QString::number(hour));
-	zulu_time.append(":");
-
-	if (minutes < 10)
-		zulu_time.append("0");
-	zulu_time.append(QString::number(minutes));
-	zulu_time.append(":");
-
-	if (seconds < 10)
-		zulu_time.append("0");
-	zulu_time.append(QString::number(seconds, 'f', 3));
-
-	zulu_time.append("Z");
-	lbl_zulu_time->setText(zulu_time);
-
-}
-
-void SirveApp::clear_frame_label()
-{
-
-	QString frame_text("");
-	lbl_video_frame->setText(frame_text);
-
-	QString seconds_text("");
-	lbl_video_time_midnight->setText(seconds_text);
-
-	QString zulu_text("");
-	lbl_zulu_time->setText(zulu_text);
-}
-
 
 void SirveApp::copy_osm_directory()
 {
@@ -2169,10 +2061,8 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		return;
 
 	if (item == "From Current File") {
-
-
 		// get total number of frames
-		int num_messages = osm_frames.size();
+		int num_messages = static_cast<int>(osm_frames.size());
 
 		QString prompt1 = "Start Frame (";
 		prompt1.append(QString::number(num_messages));
@@ -2236,7 +2126,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	nuc_state.details.histogram_data.clear();
 
 	// Apply NUC to the frames		
-	int number_frames = original.details.frames_16bit.size();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
@@ -2247,7 +2137,7 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	progress.setLabelText(QString("Applying correction..."));
 	progress.setMinimumWidth(300);
 
-	for (int i = 0; i < number_frames; i++) {
+	for (auto i = 0; i < number_frames; i++) {
 		progress.setValue(i);
 		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << " frames";
 		nuc_state.details.frames_16bit.push_back(nuc.apply_nuc_correction(original.details.frames_16bit[i]));
@@ -2303,7 +2193,7 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 	
 	// Apply de-interlace to the frames		
 	
-	int number_frames = original.details.frames_16bit.size();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
@@ -2432,12 +2322,12 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	background_subtraction_state.details.histogram_data.clear();
 
 	// Apply background subtraction to the frames
-	int number_frames = original.details.frames_16bit.size();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Adjusting frames..."));
 
-	for (int i = 0; i < number_frames; i++) {
+	for (auto i = 0; i < number_frames; i++) {
 		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
 		progress.setValue(i);
 		background_subtraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
@@ -2508,9 +2398,6 @@ void SirveApp::toggle_video_playback_options(bool input)
 	{
 		playback_controller->stop_timer();
 		slider_video->setValue(1);
-		lbl_video_time_midnight->setText("");
-		lbl_zulu_time->setText("");
-		lbl_video_frame->setText("");
 		lbl_fps->setText("");
 	}
 }
@@ -2572,7 +2459,7 @@ QString SirveApp::create_epoch_string(std::vector<double> new_epoch) {
 	QString out = "";
 	
 	int number;
-	int length = new_epoch.size();
+	int length = static_cast<int>(new_epoch.size());
 	for (int i = 0; i < length; i++)
 	{
 		if (i == 0)

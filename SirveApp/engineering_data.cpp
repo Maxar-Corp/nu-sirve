@@ -97,11 +97,6 @@ void Engineering_Data::set_offset_time(double offset)
 	timing_offset = offset;
 }
 
-double Engineering_Data::get_epoch_time_from_index(int index)
-{
-	return seconds_from_midnight[index] + timing_offset;
-}
-
 std::vector<double> Engineering_Data::get_julian_date()
 {
 	if (std::abs(timing_offset) < 0.001)
