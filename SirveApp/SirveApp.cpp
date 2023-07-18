@@ -1471,39 +1471,30 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 
 }
 
-
 void SirveApp::lift_slider_toggled() {
+	int lift_value = slider_lift->value();
+	int gain_value = slider_gain->value();
 
-	double lift_value = slider_lift->value() / 1000.;
-	double gain_value = slider_gain->value() / 1000.;
-
-	//Prevent lift from being higher than gain value
-	if (lift_value >= gain_value) {
-
-		int new_value = gain_value * 1000;
-		slider_lift->setValue(new_value - 1);
-		lift_value = slider_lift->value() / 1000.;
+	if (lift_value >= gain_value)
+	{
+		slider_lift->setValue(gain_value - 1);
 	}
 
-	lbl_lift_value->setText(QString::number(lift_value));
-	emit new_lift_gain_values(lift_value, gain_value);
+	lbl_lift_value->setText(QString::number(lift_value / 1000.));
+	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
 
 void SirveApp::gain_slider_toggled() {
+	int lift_value = slider_lift->value();
+	int gain_value = slider_gain->value();
 
-	double lift_value = slider_lift->value() / 1000.;
-	double gain_value = slider_gain->value() / 1000.;
-
-	// Prevent gain going below lift value
-	if (gain_value <= lift_value) {
-
-		int new_value = lift_value * 1000;
-		slider_gain->setValue(new_value + 1);
-		gain_value = slider_gain->value() / 1000.;
+	if (gain_value <= lift_value)
+	{
+		slider_gain->setValue(lift_value + 1);
 	}
 
-	lbl_gain_value->setText(QString::number(gain_value));
-	emit new_lift_gain_values(lift_value, gain_value);
+	lbl_gain_value->setText(QString::number(gain_value / 1000.));
+	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
 
 void SirveApp::reset_color_correction()
