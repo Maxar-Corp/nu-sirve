@@ -136,7 +136,6 @@ public:
 	void setup_plot_frame();
 	void setup_connections();
 
-	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
 	bool verify_frame_selection(int min_frame, int max_frame);
 	void update_epoch_string(QString new_epoch_string);
@@ -154,7 +153,6 @@ public:
 		void histogram_clicked(double x0, double x1);
 		void lift_slider_toggled();
 		void gain_slider_toggled();
-		void color_correction_toggled(double lift_value, double gain_value);
 
 		void save_workspace();
 		void load_workspace();
