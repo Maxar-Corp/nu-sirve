@@ -1526,12 +1526,6 @@ void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
 	
 	set_color_correction_slider_labels();
 
-	if (!playback_controller->timer->isActive() && false)
-	{
-		unsigned int current_frame_number = playback_controller->get_current_frame_number();
-		video_display->update_specific_frame(current_frame_number);
-	}		
-
 	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
 }
 
