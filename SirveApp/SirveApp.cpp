@@ -772,7 +772,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
-	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
+	QObject::connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 	//---------------------------------------------------------------------------	
 	
@@ -1521,9 +1521,7 @@ void SirveApp::gain_slider_toggled() {
 }
 
 void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
-		
-	emit color_correction.update_min_max(lift_value, gain_value);
-	
+	emit new_lift_gain_values(lift_value, gain_value);
 	set_color_correction_slider_labels();
 
 	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);

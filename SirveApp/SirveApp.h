@@ -147,7 +147,7 @@ public:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
-	
+		void new_lift_gain_values(double lift_value, double gain_value);
 
 	public slots:
 	
