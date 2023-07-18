@@ -29,14 +29,6 @@ public:
 	bool set_gamma(double value);
 	bool set_gain(double value);
 
-	void get_lift_slider_range(int &min_value, int &max_value);
-	void get_gamma_slider_range(int &min_value, int &max_value);
-	void get_gain_slider_range(int &min_value, int &max_value);
-
-	double lift_convert_slider_to_value(int value);
-	double gamma_convert_slider_to_value(int value);
-	double gain_convert_slider_to_value(int value);
-
 signals:
 	void update_lift_gamma_gain(double lift, double gamma, double gain);
 
