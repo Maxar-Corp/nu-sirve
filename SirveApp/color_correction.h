@@ -54,12 +54,6 @@ public:
 	void set_min(double value);
 	void set_max(double value);
 
-	int get_ui_slider_value(double input);
-
-	double min_convert_slider_to_value(int value);
-	double max_convert_slider_to_value(int value);
-
-
 private:
 	double min_value, max_value;
 
