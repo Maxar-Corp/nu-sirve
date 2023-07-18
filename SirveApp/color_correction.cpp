@@ -158,48 +158,6 @@ bool Lift_Gamma_Gain::set_gain(double value)
 	}
 }
 
-// ------------------------------------------------------------------------------------------
-
-void Lift_Gamma_Gain::get_lift_slider_range(int & min_value, int & max_value)
-{
-	int value_range = (max_lift - min_lift) * 100;
-
-	min_value = 0;
-	max_value = value_range;
-}
-
-void Lift_Gamma_Gain::get_gamma_slider_range(int & min_value, int & max_value)
-{
-	// Assumes gamma is above zero
-
-	min_value = min_gamma * 1000;
-	max_value = max_gamma * 1000;
-
-}
-
-void Lift_Gamma_Gain::get_gain_slider_range(int & min_value, int & max_value)
-{
-	// Assumes min_gain is zero or positive
-
-	min_value = min_gain * 100;
-	max_value = max_gain * 100;
-}
-
-double Lift_Gamma_Gain::lift_convert_slider_to_value(int value)
-{	
-	return (min_lift * 100. + value) / 100.;
-}
-
-double Lift_Gamma_Gain::gamma_convert_slider_to_value(int value)
-{
-	return value / 1000.;
-}
-
-double Lift_Gamma_Gain::gain_convert_slider_to_value(int value)
-{
-	return value / 100.;
-}
-
 // ------------------------------------------------------------------------------------
 
 Min_Max_Value::Min_Max_Value()
