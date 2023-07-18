@@ -1501,7 +1501,8 @@ void SirveApp::lift_slider_toggled() {
 		lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());;
 	}
 
-	color_correction_toggled(lift_value, gain_value);
+	lbl_lift_value->setText(QString::number(lift_value));
+	emit new_lift_gain_values(lift_value, gain_value);
 }
 
 void SirveApp::gain_slider_toggled() {
@@ -1517,14 +1518,8 @@ void SirveApp::gain_slider_toggled() {
 		gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());;
 	}
 
-	color_correction_toggled(lift_value, gain_value);
-}
-
-void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
+	lbl_gain_value->setText(QString::number(gain_value));
 	emit new_lift_gain_values(lift_value, gain_value);
-	set_color_correction_slider_labels();
-
-	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
 }
 
 void SirveApp::reset_color_correction()
@@ -2343,20 +2338,6 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	slider_gain->setValue(1);
-}
-
-void SirveApp::set_color_correction_slider_labels()
-{
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
-		
-	QString lift_string;
-	lift_string.setNum(lift_value);
-	lbl_lift_value->setText(lift_string);
-
-	QString gain_string;
-	gain_string.setNum(gain_value);
-	lbl_gain_value->setText(gain_string);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
