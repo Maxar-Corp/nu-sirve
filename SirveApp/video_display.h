@@ -16,6 +16,9 @@
 #include <qpainter.h>
 #include <qbrush.h>
 #include <qfiledialog.h>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGroupBox>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
@@ -34,6 +37,10 @@
 #include "calibration_data.h"
 #include "annotation_info.h"
 
+struct absolute_zoom_info {
+	double x, y, width, height;
+};
+
 class VideoDisplay : public QWidget
 {
     Q_OBJECT
@@ -41,6 +48,8 @@ public:
    
 	VideoDisplay(int x_pixels, int y_pixels, int input_bit_level);
 	~VideoDisplay();
+	QVBoxLayout *video_display_layout;
+	void reclaim_label();
 
 	int counter_record, video_frame_number;
 	bool record_frame, show_relative_histogram;
@@ -50,7 +59,7 @@ public:
 
 	int image_x, image_y, number_pixels, max_bit_level;
 
-    unsigned int number_of_frames;
+    size_t number_of_frames;
 	int timer_frequency;
 	QImage frame;
     EnhancedLabel  *label;
@@ -69,6 +78,8 @@ public:
 	void set_bad_pixel_map(std::vector<short> bad_pixels);
 	void smooth_bad_pixels(bool status);
 	std::vector<short> get_bad_pixel_map();
+
+	void set_starting_frame_number(unsigned int frame_number);
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
@@ -90,6 +101,8 @@ public:
 
 	void remove_frame();
 
+signals:
+	void clear_mouse_buttons();
 
 public slots:
     void update_display_frame();	
@@ -105,19 +118,31 @@ public slots:
 
 	void toggle_relative_histogram();
 	
+	void pinpoint(QPoint origin);
+	void clear_pinpoints();
+
 	void zoom_image(QRect info);
-	void unzoom(QPoint origin);
+	void unzoom();
+
 
 private:
+	QLabel *lbl_pinpoint;
+	QPushButton *btn_pinpoint, *btn_clear_pinpoints;
+	QGroupBox *grp_pinpoint;
+	QHBoxLayout *pinpoint_layout;
+	//int pinpoint_x, pinpoint_y;
+	std::vector<absolute_zoom_info> absolute_zoom_list;
+	std::vector<int> pinpoint_indeces;
 	
-	bool is_zoom_active, is_calculate_active, should_smooth_bad_pixels;
+	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_smooth_bad_pixels;
 	std::vector<QRect> zoom_list;
 	int index_current_video;
+	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
 	QRect calculation_region;
 	
 	std::vector<std::vector<uint16_t>> frame_data;
-    unsigned int counter;
+    unsigned int counter, starting_frame_number;
 
 	std::vector<short> bad_pixel_map;
 
@@ -125,9 +150,11 @@ private:
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
-	void setup_label();
+	void setup_labels();
 
-	void update_video_file(int x_pixels, int y_pixels);
+	void handle_btn_pinpoint(bool checked);
+
+	QString get_zulu_time_string(double seconds_midnight);
 };
 
 #endif // VIDEO_DISPLAY_H
