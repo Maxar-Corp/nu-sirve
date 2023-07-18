@@ -65,8 +65,6 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
 
 	public slots:
-		void update_color_correction(double lift, double gamma, double gain);
-		void toggle_enhanced_dynamic_range(bool input);
 		void adjust_color_correction(double x0, double x1);
 
     private:
