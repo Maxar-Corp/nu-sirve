@@ -59,8 +59,8 @@ public:
 	double get_max();
 	void get_updated_color(arma::vec& input);
 
-	bool set_min(double value);
-	bool set_max(double value);
+	void set_min(double value);
+	void set_max(double value);
 
 	void get_min_slider_range(int &min_value, int &max_value);
 	void get_max_slider_range(int &min_value, int &max_value);
@@ -68,9 +68,6 @@ public:
 
 	double min_convert_slider_to_value(int value);
 	double max_convert_slider_to_value(int value);
-
-signals:
-	void update_min_max(double min, double max);
 
 
 private:

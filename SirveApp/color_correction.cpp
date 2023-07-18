@@ -247,35 +247,19 @@ void Min_Max_Value::get_updated_color(arma::vec & input)
 
 }
 
-bool Min_Max_Value::set_min(double value)
+void Min_Max_Value::set_min(double value)
 {
 	if (value >= 0 & value <= max_value)
 	{
-		if (value != min_value) {
-			min_value = value;
-			emit update_min_max(min_value, max_value);
-		}
-		return true;
-	}
-	else
-	{
-		return false;
+		min_value = value;
 	}
 }
 
-bool Min_Max_Value::set_max(double value)
+void Min_Max_Value::set_max(double value)
 {
 	if (value >= min_value & value <= 1.0)
 	{
-		if (value != max_value) {
-			max_value = value;
-			emit update_min_max(min_value, max_value);
-		}
-		return true;
-	}
-	else
-	{
-		return false;
+		max_value = value;
 	}
 }
 
