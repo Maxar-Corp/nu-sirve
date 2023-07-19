@@ -148,6 +148,7 @@ public:
 	
 		void histogram_clicked(double x0, double x1);
 		void handle_chk_auto_lift_gain(int state);
+		void set_lift_and_gain(double lift, double gain);
 		void lift_slider_toggled();
 		void gain_slider_toggled();
 
