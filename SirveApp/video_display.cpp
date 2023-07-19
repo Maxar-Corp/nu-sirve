@@ -514,6 +514,12 @@ void VideoDisplay::update_display_frame()
 	int max_value = std::pow(2, max_bit_level);
 	image_vector = image_vector / max_value;
 
+	double sigma = arma::stddev(image_vector);
+	double meanVal = arma::mean(image_vector);
+	if (image_vector.max() < 1) {
+		//values = values / values.max();
+		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
+	}
 	//------------------------------------------------------------------------------------------------
 	// Update the absolute histogram
 	histogram_plot->plot_absolute_histogram(image_vector, lift, gain);
