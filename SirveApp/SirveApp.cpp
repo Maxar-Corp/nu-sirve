@@ -258,6 +258,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	lbl_gain_value = new QLabel("1.0");
 	slider_lift = new QSlider();
 	slider_gain = new QSlider();
+	chk_auto_lift_gain = new QCheckBox("Auto Lift/Gain");
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
 	btn_reset_color_correction = new QPushButton("Reset Set Points");
 
@@ -296,6 +297,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	grid_tab_color_sliders->addWidget(slider_gain, 1, 1);
 	grid_tab_color_sliders->addWidget(lbl_gain_value, 1, 2);
 
+	hlayout_tab_color_controls->addWidget(chk_auto_lift_gain);
 	hlayout_tab_color_controls->addWidget(chk_relative_histogram);
 	hlayout_tab_color_controls->addWidget(btn_reset_color_correction);
 
@@ -765,6 +767,7 @@ void SirveApp::setup_connections() {
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
+	QObject::connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
 	QObject::connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
 	QObject::connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
@@ -1409,6 +1412,10 @@ void SirveApp::update_fps()
 
 
 void SirveApp::histogram_clicked(double x0, double x1) {
+	if (chk_auto_lift_gain->isChecked())
+	{
+		return;
+	}
 	// connects the clickable histogram to the main program 
 
 	// get current lift/gain values
@@ -1471,7 +1478,26 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 
 }
 
+void SirveApp::handle_chk_auto_lift_gain(int state)
+{
+	if (state == Qt::Checked)
+	{
+		slider_lift->setEnabled(false);
+		slider_gain->setEnabled(false);
+	}
+	else
+	{
+		slider_lift->setEnabled(true);
+		slider_gain->setEnabled(true);
+	}
+}
+
 void SirveApp::lift_slider_toggled() {
+	if (chk_auto_lift_gain->isChecked())
+	{
+		return;
+	}
+
 	int lift_value = slider_lift->value();
 	int gain_value = slider_gain->value();
 
@@ -1486,6 +1512,11 @@ void SirveApp::lift_slider_toggled() {
 }
 
 void SirveApp::gain_slider_toggled() {
+	if (chk_auto_lift_gain->isChecked())
+	{
+		return;
+	}
+
 	int lift_value = slider_lift->value();
 	int gain_value = slider_gain->value();
 
