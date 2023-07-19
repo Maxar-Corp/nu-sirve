@@ -214,12 +214,6 @@ arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec &values, arma::ve
 
 void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min, double max)
 {
-	double sigma = arma::stddev(values);
-	double meanVal = arma::mean(values);
-	if (values.max() < 1) {
-		//values = values / values.max();
-		values = values / (meanVal + 3. * sigma) - .5;
-	}
 	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
@@ -228,12 +222,10 @@ void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min,
 	double max_hist_value = bin_counts.max();
 	plot_histogram(histogram_line, min, max, max_hist_value, chart);
 	plot_histogram(histogram_line, min, max, max_hist_value, chart_full);
-
 }
 
 void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
 {
-
 	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
@@ -241,7 +233,6 @@ void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
 
 	double max_hist_value = bin_counts.max();
 	plot_histogram(histogram_line, 0, 1, max_hist_value, rel_chart);
-
 }
 
 QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec & values)
