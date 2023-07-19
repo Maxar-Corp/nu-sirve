@@ -760,6 +760,8 @@ void SirveApp::setup_connections() {
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
 	QObject::connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	
+	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -1484,11 +1486,29 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	{
 		slider_lift->setEnabled(false);
 		slider_gain->setEnabled(false);
+		video_display->auto_lift_gain = true;
 	}
 	else
 	{
 		slider_lift->setEnabled(true);
 		slider_gain->setEnabled(true);
+		video_display->auto_lift_gain = false;
+	}
+}
+
+void SirveApp::set_lift_and_gain(double lift, double gain)
+{
+	if (!chk_auto_lift_gain->isChecked())
+	{
+		return;
+	}
+	else
+	{
+		slider_lift->setValue(lift * 1000);
+		lbl_lift_value->setText(QString::number(lift));
+
+		slider_gain->setValue(gain * 1000);
+		lbl_gain_value->setText(QString::number(gain));
 	}
 }
 
