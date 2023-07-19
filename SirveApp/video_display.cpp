@@ -36,6 +36,8 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	display_tgt_pos_txt = false;
 	display_time = false;
 
+	lift = 0;
+	gain = 1;
 	// intializes color map to gray scale
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
@@ -517,7 +519,7 @@ void VideoDisplay::update_display_frame()
 	histogram_plot->plot_absolute_histogram(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
-	color_correction.get_updated_color(image_vector, lift, gain);
+	ColorCorrection::update_color(image_vector, lift, gain);
 
 	// Create points for the relative histogram
 	if (show_relative_histogram) {
