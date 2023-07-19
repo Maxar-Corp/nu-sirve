@@ -17,19 +17,7 @@ public:
 
 	Min_Max_Value();
 	~Min_Max_Value();
-
-	double get_min();
-	double get_max();
-	void get_updated_color(arma::vec& input);
-
-	void set_min(double value);
-	void set_max(double value);
-
-private:
-	double min_value, max_value;
-
+	void get_updated_color(arma::vec& input, double min_value, double max_value);
 };
-
-
 
 #endif // COLOR_CORRECTION_H
