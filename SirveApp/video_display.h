@@ -64,6 +64,7 @@ public:
 	QImage frame;
     EnhancedLabel  *label;
 	Min_Max_Value color_correction;
+	double lift, gain;
 	HistogramLine_Plot *histogram_plot;
 	Video_Container container;
 

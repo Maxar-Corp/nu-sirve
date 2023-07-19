@@ -514,10 +514,10 @@ void VideoDisplay::update_display_frame()
 
 	//------------------------------------------------------------------------------------------------
 	// Update the absolute histogram
-	histogram_plot->plot_absolute_histogram(image_vector, color_correction.get_min(), color_correction.get_max());
+	histogram_plot->plot_absolute_histogram(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
-	color_correction.get_updated_color(image_vector);
+	color_correction.get_updated_color(image_vector, lift, gain);
 
 	// Create points for the relative histogram
 	if (show_relative_histogram) {
@@ -971,8 +971,7 @@ void VideoDisplay::update_specific_frame(unsigned int frame_number)
 
 void VideoDisplay::update_color_correction(double new_min_value, double new_max_value)
 {
-	color_correction.set_min(new_min_value);
-	color_correction.set_max(new_max_value);
+	lift = new_min_value;
+	gain = new_max_value;
 	update_display_frame();
-
 }
