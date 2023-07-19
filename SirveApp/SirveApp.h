@@ -8,7 +8,6 @@
 #include "histogram_plotter.h"
 #include "osm_plotter.h"
 #include "playback.h"
-#include "color_correction.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"
@@ -82,7 +81,6 @@ public:
 
 	QThread thread_video, thread_timer;
 
-	Min_Max_Value color_correction;
 	Playback *playback_controller;
 	QMenu *menu, *plot_menu;
 
