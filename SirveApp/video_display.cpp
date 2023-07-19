@@ -36,6 +36,7 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	display_tgt_pos_txt = false;
 	display_time = false;
 
+	auto_lift_gain = false;
 	lift = 0;
 	gain = 1;
 	// intializes color map to gray scale
@@ -514,11 +515,19 @@ void VideoDisplay::update_display_frame()
 	int max_value = std::pow(2, max_bit_level);
 	image_vector = image_vector / max_value;
 
-	double sigma = arma::stddev(image_vector);
-	double meanVal = arma::mean(image_vector);
 	if (image_vector.max() < 1) {
-		//values = values / values.max();
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
 		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
+	}
+
+	if (auto_lift_gain)
+	{
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		lift = meanVal - 3.*sigma;
+		gain = meanVal + 3.*sigma;
+		emit force_new_lift_gain(lift, gain);
 	}
 	//------------------------------------------------------------------------------------------------
 	// Update the absolute histogram
