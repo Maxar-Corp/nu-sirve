@@ -99,7 +99,7 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_bad_pixel_identification;
 	
-	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
+	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
 	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
@@ -147,6 +147,7 @@ public:
 	public slots:
 	
 		void histogram_clicked(double x0, double x1);
+		void handle_chk_auto_lift_gain(int state);
 		void lift_slider_toggled();
 		void gain_slider_toggled();
 
