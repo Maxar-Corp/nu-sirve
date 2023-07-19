@@ -35,7 +35,6 @@ class Engineering_Data : public	QWidget
 		double get_offset_time();
 		void set_offset_time(double offset);
 
-		double get_epoch_time_from_index(int index);
 		std::vector<double> get_julian_date();
 		std::vector<double> get_seconds_from_midnight();
 		std::vector<double> get_seconds_from_epoch();
