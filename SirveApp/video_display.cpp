@@ -36,6 +36,9 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	display_tgt_pos_txt = false;
 	display_time = false;
 
+	auto_lift_gain = false;
+	lift = 0;
+	gain = 1;
 	// intializes color map to gray scale
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
@@ -512,12 +515,26 @@ void VideoDisplay::update_display_frame()
 	int max_value = std::pow(2, max_bit_level);
 	image_vector = image_vector / max_value;
 
+	if (image_vector.max() < 1) {
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
+	}
+
+	if (auto_lift_gain)
+	{
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		lift = meanVal - 3.*sigma;
+		gain = meanVal + 3.*sigma;
+		emit force_new_lift_gain(lift, gain);
+	}
 	//------------------------------------------------------------------------------------------------
 	// Update the absolute histogram
-	histogram_plot->plot_absolute_histogram(image_vector, color_correction.get_min(), color_correction.get_max());
+	histogram_plot->plot_absolute_histogram(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
-	color_correction.get_updated_color(image_vector);
+	ColorCorrection::update_color(image_vector, lift, gain);
 
 	// Create points for the relative histogram
 	if (show_relative_histogram) {
@@ -971,8 +988,7 @@ void VideoDisplay::update_specific_frame(unsigned int frame_number)
 
 void VideoDisplay::update_color_correction(double new_min_value, double new_max_value)
 {
-	color_correction.set_min(new_min_value);
-	color_correction.set_max(new_max_value);
+	lift = new_min_value;
+	gain = new_max_value;
 	update_display_frame();
-
 }

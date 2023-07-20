@@ -24,7 +24,6 @@ HEADERS += abir_reader.h \
             calibration_data.h \
             clickable_chartview.h \
             color_correction.h \
-            color_correction_plot.h \
             color_map.h \
             color_scheme.h \
             config.h \
@@ -71,7 +70,6 @@ SOURCES += abir_reader.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
-            color_correction_plot.cpp \
             color_correction.cpp \
             color_map.cpp \
             color_scheme.cpp \
