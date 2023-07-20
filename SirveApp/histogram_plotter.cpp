@@ -50,11 +50,6 @@ HistogramLine_Plot::~HistogramLine_Plot(){
 	delete text;
 }
 
-void HistogramLine_Plot::toggle_enhanced_dynamic_range(bool input)
-{
-	color_correction.enhanced_dynamic_range = input;
-}
-
 void HistogramLine_Plot::adjust_color_correction(double x0, double x1)
 {
 	emit click_drag_histogram(x0, x1);
@@ -219,7 +214,6 @@ arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec &values, arma::ve
 
 void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min, double max)
 {
-
 	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
@@ -228,12 +222,10 @@ void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min,
 	double max_hist_value = bin_counts.max();
 	plot_histogram(histogram_line, min, max, max_hist_value, chart);
 	plot_histogram(histogram_line, min, max, max_hist_value, chart_full);
-
 }
 
 void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
 {
-
 	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
@@ -241,7 +233,6 @@ void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
 
 	double max_hist_value = bin_counts.max();
 	plot_histogram(histogram_line, 0, 1, max_hist_value, rel_chart);
-
 }
 
 QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec & values)
@@ -298,11 +289,4 @@ QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec &
 	}
 
 	return histogram_line;
-}
-
-void HistogramLine_Plot::update_color_correction(double lift, double gamma, double gain)
-{
-	color_correction.set_lift(lift);
-	color_correction.set_gamma(gamma);
-	color_correction.set_gain(gain);
 }

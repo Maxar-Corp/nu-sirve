@@ -22,7 +22,6 @@
 #include <math.h>
 
 #include "color_scheme.h"
-#include "color_correction.h"
 #include "video_details.h"
 #include "clickable_chartview.h"
 
@@ -34,9 +33,6 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
     Q_OBJECT
     public:
-        
-		Lift_Gamma_Gain color_correction;
-        
 		QChart *chart, *chart_full, *rel_chart;
 		QChartView *rel_chart_view;
 		Clickable_QChartView *chart_view, *chart_full_view;
@@ -65,8 +61,6 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
 
 	public slots:
-		void update_color_correction(double lift, double gamma, double gain);
-		void toggle_enhanced_dynamic_range(bool input);
 		void adjust_color_correction(double x0, double x1);
 
     private:

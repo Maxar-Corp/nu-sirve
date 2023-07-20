@@ -52,7 +52,7 @@ public:
 	void reclaim_label();
 
 	int counter_record, video_frame_number;
-	bool record_frame, show_relative_histogram;
+	bool record_frame, show_relative_histogram, auto_lift_gain;
 	cv::VideoWriter video;
 	
 	std::vector<annotation_info> annotation_list;
@@ -63,7 +63,7 @@ public:
 	int timer_frequency;
 	QImage frame;
     EnhancedLabel  *label;
-	Min_Max_Value color_correction;
+	double lift, gain;
 	HistogramLine_Plot *histogram_plot;
 	Video_Container container;
 
@@ -103,6 +103,7 @@ public:
 
 signals:
 	void clear_mouse_buttons();
+	void force_new_lift_gain(double lift, double gain);
 
 public slots:
     void update_display_frame();	

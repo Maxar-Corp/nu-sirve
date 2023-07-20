@@ -45,6 +45,7 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 	}
 	
 	//iterate through frames to calculate suppression for each individual frame
+	arma:: vec limVal = arma::zeros(num_video_frames);
 	for (int i = 0; i < num_video_frames; i++)
 	{
 		if (progress.wasCanceled())
@@ -52,7 +53,10 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 			DEBUG << "Background Subtraction: Adjustment process canceled";
 			return std::vector<std::vector<double>>();
 		}
+	
 
+		
+		//arma::vec mean_frame = arma::mean(values, 1);
 		DEBUG << "Background Subtraction: Processing adjustment for frame #" << i + 1;
 		progress.setValue(i);
 
@@ -79,6 +83,7 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 
 		//Convert mean to double and store
 		std::vector<double> vector_mean = arma::conv_to<std::vector<double>>::from(mean_frame);
+
 		out.push_back(vector_mean);
 	}
 
@@ -96,12 +101,14 @@ std::vector<uint16_t> AdaptiveNoiseSuppression::apply_correction(std::vector<uin
 	arma::vec correction_values(correction);
 
 	arma::vec corrected_values = original_frame - correction_values;
+	double min_value = abs(corrected_values.min());
+	corrected_values = corrected_values + min_value * arma::ones(corrected_values.size());
 
-	arma::uvec index_negative = arma::find(corrected_values < 0);
-	if (index_negative.size() > 0){
-		DEBUG << "Background Subtraction: " << index_negative.size() << "number of negative pixels found during subtraction.";
-		corrected_values.elem(index_negative) = arma::zeros(index_negative.size());
-	}
+	//arma::uvec index_negative = arma::find(corrected_values < 0);
+	//if (index_negative.size() > 0){
+	//	DEBUG << "Background Subtraction: " << index_negative.size() << "number of negative pixels found during subtraction.";
+	//	corrected_values.elem(index_negative) = arma::zeros(index_negative.size());
+	//}
 
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
