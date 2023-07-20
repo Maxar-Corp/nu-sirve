@@ -1494,6 +1494,7 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 		slider_gain->setEnabled(true);
 		video_display->auto_lift_gain = false;
 	}
+	video_display->update_display_frame();
 }
 
 void SirveApp::set_lift_and_gain(double lift, double gain)
@@ -2364,7 +2365,7 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	background_subtraction_state.bgs_num_frames = num_frames;
 	video_display->container.add_processing_state(background_subtraction_state);
 
-	slider_gain->setValue(1);
+	chk_auto_lift_gain->setChecked(true);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
