@@ -8,13 +8,11 @@
 #include "histogram_plotter.h"
 #include "osm_plotter.h"
 #include "playback.h"
-#include "color_correction.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"
 #include "video_details.h"
 #include "process_file.h"
-#include "color_correction_plot.h"
 #include "non_uniformity_correction.h"
 #include "background_subtraction.h"
 #include "deinterlace.h"
@@ -83,7 +81,6 @@ public:
 
 	QThread thread_video, thread_timer;
 
-	Min_Max_Value color_correction;
 	Playback *playback_controller;
 	QMenu *menu, *plot_menu;
 
@@ -102,7 +99,7 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_bad_pixel_identification;
 	
-	QCheckBox * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
+	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
 	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
@@ -121,7 +118,6 @@ public:
 	VideoDisplay *video_display;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
-	ColorPlotter color_correction_plot;
 	bool record_video;
 	
 	SirveApp(QWidget *parent = Q_NULLPTR);
@@ -136,7 +132,6 @@ public:
 	void setup_plot_frame();
 	void setup_connections();
 
-	void set_color_correction_slider_labels();
 	void toggle_video_playback_options(bool input);
 	bool verify_frame_selection(int min_frame, int max_frame);
 	void update_epoch_string(QString new_epoch_string);
@@ -147,15 +142,15 @@ public:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
-		void enhanced_dynamic_range(bool enhance_range);
-	
+		void new_lift_gain_values(double lift_value, double gain_value);
 
 	public slots:
 	
 		void histogram_clicked(double x0, double x1);
+		void handle_chk_auto_lift_gain(int state);
+		void set_lift_and_gain(double lift, double gain);
 		void lift_slider_toggled();
 		void gain_slider_toggled();
-		void color_correction_toggled(double lift_value, double gain_value);
 
 		void save_workspace();
 		void load_workspace();
@@ -189,7 +184,6 @@ public:
 		void save_plot();
 		void save_frame();
 		void copy_osm_directory();
-		void update_enhanced_range(bool input);
 		void toggle_relative_histogram(bool input);
 		void apply_epoch_time();
 

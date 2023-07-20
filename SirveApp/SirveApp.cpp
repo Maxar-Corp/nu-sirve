@@ -52,22 +52,6 @@ SirveApp::SirveApp(QWidget *parent)
 	histogram_abs_layout_full->addWidget(btn_popout_histogram);
 	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
 	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
-	
-
-	//---------------------------------------------------------------------------
-	//---------------------------------------------------------------------------
-
-	// setup color correction class based on slider values
-	int max_lift, min_lift, max_gain, min_gain;
-	color_correction.get_min_slider_range(min_lift, max_lift);
-	color_correction.get_max_slider_range(min_gain, max_gain);
-	
-	slider_lift->setMinimum(min_lift);
-	slider_lift->setMaximum(max_lift);
-	slider_gain->setMinimum(min_gain);
-	slider_gain->setMaximum(max_gain);
-
-	reset_color_correction();
 
 	// establish connections to all qwidgets	
 	setup_connections();
@@ -274,6 +258,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	lbl_gain_value = new QLabel("1.0");
 	slider_lift = new QSlider();
 	slider_gain = new QSlider();
+	chk_auto_lift_gain = new QCheckBox("Auto Lift/Gain");
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
 	btn_reset_color_correction = new QPushButton("Reset Set Points");
 
@@ -312,6 +297,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	grid_tab_color_sliders->addWidget(slider_gain, 1, 1);
 	grid_tab_color_sliders->addWidget(lbl_gain_value, 1, 2);
 
+	hlayout_tab_color_controls->addWidget(chk_auto_lift_gain);
 	hlayout_tab_color_controls->addWidget(chk_relative_histogram);
 	hlayout_tab_color_controls->addWidget(btn_reset_color_correction);
 
@@ -772,8 +758,10 @@ void SirveApp::setup_connections() {
 	QObject::connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
 	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
-	QObject::connect(&color_correction, &Min_Max_Value::update_min_max, video_display, &VideoDisplay::update_color_correction);
+	QObject::connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	
+	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -781,6 +769,7 @@ void SirveApp::setup_connections() {
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
+	QObject::connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
 	QObject::connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
 	QObject::connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
@@ -1425,11 +1414,15 @@ void SirveApp::update_fps()
 
 
 void SirveApp::histogram_clicked(double x0, double x1) {
+	if (chk_auto_lift_gain->isChecked())
+	{
+		return;
+	}
 	// connects the clickable histogram to the main program 
 
 	// get current lift/gain values
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
+	double lift_value = slider_lift->value() / 1000.;
+	double gain_value = slider_gain->value() / 1000.;
 
 	// defines the space around limit lines that will allow user to adjust limits
 	double click_spacing = 0.015;
@@ -1467,7 +1460,7 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 		if (x1 < lift_value + 0.01)
 			x1 = lift_value + 0.01;
 
-		slider_gain->setValue(color_correction.get_ui_slider_value(x1));
+		slider_gain->setValue(x1 * 1000);
 	}
 
 	// if user click is closest to lift limit, adjust value
@@ -1482,62 +1475,84 @@ void SirveApp::histogram_clicked(double x0, double x1) {
 		if (x1 > gain_value - 0.01)
 			x1 = gain_value - 0.01;
 
-		slider_lift->setValue(color_correction.get_ui_slider_value(x1));
+		slider_lift->setValue(x1 * 1000);
 	}
 
 }
 
+void SirveApp::handle_chk_auto_lift_gain(int state)
+{
+	if (state == Qt::Checked)
+	{
+		slider_lift->setEnabled(false);
+		slider_gain->setEnabled(false);
+		video_display->auto_lift_gain = true;
+	}
+	else
+	{
+		slider_lift->setEnabled(true);
+		slider_gain->setEnabled(true);
+		video_display->auto_lift_gain = false;
+	}
+	video_display->update_display_frame();
+}
+
+void SirveApp::set_lift_and_gain(double lift, double gain)
+{
+	if (!chk_auto_lift_gain->isChecked())
+	{
+		return;
+	}
+	else
+	{
+		slider_lift->setValue(lift * 1000);
+		lbl_lift_value->setText(QString::number(lift));
+
+		slider_gain->setValue(gain * 1000);
+		lbl_gain_value->setText(QString::number(gain));
+	}
+}
 
 void SirveApp::lift_slider_toggled() {
-
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
-
-	//Prevent lift from being higher than gain value
-	if (lift_value >= gain_value) {
-
-		int new_value = color_correction.get_ui_slider_value(gain_value);
-		slider_lift->setValue(new_value - 1);
-		lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());;
+	if (chk_auto_lift_gain->isChecked())
+	{
+		return;
 	}
 
-	color_correction_toggled(lift_value, gain_value);
+	int lift_value = slider_lift->value();
+	int gain_value = slider_gain->value();
+
+	if (lift_value >= gain_value)
+	{
+		lift_value = gain_value - 1;
+	}
+
+	slider_lift->setValue(lift_value);
+	lbl_lift_value->setText(QString::number(lift_value / 1000.));
+	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
 
 void SirveApp::gain_slider_toggled() {
-
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
-
-	// Prevent gain going below lift value
-	if (gain_value <= lift_value) {
-
-		int new_value = color_correction.get_ui_slider_value(lift_value);
-		slider_gain->setValue(new_value + 1);
-		gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());;
+	if (chk_auto_lift_gain->isChecked())
+	{
+		return;
 	}
 
-	color_correction_toggled(lift_value, gain_value);
-}
+	int lift_value = slider_lift->value();
+	int gain_value = slider_gain->value();
 
-void SirveApp::color_correction_toggled(double lift_value, double gain_value) {
-		
-	emit color_correction.update_min_max(lift_value, gain_value);
-	
-	set_color_correction_slider_labels();
-
-	if (!playback_controller->timer->isActive() && false)
+	if (gain_value <= lift_value)
 	{
-		unsigned int current_frame_number = playback_controller->get_current_frame_number();
-		video_display->update_specific_frame(current_frame_number);
-	}		
+		gain_value = lift_value + 1;
+	}
 
-	DEBUG << "GUI: New values set for Lift/Gamma/Gain correction: " << std::to_string(lift_value) << "/" << "/" << std::to_string(gain_value);
+	slider_gain->setValue(gain_value);
+	lbl_gain_value->setText(QString::number(gain_value / 1000.));
+	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
 
 void SirveApp::reset_color_correction()
 {
-		
 	slider_lift->setValue(0);
 	slider_gain->setValue(1000);
 	chk_relative_histogram->setChecked(false);
@@ -1929,13 +1944,6 @@ int SirveApp::get_integer_from_txt_box(QString input)
 void SirveApp::copy_osm_directory()
 {
 	clipboard->setText(abp_file_metadata.osm_path);
-}
-
-void SirveApp::update_enhanced_range(bool input)
-{
-
-	emit enhanced_dynamic_range(input);
-
 }
 
 void SirveApp::toggle_relative_histogram(bool input)
@@ -2357,21 +2365,7 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	background_subtraction_state.bgs_num_frames = num_frames;
 	video_display->container.add_processing_state(background_subtraction_state);
 
-	slider_gain->setValue(1);
-}
-
-void SirveApp::set_color_correction_slider_labels()
-{
-	double lift_value = color_correction.min_convert_slider_to_value(slider_lift->value());
-	double gain_value = color_correction.max_convert_slider_to_value(slider_gain->value());
-		
-	QString lift_string;
-	lift_string.setNum(lift_value);
-	lbl_lift_value->setText(lift_string);
-
-	QString gain_string;
-	gain_string.setNum(gain_value);
-	lbl_gain_value->setText(gain_string);
+	chk_auto_lift_gain->setChecked(true);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
