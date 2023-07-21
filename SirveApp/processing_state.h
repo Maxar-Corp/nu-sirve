@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QJsonObject>
+#include <QJsonArray>
 
 enum struct Processing_Method
 {
@@ -23,6 +24,8 @@ struct processing_state {
     //NOTE: This is a poor implementation of "polymorphic" configuration but can be cleaned up in a future refactor
     //These fields will only contain a value if the Processing_Method field is set to indicate they should
     //The burden is on consumers of the processing_state struct to correctly interpret the fields
+    std::vector<unsigned int> replaced_pixels;
+
     int bgs_relative_start_frame;
     int bgs_num_frames;
 
@@ -36,7 +39,14 @@ struct processing_state {
        switch (method)
         {
             case Processing_Method::original:
-                return "Original";
+                if (replaced_pixels.size() > 0)
+                {
+                    return "Original (with replaced pixels)";
+                }
+                else
+                {
+                    return "Original";
+                }
                 break;
             case Processing_Method::background_subtraction:
                 return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames";
@@ -59,8 +69,16 @@ struct processing_state {
         switch (method)
         {
             case Processing_Method::original:
-                state_object.insert("method", "Original");
-                break;
+                {
+                    state_object.insert("method", "Original");
+                    QJsonArray pixels;
+                    for (auto i = 0; i < replaced_pixels.size(); i++)
+                    {
+                        pixels.push_back(static_cast<int>(replaced_pixels[i]));
+                    }
+                    state_object.insert("replaced_pixels", pixels);
+                    break;
+                }
             case Processing_Method::background_subtraction:
                 state_object.insert("method", "Background Subtraction");
                 state_object.insert("bgs_relative_start_frame", bgs_relative_start_frame);
