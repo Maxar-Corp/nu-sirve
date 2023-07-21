@@ -31,7 +31,7 @@
 #include "workspace.h"
 #include "Data_Structures.h"
 #include "popout_dialog.h"
-#include "bad_pixel_identification.h"
+#include "bad_pixels.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -107,7 +107,7 @@ public:
 	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
-	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data, *chk_show_time, *chk_smooth_bad_pixels;
+	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
@@ -193,7 +193,7 @@ public:
 		void toggle_primary_track_data();
 		void toggle_sensor_track_data();
 		void toggle_frame_time();
-		void handle_chk_smooth_bad_pixels(bool checked);
+		void handle_chk_highlight_bad_pixels(bool checked);
 
 		void handle_new_processing_state(QString state_name, int index);
 		
@@ -236,10 +236,12 @@ private:
 	void load_osm_data();
 	void load_abir_data(int start_frame, int end_frame);
 
+	void ui_replace_bad_pixels();
+	void replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace);
+
 	void create_background_subtraction_correction(int relative_start_frame, int num_frames);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
 	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
-	void identify_bad_pixels();
 
 	void enable_engineering_plot_options();
 };

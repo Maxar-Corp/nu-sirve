@@ -1,9 +1,9 @@
-#include "test_bad_pixel_identification.h"
+#include "test_bad_pixels.h"
 
-TestBadPixelIdentification::TestBadPixelIdentification()
+TestBadPixels::TestBadPixels()
 {}
 
-std::vector<std::vector<uint16_t>> TestBadPixelIdentification::generate_test_input_with_dead_pixels()
+std::vector<std::vector<uint16_t>> TestBadPixels::generate_test_input_with_dead_pixels()
 {
     std::vector<std::vector<uint16_t>> input_pixels;
 
@@ -29,20 +29,17 @@ std::vector<std::vector<uint16_t>> TestBadPixelIdentification::generate_test_inp
     return input_pixels;
 }
 
-void TestBadPixelIdentification::test_get_dead_pixel_mask() {
+void TestBadPixels::test_identify_dead_pixels() {
     std::vector<std::vector<uint16_t>> input_pixels = generate_test_input_with_dead_pixels();
 
-    std::vector<short> dead_pixel_mask = BadPixelIdentification::get_dead_pixel_mask(input_pixels);
+    std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels(input_pixels);
 
-    for (int i = 0; i < dead_pixel_mask.size(); i++)
-    {    
-        // Verify that dead pixels are correctly identified
-        if (i % 3 == 0) {
-            QCOMPARE(dead_pixel_mask[i], 1);
-        }
-        // Verify that undead (zombie? teehee) pixels are correctly identified
-        else {
-            QCOMPARE(dead_pixel_mask[i], 0);
-        }
-    }
+    //Ensure that exactly 4 pixels were identified as "dead", e.g. no pixels were falsely labeled
+    QCOMPARE(dead_pixels.size(), 4);
+
+    //Ensure the dead pixels were correctly identified
+    QCOMPARE(dead_pixels[0], 0);
+    QCOMPARE(dead_pixels[1], 3);
+    QCOMPARE(dead_pixels[2], 6);
+    QCOMPARE(dead_pixels[3], 9);
 }
