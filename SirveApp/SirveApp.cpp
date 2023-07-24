@@ -1736,18 +1736,10 @@ void SirveApp::edit_banner_text()
 		int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
 		if (check != 0)
 		{
-			//DRY this up also ...
-			QMessageBox msgBox;
-			msgBox.setWindowTitle("Update All Banners");
-			msgBox.setText("Video and plot banners do not match. Would you like to set both to the same banner?");
-			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-			msgBox.setDefaultButton(QMessageBox::No);
-			int ret = msgBox.exec();
-
-			if (ret == QMessageBox::Yes)
+			auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
+			if (response == QMessageBox::Yes)
 			{
 				data_plots->set_plot_title(input_text);
-				
 			}
 		}
 	}
@@ -1996,13 +1988,7 @@ void SirveApp::apply_epoch_time()
 
 void SirveApp::ui_replace_bad_pixels()
 {
-	//DRY this up with annotation_list_dialog.cpp, perhaps in a single qthelpers method
-	QMessageBox msgBox;
-	msgBox.setWindowTitle(QString("Bad Pixel Confirmation"));
-	msgBox.setText("Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue?");
-	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-	msgBox.setDefaultButton(QMessageBox::No);
-	auto response = msgBox.exec();
+	auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue?");
 
 	if (response == QMessageBox::Yes) {
 		ABIR_Data_Result abir_first_50_frames = file_processor.load_image_file(abp_file_metadata.image_path, 1, 50, config_values.version);
