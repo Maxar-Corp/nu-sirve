@@ -6,6 +6,7 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
 	setup_labels();
+	setup_pinpoint_display();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
@@ -80,9 +81,10 @@ void VideoDisplay::setup_labels()
 	hlayout_video_labels->addWidget(lbl_zulu_time);
 
 	video_display_layout->insertLayout(1, hlayout_video_labels);
+}
 
-	
-
+void VideoDisplay::setup_pinpoint_display()
+{
 	grp_pinpoint = new QGroupBox("Selected Pixels");
 	grp_pinpoint->setMaximumHeight(100);
 

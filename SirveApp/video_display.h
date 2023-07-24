@@ -150,6 +150,7 @@ private:
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
 	void setup_labels();
+	void setup_pinpoint_display();
 
 	void handle_btn_pinpoint(bool checked);
 
