@@ -186,17 +186,7 @@ void AnnotationListDialog::delete_object()
 
 	if (index >= 0)
 	{
-
-		QMessageBox msgBox;
-		msgBox.setWindowTitle(QString("Delete Annotation"));
-		QString box_text = QString("Are you sure you want to delete this annotation?");
-		msgBox.setText(box_text);
-
-		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-		msgBox.setDefaultButton(QMessageBox::No);
-		
-		// check to see if user wants to delete annotation
-		auto response = msgBox.exec();
+		auto response = QtHelpers::LaunchYesNoMessageBox("Delete Annotation", "Are you sure you want to delete this annotation?");
 
 		// if yes, delete annotation
 		if (response == QMessageBox::Yes) {

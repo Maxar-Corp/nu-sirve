@@ -6,7 +6,14 @@ processing_state create_processing_state_from_json(const QJsonObject & json_obj)
 
     if (method == "Original")
     {
-        return processing_state { Processing_Method::original };
+        processing_state temp = { Processing_Method::original };
+        std::vector<unsigned int> replaced_pixels;
+        for (auto json_item : json_obj.value("replaced_pixels").toArray())
+        {
+            replaced_pixels.push_back(json_item.toInt());
+        }
+        temp.replaced_pixels = replaced_pixels;
+        return temp;
     }
     if (method == "Background Subtraction")
     {
