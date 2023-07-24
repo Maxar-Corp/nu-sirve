@@ -2021,7 +2021,7 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 {
 	processing_state base_state = video_display->container.processing_states[0];
 	base_state.replaced_pixels = pixels_to_replace;
-	BadPixels::replace_pixels_with_neighbors(base_state.details.frames_16bit, pixels_to_replace);
+	BadPixels::replace_pixels_with_neighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels);
 
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(base_state);
