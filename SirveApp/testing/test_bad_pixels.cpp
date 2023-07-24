@@ -43,3 +43,115 @@ void TestBadPixels::test_identify_dead_pixels() {
     QCOMPARE(dead_pixels[2], 6);
     QCOMPARE(dead_pixels[3], 9);
 }
+
+void TestBadPixels::test_replace_bad_pixels_center()
+{
+    //Test that bad pixel replacement uses all available neighbor pixels (up to two in each direction)
+    std::vector<std::vector<uint16_t>> input_pixels = {
+        {
+            0, 0, 4, 0, 0,
+            0, 0, 2, 0, 0,
+            5, 3, 1, 5, 7,
+            0, 0, 6, 0, 0,
+            0, 0, 8, 0, 0
+        },
+        {
+            0, 0, 4, 0, 0,
+            0, 0, 5, 0, 0,
+            4, 5, 1, 7, 8,
+            0, 0, 6, 0, 0,
+            0, 0, 7, 0, 0
+        }
+    };
+
+    int width_pixels = 5;
+    unsigned int bad_pixel_index = 12;
+
+    //Ensure the bad pixels are unmodified
+    QCOMPARE(input_pixels[0][bad_pixel_index], 1);
+    QCOMPARE(input_pixels[1][bad_pixel_index], 1);
+
+    BadPixels::replace_pixels_with_neighbors(input_pixels, { bad_pixel_index }, width_pixels);
+
+    //Ensure the bad pixels have been replaced
+    QCOMPARE(input_pixels[0][bad_pixel_index], 5);
+    QCOMPARE(input_pixels[1][bad_pixel_index], 6);
+}
+
+void TestBadPixels::test_replace_bad_pixels_edges()
+{
+    //Test that bad pixel replacement is correct when it hits the edges or corners of the grid
+    std::vector<std::vector<uint16_t>> input_pixels = {
+        {
+            1, 2, 4, 0, 0,
+            2, 0, 0, 0, 7,
+            4, 0, 0, 0, 2,
+            0, 0, 7, 2, 1,
+            0, 0, 0, 0, 2
+        },
+        {
+            1, 5, 7, 0, 0,
+            5, 0, 0, 0, 3,
+            7, 0, 0, 0, 3,
+            0, 0, 3, 3, 1,
+            0, 0, 0, 0, 3
+        }
+    };
+
+    int width_pixels = 5;
+    unsigned int first_bad_pixel_index = 0;
+    unsigned int second_bad_pixel_index = 19;
+
+    //Ensure the bad pixels are unmodified
+    QCOMPARE(input_pixels[0][first_bad_pixel_index], 1);
+    QCOMPARE(input_pixels[1][first_bad_pixel_index], 1);
+    QCOMPARE(input_pixels[0][second_bad_pixel_index], 1);
+    QCOMPARE(input_pixels[1][second_bad_pixel_index], 1);
+
+    BadPixels::replace_pixels_with_neighbors(input_pixels, { first_bad_pixel_index, second_bad_pixel_index }, width_pixels);
+
+    //Ensure the bad pixels have been replaced
+    QCOMPARE(input_pixels[0][first_bad_pixel_index], 3);
+    QCOMPARE(input_pixels[1][first_bad_pixel_index], 6);
+    QCOMPARE(input_pixels[0][second_bad_pixel_index], 4);
+    QCOMPARE(input_pixels[1][second_bad_pixel_index], 3);
+}
+
+void TestBadPixels::test_replace_bad_pixels_overlapping()
+{
+    //Test that bad pixel replacement ignores nearby bad pixels
+    std::vector<std::vector<uint16_t>> input_pixels = {
+        {
+            0, 1, 8, 0, 0,
+            0, 1, 8, 0, 0,
+            1, 99, 99, 1, 8,
+            0, 1, 8, 0, 0,
+            0, 1, 8, 0, 0
+        },
+        {
+            0, 8, 1, 0, 0,
+            0, 8, 1, 0, 0,
+            8, 99, 99, 8, 1,
+            0, 8, 1, 0, 0,
+            0, 8, 1, 0, 0
+        }
+    };
+
+    int width_pixels = 5;
+    unsigned int first_bad_pixel_index = 11;
+    unsigned int second_bad_pixel_index = 12;
+
+    //Ensure the bad pixels are unmodified
+    QCOMPARE(input_pixels[0][first_bad_pixel_index], 99);
+    QCOMPARE(input_pixels[1][first_bad_pixel_index], 99);
+    QCOMPARE(input_pixels[0][second_bad_pixel_index], 99);
+    QCOMPARE(input_pixels[1][second_bad_pixel_index], 99);
+
+    BadPixels::replace_pixels_with_neighbors(input_pixels, { first_bad_pixel_index, second_bad_pixel_index }, width_pixels);
+
+    //Ensure the bad pixels have been replaced
+    QCOMPARE(input_pixels[0][first_bad_pixel_index], 1);
+    QCOMPARE(input_pixels[1][first_bad_pixel_index], 8);
+    QCOMPARE(input_pixels[0][second_bad_pixel_index], 6);
+    QCOMPARE(input_pixels[1][second_bad_pixel_index], 3);
+}
