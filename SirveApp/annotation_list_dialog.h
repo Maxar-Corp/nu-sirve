@@ -14,6 +14,7 @@
 #include "annotation_edit_dialog.h"
 #include "annotation_info.h"
 #include "video_display.h"
+#include "support/qthelpers.h"
 
 
 class AnnotationListDialog : public QDialog
