@@ -6,6 +6,7 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
 	setup_labels();
+	setup_pinpoint_display();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
@@ -80,9 +81,10 @@ void VideoDisplay::setup_labels()
 	hlayout_video_labels->addWidget(lbl_zulu_time);
 
 	video_display_layout->insertLayout(1, hlayout_video_labels);
+}
 
-	
-
+void VideoDisplay::setup_pinpoint_display()
+{
 	grp_pinpoint = new QGroupBox("Selected Pixels");
 	grp_pinpoint->setMaximumHeight(100);
 
@@ -595,28 +597,17 @@ void VideoDisplay::update_display_frame()
 	}
 	lbl_pinpoint->setText(pinpoint_text);
 
-	if (should_smooth_bad_pixels)
+	if (should_show_bad_pixels)
 	{
-		// For now, we will simply "smooth" bad pixels
-		// By copying the color from the pixel to their left
-		// If the bad pixel is the left-most pixel, grab the pixel to the right instead
-		// In the future, we will want this to be more sophisticated
-		for (auto i = 0; i < bad_pixel_map.size(); i++)
+		for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
 		{
-			if (bad_pixel_map[i] == 1)
-			{
-				int pixel_x = i % image_x;
-				int pixel_y = i / image_x;
+			unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
 
-				QRgb pixel_color;
-				if (pixel_x == 0) {
-					pixel_color = frame.pixel(1, pixel_y);
-				}
-				else {
-					pixel_color = frame.pixel(pixel_x - 1, pixel_y);
-				}
-				frame.setPixel(pixel_x, pixel_y, pixel_color);
-			}
+			int pixel_x = pixel_index % image_x;
+			int pixel_y = pixel_index / image_x;
+
+			QRgb red = QColorConstants::Yellow.rgb();
+			frame.setPixel(pixel_x, pixel_y, red);
 		}
 	}
 
@@ -879,20 +870,9 @@ QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 	return zulu_time;
 }
 
-void VideoDisplay::set_bad_pixel_map(std::vector<short> bad_pixels)
+void VideoDisplay::highlight_bad_pixels(bool status)
 {
-	bad_pixel_map = bad_pixels;
-	should_smooth_bad_pixels = true;
-}
-
-void VideoDisplay::smooth_bad_pixels(bool status)
-{
-	should_smooth_bad_pixels = status;
-}
-
-std::vector<short> VideoDisplay::get_bad_pixel_map()
-{
-	return bad_pixel_map;
+	should_show_bad_pixels = status;
 }
 
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)

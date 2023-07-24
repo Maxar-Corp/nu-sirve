@@ -377,25 +377,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
-	
-	// ------------------------------------------------------------------------
-	QVBoxLayout* vlayout_bad_pixels = new QVBoxLayout();
-	vlayout_bad_pixels->addWidget(QtHelpers::HorizontalLine());
-	
-	QLabel* label_bad_pixel = new QLabel("Bad Pixels");
-	vlayout_bad_pixels->addWidget(label_bad_pixel);
-	
-	btn_bad_pixel_identification = new QPushButton("Identify Dead Pixels");
-	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::identify_bad_pixels);
-	btn_bad_pixel_identification->setEnabled(false);
-	vlayout_bad_pixels->addWidget(btn_bad_pixel_identification);
 
-	chk_smooth_bad_pixels = new QCheckBox("Smooth Dead Pixels");
-	vlayout_bad_pixels->addWidget(chk_smooth_bad_pixels);
-
-	vlayout_bad_pixels->addWidget(QtHelpers::HorizontalLine());
-
-	vlayout_tab_color->addLayout(vlayout_bad_pixels);
 	// ------------------------------------------------------------------------
 
 	vlayout_tab_color->addLayout(hlayout_text_color);
@@ -416,6 +398,28 @@ QWidget* SirveApp::setup_filter_tab() {
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
 	
+	
+	// ------------------------------------------------------------------------
+	QGridLayout* grid_bad_pixels = new QGridLayout();
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 2);
+
+	QLabel* label_bad_pixel = new QLabel("Replace Bad Pixels With Local Average");
+	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 2);
+		
+	chk_highlight_bad_pixels = new QCheckBox("Highlight Dead Pixels");
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 2, 0, 1, 1);
+
+	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
+	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
+	btn_bad_pixel_identification->setEnabled(false);
+	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 2, 1, 1, 1);
+
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+
+	vlayout_tab_processing->addLayout(grid_bad_pixels);
+
+	// ------------------------------------------------------------------------
+
 	QLabel* label_nuc = new QLabel("Fixed Background Suppression");
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 
@@ -787,7 +791,6 @@ void SirveApp::setup_connections() {
 	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_primary_track_data);
 	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
 	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
-	QObject::connect(chk_smooth_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_smooth_bad_pixels);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
 	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_banner_color);
 
@@ -830,6 +833,8 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &SirveApp::show_calibration_dialog);
 	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
 	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
+
+	QObject::connect(chk_highlight_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_highlight_bad_pixels);
 
 	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
 
@@ -883,7 +888,7 @@ void SirveApp::save_workspace()
 			QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
 			return;
 		}
-		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list, video_display->get_bad_pixel_map());
+		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
 		cmb_workspace_name->clear();
 		cmb_workspace_name->addItems(workspace.get_workspace_names());
 		cmb_workspace_name->setCurrentText(workspace_name);
@@ -917,6 +922,13 @@ void SirveApp::load_workspace()
 		load_abir_data(workspace_vals.start_frame, workspace_vals.end_frame);
 	}
 
+	processing_state original = workspace_vals.all_states[0];
+	if (original.replaced_pixels.size() > 0)
+	{
+		std::vector<unsigned int> bad_pixels = original.replaced_pixels;
+		replace_bad_pixels(bad_pixels);
+	}
+
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
 		processing_state current_state = workspace_vals.all_states[i];
@@ -947,21 +959,6 @@ void SirveApp::load_workspace()
 	{
 		annotation_info anno = workspace_vals.annotations[i];
 		video_display->annotation_list.push_back(anno);
-	}
-
-	if (workspace_vals.bad_pixels.size() > 0)
-	{
-		std::vector<short> bad_pixel_mask(video_display->number_pixels, 0);
-
-		for (auto i = 0; i < workspace_vals.bad_pixels.size(); i++)
-		{
-			int index = workspace_vals.bad_pixels[i];
-			bad_pixel_mask[index] = 1;
-		}
-
-		video_display->set_bad_pixel_map(bad_pixel_mask);
-		chk_smooth_bad_pixels->setEnabled(true);
-		chk_smooth_bad_pixels->setChecked(true);
 	}
 }
 
@@ -1055,7 +1052,6 @@ void SirveApp::load_osm_data()
 		delete engineering_plot_layout;			
 		
 		video_display->container.clear_processing_states();
-		video_display->set_bad_pixel_map(std::vector<short>());
 		video_display->remove_frame();
 
 		cmb_processing_states->setEnabled(false);
@@ -1116,8 +1112,8 @@ void SirveApp::load_osm_data()
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
 	btn_bad_pixel_identification->setEnabled(false);
-	chk_smooth_bad_pixels->setChecked(false);
-	chk_smooth_bad_pixels->setEnabled(false);
+	chk_highlight_bad_pixels->setChecked(false);
+	chk_highlight_bad_pixels->setEnabled(false);
 
 	CalibrationData temp;
 	calibration_model = temp;
@@ -1740,17 +1736,10 @@ void SirveApp::edit_banner_text()
 		int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
 		if (check != 0)
 		{
-			QMessageBox msgBox;
-			msgBox.setWindowTitle("Update All Banners");
-			msgBox.setText("Video and plot banners do not match. Would you like to set both to the same banner?");
-			msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-			msgBox.setDefaultButton(QMessageBox::No);
-			int ret = msgBox.exec();
-
-			if (ret == QMessageBox::Yes)
+			auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
+			if (response == QMessageBox::Yes)
 			{
 				data_plots->set_plot_title(input_text);
-				
 			}
 		}
 	}
@@ -1997,25 +1986,40 @@ void SirveApp::apply_epoch_time()
 	plot_change();
 }
 
-void SirveApp::identify_bad_pixels()
+void SirveApp::ui_replace_bad_pixels()
 {
-	ABIR_Data_Result abir_first_50_frames = file_processor.load_image_file(abp_file_metadata.image_path, 1, 50, config_values.version);
-	
-	if (abir_first_50_frames.had_error) {
-		QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading first 50 frames from .abpimage file, cannot identify bad pixels.");
-		return;
+	auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue?");
+
+	if (response == QMessageBox::Yes) {
+		ABIR_Data_Result abir_first_50_frames = file_processor.load_image_file(abp_file_metadata.image_path, 1, 50, config_values.version);
+		
+		if (abir_first_50_frames.had_error) {
+			QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading first 50 frames from .abpimage file, cannot identify bad pixels.");
+			return;
+		}
+
+		std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels(abir_first_50_frames.video_frames_16bit);
+		replace_bad_pixels(dead_pixels);
 	}
-
-	std::vector<short> dead_pixel_mask = BadPixelIdentification::get_dead_pixel_mask(abir_first_50_frames.video_frames_16bit);
-
-	video_display->set_bad_pixel_map(dead_pixel_mask);
-	chk_smooth_bad_pixels->setEnabled(true);
-	chk_smooth_bad_pixels->setChecked(true);
 }
 
-void SirveApp::handle_chk_smooth_bad_pixels(bool checked)
+void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 {
-	video_display->smooth_bad_pixels(checked);
+	processing_state base_state = video_display->container.processing_states[0];
+	base_state.replaced_pixels = pixels_to_replace;
+	BadPixels::replace_pixels_with_neighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels);
+
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(base_state);
+
+	btn_bad_pixel_identification->setEnabled(false);
+	chk_highlight_bad_pixels->setEnabled(true);
+	chk_highlight_bad_pixels->setChecked(false);
+}
+
+void SirveApp::handle_chk_highlight_bad_pixels(bool checked)
+{
+	video_display->highlight_bad_pixels(checked);
 	video_display->update_display_frame();
 }
 

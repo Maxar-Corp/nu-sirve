@@ -75,9 +75,7 @@ public:
 	int index_video_color;
 	QVector<QRgb> colorTable;
 
-	void set_bad_pixel_map(std::vector<short> bad_pixels);
-	void smooth_bad_pixels(bool status);
-	std::vector<short> get_bad_pixel_map();
+	void highlight_bad_pixels(bool status);
 
 	void set_starting_frame_number(unsigned int frame_number);
 
@@ -135,7 +133,7 @@ private:
 	std::vector<absolute_zoom_info> absolute_zoom_list;
 	std::vector<int> pinpoint_indeces;
 	
-	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_smooth_bad_pixels;
+	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_show_bad_pixels;
 	std::vector<QRect> zoom_list;
 	int index_current_video;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
@@ -145,13 +143,14 @@ private:
 	std::vector<std::vector<uint16_t>> frame_data;
     unsigned int counter, starting_frame_number;
 
-	std::vector<short> bad_pixel_map;
+	std::vector<unsigned int> bad_pixels;
 
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
 	std::vector<int> get_position_within_zoom(int x0, int y0);
 	void setup_labels();
+	void setup_pinpoint_display();
 
 	void handle_btn_pinpoint(bool checked);
 
