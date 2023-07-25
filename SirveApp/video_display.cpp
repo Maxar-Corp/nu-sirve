@@ -570,6 +570,20 @@ void VideoDisplay::update_display_frame()
 	// Convert image back to RGB to facilitate use of the colors 
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+	if (should_show_bad_pixels)
+	{
+		for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
+		{
+			unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
+
+			int pixel_x = pixel_index % image_x;
+			int pixel_y = pixel_index / image_x;
+
+			QRgb red = QColorConstants::Yellow.rgb();
+			frame.setPixel(pixel_x, pixel_y, red);
+		}
+	}
+
 	QString pinpoint_text("");
 	for (auto idx = 0; idx < pinpoint_indeces.size(); idx++)
 	{
@@ -581,6 +595,11 @@ void VideoDisplay::update_display_frame()
 			int pinpoint_x = pinpoint_idx % image_x;
 			int pinpoint_y = pinpoint_idx / image_x;
 			pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
+
+			if ( std::find(container.processing_states[0].replaced_pixels.begin(), container.processing_states[0].replaced_pixels.end(), pinpoint_idx) != container.processing_states[0].replaced_pixels.end() )
+			{
+				pinpoint_text += " * (adjusted, bad pixel)";
+			}
 
 			if (is_pinpoint_active)
 			{
@@ -596,20 +615,6 @@ void VideoDisplay::update_display_frame()
 		pinpoint_text += "\n";
 	}
 	lbl_pinpoint->setText(pinpoint_text);
-
-	if (should_show_bad_pixels)
-	{
-		for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
-		{
-			unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
-
-			int pixel_x = pixel_index % image_x;
-			int pixel_y = pixel_index / image_x;
-
-			QRgb red = QColorConstants::Yellow.rgb();
-			frame.setPixel(pixel_x, pixel_y, red);
-		}
-	}
 
 	// -----------------------------------------------------------
 	// loop thru all user set zooms
