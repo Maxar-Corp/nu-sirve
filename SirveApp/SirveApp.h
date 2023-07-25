@@ -193,7 +193,9 @@ public:
 		void toggle_primary_track_data();
 		void toggle_sensor_track_data();
 		void toggle_frame_time();
+
 		void handle_chk_highlight_bad_pixels(bool checked);
+		void receive_new_bad_pixels(std::vector<unsigned int> new_pixels);
 
 		void handle_new_processing_state(QString state_name, int index);
 		
