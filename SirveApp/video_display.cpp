@@ -86,7 +86,7 @@ void VideoDisplay::setup_labels()
 void VideoDisplay::setup_pinpoint_display()
 {
 	grp_pinpoint = new QGroupBox("Selected Pixels");
-	grp_pinpoint->setMaximumHeight(100);
+	grp_pinpoint->setMaximumHeight(200);
 
 	pinpoint_layout = new QHBoxLayout();
 
