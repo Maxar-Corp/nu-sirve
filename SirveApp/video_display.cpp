@@ -101,6 +101,9 @@ void VideoDisplay::setup_pinpoint_display()
 	btn_pinpoint->setCheckable(true);
 	connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
 
+	btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
+	connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::add_pinpoints_to_bad_pixel_map);
+
 	QPixmap clear_image("icons/cancel.png");
 	QIcon clear_icon(clear_image);
 	btn_clear_pinpoints = new QPushButton();
@@ -112,6 +115,7 @@ void VideoDisplay::setup_pinpoint_display()
 	pinpoint_layout->addWidget(btn_pinpoint);
 	pinpoint_layout->addWidget(lbl_pinpoint);
 	pinpoint_layout->addStretch(1);
+	pinpoint_layout->addWidget(btn_pinpoint_bad_pixel);
 	pinpoint_layout->addWidget(btn_clear_pinpoints);
 
 	grp_pinpoint->setLayout(pinpoint_layout);
@@ -453,6 +457,14 @@ void VideoDisplay::pinpoint(QPoint origin)
 		}
 		// Should be able to just update_partial_frame here or something
 		update_display_frame();
+	}
+}
+
+void VideoDisplay::add_pinpoints_to_bad_pixel_map()
+{
+	if (pinpoint_indeces.size() > 0)
+	{
+		emit add_new_bad_pixels(pinpoint_indeces);
 	}
 }
 

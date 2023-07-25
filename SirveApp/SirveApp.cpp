@@ -403,10 +403,10 @@ QWidget* SirveApp::setup_filter_tab() {
 	QGridLayout* grid_bad_pixels = new QGridLayout();
 	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 2);
 
-	QLabel* label_bad_pixel = new QLabel("Replace Bad Pixels With Local Average");
+	QLabel* label_bad_pixel = new QLabel("Replacing Bad Pixels With Local Average");
 	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 2);
 		
-	chk_highlight_bad_pixels = new QCheckBox("Highlight Dead Pixels");
+	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
 	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 2, 0, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
@@ -766,6 +766,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 	
 	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
+	QObject::connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -927,6 +928,7 @@ void SirveApp::load_workspace()
 	{
 		std::vector<unsigned int> bad_pixels = original.replaced_pixels;
 		replace_bad_pixels(bad_pixels);
+		btn_bad_pixel_identification->setEnabled(false);
 	}
 
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
@@ -2000,6 +2002,37 @@ void SirveApp::ui_replace_bad_pixels()
 
 		std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels(abir_first_50_frames.video_frames_16bit);
 		replace_bad_pixels(dead_pixels);
+		btn_bad_pixel_identification->setEnabled(false);
+	}
+}
+
+void SirveApp::receive_new_bad_pixels(std::vector<unsigned int> new_pixels)
+{
+	std::vector<unsigned int> bad_pixels = video_display->container.processing_states[0].replaced_pixels;
+	
+	unsigned int count_new = 0;
+	for (auto i = 0; i < new_pixels.size(); i++)
+	{
+		unsigned int candidate_pixel = new_pixels[i];
+		if (std::find(bad_pixels.begin(), bad_pixels.end(), candidate_pixel) == bad_pixels.end())
+		{
+			bad_pixels.push_back(candidate_pixel);
+			count_new += 1;
+		}
+	}
+
+	if (count_new == 0)
+	{
+		QtHelpers::LaunchMessageBox("No Action Taken", "No new bad pixels will be replaced.");
+	}
+	else
+	{
+		auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue? Number of new bad pixels to add: " + QString::number(count_new));
+
+		if (response == QMessageBox::Yes)
+		{
+			replace_bad_pixels(bad_pixels);
+		}
 	}
 }
 
@@ -2012,9 +2045,7 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(base_state);
 
-	btn_bad_pixel_identification->setEnabled(false);
 	chk_highlight_bad_pixels->setEnabled(true);
-	chk_highlight_bad_pixels->setChecked(false);
 }
 
 void SirveApp::handle_chk_highlight_bad_pixels(bool checked)
