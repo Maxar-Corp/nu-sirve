@@ -133,7 +133,7 @@ private:
 	QHBoxLayout *pinpoint_layout;
 	//int pinpoint_x, pinpoint_y;
 	std::vector<absolute_zoom_info> absolute_zoom_list;
-	std::vector<int> pinpoint_indeces;
+	std::vector<unsigned int> pinpoint_indeces;
 	
 	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_show_bad_pixels;
 	std::vector<QRect> zoom_list;
