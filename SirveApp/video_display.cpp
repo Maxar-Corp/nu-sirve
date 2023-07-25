@@ -434,9 +434,18 @@ void VideoDisplay::pinpoint(QPoint origin)
 		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
 		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
 
-		int pinpoint_x = std::floor(absolute_x);
-		int pinpoint_y = std::floor(absolute_y);
-		pinpoint_indeces.push_back(pinpoint_y * image_x + pinpoint_x);
+		unsigned int pinpoint_x = std::floor(absolute_x);
+		unsigned int pinpoint_y = std::floor(absolute_y);
+
+		unsigned int pinpoint_idx = pinpoint_y * image_x + pinpoint_x;
+		
+		//Disallow clicking an already-pinpointed pixel
+		if ( std::find(pinpoint_indeces.begin(), pinpoint_indeces.end(), pinpoint_idx) != pinpoint_indeces.end())
+		{
+			return;
+		}
+
+		pinpoint_indeces.push_back(pinpoint_idx);
 
 		if (pinpoint_indeces.size() > 3)
 		{
