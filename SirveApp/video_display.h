@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <algorithm>
+#include <vector>
 
 #include <QString>
 #include <QTimer>
