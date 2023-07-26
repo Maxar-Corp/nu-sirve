@@ -105,6 +105,7 @@ signals:
 	void clear_mouse_buttons();
 	void force_new_lift_gain(double lift, double gain);
 	void add_new_bad_pixels(std::vector<unsigned int> new_pixels);
+	void remove_bad_pixels(std::vector<unsigned int> pixels);
 
 public slots:
     void update_display_frame();	
@@ -129,7 +130,7 @@ public slots:
 
 private:
 	QLabel *lbl_pinpoint;
-	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_clear_pinpoints;
+	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
 	QGroupBox *grp_pinpoint;
 	QHBoxLayout *pinpoint_layout;
 	//int pinpoint_x, pinpoint_y;
@@ -156,6 +157,7 @@ private:
 	void setup_pinpoint_display();
 	
 	void add_pinpoints_to_bad_pixel_map();
+	void remove_pinpoints_from_bad_pixel_map();
 	void handle_btn_pinpoint(bool checked);
 
 	QString get_zulu_time_string(double seconds_midnight);

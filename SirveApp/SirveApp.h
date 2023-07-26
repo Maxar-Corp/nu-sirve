@@ -90,7 +90,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -196,6 +196,7 @@ public:
 
 		void handle_chk_highlight_bad_pixels(bool checked);
 		void receive_new_bad_pixels(std::vector<unsigned int> new_pixels);
+		void receive_new_good_pixels(std::vector<unsigned int> pixels);
 
 		void handle_new_processing_state(QString state_name, int index);
 		
