@@ -38,6 +38,9 @@ void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>>
     //For each frame, replaces any bad pixels with the mean of the value of 2 pixels above, below, left, and right
     //Other bad pixels are exempted from the calculation
 
+    //Creating a set (for faster lookup) of bad pixel indeces simplifies/speeds up some of this code
+    std::set<int> bad_pixel_indeces_set(bad_pixel_indeces.begin(), bad_pixel_indeces.end());
+
     for (auto frame = 0; frame < original_pixels.size(); frame++)
     {
         for (auto i = 0; i < bad_pixel_indeces.size(); i++)
@@ -85,9 +88,6 @@ void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>>
                     neighbor_pixels.push_back(bad_pixel_index + 2*width_pixels);
                 }
             }
-
-            //Converting the bad pixel indeces to a set (for faster lookup) simplifies and speeds this calculation up
-            std::set<int> bad_pixel_indeces_set(bad_pixel_indeces.begin(), bad_pixel_indeces.end());
 
             //Determine the neighboring pixels' mean value to replace the pixel with
             int running_sum = 0;
