@@ -11,6 +11,7 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	is_zoom_active = false;
 	is_calculate_active = false;
 	is_pinpoint_active = false;
+	should_show_bad_pixels = false;
 
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
@@ -86,7 +87,7 @@ void VideoDisplay::setup_labels()
 void VideoDisplay::setup_pinpoint_display()
 {
 	grp_pinpoint = new QGroupBox("Selected Pixels");
-	grp_pinpoint->setMaximumHeight(100);
+	grp_pinpoint->setMaximumHeight(200);
 
 	pinpoint_layout = new QHBoxLayout();
 
@@ -101,6 +102,16 @@ void VideoDisplay::setup_pinpoint_display()
 	btn_pinpoint->setCheckable(true);
 	connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
 
+	QVBoxLayout* button_layout = new QVBoxLayout();
+
+	btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
+	connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::add_pinpoints_to_bad_pixel_map);
+	btn_pinpoint_good_pixel = new QPushButton("Mark as Good Pixels");
+	connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::remove_pinpoints_from_bad_pixel_map);
+
+	button_layout->addWidget(btn_pinpoint_bad_pixel);
+	button_layout->addWidget(btn_pinpoint_good_pixel);
+
 	QPixmap clear_image("icons/cancel.png");
 	QIcon clear_icon(clear_image);
 	btn_clear_pinpoints = new QPushButton();
@@ -112,6 +123,7 @@ void VideoDisplay::setup_pinpoint_display()
 	pinpoint_layout->addWidget(btn_pinpoint);
 	pinpoint_layout->addWidget(lbl_pinpoint);
 	pinpoint_layout->addStretch(1);
+	pinpoint_layout->addLayout(button_layout);
 	pinpoint_layout->addWidget(btn_clear_pinpoints);
 
 	grp_pinpoint->setLayout(pinpoint_layout);
@@ -434,9 +446,18 @@ void VideoDisplay::pinpoint(QPoint origin)
 		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
 		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
 
-		int pinpoint_x = std::floor(absolute_x);
-		int pinpoint_y = std::floor(absolute_y);
-		pinpoint_indeces.push_back(pinpoint_y * image_x + pinpoint_x);
+		unsigned int pinpoint_x = std::floor(absolute_x);
+		unsigned int pinpoint_y = std::floor(absolute_y);
+
+		unsigned int pinpoint_idx = pinpoint_y * image_x + pinpoint_x;
+		
+		//Disallow clicking an already-pinpointed pixel
+		if ( std::find(pinpoint_indeces.begin(), pinpoint_indeces.end(), pinpoint_idx) != pinpoint_indeces.end())
+		{
+			return;
+		}
+
+		pinpoint_indeces.push_back(pinpoint_idx);
 
 		if (pinpoint_indeces.size() > 3)
 		{
@@ -444,6 +465,22 @@ void VideoDisplay::pinpoint(QPoint origin)
 		}
 		// Should be able to just update_partial_frame here or something
 		update_display_frame();
+	}
+}
+
+void VideoDisplay::remove_pinpoints_from_bad_pixel_map()
+{
+	if (pinpoint_indeces.size() > 0)
+	{
+		emit remove_bad_pixels(pinpoint_indeces);
+	}
+}
+
+void VideoDisplay::add_pinpoints_to_bad_pixel_map()
+{
+	if (pinpoint_indeces.size() > 0)
+	{
+		emit add_new_bad_pixels(pinpoint_indeces);
 	}
 }
 
@@ -570,6 +607,20 @@ void VideoDisplay::update_display_frame()
 	// Convert image back to RGB to facilitate use of the colors 
 	frame = frame.convertToFormat(QImage::Format_RGB888);
 
+	if (should_show_bad_pixels)
+	{
+		for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
+		{
+			unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
+
+			int pixel_x = pixel_index % image_x;
+			int pixel_y = pixel_index / image_x;
+
+			QRgb red = QColorConstants::Yellow.rgb();
+			frame.setPixel(pixel_x, pixel_y, red);
+		}
+	}
+
 	QString pinpoint_text("");
 	for (auto idx = 0; idx < pinpoint_indeces.size(); idx++)
 	{
@@ -581,6 +632,11 @@ void VideoDisplay::update_display_frame()
 			int pinpoint_x = pinpoint_idx % image_x;
 			int pinpoint_y = pinpoint_idx / image_x;
 			pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
+
+			if ( std::find(container.processing_states[0].replaced_pixels.begin(), container.processing_states[0].replaced_pixels.end(), pinpoint_idx) != container.processing_states[0].replaced_pixels.end() )
+			{
+				pinpoint_text += " * (adjusted, bad pixel)";
+			}
 
 			if (is_pinpoint_active)
 			{
@@ -596,20 +652,6 @@ void VideoDisplay::update_display_frame()
 		pinpoint_text += "\n";
 	}
 	lbl_pinpoint->setText(pinpoint_text);
-
-	if (should_show_bad_pixels)
-	{
-		for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
-		{
-			unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
-
-			int pixel_x = pixel_index % image_x;
-			int pixel_y = pixel_index / image_x;
-
-			QRgb red = QColorConstants::Yellow.rgb();
-			frame.setPixel(pixel_x, pixel_y, red);
-		}
-	}
 
 	// -----------------------------------------------------------
 	// loop thru all user set zooms
