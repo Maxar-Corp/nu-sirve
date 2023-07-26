@@ -405,16 +405,18 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	QLabel* label_bad_pixel = new QLabel("Replacing Bad Pixels With Local Average");
 	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 2);
-		
+
+	lbl_bad_pixel_count = new QLabel("");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 2);
+
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 2, 0, 1, 1);
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 0, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
 	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
-	btn_bad_pixel_identification->setEnabled(false);
-	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 2, 1, 1, 1);
+	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 3, 1, 1, 1);
 
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_bad_pixels);
 
@@ -767,6 +769,7 @@ void SirveApp::setup_connections() {
 	
 	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	QObject::connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
+	QObject::connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -928,7 +931,6 @@ void SirveApp::load_workspace()
 	{
 		std::vector<unsigned int> bad_pixels = original.replaced_pixels;
 		replace_bad_pixels(bad_pixels);
-		btn_bad_pixel_identification->setEnabled(false);
 	}
 
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
@@ -1113,7 +1115,6 @@ void SirveApp::load_osm_data()
 
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
-	btn_bad_pixel_identification->setEnabled(false);
 	chk_highlight_bad_pixels->setChecked(false);
 	chk_highlight_bad_pixels->setEnabled(false);
 
@@ -1248,11 +1249,11 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	btn_get_frames->setEnabled(true);
 	btn_calibration_dialog->setEnabled(true);
-	btn_bad_pixel_identification->setEnabled(true);
 
 	tab_menu->setTabEnabled(1, true);
 	tab_menu->setTabEnabled(2, true);
 
+	lbl_bad_pixel_count->setText("");
 	INFO << "GUI: ABIR file load complete";
 
 	processing_state primary = { Processing_Method::original, vid_details };
@@ -2002,7 +2003,6 @@ void SirveApp::ui_replace_bad_pixels()
 
 		std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels(abir_first_50_frames.video_frames_16bit);
 		replace_bad_pixels(dead_pixels);
-		btn_bad_pixel_identification->setEnabled(false);
 	}
 }
 
@@ -2045,6 +2045,7 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(base_state);
 
+	lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
 	chk_highlight_bad_pixels->setEnabled(true);
 }
 
@@ -2052,6 +2053,41 @@ void SirveApp::handle_chk_highlight_bad_pixels(bool checked)
 {
 	video_display->highlight_bad_pixels(checked);
 	video_display->update_display_frame();
+}
+
+void SirveApp::receive_new_good_pixels(std::vector<unsigned int> pixels)
+{
+	std::vector<unsigned int> bad_pixels = video_display->container.processing_states[0].replaced_pixels;
+	
+	unsigned int count_to_remove = 0;
+	for (auto i = 0; i < pixels.size(); i++)
+	{
+		unsigned int candidate_pixel = pixels[i];
+		std::vector<unsigned int>::iterator position = std::find(bad_pixels.begin(), bad_pixels.end(), candidate_pixel);
+		if (position != bad_pixels.end())
+		{
+			bad_pixels.erase(position);
+			count_to_remove += 1;
+		}
+	}
+
+	if (count_to_remove == 0)
+	{
+		QtHelpers::LaunchMessageBox("No Action Taken", "No bad pixels will be marked as good.");
+	}
+	else
+	{
+		auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Removing bad pixels will reset all filters and require re-reading the original data. Are you sure you want to continue? Number of bad pixels that will be marked as good: " + QString::number(count_to_remove));
+
+		if (response == QMessageBox::Yes)
+		{
+			int min_frame = data_plots->index_sub_plot_xmin + 1;
+			int max_frame = data_plots->index_sub_plot_xmax + 1;
+			load_abir_data(min_frame, max_frame);
+
+			replace_bad_pixels(bad_pixels);
+		}
+	}
 }
 
 void SirveApp::create_non_uniformity_correction_from_external_file()
