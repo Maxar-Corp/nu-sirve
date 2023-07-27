@@ -1102,6 +1102,11 @@ void SirveApp::load_osm_data()
 	//--------------------------------------------------------------------------------
 
 	engineering_plot_layout = new QGridLayout();
+	btn_popout_engineering = new QPushButton("Push to Popout Plots");
+	btn_popout_engineering->resize(40, 40);
+	btn_popout_engineering->setCheckable(true);
+	connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::handle_popout_engineering_btn);
+	engineering_plot_layout->addWidget(btn_popout_engineering);
 	engineering_plot_layout->addWidget(data_plots->chart_view);
 	frame_plots->setLayout(engineering_plot_layout);
 
@@ -1266,6 +1271,34 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	playback_controller->start_timer();
 
 	//---------------------------------------------------------------------------
+}
+
+void SirveApp::handle_popout_engineering_btn(bool checked)
+{
+	if (checked)
+	{
+		open_popout_engineering_plot();
+	}
+	else
+	{
+		popout_engineering->close();
+	}
+}
+
+void SirveApp::open_popout_engineering_plot()
+{
+	popout_engineering = new PopoutDialog(data_plots->chart_view);
+	QObject::connect(popout_engineering, &QDialog::finished, this, &SirveApp::popout_engineering_closed);
+	popout_engineering->open();
+}
+
+void SirveApp::popout_engineering_closed()
+{
+	btn_popout_engineering->setChecked(false);
+	engineering_plot_layout->addWidget(data_plots->chart_view);
+	frame_plots->setLayout(engineering_plot_layout);
+	
+	delete popout_engineering;
 }
 
 void SirveApp::handle_popout_histogram_btn(bool checked)
