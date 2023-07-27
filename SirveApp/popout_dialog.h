@@ -8,6 +8,7 @@
 
 #include "enhanced_label.h"
 #include "clickable_chartview.h"
+#include "plot_engineering_data.h"
 
 class PopoutDialog : public QDialog
 {
@@ -16,6 +17,7 @@ class PopoutDialog : public QDialog
 public:
 	PopoutDialog(EnhancedLabel* label);
 	PopoutDialog(Clickable_QChartView* chart_view);
+	PopoutDialog(NewChartView* new_chart_view);
 	~PopoutDialog();
 
     QGridLayout * mainLayout;
