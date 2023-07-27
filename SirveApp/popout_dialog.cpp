@@ -18,6 +18,15 @@ PopoutDialog::PopoutDialog(Clickable_QChartView* chart_view)
     setWindowTitle(tr("Popout Display"));
 }
 
+PopoutDialog::PopoutDialog(NewChartView* new_chart_view)
+{
+    mainLayout = new QGridLayout();
+    mainLayout->addWidget(new_chart_view);
+    setLayout(mainLayout);
+
+    setWindowTitle(tr("Popout Display"));
+}
+
 PopoutDialog::~PopoutDialog()
 {
     delete mainLayout;
