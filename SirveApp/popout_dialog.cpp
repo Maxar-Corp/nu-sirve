@@ -7,6 +7,8 @@ PopoutDialog::PopoutDialog(QWidget* widget)
     setLayout(mainLayout);
 
     setWindowTitle(tr("Popout Display"));
+
+    setSizeGripEnabled(true);
 }
 
 PopoutDialog::~PopoutDialog()
