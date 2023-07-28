@@ -9,6 +9,7 @@ PopoutDialog::PopoutDialog(QWidget* widget)
     setWindowTitle(tr("Popout Display"));
 
     setSizeGripEnabled(true);
+    setWindowFlags(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
 }
 
 PopoutDialog::~PopoutDialog()
