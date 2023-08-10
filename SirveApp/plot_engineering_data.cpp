@@ -72,7 +72,7 @@ void Engineering_Plots::plot()
 void Engineering_Plots::plot_fov_x()
 {
 	establish_plot_limits();
-	y_title = QString("Sensor FOV (X)");
+	y_title = QString("Sensor IFOV (microns)");
 	QLineSeries* series = new QLineSeries();
 	QColor base_color(colors.GetCurrentColor());
 	series->setColor(base_color);
@@ -96,7 +96,7 @@ void Engineering_Plots::plot_fov_x()
 void Engineering_Plots::plot_fov_y()
 {
 	establish_plot_limits();
-	y_title = QString("Sensor FOV (Y)");
+	y_title = QString("Sensor IFOV (microns)");
 	QLineSeries* series = new QLineSeries();
 	QColor base_color(colors.GetCurrentColor());
 	series->setColor(base_color);
