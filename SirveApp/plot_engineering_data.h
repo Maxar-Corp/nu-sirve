@@ -78,6 +78,7 @@ class Engineering_Plots : public QtPlotting
 		
 		std::vector<double> past_midnight, past_epoch;
 		std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
+		std::vector<double> boresight_az, boresight_el;
 
 		// plot axes titles
 		QString x_title, y_title, title;
@@ -117,6 +118,8 @@ class Engineering_Plots : public QtPlotting
 		void plot_irradiance(size_t plot_number_tracks);
 		void plot_fov_x();
 		void plot_fov_y();
+		void plot_boresight_az();
+		void plot_boresight_el();
 
 		std::vector<double> get_individual_x_track(size_t i);
 		std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);

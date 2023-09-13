@@ -9,6 +9,9 @@ Engineering_Plots::Engineering_Plots(std::vector<Frame> const &osm_frames) : QtP
 		/* Scaling each val by 1e6 to convert to microradians. */
 		sensor_i_fov_x.push_back(osm_frames[i].data.i_fov_x * 1e6);
 		sensor_i_fov_y.push_back(osm_frames[i].data.i_fov_y * 1e6);
+
+		boresight_az.push_back(osm_frames[i].data.az_el_boresight[0]);
+		boresight_el.push_back(osm_frames[i].data.az_el_boresight[1]);
 	}
 
 	x_axis_units = frames;
@@ -64,9 +67,62 @@ void Engineering_Plots::plot()
 		case 4:
 			plot_fov_y();
 			break;
+		case 5:
+			plot_boresight_az();
+			break;
+		case 6:
+			plot_boresight_el();
 		default:
 			break;
 	}
+}
+
+void Engineering_Plots::plot_boresight_az()
+{
+	establish_plot_limits();
+	y_title = QString("Boresight Azimuth");
+	QLineSeries* series = new QLineSeries();
+	QColor base_color(colors.GetCurrentColor());
+	series->setColor(base_color);
+
+	if (plot_all_data) {
+		std::vector<double> y_values = boresight_az;
+
+		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
+	}
+	else {
+		std::vector<double> y_values(boresight_az.begin() + index_sub_plot_xmin, boresight_az.begin() + index_sub_plot_xmax + 1);
+
+		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title);
+	}
+
+	draw_title();
+}
+
+void Engineering_Plots::plot_boresight_el()
+{
+	establish_plot_limits();
+	y_title = QString("Boresight Elevation");
+	QLineSeries* series = new QLineSeries();
+	QColor base_color(colors.GetCurrentColor());
+	series->setColor(base_color);
+
+	if (plot_all_data) {
+		std::vector<double> y_values = boresight_el;
+
+		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
+	}
+	else {
+		std::vector<double> y_values(boresight_el.begin() + index_sub_plot_xmin, boresight_el.begin() + index_sub_plot_xmax + 1);
+
+		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
+	}
+
+	draw_title();
 }
 
 void Engineering_Plots::plot_fov_x()
