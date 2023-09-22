@@ -5,8 +5,8 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
-	setup_labels();
 	setup_pinpoint_display();
+	setup_labels();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
@@ -55,35 +55,6 @@ VideoDisplay::~VideoDisplay()
 	delete lbl_zulu_time;
 }
 
-void VideoDisplay::setup_labels()
-{
-	label->setBackgroundRole(QPalette::Base);
-	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	label->setScaledContents(true);
-
-	label->setObjectName("video_object");
-
-	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
-	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
-	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::pinpoint);
-
-	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
-
-	QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
-	lbl_frame_number = new QLabel("");
-	lbl_video_time_midnight = new QLabel("");
-	lbl_zulu_time = new QLabel("");
-	lbl_frame_number->setAlignment(Qt::AlignLeft);
-	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
-	lbl_zulu_time->setAlignment(Qt::AlignRight);
-
-	hlayout_video_labels->addWidget(lbl_frame_number);
-	hlayout_video_labels->addWidget(lbl_video_time_midnight);
-	hlayout_video_labels->addWidget(lbl_zulu_time);
-
-	video_display_layout->insertLayout(1, hlayout_video_labels);
-}
-
 void VideoDisplay::setup_pinpoint_display()
 {
 	grp_pinpoint = new QGroupBox("Selected Pixels");
@@ -130,6 +101,37 @@ void VideoDisplay::setup_pinpoint_display()
 
 	video_display_layout->addStretch(1);
 	video_display_layout->addWidget(grp_pinpoint);
+}
+
+void VideoDisplay::setup_labels()
+{
+	label->setBackgroundRole(QPalette::Base);
+	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	label->setScaledContents(true);
+
+	label->setObjectName("video_object");
+
+	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
+	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
+	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::pinpoint);
+
+	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+
+	QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
+	lbl_frame_number = new QLabel("");
+	lbl_video_time_midnight = new QLabel("");
+	lbl_zulu_time = new QLabel("");
+	lbl_frame_number->setAlignment(Qt::AlignLeft);
+	lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+	lbl_zulu_time->setAlignment(Qt::AlignRight);
+
+	hlayout_video_labels->addWidget(lbl_frame_number);
+	hlayout_video_labels->addWidget(lbl_video_time_midnight);
+	hlayout_video_labels->addWidget(lbl_zulu_time);
+
+	video_display_layout->insertLayout(1, hlayout_video_labels);
+
+	lbl_pinpoint->setText("");
 }
 
 void VideoDisplay::handle_btn_pinpoint(bool checked)
@@ -984,8 +986,6 @@ void VideoDisplay::remove_frame()
 	delete lbl_frame_number;
 	delete lbl_video_time_midnight;
 	delete lbl_zulu_time;
-
-	delete lbl_pinpoint;
 
 	label = new EnhancedLabel(this);
 	setup_labels();
