@@ -438,12 +438,6 @@ void Engineering_Plots::toggle_yaxis_scientific(bool input)
 
 void Engineering_Plots::plot_current_step(int counter)
 {
-	
-	if (!current_frame_marker == NULL) {
-
-		reset_current_marker();
-	}
-
 	if (plot_current_marker)
 	{
 		double current_x = get_single_x_axis_value(index_sub_plot_xmin + counter);
@@ -484,12 +478,6 @@ void Engineering_Plots::draw_title()
 	chart->setTitleFont(font);
 
 	chart->setTitle(title);
-}
-
-void Engineering_Plots::reset_current_marker() {
-
-	current_frame_marker->replace(0, 0, 0);
-	current_frame_marker->replace(1, 0, 0);
 }
 
 void Engineering_Plots::toggle_subplot()
