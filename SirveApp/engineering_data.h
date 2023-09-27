@@ -41,14 +41,12 @@ class Engineering_Data : public	QWidget
 
 	private:
 		double timing_offset, data_epoch_date, user_epoch_date;
-		int number_tracks;
 				
 		std::vector<double>julian_date, seconds_from_midnight, seconds_from_epoch;
 		std::vector<Track_Irradiance> track_irradiance_data;
 		std::vector<Plotting_Frame_Data> frame_data;
 		
 		void extract_engineering_data(const std::vector<Frame> & osm_frames);
-		void fill_irradiance_vector();
 };
 
 #endif
