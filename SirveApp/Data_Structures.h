@@ -71,7 +71,6 @@ struct video_info {
 struct Track_Irradiance {
 
 	uint32_t track_id;
-	uint32_t band_id;
 	std::vector<double> julian_date;
 	std::vector<double> frame_number;
 	std::vector<double> past_midnight;
@@ -85,7 +84,7 @@ struct Track_Irradiance {
 
 struct Irradiance_Msrmnt {
 
-	unsigned int track_id, band_id;
+	unsigned int track_id;
 	double centroid_x, centroid_y;
 	double irradiance;
 	double azimuth;

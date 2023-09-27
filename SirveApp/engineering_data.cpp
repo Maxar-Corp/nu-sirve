@@ -253,7 +253,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 				ir_data.irradiance = irradiance;
 				ir_data.centroid_x = osm_frames[i].data.track_data[track_index].centroid_x;
 				ir_data.centroid_y = osm_frames[i].data.track_data[track_index].centroid_y;
-				ir_data.band_id = osm_frames[i].data.track_data[track_index].ir_measurements[0].band_id;
 				ir_data.track_id = osm_frames[i].data.track_data[track_index].track_id;
 				ir_data.azimuth = azimuth;
 				ir_data.elevation = elevation;
@@ -277,7 +276,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 				{
 					Track_Irradiance temp_ti;
 
-					temp_ti.band_id = 1;
 					temp_ti.track_id = track_index;
 
 					temp_ti.frame_number.push_back(i + 1);
