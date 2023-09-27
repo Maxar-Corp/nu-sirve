@@ -83,13 +83,6 @@ struct Track_Irradiance {
 
 };
 
-struct Track_Tgts {
-
-	std::vector<int> x_pixels;
-	std::vector<int> y_pixels;
-
-};
-
 struct Irradiance_Msrmnt {
 
 	unsigned int track_id, band_id;
@@ -103,7 +96,6 @@ struct Plotting_Frame_Data {
 	double azimuth_sensor, elevation_sensor, azimuth_p_tgt, elevation_p_tgt, julian_date, seconds_past_midnight;
 
 	std::vector<Irradiance_Msrmnt> ir_data;
-	//std::vector<Track_Tgts> ir_tgt_data;
 };
 
 #endif
