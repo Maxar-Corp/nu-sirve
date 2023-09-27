@@ -213,6 +213,11 @@ std::vector<Track_Irradiance> Engineering_Data::get_track_irradiance_data()
 	return output;
 }
 
+unsigned int Engineering_Data::get_total_frame_count()
+{
+	return static_cast<unsigned int>(frame_data.size());
+}
+
 void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_frames)
 {
 	for (unsigned int i = 0; i < osm_frames.size(); i++) {
