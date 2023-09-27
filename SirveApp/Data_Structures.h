@@ -90,19 +90,6 @@ struct Track_Tgts {
 
 };
 
-
-struct Plotting_Data {
-	std::vector<double> azimuth;
-	std::vector<double> elevation;
-	std::vector<double> frame_time;
-	std::vector<double> frame_number;
-
-	std::vector<Track_Irradiance> irradiance_data;
-	std::vector<Track_Tgts> ir_tgt_data;
-
-	int min_frame, max_frame;
-};
-
 struct Irradiance_Msrmnt {
 
 	unsigned int track_id, band_id;
