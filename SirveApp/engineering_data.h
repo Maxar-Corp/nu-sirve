@@ -44,7 +44,6 @@ class Engineering_Data : public	QWidget
 				
 
 	private:
-		Plotting_Data data;
 		double timing_offset, data_epoch_date, user_epoch_date;
 		int number_tracks;
 				
