@@ -241,6 +241,10 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 			temp.elevation_p_tgt = -1001;
 		}
 		else {
+			// Get primary target az-el, when it exists
+			temp.azimuth_p_tgt = osm_frames[i].data.track_data[0].az_el_track[0];
+			temp.elevation_p_tgt = osm_frames[i].data.track_data[0].az_el_track[1];
+
 			for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
 				double irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
 				double azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
@@ -290,10 +294,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 					track_irradiance_data.push_back(temp_ti);
 				}
 			}
-
-			// Get primary target az-el, when it exists
-			temp.azimuth_p_tgt = osm_frames[i].data.track_data[0].az_el_track[0];
-			temp.elevation_p_tgt = osm_frames[i].data.track_data[0].az_el_track[1];
 		}
 
 		frame_data.push_back(temp);
