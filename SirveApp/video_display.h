@@ -152,9 +152,13 @@ private:
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
-	std::vector<int> get_position_within_zoom(int x0, int y0);
+
 	void setup_labels();
 	void setup_pinpoint_display();
+
+	std::vector<int> get_position_within_zoom(int x0, int y0);
+	void zoom_image(QRect area);
+	void calibrate(QRect area);
 	
 	void add_pinpoints_to_bad_pixel_map();
 	void remove_pinpoints_from_bad_pixel_map();
