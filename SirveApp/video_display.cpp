@@ -500,6 +500,25 @@ void VideoDisplay::clear_pinpoints()
 	update_display_frame();
 }
 
+bool VideoDisplay::is_any_piece_within_zoom(int x0, int y0)
+{
+	absolute_zoom_info final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
+
+	if (x0 + 1 < final_zoom_level.x)
+		return false;
+
+	if (x0 > final_zoom_level.x + final_zoom_level.width)
+		return false;
+
+	if (y0 + 1 < final_zoom_level.y)
+		return false;
+
+	if (y0 > final_zoom_level.y + final_zoom_level.height)
+		return false;
+
+	return true;
+}
+
 std::vector<int> VideoDisplay::get_position_within_zoom(int x0, int y0)
 {
 	size_t num_zooms = zoom_list.size();
@@ -676,44 +695,60 @@ void VideoDisplay::update_display_frame()
 		frame = frame.scaled(image_x, image_y);
 	}
 
-	// -----------------------------------------------------------
-	// loop thru all tracks and plot thru lowest zoom
-
 	size_t num_tracks = display_data[counter].ir_data.size();
 
-	if (plot_tracks && num_tracks > 0) {
+	if (plot_tracks && num_tracks > 0)
+	{
+		absolute_zoom_info final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
+		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
+		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
+
+		QPainter rectangle_painter(&frame);
+		int box_size = 5;
+		double box_width = size_of_pixel_x - 1 + box_size * 2;
+		double box_height = size_of_pixel_y - 1 + box_size * 2;
 
 		for (int i = 0; i < num_tracks; i++)
 		{
-			// Find location of object in frame
 			int x_pixel = display_data[counter].ir_data[i].centroid_x;
 			int y_pixel = display_data[counter].ir_data[i].centroid_y;
 
 			int x_center = image_x / 2 + x_pixel;
 			int y_center = image_y / 2 + y_pixel;
 
+			if (!is_any_piece_within_zoom(x_center, y_center))
+				continue;
+
 			std::vector<int> loc = get_position_within_zoom(x_center, y_center);
 			int x = loc[0];
 			int y = loc[1];
+			std::vector<int> loc2 = get_position_within_zoom(x_center + 1, y_center + 1);
+			int x2 = loc2[0];
+			int y2 = loc2[1];
 
-			// if point is within all zoom frames ...
-			if (loc[0] >= 0)
+			// If the "centroid" pixel is not in the box, this helper method returns -1, -1 ...
+			// So we position the box based on loc2, the pixel below and to the right
+			int top_left_x, top_left_y;
+			if (x < 0)
 			{
-				// draw rectangle around object				
-				QPainter rectangle_painter(&frame);
-
-				int box_size = 5;
-				QRectF rectangle(x - box_size, y - box_size, box_size * 2, box_size * 2);
-
-				if (i == 0) {
-					rectangle_painter.setPen(QPen(tracker_primary_color));
-				}
-				else
-				{
-					rectangle_painter.setPen(QPen(tracker_color));
-				}
-				rectangle_painter.drawRect(rectangle);
+				top_left_x = x2 - box_width - box_size;
+				top_left_y = y2 - box_height - box_size;
 			}
+			else
+			{
+				top_left_x = x - box_size;
+				top_left_y = y - box_size;
+			}
+
+			if (i == 0) {
+				rectangle_painter.setPen(QPen(tracker_primary_color));
+			}
+			else
+			{
+				rectangle_painter.setPen(QPen(tracker_color));
+			}
+			QRectF rectangle(top_left_x, top_left_y, box_width, box_height);
+			rectangle_painter.drawRect(rectangle);
 		}
 	}
 
