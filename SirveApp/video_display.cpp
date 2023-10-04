@@ -111,7 +111,7 @@ void VideoDisplay::setup_labels()
 
 	label->setObjectName("video_object");
 
-	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::zoom_image);
+	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::handle_image_area_selection);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
 	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::pinpoint);
 
@@ -285,21 +285,21 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 	update_display_frame();
 }
 
-void VideoDisplay::zoom_image(QRect info)
+void VideoDisplay::handle_image_area_selection(QRect area)
 {
 	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
-	if (info.x() + info.width() > image_x)
+	if (area.x() + area.width() > image_x)
 	{
-		info.setWidth(image_x - info.x());
+		area.setWidth(image_x - area.x());
 	}
 
-	if (info.y() + info.height() > image_y)
+	if (area.y() + area.height() > image_y)
 	{
-		info.setHeight(image_y - info.y());
+		area.setHeight(image_y - area.y());
 	}
 
 	// if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
-	if (info.width() < 10 || info.height() < 10)
+	if (area.width() < 10 || area.height() < 10)
 	{
 		return;
 	}
@@ -313,11 +313,11 @@ void VideoDisplay::zoom_image(QRect info)
 			size_t num_zooms = zoom_list.size();
 
 			if (num_zooms == 1) {
-				calculation_region = info;
+				calculation_region = area;
 			}
 
 			else {
-				QRect adjusted_area = info;
+				QRect adjusted_area = area;
 
 				for (auto i = num_zooms - 1; i > 0; i--)
 				{
@@ -355,11 +355,11 @@ void VideoDisplay::zoom_image(QRect info)
 	}
 
 
-	double height = info.height();
-	double width = info.width();
+	double height = area.height();
+	double width = area.width();
 
-	double x = info.x();
-	double y = info.y();
+	double x = area.x();
+	double y = area.y();
 
 	double aspect_ratio = 1.0 * image_x / image_y;
 	double adj_width = height * aspect_ratio;
