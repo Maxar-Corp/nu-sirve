@@ -156,6 +156,7 @@ private:
 	void setup_labels();
 	void setup_pinpoint_display();
 
+	bool is_any_piece_within_zoom(int x0, int y0);
 	std::vector<int> get_position_within_zoom(int x0, int y0);
 	void zoom_image(QRect area);
 	void calibrate(QRect area);
