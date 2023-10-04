@@ -298,62 +298,27 @@ void VideoDisplay::handle_image_area_selection(QRect area)
 		area.setHeight(image_y - area.y());
 	}
 
+	if (is_zoom_active)
+	{
+		zoom_image(area);
+	}
+	else if (is_calculate_active)
+	{
+		calibrate(area);
+	}
+	else
+	{
+		return;
+	}
+}
+
+void VideoDisplay::zoom_image(QRect area)
+{
 	// if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
 	if (area.width() < 10 || area.height() < 10)
 	{
 		return;
 	}
-
-	// if zoom is turned off then no zoom is recorded
-	if (!is_zoom_active)
-	{
-
-		if (is_calculate_active) {
-
-			size_t num_zooms = zoom_list.size();
-
-			if (num_zooms == 1) {
-				calculation_region = area;
-			}
-
-			else {
-				QRect adjusted_area = area;
-
-				for (auto i = num_zooms - 1; i > 0; i--)
-				{
-
-					int* x1, * y1, * x2, * y2;
-					x1 = new int;
-					y1 = new int;
-					x2 = new int;
-					y2 = new int;
-
-					adjusted_area.getCoords(x1, y1, x2, y2);
-
-					QRect zoom = zoom_list[i];
-
-					double x1_position = *x1 * 1.0 / image_x;
-					double y1_position = *y1 * 1.0 / image_y;
-					int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
-					int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
-
-					double x2_position = *x2 * 1.0 / image_x;
-					double y2_position = *y2 * 1.0 / image_y;
-					int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
-					int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
-
-					adjusted_area.setCoords(new_x1, new_y1, new_x2, new_y2);
-				}
-
-				calculation_region = adjusted_area;
-			}
-
-			update_display_frame();
-		}
-
-		return;
-	}
-
 
 	double height = area.height();
 	double width = area.width();
@@ -412,6 +377,49 @@ void VideoDisplay::handle_image_area_selection(QRect area)
 
 	// changes color of frame when zoomed within frame
 	label->setStyleSheet("#video_object { border: 3px solid blue; }");
+
+	update_display_frame();
+}
+
+void VideoDisplay::calibrate(QRect area)
+{
+	size_t num_zooms = zoom_list.size();
+
+	if (num_zooms == 1) {
+		calculation_region = area;
+	}
+
+	else {
+		QRect adjusted_area = area;
+
+		for (auto i = num_zooms - 1; i > 0; i--)
+		{
+
+			int* x1, * y1, * x2, * y2;
+			x1 = new int;
+			y1 = new int;
+			x2 = new int;
+			y2 = new int;
+
+			adjusted_area.getCoords(x1, y1, x2, y2);
+
+			QRect zoom = zoom_list[i];
+
+			double x1_position = *x1 * 1.0 / image_x;
+			double y1_position = *y1 * 1.0 / image_y;
+			int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
+			int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
+
+			double x2_position = *x2 * 1.0 / image_x;
+			double y2_position = *y2 * 1.0 / image_y;
+			int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
+			int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
+
+			adjusted_area.setCoords(new_x1, new_y1, new_x2, new_y2);
+		}
+
+		calculation_region = adjusted_area;
+	}
 
 	update_display_frame();
 }
