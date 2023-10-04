@@ -124,7 +124,7 @@ public slots:
 	void pinpoint(QPoint origin);
 	void clear_pinpoints();
 
-	void zoom_image(QRect info);
+	void handle_image_area_selection(QRect area);
 	void unzoom();
 
 
