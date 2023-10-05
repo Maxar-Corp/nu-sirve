@@ -1111,7 +1111,7 @@ void SirveApp::load_osm_data()
 	frame_plots->setLayout(engineering_plot_layout);
 
 	// Reset settings on video playback to defaults
-	video_display->toggle_osm_tracks(false);
+	chk_show_tracks->setChecked(false);
 
 	video_display->toggle_primary_track_data(false);
 
@@ -1216,7 +1216,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
 	slider_video->setRange(0, number_frames - 1);
-
 	
 	// Start threads...
 	if (!thread_timer.isRunning())
