@@ -52,6 +52,7 @@ HEADERS += abir_reader.h \
             video_container.h \
             video_details.h \
             video_display.h \
+            video_display_zoom.h \
             workspace.h \
             support/earth.h \
             support/euler.h \
@@ -98,6 +99,7 @@ SOURCES += abir_reader.cpp \
             video_container.cpp \
             video_details.cpp \
             video_display.cpp \
+            video_display_zoom.cpp \
             workspace.cpp \
             support/earth.cpp \
             support/euler.cpp \
