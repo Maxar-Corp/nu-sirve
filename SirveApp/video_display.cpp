@@ -3,6 +3,7 @@
 
 VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
+	zoom_manager = new VideoDisplayZoomManager(x_pixels, y_pixels);
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
 	setup_pinpoint_display();
@@ -53,6 +54,8 @@ VideoDisplay::~VideoDisplay()
 	delete lbl_frame_number;
 	delete lbl_video_time_midnight;
 	delete lbl_zulu_time;
+	
+	delete zoom_manager;
 }
 
 void VideoDisplay::setup_pinpoint_display()
@@ -160,17 +163,14 @@ void VideoDisplay::reclaim_label()
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
-void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels) {
+void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels)
+{
+	delete zoom_manager;
+	zoom_manager = new VideoDisplayZoomManager(x_pixels, y_pixels);
 
-	zoom_list.clear();
-	absolute_zoom_list.clear();
-	QRect new_zoom(0, 0, x_pixels, y_pixels);
-	zoom_list.push_back(new_zoom);
-	absolute_zoom_list.push_back(absolute_zoom_info {0, 0, 1.0*x_pixels, 1.0*y_pixels});
 	pinpoint_indeces.clear();
-
-	// resets border color
-	label->setStyleSheet("#video_object { border: 1px solid light gray; }");
+	
+	update_display_frame();
 }
 
 void VideoDisplay::receive_video_data(video_details& new_input)
@@ -300,11 +300,13 @@ void VideoDisplay::handle_image_area_selection(QRect area)
 
 	if (is_zoom_active)
 	{
-		zoom_image(area);
+		zoom_manager->zoom_image(area);
+		update_display_frame();
 	}
 	else if (is_calculate_active)
 	{
 		calibrate(area);
+		update_display_frame();
 	}
 	else
 	{
@@ -312,78 +314,11 @@ void VideoDisplay::handle_image_area_selection(QRect area)
 	}
 }
 
-void VideoDisplay::zoom_image(QRect area)
-{
-	// if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
-	if (area.width() < 10 || area.height() < 10)
-	{
-		return;
-	}
-
-	double height = area.height();
-	double width = area.width();
-
-	double x = area.x();
-	double y = area.y();
-
-	double aspect_ratio = 1.0 * image_x / image_y;
-	double adj_width = height * aspect_ratio;
-	double adj_height = width / aspect_ratio;
-
-	// adjust size of box to fit aspect ratio and encompass the highlighted area selected
-	if (adj_width > width) {
-
-		width = adj_width;
-		height = adj_width / aspect_ratio;
-	}
-	else if (adj_height > height) {
-
-		width = adj_height * aspect_ratio;
-		height = adj_height;
-	}
-	else {
-
-	}
-
-	// if updated area exceeds width, move origin to left
-	if (x + width > image_x)
-	{
-		double delta = x + width - (1.0 * image_x);
-		x = x - delta;
-	}
-
-	// if updated area exceeds height, move origin up
-	if (y + height > image_y)
-	{
-		double delta = y + height - (1.0 * image_y);
-		y = y - delta;
-	}
-
-	x = std::round(x);
-	y = std::round(y);
-	width = std::round(width);
-	height = std::round(height);
-
-	// set zoom area to appropriate values
-	QRect new_zoom(x, y, width, height);
-	zoom_list.push_back(new_zoom);
-
-	absolute_zoom_info starting_rectangle = absolute_zoom_list[absolute_zoom_list.size() - 1];
-	double absolute_x = starting_rectangle.x + x * starting_rectangle.width / image_x;
-	double absolute_y = starting_rectangle.y + y * starting_rectangle.height / image_y;
-	double absolute_width = starting_rectangle.width * (1.0 * width / image_x);
-	double absolute_height = starting_rectangle.height * (1.0 * height / image_y);
-	absolute_zoom_list.push_back(absolute_zoom_info {absolute_x, absolute_y, absolute_width, absolute_height});
-
-	// changes color of frame when zoomed within frame
-	label->setStyleSheet("#video_object { border: 3px solid blue; }");
-
-	update_display_frame();
-}
-
 void VideoDisplay::calibrate(QRect area)
 {
-	size_t num_zooms = zoom_list.size();
+	// The calculation_region should be calculated by the zoom manager,
+	// but I'm leaving this code as-is since it is unused and untestable
+	size_t num_zooms = zoom_manager->zoom_list.size();
 
 	if (num_zooms == 1) {
 		calculation_region = area;
@@ -403,7 +338,7 @@ void VideoDisplay::calibrate(QRect area)
 
 			adjusted_area.getCoords(x1, y1, x2, y2);
 
-			QRect zoom = zoom_list[i];
+			QRect zoom = zoom_manager->zoom_list[i];
 
 			double x1_position = *x1 * 1.0 / image_x;
 			double y1_position = *y1 * 1.0 / image_y;
@@ -420,23 +355,14 @@ void VideoDisplay::calibrate(QRect area)
 
 		calculation_region = adjusted_area;
 	}
-
-	update_display_frame();
 }
 
 void VideoDisplay::unzoom()
 {
-	if (zoom_list.size() > 1)
+	if (zoom_manager->is_currently_zoomed())
 	{
-		zoom_list.pop_back();
-		absolute_zoom_list.pop_back();
+		zoom_manager->unzoom();
 		update_display_frame();
-	}
-
-	// resets border color when not zoomed
-	if (zoom_list.size() == 1)
-	{
-		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 }
 
@@ -452,7 +378,7 @@ void VideoDisplay::pinpoint(QPoint origin)
 	// Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
 
 	if (is_pinpoint_active) {
-		absolute_zoom_info rectangle = absolute_zoom_list[zoom_list.size() - 1];
+		absolute_zoom_info rectangle = zoom_manager->absolute_zoom_list[zoom_manager->zoom_list.size() - 1];
 		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
 		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
 
@@ -498,72 +424,6 @@ void VideoDisplay::clear_pinpoints()
 {
 	pinpoint_indeces.clear();
 	update_display_frame();
-}
-
-bool VideoDisplay::is_any_piece_within_zoom(int x0, int y0)
-{
-	absolute_zoom_info final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
-
-	if (x0 + 1 < final_zoom_level.x)
-		return false;
-
-	if (x0 > final_zoom_level.x + final_zoom_level.width)
-		return false;
-
-	if (y0 + 1 < final_zoom_level.y)
-		return false;
-
-	if (y0 > final_zoom_level.y + final_zoom_level.height)
-		return false;
-
-	return true;
-}
-
-std::vector<int> VideoDisplay::get_position_within_zoom(int x0, int y0)
-{
-	size_t num_zooms = zoom_list.size();
-	bool pt_within_area = true;
-
-	int x_center = x0;
-	int y_center = y0;
-
-	// for each zoom level ...
-	for (auto j = 0; j < num_zooms; j++)
-	{
-		// define object location relative to zoom frame
-		QRect sub_frame = zoom_list[j];
-		x_center = x_center - sub_frame.x();
-		y_center = y_center - sub_frame.y();
-
-		// if object location exceeds frame, stop and prevent drawing
-		if (x_center < 0 || x_center > sub_frame.width())
-		{
-			pt_within_area = false;
-			break;
-		}
-
-		if (y_center < 0 || y_center > sub_frame.height())
-		{
-			pt_within_area = false;
-			break;
-		}
-
-		// rescale pixels to image frame
-		double temp_x = x_center * 1.0 / sub_frame.width() * image_x;
-		double temp_y = y_center * 1.0 / sub_frame.height() * image_y;
-
-		x_center = std::round(temp_x);
-		y_center = std::round(temp_y);
-
-	}
-
-	// if point is within all zoom frames ...
-	if (pt_within_area)
-	{
-		return std::vector<int> {x_center, y_center};
-	}
-	else
-		return std::vector<int> {-1, -1};
 }
 
 void VideoDisplay::update_display_frame()
@@ -684,9 +544,9 @@ void VideoDisplay::update_display_frame()
 
 	// -----------------------------------------------------------
 	// loop thru all user set zooms
-	for (int i = 0; i < zoom_list.size(); i++)
+	for (int i = 0; i < zoom_manager->zoom_list.size(); i++)
 	{
-		QRect sub_frame = zoom_list[i];
+		QRect sub_frame = zoom_manager->zoom_list[i];
 
 		// get sub-image
 		frame = frame.copy(sub_frame);
@@ -695,11 +555,20 @@ void VideoDisplay::update_display_frame()
 		frame = frame.scaled(image_x, image_y);
 	}
 
+	if (zoom_manager->is_currently_zoomed())
+	{
+		label->setStyleSheet("#video_object { border: 3px solid blue; }");
+	}
+	else
+	{
+		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
+	}
+
 	size_t num_tracks = display_data[counter].ir_data.size();
 
 	if (plot_tracks && num_tracks > 0)
 	{
-		absolute_zoom_info final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
+		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
 		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
 		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
 
@@ -716,13 +585,13 @@ void VideoDisplay::update_display_frame()
 			int x_center = image_x / 2 + x_pixel;
 			int y_center = image_y / 2 + y_pixel;
 
-			if (!is_any_piece_within_zoom(x_center, y_center))
+			if (!zoom_manager->is_any_piece_within_zoom(x_center, y_center))
 				continue;
 
-			std::vector<int> loc = get_position_within_zoom(x_center, y_center);
+			std::vector<int> loc = zoom_manager->get_position_within_zoom(x_center, y_center);
 			int x = loc[0];
 			int y = loc[1];
-			std::vector<int> loc2 = get_position_within_zoom(x_center + 1, y_center + 1);
+			std::vector<int> loc2 = zoom_manager->get_position_within_zoom(x_center + 1, y_center + 1);
 			int x2 = loc2[0];
 			int y2 = loc2[1];
 
@@ -819,7 +688,7 @@ void VideoDisplay::update_display_frame()
 				int font_size = a.font_size;
 				QString annotation_text = a.text;
 
-				std::vector<int> loc = get_position_within_zoom(a.x_pixel, a.y_pixel);
+				std::vector<int> loc = zoom_manager->get_position_within_zoom(a.x_pixel, a.y_pixel);
 				int x = loc[0];
 				int y = loc[1];
 
@@ -848,8 +717,8 @@ void VideoDisplay::update_display_frame()
 
 		// get the coordinates of calculation region
 		calculation_region.getCoords(c1, r1, c2, r2);
-		std::vector<int> pt1 = get_position_within_zoom(*c1, *r1);
-		std::vector<int> pt2 = get_position_within_zoom(*c2, *r2);
+		std::vector<int> pt1 = zoom_manager->get_position_within_zoom(*c1, *r1);
+		std::vector<int> pt2 = zoom_manager->get_position_within_zoom(*c2, *r2);
 
 		// determine if calculation region is within zoomed image
 		bool region_within_zoom = pt1[0] >= 0 && pt2[0] >= 0;
@@ -1043,6 +912,8 @@ void VideoDisplay::remove_frame()
 	image_y = 0;
 	number_pixels = image_x * image_y;
 
+	delete zoom_manager;
+	zoom_manager = new VideoDisplayZoomManager(0, 0);
 }
 
 void VideoDisplay::update_specific_frame(unsigned int frame_number)
