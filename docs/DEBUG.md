@@ -25,13 +25,13 @@ If the appropriate `.dll` files are copied into the `..\debug` folder, the exe s
 
 ## Debugging the Exe
 
-In order to debug the exe file, you must first run the debuggable executable. While it is running, open WinDbg (x64) and use the "File->Attach to a Process" command to attach to `SirveApp.exe`. When it is attached, it will freeze execution of SirveApp and wait for instructions.
+One way to debug the executable is to first run the debuggable executable and, while it is running, open WinDbg (x64) and use the "File->Attach to a Process" command to attach to `SirveApp.exe`. When it is attached, it will freeze execution of SirveApp and wait for instructions.
 
 In the WinDbg command window, the following list of commands will set a breakpoint and evaluate the state of the program at said breakpoint. Note that all of this can also be done visually within the options on WinDbg's top bar.
 
 1.	Type `bu SirveApp!SirveApp::ui_load_osm_file` for example to set a breakpoint at your choice of ClassName::method_name. 
 2.	Type `bl` to list the breakpoints you’ve set so you can see what’s happening.
 3.	Type `g` to execute the program until it hits a breakpoint
-4.	When WinDbg has stopped program execution at a breakpoint, a variety of commands like `dv` to display all the local variables, `?` to execute any C++ command you wish, etc. can be used to debug the application state.
+4.	When WinDbg has stopped program execution at a breakpoint, a variety of commands like `dv` or `x` to display local variables, `?` to execute any C++ command you wish, etc. can be used to debug the application state.
 
 A full WinDbg reference with all commands [can be found here](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/commands).
