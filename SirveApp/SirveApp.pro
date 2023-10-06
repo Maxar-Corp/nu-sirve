@@ -148,12 +148,14 @@ test {
 
     HEADERS += \
         testing/test_example.h \
-        testing/test_bad_pixels.h
+        testing/test_bad_pixels.h \
+        testing/test_video_display_zoom.h
 
     SOURCES += \
         testing/run_all_tests.cpp \
         testing/test_example.cpp \
-        testing/test_bad_pixels.cpp
+        testing/test_bad_pixels.cpp \
+        testing/test_video_display_zoom.cpp
 
     dlls.files += "../5.15.2/msvc2019_64/bin/Qt5Test.dll"
 }
