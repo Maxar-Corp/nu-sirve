@@ -20,7 +20,6 @@ SirveApp::SirveApp(QWidget *parent)
 	// establish object to control playback timer and move to a new thread
 	playback_controller = new Playback(1);
 	playback_controller->moveToThread(&thread_timer);
-	QObject::connect(&thread_video, &QThread::started, playback_controller, &Playback::start_timer);
 
 	// establish copy copy 
 	clipboard = QApplication::clipboard();
@@ -1246,7 +1245,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	//Update frame marker on engineering plot
 	QObject::connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
 	
-	playback_controller->set_speed_index(10);
+	playback_controller->set_initial_speed_index(10);
 	update_fps();
 
 	tab_plots->setCurrentIndex(1);
@@ -1267,9 +1266,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	btn_workspace_save->setEnabled(true);
 
 	toggle_video_playback_options(true);
-	playback_controller->start_timer();
-
-	//---------------------------------------------------------------------------
 }
 
 void SirveApp::handle_popout_engineering_btn(bool checked)
