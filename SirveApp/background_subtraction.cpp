@@ -1,6 +1,6 @@
 #include "background_subtraction.h"
 
-std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int start_frame, int number_of_frames, video_details & original)
+std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
 {
 	INFO << "Background Subtraction: Process started";
 
@@ -12,15 +12,6 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 	//Initialize video frame storage
 	int num_pixels = original.number_pixels;
 	arma::mat frame_data(num_pixels, 1);
-
-	QProgressDialog progress("Creating adjustment for background subtraction", "Cancel", 0, num_video_frames);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setMinimum(0);
-	progress.setMaximum(num_video_frames);
-	progress.setWindowTitle(QString("Adaptive Background Suppression"));
-	progress.setLabelText(QString("Creating adjustment on per frame basis..."));
-	progress.setMinimumWidth(300);
-	progress.setMinimumDuration(500);
 
 	// initialize noise frames
 	int index_first_frame, index_last_frame;
