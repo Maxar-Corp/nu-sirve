@@ -2409,51 +2409,41 @@ void SirveApp::ui_execute_background_subtraction() {
 
 void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames)
 {
-	INFO << "GUI: Background subtraction video being created";
-	processing_state original = video_display->container.copy_current_state();
+	//Pause the video if it's running
+	playback_controller->stop_timer();
 
-	INFO << "GUI: Creating adjustment for video";
-	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details);
+	processing_state original = video_display->container.copy_current_state();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	QProgressDialog progress_dialog("Creating frame-by-frame adjustment", "Cancel", 0, number_frames * 2 + 2);
+	progress_dialog.setWindowTitle("Adaptive Background Subtraction");
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+
+	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details, progress_dialog);
 
 	if (background_correction.size() == 0) {
-		INFO << "GUI: Background subtraction adjustment process was canceled or ended unexpectedly";
 		return;
 	}
-
-	INFO << "GUI: Background subtraction adjustment for video is completed";
-
-	QProgressDialog progress("Copying data for processing", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setWindowTitle(QString("Adaptive Background Suppression"));
-	progress.setMinimumWidth(300);
+	progress_dialog.setValue(number_frames);
+	progress_dialog.setLabelText("Adjusting frames and copying data");
 
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
 	background_subtraction_state.details.histogram_data.clear();
 
-	// Apply background subtraction to the frames
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-
-	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Adjusting frames..."));
-
 	for (auto i = 0; i < number_frames; i++) {
-		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
-		progress.setValue(i);
+		progress_dialog.setValue(number_frames + 1 + i);
 		background_subtraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
-		if (progress.wasCanceled())
+		if (progress_dialog.wasCanceled())
 		{
-			INFO << "GUI: Background subtraction process was canceled";
 			return;
 		}
 	}
+	progress_dialog.setLabelText("Finalizing adaptive background subtraction");
+	progress_dialog.setValue(number_frames * 2 + 1);
 
-	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
-
-	// -------------------------------------------------------------------------------------
-	// write description of filter
-	
 	QString description = "Filter starts at "; 
 	if (relative_start_frame > 0)
 		description += "+";
@@ -2469,6 +2459,7 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);
+	progress_dialog.setValue(number_frames * 2 + 2);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
