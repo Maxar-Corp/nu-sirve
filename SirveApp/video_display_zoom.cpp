@@ -15,55 +15,48 @@ VideoDisplayZoomManager::~VideoDisplayZoomManager()
 
 void VideoDisplayZoomManager::zoom_image(QRect area)
 {
-    // if width/heigh is less than 10 pixels long, then this was not a zoomable area and return
-    if (area.width() < 10 || area.height() < 10)
+    int height = area.height();
+    int width = area.width();
+
+    //If width/height is less than 10 pixels long, then this was not a zoomable area and return
+    if (width < 10 || height < 10)
     {
         return;
     }
 
-    double height = area.height();
-    double width = area.width();
-
-    double x = area.x();
-    double y = area.y();
-
     double aspect_ratio = 1.0 * image_x / image_y;
-    double adj_width = height * aspect_ratio;
-    double adj_height = width / aspect_ratio;
+	double current_aspect_ratio = 1.0 * width / height;
 
-    // adjust size of box to fit aspect ratio and encompass the highlighted area selected
-    if (adj_width > width) {
+	//This code simply adjusts the selected area to match the original frame's aspect ratio
+	//It helps alleviate but does not fully solve certain zooming/pixel stretch issues
+	//See the large comment in video_display.cpp for more details
+	//If the aspect ratio isn't clean (e.g. 4/3) and zooming breaks, this is probably to blame
+	while (current_aspect_ratio != aspect_ratio)
+	{
+		if (current_aspect_ratio > aspect_ratio)
+		{
+			height += 1;
+		}
+		else
+		{
+			width += 1;
+		}
+		current_aspect_ratio = 1.0 * width / height;
+	}
 
-        width = adj_width;
-        height = adj_width / aspect_ratio;
-    }
-    else if (adj_height > height) {
+	int x = area.x();
+	int y = area.y();
 
-        width = adj_height * aspect_ratio;
-        height = adj_height;
-    }
-    else {
-
-    }
-
-    // if updated area exceeds width, move origin to left
-    if (x + width > image_x)
-    {
-        double delta = x + width - (1.0 * image_x);
-        x = x - delta;
-    }
-
-    // if updated area exceeds height, move origin up
-    if (y + height > image_y)
-    {
-        double delta = y + height - (1.0 * image_y);
-        y = y - delta;
-    }
-
-    x = std::round(x);
-    y = std::round(y);
-    width = std::round(width);
-    height = std::round(height);
+	//Shift left or up if needed because the box has grown outside the edge
+	//(QImage pixels by default are just padded black)
+	if (x + width > image_x)
+	{
+		x = image_x - width - 1;
+	}
+	if (y + height > image_y)
+	{
+		y = image_y - height - 1;
+	}
 
 	QRect new_zoom(x, y, width, height);
 	zoom_list.push_back(new_zoom);
