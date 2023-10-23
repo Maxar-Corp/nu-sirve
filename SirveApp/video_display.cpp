@@ -542,8 +542,32 @@ void VideoDisplay::update_display_frame()
 	}
 	lbl_pinpoint->setText(pinpoint_text);
 
-	// -----------------------------------------------------------
-	// loop thru all user set zooms
+	//SIRVE's display and zoom logic (a simple recursive "zoom, scale, zoom, scale" thing using QImage as the base) is problematic.
+
+	//Qt QImage .copy/.scaled calls are susceptible to resulting in pixel problems when things do not match both these criteria:
+	//1) The sub_frame .copy'd from the original image exactly matches the viewport aspect ratio and
+	//2) The width/height scale directly to the viewport in an integer ratio, i.e. each new pixel is exactly 2 or 3 or 4 new pixels wide/tall
+	//Otherwise, Qt just does what it wants with the original pixels, stretching random columns/rows and not keeping square pixels
+
+	//Note: the issue with "non-square pixels" is that they're not CONSISTENTLY non-square
+	//Being non-square would be okay if, for example, they were all uniformly rectangular
+	//The issue described above is that _some_ rows/columns are squished while _other_ rows/columns get stretched, in a random pattern
+
+	//The ideal way to handle zoom is probably a bit more complicated
+	//I think SIRVE should continue using a QImage so that we can do things like .setPixel and such and access the pixels directly
+	//However, we don't necessarily need to bake generating a whole new QImage just for the zoom feature, and
+	//We don't necessarily need to display the raw QImage that we've manipulated
+
+	//For simply displaying the image after we've done all the manipulating, particularly if we want to allow ...
+	// ... 3d transformations or alternative view angles like the requested "bowl" display, ...
+	// ... we probably want to look at a QGraphicsView or something.
+	// It's possible to put a QImage in a GraphicsScene via a QPixMap, e.g. via https://stackoverflow.com/questions/5960074/qimage-in-a-qgraphics-scene
+
+	//A bonus of doing this stuff is that it may get easier to allow zooms/panning/etc. in the future, e.g.
+	//https://stackoverflow.com/questions/35508711/how-to-enable-pan-and-zoom-in-a-qgraphicsview
+	//or
+	//https://stackoverflow.com/questions/60240192/zooming-in-out-on-images-qt-c
+
 	for (int i = 0; i < zoom_manager->zoom_list.size(); i++)
 	{
 		QRect sub_frame = zoom_manager->zoom_list[i];
