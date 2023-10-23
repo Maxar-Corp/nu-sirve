@@ -1,6 +1,10 @@
 # Testing
 
-SIRVE was historically written without any automated testing. New features and scientific compute capabilities going forward should be covered by automated tests. At present, tests in SIRVE are written and executed using the Qt QTest framework.
+SIRVE was historically not covered by tests, but tests are slowly being introduced to cover key features and capabilities. At present, tests in SIRVE are written and executed using the Qt QTest framework.
+
+## Adding Tests
+
+Tests are added by creating a new class that derives from QObject, adding it to the QTest::qExec runners in `run_all_tests.cpp`, and then creating methods on that test class with asserts, e.g. QCOMPARE or QVERIFY.
 
 ## Compiling/Building for Tests
 

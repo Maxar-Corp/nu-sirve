@@ -160,7 +160,7 @@ bool Playback::is_running()
 	return timer->isActive();
 }
 
-void Playback::set_speed_index(int index)
+void Playback::set_initial_speed_index(int index)
 {
 	
 	if (index < speeds.size())
@@ -171,7 +171,6 @@ void Playback::set_speed_index(int index)
 		timer->stop();
 		timer->setInterval(timer_frequency);
 		timer->setSingleShot(false);
-		timer->start();
 	}
 
 }

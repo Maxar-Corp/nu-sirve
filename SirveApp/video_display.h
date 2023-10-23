@@ -38,10 +38,7 @@
 #include "color_map.h"
 #include "calibration_data.h"
 #include "annotation_info.h"
-
-struct absolute_zoom_info {
-	double x, y, width, height;
-};
+#include "video_display_zoom.h"
 
 class VideoDisplay : public QWidget
 {
@@ -124,21 +121,21 @@ public slots:
 	void pinpoint(QPoint origin);
 	void clear_pinpoints();
 
-	void zoom_image(QRect info);
+	void handle_image_area_selection(QRect area);
 	void unzoom();
 
 
 private:
+	VideoDisplayZoomManager *zoom_manager;
+
 	QLabel *lbl_pinpoint;
 	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
 	QGroupBox *grp_pinpoint;
 	QHBoxLayout *pinpoint_layout;
 	//int pinpoint_x, pinpoint_y;
-	std::vector<absolute_zoom_info> absolute_zoom_list;
 	std::vector<unsigned int> pinpoint_indeces;
 	
 	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_show_bad_pixels;
-	std::vector<QRect> zoom_list;
 	int index_current_video;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
@@ -152,10 +149,12 @@ private:
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<ABIR_Frame>frame_headers;
-	std::vector<int> get_position_within_zoom(int x0, int y0);
+
 	void setup_labels();
 	void setup_pinpoint_display();
-	
+
+	void calibrate(QRect area);
+
 	void add_pinpoints_to_bad_pixel_map();
 	void remove_pinpoints_from_bad_pixel_map();
 	void handle_btn_pinpoint(bool checked);

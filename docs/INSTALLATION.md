@@ -22,13 +22,14 @@ In order to build and run this code, a computer must have the following prerequi
 
         This should place a suite of folders at "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC" that contains the required C++ dependencies.
 
-        #### QT: The full QT source was committed and included alongside SIRVE. There are no installation steps required.
-        The following is documentation of the steps taken to obtain the QT source code.
+        #### QT: The QT dependency was committed and included alongside SIRVE. There are no installation steps required.
+        The following is documentation of the steps taken to obtain the QT headers and libraries.
         - I installed Python 3.9.13
         - I installed the pip module `aqtinstall` at version 3.1.5
         - I followed these instructions: https://aqtinstall.readthedocs.io/en/latest/getting_started.html
         - The specific `aqt` command I executed to install QT (along with the `QtCharts` module) for this project is as follows:
         `python -m aqt install-qt windows desktop 5.15.2 win64_msvc2019_64 -m qtcharts`
+        - I then copied the 5.15.2 folder alongside the source code and checked it into git
 
         #### C++ LIBRARIES: All C++ libraries should live in the same top-level (root) folder as this README.md file.
 
