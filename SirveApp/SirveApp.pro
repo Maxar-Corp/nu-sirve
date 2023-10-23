@@ -52,6 +52,7 @@ HEADERS += abir_reader.h \
             video_container.h \
             video_details.h \
             video_display.h \
+            video_display_zoom.h \
             workspace.h \
             support/earth.h \
             support/euler.h \
@@ -98,6 +99,7 @@ SOURCES += abir_reader.cpp \
             video_container.cpp \
             video_details.cpp \
             video_display.cpp \
+            video_display_zoom.cpp \
             workspace.cpp \
             support/earth.cpp \
             support/euler.cpp \
@@ -146,12 +148,14 @@ test {
 
     HEADERS += \
         testing/test_example.h \
-        testing/test_bad_pixels.h
+        testing/test_bad_pixels.h \
+        testing/test_video_display_zoom.h
 
     SOURCES += \
         testing/run_all_tests.cpp \
         testing/test_example.cpp \
-        testing/test_bad_pixels.cpp
+        testing/test_bad_pixels.cpp \
+        testing/test_video_display_zoom.cpp
 
     dlls.files += "../5.15.2/msvc2019_64/bin/Qt5Test.dll"
 }
