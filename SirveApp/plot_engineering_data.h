@@ -110,7 +110,6 @@ class Engineering_Plots : public QtPlotting
 
 		void establish_plot_limits();
 		void create_current_marker();
-		void reset_current_marker();
 		void draw_title();
 
 		void plot_azimuth(size_t plot_number_tracks);

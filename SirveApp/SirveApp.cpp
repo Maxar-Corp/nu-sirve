@@ -20,7 +20,6 @@ SirveApp::SirveApp(QWidget *parent)
 	// establish object to control playback timer and move to a new thread
 	playback_controller = new Playback(1);
 	playback_controller->moveToThread(&thread_timer);
-	QObject::connect(&thread_video, &QThread::started, playback_controller, &Playback::start_timer);
 
 	// establish copy copy 
 	clipboard = QApplication::clipboard();
@@ -1111,7 +1110,7 @@ void SirveApp::load_osm_data()
 	frame_plots->setLayout(engineering_plot_layout);
 
 	// Reset settings on video playback to defaults
-	video_display->toggle_osm_tracks(false);
+	chk_show_tracks->setChecked(false);
 
 	video_display->toggle_primary_track_data(false);
 
@@ -1168,6 +1167,13 @@ void SirveApp::ui_load_abir_data()
 
 void SirveApp::load_abir_data(int min_frame, int max_frame)
 {
+	QProgressDialog progress_dialog("Loading frames", "", 0, 4);
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setWindowTitle("Overall ABIR Load Progress");
+	progress_dialog.setCancelButton(nullptr);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+
 	// Load the ABIR data
 	playback_controller->stop_timer();
 
@@ -1177,11 +1183,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	INFO << "GUI: Reading in video data";
 	vid_details.set_number_of_bits(config_values.max_used_bits);
 
-	//----------------------------------------------------------------------------
-	
-	//----------------------------------------------------------------------------
-
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+
+	progress_dialog.setLabelText("Configuring application");
+	progress_dialog.setValue(2);
 	
 	if (abir_data_result.had_error) {
 		QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
@@ -1216,7 +1221,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
 	slider_video->setRange(0, number_frames - 1);
-
 	
 	// Start threads...
 	if (!thread_timer.isRunning())
@@ -1232,6 +1236,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	int index0 = min_frame - 1;
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
+	
+	progress_dialog.setLabelText("Finalizing application state");
+	progress_dialog.setValue(3);
+
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
 	video_display->set_starting_frame_number(min_frame);
 
@@ -1247,7 +1255,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	//Update frame marker on engineering plot
 	QObject::connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
 	
-	playback_controller->set_speed_index(10);
+	playback_controller->set_initial_speed_index(10);
 	update_fps();
 
 	tab_plots->setCurrentIndex(1);
@@ -1268,9 +1276,8 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	btn_workspace_save->setEnabled(true);
 
 	toggle_video_playback_options(true);
-	playback_controller->start_timer();
 
-	//---------------------------------------------------------------------------
+	progress_dialog.setValue(4);
 }
 
 void SirveApp::handle_popout_engineering_btn(bool checked)
@@ -1821,7 +1828,7 @@ void SirveApp::export_plot_data()
 	if (item == "Export All Data") 
 	{
 		min_frame = 0;
-		max_frame = static_cast<unsigned int>(eng_data->frame_data.size() - 1);
+		max_frame = eng_data->get_total_frame_count() - 1;
 
 		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
 	}
@@ -2410,51 +2417,41 @@ void SirveApp::ui_execute_background_subtraction() {
 
 void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames)
 {
-	INFO << "GUI: Background subtraction video being created";
-	processing_state original = video_display->container.copy_current_state();
+	//Pause the video if it's running
+	playback_controller->stop_timer();
 
-	INFO << "GUI: Creating adjustment for video";
-	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details);
+	processing_state original = video_display->container.copy_current_state();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	QProgressDialog progress_dialog("Creating frame-by-frame adjustment", "Cancel", 0, number_frames * 2 + 2);
+	progress_dialog.setWindowTitle("Adaptive Background Subtraction");
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+
+	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details, progress_dialog);
 
 	if (background_correction.size() == 0) {
-		INFO << "GUI: Background subtraction adjustment process was canceled or ended unexpectedly";
 		return;
 	}
-
-	INFO << "GUI: Background subtraction adjustment for video is completed";
-
-	QProgressDialog progress("Copying data for processing", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setWindowTitle(QString("Adaptive Background Suppression"));
-	progress.setMinimumWidth(300);
+	progress_dialog.setValue(number_frames);
+	progress_dialog.setLabelText("Adjusting frames and copying data");
 
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
 	background_subtraction_state.details.histogram_data.clear();
 
-	// Apply background subtraction to the frames
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-
-	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Adjusting frames..."));
-
 	for (auto i = 0; i < number_frames; i++) {
-		DEBUG << "GUI: Applying background subtraction to " << i + 1 << " of " << number_frames << "frames";
-		progress.setValue(i);
+		progress_dialog.setValue(number_frames + 1 + i);
 		background_subtraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
-		if (progress.wasCanceled())
+		if (progress_dialog.wasCanceled())
 		{
-			INFO << "GUI: Background subtraction process was canceled";
 			return;
 		}
 	}
+	progress_dialog.setLabelText("Finalizing adaptive background subtraction");
+	progress_dialog.setValue(number_frames * 2 + 1);
 
-	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
-
-	// -------------------------------------------------------------------------------------
-	// write description of filter
-	
 	QString description = "Filter starts at "; 
 	if (relative_start_frame > 0)
 		description += "+";
@@ -2470,6 +2467,7 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);
+	progress_dialog.setValue(number_frames * 2 + 2);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
