@@ -1167,6 +1167,13 @@ void SirveApp::ui_load_abir_data()
 
 void SirveApp::load_abir_data(int min_frame, int max_frame)
 {
+	QProgressDialog progress_dialog("Loading frames", "", 0, 4);
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setWindowTitle("Overall ABIR Load Progress");
+	progress_dialog.setCancelButton(nullptr);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+
 	// Load the ABIR data
 	playback_controller->stop_timer();
 
@@ -1176,11 +1183,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	INFO << "GUI: Reading in video data";
 	vid_details.set_number_of_bits(config_values.max_used_bits);
 
-	//----------------------------------------------------------------------------
-	
-	//----------------------------------------------------------------------------
-
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+
+	progress_dialog.setLabelText("Configuring application");
+	progress_dialog.setValue(2);
 	
 	if (abir_data_result.had_error) {
 		QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
@@ -1230,6 +1236,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	int index0 = min_frame - 1;
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
+	
+	progress_dialog.setLabelText("Finalizing application state");
+	progress_dialog.setValue(3);
+
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
 	video_display->set_starting_frame_number(min_frame);
 
@@ -1266,6 +1276,8 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	btn_workspace_save->setEnabled(true);
 
 	toggle_video_playback_options(true);
+
+	progress_dialog.setValue(4);
 }
 
 void SirveApp::handle_popout_engineering_btn(bool checked)
