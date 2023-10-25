@@ -47,6 +47,11 @@ std::vector<double> Engineering_Data::get_adj_epoch(double num_days, const std::
 
 void Engineering_Data::write_track_date_to_csv(std::string save_path, int min_frame, int max_frame)
 {
+	if (max_frame == 0)
+	{
+		max_frame = static_cast<int>(frame_data.size());
+	}
+
 	std::ofstream myfile;
 	myfile.open(save_path);
 
@@ -211,11 +216,6 @@ std::vector<Track_Irradiance> Engineering_Data::get_track_irradiance_data()
 	}
 	
 	return output;
-}
-
-unsigned int Engineering_Data::get_total_frame_count()
-{
-	return static_cast<unsigned int>(frame_data.size());
 }
 
 void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_frames)
