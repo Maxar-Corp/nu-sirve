@@ -1827,10 +1827,7 @@ void SirveApp::export_plot_data()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data") 
 	{
-		min_frame = 0;
-		max_frame = eng_data->get_total_frame_count() - 1;
-
-		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
+		eng_data->write_track_date_to_csv(save_path);
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin + 1;
