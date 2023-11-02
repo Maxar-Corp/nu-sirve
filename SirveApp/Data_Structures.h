@@ -92,7 +92,7 @@ struct Irradiance_Msrmnt {
 };
 
 struct Plotting_Frame_Data {
-	double azimuth_sensor, elevation_sensor, azimuth_p_tgt, elevation_p_tgt, julian_date, seconds_past_midnight;
+	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
 
 	std::vector<Irradiance_Msrmnt> ir_data;
 };
