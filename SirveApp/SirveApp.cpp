@@ -320,7 +320,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	QLabel* lbl_text_color = new QLabel("Set Text Color:");
 
 	chk_show_tracks = new QCheckBox("Show OSM Tracks");
-	chk_primary_track_data = new QCheckBox("Show Primary Track Info");
 	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
 	chk_show_time = new QCheckBox("Show Zulu Time");
 
@@ -373,7 +372,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	vlayout_tab_color->addLayout(hlayout_osm_tracks);
 	vlayout_tab_color->addLayout(hlayout_primary_track);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
 
@@ -791,7 +789,6 @@ void SirveApp::setup_connections() {
 	connect(cmb_primary_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_primary_tracker_color);
 	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_tracker_color);
 	
-	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_primary_track_data);
 	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
 	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
@@ -1111,8 +1108,6 @@ void SirveApp::load_osm_data()
 
 	// Reset settings on video playback to defaults
 	chk_show_tracks->setChecked(false);
-
-	video_display->toggle_primary_track_data(false);
 
 	//menu_sensor_boresight->setIconVisibleInMenu(false);
 	video_display->toggle_sensor_boresight_data(false);
@@ -2355,16 +2350,6 @@ void SirveApp::toggle_osm_tracks()
 	}
 	
 	video_display->update_display_frame();
-}
-
-void SirveApp::toggle_primary_track_data()
-{
-
-	bool current_status = video_display->display_tgt_pos_txt;
-
-	video_display->toggle_primary_track_data(!current_status);
-	video_display->update_display_frame();
-
 }
 
 void SirveApp::toggle_sensor_track_data()

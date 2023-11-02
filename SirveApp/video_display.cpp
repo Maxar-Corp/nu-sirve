@@ -36,7 +36,6 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 
 	plot_tracks = false;
 	display_boresight_txt = false;
-	display_tgt_pos_txt = false;
 	display_time = false;
 
 	auto_lift_gain = false;
@@ -234,11 +233,6 @@ void VideoDisplay::update_tracker_color(QString input_color)
 void VideoDisplay::toggle_osm_tracks(bool input)
 {
 	plot_tracks = input;
-}
-
-void VideoDisplay::toggle_primary_track_data(bool input)
-{
-	display_tgt_pos_txt = input;
 }
 
 void VideoDisplay::toggle_sensor_boresight_data(bool input)
@@ -669,23 +663,6 @@ void VideoDisplay::update_display_frame()
 		p2.setFont(QFont("Times", 8, QFont::Bold));
 
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignRight, zulu_time);
-	}
-
-	if (display_tgt_pos_txt) {
-		QPainter p3(&frame);
-		p3.setPen(QPen(banner_color));
-		p3.setFont(QFont("Times", 8, QFont::Bold));
-
-		double az_value = display_data[counter].azimuth_p_tgt;
-		double el_value = display_data[counter].elevation_p_tgt;
-
-		QString primary_tgt_text;
-		if (az_value < -1000 || el_value < -1000)
-			primary_tgt_text = "Target Metrics \n Az: NaN \n El NaN";
-		else
-			primary_tgt_text = "Target Metrics \n Az: " + QString::number(az_value) + "\n El " + QString::number(el_value);
-
-		p3.drawText(frame.rect(), Qt::AlignTop | Qt::AlignLeft, primary_tgt_text);
 	}
 
 	// ---------------------------------------------------------------------------------------

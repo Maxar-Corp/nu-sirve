@@ -86,13 +86,12 @@ public:
 	void stop_recording();
 
 	void toggle_osm_tracks(bool input);
-	void toggle_primary_track_data(bool input);
 	void toggle_sensor_boresight_data(bool input);
 
 	void toggle_action_zoom(bool status);
 	void toggle_action_calculate_radiance(bool status);
 	
-	bool plot_tracks, display_boresight_txt, display_tgt_pos_txt, display_time;
+	bool plot_tracks, display_boresight_txt, display_time;
 	void save_frame();
 	void clear_all_zoom_levels(int x_pixels, int y_pixels);
 
