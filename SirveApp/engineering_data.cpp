@@ -171,8 +171,6 @@ std::vector<Plotting_Frame_Data> Engineering_Data::get_plotting_frame_data()
 		temp.seconds_past_midnight = frame_data[i].seconds_past_midnight + timing_offset;
 
 		temp.ir_data = frame_data[i].ir_data;
-		temp.azimuth_p_tgt = frame_data[i].azimuth_p_tgt;
-		temp.elevation_p_tgt = frame_data[i].elevation_p_tgt;
 
 		output.push_back(temp);
 	}
@@ -235,64 +233,53 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 		// Get irradiance track data
 		int number_tracks = osm_frames[i].data.num_tracks;
 
-		if (number_tracks == 0) {
-			// Dummy "azel values for primary target" when no tracks exist
-			temp.azimuth_p_tgt = -1001;
-			temp.elevation_p_tgt = -1001;
-		}
-		else {
-			// Get primary target az-el, when it exists
-			temp.azimuth_p_tgt = osm_frames[i].data.track_data[0].az_el_track[0];
-			temp.elevation_p_tgt = osm_frames[i].data.track_data[0].az_el_track[1];
-
-			for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
-				double irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
-				double azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
-				double elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
+		for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
+			double irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
+			double azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
+			double elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
 
 
-				Irradiance_Msrmnt ir_data;
-				//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
+			Irradiance_Msrmnt ir_data;
+			//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
 
-				ir_data.irradiance = irradiance;
-				ir_data.centroid_x = osm_frames[i].data.track_data[track_index].centroid_x;
-				ir_data.centroid_y = osm_frames[i].data.track_data[track_index].centroid_y;
-				ir_data.track_id = osm_frames[i].data.track_data[track_index].track_id;
-				ir_data.azimuth = azimuth;
-				ir_data.elevation = elevation;
+			ir_data.irradiance = irradiance;
+			ir_data.centroid_x = osm_frames[i].data.track_data[track_index].centroid_x;
+			ir_data.centroid_y = osm_frames[i].data.track_data[track_index].centroid_y;
+			ir_data.track_id = osm_frames[i].data.track_data[track_index].track_id;
+			ir_data.azimuth = azimuth;
+			ir_data.elevation = elevation;
 
-				temp.ir_data.push_back(ir_data);
+			temp.ir_data.push_back(ir_data);
 
-				// Filling the irradiance vector, moved from private method
-				if (track_index < track_irradiance_data.size())
-				{
-					track_irradiance_data[track_index].frame_number.push_back(i + 1);
+			// Filling the irradiance vector, moved from private method
+			if (track_index < track_irradiance_data.size())
+			{
+				track_irradiance_data[track_index].frame_number.push_back(i + 1);
 
-					track_irradiance_data[track_index].julian_date.push_back(temp.julian_date);
-					track_irradiance_data[track_index].past_midnight.push_back(temp.seconds_past_midnight);
-					track_irradiance_data[track_index].past_epoch.push_back(temp.seconds_past_midnight);
+				track_irradiance_data[track_index].julian_date.push_back(temp.julian_date);
+				track_irradiance_data[track_index].past_midnight.push_back(temp.seconds_past_midnight);
+				track_irradiance_data[track_index].past_epoch.push_back(temp.seconds_past_midnight);
 
-					track_irradiance_data[track_index].irradiance.push_back(irradiance);
-					track_irradiance_data[track_index].azimuth.push_back(azimuth);
-					track_irradiance_data[track_index].elevation.push_back(elevation);
-				}
-				else
-				{
-					Track_Irradiance temp_ti;
+				track_irradiance_data[track_index].irradiance.push_back(irradiance);
+				track_irradiance_data[track_index].azimuth.push_back(azimuth);
+				track_irradiance_data[track_index].elevation.push_back(elevation);
+			}
+			else
+			{
+				Track_Irradiance temp_ti;
 
-					temp_ti.track_id = track_index;
+				temp_ti.track_id = track_index;
 
-					temp_ti.frame_number.push_back(i + 1);
-					temp_ti.julian_date.push_back(temp.julian_date);
-					temp_ti.past_midnight.push_back(temp.seconds_past_midnight);
-					temp_ti.past_epoch.push_back(temp.seconds_past_midnight);
+				temp_ti.frame_number.push_back(i + 1);
+				temp_ti.julian_date.push_back(temp.julian_date);
+				temp_ti.past_midnight.push_back(temp.seconds_past_midnight);
+				temp_ti.past_epoch.push_back(temp.seconds_past_midnight);
 
-					temp_ti.irradiance.push_back(irradiance);
-					temp_ti.azimuth.push_back(azimuth);
-					temp_ti.elevation.push_back(elevation);
+				temp_ti.irradiance.push_back(irradiance);
+				temp_ti.azimuth.push_back(azimuth);
+				temp_ti.elevation.push_back(elevation);
 
-					track_irradiance_data.push_back(temp_ti);
-				}
+				track_irradiance_data.push_back(temp_ti);
 			}
 		}
 
