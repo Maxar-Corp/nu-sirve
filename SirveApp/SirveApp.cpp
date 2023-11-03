@@ -343,14 +343,11 @@ QWidget* SirveApp::setup_color_correction_tab() {
 
 	cmb_tracker_color = new QComboBox();
 	cmb_text_color = new QComboBox();
-	cmb_primary_tracker_color = new QComboBox();
 	
 	cmb_tracker_color->addItems(colors);
 	cmb_text_color->addItems(colors);
-	cmb_primary_tracker_color->addItems(colors);
 
 	cmb_tracker_color->setEnabled(false);
-	cmb_primary_tracker_color->setEnabled(false);
 
 	// --------------------------------------------------------------------------
 	hlayout_osm_tracks->addWidget(chk_show_tracks);
@@ -358,8 +355,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	hlayout_osm_tracks->addWidget(cmb_tracker_color);	
 	
 	hlayout_primary_track->addWidget(lbl_primary_track);
-	hlayout_primary_track->addStretch(); 
-	hlayout_primary_track->addWidget(cmb_primary_tracker_color);
 	
 	hlayout_text_color->addWidget(lbl_text_color);
 	hlayout_text_color->addStretch();
@@ -786,7 +781,6 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 		
 	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::toggle_osm_tracks);
-	connect(cmb_primary_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_primary_tracker_color);
 	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_tracker_color);
 	
 	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
@@ -1876,13 +1870,6 @@ void SirveApp::edit_tracker_color()
 	video_display->update_display_frame();
 }
 
-void SirveApp::edit_primary_tracker_color()
-{
-	QString tracker_color = cmb_primary_tracker_color->currentText();
-	video_display->update_tracker_primary_color(tracker_color);
-	video_display->update_display_frame();
-}
-
 void SirveApp::plot_change()
 {
 	// x - axis
@@ -2341,12 +2328,10 @@ void SirveApp::toggle_osm_tracks()
 	
 	if (!current_status) {
 		cmb_tracker_color->setEnabled(true);
-		cmb_primary_tracker_color->setEnabled(true);
 	}
 	else
 	{
 		cmb_tracker_color->setEnabled(false);
-		cmb_primary_tracker_color->setEnabled(false);
 	}
 	
 	video_display->update_display_frame();
