@@ -32,6 +32,7 @@
 #include "Data_Structures.h"
 #include "popout_dialog.h"
 #include "bad_pixels.h"
+#include "tracks.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -118,6 +119,7 @@ public:
 	VideoDisplay *video_display;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
+	TrackInformation *track_info;
 	bool record_video;
 	
 	SirveApp(QWidget *parent = Q_NULLPTR);

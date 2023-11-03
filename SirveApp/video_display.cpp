@@ -576,7 +576,7 @@ void VideoDisplay::update_display_frame()
 		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 
-	size_t num_tracks = display_data[counter].tracks.size();
+	size_t num_tracks = track_frames[counter].tracks.size();
 
 	if (plot_tracks && num_tracks > 0)
 	{
@@ -590,7 +590,7 @@ void VideoDisplay::update_display_frame()
 		double box_width = size_of_pixel_x - 1 + box_size * 2;
 		double box_height = size_of_pixel_y - 1 + box_size * 2;
 
-		for ( const auto &trackData : display_data[counter].tracks ) {
+		for ( const auto &trackData : track_frames[counter].tracks ) {
 			//int track_id = trackData.first;
 			int x_pixel = trackData.second.centroid_x;
 			int y_pixel = trackData.second.centroid_y;
@@ -824,6 +824,10 @@ void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data
 	display_data = input_data;
 }
 
+void VideoDisplay::set_track_data(std::vector<TrackFrame> track_frame_input)
+{
+	track_frames = track_frame_input;
+}
 
 void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
