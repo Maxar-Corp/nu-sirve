@@ -170,8 +170,6 @@ std::vector<Plotting_Frame_Data> Engineering_Data::get_plotting_frame_data()
 		temp.julian_date = frame_data[i].julian_date + timing_offset / 86400.0;
 		temp.seconds_past_midnight = frame_data[i].seconds_past_midnight + timing_offset;
 
-		temp.ir_data = frame_data[i].ir_data;
-
 		output.push_back(temp);
 	}
 
@@ -234,23 +232,11 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 		int number_tracks = osm_frames[i].data.num_tracks;
 
 		for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
+			//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
 			double irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
 			double azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
 			double elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
 
-
-			Irradiance_Msrmnt ir_data;
-			//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
-
-			ir_data.irradiance = irradiance;
-			ir_data.centroid_x = osm_frames[i].data.track_data[track_index].centroid_x;
-			ir_data.centroid_y = osm_frames[i].data.track_data[track_index].centroid_y;
-			ir_data.track_id = osm_frames[i].data.track_data[track_index].track_id;
-			ir_data.azimuth = azimuth;
-			ir_data.elevation = elevation;
-
-			temp.ir_data.push_back(ir_data);
-			
 			TrackDetails td;
 			td.centroid_x = std::round(osm_frames[i].data.track_data[track_index].centroid_x);
 			td.centroid_y = std::round(osm_frames[i].data.track_data[track_index].centroid_y);

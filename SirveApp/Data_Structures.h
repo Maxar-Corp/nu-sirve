@@ -84,20 +84,10 @@ struct Track_Irradiance {
 
 };
 
-struct Irradiance_Msrmnt {
-
-	unsigned int track_id;
-	double centroid_x, centroid_y;
-	double irradiance;
-	double azimuth;
-	double elevation;
-};
-
 struct Plotting_Frame_Data {
 	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
 
 	std::map<int, TrackDetails> tracks;
-	std::vector<Irradiance_Msrmnt> ir_data;
 };
 
 #endif

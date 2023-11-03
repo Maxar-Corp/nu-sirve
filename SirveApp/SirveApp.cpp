@@ -1218,10 +1218,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 		thread_timer.start();
 	}
 
-	//std::vector<Plotting_Frame_Data> temp_data = eng_data->get_plotting_frame_data();
-	//std::vector<Plotting_Frame_Data>::const_iterator first = temp_data.begin() + min_frame - 1;
-	//std::vector<Plotting_Frame_Data>::const_iterator last = temp_data.begin() + (min_frame) + (max_frame - min_frame);
-	//std::vector<Plotting_Frame_Data> subset_data(first, last);
 	int index0 = min_frame - 1;
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
