@@ -67,7 +67,7 @@ public:
 	Video_Container container;
 
 	QString banner_text, boresight_text;
-	QColor banner_color, tracker_primary_color, tracker_color;
+	QColor banner_color, tracker_color;
 
 	// defines color map parameters for showing color in video frame
 	ColorMap video_colors;
@@ -112,7 +112,6 @@ public slots:
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
 	void update_tracker_color(QString input_color);
-	void update_tracker_primary_color(QString input_color);
 	void update_color_map(QString input_map);
 
 	void toggle_relative_histogram();
