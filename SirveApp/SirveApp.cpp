@@ -1042,6 +1042,7 @@ void SirveApp::load_osm_data()
 
 		// delete objects with existing data within them
 		delete eng_data;
+		delete track_info;
 		delete data_plots;
 		delete engineering_plot_layout;			
 		
@@ -1054,6 +1055,7 @@ void SirveApp::load_osm_data()
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
 	eng_data = new Engineering_Data(osm_frames);
+	track_info = new TrackInformation(osm_frames);
 
 	data_plots = new Engineering_Plots(osm_frames);
 
@@ -1226,6 +1228,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	progress_dialog.setValue(3);
 
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
+	video_display->set_track_data(track_info->get_frames(index0, index1));
 	video_display->set_starting_frame_number(min_frame);
 
 	// Reset engineering plots with new sub plot indices

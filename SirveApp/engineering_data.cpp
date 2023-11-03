@@ -237,11 +237,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 			double azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
 			double elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
 
-			TrackDetails td;
-			td.centroid_x = std::round(osm_frames[i].data.track_data[track_index].centroid_x);
-			td.centroid_y = std::round(osm_frames[i].data.track_data[track_index].centroid_y);
-			int track_id = osm_frames[i].data.track_data[track_index].track_id;
-			temp.tracks[track_id] = td;
 
 			// Filling the irradiance vector, moved from private method
 			if (track_index < track_irradiance_data.size())
