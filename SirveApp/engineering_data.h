@@ -14,6 +14,7 @@
 #include "support/jtime.h"
 #include "osm_reader.h"
 #include "Data_Structures.h"
+#include "tracks.h"
 
 class Engineering_Data : public	QWidget
 {

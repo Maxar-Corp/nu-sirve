@@ -49,6 +49,7 @@ HEADERS += abir_reader.h \
             processing_state.h \
             Section.h \
             SirveApp.h \
+            tracks.h \
             video_container.h \
             video_details.h \
             video_display.h \
