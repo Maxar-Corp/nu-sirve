@@ -7,8 +7,6 @@
 #include <vector>
 #include <map>
 
-#include "tracks.h"
-
 struct FrameHeader {
 
 	uint64_t authorization;
@@ -86,8 +84,6 @@ struct Track_Irradiance {
 
 struct Plotting_Frame_Data {
 	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
-
-	std::map<int, TrackDetails> tracks;
 };
 
 #endif

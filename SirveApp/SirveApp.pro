@@ -97,6 +97,7 @@ SOURCES += abir_reader.cpp \
             processing_state.cpp \
             Section.cpp \
             SirveApp.cpp \
+            tracks.cpp \
             video_container.cpp \
             video_details.cpp \
             video_display.cpp \

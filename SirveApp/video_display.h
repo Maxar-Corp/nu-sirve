@@ -39,6 +39,7 @@
 #include "calibration_data.h"
 #include "annotation_info.h"
 #include "video_display_zoom.h"
+#include "tracks.h"
 
 class VideoDisplay : public QWidget
 {
@@ -80,6 +81,7 @@ public:
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
+	void set_track_data(std::vector<TrackFrame> track_frame_input);
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
@@ -146,7 +148,8 @@ private:
 
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;
-	std::vector<ABIR_Frame>frame_headers;
+	std::vector<TrackFrame> track_frames;
+	std::vector<ABIR_Frame> frame_headers;
 
 	void setup_labels();
 	void setup_pinpoint_display();
