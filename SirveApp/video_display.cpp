@@ -576,7 +576,7 @@ void VideoDisplay::update_display_frame()
 		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 
-	size_t num_tracks = display_data[counter].ir_data.size();
+	size_t num_tracks = display_data[counter].tracks.size();
 
 	if (plot_tracks && num_tracks > 0)
 	{
@@ -590,11 +590,10 @@ void VideoDisplay::update_display_frame()
 		double box_width = size_of_pixel_x - 1 + box_size * 2;
 		double box_height = size_of_pixel_y - 1 + box_size * 2;
 
-		for (int i = 0; i < num_tracks; i++)
-		{
-			int x_pixel = display_data[counter].ir_data[i].centroid_x;
-			int y_pixel = display_data[counter].ir_data[i].centroid_y;
-
+		for ( const auto &trackData : display_data[counter].tracks ) {
+			//int track_id = trackData.first;
+			int x_pixel = trackData.second.centroid_x;
+			int y_pixel = trackData.second.centroid_y;
 			int x_center = image_x / 2 + x_pixel;
 			int y_center = image_y / 2 + y_pixel;
 
