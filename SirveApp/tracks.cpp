@@ -2,6 +2,7 @@
 
 TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
 {
+    track_ids = std::set<int>();
     frames = std::vector<TrackFrame>();
 
     for (unsigned int i = 0; i < osm_frames.size(); i++)
@@ -17,11 +18,18 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
             td.centroid_x = std::round(osm_frames[i].data.track_data[track_index].centroid_x);
             td.centroid_y = std::round(osm_frames[i].data.track_data[track_index].centroid_y);
             int track_id = osm_frames[i].data.track_data[track_index].track_id;
+
+            track_ids.insert(track_id);
             frame.tracks[track_id] = td;
         }
 
         frames.push_back(frame);
     }
+}
+
+int TrackInformation::get_count_of_tracks()
+{
+    return track_ids.size();
 }
 
 std::vector<TrackFrame> TrackInformation::get_frames(int start_index, int end_index)
