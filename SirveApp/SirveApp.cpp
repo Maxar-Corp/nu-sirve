@@ -1056,19 +1056,18 @@ void SirveApp::load_osm_data()
 
 	eng_data = new Engineering_Data(osm_frames);
 	track_info = new TrackInformation(osm_frames);
-
 	data_plots = new Engineering_Plots(osm_frames);
+
+	size_t num_tracks = track_info->get_count_of_tracks();
+	if (num_tracks == 0)
+	{
+		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
+	}
 
 	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
-
-	size_t num_tracks = data_plots->track_irradiance_data.size();
-	if (num_tracks == 0)
-	{
-		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
-	}
 	
 	//--------------------------------------------------------------------------------
 	// Enable setting of epoch
