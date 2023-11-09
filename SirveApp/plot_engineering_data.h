@@ -59,7 +59,7 @@ class QtPlotting : public QWidget
 		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
 		void set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title);
 		void set_yaxis_limits(double min_y, double max_y);
-		double find_max_for_axis(std::vector<double>min_max_values);
+		double find_max_for_axis(std::vector<double> data);
 
 		void save_plot();
 
@@ -124,7 +124,6 @@ class Engineering_Plots : public QtPlotting
 		std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 		double get_single_x_axis_value(int x_index);
 		double get_max_x_axis_value();
-		std::vector<double> find_min_max(std::vector<double>data);
 };
 
 #endif
