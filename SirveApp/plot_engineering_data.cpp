@@ -175,8 +175,6 @@ void Engineering_Plots::plot_fov_y()
 
 void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 {
-	std::vector<double> x_points, y_points;
-
 	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries* series = new QLineSeries();
@@ -190,15 +188,7 @@ void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 
 		// get next color for series
 		colors.GetNextColor();
-
-		// Add all x/y points to a common vector for processing later
-		x_points.insert(x_points.end(), x_values.begin(), x_values.end());
-		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
-
-	//std::vector<double>min_max_x, min_max_y;
-	//min_max_x = find_min_max(x_points);
-	//min_max_y = find_min_max(y_points);
 
 	establish_plot_limits();
 
@@ -218,8 +208,6 @@ void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 
 void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 {
-	std::vector<double> x_points, y_points;
-
 	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries *series = new QLineSeries();
@@ -233,15 +221,7 @@ void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 
 		// get next color for series
 		colors.GetNextColor();
-
-		// Add all x/y points to a common vector for processing later
-		x_points.insert(x_points.end(), x_values.begin(), x_values.end());
-		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
-
-	//std::vector<double>min_max_x, min_max_y;
-	//min_max_x = find_min_max(x_points);
-	//min_max_y = find_min_max(y_points);
 
 	establish_plot_limits();
 
@@ -258,7 +238,7 @@ void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 
 void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 {
-	std::vector<double> x_points, y_points;
+	std::vector<double> y_points;
 
 	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
@@ -273,23 +253,17 @@ void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 		// get next color for series
 		colors.GetNextColor();
 
-		// Add all x/y points to a common vector for processing later
-		x_points.insert(x_points.end(), x_values.begin(), x_values.end());
 		y_points.insert(y_points.end(), track_irradiance_data[i].irradiance.begin(), track_irradiance_data[i].irradiance.end());
 	}
-
-	std::vector<double>min_max_x, min_max_y;
-	//min_max_x = find_min_max(x_points);
-	min_max_y = find_min_max(y_points);
 
 	establish_plot_limits();	
 
 	y_title = QString("Irradiance Counts");
 
 	if (plot_all_data)
-		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(y_points), x_title, y_title);
 	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(min_max_y), x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(y_points), x_title, y_title);
 
 
 	draw_title();
@@ -325,20 +299,6 @@ void Engineering_Plots::establish_plot_limits() {
 
 	full_plot_xmin = get_single_x_axis_value(0);
 	full_plot_xmax = get_max_x_axis_value();
-}
-
-std::vector<double> Engineering_Plots::find_min_max(std::vector<double> data)
-{
-	
-	arma::vec input_data(data);
-
-	if(data.size() == 0)
-		return { 0.000001, 0.00001 };
-
-	double min_value = arma::min(input_data);
-	double max_value = arma::max(input_data);
-
-	return {min_value, max_value};
 }
 
 void Engineering_Plots::set_xaxis_units(x_plot_variables unit_choice)
@@ -750,12 +710,26 @@ void QtPlotting::set_yaxis_limits(double min_y, double max_y) {
 	chart->axisY()->setRange(min_y, max_y);
 }
 
-double QtPlotting::find_max_for_axis(std::vector<double>min_max_values) {
+double QtPlotting::find_max_for_axis(std::vector<double> data) {
+	double min, max;
 
-	double range_value = min_max_values[1] - min_max_values[0];
+	arma::vec input_data(data);
+
+	if(data.size() == 0)
+	{
+		min = 0.000001;
+		max = 0.00001;
+	}
+	else
+	{
+		min = arma::min(input_data);
+		max = arma::max(input_data);
+	}
+
+	double range_value = max - min;
 
 	double tick_spacing_x = find_tick_spacing(range_value, 3, 10);
-	double max_limit_x = std::floor(min_max_values[1] / tick_spacing_x) * tick_spacing_x + 0.5 * tick_spacing_x;
+	double max_limit_x = std::floor(max / tick_spacing_x) * tick_spacing_x + 0.5 * tick_spacing_x;
 
 	return max_limit_x;
 }
