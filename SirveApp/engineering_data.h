@@ -14,7 +14,6 @@
 #include "support/jtime.h"
 #include "osm_reader.h"
 #include "Data_Structures.h"
-#include "tracks.h"
 
 class Engineering_Data : public	QWidget
 {
@@ -36,13 +35,11 @@ class Engineering_Data : public	QWidget
 		std::vector<double> get_seconds_from_epoch();
 		std::vector<Plotting_Frame_Data> get_plotting_frame_data();
 		std::vector<Plotting_Frame_Data> get_subset_plotting_frame_data(int index0, int index1);
-		std::vector<Track_Irradiance> get_track_irradiance_data();
 
 	private:
 		double timing_offset, data_epoch_date, user_epoch_date;
 				
 		std::vector<double>julian_date, seconds_from_midnight, seconds_from_epoch;
-		std::vector<Track_Irradiance> track_irradiance_data;
 		std::vector<Plotting_Frame_Data> frame_data;
 		
 		void extract_engineering_data(const std::vector<Frame> & osm_frames);
