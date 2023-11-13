@@ -38,6 +38,11 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
             ptd.irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
 			ptd.azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
 			ptd.elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
+
+            //Needed for the data export.
+            //In the future, all track data should probably live in one struct or a more logical format
+            ptd.track_id = track_id;
+
             track_frame.details.push_back(ptd);
         }
 
