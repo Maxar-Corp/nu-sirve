@@ -16,14 +16,14 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
 
         int number_tracks = osm_frames[i].data.num_tracks;
 
-        for (unsigned int track_index = 0; track_index < number_tracks; track_index++)
+        for (int track_index = 0; track_index < number_tracks; track_index++)
         {
             //This is the "ideal" representation of a track
             //For each frame (TrackFrame), there is information about any tracks in that frame (TrackDetails)
             //The track details are mapped (hash table/lookup) by their track_id
             TrackDetails td;
-            td.centroid_x = std::round(osm_frames[i].data.track_data[track_index].centroid_x);
-            td.centroid_y = std::round(osm_frames[i].data.track_data[track_index].centroid_y);
+            td.centroid_x = std::lround(osm_frames[i].data.track_data[track_index].centroid_x);
+            td.centroid_y = std::lround(osm_frames[i].data.track_data[track_index].centroid_y);
             int track_id = osm_frames[i].data.track_data[track_index].track_id;
             track_ids.insert(track_id);
             frame.tracks[track_id] = td;
@@ -53,7 +53,7 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
 
 int TrackInformation::get_count_of_tracks()
 {
-    return track_ids.size();
+    return static_cast<int>(track_ids.size());
 }
 
 std::vector<TrackFrame> TrackInformation::get_frames(int start_index, int end_index)
