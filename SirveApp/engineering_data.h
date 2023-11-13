@@ -3,9 +3,6 @@
 #ifndef ENGINEERING_DATA_H
 #define ENGINEERING_DATA_H
 
-#include <iostream>
-#include <string>
-
 #include <vector>
 #include <math.h>
 #include <qwidget.h>
@@ -25,7 +22,6 @@ class Engineering_Data : public	QWidget
 		void update_epoch_time(double new_julian_date);
 		std::vector<double>get_epoch(const std::vector<Frame> & osm_frames);
 		std::vector<double>get_adj_epoch(double num_days, const std::vector<Frame> & osm_frames);
-		void write_track_date_to_csv(std::string save_path, int min_frame = 0, int max_frame = 0);
 		
 		double get_offset_time();
 		void set_offset_time(double offset);

@@ -1813,13 +1813,13 @@ void SirveApp::export_plot_data()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data") 
 	{
-		eng_data->write_track_date_to_csv(save_path);
+		DataExport::write_track_date_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks());
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin + 1;
 		max_frame = data_plots->index_sub_plot_xmax + 1;
 
-		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
+		DataExport::write_track_date_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), min_frame, max_frame);
 	}
 
 	QMessageBox msgBox;
