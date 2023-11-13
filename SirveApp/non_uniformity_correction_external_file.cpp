@@ -95,6 +95,9 @@ void ExternalNUCInformationWidget::plot_osm()
     engineering_data = new Engineering_Data(osm_frames);
     plot_data = new Engineering_Plots(osm_frames);
 
+    track_info = new TrackInformation(osm_frames);
+    plot_data->set_plotting_track_frames(track_info->get_plotting_tracks());
+
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
     plot_data->set_plot_title("");
