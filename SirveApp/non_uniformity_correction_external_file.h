@@ -17,6 +17,7 @@
 #include <qgridlayout.h>
 
 #include "Data_Structures.h"
+#include "tracks.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "fixed_aspect_ratio_frame.h"
@@ -48,7 +49,8 @@ private:
 	QString file_path, instructions;
 	
 	Engineering_Data *engineering_data;
-	Engineering_Plots* plot_data;	
+	Engineering_Plots* plot_data;
+	TrackInformation *track_info;
 
 	QPushButton* btn_load_file, *btn_load_frames, *btn_close;
 	QLabel * lbl_data, *lbl_instructions;
