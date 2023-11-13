@@ -246,25 +246,15 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 				track_irradiance_data[track_index].julian_date.push_back(temp.julian_date);
 				track_irradiance_data[track_index].past_midnight.push_back(temp.seconds_past_midnight);
 				track_irradiance_data[track_index].past_epoch.push_back(temp.seconds_past_midnight);
-
-				track_irradiance_data[track_index].irradiance.push_back(irradiance);
-				track_irradiance_data[track_index].azimuth.push_back(azimuth);
-				track_irradiance_data[track_index].elevation.push_back(elevation);
 			}
 			else
 			{
 				Track_Irradiance temp_ti;
 
-				temp_ti.track_id = track_index;
-
 				temp_ti.frame_number.push_back(i + 1);
 				temp_ti.julian_date.push_back(temp.julian_date);
 				temp_ti.past_midnight.push_back(temp.seconds_past_midnight);
 				temp_ti.past_epoch.push_back(temp.seconds_past_midnight);
-
-				temp_ti.irradiance.push_back(irradiance);
-				temp_ti.azimuth.push_back(azimuth);
-				temp_ti.elevation.push_back(elevation);
 
 				track_irradiance_data.push_back(temp_ti);
 			}

@@ -254,7 +254,7 @@ void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 		// get next color for series
 		colors.GetNextColor();
 
-		y_points.insert(y_points.end(), track_irradiance_data[i].irradiance.begin(), track_irradiance_data[i].irradiance.end());
+		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
 
 	establish_plot_limits();	
