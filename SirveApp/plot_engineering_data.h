@@ -98,7 +98,7 @@ class Engineering_Plots : public QtPlotting
 		void toggle_yaxis_scientific(bool input);
 
 		void set_xaxis_units(x_plot_variables unit_choice);
-		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames);
+		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
 	public slots:
 
@@ -107,6 +107,7 @@ class Engineering_Plots : public QtPlotting
 		void set_plot_title(QString input_title);
 
 	private:
+		int number_of_tracks;
 		std::vector<PlottingTrackFrame> track_frames;
 
 		unsigned int num_frames;
