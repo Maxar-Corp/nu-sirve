@@ -247,8 +247,9 @@ void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 		series->setColor(base_color);
 
 		std::vector<double> x_values = get_individual_x_track(i);
+		std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-		add_series(series, x_values, track_irradiance_data[i].irradiance, true);
+		add_series(series, x_values, y_values, true);
 
 		// get next color for series
 		colors.GetNextColor();
@@ -269,6 +270,11 @@ void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 	draw_title();
 }
 
+void Engineering_Plots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames)
+{
+	track_frames = frames;
+}
+
 std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 {
 
@@ -277,7 +283,13 @@ std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 	switch (x_axis_units)
 	{
 		case frames:
-			x_values = track_irradiance_data[i].frame_number;
+			for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+			{
+				if (i < track_frames[track_frame_index].details.size()) {
+					x_values.push_back(track_frame_index + 1);
+				}
+			}
+			//x_values = track_irradiance_data[i].frame_number;
 			break;
 		case seconds_past_midnight:
 			x_values = track_irradiance_data[i].past_midnight;
@@ -291,6 +303,21 @@ std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 	}
 	return x_values;
 }
+
+std::vector<double> Engineering_Plots::get_individual_y_track_irradiance(size_t i)
+{
+	std::vector<double> y_values;
+	for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+	{
+		if (i < track_frames[track_frame_index].details.size())
+		{
+			y_values.push_back(track_frames[track_frame_index].details[i].irradiance);
+		}
+	}
+
+	return y_values;
+}
+
 
 void Engineering_Plots::establish_plot_limits() {
 
