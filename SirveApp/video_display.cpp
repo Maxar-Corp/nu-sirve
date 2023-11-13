@@ -32,11 +32,9 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	banner_text = QString("EDIT CLASSIFICATION");
 	banner_color = QColor("Red");
 	tracker_color = QColor("Red");
-	tracker_primary_color = QColor("Red");
 
 	plot_tracks = false;
 	display_boresight_txt = false;
-	display_tgt_pos_txt = false;
 	display_time = false;
 
 	auto_lift_gain = false;
@@ -220,11 +218,6 @@ void VideoDisplay::update_color_map(QString input_map)
 	update_display_frame();
 }
 
-void VideoDisplay::update_tracker_primary_color(QString input_color) {
-	QColor new_color(input_color);
-	tracker_primary_color = new_color;
-}
-
 void VideoDisplay::update_tracker_color(QString input_color)
 {
 	QColor new_color(input_color);
@@ -234,11 +227,6 @@ void VideoDisplay::update_tracker_color(QString input_color)
 void VideoDisplay::toggle_osm_tracks(bool input)
 {
 	plot_tracks = input;
-}
-
-void VideoDisplay::toggle_primary_track_data(bool input)
-{
-	display_tgt_pos_txt = input;
 }
 
 void VideoDisplay::toggle_sensor_boresight_data(bool input)
@@ -588,7 +576,7 @@ void VideoDisplay::update_display_frame()
 		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 
-	size_t num_tracks = display_data[counter].ir_data.size();
+	size_t num_tracks = track_frames[counter].tracks.size();
 
 	if (plot_tracks && num_tracks > 0)
 	{
@@ -597,15 +585,15 @@ void VideoDisplay::update_display_frame()
 		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
 
 		QPainter rectangle_painter(&frame);
+		rectangle_painter.setPen(QPen(tracker_color));
 		int box_size = 5;
 		double box_width = size_of_pixel_x - 1 + box_size * 2;
 		double box_height = size_of_pixel_y - 1 + box_size * 2;
 
-		for (int i = 0; i < num_tracks; i++)
-		{
-			int x_pixel = display_data[counter].ir_data[i].centroid_x;
-			int y_pixel = display_data[counter].ir_data[i].centroid_y;
-
+		for ( const auto &trackData : track_frames[counter].tracks ) {
+			//int track_id = trackData.first;
+			int x_pixel = trackData.second.centroid_x;
+			int y_pixel = trackData.second.centroid_y;
 			int x_center = image_x / 2 + x_pixel;
 			int y_center = image_y / 2 + y_pixel;
 
@@ -633,13 +621,6 @@ void VideoDisplay::update_display_frame()
 				top_left_y = y - box_size;
 			}
 
-			if (i == 0) {
-				rectangle_painter.setPen(QPen(tracker_primary_color));
-			}
-			else
-			{
-				rectangle_painter.setPen(QPen(tracker_color));
-			}
 			QRectF rectangle(top_left_x, top_left_y, box_width, box_height);
 			rectangle_painter.drawRect(rectangle);
 		}
@@ -669,23 +650,6 @@ void VideoDisplay::update_display_frame()
 		p2.setFont(QFont("Times", 8, QFont::Bold));
 
 		p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignRight, zulu_time);
-	}
-
-	if (display_tgt_pos_txt) {
-		QPainter p3(&frame);
-		p3.setPen(QPen(banner_color));
-		p3.setFont(QFont("Times", 8, QFont::Bold));
-
-		double az_value = display_data[counter].azimuth_p_tgt;
-		double el_value = display_data[counter].elevation_p_tgt;
-
-		QString primary_tgt_text;
-		if (az_value < -1000 || el_value < -1000)
-			primary_tgt_text = "Target Metrics \n Az: NaN \n El NaN";
-		else
-			primary_tgt_text = "Target Metrics \n Az: " + QString::number(az_value) + "\n El " + QString::number(el_value);
-
-		p3.drawText(frame.rect(), Qt::AlignTop | Qt::AlignLeft, primary_tgt_text);
 	}
 
 	// ---------------------------------------------------------------------------------------
@@ -860,6 +824,10 @@ void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data
 	display_data = input_data;
 }
 
+void VideoDisplay::set_track_data(std::vector<TrackFrame> track_frame_input)
+{
+	track_frames = track_frame_input;
+}
 
 void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {

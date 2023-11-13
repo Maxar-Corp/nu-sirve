@@ -109,14 +109,11 @@ void TestVideoDisplayZoom::test_is_any_piece_within_zoom()
 {
     VideoDisplayZoomManager v(640, 480);
 
-//20,15
-
     //hyper zoom into a randomly chosen weird box in the top left
     v.zoom_image(QRect(10, 10, 19, 11));
-    //In order to loosely maintain the aspect ratio of the original image while zooming, the zooming gets ...
-    // ... manipulated by the zooming logic to guard against, e.g., stretching the viewport by selecting a very vertical rectangle
+    //The area selected for zooming gets changed to the aspect ratio to guard against, e.g., ...
+    // ... distorting the viewport by selecting a very vertical rectangle
     //So for 19/11, the width/height get reset to be 20/15
-
     //Now the zoom window is from:
     // 10 to 30 in the X direction with each "original" pixel now being 640/20 = 32 true pixels wide
     // 10 to 25 in the Y direction with each "original" pixel now being 480/17 = 32 true pixels high
@@ -153,4 +150,17 @@ void TestVideoDisplayZoom::test_is_any_piece_within_zoom()
     QCOMPARE(v.is_any_piece_within_zoom(23, 13), false);
     QCOMPARE(v.is_any_piece_within_zoom(23, 21), false);
     QCOMPARE(v.is_any_piece_within_zoom(23, 22), false);
+}
+
+void TestVideoDisplayZoom::test_zoom_resets_up_and_left_if_over_the_edge()
+{
+    VideoDisplayZoomManager v(640, 480);
+
+    //Remember that the zoom levels are 0-indexed, so the furthest right 10 pixels are 629-639
+    //Try to zoom into a box that extends out of the viewport
+    v.zoom_image(QRect(629, 469, 20, 15));
+
+    //Assert that the additional 10 (x) pixels and 5 (y) pixels cause the zoom box to shift up and left
+    QCOMPARE(v.absolute_zoom_list[1].x, 619);
+    QCOMPARE(v.absolute_zoom_list[1].y, 464);
 }
