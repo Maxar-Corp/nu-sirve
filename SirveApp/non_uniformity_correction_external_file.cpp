@@ -102,7 +102,6 @@ void ExternalNUCInformationWidget::plot_osm()
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
     plot_data->set_plot_title("");
 
-    plot_data->track_irradiance_data = engineering_data->get_track_irradiance_data();
     frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);

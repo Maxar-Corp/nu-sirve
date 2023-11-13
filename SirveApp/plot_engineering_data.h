@@ -89,7 +89,6 @@ class Engineering_Plots : public QtPlotting
 		~Engineering_Plots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
-		std::vector<Track_Irradiance> track_irradiance_data;
 
 		void set_yaxis_chart_id(int yaxis_chart_id);
 		void plot();

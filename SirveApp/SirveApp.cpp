@@ -1068,7 +1068,6 @@ void SirveApp::load_osm_data()
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 
 	data_plots->set_plotting_track_frames(track_info->get_plotting_tracks(), track_info->get_count_of_tracks());
-	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 	
 	//--------------------------------------------------------------------------------
 	// Enable setting of epoch
@@ -1657,7 +1656,6 @@ void SirveApp::set_data_timing_offset()
 
 		data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
 		int index0 = data_plots->index_sub_plot_xmin;
 		int index1 = data_plots->index_sub_plot_xmax;
@@ -2003,7 +2001,6 @@ void SirveApp::apply_epoch_time()
 	eng_data->update_epoch_time(epoch_jdate);
 	
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 	plot_change();
 }
 
