@@ -55,22 +55,6 @@ void Engineering_Data::set_offset_time(double offset)
 	timing_offset = offset;
 }
 
-std::vector<double> Engineering_Data::get_julian_date()
-{
-	if (std::abs(timing_offset) < 0.001)
-		return julian_date;
-
-	std::vector<double> output;
-	int length = julian_date.size();
-
-	for (size_t i = 0; i < length; i++)
-	{
-		output.push_back(julian_date[i] + timing_offset / 86400.0);
-	}
-
-	return output;
-}
-
 std::vector<double> Engineering_Data::get_seconds_from_midnight()
 {
 	if (std::abs(timing_offset) < 0.001)
