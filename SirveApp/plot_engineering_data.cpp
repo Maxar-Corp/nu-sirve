@@ -182,7 +182,7 @@ void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 		series->setColor(base_color);
 
 		std::vector<double> x_values = get_individual_x_track(i);
-		std::vector<double> y_values = track_irradiance_data[i].azimuth;
+		std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
 		add_series(series, x_values, y_values, true);
 
@@ -215,7 +215,7 @@ void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 		series->setColor(base_color);
 
 		std::vector<double> x_values = get_individual_x_track(i);
-		std::vector<double> y_values = track_irradiance_data[i].elevation;
+		std::vector<double> y_values = get_individual_y_track_elevation(i);
 
 		add_series(series, x_values, y_values, true);
 
@@ -318,6 +318,33 @@ std::vector<double> Engineering_Plots::get_individual_y_track_irradiance(size_t 
 	return y_values;
 }
 
+std::vector<double> Engineering_Plots::get_individual_y_track_azimuth(size_t i)
+{
+	std::vector<double> y_values;
+	for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+	{
+		if (i < track_frames[track_frame_index].details.size())
+		{
+			y_values.push_back(track_frames[track_frame_index].details[i].azimuth);
+		}
+	}
+
+	return y_values;
+}
+
+std::vector<double> Engineering_Plots::get_individual_y_track_elevation(size_t i)
+{
+	std::vector<double> y_values;
+	for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+	{
+		if (i < track_frames[track_frame_index].details.size())
+		{
+			y_values.push_back(track_frames[track_frame_index].details[i].elevation);
+		}
+	}
+
+	return y_values;
+}
 
 void Engineering_Plots::establish_plot_limits() {
 
