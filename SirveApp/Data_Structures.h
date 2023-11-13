@@ -69,16 +69,10 @@ struct video_info {
 };
 
 struct Track_Irradiance {
-
-	uint32_t track_id;
 	std::vector<double> julian_date;
 	std::vector<double> frame_number;
 	std::vector<double> past_midnight;
 	std::vector<double> past_epoch;
-
-	std::vector<double> irradiance;
-	std::vector<double> azimuth;
-	std::vector<double> elevation;
 
 };
 
