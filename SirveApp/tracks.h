@@ -6,9 +6,11 @@
 #include <map>
 #include <set>
 #include <vector>
+
 #include "Data_Structures.h"
 
 struct PlottingTrackDetails {
+    int track_id;
     double irradiance;
     double azimuth;
     double elevation;

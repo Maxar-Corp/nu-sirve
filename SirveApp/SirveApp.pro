@@ -29,6 +29,7 @@ HEADERS += abir_reader.h \
             config.h \
             custom_input_dialog.h \
             Data_Structures.h \
+            data_export.h \
             deinterlace.h \
             deinterlace_type.h \
             engineering_data.h \
@@ -77,6 +78,7 @@ SOURCES += abir_reader.cpp \
             color_scheme.cpp \
             config.cpp \
             custom_input_dialog.cpp \
+            data_export.cpp \
             deinterlace.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \

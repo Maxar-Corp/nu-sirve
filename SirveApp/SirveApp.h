@@ -33,6 +33,7 @@
 #include "popout_dialog.h"
 #include "bad_pixels.h"
 #include "tracks.h"
+#include "data_export.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
