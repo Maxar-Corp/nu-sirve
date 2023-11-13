@@ -320,7 +320,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	QLabel* lbl_text_color = new QLabel("Set Text Color:");
 
 	chk_show_tracks = new QCheckBox("Show OSM Tracks");
-	chk_primary_track_data = new QCheckBox("Show Primary Track Info");
 	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
 	chk_show_time = new QCheckBox("Show Zulu Time");
 
@@ -344,14 +343,11 @@ QWidget* SirveApp::setup_color_correction_tab() {
 
 	cmb_tracker_color = new QComboBox();
 	cmb_text_color = new QComboBox();
-	cmb_primary_tracker_color = new QComboBox();
 	
 	cmb_tracker_color->addItems(colors);
 	cmb_text_color->addItems(colors);
-	cmb_primary_tracker_color->addItems(colors);
 
 	cmb_tracker_color->setEnabled(false);
-	cmb_primary_tracker_color->setEnabled(false);
 
 	// --------------------------------------------------------------------------
 	hlayout_osm_tracks->addWidget(chk_show_tracks);
@@ -359,8 +355,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	hlayout_osm_tracks->addWidget(cmb_tracker_color);	
 	
 	hlayout_primary_track->addWidget(lbl_primary_track);
-	hlayout_primary_track->addStretch(); 
-	hlayout_primary_track->addWidget(cmb_primary_tracker_color);
 	
 	hlayout_text_color->addWidget(lbl_text_color);
 	hlayout_text_color->addStretch();
@@ -373,7 +367,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	vlayout_tab_color->addLayout(hlayout_osm_tracks);
 	vlayout_tab_color->addLayout(hlayout_primary_track);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-	vlayout_tab_color->addWidget(chk_primary_track_data);
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
 
@@ -788,10 +781,8 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 		
 	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::toggle_osm_tracks);
-	connect(cmb_primary_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_primary_tracker_color);
 	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_tracker_color);
 	
-	connect(chk_primary_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_primary_track_data);
 	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
 	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
@@ -1051,6 +1042,7 @@ void SirveApp::load_osm_data()
 
 		// delete objects with existing data within them
 		delete eng_data;
+		delete track_info;
 		delete data_plots;
 		delete engineering_plot_layout;			
 		
@@ -1063,19 +1055,19 @@ void SirveApp::load_osm_data()
 	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
 	eng_data = new Engineering_Data(osm_frames);
-
+	track_info = new TrackInformation(osm_frames);
 	data_plots = new Engineering_Plots(osm_frames);
 
-	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
-	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-
-	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
-
-	size_t num_tracks = data_plots->track_irradiance_data.size();
+	size_t num_tracks = track_info->get_count_of_tracks();
 	if (num_tracks == 0)
 	{
 		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
 	}
+
+	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
+	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+
+	data_plots->set_plotting_track_frames(track_info->get_plotting_tracks(), track_info->get_count_of_tracks());
 	
 	//--------------------------------------------------------------------------------
 	// Enable setting of epoch
@@ -1111,8 +1103,6 @@ void SirveApp::load_osm_data()
 
 	// Reset settings on video playback to defaults
 	chk_show_tracks->setChecked(false);
-
-	video_display->toggle_primary_track_data(false);
 
 	//menu_sensor_boresight->setIconVisibleInMenu(false);
 	video_display->toggle_sensor_boresight_data(false);
@@ -1229,10 +1219,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 		thread_timer.start();
 	}
 
-	//std::vector<Plotting_Frame_Data> temp_data = eng_data->get_plotting_frame_data();
-	//std::vector<Plotting_Frame_Data>::const_iterator first = temp_data.begin() + min_frame - 1;
-	//std::vector<Plotting_Frame_Data>::const_iterator last = temp_data.begin() + (min_frame) + (max_frame - min_frame);
-	//std::vector<Plotting_Frame_Data> subset_data(first, last);
 	int index0 = min_frame - 1;
 	int index1 = min_frame + (max_frame - min_frame);
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
@@ -1241,6 +1227,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	progress_dialog.setValue(3);
 
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
+	video_display->set_track_data(track_info->get_frames(index0, index1));
 	video_display->set_starting_frame_number(min_frame);
 
 	// Reset engineering plots with new sub plot indices
@@ -1669,7 +1656,6 @@ void SirveApp::set_data_timing_offset()
 
 		data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 		data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-		data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 
 		int index0 = data_plots->index_sub_plot_xmin;
 		int index1 = data_plots->index_sub_plot_xmax;
@@ -1827,16 +1813,13 @@ void SirveApp::export_plot_data()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data") 
 	{
-		min_frame = 0;
-		max_frame = eng_data->get_total_frame_count() - 1;
-
-		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
+		DataExport::write_track_date_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks());
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin + 1;
 		max_frame = data_plots->index_sub_plot_xmax + 1;
 
-		eng_data->write_track_date_to_csv(save_path, min_frame, max_frame);
+		DataExport::write_track_date_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), min_frame, max_frame);
 	}
 
 	QMessageBox msgBox;
@@ -1881,13 +1864,6 @@ void SirveApp::edit_tracker_color()
 {
 	QString tracker_color = cmb_tracker_color->currentText();
 	video_display->update_tracker_color(tracker_color);
-	video_display->update_display_frame();
-}
-
-void SirveApp::edit_primary_tracker_color()
-{
-	QString tracker_color = cmb_primary_tracker_color->currentText();
-	video_display->update_tracker_primary_color(tracker_color);
 	video_display->update_display_frame();
 }
 
@@ -2025,7 +2001,6 @@ void SirveApp::apply_epoch_time()
 	eng_data->update_epoch_time(epoch_jdate);
 	
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
-	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 	plot_change();
 }
 
@@ -2349,25 +2324,13 @@ void SirveApp::toggle_osm_tracks()
 	
 	if (!current_status) {
 		cmb_tracker_color->setEnabled(true);
-		cmb_primary_tracker_color->setEnabled(true);
 	}
 	else
 	{
 		cmb_tracker_color->setEnabled(false);
-		cmb_primary_tracker_color->setEnabled(false);
 	}
 	
 	video_display->update_display_frame();
-}
-
-void SirveApp::toggle_primary_track_data()
-{
-
-	bool current_status = video_display->display_tgt_pos_txt;
-
-	video_display->toggle_primary_track_data(!current_status);
-	video_display->update_display_frame();
-
 }
 
 void SirveApp::toggle_sensor_track_data()

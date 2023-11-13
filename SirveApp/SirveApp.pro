@@ -29,6 +29,7 @@ HEADERS += abir_reader.h \
             config.h \
             custom_input_dialog.h \
             Data_Structures.h \
+            data_export.h \
             deinterlace.h \
             deinterlace_type.h \
             engineering_data.h \
@@ -49,6 +50,7 @@ HEADERS += abir_reader.h \
             processing_state.h \
             Section.h \
             SirveApp.h \
+            tracks.h \
             video_container.h \
             video_details.h \
             video_display.h \
@@ -76,6 +78,7 @@ SOURCES += abir_reader.cpp \
             color_scheme.cpp \
             config.cpp \
             custom_input_dialog.cpp \
+            data_export.cpp \
             deinterlace.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
@@ -96,6 +99,7 @@ SOURCES += abir_reader.cpp \
             processing_state.cpp \
             Section.cpp \
             SirveApp.cpp \
+            tracks.cpp \
             video_container.cpp \
             video_details.cpp \
             video_display.cpp \
