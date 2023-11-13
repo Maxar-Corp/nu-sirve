@@ -19,6 +19,7 @@
 
 #include "color_scheme.h"
 #include "Data_Structures.h"
+#include "tracks.h"
 #include <armadillo>
 
 QT_CHARTS_USE_NAMESPACE
@@ -59,7 +60,7 @@ class QtPlotting : public QWidget
 		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
 		void set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title);
 		void set_yaxis_limits(double min_y, double max_y);
-		double find_max_for_axis(std::vector<double>min_max_values);
+		double find_max_for_axis(std::vector<double> data);
 
 		void save_plot();
 
@@ -88,7 +89,6 @@ class Engineering_Plots : public QtPlotting
 		~Engineering_Plots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
-		std::vector<Track_Irradiance> track_irradiance_data;
 
 		void set_yaxis_chart_id(int yaxis_chart_id);
 		void plot();
@@ -97,6 +97,7 @@ class Engineering_Plots : public QtPlotting
 		void toggle_yaxis_scientific(bool input);
 
 		void set_xaxis_units(x_plot_variables unit_choice);
+		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
 	public slots:
 
@@ -105,6 +106,9 @@ class Engineering_Plots : public QtPlotting
 		void set_plot_title(QString input_title);
 
 	private:
+		int number_of_tracks;
+		std::vector<PlottingTrackFrame> track_frames;
+
 		unsigned int num_frames;
 		x_plot_variables x_axis_units;
 
@@ -121,10 +125,12 @@ class Engineering_Plots : public QtPlotting
 		void plot_boresight_el();
 
 		std::vector<double> get_individual_x_track(size_t i);
+		std::vector<double> get_individual_y_track_irradiance(size_t i);
+		std::vector<double> get_individual_y_track_azimuth(size_t i);
+		std::vector<double> get_individual_y_track_elevation(size_t i);
 		std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 		double get_single_x_axis_value(int x_index);
 		double get_max_x_axis_value();
-		std::vector<double> find_min_max(std::vector<double>data);
 };
 
 #endif

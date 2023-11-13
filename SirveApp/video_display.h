@@ -39,6 +39,7 @@
 #include "calibration_data.h"
 #include "annotation_info.h"
 #include "video_display_zoom.h"
+#include "tracks.h"
 
 class VideoDisplay : public QWidget
 {
@@ -67,7 +68,7 @@ public:
 	Video_Container container;
 
 	QString banner_text, boresight_text;
-	QColor banner_color, tracker_primary_color, tracker_color;
+	QColor banner_color, tracker_color;
 
 	// defines color map parameters for showing color in video frame
 	ColorMap video_colors;
@@ -80,19 +81,19 @@ public:
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
+	void set_track_data(std::vector<TrackFrame> track_frame_input);
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
 	void stop_recording();
 
 	void toggle_osm_tracks(bool input);
-	void toggle_primary_track_data(bool input);
 	void toggle_sensor_boresight_data(bool input);
 
 	void toggle_action_zoom(bool status);
 	void toggle_action_calculate_radiance(bool status);
 	
-	bool plot_tracks, display_boresight_txt, display_tgt_pos_txt, display_time;
+	bool plot_tracks, display_boresight_txt, display_time;
 	void save_frame();
 	void clear_all_zoom_levels(int x_pixels, int y_pixels);
 
@@ -113,7 +114,6 @@ public slots:
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
 	void update_tracker_color(QString input_color);
-	void update_tracker_primary_color(QString input_color);
 	void update_color_map(QString input_map);
 
 	void toggle_relative_histogram();
@@ -148,7 +148,8 @@ private:
 
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;
-	std::vector<ABIR_Frame>frame_headers;
+	std::vector<TrackFrame> track_frames;
+	std::vector<ABIR_Frame> frame_headers;
 
 	void setup_labels();
 	void setup_pinpoint_display();

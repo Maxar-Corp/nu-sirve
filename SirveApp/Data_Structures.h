@@ -68,33 +68,8 @@ struct video_info {
 	int x_pixels, y_pixels, min_frame, max_frame;
 };
 
-struct Track_Irradiance {
-
-	uint32_t track_id;
-	std::vector<double> julian_date;
-	std::vector<double> frame_number;
-	std::vector<double> past_midnight;
-	std::vector<double> past_epoch;
-
-	std::vector<double> irradiance;
-	std::vector<double> azimuth;
-	std::vector<double> elevation;
-
-};
-
-struct Irradiance_Msrmnt {
-
-	unsigned int track_id;
-	double centroid_x, centroid_y;
-	double irradiance;
-	double azimuth;
-	double elevation;
-};
-
 struct Plotting_Frame_Data {
-	double azimuth_sensor, elevation_sensor, azimuth_p_tgt, elevation_p_tgt, julian_date, seconds_past_midnight;
-
-	std::vector<Irradiance_Msrmnt> ir_data;
+	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
 };
 
 #endif

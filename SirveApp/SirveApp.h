@@ -32,6 +32,8 @@
 #include "Data_Structures.h"
 #include "popout_dialog.h"
 #include "bad_pixels.h"
+#include "tracks.h"
+#include "data_export.h"
 
 #include <qstackedlayout.h>
 #include <qlabel.h>
@@ -107,7 +109,7 @@ public:
 	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
-	QCheckBox* chk_show_tracks, *chk_primary_track_data, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels;
+	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
@@ -118,6 +120,7 @@ public:
 	VideoDisplay *video_display;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
+	TrackInformation *track_info;
 	bool record_video;
 	
 	SirveApp(QWidget *parent = Q_NULLPTR);
@@ -190,7 +193,6 @@ public:
 		void create_non_uniformity_correction_from_external_file();
 
 		void toggle_osm_tracks();
-		void toggle_primary_track_data();
 		void toggle_sensor_track_data();
 		void toggle_frame_time();
 
@@ -219,7 +221,6 @@ private:
 	void export_plot_data();
 	void edit_banner_color();
 	void edit_tracker_color();
-	void edit_primary_tracker_color();
 	void plot_change();
 	void annotate_video();
 
