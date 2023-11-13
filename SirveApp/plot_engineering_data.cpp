@@ -46,8 +46,7 @@ void Engineering_Plots::plot()
 	start_new_chart();
 	create_current_marker();
 
-	size_t number_tracks = track_irradiance_data.size();
-	size_t plot_number_tracks = number_tracks;
+	size_t plot_number_tracks = number_of_tracks;
 	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
 
@@ -270,9 +269,10 @@ void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 	draw_title();
 }
 
-void Engineering_Plots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames)
+void Engineering_Plots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
 {
 	track_frames = frames;
+	number_of_tracks = num_unique;
 }
 
 std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
