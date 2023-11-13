@@ -1067,6 +1067,7 @@ void SirveApp::load_osm_data()
 	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 
+	data_plots->set_plotting_track_frames(track_info->get_plotting_tracks());
 	data_plots->track_irradiance_data = eng_data->get_track_irradiance_data();
 	
 	//--------------------------------------------------------------------------------
