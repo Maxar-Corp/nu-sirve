@@ -68,14 +68,6 @@ struct video_info {
 	int x_pixels, y_pixels, min_frame, max_frame;
 };
 
-struct Track_Irradiance {
-	std::vector<double> julian_date;
-	std::vector<double> frame_number;
-	std::vector<double> past_midnight;
-	std::vector<double> past_epoch;
-
-};
-
 struct Plotting_Frame_Data {
 	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
 };

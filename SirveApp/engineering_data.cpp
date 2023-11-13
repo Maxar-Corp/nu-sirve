@@ -187,33 +187,6 @@ std::vector<Plotting_Frame_Data> Engineering_Data::get_subset_plotting_frame_dat
 	return subset_data;
 }
 
-std::vector<Track_Irradiance> Engineering_Data::get_track_irradiance_data()
-{
-	std::vector<Track_Irradiance> output;
-	output = track_irradiance_data;
-
-	if (std::abs(timing_offset) < 0.001 && std::abs(data_epoch_date - user_epoch_date) < 0.0000001)
-		return track_irradiance_data;
-
-	int num_tracks = output.size();
-
-	for (size_t i = 0; i < num_tracks; i++)
-	{
-		int length = track_irradiance_data[i].frame_number.size();
-
-		for (size_t j = 0; j < length; j++)
-		{
-			output[i].past_midnight[j] = track_irradiance_data[i].past_midnight[j] + timing_offset;
-			output[i].julian_date[j] = track_irradiance_data[i].julian_date[j] + timing_offset / 86400.0;
-
-			double calculated_value = (output[i].julian_date[j] - user_epoch_date) * 86400.0;
-			output[i].past_epoch[j] = calculated_value;
-		}
-	}
-	
-	return output;
-}
-
 void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_frames)
 {
 	for (unsigned int i = 0; i < osm_frames.size(); i++) {
@@ -226,39 +199,6 @@ void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_f
 		temp.elevation_sensor = osm_frames[i].data.az_el_boresight[1];
 		temp.julian_date = osm_frames[i].data.julian_date;
 		temp.seconds_past_midnight = osm_frames[i].data.seconds_past_midnight;
-
-		// ----------------------------------------------------------------------------------------
-		// Get irradiance track data
-		int number_tracks = osm_frames[i].data.num_tracks;
-
-		for (unsigned int track_index = 0; track_index < number_tracks; track_index++) {
-			//TODO Assumes that there is only a single ir band. Function and struct will need to be updated if multiple bands are being tracked
-			double irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
-			double azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
-			double elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
-
-
-			// Filling the irradiance vector, moved from private method
-			if (track_index < track_irradiance_data.size())
-			{
-				track_irradiance_data[track_index].frame_number.push_back(i + 1);
-
-				track_irradiance_data[track_index].julian_date.push_back(temp.julian_date);
-				track_irradiance_data[track_index].past_midnight.push_back(temp.seconds_past_midnight);
-				track_irradiance_data[track_index].past_epoch.push_back(temp.seconds_past_midnight);
-			}
-			else
-			{
-				Track_Irradiance temp_ti;
-
-				temp_ti.frame_number.push_back(i + 1);
-				temp_ti.julian_date.push_back(temp.julian_date);
-				temp_ti.past_midnight.push_back(temp.seconds_past_midnight);
-				temp_ti.past_epoch.push_back(temp.seconds_past_midnight);
-
-				track_irradiance_data.push_back(temp_ti);
-			}
-		}
 
 		frame_data.push_back(temp);
 		julian_date.push_back(osm_frames[i].data.julian_date);
