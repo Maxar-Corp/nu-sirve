@@ -277,30 +277,15 @@ void Engineering_Plots::set_plotting_track_frames(std::vector<PlottingTrackFrame
 
 std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 {
-
 	std::vector<double> x_values;
 
-	switch (x_axis_units)
+	for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
 	{
-		case frames:
-			for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
-			{
-				if (i < track_frames[track_frame_index].details.size()) {
-					x_values.push_back(track_frame_index + 1);
-				}
-			}
-			//x_values = track_irradiance_data[i].frame_number;
-			break;
-		case seconds_past_midnight:
-			x_values = track_irradiance_data[i].past_midnight;
-			break;
-		case seconds_from_epoch:
-			x_values = track_irradiance_data[i].past_epoch;
-			break;
-		default:
-
-			break;
+		if (i < track_frames[track_frame_index].details.size()) {
+			x_values.push_back(get_single_x_axis_value(track_frame_index));
+		}
 	}
+
 	return x_values;
 }
 
