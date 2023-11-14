@@ -1,11 +1,14 @@
 #include "tracks.h"
 
-TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
+TrackInformation::TrackInformation()
 {
     track_ids = std::set<int>();
     frames = std::vector<TrackFrame>();
     plotting_track_frames = std::vector<PlottingTrackFrame>();
+}
 
+TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames) : TrackInformation()
+{
     for (unsigned int i = 0; i < osm_frames.size(); i++)
     {
         TrackFrame frame;
