@@ -21,16 +21,11 @@ TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
     }
 }
 
-TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames) : TrackInformation()
+TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
+    : TrackInformation(static_cast<unsigned int>(osm_frames.size()))
 {
     for (unsigned int i = 0; i < osm_frames.size(); i++)
     {
-        TrackFrame frame;
-        frame.tracks = std::map<int, TrackDetails>();
-
-        PlottingTrackFrame track_frame;
-        track_frame.details = std::vector<PlottingTrackDetails>();
-
         int number_tracks = osm_frames[i].data.num_tracks;
 
         for (int track_index = 0; track_index < number_tracks; track_index++)
@@ -43,7 +38,7 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames) : Trac
             td.centroid_y = std::lround(osm_frames[i].data.track_data[track_index].centroid_y);
             int track_id = osm_frames[i].data.track_data[track_index].track_id;
             track_ids.insert(track_id);
-            frame.tracks[track_id] = td;
+            frames[i].tracks[track_id] = td;
 
 
             //This is a "combined" track representation that I'm only keeping around because I'm not smart enough to replace it yet
@@ -60,11 +55,8 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames) : Trac
             //In the future, all track data should probably live in one struct or a more logical format
             ptd.track_id = track_id;
 
-            track_frame.details.push_back(ptd);
+            plotting_track_frames[i].details.push_back(ptd);
         }
-
-        frames.push_back(frame);
-        plotting_track_frames.push_back(track_frame);
     }
 }
 
