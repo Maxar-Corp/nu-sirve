@@ -31,6 +31,7 @@ struct TrackFrame {
 
 class TrackInformation {
     public:
+        TrackInformation(unsigned int num_frames);
         TrackInformation(const std::vector<Frame> & osm_frames);
         std::vector<TrackFrame> get_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_plotting_tracks();
