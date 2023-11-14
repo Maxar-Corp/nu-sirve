@@ -151,6 +151,8 @@ void SirveApp::setup_ui() {
 	btn_workspace_save->setEnabled(false);
 	btn_workspace_load->setEnabled(true);
 	cmb_processing_states->setEnabled(false);
+
+	btn_import_tracks->setEnabled(false);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -482,6 +484,9 @@ QWidget* SirveApp::setup_workspace_tab(){
 
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
+
+	QLabel *lbl_track = new QLabel("Manual Track Management");
+	btn_import_tracks = new QPushButton("Import Tracks");
 	
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
@@ -490,8 +495,12 @@ QWidget* SirveApp::setup_workspace_tab(){
 	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, -1);
 	grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
 	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
+	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, -1);
+	grid_workspace->addWidget(lbl_track, 5, 0, 1, -1, Qt::AlignCenter);
+	grid_workspace->addWidget(btn_import_tracks, 6, 0, 1, 1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
+	vlayout_tab_workspace->insertStretch(-1, 0);
 	return widget_tab_workspace;
 }
 
@@ -840,6 +849,7 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
 	QObject::connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
+	QObject::connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
 
 	// Connect epoch button click to function
 	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
@@ -867,6 +877,16 @@ void SirveApp::setup_connections() {
 	connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::handle_popout_histogram_btn);
 }
 
+void SirveApp::import_tracks()
+{
+	QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), "", ("Track File (*.csv)"));
+	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
+	if (compare == 0) {
+		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No track file was selected.");
+		return;
+	}
+}
+
 void SirveApp::save_workspace()
 {
 	if (abp_file_metadata.image_path == "" || video_display->container.get_processing_states().size() == 0) {
@@ -888,6 +908,7 @@ void SirveApp::save_workspace()
 		cmb_workspace_name->setCurrentText(workspace_name);
 	}
 }
+
 void SirveApp::load_workspace()
 {
 	INFO << "WORKSPACE: Start ABP load process";
@@ -1111,6 +1132,8 @@ void SirveApp::load_osm_data()
 	btn_calculate_radiance->setEnabled(false);
 	chk_highlight_bad_pixels->setChecked(false);
 	chk_highlight_bad_pixels->setEnabled(false);
+
+	btn_import_tracks->setEnabled(true);
 
 	CalibrationData temp;
 	calibration_model = temp;
