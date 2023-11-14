@@ -36,6 +36,7 @@ class TrackInformation {
         std::vector<PlottingTrackFrame> get_plotting_tracks();
         int get_count_of_tracks();
     private:
+        TrackInformation();
         std::vector<PlottingTrackFrame> plotting_track_frames;
         std::vector<TrackFrame> frames;
         std::set<int> track_ids;
