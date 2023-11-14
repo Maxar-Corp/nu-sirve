@@ -7,14 +7,28 @@ TrackInformation::TrackInformation()
     plotting_track_frames = std::vector<PlottingTrackFrame>();
 }
 
+TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
+{
+    for (unsigned int i = 0; i < num_frames; i++)
+    {
+        TrackFrame frame;
+        frame.tracks = std::map<int, TrackDetails>();
+        frames.push_back(frame);
+
+        PlottingTrackFrame track_frame;
+        track_frame.details = std::vector<PlottingTrackDetails>();
+        plotting_track_frames.push_back(track_frame);
+    }
+}
+
 TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames) : TrackInformation()
 {
     for (unsigned int i = 0; i < osm_frames.size(); i++)
     {
         TrackFrame frame;
-        PlottingTrackFrame track_frame;
-
         frame.tracks = std::map<int, TrackDetails>();
+
+        PlottingTrackFrame track_frame;
         track_frame.details = std::vector<PlottingTrackDetails>();
 
         int number_tracks = osm_frames[i].data.num_tracks;
