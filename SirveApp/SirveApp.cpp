@@ -879,12 +879,24 @@ void SirveApp::setup_connections() {
 
 void SirveApp::import_tracks()
 {
-	QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), "", ("Track File (*.csv)"));
+	QString base_track_folder = "workspace";
+	QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), base_track_folder, ("Track File (*.csv)"));
+
 	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
 	if (compare == 0) {
 		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No track file was selected.");
 		return;
 	}
+
+	TrackFileReadResult result = track_info->read_tracks_from_file(file_selection);
+
+	if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
+	{
+		QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
+		return;
+	}
+
+	QtHelpers::LaunchMessageBox("Success", "Successfully read in this many tracks: " + QString::number(result.track_ids.size()));
 }
 
 void SirveApp::save_workspace()
