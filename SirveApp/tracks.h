@@ -42,7 +42,8 @@ class TrackInformation {
     public:
         TrackInformation(unsigned int num_frames);
         TrackInformation(const std::vector<Frame> & osm_file_frames);
-        std::vector<TrackFrame> get_frames(int start_index, int end_index);
+        std::vector<TrackFrame> get_osm_frames(int start_index, int end_index);
+        std::vector<TrackFrame> get_manual_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_plotting_tracks();
         int get_count_of_tracks();
         std::set<int> get_manual_track_ids();
