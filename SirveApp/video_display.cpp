@@ -606,10 +606,14 @@ void VideoDisplay::update_display_frame()
 		rectangle_painter.setPen(QPen(banner_color));
 		for ( const auto &trackData : manual_track_frames[counter].tracks )
 		{
-			QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
-			if (rectangle.isNull())
-				continue;
-			rectangle_painter.drawRect(rectangle);
+			int track_id = trackData.first;
+			if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
+			{
+				QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
+				if (rectangle.isNull())
+					continue;
+				rectangle_painter.drawRect(rectangle);
+			}
 		}
 	}
 
@@ -850,6 +854,11 @@ void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input
 void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_input)
 {
 	manual_track_frames = track_frame_input;
+}
+
+void VideoDisplay::add_manual_track_id_to_show(int id)
+{
+	manual_track_ids_to_show.insert(id);
 }
 
 void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
