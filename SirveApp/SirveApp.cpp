@@ -903,6 +903,7 @@ void SirveApp::import_tracks()
 		{
 			QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
 		}
+		video_display->add_manual_track_id_to_show(track_id);
 	}
 
 	track_info->add_manual_tracks(result.frames);
@@ -910,6 +911,8 @@ void SirveApp::import_tracks()
 	int index0 = data_plots->index_sub_plot_xmin;
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+
+	video_display->update_display_frame();
 }
 
 void SirveApp::save_workspace()

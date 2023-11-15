@@ -83,6 +83,7 @@ public:
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
 	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
 	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
+	void add_manual_track_id_to_show(int);
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
@@ -151,6 +152,7 @@ private:
 	std::vector<Plotting_Frame_Data> display_data;
 	std::vector<TrackFrame> osm_track_frames;
 	std::vector<TrackFrame> manual_track_frames;
+	std::set<int> manual_track_ids_to_show;
 	std::vector<ABIR_Frame> frame_headers;
 
 	void setup_labels();
