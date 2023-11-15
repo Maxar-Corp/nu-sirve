@@ -3,6 +3,9 @@
 #ifndef TRACKS_H
 #define TRACKS_H
 
+#include <QFile>
+#include <QString>
+
 #include <map>
 #include <set>
 #include <vector>
@@ -29,6 +32,12 @@ struct TrackFrame {
     std::map<int, TrackDetails> tracks;
 };
 
+struct TrackFileReadResult {
+    std::vector<TrackFrame> frames;
+    std::set<int> track_ids;
+    QString error_string;
+};
+
 class TrackInformation {
     public:
         TrackInformation(unsigned int num_frames);
@@ -36,6 +45,8 @@ class TrackInformation {
         std::vector<TrackFrame> get_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_plotting_tracks();
         int get_count_of_tracks();
+
+        TrackFileReadResult read_tracks_from_file(QString file_name);
     private:
         TrackInformation();
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
