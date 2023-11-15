@@ -78,3 +78,64 @@ std::vector<PlottingTrackFrame> TrackInformation::get_plotting_tracks()
 {
     return osm_plotting_track_frames;
 }
+
+TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name)
+{
+    size_t num_frames = manual_frames.size();
+
+    std::vector<TrackFrame> track_frames_from_file;
+    std::set<int> track_ids_in_file;
+    QString error_string = "";
+
+    for (int i = 0; i < num_frames; i++)
+    {
+        TrackFrame frame_from_file;
+        frame_from_file.tracks = std::map<int, TrackDetails>();
+        track_frames_from_file.push_back(frame_from_file);
+    }
+
+    int line_num = 0;
+    bool ok;
+
+    try
+    {
+        QFile file(absolute_file_name);
+        file.open(QIODevice::ReadOnly|QIODevice::Text);
+
+        while (!file.atEnd())
+        {
+            line_num += 1;
+
+            QByteArray line = file.readLine();
+            QList<QByteArray> cells = line.split(',');
+
+            int track_id = cells[0].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track ID");
+            int frame_number = cells[1].toInt(&ok);
+            if (!ok) throw std::runtime_error("Frame Number");
+            int track_x = cells[2].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track X Value");
+            int track_y = cells[3].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track Y Value");
+
+            if (frame_number < 0 || frame_number > num_frames) throw std::runtime_error("Invalid frame number");
+
+            TrackDetails td;
+            td.centroid_x = track_x;
+            td.centroid_y = track_y;
+            track_ids_in_file.insert(track_id);
+            track_frames_from_file[frame_number].tracks[track_id] = td;
+        }
+    }
+    catch (const std::runtime_error& e)
+    {
+        error_string = "Issue reading track data at line " + QString::number(line_num) + ": " + e.what();
+        return TrackFileReadResult {std::vector<TrackFrame>(), std::set<int>(), error_string};
+    }
+    catch (...)
+    {
+        return TrackFileReadResult {std::vector<TrackFrame>(), std::set<int>(), "Unexpected error opening or reading track data file"};
+    }
+
+    return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
+}
