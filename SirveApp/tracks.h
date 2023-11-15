@@ -49,7 +49,7 @@ class TrackInformation {
         std::set<int> get_manual_track_ids();
         void add_manual_tracks(std::vector<TrackFrame> new_frames);
 
-        TrackFileReadResult read_tracks_from_file(QString file_name);
+        TrackFileReadResult read_tracks_from_file(QString file_name) const;
     private:
         TrackInformation();
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;

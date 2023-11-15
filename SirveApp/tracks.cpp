@@ -115,7 +115,7 @@ void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
     }
 }
 
-TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name)
+TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name) const
 {
     size_t num_frames = manual_frames.size();
 
