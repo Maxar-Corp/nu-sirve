@@ -896,7 +896,16 @@ void SirveApp::import_tracks()
 		return;
 	}
 
-	QtHelpers::LaunchMessageBox("Success", "Successfully read in this many tracks: " + QString::number(result.track_ids.size()));
+	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+	for ( int track_id : result.track_ids )
+	{
+		if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+		{
+			QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
+		}
+	}
+
+	track_info->add_manual_tracks(result.frames);
 }
 
 void SirveApp::save_workspace()

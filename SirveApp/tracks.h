@@ -45,6 +45,8 @@ class TrackInformation {
         std::vector<TrackFrame> get_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_plotting_tracks();
         int get_count_of_tracks();
+        std::set<int> get_manual_track_ids();
+        void add_manual_tracks(std::vector<TrackFrame> new_frames);
 
         TrackFileReadResult read_tracks_from_file(QString file_name);
     private:
@@ -52,6 +54,9 @@ class TrackInformation {
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;
         std::set<int> osm_track_ids;
+
+        std::vector<TrackFrame> manual_frames;
+        std::set<int> manual_track_ids;
 };
 
 #endif

@@ -5,6 +5,9 @@ TrackInformation::TrackInformation()
     osm_track_ids = std::set<int>();
     osm_frames = std::vector<TrackFrame>();
     osm_plotting_track_frames = std::vector<PlottingTrackFrame>();
+
+    manual_track_ids = std::set<int>();
+    manual_frames = std::vector<TrackFrame>();
 }
 
 TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
@@ -14,6 +17,10 @@ TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
         TrackFrame frame;
         frame.tracks = std::map<int, TrackDetails>();
         osm_frames.push_back(frame);
+
+        TrackFrame manual_frame;
+        manual_frame.tracks = std::map<int, TrackDetails>();
+        manual_frames.push_back(manual_frame);
 
         PlottingTrackFrame track_frame;
         track_frame.details = std::vector<PlottingTrackDetails>();
@@ -77,6 +84,26 @@ std::vector<TrackFrame> TrackInformation::get_frames(int start_index, int end_in
 std::vector<PlottingTrackFrame> TrackInformation::get_plotting_tracks()
 {
     return osm_plotting_track_frames;
+}
+
+std::set<int> TrackInformation::get_manual_track_ids()
+{
+    return manual_track_ids;
+}
+
+void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
+{
+    //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
+    for (int i = 0; i < manual_frames.size(); i++ )
+    {
+		for ( const auto &trackData : new_frames[i].tracks )
+        {
+            int track_id = trackData.first;
+
+            manual_track_ids.insert(track_id);
+            manual_frames[i].tracks[track_id] = trackData.second;
+        }
+    }
 }
 
 TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name)
