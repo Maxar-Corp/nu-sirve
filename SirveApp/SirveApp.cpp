@@ -906,6 +906,10 @@ void SirveApp::import_tracks()
 	}
 
 	track_info->add_manual_tracks(result.frames);
+
+	int index0 = data_plots->index_sub_plot_xmin;
+	int index1 = data_plots->index_sub_plot_xmax + 1;
+	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 }
 
 void SirveApp::save_workspace()
@@ -1264,14 +1268,14 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	}
 
 	int index0 = min_frame - 1;
-	int index1 = min_frame + (max_frame - min_frame);
+	int index1 = max_frame;
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 	
 	progress_dialog.setLabelText("Finalizing application state");
 	progress_dialog.setValue(3);
 
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
-	video_display->set_track_data(track_info->get_frames(index0, index1));
+	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	video_display->set_starting_frame_number(min_frame);
 
 	// Reset engineering plots with new sub plot indices
