@@ -861,6 +861,11 @@ void VideoDisplay::add_manual_track_id_to_show(int id)
 	manual_track_ids_to_show.insert(id);
 }
 
+void VideoDisplay::hide_manual_track_id(int id)
+{
+	manual_track_ids_to_show.erase(id);
+}
+
 void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
 	display_data = input_data;
