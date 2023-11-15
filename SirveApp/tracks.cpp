@@ -2,9 +2,9 @@
 
 TrackInformation::TrackInformation()
 {
-    track_ids = std::set<int>();
-    frames = std::vector<TrackFrame>();
-    plotting_track_frames = std::vector<PlottingTrackFrame>();
+    osm_track_ids = std::set<int>();
+    osm_frames = std::vector<TrackFrame>();
+    osm_plotting_track_frames = std::vector<PlottingTrackFrame>();
 }
 
 TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
@@ -13,20 +13,20 @@ TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
     {
         TrackFrame frame;
         frame.tracks = std::map<int, TrackDetails>();
-        frames.push_back(frame);
+        osm_frames.push_back(frame);
 
         PlottingTrackFrame track_frame;
         track_frame.details = std::vector<PlottingTrackDetails>();
-        plotting_track_frames.push_back(track_frame);
+        osm_plotting_track_frames.push_back(track_frame);
     }
 }
 
-TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
-    : TrackInformation(static_cast<unsigned int>(osm_frames.size()))
+TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
+    : TrackInformation(static_cast<unsigned int>(osm_file_frames.size()))
 {
-    for (unsigned int i = 0; i < osm_frames.size(); i++)
+    for (unsigned int i = 0; i < osm_file_frames.size(); i++)
     {
-        int number_tracks = osm_frames[i].data.num_tracks;
+        int number_tracks = osm_file_frames[i].data.num_tracks;
 
         for (int track_index = 0; track_index < number_tracks; track_index++)
         {
@@ -34,11 +34,11 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
             //For each frame (TrackFrame), there is information about any tracks in that frame (TrackDetails)
             //The track details are mapped (hash table/lookup) by their track_id
             TrackDetails td;
-            td.centroid_x = std::lround(osm_frames[i].data.track_data[track_index].centroid_x);
-            td.centroid_y = std::lround(osm_frames[i].data.track_data[track_index].centroid_y);
-            int track_id = osm_frames[i].data.track_data[track_index].track_id;
-            track_ids.insert(track_id);
-            frames[i].tracks[track_id] = td;
+            td.centroid_x = std::lround(osm_file_frames[i].data.track_data[track_index].centroid_x);
+            td.centroid_y = std::lround(osm_file_frames[i].data.track_data[track_index].centroid_y);
+            int track_id = osm_file_frames[i].data.track_data[track_index].track_id;
+            osm_track_ids.insert(track_id);
+            osm_frames[i].tracks[track_id] = td;
 
 
             //This is a "combined" track representation that I'm only keeping around because I'm not smart enough to replace it yet
@@ -47,28 +47,28 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_frames)
             PlottingTrackDetails ptd;
 
             //Note: This line assumes that there is only a single ir band, code will need updated if this changes
-            ptd.irradiance = osm_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
-			ptd.azimuth = osm_frames[i].data.track_data[track_index].az_el_track[0];
-			ptd.elevation = osm_frames[i].data.track_data[track_index].az_el_track[1];
+            ptd.irradiance = osm_file_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
+			ptd.azimuth = osm_file_frames[i].data.track_data[track_index].az_el_track[0];
+			ptd.elevation = osm_file_frames[i].data.track_data[track_index].az_el_track[1];
 
             //Needed for the data export.
             //In the future, all track data should probably live in one struct or a more logical format
             ptd.track_id = track_id;
 
-            plotting_track_frames[i].details.push_back(ptd);
+            osm_plotting_track_frames[i].details.push_back(ptd);
         }
     }
 }
 
 int TrackInformation::get_count_of_tracks()
 {
-    return static_cast<int>(track_ids.size());
+    return static_cast<int>(osm_track_ids.size());
 }
 
 std::vector<TrackFrame> TrackInformation::get_frames(int start_index, int end_index)
 {
-	std::vector<TrackFrame>::const_iterator first = frames.begin() + start_index;
-	std::vector<TrackFrame>::const_iterator last = frames.begin() + end_index;
+	std::vector<TrackFrame>::const_iterator first = osm_frames.begin() + start_index;
+	std::vector<TrackFrame>::const_iterator last = osm_frames.begin() + end_index;
 
     std::vector<TrackFrame> subset(first, last);
     return subset;
@@ -76,5 +76,5 @@ std::vector<TrackFrame> TrackInformation::get_frames(int start_index, int end_in
 
 std::vector<PlottingTrackFrame> TrackInformation::get_plotting_tracks()
 {
-    return plotting_track_frames;
+    return osm_plotting_track_frames;
 }
