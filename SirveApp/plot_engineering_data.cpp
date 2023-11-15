@@ -5,7 +5,8 @@ Engineering_Plots::Engineering_Plots(std::vector<Frame> const &osm_frames) : QtP
 {
 	num_frames = static_cast<unsigned int>(osm_frames.size());
 
-	for (size_t i = 0; i < num_frames; i++) {
+	for (size_t i = 0; i < num_frames; i++)
+	{
 		/* Scaling each val by 1e6 to convert to microradians. */
 		sensor_i_fov_x.push_back(osm_frames[i].data.i_fov_x * 1e6);
 		sensor_i_fov_y.push_back(osm_frames[i].data.i_fov_y * 1e6);
@@ -29,7 +30,6 @@ Engineering_Plots::Engineering_Plots(std::vector<Frame> const &osm_frames) : QtP
 
 Engineering_Plots::~Engineering_Plots()
 {	
-
 }
 
 void Engineering_Plots::set_yaxis_chart_id(int yaxis_chart_id)
@@ -39,137 +39,141 @@ void Engineering_Plots::set_yaxis_chart_id(int yaxis_chart_id)
 
 void Engineering_Plots::plot()
 {
-	// ---------------------------------------------------------------------------------------------------------------
 	// Clear chart
 	chart->removeAllSeries();
 	colors.reset_colors();
 	start_new_chart();
 	create_current_marker();
 
+	establish_plot_limits();
+
 	size_t plot_number_tracks = number_of_tracks;
 	if (plot_primary_only && plot_number_tracks > 0)
 		plot_number_tracks = 1;
 
-	switch (current_chart_id) {
+	switch (current_chart_id)
+	{
 		case 0:
+			y_title = QString("Irradiance Counts");
 			plot_irradiance(plot_number_tracks);
 			break;
 		case 1:
+			y_title = QString("Azimuth (deg)");
 			plot_azimuth(plot_number_tracks);
 			break;
 		case 2:
+
+			y_title = QString("Elevation (deg)");
 			plot_elevation(plot_number_tracks);
 			break;
 		case 3:
+			y_title = QString("Sensor IFOV (microns)");
 			plot_fov_x();
 			break;
 		case 4:
+			y_title = QString("Sensor IFOV (microns)");
 			plot_fov_y();
 			break;
 		case 5:
+			y_title = QString("Boresight Azimuth");
 			plot_boresight_az();
 			break;
 		case 6:
+			y_title = QString("Boresight Elevation");
 			plot_boresight_el();
 		default:
 			break;
 	}
+
+	draw_title();
 }
 
 void Engineering_Plots::plot_boresight_az()
 {
-	establish_plot_limits();
-	y_title = QString("Boresight Azimuth");
 	QLineSeries* series = new QLineSeries();
 	QColor base_color(colors.GetCurrentColor());
 	series->setColor(base_color);
 
-	if (plot_all_data) {
+	if (plot_all_data)
+	{
 		std::vector<double> y_values = boresight_az;
 
 		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 360);
 	}
-	else {
+	else
+	{
 		std::vector<double> y_values(boresight_az.begin() + index_sub_plot_xmin, boresight_az.begin() + index_sub_plot_xmax + 1);
 
 		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360);
 	}
-
-	draw_title();
 }
 
 void Engineering_Plots::plot_boresight_el()
 {
-	establish_plot_limits();
-	y_title = QString("Boresight Elevation");
 	QLineSeries* series = new QLineSeries();
 	QColor base_color(colors.GetCurrentColor());
 	series->setColor(base_color);
 
-	if (plot_all_data) {
+	if (plot_all_data)
+	{
 		std::vector<double> y_values = boresight_el;
 
 		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 90);
 	}
-	else {
+	else
+	{
 		std::vector<double> y_values(boresight_el.begin() + index_sub_plot_xmin, boresight_el.begin() + index_sub_plot_xmax + 1);
 
 		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90);
 	}
-
-	draw_title();
 }
 
 void Engineering_Plots::plot_fov_x()
 {
-	establish_plot_limits();
-	y_title = QString("Sensor IFOV (microns)");
 	QLineSeries* series = new QLineSeries();
 	QColor base_color(colors.GetCurrentColor());
 	series->setColor(base_color);
 
-	if (plot_all_data) {
+	if (plot_all_data)
+	{
 		std::vector<double> y_values = sensor_i_fov_x;
 		
 		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-		chart_options(full_plot_xmin, full_plot_xmax, 0, 750, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 750);
 	}
-	else{
+	else
+	{
 		std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
 
 		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 750, x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 750);
 	}
-
-	draw_title();
 }
 
 void Engineering_Plots::plot_fov_y()
 {
-	establish_plot_limits();
-	y_title = QString("Sensor IFOV (microns)");
 	QLineSeries* series = new QLineSeries();
 	QColor base_color(colors.GetCurrentColor());
 	series->setColor(base_color);
 
-	if (plot_all_data) {
+	if (plot_all_data)
+	{
 		std::vector<double> y_values = sensor_i_fov_y;
 
 		add_series(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-		chart_options(full_plot_xmin, full_plot_xmax, 0, 750, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 750);
 	}
-	else{
+	else
+	{
 		std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
 
 		add_series(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 750, x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 750);
 	}
-
-	draw_title();
 }
 
 void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
@@ -185,24 +189,13 @@ void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 
 		add_series(series, x_values, y_values, true);
 
-		// get next color for series
 		colors.GetNextColor();
 	}
 
-	establish_plot_limits();
-
-	y_title = QString("Azimuth (deg)");
-
-	if (plot_all_data) {
-		chart_options(full_plot_xmin, full_plot_xmax, 0, 360, x_title, y_title);
-	}
-	else{
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360, x_title, y_title);
-	}
-
-
-	draw_title();
-	
+	if (plot_all_data)
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 360);
+	else
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 360);
 }
 
 void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
@@ -218,21 +211,13 @@ void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 
 		add_series(series, x_values, y_values, true);
 
-		// get next color for series
 		colors.GetNextColor();
 	}
 
-	establish_plot_limits();
-
-	y_title = QString("Elevation (deg)");
-
 	if (plot_all_data)
-		chart_options(full_plot_xmin, full_plot_xmax, 0, 90, x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, 90);
 	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90, x_title, y_title);
-
-
-	draw_title();
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, 90);
 }
 
 void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
@@ -250,23 +235,17 @@ void Engineering_Plots::plot_irradiance(size_t plot_number_tracks)
 
 		add_series(series, x_values, y_values, true);
 
-		// get next color for series
 		colors.GetNextColor();
 
 		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
 
-	establish_plot_limits();	
-
-	y_title = QString("Irradiance Counts");
-
 	if (plot_all_data)
-		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(y_points), x_title, y_title);
+		chart_options(full_plot_xmin, full_plot_xmax, 0, find_max_for_axis(y_points));
 	else
-		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(y_points), x_title, y_title);
+		chart_options(sub_plot_xmin, sub_plot_xmax, 0, find_max_for_axis(y_points));
 
 
-	draw_title();
 }
 
 void Engineering_Plots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -281,7 +260,8 @@ std::vector<double> Engineering_Plots::get_individual_x_track(size_t i)
 
 	for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
 	{
-		if (i < track_frames[track_frame_index].details.size()) {
+		if (i < track_frames[track_frame_index].details.size())
+		{
 			x_values.push_back(get_single_x_axis_value(track_frame_index));
 		}
 	}
@@ -331,7 +311,8 @@ std::vector<double> Engineering_Plots::get_individual_y_track_elevation(size_t i
 	return y_values;
 }
 
-void Engineering_Plots::establish_plot_limits() {
+void Engineering_Plots::establish_plot_limits()
+{
 
 	sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
 	sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
@@ -442,11 +423,13 @@ void Engineering_Plots::plot_current_step(int counter)
 		double current_x = get_single_x_axis_value(index_sub_plot_xmin + counter);
 		double min_y, max_y;
 
-		if (yaxis_is_log) {
+		if (yaxis_is_log)
+		{
 			min_y = axis_ylog->min() * 1.01;
 			max_y = axis_ylog->max() * 0.99;
 		}
-		else {
+		else
+		{
 			min_y = axis_y->min() * 1.01;
 			max_y = axis_y->max() * 0.99;
 		}
@@ -483,16 +466,14 @@ void Engineering_Plots::toggle_subplot()
 {
 	if (plot_all_data)
 	{
-		set_xaxis_limits(full_plot_xmin, full_plot_xmax, x_title, y_title, title);
+		set_xaxis_limits(full_plot_xmin, full_plot_xmax);
 	}
 	else
 	{
-		set_xaxis_limits(sub_plot_xmin, sub_plot_xmax, x_title, y_title, title);
+		set_xaxis_limits(sub_plot_xmin, sub_plot_xmax);
 	}
 }
 
-// ---------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------
 // Generic plotting functions
 
 NewChartView::NewChartView(QChart* chart)
@@ -569,11 +550,13 @@ void QtPlotting::start_new_chart()
 	axis_ylog->setRange(1, 10);
 	
 
-	if (yaxis_is_scientific) {
+	if (yaxis_is_scientific)
+	{
 		axis_y->setLabelFormat("%.4e");
 		axis_ylog->setLabelFormat("%.4e");
 	}
-	else {
+	else
+	{
 		axis_y->setLabelFormat("%i");
 		axis_ylog->setLabelFormat("%i");
 	}
@@ -591,28 +574,27 @@ void QtPlotting::start_new_chart()
 
 void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
 {
-
 	size_t num_data_pts = x.size();
 	int num_breaks = 0;
 
 	double base_x_distance = 1;
-	if (num_data_pts > 1) {
-
+	if (num_data_pts > 1)
+	{
 		// distance to separate into different line series is the median difference of the x-value set
-
 		arma::vec x_vector(x);
 		arma::vec diff = arma::diff(x_vector);
 		base_x_distance = 1.5; //arma::median(diff);
-		
 	}
 
-	for (size_t i = 0; i < num_data_pts; i++) {
-		if (i == 0) { //If first pt in series then continue...
+	for (size_t i = 0; i < num_data_pts; i++)
+	{
+		if (i == 0)
+		{ //If first pt in series then continue...
 			series->append(x[i], y[i]);
-
 		}
-		else if ((x[i] - x[i - 1] > base_x_distance) & broken_data) { //if current point is greater than 1 frame away then start new series...
-			
+		else if ((x[i] - x[i - 1] > base_x_distance) & broken_data)
+		{
+			//if current point is greater than 1 frame away then start new series...
 			chart->addSeries(series);
 
 			if (num_breaks > 0)
@@ -623,7 +605,9 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 			series->setColor(colors.GetCurrentColor());
 			series->append(x[i], y[i]);
 		}
-		else { //if continuation of current series...
+		else
+		{
+			//if continuation of current series...
 			series->append(x[i], y[i]);
 		}
 	}
@@ -633,8 +617,8 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 		remove_series_legend();
 }
 
-double QtPlotting::find_tick_spacing(double data_range, int min_number_ticks, int max_number_ticks) {
-
+double QtPlotting::find_tick_spacing(double data_range, int min_number_ticks, int max_number_ticks)
+{
 	double min_spacing = data_range / max_number_ticks;
 	double magnitude_spacing = std::pow(10, std::floor(std::log10(min_spacing)));
 	double residual = min_spacing / magnitude_spacing;
@@ -661,33 +645,36 @@ double QtPlotting::find_tick_spacing(double data_range, int min_number_ticks, in
 	return tick_spacing;
 }
 
-void QtPlotting::remove_series_legend() {
+void QtPlotting::remove_series_legend()
+{
 	int num_legend_entries = chart->legend()->markers().size();
-	if (num_legend_entries > 1) {
+	if (num_legend_entries > 1)
+	{
 		QLegendMarker *last_entry = chart->legend()->markers().last();
 		last_entry->setVisible(false);
 	}
 }
 
-void QtPlotting::chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title) {
-
-	// ------------------------------------------------------------------------------------------
+void QtPlotting::chart_options(double min_x, double max_x, double min_y, double max_y)
+{
 	// Define chart properties
 		
 	axis_x->setRange(min_x, max_x);
-	axis_x->setTitleText(x_label_title);
+	axis_x->setTitleText(x_title);
 
-	if (yaxis_is_log) {
+	if (yaxis_is_log)
+	{
 		if (min_y <= 0.001)
 			min_y = 0.01;
 		if (max_y <= 0.001)
 			max_y = 0.01;
 		axis_ylog->setRange(min_y, max_y);
-		axis_ylog->setTitleText(y_label_title);
+		axis_ylog->setTitleText(y_title);
 	}
-	else {
+	else
+	{
 		axis_y->setRange(min_y, max_y);
-		axis_y->setTitleText(y_label_title);
+		axis_y->setTitleText(y_title);
 	}
 
 	int num_series = chart->series().size();
@@ -699,10 +686,12 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	{
 		check1 = all_series[i]->attachAxis(axis_x);
 
-		if (yaxis_is_log) {
+		if (yaxis_is_log)
+		{
 			check2 = all_series[i]->attachAxis(axis_ylog);
 		}
-		else {
+		else
+		{
 			check2 = all_series[i]->attachAxis(axis_y);
 		}
 	}
@@ -715,41 +704,24 @@ void QtPlotting::chart_options(double min_x, double max_x, double min_y, double 
 	//chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 }
 
-void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x) {
-
+void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x)
+{
 	axis->setMin(min_x);
 	axis->setMax(max_x);
 }
 
-void QtPlotting::set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title) {
-
-	//chart->createDefaultAxes();
-	//QAbstractAxis *x_axis = chart->axes(Qt::Horizontal)[0];
-	//QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
-
-	//x_axis->setTitleText(x_label_title);
-	//set_axis_limits(x_axis, min_x, max_x);
+void QtPlotting::set_xaxis_limits(double min_x, double max_x)
+{
 	chart->axisX()->setRange(min_x, max_x);
-
-	//y_axis->setTitleText(y_label_title);
-	
-	// Set chart title
-	//chart->setTitle(title);
-	//chart->setMargins(QMargins(0, 0, 0, 0));
 }
 
-void QtPlotting::set_yaxis_limits(double min_y, double max_y) {
-
-	//chart->createDefaultAxes();
-	//QAbstractAxis *y_axis = chart->axes(Qt::Vertical)[0];
-
-	//y_axis->setMin(min_y);
-	//y_axis->setMax(max_y);
-
+void QtPlotting::set_yaxis_limits(double min_y, double max_y)
+{
 	chart->axisY()->setRange(min_y, max_y);
 }
 
-double QtPlotting::find_max_for_axis(std::vector<double> data) {
+double QtPlotting::find_max_for_axis(std::vector<double> data)
+{
 	double min, max;
 
 	arma::vec input_data(data);
@@ -775,7 +747,6 @@ double QtPlotting::find_max_for_axis(std::vector<double> data) {
 
 void QtPlotting::save_plot()
 {
-
 	QPixmap p = chart_view->grab();
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
 	
