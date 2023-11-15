@@ -72,10 +72,19 @@ int TrackInformation::get_count_of_tracks()
     return static_cast<int>(osm_track_ids.size());
 }
 
-std::vector<TrackFrame> TrackInformation::get_frames(int start_index, int end_index)
+std::vector<TrackFrame> TrackInformation::get_osm_frames(int start_index, int end_index)
 {
 	std::vector<TrackFrame>::const_iterator first = osm_frames.begin() + start_index;
 	std::vector<TrackFrame>::const_iterator last = osm_frames.begin() + end_index;
+
+    std::vector<TrackFrame> subset(first, last);
+    return subset;
+}
+
+std::vector<TrackFrame> TrackInformation::get_manual_frames(int start_index, int end_index)
+{
+	std::vector<TrackFrame>::const_iterator first = manual_frames.begin() + start_index;
+	std::vector<TrackFrame>::const_iterator last = manual_frames.begin() + end_index;
 
     std::vector<TrackFrame> subset(first, last);
     return subset;
@@ -151,7 +160,7 @@ TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_fil
             td.centroid_x = track_x;
             td.centroid_y = track_y;
             track_ids_in_file.insert(track_id);
-            track_frames_from_file[frame_number].tracks[track_id] = td;
+            track_frames_from_file[frame_number - 1].tracks[track_id] = td;
         }
     }
     catch (const std::runtime_error& e)
