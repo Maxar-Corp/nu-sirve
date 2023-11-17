@@ -856,7 +856,7 @@ void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_
 	manual_track_frames = track_frame_input;
 }
 
-void VideoDisplay::add_manual_track_id_to_show(int id)
+void VideoDisplay::add_manual_track_id_to_show_later(int id)
 {
 	manual_track_ids_to_show.insert(id);
 }
@@ -864,6 +864,13 @@ void VideoDisplay::add_manual_track_id_to_show(int id)
 void VideoDisplay::hide_manual_track_id(int id)
 {
 	manual_track_ids_to_show.erase(id);
+	update_display_frame();
+}
+
+void VideoDisplay::show_manual_track_id(int id)
+{
+	manual_track_ids_to_show.insert(id);
+	update_display_frame();
 }
 
 void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)

@@ -903,7 +903,7 @@ void SirveApp::import_tracks()
 		{
 			QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
 		}
-		video_display->add_manual_track_id_to_show(track_id);
+		video_display->add_manual_track_id_to_show_later(track_id);
 	}
 
 	track_info->add_manual_tracks(result.frames);

@@ -84,8 +84,9 @@ public:
 
 	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
 	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
-	void add_manual_track_id_to_show(int);
-	void hide_manual_track_id(int);
+	void add_manual_track_id_to_show_later(int id);
+	void hide_manual_track_id(int id);
+	void show_manual_track_id(int id);
 
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
