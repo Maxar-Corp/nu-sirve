@@ -115,6 +115,15 @@ void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
     }
 }
 
+void TrackInformation::remove_manual_track(int track_id)
+{
+    manual_track_ids.erase(track_id);
+    for (int i = 0; i < manual_frames.size(); i++ )
+    {
+        manual_frames[i].tracks.erase(track_id);
+    }
+}
+
 TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name) const
 {
     size_t num_frames = manual_frames.size();

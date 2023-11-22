@@ -41,6 +41,15 @@ TrackManagementWidget::~TrackManagementWidget()
 {
 }
 
+void TrackManagementWidget::remove_track_control(int id)
+{
+    QWidget * track_control = findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+    if (track_control != nullptr)
+    {
+        delete(track_control);
+    }
+}
+
 void TrackManagementWidget::add_track_control(int id)
 {
     if (findChild<QWidget*>(QString("TrackControl_%1").arg(id)) != nullptr)
