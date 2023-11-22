@@ -576,53 +576,56 @@ void VideoDisplay::update_display_frame()
 		label->setStyleSheet("#video_object { border: 1px solid light gray; }");
 	}
 
-	size_t num_tracks = track_frames[counter].tracks.size();
-
-	if (plot_tracks && num_tracks > 0)
+	size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
+	if (plot_tracks && num_osm_tracks > 0)
 	{
 		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
 		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
 		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
 
-		QPainter rectangle_painter(&frame);
-		rectangle_painter.setPen(QPen(tracker_color));
 		int box_size = 5;
 		double box_width = size_of_pixel_x - 1 + box_size * 2;
 		double box_height = size_of_pixel_y - 1 + box_size * 2;
 
-		for ( const auto &trackData : track_frames[counter].tracks ) {
-			//int track_id = trackData.first;
-			int x_pixel = trackData.second.centroid_x;
-			int y_pixel = trackData.second.centroid_y;
-			int x_center = image_x / 2 + x_pixel;
-			int y_center = image_y / 2 + y_pixel;
+		QPainter rectangle_painter(&frame);
+		rectangle_painter.setPen(QPen(tracker_color));
 
-			if (!zoom_manager->is_any_piece_within_zoom(x_center, y_center))
+		for ( const auto &trackData : osm_track_frames[counter].tracks )
+		{
+			//The OSM tracks are stored offset from the center instead of the top left
+			int x_center = image_x / 2 + trackData.second.centroid_x;
+			int y_center = image_y / 2 + trackData.second.centroid_y;
+			QRectF rectangle = get_rectangle_around_pixel(x_center, y_center, box_size, box_width, box_height);
+			if (rectangle.isNull())
 				continue;
-
-			std::vector<int> loc = zoom_manager->get_position_within_zoom(x_center, y_center);
-			int x = loc[0];
-			int y = loc[1];
-			std::vector<int> loc2 = zoom_manager->get_position_within_zoom(x_center + 1, y_center + 1);
-			int x2 = loc2[0];
-			int y2 = loc2[1];
-
-			// If the "centroid" pixel is not in the box, this helper method returns -1, -1 ...
-			// So we position the box based on loc2, the pixel below and to the right
-			int top_left_x, top_left_y;
-			if (x < 0)
-			{
-				top_left_x = x2 - box_width - box_size;
-				top_left_y = y2 - box_height - box_size;
-			}
-			else
-			{
-				top_left_x = x - box_size;
-				top_left_y = y - box_size;
-			}
-
-			QRectF rectangle(top_left_x, top_left_y, box_width, box_height);
 			rectangle_painter.drawRect(rectangle);
+		}
+	}
+
+	size_t num_manual_tracks = manual_track_frames[counter].tracks.size();
+	if (num_manual_tracks > 0 && manual_track_ids_to_show.size() > 0)
+	{
+		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
+		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
+
+		int box_size = 5;
+		double box_width = size_of_pixel_x - 1 + box_size * 2;
+		double box_height = size_of_pixel_y - 1 + box_size * 2;
+
+		QPainter rectangle_painter(&frame);
+		rectangle_painter.setPen(QPen(banner_color));
+		
+		for ( const auto &trackData : manual_track_frames[counter].tracks )
+		{
+			int track_id = trackData.first;
+			if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
+			{
+				QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
+				if (rectangle.isNull())
+					continue;
+				rectangle_painter.drawRect(rectangle);
+			}
 		}
 	}
 
@@ -790,6 +793,36 @@ void VideoDisplay::update_display_frame()
 	//counter++;
 }
 
+QRectF VideoDisplay::get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height)
+{
+	if (!zoom_manager->is_any_piece_within_zoom(x_center, y_center))
+		return QRectF();
+
+	std::vector<int> loc = zoom_manager->get_position_within_zoom(x_center, y_center);
+	int x = loc[0];
+	int y = loc[1];
+	std::vector<int> loc2 = zoom_manager->get_position_within_zoom(x_center + 1, y_center + 1);
+	int x2 = loc2[0];
+	int y2 = loc2[1];
+
+	// If the "centroid" pixel is not in the box, this helper method returns -1, -1 ...
+	// So we position the box based on loc2, the pixel below and to the right
+	int top_left_x, top_left_y;
+	if (x < 0)
+	{
+		top_left_x = x2 - box_width - box_size;
+		top_left_y = y2 - box_height - box_size;
+	}
+	else
+	{
+		top_left_x = x - box_size;
+		top_left_y = y - box_size;
+	}
+
+	QRectF rectangle(top_left_x, top_left_y, box_width, box_height);
+	return rectangle;
+}
+
 QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 {
 	int hour = seconds_midnight / 3600;
@@ -824,9 +857,32 @@ void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data
 	display_data = input_data;
 }
 
-void VideoDisplay::set_track_data(std::vector<TrackFrame> track_frame_input)
+void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input)
 {
-	track_frames = track_frame_input;
+	osm_track_frames = osm_frame_input;
+	manual_track_frames = manual_frame_input;
+}
+
+void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_input)
+{
+	manual_track_frames = track_frame_input;
+}
+
+void VideoDisplay::add_manual_track_id_to_show_later(int id)
+{
+	manual_track_ids_to_show.insert(id);
+}
+
+void VideoDisplay::hide_manual_track_id(int id)
+{
+	manual_track_ids_to_show.erase(id);
+	update_display_frame();
+}
+
+void VideoDisplay::show_manual_track_id(int id)
+{
+	manual_track_ids_to_show.insert(id);
+	update_display_frame();
 }
 
 void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
