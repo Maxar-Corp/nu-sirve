@@ -860,6 +860,7 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
 	QObject::connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
+	QObject::connect(tm_widget, &TrackManagementWidget::delete_track, this, &SirveApp::handle_removal_of_track);
 
 	// Connect epoch button click to function
 	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
@@ -923,6 +924,17 @@ void SirveApp::import_tracks()
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 
+	video_display->update_display_frame();
+}
+
+void SirveApp::handle_removal_of_track(int track_id)
+{
+	tm_widget->remove_track_control(track_id);
+	track_info->remove_manual_track(track_id);
+	int index0 = data_plots->index_sub_plot_xmin;
+	int index1 = data_plots->index_sub_plot_xmax + 1;
+	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
 	video_display->update_display_frame();
 }
 

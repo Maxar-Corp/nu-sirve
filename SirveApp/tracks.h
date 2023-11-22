@@ -48,6 +48,7 @@ class TrackInformation {
         int get_count_of_tracks();
         std::set<int> get_manual_track_ids();
         void add_manual_tracks(std::vector<TrackFrame> new_frames);
+        void remove_manual_track(int track_id);
 
         TrackFileReadResult read_tracks_from_file(QString file_name) const;
     private:
