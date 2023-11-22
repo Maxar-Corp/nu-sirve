@@ -313,12 +313,10 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	 // --------------------------------------------------------------------------
 
 	QHBoxLayout* hlayout_osm_tracks = new QHBoxLayout(widget_tab_color);
-	QHBoxLayout* hlayout_primary_track = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_text_color = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_color_map = new QHBoxLayout(widget_tab_color);
 
 	QLabel* lbl_colormap = new QLabel("Set Colormap:");
-	QLabel* lbl_primary_track = new QLabel("Set Primary Track Color:");
 	QLabel* lbl_text_color = new QLabel("Set Text Color:");
 
 	chk_show_tracks = new QCheckBox("Show OSM Tracks");
@@ -356,8 +354,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	hlayout_osm_tracks->addStretch();
 	hlayout_osm_tracks->addWidget(cmb_tracker_color);	
 	
-	hlayout_primary_track->addWidget(lbl_primary_track);
-	
 	hlayout_text_color->addWidget(lbl_text_color);
 	hlayout_text_color->addStretch();
 	hlayout_text_color->addWidget(cmb_text_color);
@@ -367,7 +363,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	hlayout_color_map->addWidget(cmb_color_maps);
 	
 	vlayout_tab_color->addLayout(hlayout_osm_tracks);
-	vlayout_tab_color->addLayout(hlayout_primary_track);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
