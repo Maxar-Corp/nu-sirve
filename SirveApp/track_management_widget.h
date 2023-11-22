@@ -6,44 +6,9 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QCheckBox>
-#include <QPushButton>
 #include <QLabel>
 
-class TrackControlButton : public QPushButton
-{
-    Q_OBJECT
-
-public:
-    TrackControlButton(int id, const QString& text, QWidget *parent = nullptr);
-
-signals:
-    void clicked_with_id(int id);
-
-private slots:
-    void handle_button_click();
-
-private:
-    int track_id;
-};
-
-class TrackCheckbox : public QCheckBox
-{
-    Q_OBJECT
-
-public:
-    TrackCheckbox(int id, const QString& text, QWidget *parent = nullptr);
-
-signals:
-    void checked_with_id(int id);
-    void unchecked_with_id(int id);
-
-private slots:
-    void handle_state_changed(int state);
-
-private:
-    int track_id;
-};
+#include "support/qt_elements_with_ids.h"
 
 class TrackManagementWidget : public QWidget
 {
