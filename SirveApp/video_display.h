@@ -81,7 +81,13 @@ public:
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
-	void set_track_data(std::vector<TrackFrame> track_frame_input);
+
+	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
+	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
+	void add_manual_track_id_to_show_later(int id);
+	void hide_manual_track_id(int id);
+	void show_manual_track_id(int id);
+
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
 	void add_new_frame(QImage &img, int format);
@@ -148,13 +154,17 @@ private:
 
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;
-	std::vector<TrackFrame> track_frames;
+	std::vector<TrackFrame> osm_track_frames;
+	std::vector<TrackFrame> manual_track_frames;
+	std::set<int> manual_track_ids_to_show;
 	std::vector<ABIR_Frame> frame_headers;
 
 	void setup_labels();
 	void setup_pinpoint_display();
 
 	void calibrate(QRect area);
+
+	QRectF get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height);
 
 	void add_pinpoints_to_bad_pixel_map();
 	void remove_pinpoints_from_bad_pixel_map();

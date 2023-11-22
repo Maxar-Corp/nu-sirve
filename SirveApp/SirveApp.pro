@@ -50,6 +50,7 @@ HEADERS += abir_reader.h \
             processing_state.h \
             Section.h \
             SirveApp.h \
+            track_management_widget.h \
             tracks.h \
             video_container.h \
             video_details.h \
@@ -59,6 +60,7 @@ HEADERS += abir_reader.h \
             support/earth.h \
             support/euler.h \
             support/jtime.h \
+            support/qt_elements_with_ids.h \
             support/qthelpers.h
 
 FORMS += location_gui.ui new_location.ui
@@ -99,6 +101,7 @@ SOURCES += abir_reader.cpp \
             processing_state.cpp \
             Section.cpp \
             SirveApp.cpp \
+            track_management_widget.cpp \
             tracks.cpp \
             video_container.cpp \
             video_details.cpp \
@@ -108,6 +111,7 @@ SOURCES += abir_reader.cpp \
             support/earth.cpp \
             support/euler.cpp \
             support/jtime.cpp \
+            support/qt_elements_with_ids.cpp \
             support/qthelpers.cpp
 
 QT += charts widgets

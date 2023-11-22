@@ -35,15 +35,6 @@ QString ColorScheme::GetNextColor(){
     return colors[index];
 }
 
-QString ColorScheme::GetPreviousColor(){
-
-    if (index == 0){
-        index = num_colors - 1;
-    }
-
-    return colors[index];
-}
-
 void ColorScheme::reset_colors()
 {
 	index = 0;
