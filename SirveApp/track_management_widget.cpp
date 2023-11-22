@@ -52,9 +52,12 @@ void TrackManagementWidget::remove_track_control(int id)
 
 void TrackManagementWidget::add_track_control(int id)
 {
-    if (findChild<QWidget*>(QString("TrackControl_%1").arg(id)) != nullptr)
+    QWidget * existing_track_control = findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+    if (existing_track_control != nullptr)
     {
-        //If there's already a track control widget for this ID, no changes are needed
+        //If there's already a track control widget for this ID, just make sure the checkbox is checked
+        TrackCheckbox * chk_box = existing_track_control->findChild<TrackCheckbox*>();
+        chk_box->setChecked(true);
         return;
     }
 
