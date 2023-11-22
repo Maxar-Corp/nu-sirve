@@ -151,6 +151,8 @@ void SirveApp::setup_ui() {
 	btn_workspace_save->setEnabled(false);
 	btn_workspace_load->setEnabled(true);
 	cmb_processing_states->setEnabled(false);
+
+	btn_import_tracks->setEnabled(false);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -311,12 +313,10 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	 // --------------------------------------------------------------------------
 
 	QHBoxLayout* hlayout_osm_tracks = new QHBoxLayout(widget_tab_color);
-	QHBoxLayout* hlayout_primary_track = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_text_color = new QHBoxLayout(widget_tab_color);
 	QHBoxLayout* hlayout_color_map = new QHBoxLayout(widget_tab_color);
 
 	QLabel* lbl_colormap = new QLabel("Set Colormap:");
-	QLabel* lbl_primary_track = new QLabel("Set Primary Track Color:");
 	QLabel* lbl_text_color = new QLabel("Set Text Color:");
 
 	chk_show_tracks = new QCheckBox("Show OSM Tracks");
@@ -354,8 +354,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	hlayout_osm_tracks->addStretch();
 	hlayout_osm_tracks->addWidget(cmb_tracker_color);	
 	
-	hlayout_primary_track->addWidget(lbl_primary_track);
-	
 	hlayout_text_color->addWidget(lbl_text_color);
 	hlayout_text_color->addStretch();
 	hlayout_text_color->addWidget(cmb_text_color);
@@ -365,7 +363,6 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	hlayout_color_map->addWidget(cmb_color_maps);
 	
 	vlayout_tab_color->addLayout(hlayout_osm_tracks);
-	vlayout_tab_color->addLayout(hlayout_primary_track);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
 	vlayout_tab_color->addWidget(chk_show_time);
@@ -482,6 +479,9 @@ QWidget* SirveApp::setup_workspace_tab(){
 
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
+
+	QLabel *lbl_track = new QLabel("Manual Track Management");
+	btn_import_tracks = new QPushButton("Import Tracks");
 	
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
@@ -490,8 +490,19 @@ QWidget* SirveApp::setup_workspace_tab(){
 	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, -1);
 	grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
 	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
+	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, -1);
+	grid_workspace->addWidget(lbl_track, 5, 0, 1, -1, Qt::AlignCenter);
+	grid_workspace->addWidget(btn_import_tracks, 6, 0, 1, -1);
+
+	tm_widget = new TrackManagementWidget(widget_tab_workspace);
+	QScrollArea *track_management_scroll_area = new QScrollArea();
+    track_management_scroll_area->setWidgetResizable( true );
+	track_management_scroll_area->setWidget(tm_widget);
+	track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	grid_workspace->addWidget(track_management_scroll_area, 7, 0, 1, -1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
+	vlayout_tab_workspace->insertStretch(-1, 0);
 	return widget_tab_workspace;
 }
 
@@ -840,6 +851,11 @@ void SirveApp::setup_connections() {
 
 	QObject::connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
 	QObject::connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
+	QObject::connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
+
+	QObject::connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
+	QObject::connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
+	QObject::connect(tm_widget, &TrackManagementWidget::delete_track, this, &SirveApp::handle_removal_of_track);
 
 	// Connect epoch button click to function
 	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
@@ -867,6 +883,56 @@ void SirveApp::setup_connections() {
 	connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::handle_popout_histogram_btn);
 }
 
+void SirveApp::import_tracks()
+{
+	QString base_track_folder = "workspace";
+	QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), base_track_folder, ("Track File (*.csv)"));
+
+	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
+	if (compare == 0) {
+		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No track file was selected.");
+		return;
+	}
+
+	TrackFileReadResult result = track_info->read_tracks_from_file(file_selection);
+
+	if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
+	{
+		QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
+		return;
+	}
+
+	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+	for ( int track_id : result.track_ids )
+	{
+		if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+		{
+			QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
+		}
+		video_display->add_manual_track_id_to_show_later(track_id);
+		tm_widget->add_track_control(track_id);
+	}
+
+	track_info->add_manual_tracks(result.frames);
+
+	int index0 = data_plots->index_sub_plot_xmin;
+	int index1 = data_plots->index_sub_plot_xmax + 1;
+	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+
+	video_display->update_display_frame();
+}
+
+void SirveApp::handle_removal_of_track(int track_id)
+{
+	tm_widget->remove_track_control(track_id);
+	track_info->remove_manual_track(track_id);
+	int index0 = data_plots->index_sub_plot_xmin;
+	int index1 = data_plots->index_sub_plot_xmax + 1;
+	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
+	video_display->update_display_frame();
+}
+
 void SirveApp::save_workspace()
 {
 	if (abp_file_metadata.image_path == "" || video_display->container.get_processing_states().size() == 0) {
@@ -888,6 +954,7 @@ void SirveApp::save_workspace()
 		cmb_workspace_name->setCurrentText(workspace_name);
 	}
 }
+
 void SirveApp::load_workspace()
 {
 	INFO << "WORKSPACE: Start ABP load process";
@@ -1112,6 +1179,8 @@ void SirveApp::load_osm_data()
 	chk_highlight_bad_pixels->setChecked(false);
 	chk_highlight_bad_pixels->setEnabled(false);
 
+	btn_import_tracks->setEnabled(true);
+
 	CalibrationData temp;
 	calibration_model = temp;
 
@@ -1220,14 +1289,14 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	}
 
 	int index0 = min_frame - 1;
-	int index1 = min_frame + (max_frame - min_frame);
+	int index1 = max_frame;
 	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 	
 	progress_dialog.setLabelText("Finalizing application state");
 	progress_dialog.setValue(3);
 
 	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
-	video_display->set_track_data(track_info->get_frames(index0, index1));
+	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	video_display->set_starting_frame_number(min_frame);
 
 	// Reset engineering plots with new sub plot indices
@@ -1813,13 +1882,13 @@ void SirveApp::export_plot_data()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data") 
 	{
-		DataExport::write_track_date_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks());
+		DataExport::write_track_data_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks());
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin + 1;
 		max_frame = data_plots->index_sub_plot_xmax + 1;
 
-		DataExport::write_track_date_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), min_frame, max_frame);
+		DataExport::write_track_data_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), min_frame, max_frame);
 	}
 
 	QMessageBox msgBox;

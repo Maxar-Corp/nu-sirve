@@ -49,6 +49,7 @@ class QtPlotting : public QWidget
 
 		QValueAxis *axis_x, *axis_y;
 		QLogValueAxis *axis_ylog;
+		QString x_title, y_title, title;
 
 		bool yaxis_is_log, yaxis_is_scientific;
 
@@ -56,9 +57,9 @@ class QtPlotting : public QWidget
 		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
 		void remove_series_legend();
 		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
-		void chart_options(double min_x, double max_x, double min_y, double max_y, QString x_label_title, QString y_label_title);
+		void chart_options(double min_x, double max_x, double min_y, double max_y);
 		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
-		void set_xaxis_limits(double min_x, double max_x, QString x_label_title, QString y_label_title, QString title);
+		void set_xaxis_limits(double min_x, double max_x);
 		void set_yaxis_limits(double min_y, double max_y);
 		double find_max_for_axis(std::vector<double> data);
 
@@ -82,7 +83,6 @@ class Engineering_Plots : public QtPlotting
 		std::vector<double> boresight_az, boresight_el;
 
 		// plot axes titles
-		QString x_title, y_title, title;
 		QXYSeries *current_frame_marker;
 
 		Engineering_Plots(std::vector<Frame> const &osm_frames);

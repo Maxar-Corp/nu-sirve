@@ -1,6 +1,6 @@
 #include "data_export.h"
 
-void DataExport::write_track_date_to_csv(std::string save_path, std::vector<Plotting_Frame_Data> frame_data, std::vector<PlottingTrackFrame> track_data, int min_frame, int max_frame)
+void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plotting_Frame_Data> frame_data, std::vector<PlottingTrackFrame> track_data, int min_frame, int max_frame)
 {
     if (max_frame == 0)
 	{
