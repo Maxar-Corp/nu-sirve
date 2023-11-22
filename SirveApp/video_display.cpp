@@ -577,9 +577,7 @@ void VideoDisplay::update_display_frame()
 	}
 
 	size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
-	size_t num_manual_tracks = manual_track_frames[counter].tracks.size();
-
-	if (plot_tracks && (num_osm_tracks > 0 || num_manual_tracks > 0))
+	if (plot_tracks && num_osm_tracks > 0)
 	{
 		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
 		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
@@ -602,8 +600,22 @@ void VideoDisplay::update_display_frame()
 				continue;
 			rectangle_painter.drawRect(rectangle);
 		}
+	}
 
+	size_t num_manual_tracks = manual_track_frames[counter].tracks.size();
+	if (num_manual_tracks > 0 && manual_track_ids_to_show.size() > 0)
+	{
+		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
+		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
+
+		int box_size = 5;
+		double box_width = size_of_pixel_x - 1 + box_size * 2;
+		double box_height = size_of_pixel_y - 1 + box_size * 2;
+
+		QPainter rectangle_painter(&frame);
 		rectangle_painter.setPen(QPen(banner_color));
+		
 		for ( const auto &trackData : manual_track_frames[counter].tracks )
 		{
 			int track_id = trackData.first;
