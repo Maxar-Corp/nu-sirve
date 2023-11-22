@@ -1,34 +1,5 @@
 #include "track_management_widget.h"
 
-TrackControlButton::TrackControlButton(int id, const QString& text, QWidget *parent)
-    : QPushButton(text, parent), track_id(id)
-{
-    connect(this, &TrackControlButton::clicked, this, &TrackControlButton::handle_button_click);
-}
-
-void TrackControlButton::handle_button_click()
-{
-    emit clicked_with_id(track_id);
-}
-
-TrackCheckbox::TrackCheckbox(int id, const QString& text, QWidget *parent)
-    : QCheckBox(text, parent), track_id(id)
-{
-    connect(this, &QCheckBox::stateChanged, this, &TrackCheckbox::handle_state_changed);
-}
-
-void TrackCheckbox::handle_state_changed(int state)
-{
-    if (state == Qt::Checked)
-    {
-        emit checked_with_id(track_id);
-    }
-    else
-    {
-        emit unchecked_with_id(track_id);
-    }
-}
-
 TrackManagementWidget::TrackManagementWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -56,7 +27,7 @@ void TrackManagementWidget::add_track_control(int id)
     if (existing_track_control != nullptr)
     {
         //If there's already a track control widget for this ID, just make sure the checkbox is checked
-        TrackCheckbox * chk_box = existing_track_control->findChild<TrackCheckbox*>();
+        QCheckBoxWithId * chk_box = existing_track_control->findChild<QCheckBoxWithId*>();
         chk_box->setChecked(true);
         return;
     }
@@ -83,13 +54,13 @@ QWidget* TrackManagementWidget::create_track_control(int id)
     track_control->setObjectName(QString("TrackControl_%1").arg(id));
 
     QLabel *label = new QLabel("Track ID: " + QString::number(id));
-    TrackCheckbox *chk_should_display = new TrackCheckbox(id, "Display");
+    QCheckBoxWithId *chk_should_display = new QCheckBoxWithId(id, "Display");
     chk_should_display->setChecked(true);
-    TrackControlButton *delete_button = new TrackControlButton(id, "Delete");
+    QPushButtonWithId *delete_button = new QPushButtonWithId(id, "Delete");
 
-    connect(chk_should_display, &TrackCheckbox::checked_with_id, this, &TrackManagementWidget::display_track);
-    connect(chk_should_display, &TrackCheckbox::unchecked_with_id, this, &TrackManagementWidget::hide_track);
-    connect(delete_button, &TrackControlButton::clicked_with_id, this, &TrackManagementWidget::delete_track);
+    connect(chk_should_display, &QCheckBoxWithId::checked_with_id, this, &TrackManagementWidget::display_track);
+    connect(chk_should_display, &QCheckBoxWithId::unchecked_with_id, this, &TrackManagementWidget::hide_track);
+    connect(delete_button, &QPushButtonWithId::clicked_with_id, this, &TrackManagementWidget::delete_track);
 
     QHBoxLayout *control_layout = new QHBoxLayout(track_control);
     control_layout->addWidget(label);
