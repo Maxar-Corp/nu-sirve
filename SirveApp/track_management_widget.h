@@ -54,6 +54,7 @@ public:
     ~TrackManagementWidget();
 
     void add_track_control(int id);
+    void remove_track_control(int id);
 
 signals:
     void display_track(int id);

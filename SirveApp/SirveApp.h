@@ -160,6 +160,7 @@ public:
 		void save_workspace();
 		void load_workspace();
 		void import_tracks();
+		void handle_removal_of_track(int track_id);
 
 		void ui_choose_abp_file();
 		bool validate_abp_files(QString path_to_image_file);
