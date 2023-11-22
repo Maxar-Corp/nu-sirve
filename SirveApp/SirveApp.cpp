@@ -497,7 +497,14 @@ QWidget* SirveApp::setup_workspace_tab(){
 	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
 	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, -1);
 	grid_workspace->addWidget(lbl_track, 5, 0, 1, -1, Qt::AlignCenter);
-	grid_workspace->addWidget(btn_import_tracks, 6, 0, 1, 1);
+	grid_workspace->addWidget(btn_import_tracks, 6, 0, 1, -1);
+
+	tm_widget = new TrackManagementWidget(widget_tab_workspace);
+	QScrollArea *track_management_scroll_area = new QScrollArea();
+    track_management_scroll_area->setWidgetResizable( true );
+	track_management_scroll_area->setWidget(tm_widget);
+	track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	grid_workspace->addWidget(track_management_scroll_area, 7, 0, 1, -1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
 	vlayout_tab_workspace->insertStretch(-1, 0);
@@ -851,6 +858,9 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
 	QObject::connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
 
+	QObject::connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
+	QObject::connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
+
 	// Connect epoch button click to function
 	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
 
@@ -904,6 +914,7 @@ void SirveApp::import_tracks()
 			QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
 		}
 		video_display->add_manual_track_id_to_show_later(track_id);
+		tm_widget->add_track_control(track_id);
 	}
 
 	track_info->add_manual_tracks(result.frames);
