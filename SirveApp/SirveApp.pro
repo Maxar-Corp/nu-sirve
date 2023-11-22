@@ -60,6 +60,7 @@ HEADERS += abir_reader.h \
             support/earth.h \
             support/euler.h \
             support/jtime.h \
+            support/qt_elements_with_ids.h \
             support/qthelpers.h
 
 FORMS += location_gui.ui new_location.ui
@@ -110,6 +111,7 @@ SOURCES += abir_reader.cpp \
             support/earth.cpp \
             support/euler.cpp \
             support/jtime.cpp \
+            support/qt_elements_with_ids.cpp \
             support/qthelpers.cpp
 
 QT += charts widgets
