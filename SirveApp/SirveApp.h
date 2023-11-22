@@ -33,6 +33,7 @@
 #include "popout_dialog.h"
 #include "bad_pixels.h"
 #include "tracks.h"
+#include "track_management_widget.h"
 #include "data_export.h"
 
 #include <qstackedlayout.h>
@@ -117,11 +118,11 @@ public:
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
 
-
 	VideoDisplay *video_display;
 	Engineering_Plots *data_plots;
 	Engineering_Data *eng_data;
 	TrackInformation *track_info;
+	TrackManagementWidget *tm_widget;
 	bool record_video;
 	
 	SirveApp(QWidget *parent = Q_NULLPTR);

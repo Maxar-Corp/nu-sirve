@@ -50,6 +50,7 @@ HEADERS += abir_reader.h \
             processing_state.h \
             Section.h \
             SirveApp.h \
+            track_management_widget.h \
             tracks.h \
             video_container.h \
             video_details.h \
@@ -99,6 +100,7 @@ SOURCES += abir_reader.cpp \
             processing_state.cpp \
             Section.cpp \
             SirveApp.cpp \
+            track_management_widget.cpp \
             tracks.cpp \
             video_container.cpp \
             video_details.cpp \
