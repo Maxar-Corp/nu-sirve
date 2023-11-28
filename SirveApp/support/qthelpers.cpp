@@ -11,14 +11,22 @@ void QtHelpers::LaunchMessageBox(QString title, QString message)
     msgBox.exec();
 }
 
-int QtHelpers::LaunchYesNoMessageBox(QString title, QString message)
+int QtHelpers::LaunchYesNoMessageBox(QString title, QString message, bool include_cancel)
 {
     QMessageBox msgBox;
     msgBox.setWindowTitle(title);
     msgBox.setText(message);
 
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setDefaultButton(QMessageBox::No);
+    if (include_cancel)
+    {
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+    }
+    else
+    {
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+    }
 
     return msgBox.exec();
 }
