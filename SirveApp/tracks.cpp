@@ -124,6 +124,49 @@ void TrackInformation::remove_manual_track(int track_id)
     }
 }
 
+void TrackInformation::add_created_manual_track(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
+{
+    //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
+    manual_track_ids.insert(track_id);
+
+    for (int i = 0; i < manual_frames.size(); i++)
+    {
+        // if (new_track_details[i].has_value())
+        // {
+        //     TrackDetails track_details = new_track_details[i].value();
+        //     manual_frames[i].tracks[track_id] = track_details;
+        //     //TODO: Save the track to the file by writing to the file here
+        // }
+    }
+}
+
+std::vector<std::optional<TrackDetails>> TrackInformation::copy_manual_track(int track_id)
+{
+    std::vector<std::optional<TrackDetails>> single_track_frames;
+    for (int i = 0; i < manual_frames.size(); i++ )
+    {
+        if (auto search = manual_frames[i].tracks.find(track_id); search != manual_frames[i].tracks.end())
+        {
+            single_track_frames.push_back(manual_frames[i].tracks[track_id]);
+        }
+        else
+        {
+            single_track_frames.push_back(std::nullopt);
+        }
+    }
+    return single_track_frames;
+}
+
+std::vector<std::optional<TrackDetails>> TrackInformation::get_empty_track()
+{
+    std::vector<std::optional<TrackDetails>> track_frames;
+    for (int i = 0; i < manual_frames.size(); i++ )
+    {
+        track_frames.push_back(std::nullopt);
+    }
+    return track_frames;
+}
+
 TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name) const
 {
     size_t num_frames = manual_frames.size();

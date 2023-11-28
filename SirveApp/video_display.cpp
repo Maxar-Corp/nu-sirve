@@ -273,6 +273,27 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 	update_display_frame();
 }
 
+void VideoDisplay::enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details)
+{
+	is_zoom_active = false;
+	is_calculate_active = false;
+	is_pinpoint_active = false;
+	btn_pinpoint->setChecked(false);
+	emit clear_mouse_buttons();
+
+	//Add relevant control buttons, labels, etc. and refresh the display.
+}
+
+const std::vector<std::optional<TrackDetails>> & VideoDisplay::get_created_track_details()
+{
+	return std::vector<std::optional<TrackDetails>>(); // TODO: Return the track being created
+}
+
+void VideoDisplay::exit_track_creation_mode()
+{
+	//Remove buttons, labels, etc. and refresh the display.
+}
+
 void VideoDisplay::handle_image_area_selection(QRect area)
 {
 	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
