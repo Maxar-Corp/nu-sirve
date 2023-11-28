@@ -8,6 +8,7 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
+#include <optional>
 
 #include <QString>
 #include <QTimer>
@@ -98,6 +99,9 @@ public:
 
 	void toggle_action_zoom(bool status);
 	void toggle_action_calculate_radiance(bool status);
+	void enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details);
+	const std::vector<std::optional<TrackDetails>> & get_created_track_details();
+	void exit_track_creation_mode();
 	
 	bool plot_tracks, display_boresight_txt, display_time;
 	void save_frame();
