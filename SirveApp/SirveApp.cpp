@@ -786,6 +786,8 @@ void SirveApp::setup_connections() {
 	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	QObject::connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	QObject::connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
+
+	QObject::connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -832,6 +834,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
 	QObject::connect(btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
 	QObject::connect(btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
+	QObject::connect(video_display, &VideoDisplay::advance_frame, playback_controller, &Playback::next_frame);
 	QObject::connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
 	QObject::connect(btn_frame_record, &QPushButton::clicked, this, &SirveApp::start_stop_video_record);
 
@@ -990,6 +993,23 @@ void SirveApp::prepare_for_track_creation(int track_id)
 
 void SirveApp::handle_btn_finish_create_track()
 {
+	const std::vector<std::optional<TrackDetails>> & created_track_details = video_display->get_created_track_details();
+	bool any_contents = false;
+	for (int i = 0; i < created_track_details.size(); i++)
+	{
+		if (created_track_details[i].has_value())
+		{
+			any_contents = true;
+			break;
+		}
+	}
+	if (!any_contents)
+	{
+		QtHelpers::LaunchMessageBox("Empty Track", "The manual track being edited is empty. The manual track will be discarded.");
+		exit_track_creation_mode();
+		return;
+	}
+
 	auto response = QtHelpers::LaunchYesNoMessageBox("Finish Track Creation", "This action will finalize track creation. Pressing \"Yes\" will save the track, \"No\" will cancel track editing, and \"Cancel\" will return to track editing mode. Are you finished editing the track?", true);
 
 	if (response == QMessageBox::Cancel)
@@ -1007,7 +1027,6 @@ void SirveApp::handle_btn_finish_create_track()
 			return;
 		}
 
-		const std::vector<std::optional<TrackDetails>> & created_track_details = video_display->get_created_track_details();
 		tm_widget->add_track_control(currently_editing_or_creating_track_id);
 		video_display->add_manual_track_id_to_show_later(currently_editing_or_creating_track_id);
 		track_info->add_created_manual_track(currently_editing_or_creating_track_id, created_track_details, new_track_file_name);

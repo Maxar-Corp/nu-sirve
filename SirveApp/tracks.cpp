@@ -131,12 +131,12 @@ void TrackInformation::add_created_manual_track(int track_id, const std::vector<
 
     for (int i = 0; i < manual_frames.size(); i++)
     {
-        // if (new_track_details[i].has_value())
-        // {
-        //     TrackDetails track_details = new_track_details[i].value();
-        //     manual_frames[i].tracks[track_id] = track_details;
-        //     //TODO: Save the track to the file by writing to the file here
-        // }
+        if (new_track_details[i].has_value())
+        {
+            TrackDetails track_details = new_track_details[i].value();
+            manual_frames[i].tracks[track_id] = track_details;
+            //TODO: Save the track to the file by writing to the file here
+        }
     }
 }
 
