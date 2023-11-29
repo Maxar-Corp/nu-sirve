@@ -153,6 +153,7 @@ void SirveApp::setup_ui() {
 	cmb_processing_states->setEnabled(false);
 
 	btn_import_tracks->setEnabled(false);
+	btn_create_track->setEnabled(false);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -481,6 +482,15 @@ QWidget* SirveApp::setup_workspace_tab(){
 	btn_undo_step = new QPushButton("Undo One Step");
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
+	lbl_create_track_message = new QLabel("");
+	lbl_create_track_message->setStyleSheet("QLabel { color: red }");
+	QFont large_font;
+	large_font.setPointSize(16);
+	lbl_create_track_message->setFont(large_font);
+	btn_create_track = new QPushButton("Create Track");
+	btn_finish_create_track = new QPushButton("Finish");
+	btn_finish_create_track->setHidden(true);
+	btn_finish_create_track->setFont(large_font);
 	btn_import_tracks = new QPushButton("Import Tracks");
 	
 	QGridLayout* grid_workspace = new QGridLayout();
@@ -492,14 +502,17 @@ QWidget* SirveApp::setup_workspace_tab(){
 	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
 	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, -1);
 	grid_workspace->addWidget(lbl_track, 5, 0, 1, -1, Qt::AlignCenter);
-	grid_workspace->addWidget(btn_import_tracks, 6, 0, 1, -1);
+	grid_workspace->addWidget(lbl_create_track_message, 6, 0, 1, 1);
+	grid_workspace->addWidget(btn_create_track, 6, 1, 1, 1);
+	grid_workspace->addWidget(btn_finish_create_track, 6, 1, 1, 1);
+	grid_workspace->addWidget(btn_import_tracks, 7, 0, 1, -1);
 
 	tm_widget = new TrackManagementWidget(widget_tab_workspace);
 	QScrollArea *track_management_scroll_area = new QScrollArea();
     track_management_scroll_area->setWidgetResizable( true );
 	track_management_scroll_area->setWidget(tm_widget);
 	track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	grid_workspace->addWidget(track_management_scroll_area, 7, 0, 1, -1);
+	grid_workspace->addWidget(track_management_scroll_area, 8, 0, 1, -1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
 	vlayout_tab_workspace->insertStretch(-1, 0);
@@ -773,6 +786,8 @@ void SirveApp::setup_connections() {
 	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	QObject::connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	QObject::connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
+
+	QObject::connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
 	//---------------------------------------------------------------------------	
 	
 	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -819,6 +834,7 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
 	QObject::connect(btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
 	QObject::connect(btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
+	QObject::connect(video_display, &VideoDisplay::advance_frame, playback_controller, &Playback::next_frame);
 	QObject::connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
 	QObject::connect(btn_frame_record, &QPushButton::clicked, this, &SirveApp::start_stop_video_record);
 
@@ -852,6 +868,8 @@ void SirveApp::setup_connections() {
 	QObject::connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
 	QObject::connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
 	QObject::connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
+	QObject::connect(btn_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_create_track);
+	QObject::connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_finish_create_track);
 
 	QObject::connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
 	QObject::connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
@@ -902,6 +920,12 @@ void SirveApp::import_tracks()
 		return;
 	}
 
+	if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
+	{
+		QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
+		return;
+	}
+
 	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
 	for ( int track_id : result.track_ids )
 	{
@@ -920,6 +944,113 @@ void SirveApp::import_tracks()
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 
 	video_display->update_display_frame();
+}
+
+void SirveApp::handle_btn_create_track()
+{
+	bool ok;
+    int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
+	if (!ok || track_id < 0)
+	{
+		return;
+	}
+
+	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+	{
+		auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
+		if (response == QMessageBox::Yes)
+		{
+			std::vector<std::optional<TrackDetails>> existing_track_details = track_info->copy_manual_track(track_id);
+			prepare_for_track_creation(track_id);
+			video_display->enter_track_creation_mode(existing_track_details);
+		}
+	}
+	else
+	{
+		std::vector<std::optional<TrackDetails>> empty_track_details = track_info->get_empty_track();
+		prepare_for_track_creation(track_id);
+		video_display->enter_track_creation_mode(empty_track_details);
+	}
+}
+
+void SirveApp::prepare_for_track_creation(int track_id)
+{
+	currently_editing_or_creating_track_id = track_id;
+	btn_create_track->setHidden(true);
+	btn_finish_create_track->setHidden(false);
+	lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
+	tab_menu->setTabEnabled(0, false);
+	tab_menu->setTabEnabled(2, false);
+	btn_workspace_load->setDisabled(true);
+	btn_workspace_save->setDisabled(true);
+
+	if (popout_video != nullptr)
+	{
+		popout_video->close();
+	}
+}
+
+void SirveApp::handle_btn_finish_create_track()
+{
+	const std::vector<std::optional<TrackDetails>> & created_track_details = video_display->get_created_track_details();
+	bool any_contents = false;
+	for (int i = 0; i < created_track_details.size(); i++)
+	{
+		if (created_track_details[i].has_value())
+		{
+			any_contents = true;
+			break;
+		}
+	}
+	if (!any_contents)
+	{
+		QtHelpers::LaunchMessageBox("Empty Track", "The manual track being edited is empty. The manual track will be discarded.");
+		exit_track_creation_mode();
+		return;
+	}
+
+	auto response = QtHelpers::LaunchYesNoMessageBox("Finish Track Creation", "This action will finalize track creation. Pressing \"Yes\" will save the track, \"No\" will cancel track editing, and \"Cancel\" will return to track editing mode. Are you finished editing the track?", true);
+
+	if (response == QMessageBox::Cancel)
+	{
+		return;
+	}
+	
+	if (response == QMessageBox::Yes)
+	{
+		QString base_track_folder = "workspace";
+		QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", base_track_folder, "CSV (*.csv)");
+		if (new_track_file_name.isEmpty())
+		{
+			QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+			return;
+		}
+
+		tm_widget->add_track_control(currently_editing_or_creating_track_id);
+		video_display->add_manual_track_id_to_show_later(currently_editing_or_creating_track_id);
+		track_info->add_created_manual_track(currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
+
+		int index0 = data_plots->index_sub_plot_xmin;
+		int index1 = data_plots->index_sub_plot_xmax + 1;
+		video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+	}
+
+	exit_track_creation_mode();
+}
+
+void SirveApp::exit_track_creation_mode()
+{
+	btn_finish_create_track->setHidden(true);
+	btn_create_track->setHidden(false);
+	lbl_create_track_message->setText("");
+	currently_editing_or_creating_track_id = -1;
+	tab_menu->setTabEnabled(0, true);
+	tab_menu->setTabEnabled(2, true);
+	btn_workspace_load->setDisabled(false);
+	btn_workspace_save->setDisabled(false);
+
+	video_display->exit_track_creation_mode();
 }
 
 void SirveApp::handle_removal_of_track(int track_id)
@@ -1179,6 +1310,7 @@ void SirveApp::load_osm_data()
 	chk_highlight_bad_pixels->setChecked(false);
 	chk_highlight_bad_pixels->setEnabled(false);
 
+	btn_create_track->setEnabled(true);
 	btn_import_tracks->setEnabled(true);
 
 	CalibrationData temp;

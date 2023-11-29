@@ -93,7 +93,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count;
+	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -101,7 +101,7 @@ public:
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
-		* btn_import_tracks;
+		* btn_import_tracks, * btn_create_track, * btn_finish_create_track;
 	
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
@@ -218,6 +218,8 @@ private:
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
 
+	int currently_editing_or_creating_track_id;
+
 	void create_menu_actions();
 	void edit_color_map();
 	void edit_banner_text();
@@ -257,4 +259,9 @@ private:
 	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
+
+	void handle_btn_create_track();
+	void prepare_for_track_creation(int track_id);
+	void exit_track_creation_mode();
+	void handle_btn_finish_create_track();
 };
