@@ -9,7 +9,7 @@
 class QtHelpers {
     public:
         static void LaunchMessageBox(QString title, QString message);
-        static int LaunchYesNoMessageBox(QString title, QString message);
+        static int LaunchYesNoMessageBox(QString title, QString message, bool include_cancel = false);
         static QFrame* HorizontalLine(QWidget* parent = nullptr);
     private:
 };
