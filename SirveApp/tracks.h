@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <optional>
 
 #include "Data_Structures.h"
 
@@ -49,6 +50,9 @@ class TrackInformation {
         std::set<int> get_manual_track_ids();
         void add_manual_tracks(std::vector<TrackFrame> new_frames);
         void remove_manual_track(int track_id);
+        void add_created_manual_track(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
+        std::vector<std::optional<TrackDetails>> copy_manual_track(int track_id);
+        std::vector<std::optional<TrackDetails>> get_empty_track();
 
         TrackFileReadResult read_tracks_from_file(QString file_name) const;
     private:

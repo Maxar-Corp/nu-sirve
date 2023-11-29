@@ -1,25 +1,25 @@
 #include "video_display.h"
 
-
 VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 {
 	zoom_manager = new VideoDisplayZoomManager(x_pixels, y_pixels);
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
+	video_display_layout->addStretch(1);
+	setup_create_track_controls();
 	setup_pinpoint_display();
 	setup_labels();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
-	is_pinpoint_active = false;
 	should_show_bad_pixels = false;
+	in_track_creation_mode = false;
 
 	histogram_plot = new HistogramLine_Plot(input_bit_level);
 
 	counter = 0;
 	starting_frame_number = 0;
 	counter_record = 0;
-	index_current_video = -1;
 	record_frame = false;
 	show_relative_histogram = false;
 
@@ -56,12 +56,43 @@ VideoDisplay::~VideoDisplay()
 	delete zoom_manager;
 }
 
+void VideoDisplay::setup_create_track_controls()
+{
+	grp_create_track = new QGroupBox("Track Editing");
+	grp_create_track->setMaximumHeight(150);
+	
+	track_details_min_frame = 0;
+	track_details_max_frame = 0;
+
+	lbl_create_track = new QLabel("");
+	btn_select_track_centroid = new QPushButton("Select Track Centroid");
+	btn_select_track_centroid->setCheckable(true);
+	connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::handle_btn_select_track_centroid);
+	chk_auto_advance_frame = new QCheckBox("Auto Advance to Next Frame");
+	btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
+	connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::handle_btn_clear_track_centroid);
+	QPushButton *btn_finish_create_track = new QPushButton("Finish Track Editing");
+	connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finish_create_track);
+
+	QHBoxLayout *layout_create_track = new QHBoxLayout(grp_create_track);
+	layout_create_track->addWidget(lbl_create_track);
+	layout_create_track->addStretch(1);
+	layout_create_track->addWidget(btn_select_track_centroid);
+	layout_create_track->addWidget(chk_auto_advance_frame);
+	layout_create_track->addStretch(1);
+	layout_create_track->addWidget(btn_clear_track_centroid);
+	layout_create_track->addWidget(btn_finish_create_track);
+
+	grp_create_track->setHidden(true);
+	video_display_layout->addWidget(grp_create_track);
+}
+
 void VideoDisplay::setup_pinpoint_display()
 {
 	grp_pinpoint = new QGroupBox("Selected Pixels");
 	grp_pinpoint->setMaximumHeight(200);
 
-	pinpoint_layout = new QHBoxLayout();
+	QHBoxLayout *pinpoint_layout = new QHBoxLayout(grp_pinpoint);
 
 	lbl_pinpoint = new QLabel();
 
@@ -98,9 +129,6 @@ void VideoDisplay::setup_pinpoint_display()
 	pinpoint_layout->addLayout(button_layout);
 	pinpoint_layout->addWidget(btn_clear_pinpoints);
 
-	grp_pinpoint->setLayout(pinpoint_layout);
-
-	video_display_layout->addStretch(1);
 	video_display_layout->addWidget(grp_pinpoint);
 }
 
@@ -114,7 +142,7 @@ void VideoDisplay::setup_labels()
 
 	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::handle_image_area_selection);
 	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
-	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::pinpoint);
+	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::handle_click);
 
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 
@@ -135,18 +163,26 @@ void VideoDisplay::setup_labels()
 	lbl_pinpoint->setText("");
 }
 
+void VideoDisplay::handle_btn_select_track_centroid(bool checked)
+{
+	if (checked)
+	{
+		emit clear_mouse_buttons();
+		btn_pinpoint->setChecked(false);
+		is_zoom_active = false;
+		is_calculate_active = false;
+	}
+	update_display_frame();
+}
+
 void VideoDisplay::handle_btn_pinpoint(bool checked)
 {
 	if (checked)
 	{
 		emit clear_mouse_buttons();
+		btn_select_track_centroid->setChecked(false);
 		is_zoom_active = false;
 		is_calculate_active = false;
-		is_pinpoint_active = true;
-	}
-	else
-	{
-		is_pinpoint_active = false;
 	}
 	update_display_frame();
 }
@@ -247,7 +283,7 @@ void VideoDisplay::toggle_action_zoom(bool status)
 	if (status) {
 		is_zoom_active = true;
 		is_calculate_active = false;
-		is_pinpoint_active = false;
+		btn_select_track_centroid->setChecked(false);
 		btn_pinpoint->setChecked(false);
 	}
 	else {
@@ -260,16 +296,44 @@ void VideoDisplay::toggle_action_zoom(bool status)
 void VideoDisplay::toggle_action_calculate_radiance(bool status)
 {
 	if (status) {
-
 		is_zoom_active = false;
 		is_calculate_active = true;
-		is_pinpoint_active = false;
+		btn_select_track_centroid->setChecked(false);
 		btn_pinpoint->setChecked(false);
 	}
 	else {
 		is_calculate_active = false;
 	}
 	
+	update_display_frame();
+}
+
+void VideoDisplay::enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details)
+{
+	track_details = starting_track_details;
+	in_track_creation_mode = true;
+
+	btn_select_track_centroid->setChecked(true);
+	handle_btn_select_track_centroid(true);
+	
+	chk_auto_advance_frame->setChecked(true);
+
+	reset_create_track_min_and_max_frames();
+	grp_create_track->setHidden(false);
+}
+
+const std::vector<std::optional<TrackDetails>> & VideoDisplay::get_created_track_details()
+{
+	return track_details;
+}
+
+void VideoDisplay::exit_track_creation_mode()
+{
+	in_track_creation_mode = false;
+	track_details_min_frame = 0;
+	track_details_max_frame = 0;
+	lbl_create_track->setText("");
+	grp_create_track->setHidden(true);
 	update_display_frame();
 }
 
@@ -354,7 +418,7 @@ void VideoDisplay::unzoom()
 	}
 }
 
-void VideoDisplay::pinpoint(QPoint origin)
+void VideoDisplay::handle_click(QPoint origin)
 {
 	// Note that each element in zoom_list contains the _relative_ position within the previous zoom state
 	// Simply storing the absolute position within the image makes a lot of code simpler - like the calculations in this function
@@ -364,32 +428,110 @@ void VideoDisplay::pinpoint(QPoint origin)
 	// It may be worth "forcing" each view state to align (x/y/width/height) with pixel boundaries, which would enable us to ...
 	// ... maintain only the absolute_zoom_list, but this would have implications for aspect ratio.
 	// Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
-
-	if (is_pinpoint_active) {
+	if (btn_pinpoint->isChecked() || btn_select_track_centroid->isChecked())
+	{
 		absolute_zoom_info rectangle = zoom_manager->absolute_zoom_list[zoom_manager->zoom_list.size() - 1];
 		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
 		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
 
-		unsigned int pinpoint_x = std::floor(absolute_x);
-		unsigned int pinpoint_y = std::floor(absolute_y);
+		unsigned int x = std::floor(absolute_x);
+		unsigned int y = std::floor(absolute_y);
 
-		unsigned int pinpoint_idx = pinpoint_y * image_x + pinpoint_x;
-		
-		//Disallow clicking an already-pinpointed pixel
-		if ( std::find(pinpoint_indeces.begin(), pinpoint_indeces.end(), pinpoint_idx) != pinpoint_indeces.end())
+		if (btn_pinpoint->isChecked())
 		{
-			return;
+			pinpoint(x, y);
 		}
-
-		pinpoint_indeces.push_back(pinpoint_idx);
-
-		if (pinpoint_indeces.size() > 3)
+		else if (btn_select_track_centroid->isChecked())
 		{
-			pinpoint_indeces.erase(pinpoint_indeces.begin());
+			select_track_centroid(x, y);
 		}
-		// Should be able to just update_partial_frame here or something
+	}
+}
+
+void VideoDisplay::select_track_centroid(unsigned int x, unsigned int y)
+{
+	TrackDetails details;
+	details.centroid_x = x;
+	details.centroid_y = y;
+	
+	int current_frame_num = starting_frame_number + counter;
+	if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
+	{
+		track_details_min_frame = current_frame_num;
+	}
+	track_details_max_frame = std::max(current_frame_num, track_details_max_frame);
+	update_create_track_label();
+
+	track_details[current_frame_num - 1] = details;
+
+	if (chk_auto_advance_frame->isChecked())
+	{
+		emit advance_frame();
+	}
+	else
+	{
 		update_display_frame();
 	}
+}
+
+void VideoDisplay::handle_btn_clear_track_centroid()
+{
+	int current_frame_num = starting_frame_number + counter;
+	track_details[current_frame_num - 1] = std::nullopt;
+
+	reset_create_track_min_and_max_frames();
+
+	update_display_frame();
+}
+
+void VideoDisplay::reset_create_track_min_and_max_frames()
+{
+	track_details_min_frame = 0;
+	track_details_max_frame = 0;
+
+	for (int i = 0; i < track_details.size(); i++)
+	{
+		if (track_details[i].has_value())
+		{
+			if (track_details_min_frame == 0){
+				track_details_min_frame = i + 1;
+			}
+			track_details_max_frame = i + 1;
+		}
+	}
+	update_create_track_label();
+}
+
+void VideoDisplay::update_create_track_label()
+{
+	if (track_details_min_frame == 0)
+	{
+		lbl_create_track->setText("Currently editing a track.\nThe track has no frames.");
+	}
+	else
+	{
+		lbl_create_track->setText("Currently editing a track.\nThe track spans from frame " + QString::number(track_details_min_frame) + " to frame " + QString::number(track_details_max_frame) + ".");
+	}	
+}
+
+void VideoDisplay::pinpoint(unsigned int x, unsigned int y)
+{
+	unsigned int pinpoint_idx = y * image_x + x;
+	
+	//Disallow clicking an already-pinpointed pixel
+	if ( std::find(pinpoint_indeces.begin(), pinpoint_indeces.end(), pinpoint_idx) != pinpoint_indeces.end())
+	{
+		return;
+	}
+
+	pinpoint_indeces.push_back(pinpoint_idx);
+
+	if (pinpoint_indeces.size() > 3)
+	{
+		pinpoint_indeces.erase(pinpoint_indeces.begin());
+	}
+	// Should be able to just update_partial_frame here or something
+	update_display_frame();
 }
 
 void VideoDisplay::remove_pinpoints_from_bad_pixel_map()
@@ -515,7 +657,7 @@ void VideoDisplay::update_display_frame()
 				pinpoint_text += " * (adjusted, bad pixel)";
 			}
 
-			if (is_pinpoint_active)
+			if (btn_pinpoint->isChecked())
 			{
 				QRgb rgb_red = QColorConstants::Red.rgb();
 				frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);
@@ -529,6 +671,16 @@ void VideoDisplay::update_display_frame()
 		pinpoint_text += "\n";
 	}
 	lbl_pinpoint->setText(pinpoint_text);
+	
+	if (in_track_creation_mode)
+	{
+		if (track_details[starting_frame_number + counter - 1].has_value())
+		{
+			TrackDetails td = track_details[starting_frame_number + counter - 1].value();
+			QRgb rgb_cyan = QColorConstants::Cyan.rgb();
+			frame.setPixel(td.centroid_x, td.centroid_y, rgb_cyan);
+		}
+	}
 
 	//SIRVE's display and zoom logic (a simple recursive "zoom, scale, zoom, scale" thing using QImage as the base) is problematic.
 
