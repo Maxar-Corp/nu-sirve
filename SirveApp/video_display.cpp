@@ -12,7 +12,6 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 
 	is_zoom_active = false;
 	is_calculate_active = false;
-	is_pinpoint_active = false;
 	should_show_bad_pixels = false;
 	in_track_creation_mode = false;
 
@@ -172,7 +171,6 @@ void VideoDisplay::handle_btn_select_track_centroid(bool checked)
 		btn_pinpoint->setChecked(false);
 		is_zoom_active = false;
 		is_calculate_active = false;
-		is_pinpoint_active = false;
 	}
 	update_display_frame();
 }
@@ -185,11 +183,6 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 		btn_select_track_centroid->setChecked(false);
 		is_zoom_active = false;
 		is_calculate_active = false;
-		is_pinpoint_active = true;
-	}
-	else
-	{
-		is_pinpoint_active = false;
 	}
 	update_display_frame();
 }
@@ -291,7 +284,6 @@ void VideoDisplay::toggle_action_zoom(bool status)
 		is_zoom_active = true;
 		is_calculate_active = false;
 		btn_select_track_centroid->setChecked(false);
-		is_pinpoint_active = false;
 		btn_pinpoint->setChecked(false);
 	}
 	else {
@@ -307,7 +299,6 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 		is_zoom_active = false;
 		is_calculate_active = true;
 		btn_select_track_centroid->setChecked(false);
-		is_pinpoint_active = false;
 		btn_pinpoint->setChecked(false);
 	}
 	else {
@@ -437,7 +428,7 @@ void VideoDisplay::handle_click(QPoint origin)
 	// It may be worth "forcing" each view state to align (x/y/width/height) with pixel boundaries, which would enable us to ...
 	// ... maintain only the absolute_zoom_list, but this would have implications for aspect ratio.
 	// Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
-	if (is_pinpoint_active || btn_select_track_centroid->isChecked())
+	if (btn_pinpoint->isChecked() || btn_select_track_centroid->isChecked())
 	{
 		absolute_zoom_info rectangle = zoom_manager->absolute_zoom_list[zoom_manager->zoom_list.size() - 1];
 		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
@@ -446,7 +437,7 @@ void VideoDisplay::handle_click(QPoint origin)
 		unsigned int x = std::floor(absolute_x);
 		unsigned int y = std::floor(absolute_y);
 
-		if (is_pinpoint_active)
+		if (btn_pinpoint->isChecked())
 		{
 			pinpoint(x, y);
 		}
@@ -666,7 +657,7 @@ void VideoDisplay::update_display_frame()
 				pinpoint_text += " * (adjusted, bad pixel)";
 			}
 
-			if (is_pinpoint_active)
+			if (btn_pinpoint->isChecked())
 			{
 				QRgb rgb_red = QColorConstants::Red.rgb();
 				frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);

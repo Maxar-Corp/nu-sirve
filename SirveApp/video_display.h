@@ -155,7 +155,7 @@ private:
 	std::vector<std::optional<TrackDetails>> track_details;
 	int track_details_min_frame, track_details_max_frame;
 	
-	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_show_bad_pixels;
+	bool is_zoom_active, is_calculate_active, should_show_bad_pixels;
 	bool in_track_creation_mode;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
