@@ -22,6 +22,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QCheckBox>
 
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/types_c.h"
@@ -114,6 +115,8 @@ signals:
 	void force_new_lift_gain(double lift, double gain);
 	void add_new_bad_pixels(std::vector<unsigned int> new_pixels);
 	void remove_bad_pixels(std::vector<unsigned int> pixels);
+	void advance_frame();
+	void finish_create_track();
 
 public slots:
     void update_display_frame();	
@@ -128,7 +131,9 @@ public slots:
 
 	void toggle_relative_histogram();
 	
-	void pinpoint(QPoint origin);
+	void handle_click(QPoint origin);
+	void pinpoint(unsigned int x, unsigned int y);
+	void select_track_centroid(unsigned int x, unsigned int y);
 	void clear_pinpoints();
 
 	void handle_image_area_selection(QRect area);
@@ -141,12 +146,17 @@ private:
 	QLabel *lbl_pinpoint;
 	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
 	QGroupBox *grp_pinpoint;
-	QHBoxLayout *pinpoint_layout;
-	//int pinpoint_x, pinpoint_y;
 	std::vector<unsigned int> pinpoint_indeces;
+
+	QLabel *lbl_create_track;
+	QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
+	QCheckBox  *chk_auto_advance_frame;
+	QGroupBox *grp_create_track;
+	std::vector<std::optional<TrackDetails>> track_details;
+	int track_details_min_frame, track_details_max_frame;
 	
 	bool is_zoom_active, is_calculate_active, is_pinpoint_active, should_show_bad_pixels;
-	int index_current_video;
+	bool in_track_creation_mode;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
 	QRect calculation_region;
@@ -164,6 +174,7 @@ private:
 	std::vector<ABIR_Frame> frame_headers;
 
 	void setup_labels();
+	void setup_create_track_controls();
 	void setup_pinpoint_display();
 
 	void calibrate(QRect area);
@@ -173,6 +184,10 @@ private:
 	void add_pinpoints_to_bad_pixel_map();
 	void remove_pinpoints_from_bad_pixel_map();
 	void handle_btn_pinpoint(bool checked);
+	void handle_btn_select_track_centroid(bool checked);
+	void handle_btn_clear_track_centroid();
+	void reset_create_track_min_and_max_frames();
+	void update_create_track_label();
 
 	QString get_zulu_time_string(double seconds_midnight);
 };
