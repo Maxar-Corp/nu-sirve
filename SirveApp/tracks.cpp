@@ -129,15 +129,23 @@ void TrackInformation::add_created_manual_track(int track_id, const std::vector<
     //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
     manual_track_ids.insert(track_id);
 
+    QFile file(new_track_file_name);
+    file.open(QIODevice::WriteOnly|QIODevice::Text);
+
     for (int i = 0; i < manual_frames.size(); i++)
     {
         if (new_track_details[i].has_value())
         {
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
-            //TODO: Save the track to the file by writing to the file here
+
+            QString csv_line = QString::number(track_id) + "," + QString::number(i+1) + "," + QString::number(track_details.centroid_x) + "," + QString::number(track_details.centroid_y);
+            file.write(csv_line.toUtf8());
+            file.write("\n");
         }
     }
+
+    file.close();
 }
 
 std::vector<std::optional<TrackDetails>> TrackInformation::copy_manual_track(int track_id)
