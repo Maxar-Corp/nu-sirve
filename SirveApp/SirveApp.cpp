@@ -147,6 +147,8 @@ void SirveApp::setup_ui() {
 
 	rad_decimal->setChecked(true);
 	rad_linear->setChecked(true);
+
+	grpbox_auto_lift_gain->setEnabled(false);
 	
 	btn_workspace_save->setEnabled(false);
 	btn_workspace_load->setEnabled(true);
@@ -247,26 +249,19 @@ QWidget* SirveApp::setup_file_import_tab() {
 	return widget_tab_import;
 }
 
-QWidget* SirveApp::setup_color_correction_tab() {
-
+QWidget* SirveApp::setup_color_correction_tab()
+{
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 	
-	QWidget* widget_tab_color_sliders = new QWidget(tab_menu);
-	QWidget* widget_tab_color_controls = new QWidget(tab_menu);
 	QLabel* label_lift = new QLabel("Dark \nSet Point");
+	label_lift->setToolTip("Dark Set Point pushes the image darker");
 	QLabel* label_gain = new QLabel("Light \nSet Point");
+	label_gain->setToolTip("Light Set Point pushes the image lighter");
 	lbl_lift_value = new QLabel("0.0");
 	lbl_gain_value = new QLabel("1.0");
-	slider_lift = new QSlider();
-	slider_gain = new QSlider();
-	chk_auto_lift_gain = new QCheckBox("Auto Lift/Gain");
-	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset Set Points");
 
-	// Set attributes for all qwidgets
-	label_lift->setToolTip("Dark Set Point pushes the image darker");
-	label_gain->setToolTip("Light Set Point pushes the image lighter");
+	slider_lift = new QSlider();
 	slider_lift->setOrientation(Qt::Horizontal);
 	slider_lift->setMinimum(0);
 	slider_lift->setMaximum(1000);
@@ -276,6 +271,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	slider_lift->setTickPosition(QSlider::TicksAbove);
 	slider_lift->setTickInterval(100);
 
+	slider_gain = new QSlider();
 	slider_gain->setOrientation(Qt::Horizontal);
 	slider_gain->setMinimum(0);
 	slider_gain->setMaximum(1000);
@@ -285,13 +281,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	slider_gain->setTickPosition(QSlider::TicksAbove);
 	slider_gain->setTickInterval(100);
 
-	// End set attributes 
-
-	// define layouts
-	QGridLayout* grid_tab_color_sliders = new QGridLayout(tab_menu);
-	QHBoxLayout* hlayout_tab_color_controls = new QHBoxLayout(tab_menu);
-
-	// add widgets to layouts
+	QGridLayout* grid_tab_color_sliders = new QGridLayout(widget_tab_color);
 	grid_tab_color_sliders->addWidget(label_lift, 0, 0);
 	grid_tab_color_sliders->addWidget(slider_lift, 0, 1);
 	grid_tab_color_sliders->addWidget(lbl_lift_value, 0, 2);
@@ -299,17 +289,34 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	grid_tab_color_sliders->addWidget(slider_gain, 1, 1);
 	grid_tab_color_sliders->addWidget(lbl_gain_value, 1, 2);
 
-	hlayout_tab_color_controls->addWidget(chk_auto_lift_gain);
-	hlayout_tab_color_controls->addWidget(chk_relative_histogram);
-	hlayout_tab_color_controls->addWidget(btn_reset_color_correction);
+	QHBoxLayout* hlayout_additional_color_settings = new QHBoxLayout();
+	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain", widget_tab_color);
+	hlayout_additional_color_settings->addWidget(chk_auto_lift_gain);
+	btn_reset_color_correction = new QPushButton("Reset Set Points", widget_tab_color);
+	hlayout_additional_color_settings->addWidget(btn_reset_color_correction);
 
-	widget_tab_color_sliders->setLayout(grid_tab_color_sliders);
-	widget_tab_color_controls->setLayout(hlayout_tab_color_controls);
+	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
+	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
+	QLabel* lbl_auto_lift = new QLabel("Lift adjustment\n(sigma below mean)", grpbox_auto_lift_gain);
+	QLineEdit* txt_lift_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
+	txt_lift_sigma->setValidator(ensure_double);
+	QLabel* lbl_auto_gain = new QLabel("Gain adjustment\n(sigma above mean)", grpbox_auto_lift_gain);
+	QLineEdit* txt_gain_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
+	txt_gain_sigma->setValidator(ensure_double);
 
-	vlayout_tab_color->addWidget(widget_tab_color_sliders);
-	vlayout_tab_color->addWidget(widget_tab_color_controls);
+	QGridLayout* grid_grpbox_auto_lift_gain = new QGridLayout(grpbox_auto_lift_gain);
+	grid_grpbox_auto_lift_gain->addWidget(lbl_auto_lift, 0, 0);
+	grid_grpbox_auto_lift_gain->addWidget(txt_lift_sigma, 0, 1);
+	grid_grpbox_auto_lift_gain->addWidget(lbl_auto_gain, 1, 0);
+	grid_grpbox_auto_lift_gain->addWidget(txt_gain_sigma, 1, 1);
+
+	chk_relative_histogram = new QCheckBox("Relative Histogram");
+
+	vlayout_tab_color->addLayout(grid_tab_color_sliders);
+	vlayout_tab_color->addLayout(hlayout_additional_color_settings);
+	vlayout_tab_color->addWidget(grpbox_auto_lift_gain);
+	vlayout_tab_color->addWidget(chk_relative_histogram);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-
 
 	 // --------------------------------------------------------------------------
 
@@ -1714,13 +1721,20 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 		slider_lift->setEnabled(false);
 		slider_gain->setEnabled(false);
 		video_display->auto_lift_gain = true;
+
+		btn_reset_color_correction->setEnabled(false);
+		grpbox_auto_lift_gain->setEnabled(true);
 	}
 	else
 	{
 		slider_lift->setEnabled(true);
 		slider_gain->setEnabled(true);
 		video_display->auto_lift_gain = false;
+
+		btn_reset_color_correction->setEnabled(true);
+		grpbox_auto_lift_gain->setEnabled(false);
 	}
+
 	video_display->update_display_frame();
 }
 
