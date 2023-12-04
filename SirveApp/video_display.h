@@ -132,8 +132,6 @@ public slots:
 	void toggle_relative_histogram();
 	
 	void handle_click(QPoint origin);
-	void pinpoint(unsigned int x, unsigned int y);
-	void select_track_centroid(unsigned int x, unsigned int y);
 	void clear_pinpoints();
 
 	void handle_image_area_selection(QRect area);
@@ -180,6 +178,9 @@ private:
 	void calibrate(QRect area);
 
 	QRectF get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height);
+
+	void pinpoint(unsigned int x, unsigned int y);
+	void select_track_centroid(unsigned int x, unsigned int y);
 
 	void add_pinpoints_to_bad_pixel_map();
 	void remove_pinpoints_from_bad_pixel_map();
