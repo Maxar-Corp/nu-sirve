@@ -787,19 +787,11 @@ void SirveApp::setup_connections() {
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
 	connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
-	connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
-	
-	connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
+
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
 
-	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(this, &SirveApp::new_auto_lift_gain_sigma, video_display, &VideoDisplay::handle_new_auto_lift_gain_sigma);
-	connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
-
-	connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
 	//---------------------------------------------------------------------------	
 	
 	connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
@@ -807,14 +799,18 @@ void SirveApp::setup_connections() {
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
-	connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
+	connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
 	connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
-	//---------------------------------------------------------------------------	
-
+	connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
-	
+
+	connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
+	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
+	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
+	connect(this, &SirveApp::new_auto_lift_gain_sigma, video_display, &VideoDisplay::handle_new_auto_lift_gain_sigma);
+	connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
 	
 	//---------------------------------------------------------------------------
 		
@@ -882,6 +878,7 @@ void SirveApp::setup_connections() {
 	connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
 	connect(btn_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_create_track);
 	connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_finish_create_track);
+	connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
 
 	connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
 	connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
