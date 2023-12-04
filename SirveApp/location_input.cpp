@@ -11,9 +11,9 @@ LocationInput::LocationInput()
 
 	RefreshListBox();
 	
-	QObject::connect(ui.lst_locations, &QListWidget::currentTextChanged, this, &LocationInput::OnItemChange);
-	QObject::connect(ui.btn_add_location, &QPushButton::clicked, this, &LocationInput::OnAddNewPush);
-	QObject::connect(ui.lst_locations, &QListWidget::itemDoubleClicked, this, &LocationInput::accept);
+	connect(ui.lst_locations, &QListWidget::currentTextChanged, this, &LocationInput::OnItemChange);
+	connect(ui.btn_add_location, &QPushButton::clicked, this, &LocationInput::OnAddNewPush);
+	connect(ui.lst_locations, &QListWidget::itemDoubleClicked, this, &LocationInput::accept);
 	
 }
 
