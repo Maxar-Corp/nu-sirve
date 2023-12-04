@@ -54,7 +54,7 @@ public:
 	void reclaim_label();
 
 	int counter_record, video_frame_number;
-	bool record_frame, show_relative_histogram, auto_lift_gain;
+	bool record_frame, show_relative_histogram;
 	cv::VideoWriter video;
 	
 	std::vector<annotation_info> annotation_list;
@@ -121,7 +121,6 @@ signals:
 public slots:
     void update_display_frame();	
 	void update_specific_frame(unsigned int frame_number);
-	//void update_color_correction(double lift, double gamma, double gain);
 	void update_color_correction(double new_min_value, double new_max_value);
 	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text);
@@ -133,6 +132,9 @@ public slots:
 	
 	void handle_click(QPoint origin);
 	void clear_pinpoints();
+
+	void handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
+	void end_auto_lift_gain();
 
 	void handle_image_area_selection(QRect area);
 	void unzoom();
@@ -155,6 +157,8 @@ private:
 	
 	bool is_zoom_active, is_calculate_active, should_show_bad_pixels;
 	bool in_track_creation_mode;
+	bool auto_lift_gain;
+	double auto_lift_sigma, auto_gain_sigma;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
 	QRect calculation_region;

@@ -556,6 +556,19 @@ void VideoDisplay::clear_pinpoints()
 	update_display_frame();
 }
 
+void VideoDisplay::handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma)
+{
+	auto_lift_gain = true;
+	auto_lift_sigma = lift_sigma;
+	auto_gain_sigma = gain_sigma;
+	update_display_frame();
+}
+
+void VideoDisplay::end_auto_lift_gain()
+{
+	auto_lift_gain = false;
+}
+
 void VideoDisplay::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
@@ -583,8 +596,8 @@ void VideoDisplay::update_display_frame()
 	{
 		double sigma = arma::stddev(image_vector);
 		double meanVal = arma::mean(image_vector);
-		lift = meanVal - 3.*sigma;
-		gain = meanVal + 3.*sigma;
+		lift = meanVal - (auto_lift_sigma * sigma);
+		gain = meanVal + (auto_gain_sigma * sigma);
 		emit force_new_lift_gain(lift, gain);
 	}
 	//------------------------------------------------------------------------------------------------
