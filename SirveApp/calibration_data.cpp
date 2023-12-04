@@ -215,7 +215,7 @@ void CalibrationDialog::initialize_gui()
 
 	// ------------------------------------------------------------
 	// setup connections
-	QObject::connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::get_new_nuc_file);
+	connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::get_new_nuc_file);
 
 	// ------------------------------------------------------------
 
@@ -870,7 +870,7 @@ void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
 	// set legend
 	chart_temperature->legend()->setVisible(false);
 
-	QObject::connect(chart_view_temperatures, &Clickable_QChartView::click_drag, this, &CalibrationDialog::point_selected);
+	connect(chart_view_temperatures, &Clickable_QChartView::click_drag, this, &CalibrationDialog::point_selected);
 
 	// ----------------------------------------------------------------------------------------------------------------
 

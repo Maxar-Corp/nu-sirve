@@ -47,9 +47,9 @@ void ExternalNUCInformationWidget::initialize_gui()
 
     this->setLayout(mainLayout);
 
-    QObject::connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_osm_file);
-    QObject::connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_frames);
-    QObject::connect(btn_close, &QPushButton::clicked, this, &ExternalNUCInformationWidget::close);
+    connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_osm_file);
+    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_frames);
+    connect(btn_close, &QPushButton::clicked, this, &ExternalNUCInformationWidget::close);
 }
 
 void ExternalNUCInformationWidget::get_osm_file()
