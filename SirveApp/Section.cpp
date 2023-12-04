@@ -61,7 +61,7 @@ Section::Section(const QString & title, const int animationDuration, QWidget* pa
     mainLayout->addWidget(contentArea, row, 0, 1, 3);
     setLayout(mainLayout);
 
-    QObject::connect(toggleButton, &QToolButton::toggled, [this](const bool checked)
+    connect(toggleButton, &QToolButton::toggled, [this](const bool checked)
     {
         toggleButton->setArrowType(checked ? Qt::ArrowType::DownArrow : Qt::ArrowType::RightArrow);
         toggleAnimation->setDirection(checked ? QAbstractAnimation::Forward : QAbstractAnimation::Backward);

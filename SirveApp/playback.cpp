@@ -16,7 +16,7 @@ Playback::Playback(unsigned int number_frames)
 	speeds = {1/15.0, 0.10, 0.20, .25, 1/3.0, .5, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 60};
 	index_speed = 10;
 
-	QObject::connect(timer, &QTimer::timeout, this, &Playback::timer_update);
+	connect(timer, &QTimer::timeout, this, &Playback::timer_update);
 }
 
 Playback::~Playback() {
