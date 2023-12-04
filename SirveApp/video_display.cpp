@@ -598,6 +598,9 @@ void VideoDisplay::update_display_frame()
 		double meanVal = arma::mean(image_vector);
 		lift = meanVal - (auto_lift_sigma * sigma);
 		gain = meanVal + (auto_gain_sigma * sigma);
+
+		lift = std::max(lift, 0.);
+		gain = std::min(gain, 1.);
 		emit force_new_lift_gain(lift, gain);
 	}
 	//------------------------------------------------------------------------------------------------
