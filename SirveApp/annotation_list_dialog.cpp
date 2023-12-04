@@ -129,7 +129,7 @@ void AnnotationListDialog::add()
 	
 	// display new annotation screen
 	AnnotationEditDialog annotation_edit_dialog(data.back());
-	QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
+	connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
 
 	auto response = annotation_edit_dialog.exec();
 
@@ -158,7 +158,7 @@ void AnnotationListDialog::edit()
 
 		// display new annotation screen
 		AnnotationEditDialog annotation_edit_dialog(data[index]);
-		QObject::connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
+		connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
 		
 		auto response = annotation_edit_dialog.exec();
 

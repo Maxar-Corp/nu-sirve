@@ -4,7 +4,7 @@ AddLocation::AddLocation(QString path)
 {
 	ui.setupUi(this);
 	directory_path = path;
-	QObject::connect(ui.btn_create, &QPushButton::clicked, this, &AddLocation::create_sensor);
+	connect(ui.btn_create, &QPushButton::clicked, this, &AddLocation::create_sensor);
 }
 
 AddLocation::~AddLocation()
