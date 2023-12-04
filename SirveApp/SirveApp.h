@@ -94,6 +94,7 @@ public:
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
 	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -104,6 +105,7 @@ public:
 		* btn_import_tracks, * btn_create_track, * btn_finish_create_track;
 	
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
+	QGroupBox * grpbox_auto_lift_gain;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
 	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
 	FixedAspectRatioFrame* frame_plots;
@@ -148,6 +150,8 @@ public:
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
 		void new_lift_gain_values(double lift_value, double gain_value);
+		void end_auto_lift_gain();
+		void new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 
 	public slots:
 	
@@ -264,4 +268,6 @@ private:
 	void prepare_for_track_creation(int track_id);
 	void exit_track_creation_mode();
 	void handle_btn_finish_create_track();
+	
+	void emit_new_auto_lift_gain_sigma();
 };

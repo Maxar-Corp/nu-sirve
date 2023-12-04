@@ -11,7 +11,7 @@ SirveApp::SirveApp(QWidget *parent)
 	// establish object that will hold video and connect it to the playback thread
 	video_display = new VideoDisplay(1, 1, config_values.max_used_bits);
 	video_display->moveToThread(&thread_video);
-	//QObject::connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
+	//connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
 
 	setup_ui();
 
@@ -23,7 +23,7 @@ SirveApp::SirveApp(QWidget *parent)
 
 	// establish copy copy 
 	clipboard = QApplication::clipboard();
-	QObject::connect(btn_copy_directory, &QPushButton::clicked, this, &SirveApp::copy_osm_directory);
+	connect(btn_copy_directory, &QPushButton::clicked, this, &SirveApp::copy_osm_directory);
 
 	//---------------------------------------------------------------------------
 	// setup container to store all videos
@@ -147,6 +147,8 @@ void SirveApp::setup_ui() {
 
 	rad_decimal->setChecked(true);
 	rad_linear->setChecked(true);
+
+	grpbox_auto_lift_gain->setEnabled(false);
 	
 	btn_workspace_save->setEnabled(false);
 	btn_workspace_load->setEnabled(true);
@@ -247,26 +249,19 @@ QWidget* SirveApp::setup_file_import_tab() {
 	return widget_tab_import;
 }
 
-QWidget* SirveApp::setup_color_correction_tab() {
-
+QWidget* SirveApp::setup_color_correction_tab()
+{
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 	
-	QWidget* widget_tab_color_sliders = new QWidget(tab_menu);
-	QWidget* widget_tab_color_controls = new QWidget(tab_menu);
 	QLabel* label_lift = new QLabel("Dark \nSet Point");
+	label_lift->setToolTip("Dark Set Point pushes the image darker");
 	QLabel* label_gain = new QLabel("Light \nSet Point");
+	label_gain->setToolTip("Light Set Point pushes the image lighter");
 	lbl_lift_value = new QLabel("0.0");
 	lbl_gain_value = new QLabel("1.0");
-	slider_lift = new QSlider();
-	slider_gain = new QSlider();
-	chk_auto_lift_gain = new QCheckBox("Auto Lift/Gain");
-	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset Set Points");
 
-	// Set attributes for all qwidgets
-	label_lift->setToolTip("Dark Set Point pushes the image darker");
-	label_gain->setToolTip("Light Set Point pushes the image lighter");
+	slider_lift = new QSlider();
 	slider_lift->setOrientation(Qt::Horizontal);
 	slider_lift->setMinimum(0);
 	slider_lift->setMaximum(1000);
@@ -276,6 +271,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	slider_lift->setTickPosition(QSlider::TicksAbove);
 	slider_lift->setTickInterval(100);
 
+	slider_gain = new QSlider();
 	slider_gain->setOrientation(Qt::Horizontal);
 	slider_gain->setMinimum(0);
 	slider_gain->setMaximum(1000);
@@ -285,13 +281,7 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	slider_gain->setTickPosition(QSlider::TicksAbove);
 	slider_gain->setTickInterval(100);
 
-	// End set attributes 
-
-	// define layouts
-	QGridLayout* grid_tab_color_sliders = new QGridLayout(tab_menu);
-	QHBoxLayout* hlayout_tab_color_controls = new QHBoxLayout(tab_menu);
-
-	// add widgets to layouts
+	QGridLayout* grid_tab_color_sliders = new QGridLayout(widget_tab_color);
 	grid_tab_color_sliders->addWidget(label_lift, 0, 0);
 	grid_tab_color_sliders->addWidget(slider_lift, 0, 1);
 	grid_tab_color_sliders->addWidget(lbl_lift_value, 0, 2);
@@ -299,17 +289,34 @@ QWidget* SirveApp::setup_color_correction_tab() {
 	grid_tab_color_sliders->addWidget(slider_gain, 1, 1);
 	grid_tab_color_sliders->addWidget(lbl_gain_value, 1, 2);
 
-	hlayout_tab_color_controls->addWidget(chk_auto_lift_gain);
-	hlayout_tab_color_controls->addWidget(chk_relative_histogram);
-	hlayout_tab_color_controls->addWidget(btn_reset_color_correction);
+	QHBoxLayout* hlayout_additional_color_settings = new QHBoxLayout();
+	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain", widget_tab_color);
+	hlayout_additional_color_settings->addWidget(chk_auto_lift_gain);
+	btn_reset_color_correction = new QPushButton("Reset Set Points", widget_tab_color);
+	hlayout_additional_color_settings->addWidget(btn_reset_color_correction);
 
-	widget_tab_color_sliders->setLayout(grid_tab_color_sliders);
-	widget_tab_color_controls->setLayout(hlayout_tab_color_controls);
+	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
+	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
+	QLabel* lbl_auto_lift = new QLabel("Lift adjustment\n(sigma below mean)", grpbox_auto_lift_gain);
+	txt_lift_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
+	txt_lift_sigma->setValidator(ensure_double);
+	QLabel* lbl_auto_gain = new QLabel("Gain adjustment\n(sigma above mean)", grpbox_auto_lift_gain);
+	txt_gain_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
+	txt_gain_sigma->setValidator(ensure_double);
 
-	vlayout_tab_color->addWidget(widget_tab_color_sliders);
-	vlayout_tab_color->addWidget(widget_tab_color_controls);
+	QGridLayout* grid_grpbox_auto_lift_gain = new QGridLayout(grpbox_auto_lift_gain);
+	grid_grpbox_auto_lift_gain->addWidget(lbl_auto_lift, 0, 0);
+	grid_grpbox_auto_lift_gain->addWidget(txt_lift_sigma, 0, 1);
+	grid_grpbox_auto_lift_gain->addWidget(lbl_auto_gain, 1, 0);
+	grid_grpbox_auto_lift_gain->addWidget(txt_gain_sigma, 1, 1);
+
+	chk_relative_histogram = new QCheckBox("Relative Histogram");
+
+	vlayout_tab_color->addLayout(grid_tab_color_sliders);
+	vlayout_tab_color->addLayout(hlayout_additional_color_settings);
+	vlayout_tab_color->addWidget(grpbox_auto_lift_gain);
+	vlayout_tab_color->addWidget(chk_relative_histogram);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-
 
 	 // --------------------------------------------------------------------------
 
@@ -403,7 +410,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 0, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
-	QObject::connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
+	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 3, 1, 1, 1);
 
 	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 2);
@@ -769,40 +776,41 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------	
 	// 
 	
-	QObject::connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
+	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
-	QObject::connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
-	QObject::connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
+	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
+	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
 
-	QObject::connect(&video_display->container, &Video_Container::states_cleared, cmb_processing_states, &QComboBox::clear);
-	QObject::connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
-	QObject::connect(&video_display->container, &Video_Container::state_removed, cmb_processing_states, &QComboBox::removeItem);
-	QObject::connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
+	connect(&video_display->container, &Video_Container::states_cleared, cmb_processing_states, &QComboBox::clear);
+	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
+	connect(&video_display->container, &Video_Container::state_removed, cmb_processing_states, &QComboBox::removeItem);
+	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
-	QObject::connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
-	QObject::connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
-	QObject::connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
-	
-	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
-	QObject::connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
-	QObject::connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
+	connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
+	connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
-	QObject::connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
+	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
+	connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
+
 	//---------------------------------------------------------------------------	
 	
-	QObject::connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
-	QObject::connect(chk_relative_histogram, &QCheckBox::toggled, this, &SirveApp::toggle_relative_histogram);
+	connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::auto_change_plot_display);
+	connect(chk_relative_histogram, &QCheckBox::toggled, this, &SirveApp::toggle_relative_histogram);
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
-	QObject::connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
-	QObject::connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
-	QObject::connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
+	connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
+	connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
+	connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
-	//---------------------------------------------------------------------------	
+	connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
+	connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
 
-	QObject::connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
-	
+	connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
+	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
+	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
+	connect(this, &SirveApp::new_auto_lift_gain_sigma, video_display, &VideoDisplay::handle_new_auto_lift_gain_sigma);
+	connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
 	
 	//---------------------------------------------------------------------------
 		
@@ -820,66 +828,67 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 
 	// Link horizontal slider to playback controller
-	QObject::connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
-	QObject::connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_current_frame_number);
+	connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
+	connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_current_frame_number);
 
 	//---------------------------------------------------------------------------
 
 	// Link playback to play controls
-	QObject::connect(btn_play, &QPushButton::clicked, playback_controller, &Playback::start_timer);
-	QObject::connect(btn_pause, &QPushButton::clicked, playback_controller, &Playback::stop_timer);
-	QObject::connect(btn_reverse, &QPushButton::clicked, playback_controller, &Playback::reverse);
+	connect(btn_play, &QPushButton::clicked, playback_controller, &Playback::start_timer);
+	connect(btn_pause, &QPushButton::clicked, playback_controller, &Playback::stop_timer);
+	connect(btn_reverse, &QPushButton::clicked, playback_controller, &Playback::reverse);
 
 
-	QObject::connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
-	QObject::connect(btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
-	QObject::connect(btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
-	QObject::connect(video_display, &VideoDisplay::advance_frame, playback_controller, &Playback::next_frame);
-	QObject::connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
-	QObject::connect(btn_frame_record, &QPushButton::clicked, this, &SirveApp::start_stop_video_record);
+	connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &Playback::speed_timer);
+	connect(btn_slow_back, &QPushButton::clicked, playback_controller, &Playback::slow_timer);
+	connect(btn_next_frame, &QPushButton::clicked, playback_controller, &Playback::next_frame);
+	connect(video_display, &VideoDisplay::advance_frame, playback_controller, &Playback::next_frame);
+	connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &Playback::prev_frame);
+	connect(btn_frame_record, &QPushButton::clicked, this, &SirveApp::start_stop_video_record);
 
-	QObject::connect(btn_fast_forward, &QPushButton::clicked, this, &SirveApp::update_fps);
-	QObject::connect(btn_slow_back, &QPushButton::clicked, this, &SirveApp::update_fps);
+	connect(btn_fast_forward, &QPushButton::clicked, this, &SirveApp::update_fps);
+	connect(btn_slow_back, &QPushButton::clicked, this, &SirveApp::update_fps);
 
-	QObject::connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
-	QObject::connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
-	QObject::connect(video_display, &VideoDisplay::clear_mouse_buttons, this, &SirveApp::clear_zoom_and_calculation_buttons);
+	connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::toggle_zoom_on_video);
+	connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::toggle_calculation_on_video);
+	connect(video_display, &VideoDisplay::clear_mouse_buttons, this, &SirveApp::clear_zoom_and_calculation_buttons);
 
-	QObject::connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_video_btn);
+	connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::handle_popout_video_btn);
 
 	//---------------------------------------------------------------------------
 
 	//Link buttons to functions
-	QObject::connect(btn_load_osm, &QPushButton::clicked, this, &SirveApp::ui_choose_abp_file);
-	QObject::connect(btn_calibration_dialog, &QPushButton::clicked, this, &SirveApp::show_calibration_dialog);
-	QObject::connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
-	QObject::connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
+	connect(btn_load_osm, &QPushButton::clicked, this, &SirveApp::ui_choose_abp_file);
+	connect(btn_calibration_dialog, &QPushButton::clicked, this, &SirveApp::show_calibration_dialog);
+	connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
+	connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
 
-	QObject::connect(chk_highlight_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_highlight_bad_pixels);
+	connect(chk_highlight_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_highlight_bad_pixels);
 
-	QObject::connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
+	connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
 
-	QObject::connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::ui_execute_background_subtraction);
+	connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::ui_execute_background_subtraction);
 	
-	QObject::connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ui_execute_deinterlace);
+	connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ui_execute_deinterlace);
 
 	//---------------------------------------------------------------------------
 
-	QObject::connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
-	QObject::connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
-	QObject::connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
-	QObject::connect(btn_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_create_track);
-	QObject::connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_finish_create_track);
+	connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::save_workspace);
+	connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::load_workspace);
+	connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::import_tracks);
+	connect(btn_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_create_track);
+	connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::handle_btn_finish_create_track);
+	connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
 
-	QObject::connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
-	QObject::connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
-	QObject::connect(tm_widget, &TrackManagementWidget::delete_track, this, &SirveApp::handle_removal_of_track);
+	connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
+	connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
+	connect(tm_widget, &TrackManagementWidget::delete_track, this, &SirveApp::handle_removal_of_track);
 
 	// Connect epoch button click to function
-	QObject::connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
+	connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
 
 	//Enable saving frame
-	QObject::connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::save_frame);
+	connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::save_frame);
 
 	//---------------------------------------------------------------------------	
 	// Connect x-axis and y-axis changes to functions
@@ -1441,7 +1450,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	plot_change();
 
 	//Update frame marker on engineering plot
-	QObject::connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
+	connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
 	
 	playback_controller->set_initial_speed_index(10);
 	update_fps();
@@ -1483,7 +1492,7 @@ void SirveApp::handle_popout_engineering_btn(bool checked)
 void SirveApp::open_popout_engineering_plot()
 {
 	popout_engineering = new PopoutDialog(data_plots->chart_view);
-	QObject::connect(popout_engineering, &QDialog::finished, this, &SirveApp::popout_engineering_closed);
+	connect(popout_engineering, &QDialog::finished, this, &SirveApp::popout_engineering_closed);
 	popout_engineering->open();
 }
 
@@ -1510,7 +1519,7 @@ void SirveApp::handle_popout_histogram_btn(bool checked)
 void SirveApp::open_popout_histogram_plot()
 {
 	popout_histogram = new PopoutDialog(video_display->histogram_plot->chart_full_view);
-	QObject::connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
+	connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
 	popout_histogram->open();
 }
 
@@ -1538,7 +1547,7 @@ void SirveApp::open_popout_video_display()
 	video_display->label->disable();
 	video_display->label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	popout_video = new PopoutDialog(video_display->label);
-	QObject::connect(popout_video, &QDialog::finished, this, &SirveApp::popout_video_closed);
+	connect(popout_video, &QDialog::finished, this, &SirveApp::popout_video_closed);
 	popout_video->open();
 }
 
@@ -1713,31 +1722,40 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	{
 		slider_lift->setEnabled(false);
 		slider_gain->setEnabled(false);
-		video_display->auto_lift_gain = true;
+		
+		emit_new_auto_lift_gain_sigma();
+
+		btn_reset_color_correction->setEnabled(false);
+		grpbox_auto_lift_gain->setEnabled(true);
 	}
 	else
 	{
 		slider_lift->setEnabled(true);
 		slider_gain->setEnabled(true);
-		video_display->auto_lift_gain = false;
+
+		emit end_auto_lift_gain();
+
+		btn_reset_color_correction->setEnabled(true);
+		grpbox_auto_lift_gain->setEnabled(false);
 	}
+
 	video_display->update_display_frame();
+}
+
+void SirveApp::emit_new_auto_lift_gain_sigma()
+{
+	double lift_sigma = txt_lift_sigma->text().toDouble();
+	double gain_sigma = txt_gain_sigma->text().toDouble();
+	emit new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
 }
 
 void SirveApp::set_lift_and_gain(double lift, double gain)
 {
-	if (!chk_auto_lift_gain->isChecked())
-	{
-		return;
-	}
-	else
-	{
-		slider_lift->setValue(lift * 1000);
-		lbl_lift_value->setText(QString::number(lift));
+	slider_lift->setValue(lift * 1000);
+	lbl_lift_value->setText(QString::number(lift));
 
-		slider_gain->setValue(gain * 1000);
-		lbl_gain_value->setText(QString::number(gain));
-	}
+	slider_gain->setValue(gain * 1000);
+	lbl_gain_value->setText(QString::number(gain));
 }
 
 void SirveApp::lift_slider_toggled() {
@@ -2131,7 +2149,7 @@ void SirveApp::annotate_video()
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
 	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
-	QObject::connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_display_frame);
+	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_display_frame);
 	annotate_gui.exec();
 }
 
