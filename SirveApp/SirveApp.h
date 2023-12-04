@@ -94,6 +94,7 @@ public:
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
 	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -149,6 +150,8 @@ public:
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
 		void new_lift_gain_values(double lift_value, double gain_value);
+		void end_auto_lift_gain();
+		void new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 
 	public slots:
 	
@@ -265,4 +268,6 @@ private:
 	void prepare_for_track_creation(int track_id);
 	void exit_track_creation_mode();
 	void handle_btn_finish_create_track();
+	
+	void emit_new_auto_lift_gain_sigma();
 };

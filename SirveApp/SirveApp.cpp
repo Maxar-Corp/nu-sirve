@@ -298,10 +298,10 @@ QWidget* SirveApp::setup_color_correction_tab()
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
 	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
 	QLabel* lbl_auto_lift = new QLabel("Lift adjustment\n(sigma below mean)", grpbox_auto_lift_gain);
-	QLineEdit* txt_lift_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
+	txt_lift_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
 	txt_lift_sigma->setValidator(ensure_double);
 	QLabel* lbl_auto_gain = new QLabel("Gain adjustment\n(sigma above mean)", grpbox_auto_lift_gain);
-	QLineEdit* txt_gain_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
+	txt_gain_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
 	txt_gain_sigma->setValidator(ensure_double);
 
 	QGridLayout* grid_grpbox_auto_lift_gain = new QGridLayout(grpbox_auto_lift_gain);
@@ -793,6 +793,11 @@ void SirveApp::setup_connections() {
 	QObject::connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	QObject::connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	QObject::connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
+
+	QObject::connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
+	QObject::connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
+	QObject::connect(this, &SirveApp::new_auto_lift_gain_sigma, video_display, &VideoDisplay::handle_new_auto_lift_gain_sigma);
+	QObject::connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
 
 	QObject::connect(video_display, &VideoDisplay::finish_create_track, this, &SirveApp::handle_btn_finish_create_track);
 	//---------------------------------------------------------------------------	
@@ -1720,7 +1725,8 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	{
 		slider_lift->setEnabled(false);
 		slider_gain->setEnabled(false);
-		video_display->auto_lift_gain = true;
+		
+		emit_new_auto_lift_gain_sigma();
 
 		btn_reset_color_correction->setEnabled(false);
 		grpbox_auto_lift_gain->setEnabled(true);
@@ -1729,7 +1735,8 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	{
 		slider_lift->setEnabled(true);
 		slider_gain->setEnabled(true);
-		video_display->auto_lift_gain = false;
+
+		emit end_auto_lift_gain();
 
 		btn_reset_color_correction->setEnabled(true);
 		grpbox_auto_lift_gain->setEnabled(false);
@@ -1738,20 +1745,20 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	video_display->update_display_frame();
 }
 
+void SirveApp::emit_new_auto_lift_gain_sigma()
+{
+	double lift_sigma = txt_lift_sigma->text().toDouble();
+	double gain_sigma = txt_gain_sigma->text().toDouble();
+	emit new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
+}
+
 void SirveApp::set_lift_and_gain(double lift, double gain)
 {
-	if (!chk_auto_lift_gain->isChecked())
-	{
-		return;
-	}
-	else
-	{
-		slider_lift->setValue(lift * 1000);
-		lbl_lift_value->setText(QString::number(lift));
+	slider_lift->setValue(lift * 1000);
+	lbl_lift_value->setText(QString::number(lift));
 
-		slider_gain->setValue(gain * 1000);
-		lbl_gain_value->setText(QString::number(gain));
-	}
+	slider_gain->setValue(gain * 1000);
+	lbl_gain_value->setText(QString::number(gain));
 }
 
 void SirveApp::lift_slider_toggled() {
