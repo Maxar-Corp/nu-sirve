@@ -35,7 +35,7 @@ class Video_Container : public QObject
 
 		void states_cleared();
 		void state_added(QString state_name, int index);
-		void state_removed(int index);
+		void state_removed(Processing_Method method, int index);
 
 	public slots:
 		void select_state(int idx);
