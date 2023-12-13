@@ -50,8 +50,11 @@ void Video_Container::undo()
 		return;
 	}
 
+	Processing_Method method = processing_states.back().method;
+
 	processing_states.pop_back();
-	emit state_removed(processing_states.size());
+
+	emit state_removed(method, processing_states.size());
 
 	if (current_idx == processing_states.size()) {
 		current_idx -= 1;

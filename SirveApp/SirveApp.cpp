@@ -781,9 +781,10 @@ void SirveApp::setup_connections() {
 	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
 
-	connect(&video_display->container, &Video_Container::states_cleared, cmb_processing_states, &QComboBox::clear);
 	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
-	connect(&video_display->container, &Video_Container::state_removed, cmb_processing_states, &QComboBox::removeItem);
+	connect(&video_display->container, &Video_Container::state_removed, this, &SirveApp::handle_processing_state_removal);
+	connect(&video_display->container, &Video_Container::states_cleared, this, &SirveApp::handle_cleared_processing_states);
+
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
 	connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
@@ -2573,6 +2574,27 @@ void SirveApp::handle_new_processing_state(QString state_name, int index)
 {
 	cmb_processing_states->addItem(state_name);
 	cmb_processing_states->setCurrentIndex(index);
+}
+
+void SirveApp::handle_processing_state_removal(Processing_Method method, int index)
+{
+	cmb_processing_states->removeItem(index);
+
+	if (method == Processing_Method::background_subtraction)
+	{
+		lbl_adaptive_background_suppression->setText("No Frames Setup");
+	}
+	else if (method == Processing_Method::non_uniformity_correction)
+	{
+		lbl_fixed_suppression->setText("No Frames Selected");
+	}
+}
+
+void SirveApp::handle_cleared_processing_states()
+{
+	cmb_processing_states->clear();
+	lbl_adaptive_background_suppression->setText("No Frames Setup");
+	lbl_fixed_suppression->setText("No Frames Selected");
 }
 
 void SirveApp::ui_execute_background_subtraction() {
