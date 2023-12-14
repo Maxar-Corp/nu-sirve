@@ -1320,8 +1320,8 @@ void SirveApp::load_osm_data()
 	chk_highlight_bad_pixels->setChecked(false);
 	chk_highlight_bad_pixels->setEnabled(false);
 
-	btn_create_track->setEnabled(true);
-	btn_import_tracks->setEnabled(true);
+	btn_create_track->setEnabled(false);
+	btn_import_tracks->setEnabled(false);
 
 	CalibrationData temp;
 	calibration_model = temp;
@@ -1472,6 +1472,9 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->container.add_processing_state(primary);
 	cmb_processing_states->setEnabled(true);
 	btn_workspace_save->setEnabled(true);
+
+	btn_create_track->setEnabled(true);
+	btn_import_tracks->setEnabled(true);
 
 	toggle_video_playback_options(true);
 
