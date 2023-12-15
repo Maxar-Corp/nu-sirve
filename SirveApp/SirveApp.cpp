@@ -1382,8 +1382,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_details vid_details;
 
 	INFO << "GUI: Reading in video data";
-	vid_details.set_number_of_bits(config_values.max_used_bits);
-
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
 	progress_dialog.setLabelText("Configuring application");
