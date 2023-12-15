@@ -3,7 +3,7 @@
 #include <vector>
 
 struct video_details {
-	int number_of_bits, x_pixels, y_pixels, number_pixels;
+	int x_pixels, y_pixels, number_pixels;
 
 	std::vector<std::vector<uint16_t>> frames_16bit;
 	std::vector<std::vector<unsigned int>> histogram_data;
@@ -15,7 +15,6 @@ struct video_details {
 	~video_details();
 
 	void set_image_size(int x, int y);
-	void set_number_of_bits(int num_bits);
 
 	void set_video_frames(std::vector<std::vector<uint16_t>> video_in);
 };
