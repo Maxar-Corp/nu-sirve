@@ -9,7 +9,7 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	video_display = new VideoDisplay(1, 1, config_values.max_used_bits);
+	video_display = new VideoDisplay(config_values.max_used_bits);
 	video_display->moveToThread(&thread_video);
 	//connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
 
@@ -778,7 +778,7 @@ void SirveApp::setup_connections() {
 	
 	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
-	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
+	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_display_frame);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
 
 	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
@@ -1400,7 +1400,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
-	video_display->clear_all_zoom_levels(x_pixels, y_pixels);
 	vid_details.set_image_size(x_pixels, y_pixels);
 	vid_details.set_video_frames(video_frames);
 
@@ -1475,6 +1474,8 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	btn_import_tracks->setEnabled(true);
 
 	toggle_video_playback_options(true);
+
+	video_display->receive_video_data(x_pixels, y_pixels, temp.size());
 
 	progress_dialog.setValue(4);
 }

@@ -48,7 +48,7 @@ class VideoDisplay : public QWidget
     Q_OBJECT
 public:
    
-	VideoDisplay(int x_pixels, int y_pixels, int input_bit_level);
+	VideoDisplay(int input_bit_level);
 	~VideoDisplay();
 	QVBoxLayout *video_display_layout;
 	void reclaim_label();
@@ -106,9 +106,9 @@ public:
 	
 	bool plot_tracks, display_boresight_txt, display_time;
 	void save_frame();
-	void clear_all_zoom_levels(int x_pixels, int y_pixels);
 
 	void remove_frame();
+	void receive_video_data(int x, int y, int num_frames);
 
 signals:
 	void clear_mouse_buttons();
@@ -122,7 +122,6 @@ public slots:
     void update_display_frame();	
 	void update_specific_frame(unsigned int frame_number);
 	void update_color_correction(double new_min_value, double new_max_value);
-	void receive_video_data(video_details &new_input);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
 	void update_tracker_color(QString input_color);
