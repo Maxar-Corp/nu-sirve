@@ -33,7 +33,6 @@
 #include "abir_reader.h"
 #include "color_correction.h"
 #include "video_container.h"
-#include "video_details.h"
 #include "Data_Structures.h"
 #include "histogram_plotter.h"
 #include "enhanced_label.h"
