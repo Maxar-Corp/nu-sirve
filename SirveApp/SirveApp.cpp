@@ -1400,8 +1400,9 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
-	vid_details.set_image_size(x_pixels, y_pixels);
-	vid_details.set_video_frames(video_frames);
+	vid_details.x_pixels = x_pixels;
+	vid_details.y_pixels = y_pixels;
+	vid_details.frames_16bit = video_frames;
 
 	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
 	QString status_txt = lbl_file_load->text();

@@ -10,7 +10,7 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 	out.reserve(num_video_frames);
 
 	//Initialize video frame storage
-	int num_pixels = original.number_pixels;
+	int num_pixels = original.frames_16bit[0].size();
 	arma::mat frame_data(num_pixels, 1);
 
 	// initialize noise frames
