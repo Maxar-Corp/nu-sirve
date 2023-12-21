@@ -18,7 +18,7 @@ void Video_Container::select_state(int idx)
 
 	current_idx = idx;
 
-	emit update_display_video(processing_states[idx].details);
+	emit update_display_video();
 }
 
 void Video_Container::clear_processing_states()
@@ -36,7 +36,7 @@ void Video_Container::add_processing_state(processing_state new_state)
 
 	QString state_name = QString::number(current_idx) + ": " + new_state.get_friendly_description();
 	emit state_added(state_name, current_idx);
-	emit update_display_video(new_state.details);
+	emit update_display_video();
 }
 
 processing_state Video_Container::copy_current_state()
@@ -50,12 +50,15 @@ void Video_Container::undo()
 		return;
 	}
 
+	Processing_Method method = processing_states.back().method;
+
 	processing_states.pop_back();
-	emit state_removed(processing_states.size());
+
+	emit state_removed(method, processing_states.size());
 
 	if (current_idx == processing_states.size()) {
 		current_idx -= 1;
-		emit update_display_video(processing_states[current_idx].details);
+		emit update_display_video();
 	}
 }
 
