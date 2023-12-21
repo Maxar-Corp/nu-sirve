@@ -209,6 +209,8 @@ public:
 		void receive_new_good_pixels(std::vector<unsigned int> pixels);
 
 		void handle_new_processing_state(QString state_name, int index);
+		void handle_processing_state_removal(Processing_Method method, int index);
+		void SirveApp::handle_cleared_processing_states();
 		
 		void popout_video_closed();
 		void popout_histogram_closed();

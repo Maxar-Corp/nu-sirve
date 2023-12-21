@@ -101,7 +101,6 @@ SOURCES += abir_reader.cpp \
             track_management_widget.cpp \
             tracks.cpp \
             video_container.cpp \
-            video_details.cpp \
             video_display.cpp \
             video_display_zoom.cpp \
             workspace.cpp \

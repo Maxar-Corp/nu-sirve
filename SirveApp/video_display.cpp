@@ -1,8 +1,8 @@
 #include "video_display.h"
 
-VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
+VideoDisplay::VideoDisplay(int input_bit_level)
 {
-	zoom_manager = new VideoDisplayZoomManager(x_pixels, y_pixels);
+	zoom_manager = new VideoDisplayZoomManager(0, 0);
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
 	video_display_layout->addStretch(1);
@@ -23,9 +23,6 @@ VideoDisplay::VideoDisplay(int x_pixels, int y_pixels, int input_bit_level)
 	record_frame = false;
 	show_relative_histogram = false;
 
-	image_x = x_pixels;
-	image_y = y_pixels;
-	number_pixels = image_x * image_y;
 	max_bit_level = input_bit_level;
 	number_of_frames = 0;
 
@@ -197,26 +194,20 @@ void VideoDisplay::reclaim_label()
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
-void VideoDisplay::clear_all_zoom_levels(int x_pixels, int y_pixels)
+void VideoDisplay::receive_video_data(int x, int y, int num_frames)
 {
-	delete zoom_manager;
-	zoom_manager = new VideoDisplayZoomManager(x_pixels, y_pixels);
-
-	pinpoint_indeces.clear();
-	
-	update_display_frame();
-}
-
-void VideoDisplay::receive_video_data(video_details& new_input)
-{
-	image_x = new_input.x_pixels;
-	image_y = new_input.y_pixels;
+	image_x = x;
+	image_y = y;
 	number_pixels = image_x*image_y;
-	
+
+	delete zoom_manager;
+	zoom_manager = new VideoDisplayZoomManager(image_x, image_y);
+	pinpoint_indeces.clear();
+
 	label->setMinimumWidth(image_x);
 	label->setMinimumHeight(image_y);
 
-	number_of_frames = new_input.frames_16bit.size();
+	number_of_frames = num_frames;
 
 	update_display_frame();
 }
