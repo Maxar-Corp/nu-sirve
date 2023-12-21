@@ -2440,7 +2440,6 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	processing_state nuc_state = original;
 	nuc_state.details.frames_16bit.clear();
-	nuc_state.details.histogram_data.clear();
 
 	// Apply NUC to the frames		
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
@@ -2506,7 +2505,6 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 	
 	processing_state deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
-	deinterlace_state.details.histogram_data.clear();
 	
 	// Apply de-interlace to the frames		
 	
@@ -2646,7 +2644,6 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
-	background_subtraction_state.details.histogram_data.clear();
 
 	for (auto i = 0; i < number_frames; i++) {
 		progress_dialog.setValue(number_frames + 1 + i);

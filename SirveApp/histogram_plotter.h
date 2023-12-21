@@ -22,7 +22,6 @@
 #include <math.h>
 
 #include "color_scheme.h"
-#include "video_details.h"
 #include "clickable_chartview.h"
 
 QT_CHARTS_USE_NAMESPACE
