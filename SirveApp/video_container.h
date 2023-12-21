@@ -6,7 +6,6 @@
 #include <QString>
 
 #include "logging.h"
-#include "video_details.h"
 #include "processing_state.h"
 #include "deinterlace_type.h"
 
@@ -31,11 +30,11 @@ class Video_Container : public QObject
 		std::vector<processing_state> get_processing_states();
 
 	signals:
-		void update_display_video(video_details &update);
+		void update_display_video();
 
 		void states_cleared();
 		void state_added(QString state_name, int index);
-		void state_removed(int index);
+		void state_removed(Processing_Method method, int index);
 
 	public slots:
 		void select_state(int idx);

@@ -9,7 +9,7 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	video_display = new VideoDisplay(1, 1, config_values.max_used_bits);
+	video_display = new VideoDisplay(config_values.max_used_bits);
 	video_display->moveToThread(&thread_video);
 	//connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
 
@@ -778,12 +778,13 @@ void SirveApp::setup_connections() {
 	
 	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
-	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::receive_video_data);
+	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_display_frame);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
 
-	connect(&video_display->container, &Video_Container::states_cleared, cmb_processing_states, &QComboBox::clear);
 	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
-	connect(&video_display->container, &Video_Container::state_removed, cmb_processing_states, &QComboBox::removeItem);
+	connect(&video_display->container, &Video_Container::state_removed, this, &SirveApp::handle_processing_state_removal);
+	connect(&video_display->container, &Video_Container::states_cleared, this, &SirveApp::handle_cleared_processing_states);
+
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
 	connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
@@ -1319,8 +1320,8 @@ void SirveApp::load_osm_data()
 	chk_highlight_bad_pixels->setChecked(false);
 	chk_highlight_bad_pixels->setEnabled(false);
 
-	btn_create_track->setEnabled(true);
-	btn_import_tracks->setEnabled(true);
+	btn_create_track->setEnabled(false);
+	btn_import_tracks->setEnabled(false);
 
 	CalibrationData temp;
 	calibration_model = temp;
@@ -1381,8 +1382,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_details vid_details;
 
 	INFO << "GUI: Reading in video data";
-	vid_details.set_number_of_bits(config_values.max_used_bits);
-
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
 	progress_dialog.setLabelText("Configuring application");
@@ -1401,9 +1400,9 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
-	video_display->clear_all_zoom_levels(x_pixels, y_pixels);
-	vid_details.set_image_size(x_pixels, y_pixels);
-	vid_details.set_video_frames(video_frames);
+	vid_details.x_pixels = x_pixels;
+	vid_details.y_pixels = y_pixels;
+	vid_details.frames_16bit = video_frames;
 
 	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
 	QString status_txt = lbl_file_load->text();
@@ -1472,7 +1471,12 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	cmb_processing_states->setEnabled(true);
 	btn_workspace_save->setEnabled(true);
 
+	btn_create_track->setEnabled(true);
+	btn_import_tracks->setEnabled(true);
+
 	toggle_video_playback_options(true);
+
+	video_display->receive_video_data(x_pixels, y_pixels, temp.size());
 
 	progress_dialog.setValue(4);
 }
@@ -2573,6 +2577,27 @@ void SirveApp::handle_new_processing_state(QString state_name, int index)
 {
 	cmb_processing_states->addItem(state_name);
 	cmb_processing_states->setCurrentIndex(index);
+}
+
+void SirveApp::handle_processing_state_removal(Processing_Method method, int index)
+{
+	cmb_processing_states->removeItem(index);
+
+	if (method == Processing_Method::background_subtraction)
+	{
+		lbl_adaptive_background_suppression->setText("No Frames Setup");
+	}
+	else if (method == Processing_Method::non_uniformity_correction)
+	{
+		lbl_fixed_suppression->setText("No Frames Selected");
+	}
+}
+
+void SirveApp::handle_cleared_processing_states()
+{
+	cmb_processing_states->clear();
+	lbl_adaptive_background_suppression->setText("No Frames Setup");
+	lbl_fixed_suppression->setText("No Frames Selected");
 }
 
 void SirveApp::ui_execute_background_subtraction() {
