@@ -11,9 +11,4 @@ struct AbpFileMetadata {
 	}
 };
 
-struct ConfigValues {
-    double version;
-    int max_used_bits;
-};
-
 #endif //APPLICATION_DATA_H
