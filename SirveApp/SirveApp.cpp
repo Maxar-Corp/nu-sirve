@@ -685,8 +685,7 @@ void SirveApp::setup_plot_frame() {
 
 	// ------------------------------------------------------------------------
 
-	frame_plots = new FixedAspectRatioFrame();
-	frame_plots->enable_fixed_aspect_ratio(false);
+	frame_plots = new QFrame();
 	QLabel* label_x_axis_option = new QLabel("X-Axis");
 	QLabel* label_y_axis_option = new QLabel("Y-Axis");
 	QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
