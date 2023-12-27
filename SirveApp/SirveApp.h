@@ -21,7 +21,6 @@
 #include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
-#include "fixed_aspect_ratio_frame.h"
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
 #include "config.h"
@@ -107,7 +106,7 @@ public:
 	QGroupBox * grpbox_auto_lift_gain;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
 	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
-	FixedAspectRatioFrame* frame_plots;
+	QFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
 	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
