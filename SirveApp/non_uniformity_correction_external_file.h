@@ -20,7 +20,6 @@
 #include "tracks.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
-#include "fixed_aspect_ratio_frame.h"
 #include "process_file.h"
 #include "osm_reader.h"
 #include "support/qthelpers.h"
@@ -53,7 +52,7 @@ private:
 
 	QPushButton* btn_load_file, *btn_load_frames, *btn_close;
 	QLabel * lbl_data, *lbl_instructions;
-	FixedAspectRatioFrame* frame_plot;
+	QFrame* frame_plot;
 
 	QGridLayout* mainLayout;
 	QVBoxLayout* frame_layout;
