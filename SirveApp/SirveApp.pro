@@ -11,7 +11,6 @@ INCLUDEPATH += .
 CONFIG += c++17
 
 HEADERS += abir_reader.h \
-            application_data.h \
             abpnuc_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
