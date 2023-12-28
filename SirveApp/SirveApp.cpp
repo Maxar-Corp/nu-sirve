@@ -817,8 +817,8 @@ void SirveApp::setup_connections() {
 	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::toggle_osm_tracks);
 	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_tracker_color);
 	
-	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
-	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
+	connect(chk_sensor_track_data, &QCheckBox::stateChanged, video_display, &VideoDisplay::toggle_sensor_boresight_data);
+	connect(chk_show_time, &QCheckBox::stateChanged, video_display, &VideoDisplay::toggle_frame_time);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
 	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_banner_color);
 
@@ -863,7 +863,7 @@ void SirveApp::setup_connections() {
 	connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
 	connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
 
-	connect(chk_highlight_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_highlight_bad_pixels);
+	connect(chk_highlight_bad_pixels, &QPushButton::clicked, video_display, &VideoDisplay::highlight_bad_pixels);
 
 	connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
 
@@ -1070,7 +1070,6 @@ void SirveApp::handle_removal_of_track(int track_id)
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
-	video_display->update_display_frame();
 }
 
 void SirveApp::save_workspace()
@@ -1308,12 +1307,6 @@ void SirveApp::load_osm_data()
 	engineering_plot_layout->addWidget(data_plots->chart_view);
 	frame_plots->setLayout(engineering_plot_layout);
 
-	// Reset settings on video playback to defaults
-	chk_show_tracks->setChecked(false);
-
-	//menu_sensor_boresight->setIconVisibleInMenu(false);
-	video_display->toggle_sensor_boresight_data(false);
-
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
 	chk_highlight_bad_pixels->setChecked(false);
@@ -1325,9 +1318,12 @@ void SirveApp::load_osm_data()
 	CalibrationData temp;
 	calibration_model = temp;
 
-	video_display->banner_color = QString("red");
-	video_display->banner_text = QString("EDIT CLASSIFICATION");
-	video_display->tracker_color = QString("red");
+	// Reset settings on video playback to defaults
+	chk_show_tracks->setChecked(false);
+	chk_show_time->setChecked(false);
+	chk_sensor_track_data->setChecked(false);
+	cmb_text_color->setCurrentIndex(0);
+	video_display->initialize_toggles();
 	
 	// Reset setting engineering plot defaults
 	menu_plot_all_data->setIconVisibleInMenu(true);
@@ -1741,8 +1737,6 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 		btn_reset_color_correction->setEnabled(true);
 		grpbox_auto_lift_gain->setEnabled(false);
 	}
-
-	video_display->update_display_frame();
 }
 
 void SirveApp::emit_new_auto_lift_gain_sigma()
@@ -2086,7 +2080,6 @@ void SirveApp::edit_tracker_color()
 {
 	QString tracker_color = cmb_tracker_color->currentText();
 	video_display->update_tracker_color(tracker_color);
-	video_display->update_display_frame();
 }
 
 void SirveApp::plot_change()
@@ -2284,12 +2277,6 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 
 	lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
 	chk_highlight_bad_pixels->setEnabled(true);
-}
-
-void SirveApp::handle_chk_highlight_bad_pixels(bool checked)
-{
-	video_display->highlight_bad_pixels(checked);
-	video_display->update_display_frame();
 }
 
 void SirveApp::receive_new_good_pixels(std::vector<unsigned int> pixels)
@@ -2538,7 +2525,6 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 
 void SirveApp::toggle_osm_tracks()
 {
-
 	bool current_status = video_display->plot_tracks;
 	video_display->toggle_osm_tracks(!current_status);
 	
@@ -2549,25 +2535,6 @@ void SirveApp::toggle_osm_tracks()
 	{
 		cmb_tracker_color->setEnabled(false);
 	}
-	
-	video_display->update_display_frame();
-}
-
-void SirveApp::toggle_sensor_track_data()
-{
-
-	bool current_status = video_display->display_boresight_txt;
-
-	video_display->toggle_sensor_boresight_data(!current_status);
-	video_display->update_display_frame();
-
-}
-
-void SirveApp::toggle_frame_time()
-{
-	bool current_status = chk_show_time->isChecked();
-	video_display->display_time = current_status;
-	video_display->update_display_frame();
 }
 
 void SirveApp::handle_new_processing_state(QString state_name, int index)

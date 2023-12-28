@@ -69,7 +69,8 @@ public:
 	Video_Container container;
 
 	QString banner_text, boresight_text;
-	QColor banner_color, tracker_color;
+	QColor tracker_color;
+	bool plot_tracks;
 
 	// defines color map parameters for showing color in video frame
 	ColorMap video_colors;
@@ -95,19 +96,18 @@ public:
 	void stop_recording();
 
 	void toggle_osm_tracks(bool input);
-	void toggle_sensor_boresight_data(bool input);
 
 	void toggle_action_zoom(bool status);
 	void toggle_action_calculate_radiance(bool status);
 	void enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details);
 	const std::vector<std::optional<TrackDetails>> & get_created_track_details();
 	void exit_track_creation_mode();
-	
-	bool plot_tracks, display_boresight_txt, display_time;
+
 	void save_frame();
 
 	void remove_frame();
 	void receive_video_data(int x, int y, int num_frames);
+	void initialize_toggles();
 
 signals:
 	void clear_mouse_buttons();
@@ -127,6 +127,8 @@ public slots:
 	void update_color_map(QString input_map);
 
 	void toggle_relative_histogram();
+	void toggle_sensor_boresight_data();
+	void toggle_frame_time(bool checked);
 	
 	void handle_click(QPoint origin);
 	void clear_pinpoints();
@@ -165,6 +167,9 @@ private:
     unsigned int counter, starting_frame_number;
 
 	std::vector<unsigned int> bad_pixels;
+
+	QColor banner_color;
+	bool display_boresight_txt, display_time;
 
 	CalibrationData model;
 	std::vector<Plotting_Frame_Data> display_data;

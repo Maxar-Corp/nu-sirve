@@ -26,12 +26,9 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	max_bit_level = input_bit_level;
 	number_of_frames = 0;
 
-	banner_text = QString("EDIT CLASSIFICATION");
-	banner_color = QColor("Red");
-	tracker_color = QColor("Red");
+	initialize_toggles();
 
 	plot_tracks = false;
-	display_boresight_txt = false;
 	display_time = false;
 
 	auto_lift_gain = false;
@@ -51,6 +48,13 @@ VideoDisplay::~VideoDisplay()
 	delete lbl_zulu_time;
 	
 	delete zoom_manager;
+}
+
+void VideoDisplay::initialize_toggles()
+{
+	banner_color = QString("red");
+	banner_text = QString("EDIT CLASSIFICATION");
+	tracker_color = QString("red");
 }
 
 void VideoDisplay::setup_create_track_controls()
@@ -225,6 +229,13 @@ void VideoDisplay::update_banner_color(QString input_color)
 	update_display_frame();
 }
 
+void VideoDisplay::toggle_frame_time(bool checked)
+{
+	display_time = checked;
+
+	update_display_frame();
+}
+
 void VideoDisplay::update_color_map(QString input_map)
 {
 
@@ -249,16 +260,22 @@ void VideoDisplay::update_tracker_color(QString input_color)
 {
 	QColor new_color(input_color);
 	tracker_color = new_color;
+
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_osm_tracks(bool input)
 {
 	plot_tracks = input;
+
+	update_display_frame();
 }
 
-void VideoDisplay::toggle_sensor_boresight_data(bool input)
+void VideoDisplay::toggle_sensor_boresight_data()
 {
-	display_boresight_txt = input;
+	display_boresight_txt = !display_boresight_txt;
+
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_relative_histogram()
@@ -552,6 +569,7 @@ void VideoDisplay::handle_new_auto_lift_gain_sigma(double lift_sigma, double gai
 	auto_lift_gain = true;
 	auto_lift_sigma = lift_sigma;
 	auto_gain_sigma = gain_sigma;
+
 	update_display_frame();
 }
 
@@ -1009,6 +1027,8 @@ QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 void VideoDisplay::highlight_bad_pixels(bool status)
 {
 	should_show_bad_pixels = status;
+
+	update_display_frame();
 }
 
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
