@@ -199,10 +199,7 @@ public:
 		void create_non_uniformity_correction_from_external_file();
 
 		void toggle_osm_tracks();
-		void toggle_sensor_track_data();
-		void toggle_frame_time();
 
-		void handle_chk_highlight_bad_pixels(bool checked);
 		void receive_new_bad_pixels(std::vector<unsigned int> new_pixels);
 		void receive_new_good_pixels(std::vector<unsigned int> pixels);
 
