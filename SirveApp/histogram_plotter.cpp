@@ -3,18 +3,15 @@
 
 HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 {
-	chart = new QChart();
-	chart_full = new QChart();
+	abs_chart = new QChart();
 	rel_chart = new QChart();
 
-	chart_view = new Clickable_QChartView(chart);
-	chart_full_view = new Clickable_QChartView(chart_full);
+	abs_chart_view = new Clickable_QChartView(abs_chart);
 	rel_chart_view = new QChartView(rel_chart);
 
 	text = new QLabel(this);
 
-	chart->legend()->hide();
-	chart_full->legend()->hide();
+	abs_chart->legend()->hide();
 	rel_chart->legend()->hide();
 
 	pen.setColor(colors.GetCurrentColor());
@@ -33,18 +30,15 @@ HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 
 	initialize_histogram_plot();
 
-	connect(chart_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
-	connect(chart_full_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
+	connect(abs_chart_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
 }
 
 HistogramLine_Plot::~HistogramLine_Plot(){
 
-	delete chart;
-	delete chart_full;
+	delete abs_chart;
 	delete rel_chart;
 	
-	delete chart_view;
-	delete chart_full_view;
+	delete abs_chart_view;
 	delete rel_chart_view;
 	
 	delete text;
@@ -119,31 +113,24 @@ void HistogramLine_Plot::initialize_histogram_plot()
 	// Initialize the histogram plots for displaying
 	QLineSeries *series1 = new QLineSeries();
 	QLineSeries *series2 = new QLineSeries();
-	QLineSeries* series3 = new QLineSeries();
 
 	series1->append(QPointF(0, 0));
 	series1->append(QPointF(0, 0));
 	
 	series2->append(QPointF(0, 0));
 	series2->append(QPointF(0, 0));
-	
-	series3->append(QPointF(0, 0));
-	series3->append(QPointF(0, 0));
 
-	chart->addSeries(series1);
-	chart_full->addSeries(series3);
+	abs_chart->addSeries(series1);
 	rel_chart->addSeries(series2);
 
-	setup_histogram_plot(chart);
-	setup_histogram_plot(chart_full);
+	setup_histogram_plot(abs_chart);
 	setup_histogram_plot(rel_chart);
 
 }
 
 void HistogramLine_Plot::remove_histogram_plots()
 {
-	chart->removeAllSeries();
-	chart_full->removeAllSeries();
+	abs_chart->removeAllSeries();
 	rel_chart->removeAllSeries();
 }
 
@@ -220,8 +207,7 @@ void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min,
 	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
-	plot_histogram(histogram_line, min, max, max_hist_value, chart);
-	plot_histogram(histogram_line, min, max, max_hist_value, chart_full);
+	plot_histogram(histogram_line, min, max, max_hist_value, abs_chart);
 }
 
 void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
