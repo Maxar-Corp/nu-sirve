@@ -32,9 +32,9 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
     Q_OBJECT
     public:
-		QChart *chart, *chart_full, *rel_chart;
+		QChart *abs_chart, *rel_chart;
 		QChartView *rel_chart_view;
-		Clickable_QChartView *chart_view, *chart_full_view;
+		Clickable_QChartView *abs_chart_view;
 
 		QLabel *text;
 		unsigned int maximum_levels;
