@@ -1864,7 +1864,6 @@ void SirveApp::set_data_timing_offset()
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		video_display->update_frame_data(temp);
-		video_display->update_display_frame();
 
 		plot_change();
 	}
