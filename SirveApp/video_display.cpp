@@ -21,7 +21,6 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	starting_frame_number = 0;
 	counter_record = 0;
 	record_frame = false;
-	show_relative_histogram = false;
 
 	max_bit_level = input_bit_level;
 	number_of_frames = 0;
@@ -276,14 +275,6 @@ void VideoDisplay::toggle_sensor_boresight_data()
 	display_boresight_txt = !display_boresight_txt;
 
 	update_display_frame();
-}
-
-void VideoDisplay::toggle_relative_histogram()
-{
-	if (show_relative_histogram)
-		show_relative_histogram = false;
-	else
-		show_relative_histogram = true;
 }
 
 void VideoDisplay::toggle_action_zoom(bool status)
