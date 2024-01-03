@@ -37,22 +37,17 @@ class HistogramLine_Plot : public QWidget //public QChartView
 		Clickable_QChartView *abs_chart_view;
 
 		QLabel *text;
-		unsigned int maximum_levels;
 
-		HistogramLine_Plot(unsigned int max_levels, QWidget *parent = nullptr);
+		arma::vec bin_midpoints;
+
+		HistogramLine_Plot(QWidget *parent = nullptr);
         ~HistogramLine_Plot();
 
 		QList<QPointF> create_qpoints(arma::vec & bins, arma::uvec & values);
-		arma::uvec create_histogram_data(arma::vec input);
 
-		arma::vec create_histogram_midpoints(double start, double stop, double bin_size);
-		arma::uvec create_histogram_data(arma::vec &values, arma::vec &bin_midpoints);
-		void plot_absolute_histogram(arma::vec & values, double min, double max);
-		void plot_relative_histogram(arma::vec & values);
+		void update_histogram_abs_plot(arma::vec & values, double lift, double gain);
+		void update_histogram_rel_plot(arma::vec & values);
 	
-		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart);
-		void  setup_histogram_plot(QChart *input_chart);
-		void initialize_histogram_plot();
 		void remove_histogram_plots();
 
 	signals:
@@ -66,11 +61,15 @@ class HistogramLine_Plot : public QWidget //public QChartView
 
 		//std::vector<uint8_t*> video_frames;
 
-		unsigned int counter, number_of_bins, number_of_frames;
+		unsigned int counter, number_of_frames;
 
 		QPen pen, pen_limits;
 		ColorScheme colors;
 
+		arma::vec create_histogram_midpoints();
+
+		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart);
+		void setup_histogram_plot(QChart *input_chart);
 };
 
 #endif // HISTOGRAM_PLOTTER_H

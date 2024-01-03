@@ -15,7 +15,7 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	should_show_bad_pixels = false;
 	in_track_creation_mode = false;
 
-	histogram_plot = new HistogramLine_Plot(input_bit_level);
+	histogram_plot = new HistogramLine_Plot();
 
 	counter = 0;
 	starting_frame_number = 0;
@@ -612,21 +612,13 @@ void VideoDisplay::update_display_frame()
 		gain = std::min(gain, 1.);
 		emit force_new_lift_gain(lift, gain);
 	}
-	//------------------------------------------------------------------------------------------------
-	// Update the absolute histogram
-	histogram_plot->plot_absolute_histogram(image_vector, lift, gain);
+
+	histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
 	ColorCorrection::update_color(image_vector, lift, gain);
 
-	// Create points for the relative histogram
-	if (show_relative_histogram) {
-		histogram_plot->plot_relative_histogram(image_vector);
-	}
-	else
-	{
-		histogram_plot->rel_chart->removeAllSeries();
-	}
+	histogram_plot->update_histogram_rel_plot(image_vector);
 
 	//------------------------------------------------------------------------------------------------
 
@@ -1130,7 +1122,6 @@ void VideoDisplay::remove_frame()
 	setup_labels();
 
 	histogram_plot->remove_histogram_plots();
-	histogram_plot->initialize_histogram_plot();
 
 	frame_data.clear();
 	number_of_frames = 0;
