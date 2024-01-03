@@ -1017,6 +1017,7 @@ void VideoDisplay::highlight_bad_pixels(bool status)
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
 {
 	display_data = input_data;
+	update_display_frame();
 }
 
 void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input)
