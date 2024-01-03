@@ -2158,19 +2158,13 @@ void SirveApp::copy_osm_directory()
 void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
-		video_display->show_relative_histogram = true;
-
 		frame_histogram_rel->setHidden(false);
 		vlayout_tab_histogram->addWidget(frame_histogram_rel);
-
-		video_display->update_display_frame();
-
 	}
 	else
 	{
 		frame_histogram_rel->setHidden(true);
 		vlayout_tab_histogram->removeWidget(frame_histogram_rel);
-		video_display->show_relative_histogram = false;
 	}
 }
 

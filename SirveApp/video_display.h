@@ -53,7 +53,7 @@ public:
 	void reclaim_label();
 
 	int counter_record, video_frame_number;
-	bool record_frame, show_relative_histogram;
+	bool record_frame;
 	cv::VideoWriter video;
 	
 	std::vector<annotation_info> annotation_list;
@@ -126,7 +126,6 @@ public slots:
 	void update_tracker_color(QString input_color);
 	void update_color_map(QString input_map);
 
-	void toggle_relative_histogram();
 	void toggle_sensor_boresight_data();
 	void toggle_frame_time(bool checked);
 	
