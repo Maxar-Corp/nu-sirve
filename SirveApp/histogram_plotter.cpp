@@ -1,7 +1,7 @@
 #include "histogram_plotter.h"
 
 
-HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
+HistogramLine_Plot::HistogramLine_Plot(QWidget *parent)
 {
 	abs_chart = new QChart();
 	rel_chart = new QChart();
@@ -22,13 +22,9 @@ HistogramLine_Plot::HistogramLine_Plot(unsigned int max_levels, QWidget *parent)
 	pen_limits.setStyle(Qt::SolidLine);
 	pen_limits.setWidth(3);
 
-	//Assumes video data is 8 bits and 256 bins (one for each bit level)
-	maximum_levels = max_levels;
-	number_of_bins = 256;
-
 	// ------------------------------------------------------------------------------
 
-	initialize_histogram_plot();
+	bin_midpoints = create_histogram_midpoints();
 
 	connect(abs_chart_view, &Clickable_QChartView::click_drag, this, &HistogramLine_Plot::adjust_color_correction);
 }
@@ -107,117 +103,41 @@ void  HistogramLine_Plot::setup_histogram_plot(QChart *input_chart) {
 	input_chart->setContentsMargins(0, 0, 0, 0);
 }
 
-void HistogramLine_Plot::initialize_histogram_plot()
-{
-
-	// Initialize the histogram plots for displaying
-	QLineSeries *series1 = new QLineSeries();
-	QLineSeries *series2 = new QLineSeries();
-
-	series1->append(QPointF(0, 0));
-	series1->append(QPointF(0, 0));
-	
-	series2->append(QPointF(0, 0));
-	series2->append(QPointF(0, 0));
-
-	abs_chart->addSeries(series1);
-	rel_chart->addSeries(series2);
-
-	setup_histogram_plot(abs_chart);
-	setup_histogram_plot(rel_chart);
-
-}
-
 void HistogramLine_Plot::remove_histogram_plots()
 {
 	abs_chart->removeAllSeries();
 	rel_chart->removeAllSeries();
 }
 
-arma::vec HistogramLine_Plot::create_histogram_midpoints(double start, double stop, double bin_size) {
+arma::vec HistogramLine_Plot::create_histogram_midpoints()
+{
+	int number_of_bins = 100;
+	double bin_size = 1.0 / number_of_bins;
 
-	double bin_start = bin_size / 2.0;
-	double bin_stop = stop - bin_start;
-	double num_bins = (1 - bin_size) / bin_size;
-
-	//arma::vec bin_midpoints = arma::linspace(bin_start, bin_stop, num_bins);
-	arma::vec bin_midpoints = arma::regspace(bin_start, bin_size, bin_stop);
+	arma::vec bin_midpoints = arma::regspace(0, bin_size, 1);
 
 	return bin_midpoints;
 }
 
-arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec input)
+void HistogramLine_Plot::update_histogram_abs_plot(arma::vec & values, double lift, double gain)
 {
-
-	//int number_of_bins = std::pow(2, 8);
-	int number_pixels = input.n_elem;
-
-	arma::uvec frame_histogram(number_of_bins);
-	frame_histogram.fill(0);
-
-	double max = input.max();
-	double min = input.min();
-
-	//std::vector<unsigned int> frame_histogram(number_of_bins, 0);
-
-	for (int pixel_index = 0; pixel_index < number_pixels; pixel_index++)
-	{
-		double value = input(pixel_index);
-		int index = (int)value;
-
-		// Check if exceeds maximum bins, puts in last bin
-		if (index > number_of_bins - 1)
-			index = number_of_bins - 1;
-		if (index < 0)
-			index = 0;
-
-		frame_histogram(index) = frame_histogram(index) + 1;
-	}
-
-	return frame_histogram;
-}
-
-arma::uvec HistogramLine_Plot::create_histogram_data(arma::vec &values, arma::vec &bin_midpoints) {
-
-	arma::uvec counts(bin_midpoints.n_elem, arma::fill::zeros);
-	double diff = (bin_midpoints(1) - bin_midpoints(0)) / 2;
-
-	int num_midpoints = bin_midpoints.n_elem;
-	
-	for (int i = 0; i < num_midpoints; i++)
-	{
-		double bin_min = bin_midpoints(i) - diff;
-		double bin_max = bin_midpoints(i) + diff;
-
-		arma::uvec temp = arma::find(values <= bin_min && values > bin_max);
-		
-		if (temp.n_elem > 0) {
-			counts(i) = temp.n_elem;
-		}
-	}
-	
-	return counts;
-}
-
-void HistogramLine_Plot::plot_absolute_histogram(arma::vec & values, double min, double max)
-{
-	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
 	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
-	plot_histogram(histogram_line, min, max, max_hist_value, abs_chart);
+
+	plot_histogram(histogram_line, lift, gain, max_hist_value, abs_chart);
 }
 
-void HistogramLine_Plot::plot_relative_histogram(arma::vec & values)
+void HistogramLine_Plot::update_histogram_rel_plot(arma::vec & values)
 {
-	arma::vec bin_midpoints = create_histogram_midpoints(0, 1, 0.01);
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
 	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
+
 	plot_histogram(histogram_line, 0, 1, max_hist_value, rel_chart);
 }
 
@@ -228,7 +148,7 @@ QList<QPointF> HistogramLine_Plot::create_qpoints(arma::vec & bins, arma::uvec &
 	QList<QPointF> histogram_line;
 	histogram_line.reserve(num_bins * 2);
 	
-	double current_x, next_x, bin_size, bin_x, bin_x_next, bin_delta;
+	double bin_size, bin_x, bin_x_next, bin_delta;
 	int number_color_corrected_bins = values.n_elem;
 
 	bin_delta = (bins(1) - bins(0)) / 2;
