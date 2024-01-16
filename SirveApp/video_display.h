@@ -118,6 +118,7 @@ signals:
 	void finish_create_track();
 
 public slots:
+	void update_frame_vector();
     void update_display_frame();	
 	void update_specific_frame(unsigned int frame_number);
 	void update_color_correction(double new_min_value, double new_max_value);
@@ -141,6 +142,7 @@ public slots:
 
 private:
 	VideoDisplayZoomManager *zoom_manager;
+	std::vector<double> original_frame_vector;
 
 	QLabel *lbl_pinpoint;
 	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
