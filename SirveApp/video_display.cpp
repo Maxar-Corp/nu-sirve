@@ -189,11 +189,6 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 	update_frame_vector();
 }
 
-void VideoDisplay::set_starting_frame_number(unsigned int frame_number)
-{
-	starting_frame_number = frame_number;
-}
-
 void VideoDisplay::reclaim_label()
 {
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
@@ -574,7 +569,7 @@ void VideoDisplay::end_auto_lift_gain()
 void VideoDisplay::update_frame_vector()
 {
 	// In case update_frame_vector is called before a video is fully placed 
-	if (number_of_frames == 0 || number_of_frames < counter)
+	if (number_of_frames == 0)
 		return;
 
 	original_frame_vector = {container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
@@ -1057,8 +1052,9 @@ void VideoDisplay::show_manual_track_id(int id)
 	update_frame_vector();
 }
 
-void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
+void VideoDisplay::initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
+	starting_frame_number = frame_number;
 	display_data = input_data;
 	frame_headers = input_frame_header;
 }
