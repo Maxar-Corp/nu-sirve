@@ -773,7 +773,7 @@ void SirveApp::setup_connections() {
 
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
-	connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
+	connect(playback_controller, &Playback::frame_selected, video_display, &VideoDisplay::view_frame);
 	connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
@@ -815,7 +815,7 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 
 	// Link horizontal slider to playback controller
-	connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
+	connect(playback_controller, &Playback::frame_selected, slider_video, &QSlider::setValue);
 	connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_current_frame_number);
 
 	//---------------------------------------------------------------------------
@@ -1431,7 +1431,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	plot_change();
 
 	//Update frame marker on engineering plot
-	connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
+	connect(playback_controller, &Playback::frame_selected, data_plots, &Engineering_Plots::plot_current_step);
 	
 	playback_controller->set_initial_speed_index(10);
 	update_fps();

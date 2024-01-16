@@ -120,7 +120,7 @@ signals:
 public slots:
 	void update_frame_vector();
     void update_display_frame();	
-	void update_specific_frame(unsigned int frame_number);
+	void switch_to_frame(unsigned int frame_number);
 	void update_color_correction(double new_min_value, double new_max_value);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
