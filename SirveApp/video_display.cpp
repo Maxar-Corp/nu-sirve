@@ -174,7 +174,7 @@ void VideoDisplay::handle_btn_select_track_centroid(bool checked)
 		is_zoom_active = false;
 		is_calculate_active = false;
 	}
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::handle_btn_pinpoint(bool checked)
@@ -186,7 +186,7 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 		is_zoom_active = false;
 		is_calculate_active = false;
 	}
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::reclaim_label()
@@ -215,21 +215,21 @@ void VideoDisplay::receive_video_data(int x, int y, int num_frames)
 void VideoDisplay::update_banner_text(QString input_banner_text)
 {
 	banner_text = input_banner_text;
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::update_banner_color(QString input_color)
 {
 	QColor new_color(input_color);
 	banner_color = new_color;
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_frame_time(bool checked)
 {
 	display_time = checked;
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::update_color_map(QString input_map)
@@ -249,7 +249,7 @@ void VideoDisplay::update_color_map(QString input_map)
 	// sets color table
 	colorTable = video_colors.maps[index_video_color].colors;
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::update_tracker_color(QString input_color)
@@ -257,21 +257,21 @@ void VideoDisplay::update_tracker_color(QString input_color)
 	QColor new_color(input_color);
 	tracker_color = new_color;
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_osm_tracks(bool input)
 {
 	plot_tracks = input;
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_sensor_boresight_data()
 {
 	display_boresight_txt = !display_boresight_txt;
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_action_zoom(bool status)
@@ -286,7 +286,7 @@ void VideoDisplay::toggle_action_zoom(bool status)
 		is_zoom_active = false;
 	}
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::toggle_action_calculate_radiance(bool status)
@@ -301,7 +301,7 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 		is_calculate_active = false;
 	}
 	
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details)
@@ -330,7 +330,7 @@ void VideoDisplay::exit_track_creation_mode()
 	track_details_max_frame = 0;
 	lbl_create_track->setText("");
 	grp_create_track->setHidden(true);
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::handle_image_area_selection(QRect area)
@@ -349,12 +349,12 @@ void VideoDisplay::handle_image_area_selection(QRect area)
 	if (is_zoom_active)
 	{
 		zoom_manager->zoom_image(area);
-		update_frame_vector();
+		update_display_frame();
 	}
 	else if (is_calculate_active)
 	{
 		calibrate(area);
-		update_frame_vector();
+		update_display_frame();
 	}
 	else
 	{
@@ -410,7 +410,7 @@ void VideoDisplay::unzoom()
 	if (zoom_manager->is_currently_zoomed())
 	{
 		zoom_manager->unzoom();
-		update_frame_vector();
+		update_display_frame();
 	}
 }
 
@@ -466,7 +466,7 @@ void VideoDisplay::select_track_centroid(unsigned int x, unsigned int y)
 	}
 	else
 	{
-		update_frame_vector();
+		update_display_frame();
 	}
 }
 
@@ -477,7 +477,7 @@ void VideoDisplay::handle_btn_clear_track_centroid()
 
 	reset_create_track_min_and_max_frames();
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::reset_create_track_min_and_max_frames()
@@ -527,7 +527,7 @@ void VideoDisplay::pinpoint(unsigned int x, unsigned int y)
 		pinpoint_indeces.erase(pinpoint_indeces.begin());
 	}
 	// Should be able to just update_partial_frame here or something
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::remove_pinpoints_from_bad_pixel_map()
@@ -549,7 +549,7 @@ void VideoDisplay::add_pinpoints_to_bad_pixel_map()
 void VideoDisplay::clear_pinpoints()
 {
 	pinpoint_indeces.clear();
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma)
@@ -1015,13 +1015,13 @@ void VideoDisplay::highlight_bad_pixels(bool status)
 {
 	should_show_bad_pixels = status;
 
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
 {
 	display_data = input_data;
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input)
@@ -1033,6 +1033,7 @@ void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input
 void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_input)
 {
 	manual_track_frames = track_frame_input;
+	update_display_frame();
 }
 
 void VideoDisplay::add_manual_track_id_to_show_later(int id)
@@ -1043,13 +1044,13 @@ void VideoDisplay::add_manual_track_id_to_show_later(int id)
 void VideoDisplay::hide_manual_track_id(int id)
 {
 	manual_track_ids_to_show.erase(id);
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::show_manual_track_id(int id)
 {
 	manual_track_ids_to_show.insert(id);
-	update_frame_vector();
+	update_display_frame();
 }
 
 void VideoDisplay::initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
