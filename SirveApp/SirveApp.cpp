@@ -227,12 +227,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 	vlayout_tab_import->addLayout(vlayout_tab_import_epoch);
 
 	// ------------------------------------------------------------------------
-	lbl_file_load = new QLabel("File Load Status: ");
-	lbl_file_load->setFrameShape(QFrame::Box);
-	lbl_file_load->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-	lbl_file_load->setMinimumHeight(100);
 
-	vlayout_tab_import->addWidget(lbl_file_load);
 	vlayout_tab_import->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
 	return widget_tab_import;
@@ -1172,8 +1167,6 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
 		INFO << "GUI: No valid file selected for load";
-		
-		lbl_file_load->setText(possible_abp_file_metadata.info_msg);
 
 		if (eng_data != NULL) {
 			// if eng_data already initialized, allow user to re-select frames
@@ -1206,7 +1199,6 @@ void SirveApp::load_osm_data()
 		return;
 	}
 
-	lbl_file_load->setText(abp_file_metadata.info_msg);
 	lbl_file_name->setText("File: " + abp_file_metadata.file_name);
 	lbl_file_name->setToolTip(abp_file_metadata.directory_path);
 
@@ -1385,14 +1377,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(primary);
 
-	QString status_txt = lbl_file_load->text();
-	QString update_text("\nFrames ");
-	update_text.append(QString::number(min_frame));
-	update_text.append(" to ");
-	update_text.append(QString::number(min_frame + number_frames - 1));
-	update_text.append(" were loaded");
-	status_txt.append(update_text);
-	lbl_file_load->setText(status_txt);
 	txt_start_frame->setText(QString::number(min_frame));
 	txt_end_frame->setText(QString::number(max_frame));
 	
