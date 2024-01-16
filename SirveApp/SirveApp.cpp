@@ -754,9 +754,6 @@ void SirveApp::setup_connections() {
 
 
 	//---------------------------------------------------------------------------	
-	// 
-	
-	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_frame_vector);
 
 	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_frame_vector);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
@@ -932,8 +929,6 @@ void SirveApp::import_tracks()
 	int index0 = data_plots->index_sub_plot_xmin;
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
-
-	video_display->update_frame_vector();
 }
 
 void SirveApp::handle_btn_create_track()
