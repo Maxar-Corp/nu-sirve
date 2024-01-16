@@ -119,8 +119,7 @@ signals:
 
 public slots:
 	void update_frame_vector();
-    void update_display_frame();	
-	void switch_to_frame(unsigned int frame_number);
+	void view_frame(unsigned int frame_number);
 	void update_color_correction(double new_min_value, double new_max_value);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
@@ -197,6 +196,7 @@ private:
 	void handle_btn_clear_track_centroid();
 	void reset_create_track_min_and_max_frames();
 	void update_create_track_label();
+    void update_display_frame();
 
 	QString get_zulu_time_string(double seconds_midnight);
 };
