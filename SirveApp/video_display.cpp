@@ -1146,7 +1146,7 @@ void VideoDisplay::remove_frame()
 	original_frame_vector.clear();
 }
 
-void VideoDisplay::update_specific_frame(unsigned int frame_number)
+void VideoDisplay::view_frame(unsigned int frame_number)
 {
 	counter = frame_number;
 	update_display_frame();

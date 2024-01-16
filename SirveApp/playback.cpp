@@ -79,7 +79,7 @@ void Playback::start_timer() {
 
 	is_reverse = false;
 	timer->start();
-	emit update_frame(current_frame_number);
+	emit frame_selected(current_frame_number);
 }
 
 void Playback::timer_update()
@@ -102,7 +102,7 @@ void Playback::timer_update()
 		}
 	}
 
-	emit update_frame(current_frame_number);
+	emit frame_selected(current_frame_number);
 }
 
 void Playback::set_current_frame_number(unsigned int value)
@@ -115,7 +115,7 @@ void Playback::set_current_frame_number(unsigned int value)
 	else
 		current_frame_number = value;
 
-	emit update_frame(current_frame_number);
+	emit frame_selected(current_frame_number);
 }
 
 void Playback::prev_frame()
@@ -126,7 +126,7 @@ void Playback::prev_frame()
 	else
 		current_frame_number--;
 
-	emit update_frame(current_frame_number);
+	emit frame_selected(current_frame_number);
 }
 
 void Playback::next_frame()
@@ -139,7 +139,7 @@ void Playback::next_frame()
 	else
 		current_frame_number++;
 
-	emit update_frame(current_frame_number);
+	emit frame_selected(current_frame_number);
 }
 
 void Playback::stop_timer() {
@@ -152,7 +152,7 @@ void Playback::reverse() {
 	is_reverse = true;
 	timer->start();
 
-	emit update_frame(current_frame_number);
+	emit frame_selected(current_frame_number);
 }
 
 bool Playback::is_running()
