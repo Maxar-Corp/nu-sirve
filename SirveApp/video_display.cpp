@@ -36,6 +36,8 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	// intializes color map to gray scale
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
+
+	original_frame_vector = {};
 }
 
 VideoDisplay::~VideoDisplay()
@@ -569,17 +571,34 @@ void VideoDisplay::end_auto_lift_gain()
 	auto_lift_gain = false;
 }
 
+void VideoDisplay::update_frame_vector()
+{
+	original_frame_vector = {container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
+		container.processing_states[container.current_idx].details.frames_16bit[counter].end()};
+
+	update_display_frame();
+}
+
 void VideoDisplay::update_display_frame()
 {
 	// In case update_display_frame is called before a video is fully placed 
 	if (number_of_frames == 0 || number_of_frames < counter)
 		return;
 
+	std::vector<double> frame_vector;
+
+	if (original_frame_vector.size() > 0)
+	{
+		frame_vector = original_frame_vector;
+	}
+	else
+	{
+		frame_vector = {container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
+			container.processing_states[container.current_idx].details.frames_16bit[counter].end()};
+	}
 	//------------------------------------------------------------------------------------------------
 
 	//Convert current frame to armadillo matrix
-	std::vector<double> frame_vector(container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
-		container.processing_states[container.current_idx].details.frames_16bit[counter].end());
 	arma::vec image_vector(frame_vector);
 
 	//Normalize the image to values between 0 - 1
@@ -1124,6 +1143,7 @@ void VideoDisplay::remove_frame()
 
 	delete zoom_manager;
 	zoom_manager = new VideoDisplayZoomManager(0, 0);
+	original_frame_vector.clear();
 }
 
 void VideoDisplay::update_specific_frame(unsigned int frame_number)

@@ -764,7 +764,7 @@ void SirveApp::setup_connections() {
 	
 	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
-	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_display_frame);
+	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_frame_vector);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
 
 	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
