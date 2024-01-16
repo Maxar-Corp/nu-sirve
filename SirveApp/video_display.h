@@ -79,12 +79,10 @@ public:
 
 	void highlight_bad_pixels(bool status);
 
-	void set_starting_frame_number(unsigned int frame_number);
-
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
-	void set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
 
 	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
+	void initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
 	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
 	void add_manual_track_id_to_show_later(int id);
 	void hide_manual_track_id(int id);
