@@ -1359,9 +1359,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Load the ABIR data
 	playback_controller->stop_timer();
 
-	// Create the video properties data
-	video_details vid_details;
-
 	INFO << "GUI: Reading in video data";
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
@@ -1375,21 +1372,18 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 		return;
 	}
 
+	std::vector<std::vector<uint16_t>> video_frames = abir_data_result.video_frames_16bit;
+	unsigned int number_frames = static_cast<unsigned int>(video_frames.size());
+
 	int x_pixels = abir_data_result.x_pixels;
 	int y_pixels = abir_data_result.y_pixels;
-	std::vector<std::vector<uint16_t>> video_frames = abir_data_result.video_frames_16bit;
-
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
-	vid_details.x_pixels = x_pixels;
-	vid_details.y_pixels = y_pixels;
-	vid_details.frames_16bit = video_frames;
+	video_details vid_details = {x_pixels, y_pixels, video_frames};
 
 	processing_state primary = { Processing_Method::original, vid_details };
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(primary);
-
-	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
 
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
