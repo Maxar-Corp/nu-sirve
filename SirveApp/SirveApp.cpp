@@ -1385,7 +1385,12 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	vid_details.y_pixels = y_pixels;
 	vid_details.frames_16bit = video_frames;
 
+	processing_state primary = { Processing_Method::original, vid_details };
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(primary);
+
 	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
+
 	QString status_txt = lbl_file_load->text();
 	QString update_text("\nFrames ");
 	update_text.append(QString::number(min_frame));
@@ -1401,7 +1406,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
 	slider_video->setRange(0, number_frames - 1);
-	
+
 	// Start threads...
 	if (!thread_timer.isRunning())
 	{
@@ -1416,9 +1421,9 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	progress_dialog.setLabelText("Finalizing application state");
 	progress_dialog.setValue(3);
 
-	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
 	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
-	video_display->set_starting_frame_number(min_frame);
+	video_display->initialize_frame_data(min_frame, temp, file_processor.abir_data.ir_data);
+	video_display->receive_video_data(x_pixels, y_pixels, number_frames);
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1446,9 +1451,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	lbl_bad_pixel_count->setText("");
 	INFO << "GUI: ABIR file load complete";
 
-	processing_state primary = { Processing_Method::original, vid_details };
-	video_display->container.clear_processing_states();
-	video_display->container.add_processing_state(primary);
 	cmb_processing_states->setEnabled(true);
 	btn_workspace_save->setEnabled(true);
 
@@ -1456,8 +1458,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	btn_import_tracks->setEnabled(true);
 
 	toggle_video_playback_options(true);
-
-	video_display->receive_video_data(x_pixels, y_pixels, temp.size());
 
 	progress_dialog.setValue(4);
 }
