@@ -11,7 +11,6 @@ SirveApp::SirveApp(QWidget *parent)
 	// establish object that will hold video and connect it to the playback thread
 	video_display = new VideoDisplay(config_values.max_used_bits);
 	video_display->moveToThread(&thread_video);
-	//connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
 
 	setup_ui();
 
@@ -762,7 +761,7 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------	
 	// 
 	
-	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
+	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_frame_vector);
 
 	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_frame_vector);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
@@ -939,7 +938,7 @@ void SirveApp::import_tracks()
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 
-	video_display->update_display_frame();
+	video_display->update_frame_vector();
 }
 
 void SirveApp::handle_btn_create_track()
@@ -2130,7 +2129,7 @@ void SirveApp::annotate_video()
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
 	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
-	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_display_frame);
+	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_frame_vector);
 	annotate_gui.exec();
 }
 
