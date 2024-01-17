@@ -1213,6 +1213,7 @@ void SirveApp::load_osm_data()
 			
 		DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
 
+		slider_video->setValue(0);
 		toggle_video_playback_options(false);
 
 		// Reset video frame
@@ -2102,7 +2103,7 @@ void SirveApp::annotate_video()
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
 	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
-	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_frame_vector);
+	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::handle_annotation_changes);
 	annotate_gui.exec();
 }
 
@@ -2609,14 +2610,9 @@ void SirveApp::toggle_video_playback_options(bool input)
 	btn_prev_frame->setEnabled(input);
 	btn_reverse->setEnabled(input);
 
-	if (input)
-	{
-		//playback_controller->start_timer();
-	}
-	else
+	if (!input)
 	{
 		playback_controller->stop_timer();
-		slider_video->setValue(1);
 		lbl_fps->setText("");
 	}
 }

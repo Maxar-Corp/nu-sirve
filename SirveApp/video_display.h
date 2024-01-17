@@ -133,6 +133,8 @@ public slots:
 	void handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 	void end_auto_lift_gain();
 
+	void handle_annotation_changes();
+
 	void handle_image_area_selection(QRect area);
 	void unzoom();
 
