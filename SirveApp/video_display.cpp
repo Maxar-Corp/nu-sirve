@@ -333,6 +333,11 @@ void VideoDisplay::exit_track_creation_mode()
 	update_display_frame();
 }
 
+void VideoDisplay::handle_annotation_changes()
+{
+	update_display_frame();
+}
+
 void VideoDisplay::handle_image_area_selection(QRect area)
 {
 	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
@@ -568,14 +573,14 @@ void VideoDisplay::end_auto_lift_gain()
 
 void VideoDisplay::update_frame_vector()
 {
-	// In case update_frame_vector is called before a video is fully placed 
-	if (number_of_frames == 0)
-		return;
-
 	original_frame_vector = {container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
 		container.processing_states[container.current_idx].details.frames_16bit[counter].end()};
 
-	update_display_frame();
+	//We can't render the display until it has been properly initialized
+	if (number_of_frames != 0)
+	{
+		update_display_frame();
+	}
 }
 
 void VideoDisplay::update_display_frame()
