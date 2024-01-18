@@ -573,23 +573,12 @@ void VideoDisplay::end_auto_lift_gain()
 
 void VideoDisplay::update_frame_vector()
 {
+
 	original_frame_vector = {container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
 		container.processing_states[container.current_idx].details.frames_16bit[counter].end()};
 
-	//We can't render the display until it has been properly initialized
-	if (number_of_frames != 0)
-	{
-		update_display_frame();
-	}
-}
-
-void VideoDisplay::update_display_frame()
-{
-	std::vector<double> frame_vector = original_frame_vector;
-	//------------------------------------------------------------------------------------------------
-
 	//Convert current frame to armadillo matrix
-	arma::vec image_vector(frame_vector);
+	arma::vec image_vector(original_frame_vector);
 
 	//Normalize the image to values between 0 - 1
 	int max_value = std::pow(2, max_bit_level);
@@ -620,20 +609,23 @@ void VideoDisplay::update_display_frame()
 
 	histogram_plot->update_histogram_rel_plot(image_vector);
 
-	//------------------------------------------------------------------------------------------------
-
-	// Put image into 8-bit format for displaying
 	image_vector = image_vector * 255;
-
 	//arma::vec out_frame_flat = arma::vectorise(image_vector);
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
-	std::vector<uint8_t> converted_values(out_vector.begin(), out_vector.end());
-	uint8_t* color_corrected_frame = converted_values.data();
+	display_ready_converted_values = {out_vector.begin(), out_vector.end()};
+	
+	update_display_frame();
+}
 
-	//------------------------------------------------------------------------------------------------
+void VideoDisplay::update_display_frame()
+{
+	//Prevent attempts to render until the video display has been fully initialized
+	if (number_of_frames == 0)
+	{
+		return;
+	}
 
-	//------------------------------------------------------------------------------------------------
-
+	uint8_t* color_corrected_frame = display_ready_converted_values.data();
 	frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
 	// Convert image to format_indexed. allows color table to take effect on image
@@ -662,9 +654,9 @@ void VideoDisplay::update_display_frame()
 	{
 		int pinpoint_idx = pinpoint_indeces[idx];
 		
-		if (pinpoint_idx < frame_vector.size())
+		if (pinpoint_idx < original_frame_vector.size())
 		{
-			int irradiance_value = frame_vector[pinpoint_idx];
+			int irradiance_value = original_frame_vector[pinpoint_idx];
 			int pinpoint_x = pinpoint_idx % image_x;
 			int pinpoint_y = pinpoint_idx / image_x;
 			pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
