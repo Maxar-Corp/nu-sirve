@@ -208,8 +208,6 @@ void VideoDisplay::receive_video_data(int x, int y, int num_frames)
 	label->setMinimumHeight(image_y);
 
 	number_of_frames = num_frames;
-
-	update_frame_vector();
 }
 
 void VideoDisplay::update_banner_text(QString input_banner_text)
@@ -562,8 +560,6 @@ void VideoDisplay::handle_new_auto_lift_gain_sigma(double lift_sigma, double gai
 	auto_lift_gain = true;
 	auto_lift_sigma = lift_sigma;
 	auto_gain_sigma = gain_sigma;
-
-	update_frame_vector();
 }
 
 void VideoDisplay::end_auto_lift_gain()
@@ -1133,12 +1129,10 @@ void VideoDisplay::remove_frame()
 void VideoDisplay::view_frame(unsigned int frame_number)
 {
 	counter = frame_number;
-	update_frame_vector();
 }
 
 void VideoDisplay::update_color_correction(double new_min_value, double new_max_value)
 {
 	lift = new_min_value;
 	gain = new_max_value;
-	update_frame_vector();
 }
