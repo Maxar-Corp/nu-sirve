@@ -755,8 +755,9 @@ void SirveApp::setup_connections() {
 
 	//---------------------------------------------------------------------------	
 
-	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_frame_vector);
+	connect(&video_display->container, &Video_Container::update_display_video, this, &SirveApp::handle_frame_change);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
+	connect(playback_controller, &Playback::frame_selected, this, &SirveApp::handle_frame_number_change);
 
 	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
 	connect(&video_display->container, &Video_Container::state_removed, this, &SirveApp::handle_processing_state_removal);
@@ -764,7 +765,6 @@ void SirveApp::setup_connections() {
 
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
-	connect(playback_controller, &Playback::frame_selected, video_display, &VideoDisplay::view_frame);
 	connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
@@ -781,13 +781,11 @@ void SirveApp::setup_connections() {
 	connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
 	connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
-	connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
 
 	connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
 	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
 	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(this, &SirveApp::new_auto_lift_gain_sigma, video_display, &VideoDisplay::handle_new_auto_lift_gain_sigma);
 	connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
 	
 	//---------------------------------------------------------------------------
@@ -1398,6 +1396,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	video_display->initialize_frame_data(min_frame, temp, file_processor.abir_data.ir_data);
 	video_display->receive_video_data(x_pixels, y_pixels, number_frames);
+	video_display->update_frame_vector();
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1702,7 +1701,9 @@ void SirveApp::emit_new_auto_lift_gain_sigma()
 {
 	double lift_sigma = txt_lift_sigma->text().toDouble();
 	double gain_sigma = txt_gain_sigma->text().toDouble();
-	emit new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
+
+	video_display->handle_new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
+	video_display->update_frame_vector();
 }
 
 void SirveApp::set_lift_and_gain(double lift, double gain)
@@ -1730,7 +1731,7 @@ void SirveApp::lift_slider_toggled() {
 
 	slider_lift->setValue(lift_value);
 	lbl_lift_value->setText(QString::number(lift_value / 1000.));
-	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
+	handle_new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
 
 void SirveApp::gain_slider_toggled() {
@@ -1749,7 +1750,7 @@ void SirveApp::gain_slider_toggled() {
 
 	slider_gain->setValue(gain_value);
 	lbl_gain_value->setText(QString::number(gain_value / 1000.));
-	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
+	handle_new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
 }
 
 void SirveApp::reset_color_correction()
@@ -2744,4 +2745,21 @@ bool SirveApp::verify_frame_selection(int min_frame, int max_frame)
 	}
 
 	return true;
+}
+
+void SirveApp::handle_frame_change()
+{
+	video_display->update_frame_vector();
+}
+
+void SirveApp::handle_frame_number_change(unsigned int new_frame_number)
+{
+	video_display->view_frame(new_frame_number);
+	video_display->update_frame_vector();
+}
+
+void SirveApp::handle_new_lift_gain_values(double lift_value, double gain_value)
+{
+	video_display->update_color_correction(lift_value, gain_value);
+	video_display->update_frame_vector();
 }

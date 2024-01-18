@@ -145,9 +145,7 @@ public:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
-		void new_lift_gain_values(double lift_value, double gain_value);
 		void end_auto_lift_gain();
-		void new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 
 	public slots:
 	
@@ -209,6 +207,8 @@ public:
 		void popout_histogram_closed();
 		void popout_engineering_closed();
 
+		void handle_frame_change();
+
 private:
 	QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
 	QClipboard *clipboard;
@@ -265,4 +265,7 @@ private:
 	void handle_btn_finish_create_track();
 	
 	void emit_new_auto_lift_gain_sigma();
+
+	void handle_frame_number_change(unsigned int new_frame_number);
+	void handle_new_lift_gain_values(double lift_value, double gain_value);
 };

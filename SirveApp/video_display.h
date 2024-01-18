@@ -107,6 +107,10 @@ public:
 	void receive_video_data(int x, int y, int num_frames);
 	void initialize_toggles();
 
+	void update_color_correction(double new_min_value, double new_max_value);
+	void handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
+	void view_frame(unsigned int frame_number);
+
 signals:
 	void clear_mouse_buttons();
 	void force_new_lift_gain(double lift, double gain);
@@ -117,8 +121,6 @@ signals:
 
 public slots:
 	void update_frame_vector();
-	void view_frame(unsigned int frame_number);
-	void update_color_correction(double new_min_value, double new_max_value);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
 	void update_tracker_color(QString input_color);
@@ -130,7 +132,6 @@ public slots:
 	void handle_click(QPoint origin);
 	void clear_pinpoints();
 
-	void handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 	void end_auto_lift_gain();
 
 	void handle_annotation_changes();
