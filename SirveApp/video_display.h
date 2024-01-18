@@ -142,6 +142,7 @@ public slots:
 private:
 	VideoDisplayZoomManager *zoom_manager;
 	std::vector<double> original_frame_vector;
+	std::vector<uint8_t> display_ready_converted_values;
 
 	QLabel *lbl_pinpoint;
 	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
