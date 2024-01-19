@@ -27,11 +27,7 @@ void ExternalNUCInformationWidget::initialize_gui()
     btn_load_frames->setEnabled(false);
     btn_close = new QPushButton("Cancel");
 
-    QSizePolicy sp_frame(QSizePolicy::Ignored, QSizePolicy::Ignored);
-
-    frame_plot = new FixedAspectRatioFrame(this);
-    frame_plot->enable_fixed_aspect_ratio(true);
-    frame_plot->setSizePolicy(sp_frame);
+    frame_plot = new QFrame();
 
     frame_layout = new QVBoxLayout();
     frame_plot->setLayout(frame_layout);

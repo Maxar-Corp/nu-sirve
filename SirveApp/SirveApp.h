@@ -21,10 +21,8 @@
 #include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
-#include "fixed_aspect_ratio_frame.h"
 #include "calibration_data.h"
 #include "non_uniformity_correction_external_file.h"
-#include "application_data.h"
 #include "config.h"
 #include "support/jtime.h"
 #include "support/qthelpers.h"
@@ -36,7 +34,6 @@
 #include "track_management_widget.h"
 #include "data_export.h"
 
-#include <qstackedlayout.h>
 #include <qlabel.h>
 #include <qgridlayout.h>
 #include <QVBoxLayout>
@@ -107,10 +104,9 @@ public:
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QGroupBox * grpbox_auto_lift_gain;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
-	QFrame* frame_video_player, *frame_histogram, *frame_histogram_abs, *frame_histogram_abs_full;
-	FixedAspectRatioFrame* frame_plots;
+	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
+	QFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
-	QStackedLayout* stacked_layout_histograms;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels;
@@ -201,10 +197,7 @@ public:
 		void create_non_uniformity_correction_from_external_file();
 
 		void toggle_osm_tracks();
-		void toggle_sensor_track_data();
-		void toggle_frame_time();
 
-		void handle_chk_highlight_bad_pixels(bool checked);
 		void receive_new_bad_pixels(std::vector<unsigned int> new_pixels);
 		void receive_new_good_pixels(std::vector<unsigned int> pixels);
 
@@ -217,7 +210,7 @@ public:
 		void popout_engineering_closed();
 
 private:
-	QVBoxLayout *histogram_abs_layout_full;
+	QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
 	QClipboard *clipboard;
 
 	PopoutDialog *popout_video;

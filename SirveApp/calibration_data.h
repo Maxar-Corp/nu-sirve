@@ -12,11 +12,9 @@
 #include <armadillo>
 
 #include "logging.h"
-#include "fixed_aspect_ratio_frame.h"
 #include "abpnuc_reader.h"
 #include "clickable_chartview.h"
 #include "color_scheme.h"
-#include "application_data.h"
 #include "process_file.h"
 #include "osm_reader.h"
 #include "Data_Structures.h"
@@ -116,7 +114,7 @@ private:
 	Clickable_QChartView* chart_view_temperatures;
 	QPushButton* btn_get_nuc_file, *btn_ok, *btn_cancel;
 	QLabel* lbl_nuc_filename;
-	FixedAspectRatioFrame* frame_plot;
+	QFrame* frame_plot;
 	QRadioButton *radio_temperature1, *radio_temperature2;
 	QLineSeries* selection1, * selection2;
 

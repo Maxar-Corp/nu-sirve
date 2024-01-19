@@ -161,17 +161,13 @@ void CalibrationDialog::initialize_gui()
 	mainLayout->setStretch(2, 0);
 
 	// ------------------------------------------------------------
-	
-	frame_plot = new FixedAspectRatioFrame();
-	frame_plot->enable_fixed_aspect_ratio(true);
-	frame_plot->resize(640, 480);
+	frame_plot = new QFrame();
 
 	QHBoxLayout* hlayout_plot = new QHBoxLayout();
 	hlayout_plot->addWidget(chart_view_temperatures);
 	frame_plot->setLayout(hlayout_plot);
 
 	mainLayout->addWidget(frame_plot);
-	//mainLayout->setStretch(3, 1);
 
 	// ------------------------------------------------------------
 
@@ -222,12 +218,9 @@ void CalibrationDialog::initialize_gui()
 	setLayout(mainLayout);
 	setWindowTitle("Set Calibration Data");
 
-	// resize width
-	int width = this->width();
-	double ar = frame_plot->aspect_ratio_width * 1.0 / frame_plot->aspect_ratio_height;
-	int height = int(width / ar);
-	frame_plot->setFixedHeight(height);
-
+	//Set the frame to a fixed height
+	int fixed_height = this->width() / 1.33;
+	frame_plot->setFixedHeight(fixed_height);
 }
 
 void CalibrationDialog::get_new_nuc_file()

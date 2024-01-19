@@ -33,26 +33,16 @@ SirveApp::SirveApp(QWidget *parent)
 	record_video = false;
 	
 	// links chart with frame where it will be contained
-	QVBoxLayout *histogram_layout = new QVBoxLayout();
-	histogram_layout->addWidget(video_display->histogram_plot->rel_chart_view);
-	frame_histogram->setLayout(histogram_layout);
+	QVBoxLayout *histogram_rel_layout = new QVBoxLayout();
+	histogram_rel_layout->addWidget(video_display->histogram_plot->rel_chart_view);
+	frame_histogram_rel->setLayout(histogram_rel_layout);
 
 	// links chart with frame where it will be contained
-	QVBoxLayout *histogram_abs_layout = new QVBoxLayout();
-	histogram_abs_layout->addWidget(video_display->histogram_plot->chart_view);
-	frame_histogram_abs->setLayout(histogram_abs_layout);	
-	
-	// links chart with frame where it will be contained
-	// Note this QVBoxLayout is persistent so we can reattach the histogram popout to it later
-	histogram_abs_layout_full = new QVBoxLayout();
-	btn_popout_histogram = new QPushButton("Push to Popout Display");
-	btn_popout_histogram->resize(40, 40);
-	btn_popout_histogram->setCheckable(true);
-	histogram_abs_layout_full->addWidget(btn_popout_histogram);
-	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
-	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
+	histogram_abs_layout = new QVBoxLayout();
+	histogram_abs_layout->addWidget(video_display->histogram_plot->abs_chart_view);
+	frame_histogram_abs->setLayout(histogram_abs_layout);
 
-	// establish connections to all qwidgets	
+	// establish connections to all qwidgets
 	setup_connections();
 	
 	toggle_relative_histogram(false);
@@ -664,29 +654,25 @@ void SirveApp::setup_plot_frame() {
 
 	// ------------------------------------------------------------------------
 
-	frame_histogram = new QFrame();
-	frame_histogram_abs = new QFrame();
-	frame_histogram_abs_full = new QFrame();
-
-	QWidget* widget_tab_histogram_split = new QWidget();
-	QVBoxLayout* vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram_split);
-
-	vlayout_tab_histogram->addWidget(frame_histogram);
-	vlayout_tab_histogram->addWidget(frame_histogram_abs);
-	vlayout_tab_histogram->setStretch(0, 1);
-	vlayout_tab_histogram->setStretch(1, 1);
-
-	stacked_layout_histograms = new QStackedLayout();
-	stacked_layout_histograms->addWidget(frame_histogram_abs_full);
-	stacked_layout_histograms->addWidget(widget_tab_histogram_split);
-	
 	QWidget* widget_tab_histogram = new QWidget();
-	widget_tab_histogram->setLayout(stacked_layout_histograms);
+
+	vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram);
+
+	frame_histogram_rel = new QFrame();
+    frame_histogram_rel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+	frame_histogram_abs = new QFrame();
+    frame_histogram_abs->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+
+	btn_popout_histogram = new QPushButton("Push to Popout Absolute Histogram");
+	btn_popout_histogram->resize(40, 40);
+	btn_popout_histogram->setCheckable(true);
+	vlayout_tab_histogram->addWidget(btn_popout_histogram);
+	vlayout_tab_histogram->addWidget(frame_histogram_abs);
+	vlayout_tab_histogram->addWidget(frame_histogram_rel);
 
 	// ------------------------------------------------------------------------
 
-	frame_plots = new FixedAspectRatioFrame();
-	frame_plots->enable_fixed_aspect_ratio(false);
+	frame_plots = new QFrame();
 	QLabel* label_x_axis_option = new QLabel("X-Axis");
 	QLabel* label_y_axis_option = new QLabel("Y-Axis");
 	QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
@@ -818,8 +804,8 @@ void SirveApp::setup_connections() {
 	connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::toggle_osm_tracks);
 	connect(cmb_tracker_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_tracker_color);
 	
-	connect(chk_sensor_track_data, &QCheckBox::stateChanged, this, &SirveApp::toggle_sensor_track_data);
-	connect(chk_show_time, &QCheckBox::stateChanged, this, &SirveApp::toggle_frame_time);
+	connect(chk_sensor_track_data, &QCheckBox::stateChanged, video_display, &VideoDisplay::toggle_sensor_boresight_data);
+	connect(chk_show_time, &QCheckBox::stateChanged, video_display, &VideoDisplay::toggle_frame_time);
 	connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_color_map);
 	connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::edit_banner_color);
 
@@ -864,7 +850,7 @@ void SirveApp::setup_connections() {
 	connect(btn_get_frames, &QPushButton::clicked, this, &SirveApp::ui_load_abir_data);
 	connect(txt_end_frame, &QLineEdit::returnPressed, this, &SirveApp::ui_load_abir_data);
 
-	connect(chk_highlight_bad_pixels, &QPushButton::clicked, this, &SirveApp::handle_chk_highlight_bad_pixels);
+	connect(chk_highlight_bad_pixels, &QPushButton::clicked, video_display, &VideoDisplay::highlight_bad_pixels);
 
 	connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
 
@@ -1071,7 +1057,6 @@ void SirveApp::handle_removal_of_track(int track_id)
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
-	video_display->update_display_frame();
 }
 
 void SirveApp::save_workspace()
@@ -1309,12 +1294,6 @@ void SirveApp::load_osm_data()
 	engineering_plot_layout->addWidget(data_plots->chart_view);
 	frame_plots->setLayout(engineering_plot_layout);
 
-	// Reset settings on video playback to defaults
-	chk_show_tracks->setChecked(false);
-
-	//menu_sensor_boresight->setIconVisibleInMenu(false);
-	video_display->toggle_sensor_boresight_data(false);
-
 	btn_calculate_radiance->setChecked(false);
 	btn_calculate_radiance->setEnabled(false);
 	chk_highlight_bad_pixels->setChecked(false);
@@ -1326,9 +1305,12 @@ void SirveApp::load_osm_data()
 	CalibrationData temp;
 	calibration_model = temp;
 
-	video_display->banner_color = QString("red");
-	video_display->banner_text = QString("EDIT CLASSIFICATION");
-	video_display->tracker_color = QString("red");
+	// Reset settings on video playback to defaults
+	chk_show_tracks->setChecked(false);
+	chk_show_time->setChecked(false);
+	chk_sensor_track_data->setChecked(false);
+	cmb_text_color->setCurrentIndex(0);
+	video_display->initialize_toggles();
 	
 	// Reset setting engineering plot defaults
 	menu_plot_all_data->setIconVisibleInMenu(true);
@@ -1522,7 +1504,7 @@ void SirveApp::handle_popout_histogram_btn(bool checked)
 
 void SirveApp::open_popout_histogram_plot()
 {
-	popout_histogram = new PopoutDialog(video_display->histogram_plot->chart_full_view);
+	popout_histogram = new PopoutDialog(video_display->histogram_plot->abs_chart_view);
 	connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
 	popout_histogram->open();
 }
@@ -1530,8 +1512,7 @@ void SirveApp::open_popout_histogram_plot()
 void SirveApp::popout_histogram_closed()
 {
 	btn_popout_histogram->setChecked(false);
-	histogram_abs_layout_full->addWidget(video_display->histogram_plot->chart_full_view);
-	frame_histogram_abs_full->setLayout(histogram_abs_layout_full);
+	histogram_abs_layout->addWidget(video_display->histogram_plot->abs_chart_view);
 
 	delete popout_histogram;
 }
@@ -1742,8 +1723,6 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 		btn_reset_color_correction->setEnabled(true);
 		grpbox_auto_lift_gain->setEnabled(false);
 	}
-
-	video_display->update_display_frame();
 }
 
 void SirveApp::emit_new_auto_lift_gain_sigma()
@@ -1885,7 +1864,6 @@ void SirveApp::set_data_timing_offset()
 
 		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		video_display->update_frame_data(temp);
-		video_display->update_display_frame();
 
 		plot_change();
 	}
@@ -2087,7 +2065,6 @@ void SirveApp::edit_tracker_color()
 {
 	QString tracker_color = cmb_tracker_color->currentText();
 	video_display->update_tracker_color(tracker_color);
-	video_display->update_display_frame();
 }
 
 void SirveApp::plot_change()
@@ -2180,17 +2157,13 @@ void SirveApp::copy_osm_directory()
 void SirveApp::toggle_relative_histogram(bool input)
 {
 	if (input) {
-		video_display->show_relative_histogram = true;
-
-		stacked_layout_histograms->setCurrentIndex(1);
-		video_display->update_display_frame();
-
+		frame_histogram_rel->setHidden(false);
+		vlayout_tab_histogram->addWidget(frame_histogram_rel);
 	}
 	else
 	{
-		video_display->show_relative_histogram = false;
-		stacked_layout_histograms->setCurrentIndex(0);
-
+		frame_histogram_rel->setHidden(true);
+		vlayout_tab_histogram->removeWidget(frame_histogram_rel);
 	}
 }
 
@@ -2285,12 +2258,6 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 
 	lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
 	chk_highlight_bad_pixels->setEnabled(true);
-}
-
-void SirveApp::handle_chk_highlight_bad_pixels(bool checked)
-{
-	video_display->highlight_bad_pixels(checked);
-	video_display->update_display_frame();
 }
 
 void SirveApp::receive_new_good_pixels(std::vector<unsigned int> pixels)
@@ -2539,7 +2506,6 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 
 void SirveApp::toggle_osm_tracks()
 {
-
 	bool current_status = video_display->plot_tracks;
 	video_display->toggle_osm_tracks(!current_status);
 	
@@ -2550,25 +2516,6 @@ void SirveApp::toggle_osm_tracks()
 	{
 		cmb_tracker_color->setEnabled(false);
 	}
-	
-	video_display->update_display_frame();
-}
-
-void SirveApp::toggle_sensor_track_data()
-{
-
-	bool current_status = video_display->display_boresight_txt;
-
-	video_display->toggle_sensor_boresight_data(!current_status);
-	video_display->update_display_frame();
-
-}
-
-void SirveApp::toggle_frame_time()
-{
-	bool current_status = chk_show_time->isChecked();
-	video_display->display_time = current_status;
-	video_display->update_display_frame();
 }
 
 void SirveApp::handle_new_processing_state(QString state_name, int index)
