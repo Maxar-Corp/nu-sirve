@@ -819,8 +819,8 @@ void VideoDisplay::update_display_frame()
 		if (rectangle_drawn && region_within_zoom) {
 
 			// get frame data from original data set and convert mat
-			std::vector<double> original_frame_vector(container.processing_states[0].details.frames_16bit[counter].begin(), container.processing_states[0].details.frames_16bit[counter].end());
-			arma::vec original_image_vector(original_frame_vector);
+			std::vector<double> calibrate_original_frame_vector(container.processing_states[0].details.frames_16bit[counter].begin(), container.processing_states[0].details.frames_16bit[counter].end());
+			arma::vec original_image_vector(calibrate_original_frame_vector);
 			arma::mat original_mat_frame(original_image_vector);
 			original_mat_frame.reshape(image_x, image_y);
 			original_mat_frame = original_mat_frame.t();
@@ -834,8 +834,7 @@ void VideoDisplay::update_display_frame()
 			arma::mat counts = original_mat_frame.submat(ur1, uc1, ur2, uc2);
 
 			// clear all temporary variables
-			original_frame_vector.clear();
-			original_frame_vector.clear();
+			calibrate_original_frame_vector.clear();
 			original_mat_frame.clear();
 
 			double frame_integration_time = frame_headers[counter].header.int_time;
