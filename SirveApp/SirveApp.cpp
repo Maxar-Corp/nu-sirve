@@ -12,6 +12,8 @@ SirveApp::SirveApp(QWidget *parent)
 	video_display = new VideoDisplay();
 	video_display->moveToThread(&thread_video);
 
+	histogram_plot = new HistogramLine_Plot();
+
 	setup_ui();
 
 	//---------------------------------------------------------------------------
@@ -33,12 +35,12 @@ SirveApp::SirveApp(QWidget *parent)
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_rel_layout = new QVBoxLayout();
-	histogram_rel_layout->addWidget(video_display->histogram_plot->rel_chart_view);
+	histogram_rel_layout->addWidget(histogram_plot->rel_chart_view);
 	frame_histogram_rel->setLayout(histogram_rel_layout);
 
 	// links chart with frame where it will be contained
 	histogram_abs_layout = new QVBoxLayout();
-	histogram_abs_layout->addWidget(video_display->histogram_plot->abs_chart_view);
+	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
 	frame_histogram_abs->setLayout(histogram_abs_layout);
 
 	// establish connections to all qwidgets
@@ -765,7 +767,7 @@ void SirveApp::setup_connections() {
 
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
-	connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	connect(histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
@@ -1226,6 +1228,7 @@ void SirveApp::load_osm_data()
 		
 		video_display->container.clear_processing_states();
 		video_display->remove_frame();
+		histogram_plot->remove_histogram_plots();
 
 		cmb_processing_states->setEnabled(false);
 	}
@@ -1476,7 +1479,7 @@ void SirveApp::handle_popout_histogram_btn(bool checked)
 
 void SirveApp::open_popout_histogram_plot()
 {
-	popout_histogram = new PopoutDialog(video_display->histogram_plot->abs_chart_view);
+	popout_histogram = new PopoutDialog(histogram_plot->abs_chart_view);
 	connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
 	popout_histogram->open();
 }
@@ -1484,7 +1487,7 @@ void SirveApp::open_popout_histogram_plot()
 void SirveApp::popout_histogram_closed()
 {
 	btn_popout_histogram->setChecked(false);
-	histogram_abs_layout->addWidget(video_display->histogram_plot->abs_chart_view);
+	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
 
 	delete popout_histogram;
 }
@@ -2785,12 +2788,12 @@ void SirveApp::update_global_frame_vector()
 	double lift = slider_lift->value() / 1000.;
 	double gain = slider_gain->value() / 1000.;
 
-	video_display->histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
+	histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
 	ColorCorrection::update_color(image_vector, lift, gain);
 
-	video_display->histogram_plot->update_histogram_rel_plot(image_vector);
+	histogram_plot->update_histogram_rel_plot(image_vector);
 
 	image_vector = image_vector * 255;
 	//arma::vec out_frame_flat = arma::vectorise(image_vector);

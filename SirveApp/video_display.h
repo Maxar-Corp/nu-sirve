@@ -33,7 +33,6 @@
 #include "abir_reader.h"
 #include "video_container.h"
 #include "Data_Structures.h"
-#include "histogram_plotter.h"
 #include "enhanced_label.h"
 #include "color_map.h"
 #include "calibration_data.h"
@@ -65,7 +64,6 @@ public:
 	int timer_frequency;
 	QImage frame;
     EnhancedLabel  *label;
-	HistogramLine_Plot *histogram_plot;
 	Video_Container container;
 
 	QString banner_text, boresight_text;
