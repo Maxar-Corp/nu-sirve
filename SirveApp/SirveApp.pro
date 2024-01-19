@@ -11,7 +11,6 @@ INCLUDEPATH += .
 CONFIG += c++17
 
 HEADERS += abir_reader.h \
-            application_data.h \
             abpnuc_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
@@ -31,7 +30,6 @@ HEADERS += abir_reader.h \
             deinterlace_type.h \
             engineering_data.h \
             enhanced_label.h \
-            fixed_aspect_ratio_frame.h \
             histogram_plotter.h \
             location_input.h \
             logging.h \
@@ -81,7 +79,6 @@ SOURCES += abir_reader.cpp \
             deinterlace.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
-            fixed_aspect_ratio_frame.cpp \
             histogram_plotter.cpp \
             location_input.cpp \
             logging.cpp \
