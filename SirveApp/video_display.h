@@ -52,6 +52,11 @@ public:
 	QVBoxLayout *video_display_layout;
 	void reclaim_label();
 
+	unsigned int counter;	
+	bool auto_lift_gain;
+	double lift, gain;
+	double auto_lift_sigma, auto_gain_sigma;
+
 	int counter_record, video_frame_number;
 	bool record_frame;
 	cv::VideoWriter video;
@@ -64,7 +69,6 @@ public:
 	int timer_frequency;
 	QImage frame;
     EnhancedLabel  *label;
-	double lift, gain;
 	HistogramLine_Plot *histogram_plot;
 	Video_Container container;
 
@@ -113,14 +117,13 @@ public:
 
 signals:
 	void clear_mouse_buttons();
-	void force_new_lift_gain(double lift, double gain);
 	void add_new_bad_pixels(std::vector<unsigned int> new_pixels);
 	void remove_bad_pixels(std::vector<unsigned int> pixels);
 	void advance_frame();
 	void finish_create_track();
 
 public slots:
-	void update_frame_vector();
+	void update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted);
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
 	void update_tracker_color(QString input_color);
@@ -159,14 +162,12 @@ private:
 	
 	bool is_zoom_active, is_calculate_active, should_show_bad_pixels;
 	bool in_track_creation_mode;
-	bool auto_lift_gain;
-	double auto_lift_sigma, auto_gain_sigma;
 	QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
 	QRect calculation_region;
 	
 	std::vector<std::vector<uint16_t>> frame_data;
-    unsigned int counter, starting_frame_number;
+    unsigned int starting_frame_number;
 
 	std::vector<unsigned int> bad_pixels;
 
