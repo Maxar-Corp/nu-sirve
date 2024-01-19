@@ -46,7 +46,7 @@ class VideoDisplay : public QWidget
     Q_OBJECT
 public:
    
-	VideoDisplay(int input_bit_level);
+	VideoDisplay();
 	~VideoDisplay();
 	QVBoxLayout *video_display_layout;
 	void reclaim_label();
@@ -59,7 +59,7 @@ public:
 	
 	std::vector<annotation_info> annotation_list;
 
-	int image_x, image_y, number_pixels, max_bit_level;
+	int image_x, image_y, number_pixels;
 
     size_t number_of_frames;
 	int timer_frequency;

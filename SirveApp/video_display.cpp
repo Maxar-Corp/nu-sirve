@@ -1,6 +1,6 @@
 #include "video_display.h"
 
-VideoDisplay::VideoDisplay(int input_bit_level)
+VideoDisplay::VideoDisplay()
 {
 	zoom_manager = new VideoDisplayZoomManager(0, 0);
 	label = new EnhancedLabel(this);
@@ -22,7 +22,6 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	counter_record = 0;
 	record_frame = false;
 
-	max_bit_level = input_bit_level;
 	number_of_frames = 0;
 
 	initialize_toggles();
