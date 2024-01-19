@@ -31,7 +31,6 @@
 
 #include "color_scheme.h"
 #include "abir_reader.h"
-#include "color_correction.h"
 #include "video_container.h"
 #include "Data_Structures.h"
 #include "histogram_plotter.h"
@@ -52,10 +51,7 @@ public:
 	QVBoxLayout *video_display_layout;
 	void reclaim_label();
 
-	unsigned int counter;	
-	bool auto_lift_gain;
-	double lift, gain;
-	double auto_lift_sigma, auto_gain_sigma;
+	unsigned int counter;
 
 	int counter_record, video_frame_number;
 	bool record_frame;
@@ -111,8 +107,6 @@ public:
 	void receive_video_data(int x, int y, int num_frames);
 	void initialize_toggles();
 
-	void update_color_correction(double new_min_value, double new_max_value);
-	void handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 	void view_frame(unsigned int frame_number);
 
 signals:
@@ -134,8 +128,6 @@ public slots:
 	
 	void handle_click(QPoint origin);
 	void clear_pinpoints();
-
-	void end_auto_lift_gain();
 
 	void handle_annotation_changes();
 
