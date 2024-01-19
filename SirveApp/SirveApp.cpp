@@ -777,7 +777,6 @@ void SirveApp::setup_connections() {
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
-	connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
 	connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
@@ -1396,7 +1395,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	video_display->initialize_frame_data(min_frame, temp, file_processor.abir_data.ir_data);
 	video_display->receive_video_data(x_pixels, y_pixels, number_frames);
-	video_display->update_frame_vector();
+	update_global_frame_vector();
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1703,7 +1702,7 @@ void SirveApp::emit_new_auto_lift_gain_sigma()
 	double gain_sigma = txt_gain_sigma->text().toDouble();
 
 	video_display->handle_new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
-	video_display->update_frame_vector();
+	update_global_frame_vector();
 }
 
 void SirveApp::set_lift_and_gain(double lift, double gain)
@@ -2749,17 +2748,63 @@ bool SirveApp::verify_frame_selection(int min_frame, int max_frame)
 
 void SirveApp::handle_frame_change()
 {
-	video_display->update_frame_vector();
+	update_global_frame_vector();
 }
 
 void SirveApp::handle_frame_number_change(unsigned int new_frame_number)
 {
 	video_display->view_frame(new_frame_number);
-	video_display->update_frame_vector();
+	update_global_frame_vector();
 }
 
 void SirveApp::handle_new_lift_gain_values(double lift_value, double gain_value)
 {
 	video_display->update_color_correction(lift_value, gain_value);
-	video_display->update_frame_vector();
+	update_global_frame_vector();
+}
+
+void SirveApp::update_global_frame_vector()
+{
+	std::vector<double> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].begin(),
+		video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].end()};
+
+	//Convert current frame to armadillo matrix
+	arma::vec image_vector(original_frame_vector);
+
+	//Normalize the image to values between 0 - 1
+	int max_value = std::pow(2, video_display->max_bit_level);
+	image_vector = image_vector / max_value;
+
+	if (image_vector.max() < 1) {
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
+	}
+
+	if (video_display->auto_lift_gain)
+	{
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		video_display->lift = meanVal - (video_display->auto_lift_sigma * sigma);
+		video_display->gain = meanVal + (video_display->auto_gain_sigma * sigma);
+
+		video_display->lift = std::max(video_display->lift, 0.);
+		video_display->gain = std::min(video_display->gain, 1.);
+		set_lift_and_gain(video_display->lift, video_display->gain);
+		//emit force_new_lift_gain(lift, gain);
+	}
+
+	video_display->histogram_plot->update_histogram_abs_plot(image_vector, video_display->lift, video_display->gain);
+
+	// Correct image based on min/max value inputs
+	ColorCorrection::update_color(image_vector, video_display->lift, video_display->gain);
+
+	video_display->histogram_plot->update_histogram_rel_plot(image_vector);
+
+	image_vector = image_vector * 255;
+	//arma::vec out_frame_flat = arma::vectorise(image_vector);
+	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
+	std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
+	
+	video_display->update_frame_vector(original_frame_vector, display_ready_converted_values);
 }

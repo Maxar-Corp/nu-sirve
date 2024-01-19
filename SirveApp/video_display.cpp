@@ -567,49 +567,10 @@ void VideoDisplay::end_auto_lift_gain()
 	auto_lift_gain = false;
 }
 
-void VideoDisplay::update_frame_vector()
+void VideoDisplay::update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted)
 {
-
-	original_frame_vector = {container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
-		container.processing_states[container.current_idx].details.frames_16bit[counter].end()};
-
-	//Convert current frame to armadillo matrix
-	arma::vec image_vector(original_frame_vector);
-
-	//Normalize the image to values between 0 - 1
-	int max_value = std::pow(2, max_bit_level);
-	image_vector = image_vector / max_value;
-
-	if (image_vector.max() < 1) {
-		double sigma = arma::stddev(image_vector);
-		double meanVal = arma::mean(image_vector);
-		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
-	}
-
-	if (auto_lift_gain)
-	{
-		double sigma = arma::stddev(image_vector);
-		double meanVal = arma::mean(image_vector);
-		lift = meanVal - (auto_lift_sigma * sigma);
-		gain = meanVal + (auto_gain_sigma * sigma);
-
-		lift = std::max(lift, 0.);
-		gain = std::min(gain, 1.);
-		emit force_new_lift_gain(lift, gain);
-	}
-
-	histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
-
-	// Correct image based on min/max value inputs
-	ColorCorrection::update_color(image_vector, lift, gain);
-
-	histogram_plot->update_histogram_rel_plot(image_vector);
-
-	image_vector = image_vector * 255;
-	//arma::vec out_frame_flat = arma::vectorise(image_vector);
-	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
-	display_ready_converted_values = {out_vector.begin(), out_vector.end()};
-	
+	original_frame_vector = original;
+	display_ready_converted_values = converted;
 	update_display_frame();
 }
 

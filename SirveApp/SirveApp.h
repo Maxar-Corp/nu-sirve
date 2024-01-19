@@ -268,4 +268,6 @@ private:
 
 	void handle_frame_number_change(unsigned int new_frame_number);
 	void handle_new_lift_gain_values(double lift_value, double gain_value);
+
+	void update_global_frame_vector();
 };
