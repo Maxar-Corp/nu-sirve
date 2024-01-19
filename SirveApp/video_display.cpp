@@ -15,8 +15,6 @@ VideoDisplay::VideoDisplay()
 	should_show_bad_pixels = false;
 	in_track_creation_mode = false;
 
-	histogram_plot = new HistogramLine_Plot();
-
 	counter = 0;
 	starting_frame_number = 0;
 	counter_record = 0;
@@ -1055,8 +1053,6 @@ void VideoDisplay::remove_frame()
 
 	label = new EnhancedLabel(this);
 	setup_labels();
-
-	histogram_plot->remove_histogram_plots();
 
 	frame_data.clear();
 	number_of_frames = 0;

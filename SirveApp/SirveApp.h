@@ -216,6 +216,8 @@ private:
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
 
+	HistogramLine_Plot *histogram_plot;
+
 	ConfigValues config_values;
 
 	int currently_editing_or_creating_track_id;
