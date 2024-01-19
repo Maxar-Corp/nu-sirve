@@ -33,6 +33,7 @@
 #include "tracks.h"
 #include "track_management_widget.h"
 #include "data_export.h"
+#include "color_correction.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -145,7 +146,6 @@ public:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
-		void end_auto_lift_gain();
 
 	public slots:
 	
@@ -263,11 +263,8 @@ private:
 	void prepare_for_track_creation(int track_id);
 	void exit_track_creation_mode();
 	void handle_btn_finish_create_track();
-	
-	void emit_new_auto_lift_gain_sigma();
 
 	void handle_frame_number_change(unsigned int new_frame_number);
-	void handle_new_lift_gain_values(double lift_value, double gain_value);
 
 	void update_global_frame_vector();
 };

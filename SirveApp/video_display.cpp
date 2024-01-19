@@ -30,9 +30,6 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	plot_tracks = false;
 	display_time = false;
 
-	auto_lift_gain = false;
-	lift = 0;
-	gain = 1;
 	// intializes color map to gray scale
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
@@ -553,18 +550,6 @@ void VideoDisplay::clear_pinpoints()
 {
 	pinpoint_indeces.clear();
 	update_display_frame();
-}
-
-void VideoDisplay::handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma)
-{
-	auto_lift_gain = true;
-	auto_lift_sigma = lift_sigma;
-	auto_gain_sigma = gain_sigma;
-}
-
-void VideoDisplay::end_auto_lift_gain()
-{
-	auto_lift_gain = false;
 }
 
 void VideoDisplay::update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted)
@@ -1090,10 +1075,4 @@ void VideoDisplay::remove_frame()
 void VideoDisplay::view_frame(unsigned int frame_number)
 {
 	counter = frame_number;
-}
-
-void VideoDisplay::update_color_correction(double new_min_value, double new_max_value)
-{
-	lift = new_min_value;
-	gain = new_max_value;
 }
