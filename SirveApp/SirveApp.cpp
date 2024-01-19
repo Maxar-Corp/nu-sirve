@@ -783,9 +783,8 @@ void SirveApp::setup_connections() {
 	connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
 
 	connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
-	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
+	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::update_global_frame_vector);
+	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::update_global_frame_vector);
 	
 	//---------------------------------------------------------------------------
 		
@@ -1205,6 +1204,8 @@ void SirveApp::load_osm_data()
 	QString max_frame_text("Max Frames: ");
 	max_frame_text.append(osm_max_frames);
 	lbl_max_frames->setText(max_frame_text);
+
+	set_lift_and_gain(0, 1);
 
 	if (eng_data != NULL) {
 			
@@ -1678,8 +1679,8 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	{
 		slider_lift->setEnabled(false);
 		slider_gain->setEnabled(false);
-		
-		emit_new_auto_lift_gain_sigma();
+
+		update_global_frame_vector();
 
 		btn_reset_color_correction->setEnabled(false);
 		grpbox_auto_lift_gain->setEnabled(true);
@@ -1689,20 +1690,9 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 		slider_lift->setEnabled(true);
 		slider_gain->setEnabled(true);
 
-		emit end_auto_lift_gain();
-
 		btn_reset_color_correction->setEnabled(true);
 		grpbox_auto_lift_gain->setEnabled(false);
 	}
-}
-
-void SirveApp::emit_new_auto_lift_gain_sigma()
-{
-	double lift_sigma = txt_lift_sigma->text().toDouble();
-	double gain_sigma = txt_gain_sigma->text().toDouble();
-
-	video_display->handle_new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
-	update_global_frame_vector();
 }
 
 void SirveApp::set_lift_and_gain(double lift, double gain)
@@ -1730,7 +1720,8 @@ void SirveApp::lift_slider_toggled() {
 
 	slider_lift->setValue(lift_value);
 	lbl_lift_value->setText(QString::number(lift_value / 1000.));
-	handle_new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
+
+	update_global_frame_vector();
 }
 
 void SirveApp::gain_slider_toggled() {
@@ -1749,7 +1740,8 @@ void SirveApp::gain_slider_toggled() {
 
 	slider_gain->setValue(gain_value);
 	lbl_gain_value->setText(QString::number(gain_value / 1000.));
-	handle_new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
+
+	update_global_frame_vector();
 }
 
 void SirveApp::reset_color_correction()
@@ -2757,12 +2749,6 @@ void SirveApp::handle_frame_number_change(unsigned int new_frame_number)
 	update_global_frame_vector();
 }
 
-void SirveApp::handle_new_lift_gain_values(double lift_value, double gain_value)
-{
-	video_display->update_color_correction(lift_value, gain_value);
-	update_global_frame_vector();
-}
-
 void SirveApp::update_global_frame_vector()
 {
 	std::vector<double> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].begin(),
@@ -2781,23 +2767,28 @@ void SirveApp::update_global_frame_vector()
 		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
 	}
 
-	if (video_display->auto_lift_gain)
+	if (chk_auto_lift_gain->isChecked())
 	{
+		double lift_sigma = txt_lift_sigma->text().toDouble();
+		double gain_sigma = txt_gain_sigma->text().toDouble();
+
 		double sigma = arma::stddev(image_vector);
 		double meanVal = arma::mean(image_vector);
-		video_display->lift = meanVal - (video_display->auto_lift_sigma * sigma);
-		video_display->gain = meanVal + (video_display->auto_gain_sigma * sigma);
+		double lift = meanVal - (lift_sigma * sigma);
+		double gain = meanVal + (gain_sigma * sigma);
 
-		video_display->lift = std::max(video_display->lift, 0.);
-		video_display->gain = std::min(video_display->gain, 1.);
-		set_lift_and_gain(video_display->lift, video_display->gain);
-		//emit force_new_lift_gain(lift, gain);
+		lift = std::max(lift, 0.);
+		gain = std::min(gain, 1.);
+		set_lift_and_gain(lift, gain);
 	}
 
-	video_display->histogram_plot->update_histogram_abs_plot(image_vector, video_display->lift, video_display->gain);
+	double lift = slider_lift->value() / 1000.;
+	double gain = slider_gain->value() / 1000.;
+
+	video_display->histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
-	ColorCorrection::update_color(image_vector, video_display->lift, video_display->gain);
+	ColorCorrection::update_color(image_vector, lift, gain);
 
 	video_display->histogram_plot->update_histogram_rel_plot(image_vector);
 
