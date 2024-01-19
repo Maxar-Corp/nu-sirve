@@ -9,7 +9,7 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	video_display = new VideoDisplay(config_values.max_used_bits);
+	video_display = new VideoDisplay();
 	video_display->moveToThread(&thread_video);
 
 	setup_ui();
@@ -2758,7 +2758,7 @@ void SirveApp::update_global_frame_vector()
 	arma::vec image_vector(original_frame_vector);
 
 	//Normalize the image to values between 0 - 1
-	int max_value = std::pow(2, video_display->max_bit_level);
+	int max_value = std::pow(2, config_values.max_used_bits);
 	image_vector = image_vector / max_value;
 
 	if (image_vector.max() < 1) {

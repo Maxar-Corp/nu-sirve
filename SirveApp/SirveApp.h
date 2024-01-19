@@ -71,7 +71,6 @@ public:
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
-	ConfigValues config_values;
 	Workspace workspace;
 	
 	QWidget *main_widget;
@@ -216,6 +215,8 @@ private:
 	PopoutDialog *popout_video;
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
+
+	ConfigValues config_values;
 
 	int currently_editing_or_creating_track_id;
 
