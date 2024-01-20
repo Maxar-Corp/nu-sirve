@@ -60,8 +60,6 @@ public:
 
 	int image_x, image_y, number_pixels;
 
-    size_t number_of_frames;
-	int timer_frequency;
 	QImage frame;
     EnhancedLabel  *label;
 	Video_Container container;
