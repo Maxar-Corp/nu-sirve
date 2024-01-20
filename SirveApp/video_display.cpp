@@ -19,8 +19,7 @@ VideoDisplay::VideoDisplay()
 	starting_frame_number = 0;
 	counter_record = 0;
 	record_frame = false;
-
-	number_of_frames = 0;
+	number_pixels = 0;
 
 	initialize_toggles();
 
@@ -200,8 +199,6 @@ void VideoDisplay::receive_video_data(int x, int y, int num_frames)
 
 	label->setMinimumWidth(image_x);
 	label->setMinimumHeight(image_y);
-
-	number_of_frames = num_frames;
 }
 
 void VideoDisplay::update_banner_text(QString input_banner_text)
@@ -559,7 +556,7 @@ void VideoDisplay::update_frame_vector(std::vector<double> original, std::vector
 void VideoDisplay::update_display_frame()
 {
 	//Prevent attempts to render until the video display has been fully initialized
-	if (number_of_frames == 0)
+	if (number_pixels == 0)
 	{
 		return;
 	}
@@ -1055,7 +1052,6 @@ void VideoDisplay::remove_frame()
 	setup_labels();
 
 	frame_data.clear();
-	number_of_frames = 0;
 
 	image_x = 0;
 	image_y = 0;
