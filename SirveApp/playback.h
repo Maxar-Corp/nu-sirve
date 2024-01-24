@@ -40,7 +40,7 @@ public slots:
 	void reverse();
 	
 signals:
-	void update_frame(unsigned int current_frame_number);
+	void frame_selected(unsigned int current_frame_number);
 
 private:
 	unsigned int current_frame_number;

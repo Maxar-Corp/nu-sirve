@@ -9,9 +9,10 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	video_display = new VideoDisplay(config_values.max_used_bits);
+	video_display = new VideoDisplay();
 	video_display->moveToThread(&thread_video);
-	//connect(&thread_video, &QThread::started, video_display, &Video::update_display_frame);
+
+	histogram_plot = new HistogramLine_Plot();
 
 	setup_ui();
 
@@ -34,12 +35,12 @@ SirveApp::SirveApp(QWidget *parent)
 	
 	// links chart with frame where it will be contained
 	QVBoxLayout *histogram_rel_layout = new QVBoxLayout();
-	histogram_rel_layout->addWidget(video_display->histogram_plot->rel_chart_view);
+	histogram_rel_layout->addWidget(histogram_plot->rel_chart_view);
 	frame_histogram_rel->setLayout(histogram_rel_layout);
 
 	// links chart with frame where it will be contained
 	histogram_abs_layout = new QVBoxLayout();
-	histogram_abs_layout->addWidget(video_display->histogram_plot->abs_chart_view);
+	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
 	frame_histogram_abs->setLayout(histogram_abs_layout);
 
 	// establish connections to all qwidgets
@@ -228,12 +229,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 	vlayout_tab_import->addLayout(vlayout_tab_import_epoch);
 
 	// ------------------------------------------------------------------------
-	lbl_file_load = new QLabel("File Load Status: ");
-	lbl_file_load->setFrameShape(QFrame::Box);
-	lbl_file_load->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-	lbl_file_load->setMinimumHeight(100);
 
-	vlayout_tab_import->addWidget(lbl_file_load);
 	vlayout_tab_import->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
 	return widget_tab_import;
@@ -760,12 +756,10 @@ void SirveApp::setup_connections() {
 
 
 	//---------------------------------------------------------------------------	
-	// 
-	
-	connect(&thread_video, &QThread::started, video_display, &VideoDisplay::update_display_frame);
 
-	connect(&video_display->container, &Video_Container::update_display_video, video_display, &VideoDisplay::update_display_frame);
+	connect(&video_display->container, &Video_Container::update_display_video, this, &SirveApp::handle_frame_change);
 	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
+	connect(playback_controller, &Playback::frame_selected, this, &SirveApp::handle_frame_number_change);
 
 	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
 	connect(&video_display->container, &Video_Container::state_removed, this, &SirveApp::handle_processing_state_removal);
@@ -773,8 +767,7 @@ void SirveApp::setup_connections() {
 
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
 
-	connect(playback_controller, &Playback::update_frame, video_display, &VideoDisplay::update_specific_frame);
-	connect(video_display->histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	connect(histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
@@ -786,18 +779,14 @@ void SirveApp::setup_connections() {
 	
 	//---------------------------------------------------------------------------	
 	// Link color correction sliders to changing color correction values
-	connect(video_display, &VideoDisplay::force_new_lift_gain, this, &SirveApp::set_lift_and_gain);
 	connect(slider_gain, &QSlider::valueChanged, this, &SirveApp::gain_slider_toggled);
 	connect(slider_lift, &QSlider::valueChanged, this, &SirveApp::lift_slider_toggled);
 
-	connect(this, &SirveApp::new_lift_gain_values, video_display, &VideoDisplay::update_color_correction);
 	connect(btn_reset_color_correction, &QPushButton::clicked, this, &SirveApp::reset_color_correction);
 
 	connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::handle_chk_auto_lift_gain);
-	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::emit_new_auto_lift_gain_sigma);
-	connect(this, &SirveApp::new_auto_lift_gain_sigma, video_display, &VideoDisplay::handle_new_auto_lift_gain_sigma);
-	connect(this, &SirveApp::end_auto_lift_gain, video_display, &VideoDisplay::end_auto_lift_gain);
+	connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::update_global_frame_vector);
+	connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::update_global_frame_vector);
 	
 	//---------------------------------------------------------------------------
 		
@@ -815,7 +804,7 @@ void SirveApp::setup_connections() {
 	//---------------------------------------------------------------------------
 
 	// Link horizontal slider to playback controller
-	connect(playback_controller, &Playback::update_frame, slider_video, &QSlider::setValue);
+	connect(playback_controller, &Playback::frame_selected, slider_video, &QSlider::setValue);
 	connect(slider_video, &QSlider::valueChanged, playback_controller, &Playback::set_current_frame_number);
 
 	//---------------------------------------------------------------------------
@@ -938,8 +927,6 @@ void SirveApp::import_tracks()
 	int index0 = data_plots->index_sub_plot_xmin;
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
-
-	video_display->update_display_frame();
 }
 
 void SirveApp::handle_btn_create_track()
@@ -1173,8 +1160,6 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
 		INFO << "GUI: No valid file selected for load";
-		
-		lbl_file_load->setText(possible_abp_file_metadata.info_msg);
 
 		if (eng_data != NULL) {
 			// if eng_data already initialized, allow user to re-select frames
@@ -1207,7 +1192,6 @@ void SirveApp::load_osm_data()
 		return;
 	}
 
-	lbl_file_load->setText(abp_file_metadata.info_msg);
 	lbl_file_name->setText("File: " + abp_file_metadata.file_name);
 	lbl_file_name->setToolTip(abp_file_metadata.directory_path);
 
@@ -1223,10 +1207,13 @@ void SirveApp::load_osm_data()
 	max_frame_text.append(osm_max_frames);
 	lbl_max_frames->setText(max_frame_text);
 
+	set_lift_and_gain(0, 1);
+
 	if (eng_data != NULL) {
 			
 		DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
 
+		slider_video->setValue(0);
 		toggle_video_playback_options(false);
 
 		// Reset video frame
@@ -1241,6 +1228,7 @@ void SirveApp::load_osm_data()
 		
 		video_display->container.clear_processing_states();
 		video_display->remove_frame();
+		histogram_plot->remove_histogram_plots();
 
 		cmb_processing_states->setEnabled(false);
 	}
@@ -1360,9 +1348,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Load the ABIR data
 	playback_controller->stop_timer();
 
-	// Create the video properties data
-	video_details vid_details;
-
 	INFO << "GUI: Reading in video data";
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
@@ -1376,25 +1361,19 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 		return;
 	}
 
+	std::vector<std::vector<uint16_t>> video_frames = abir_data_result.video_frames_16bit;
+	unsigned int number_frames = static_cast<unsigned int>(video_frames.size());
+
 	int x_pixels = abir_data_result.x_pixels;
 	int y_pixels = abir_data_result.y_pixels;
-	std::vector<std::vector<uint16_t>> video_frames = abir_data_result.video_frames_16bit;
-
 	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
-	vid_details.x_pixels = x_pixels;
-	vid_details.y_pixels = y_pixels;
-	vid_details.frames_16bit = video_frames;
+	video_details vid_details = {x_pixels, y_pixels, video_frames};
 
-	unsigned int number_frames = static_cast<unsigned int>(vid_details.frames_16bit.size());
-	QString status_txt = lbl_file_load->text();
-	QString update_text("\nFrames ");
-	update_text.append(QString::number(min_frame));
-	update_text.append(" to ");
-	update_text.append(QString::number(min_frame + number_frames - 1));
-	update_text.append(" were loaded");
-	status_txt.append(update_text);
-	lbl_file_load->setText(status_txt);
+	processing_state primary = { Processing_Method::original, vid_details };
+	video_display->container.clear_processing_states();
+	video_display->container.add_processing_state(primary);
+
 	txt_start_frame->setText(QString::number(min_frame));
 	txt_end_frame->setText(QString::number(max_frame));
 	
@@ -1402,7 +1381,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Set frame number for playback controller and valid values for slider
 	playback_controller->set_number_of_frames(number_frames);
 	slider_video->setRange(0, number_frames - 1);
-	
+
 	// Start threads...
 	if (!thread_timer.isRunning())
 	{
@@ -1417,9 +1396,10 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	progress_dialog.setLabelText("Finalizing application state");
 	progress_dialog.setValue(3);
 
-	video_display->set_frame_data(temp, file_processor.abir_data.ir_data);
 	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
-	video_display->set_starting_frame_number(min_frame);
+	video_display->initialize_frame_data(min_frame, temp, file_processor.abir_data.ir_data);
+	video_display->receive_video_data(x_pixels, y_pixels, number_frames);
+	update_global_frame_vector();
 
 	// Reset engineering plots with new sub plot indices
 	data_plots->index_sub_plot_xmin = min_frame - 1;
@@ -1431,7 +1411,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	plot_change();
 
 	//Update frame marker on engineering plot
-	connect(playback_controller, &Playback::update_frame, data_plots, &Engineering_Plots::plot_current_step);
+	connect(playback_controller, &Playback::frame_selected, data_plots, &Engineering_Plots::plot_current_step);
 	
 	playback_controller->set_initial_speed_index(10);
 	update_fps();
@@ -1447,9 +1427,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	lbl_bad_pixel_count->setText("");
 	INFO << "GUI: ABIR file load complete";
 
-	processing_state primary = { Processing_Method::original, vid_details };
-	video_display->container.clear_processing_states();
-	video_display->container.add_processing_state(primary);
 	cmb_processing_states->setEnabled(true);
 	btn_workspace_save->setEnabled(true);
 
@@ -1457,8 +1434,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	btn_import_tracks->setEnabled(true);
 
 	toggle_video_playback_options(true);
-
-	video_display->receive_video_data(x_pixels, y_pixels, temp.size());
 
 	progress_dialog.setValue(4);
 }
@@ -1504,7 +1479,7 @@ void SirveApp::handle_popout_histogram_btn(bool checked)
 
 void SirveApp::open_popout_histogram_plot()
 {
-	popout_histogram = new PopoutDialog(video_display->histogram_plot->abs_chart_view);
+	popout_histogram = new PopoutDialog(histogram_plot->abs_chart_view);
 	connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
 	popout_histogram->open();
 }
@@ -1512,7 +1487,7 @@ void SirveApp::open_popout_histogram_plot()
 void SirveApp::popout_histogram_closed()
 {
 	btn_popout_histogram->setChecked(false);
-	histogram_abs_layout->addWidget(video_display->histogram_plot->abs_chart_view);
+	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
 
 	delete popout_histogram;
 }
@@ -1707,8 +1682,8 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 	{
 		slider_lift->setEnabled(false);
 		slider_gain->setEnabled(false);
-		
-		emit_new_auto_lift_gain_sigma();
+
+		update_global_frame_vector();
 
 		btn_reset_color_correction->setEnabled(false);
 		grpbox_auto_lift_gain->setEnabled(true);
@@ -1718,18 +1693,9 @@ void SirveApp::handle_chk_auto_lift_gain(int state)
 		slider_lift->setEnabled(true);
 		slider_gain->setEnabled(true);
 
-		emit end_auto_lift_gain();
-
 		btn_reset_color_correction->setEnabled(true);
 		grpbox_auto_lift_gain->setEnabled(false);
 	}
-}
-
-void SirveApp::emit_new_auto_lift_gain_sigma()
-{
-	double lift_sigma = txt_lift_sigma->text().toDouble();
-	double gain_sigma = txt_gain_sigma->text().toDouble();
-	emit new_auto_lift_gain_sigma(lift_sigma, gain_sigma);
 }
 
 void SirveApp::set_lift_and_gain(double lift, double gain)
@@ -1757,7 +1723,8 @@ void SirveApp::lift_slider_toggled() {
 
 	slider_lift->setValue(lift_value);
 	lbl_lift_value->setText(QString::number(lift_value / 1000.));
-	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
+
+	update_global_frame_vector();
 }
 
 void SirveApp::gain_slider_toggled() {
@@ -1776,7 +1743,8 @@ void SirveApp::gain_slider_toggled() {
 
 	slider_gain->setValue(gain_value);
 	lbl_gain_value->setText(QString::number(gain_value / 1000.));
-	emit new_lift_gain_values(lift_value / 1000., gain_value / 1000.);
+
+	update_global_frame_vector();
 }
 
 void SirveApp::reset_color_correction()
@@ -2130,7 +2098,7 @@ void SirveApp::annotate_video()
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
 	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
-	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::update_display_frame);
+	connect(&annotate_gui, &AnnotationListDialog::annotation_list_updated, video_display, &VideoDisplay::handle_annotation_changes);
 	annotate_gui.exec();
 }
 
@@ -2637,14 +2605,9 @@ void SirveApp::toggle_video_playback_options(bool input)
 	btn_prev_frame->setEnabled(input);
 	btn_reverse->setEnabled(input);
 
-	if (input)
-	{
-		//playback_controller->start_timer();
-	}
-	else
+	if (!input)
 	{
 		playback_controller->stop_timer();
-		slider_video->setValue(1);
 		lbl_fps->setText("");
 	}
 }
@@ -2776,4 +2739,66 @@ bool SirveApp::verify_frame_selection(int min_frame, int max_frame)
 	}
 
 	return true;
+}
+
+void SirveApp::handle_frame_change()
+{
+	update_global_frame_vector();
+}
+
+void SirveApp::handle_frame_number_change(unsigned int new_frame_number)
+{
+	video_display->view_frame(new_frame_number);
+	update_global_frame_vector();
+}
+
+void SirveApp::update_global_frame_vector()
+{
+	std::vector<double> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].begin(),
+		video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].end()};
+
+	//Convert current frame to armadillo matrix
+	arma::vec image_vector(original_frame_vector);
+
+	//Normalize the image to values between 0 - 1
+	int max_value = std::pow(2, config_values.max_used_bits);
+	image_vector = image_vector / max_value;
+
+	if (image_vector.max() < 1) {
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
+	}
+
+	if (chk_auto_lift_gain->isChecked())
+	{
+		double lift_sigma = txt_lift_sigma->text().toDouble();
+		double gain_sigma = txt_gain_sigma->text().toDouble();
+
+		double sigma = arma::stddev(image_vector);
+		double meanVal = arma::mean(image_vector);
+		double lift = meanVal - (lift_sigma * sigma);
+		double gain = meanVal + (gain_sigma * sigma);
+
+		lift = std::max(lift, 0.);
+		gain = std::min(gain, 1.);
+		set_lift_and_gain(lift, gain);
+	}
+
+	double lift = slider_lift->value() / 1000.;
+	double gain = slider_gain->value() / 1000.;
+
+	histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
+
+	// Correct image based on min/max value inputs
+	ColorCorrection::update_color(image_vector, lift, gain);
+
+	histogram_plot->update_histogram_rel_plot(image_vector);
+
+	image_vector = image_vector * 255;
+	//arma::vec out_frame_flat = arma::vectorise(image_vector);
+	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
+	std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
+	
+	video_display->update_frame_vector(original_frame_vector, display_ready_converted_values);
 }

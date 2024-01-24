@@ -1,6 +1,6 @@
 #include "video_display.h"
 
-VideoDisplay::VideoDisplay(int input_bit_level)
+VideoDisplay::VideoDisplay()
 {
 	zoom_manager = new VideoDisplayZoomManager(0, 0);
 	label = new EnhancedLabel(this);
@@ -15,27 +15,22 @@ VideoDisplay::VideoDisplay(int input_bit_level)
 	should_show_bad_pixels = false;
 	in_track_creation_mode = false;
 
-	histogram_plot = new HistogramLine_Plot();
-
 	counter = 0;
 	starting_frame_number = 0;
 	counter_record = 0;
 	record_frame = false;
-
-	max_bit_level = input_bit_level;
-	number_of_frames = 0;
+	number_pixels = 0;
 
 	initialize_toggles();
 
 	plot_tracks = false;
 	display_time = false;
 
-	auto_lift_gain = false;
-	lift = 0;
-	gain = 1;
 	// intializes color map to gray scale
 	index_video_color = 0;
 	colorTable = video_colors.maps[index_video_color].colors;
+
+	original_frame_vector = {};
 }
 
 VideoDisplay::~VideoDisplay()
@@ -187,11 +182,6 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 	update_display_frame();
 }
 
-void VideoDisplay::set_starting_frame_number(unsigned int frame_number)
-{
-	starting_frame_number = frame_number;
-}
-
 void VideoDisplay::reclaim_label()
 {
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
@@ -209,10 +199,6 @@ void VideoDisplay::receive_video_data(int x, int y, int num_frames)
 
 	label->setMinimumWidth(image_x);
 	label->setMinimumHeight(image_y);
-
-	number_of_frames = num_frames;
-
-	update_display_frame();
 }
 
 void VideoDisplay::update_banner_text(QString input_banner_text)
@@ -333,6 +319,11 @@ void VideoDisplay::exit_track_creation_mode()
 	track_details_max_frame = 0;
 	lbl_create_track->setText("");
 	grp_create_track->setHidden(true);
+	update_display_frame();
+}
+
+void VideoDisplay::handle_annotation_changes()
+{
 	update_display_frame();
 }
 
@@ -555,76 +546,22 @@ void VideoDisplay::clear_pinpoints()
 	update_display_frame();
 }
 
-void VideoDisplay::handle_new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma)
+void VideoDisplay::update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted)
 {
-	auto_lift_gain = true;
-	auto_lift_sigma = lift_sigma;
-	auto_gain_sigma = gain_sigma;
-
+	original_frame_vector = original;
+	display_ready_converted_values = converted;
 	update_display_frame();
-}
-
-void VideoDisplay::end_auto_lift_gain()
-{
-	auto_lift_gain = false;
 }
 
 void VideoDisplay::update_display_frame()
 {
-	// In case update_display_frame is called before a video is fully placed 
-	if (number_of_frames == 0 || number_of_frames < counter)
-		return;
-
-	//------------------------------------------------------------------------------------------------
-
-	//Convert current frame to armadillo matrix
-	std::vector<double> frame_vector(container.processing_states[container.current_idx].details.frames_16bit[counter].begin(),
-		container.processing_states[container.current_idx].details.frames_16bit[counter].end());
-	arma::vec image_vector(frame_vector);
-
-	//Normalize the image to values between 0 - 1
-	int max_value = std::pow(2, max_bit_level);
-	image_vector = image_vector / max_value;
-
-	if (image_vector.max() < 1) {
-		double sigma = arma::stddev(image_vector);
-		double meanVal = arma::mean(image_vector);
-		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
-	}
-
-	if (auto_lift_gain)
+	//Prevent attempts to render until the video display has been fully initialized
+	if (number_pixels == 0)
 	{
-		double sigma = arma::stddev(image_vector);
-		double meanVal = arma::mean(image_vector);
-		lift = meanVal - (auto_lift_sigma * sigma);
-		gain = meanVal + (auto_gain_sigma * sigma);
-
-		lift = std::max(lift, 0.);
-		gain = std::min(gain, 1.);
-		emit force_new_lift_gain(lift, gain);
+		return;
 	}
 
-	histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
-
-	// Correct image based on min/max value inputs
-	ColorCorrection::update_color(image_vector, lift, gain);
-
-	histogram_plot->update_histogram_rel_plot(image_vector);
-
-	//------------------------------------------------------------------------------------------------
-
-	// Put image into 8-bit format for displaying
-	image_vector = image_vector * 255;
-
-	//arma::vec out_frame_flat = arma::vectorise(image_vector);
-	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
-	std::vector<uint8_t> converted_values(out_vector.begin(), out_vector.end());
-	uint8_t* color_corrected_frame = converted_values.data();
-
-	//------------------------------------------------------------------------------------------------
-
-	//------------------------------------------------------------------------------------------------
-
+	uint8_t* color_corrected_frame = display_ready_converted_values.data();
 	frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
 	// Convert image to format_indexed. allows color table to take effect on image
@@ -653,9 +590,9 @@ void VideoDisplay::update_display_frame()
 	{
 		int pinpoint_idx = pinpoint_indeces[idx];
 		
-		if (pinpoint_idx < frame_vector.size())
+		if (pinpoint_idx < original_frame_vector.size())
 		{
-			int irradiance_value = frame_vector[pinpoint_idx];
+			int irradiance_value = original_frame_vector[pinpoint_idx];
 			int pinpoint_x = pinpoint_idx % image_x;
 			int pinpoint_y = pinpoint_idx / image_x;
 			pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
@@ -876,8 +813,8 @@ void VideoDisplay::update_display_frame()
 		if (rectangle_drawn && region_within_zoom) {
 
 			// get frame data from original data set and convert mat
-			std::vector<double> original_frame_vector(container.processing_states[0].details.frames_16bit[counter].begin(), container.processing_states[0].details.frames_16bit[counter].end());
-			arma::vec original_image_vector(original_frame_vector);
+			std::vector<double> calibrate_original_frame_vector(container.processing_states[0].details.frames_16bit[counter].begin(), container.processing_states[0].details.frames_16bit[counter].end());
+			arma::vec original_image_vector(calibrate_original_frame_vector);
 			arma::mat original_mat_frame(original_image_vector);
 			original_mat_frame.reshape(image_x, image_y);
 			original_mat_frame = original_mat_frame.t();
@@ -891,8 +828,7 @@ void VideoDisplay::update_display_frame()
 			arma::mat counts = original_mat_frame.submat(ur1, uc1, ur2, uc2);
 
 			// clear all temporary variables
-			original_frame_vector.clear();
-			original_frame_vector.clear();
+			calibrate_original_frame_vector.clear();
 			original_mat_frame.clear();
 
 			double frame_integration_time = frame_headers[counter].header.int_time;
@@ -1029,6 +965,7 @@ void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input
 void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_input)
 {
 	manual_track_frames = track_frame_input;
+	update_display_frame();
 }
 
 void VideoDisplay::add_manual_track_id_to_show_later(int id)
@@ -1048,8 +985,9 @@ void VideoDisplay::show_manual_track_id(int id)
 	update_display_frame();
 }
 
-void VideoDisplay::set_frame_data(std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
+void VideoDisplay::initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
+	starting_frame_number = frame_number;
 	display_data = input_data;
 	frame_headers = input_frame_header;
 }
@@ -1113,10 +1051,7 @@ void VideoDisplay::remove_frame()
 	label = new EnhancedLabel(this);
 	setup_labels();
 
-	histogram_plot->remove_histogram_plots();
-
 	frame_data.clear();
-	number_of_frames = 0;
 
 	image_x = 0;
 	image_y = 0;
@@ -1124,17 +1059,10 @@ void VideoDisplay::remove_frame()
 
 	delete zoom_manager;
 	zoom_manager = new VideoDisplayZoomManager(0, 0);
+	original_frame_vector.clear();
 }
 
-void VideoDisplay::update_specific_frame(unsigned int frame_number)
+void VideoDisplay::view_frame(unsigned int frame_number)
 {
 	counter = frame_number;
-	update_display_frame();
-}
-
-void VideoDisplay::update_color_correction(double new_min_value, double new_max_value)
-{
-	lift = new_min_value;
-	gain = new_max_value;
-	update_display_frame();
 }
