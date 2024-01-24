@@ -1233,6 +1233,8 @@ void SirveApp::load_osm_data()
 		video_display->remove_frame();
 		histogram_plot->remove_histogram_plots();
 
+		tab_menu->setTabEnabled(1, false);
+		tab_menu->setTabEnabled(2, false);
 		cmb_processing_states->setEnabled(false);
 	}
 
