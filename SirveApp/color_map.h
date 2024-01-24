@@ -15,6 +15,17 @@
 #include <qpainter.h>
 #include <qbrush.h>
 
+class ColorMapDisplay : public QWidget
+{
+	public:
+		ColorMapDisplay(QVector<QRgb> initial_color_map);
+
+		void set_color_map(QVector<QRgb> color_map);
+	protected:
+		void paintEvent(QPaintEvent* event) override;
+	private:
+		QVector<QRgb> color_map;
+};
 
 struct color_range {
 	QString name;

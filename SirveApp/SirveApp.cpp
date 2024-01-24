@@ -9,6 +9,7 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
+	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors);
 	video_display = new VideoDisplay(video_colors.maps[0].colors);
 	video_display->moveToThread(&thread_video);
 
@@ -367,6 +368,8 @@ QWidget* SirveApp::setup_color_correction_tab()
 	vlayout_tab_color->addWidget(btn_change_banner_text);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addLayout(hlayout_color_map);
+	color_map_display->setMinimumHeight(20);
+	vlayout_tab_color->addWidget(color_map_display);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(btn_add_annotations);
 
@@ -2031,6 +2034,7 @@ void SirveApp::edit_color_map()
 		if (color == video_colors.maps[i].name)
 		{
 			video_display->update_color_map(video_colors.maps[i].colors);
+			color_map_display->set_color_map(video_colors.maps[i].colors);
 			return;
 		}
 	}	

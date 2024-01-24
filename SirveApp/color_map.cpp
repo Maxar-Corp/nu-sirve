@@ -1,5 +1,28 @@
 #include "color_map.h"
 
+ColorMapDisplay::ColorMapDisplay(QVector<QRgb> initial_color_map)
+{
+	color_map = initial_color_map;
+}
+
+void ColorMapDisplay::set_color_map(QVector<QRgb> new_color_map)
+{
+	color_map = new_color_map;
+	repaint();
+}
+
+void ColorMapDisplay::paintEvent(QPaintEvent* event) {
+	Q_UNUSED(event);
+
+	QPainter painter(this);
+	int blockWidth = width() / 15;
+
+	//Evenly spaced selection of 16 values from 0-255: 0,17,34,...221,238,255
+	for (int i = 0; i < 16; i++) {
+		int color_index = i * 17;
+		painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[color_index]));
+	}
+}
 
 ColorMap::ColorMap()
 {
