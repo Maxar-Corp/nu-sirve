@@ -209,6 +209,8 @@ public:
 		void handle_frame_change();
 
 private:
+	ColorMap video_colors;
+
 	QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
 	QClipboard *clipboard;
 
