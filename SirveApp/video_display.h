@@ -45,7 +45,7 @@ class VideoDisplay : public QWidget
     Q_OBJECT
 public:
    
-	VideoDisplay();
+	VideoDisplay(QVector<QRgb> starting_color_table);
 	~VideoDisplay();
 	QVBoxLayout *video_display_layout;
 	void reclaim_label();
@@ -67,11 +67,6 @@ public:
 	QString banner_text, boresight_text;
 	QColor tracker_color;
 	bool plot_tracks;
-
-	// defines color map parameters for showing color in video frame
-	ColorMap video_colors;
-	int index_video_color;
-	QVector<QRgb> colorTable;
 
 	void highlight_bad_pixels(bool status);
 
@@ -117,7 +112,7 @@ public slots:
 	void update_banner_text(QString input_banner_text);
 	void update_banner_color(QString input_color);
 	void update_tracker_color(QString input_color);
-	void update_color_map(QString input_map);
+	void update_color_map(QVector<QRgb> color_table);
 
 	void toggle_sensor_boresight_data();
 	void toggle_frame_time(bool checked);
@@ -135,6 +130,8 @@ private:
 	VideoDisplayZoomManager *zoom_manager;
 	std::vector<double> original_frame_vector;
 	std::vector<uint8_t> display_ready_converted_values;
+
+	QVector<QRgb> colorTable;
 
 	QLabel *lbl_pinpoint;
 	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
