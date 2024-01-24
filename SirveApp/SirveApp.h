@@ -33,6 +33,7 @@
 #include "tracks.h"
 #include "track_management_widget.h"
 #include "data_export.h"
+#include "color_correction.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -70,7 +71,6 @@ public:
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
-	ConfigValues config_values;
 	Workspace workspace;
 	
 	QWidget *main_widget;
@@ -90,7 +90,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel* lbl_file_load, * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 	
@@ -145,9 +145,6 @@ public:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
 		void change_tracker_color(QString color);
-		void new_lift_gain_values(double lift_value, double gain_value);
-		void end_auto_lift_gain();
-		void new_auto_lift_gain_sigma(double lift_sigma, double gain_sigma);
 
 	public slots:
 	
@@ -209,6 +206,8 @@ public:
 		void popout_histogram_closed();
 		void popout_engineering_closed();
 
+		void handle_frame_change();
+
 private:
 	QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
 	QClipboard *clipboard;
@@ -216,6 +215,10 @@ private:
 	PopoutDialog *popout_video;
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
+
+	HistogramLine_Plot *histogram_plot;
+
+	ConfigValues config_values;
 
 	int currently_editing_or_creating_track_id;
 
@@ -263,6 +266,8 @@ private:
 	void prepare_for_track_creation(int track_id);
 	void exit_track_creation_mode();
 	void handle_btn_finish_create_track();
-	
-	void emit_new_auto_lift_gain_sigma();
+
+	void handle_frame_number_change(unsigned int new_frame_number);
+
+	void update_global_frame_vector();
 };
