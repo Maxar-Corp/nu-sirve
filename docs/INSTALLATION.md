@@ -4,7 +4,7 @@ This file documents the steps required to build (compile, link) and run the SIRV
 
 ## PREREQUISITES
 
-In order to build and run this code, a computer must have the following prerequisites. This README assumes you are building the code _on_ and _for_ a 64-bit Windows machine.
+In order to build and run this code, a computer must have the following prerequisites. This INSTALLATION procedure assumes you are building the code _on_ and _for_ a 64-bit Windows machine.
 
 - The MSVC 2019 C++ compiler and linker and C++ runtime, which can be installed through the Build Tools for Visual Studio
 - QT (currently pegged at version 5.15.2)
@@ -31,7 +31,7 @@ In order to build and run this code, a computer must have the following prerequi
         `python -m aqt install-qt windows desktop 5.15.2 win64_msvc2019_64 -m qtcharts`
         - I then copied the 5.15.2 folder alongside the source code and checked it into git
 
-        #### C++ LIBRARIES: All C++ libraries should live in the same top-level (root) folder as this README.md file.
+        #### C++ LIBRARIES: All C++ libraries should live in the same top-level (root) folder as the README.md file (the 'SIRVE' folder).
 
         ##### Boost: The boost library, used for logging, must be installed by following these steps:
             1. Download the boost library from https://www.boost.org/doc/libs/1_81_0/more/getting_started/windows.html#get-boost
@@ -41,20 +41,20 @@ In order to build and run this code, a computer must have the following prerequi
                 - A reference to this bug causing issues with QT can be found here: https://bugreports.qt.io/projects/QBS/issues/QBS-1632?filter=allopenissues
                 - We so far only need to patch the `bitand.hpp` file but we may need to fix the other files as well.  
             
-            POSTREQ: Ensure the `boost_1_81_0` folder exists alongside this README.md file and it contains a `stage` folder.
+            POSTREQ: Ensure the `boost_1_81_0` folder exists alongside the README.md file and it contains a `stage` folder.
 
         ##### Armadillo: Armadillo, a C++ math library, is installed by following these steps:
-            1. Download the .tar.xz file from https://arma.sourceforge.net/download.html
+            1. Download the .tar.xz file from https://sourceforge.net/projects/arma/files/armadillo-12.2.0.tar.xz/download
             2. Unzip that file with the command (I run this from git bash, it needs to be modified for the Windows cmd prompt): `tar xvf armadillo-12.2.0.tar.xz`
             Fortunately, the Armadillo library comes pre-packaged with its x64 Windows dependencies, so no additional steps are needed.
             
-            POSTREQ: Ensure the `armadillo-12.2.20` folder exists alongside this README.md file.
+            POSTREQ: Ensure the `armadillo-12.2.20` folder exists alongside the README.md file.
 
         ##### OpenCV: The opencv library is installed by following these steps:
             1. Download the opencv self-installer `.exe` file for version 4.7.0 from https://opencv.org/releases/
             2. Run the `.exe` file, which will extract it to a folder
             
-            POSTREQ: Ensure the `opencv` folder exists alongside this README.md file.
+            POSTREQ: Ensure the `opencv` folder exists alongside the README.md file.
 
         ##### FFTW: The fftw library was committed and included alongside SIRVE. There are no additional installation steps required.
             The following is documentation of the steps taken to obtain the FFTW library.
@@ -86,12 +86,12 @@ Once the pre-requisites are properly installed, the included `.pro` file can be 
 3. Run the following command: `..\5.15.2\msvc2019_64\bin\qmake.exe`.
     This will generate three `Makefile` files. Note that you can manually delete these `Makefile`s and re-run qmake if problems arise.
 4. Run the following command: `nmake`.
-    This will use those generated Makefiles to compile and link all the code. The resulting `.exe` file will be placed in a `release` folder alongside this README file.
+    This will use those generated Makefiles to compile and link all the code. The resulting `.exe` file will be placed in a `release` folder alongside the README file.
 5. If you have not yet run it, run the following command: `nmake install`.
     This will copy all the required runtime dependencies alongside the `.exe` file. It only needs run once.
     Note that the list of files copied over can be found in the SirveApp.pro file INSTALLS directives.
 
-If everything succeeded, the release folder alongside this README file will be fully sufficient to run the code on a machine with the C++ runtime installed.
+If everything succeeded, the release folder alongside the README.md file will be fully sufficient to run the code on a machine with the C++ runtime installed.
 
 ## Shipping the EXE
 
