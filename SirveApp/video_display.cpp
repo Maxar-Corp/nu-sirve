@@ -1,6 +1,6 @@
 #include "video_display.h"
 
-VideoDisplay::VideoDisplay()
+VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 {
 	zoom_manager = new VideoDisplayZoomManager(0, 0);
 	label = new EnhancedLabel(this);
@@ -26,9 +26,7 @@ VideoDisplay::VideoDisplay()
 	plot_tracks = false;
 	display_time = false;
 
-	// intializes color map to gray scale
-	index_video_color = 0;
-	colorTable = video_colors.maps[index_video_color].colors;
+	colorTable = starting_color_table;
 
 	original_frame_vector = {};
 }
@@ -221,23 +219,9 @@ void VideoDisplay::toggle_frame_time(bool checked)
 	update_display_frame();
 }
 
-void VideoDisplay::update_color_map(QString input_map)
+void VideoDisplay::update_color_map(QVector<QRgb> color_table)
 {
-
-	// find number of color maps
-	int number_maps = video_colors.maps.size();
-
-	// cycle through all color maps
-	for (int i = 0; i < number_maps; i++)
-	{
-		// checks to find where input_map matches provided maps
-		if (input_map == video_colors.maps[i].name)
-			index_video_color = i;
-	}
-
-	// sets color table
-	colorTable = video_colors.maps[index_video_color].colors;
-
+	colorTable = color_table;
 	update_display_frame();
 }
 
