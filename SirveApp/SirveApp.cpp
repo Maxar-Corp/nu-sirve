@@ -9,7 +9,8 @@ SirveApp::SirveApp(QWidget *parent)
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
-	video_display = new VideoDisplay();
+	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors);
+	video_display = new VideoDisplay(video_colors.maps[0].colors);
 	video_display->moveToThread(&thread_video);
 
 	histogram_plot = new HistogramLine_Plot();
@@ -321,9 +322,9 @@ QWidget* SirveApp::setup_color_correction_tab()
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
 	
 	cmb_color_maps = new QComboBox();
-	int number_maps = video_display->video_colors.maps.size();
+	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
-		cmb_color_maps->addItem(video_display->video_colors.maps[i].name);
+		cmb_color_maps->addItem(video_colors.maps[i].name);
 	
 	QList<QString> colors{};
 	colors.append("red");
@@ -367,6 +368,8 @@ QWidget* SirveApp::setup_color_correction_tab()
 	vlayout_tab_color->addWidget(btn_change_banner_text);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addLayout(hlayout_color_map);
+	color_map_display->setMinimumHeight(20);
+	vlayout_tab_color->addWidget(color_map_display);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(btn_add_annotations);
 
@@ -1230,6 +1233,8 @@ void SirveApp::load_osm_data()
 		video_display->remove_frame();
 		histogram_plot->remove_histogram_plots();
 
+		tab_menu->setTabEnabled(1, false);
+		tab_menu->setTabEnabled(2, false);
 		cmb_processing_states->setEnabled(false);
 	}
 
@@ -2020,7 +2025,21 @@ int SirveApp::get_color_index(QVector<QString> colors, QColor input_color) {
 void SirveApp::edit_color_map()
 {
 	QString color = cmb_color_maps->currentText();
-	video_display->update_color_map(color);
+
+	// find number of color maps
+	int number_maps = video_colors.maps.size();
+
+	// cycle through all color maps
+	for (int i = 0; i < number_maps; i++)
+	{
+		// checks to find where input_map matches provided maps
+		if (color == video_colors.maps[i].name)
+		{
+			video_display->update_color_map(video_colors.maps[i].colors);
+			color_map_display->set_color_map(video_colors.maps[i].colors);
+			return;
+		}
+	}	
 }
 
 void SirveApp::edit_banner_color()
