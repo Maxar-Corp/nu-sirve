@@ -8,7 +8,7 @@ In order to build and run this code, a computer must have the following prerequi
 
 - The MSVC 2019 C++ compiler and linker and C++ runtime, which can be installed through the Build Tools for Visual Studio
 - QT (currently pegged at version 5.15.2)
-- Some C++ libraries (boost, armadillo, fftw, opencv)
+- Some C++ libraries (armadillo, fftw, opencv)
 
 ## INSTALLING THE PREREQUISITES (One-Time Installation Steps)
 
@@ -32,16 +32,6 @@ In order to build and run this code, a computer must have the following prerequi
         - I then copied the 5.15.2 folder alongside the source code and checked it into git
 
         #### C++ LIBRARIES: All C++ libraries should live in the same top-level (root) folder as the README.md file (the 'SIRVE' folder).
-
-        ##### Boost: The boost library, used for logging, must be installed by following these steps:
-            1. Download the boost library from https://www.boost.org/doc/libs/1_81_0/more/getting_started/windows.html#get-boost
-            2. Execute the `bootstrap` and `b2` commands per these installation instructions: https://www.boost.org/doc/libs/1_81_0/more/getting_started/windows.html#simplified-build-from-source
-            3. NOTE: There is an annoying bug in the current source of the boost library for our configuration. 
-            - In order to fix it, you must modify the `boost/mpl/bitand.hpp` file by adding the two changes in this PR: https://github.com/boostorg/mpl/pull/57
-                - A reference to this bug causing issues with QT can be found here: https://bugreports.qt.io/projects/QBS/issues/QBS-1632?filter=allopenissues
-                - We so far only need to patch the `bitand.hpp` file but we may need to fix the other files as well.  
-            
-            POSTREQ: Ensure the `boost_1_81_0` folder exists alongside the README.md file and it contains a `stage` folder.
 
         ##### Armadillo: Armadillo, a C++ math library, is installed by following these steps:
             1. Download the .tar.xz file from https://sourceforge.net/projects/arma/files/armadillo-12.2.0.tar.xz/download

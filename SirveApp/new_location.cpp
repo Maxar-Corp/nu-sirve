@@ -81,10 +81,8 @@ void AddLocation::makeLocationFile()
 			ok = false;
 	}
 		
-	if (ok && !new_file_name.isEmpty()) {
-
-		DEBUG << "Location File Creation: New location file being created";
-
+	if (ok && !new_file_name.isEmpty())
+	{
 		QJsonObject json_obj;
 		json_obj["name"] = ui.txt_name->text();
 		json_obj["description"] = ui.txt_description->text();
