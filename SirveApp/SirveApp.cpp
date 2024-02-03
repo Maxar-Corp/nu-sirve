@@ -3,9 +3,6 @@
 SirveApp::SirveApp(QWidget *parent)
 	: QMainWindow(parent)
 {
-	
-	INFO << "GUI: Initializing GUI";
-
 	config_values = configreader::load();
 
 	// establish object that will hold video and connect it to the playback thread
@@ -54,8 +51,6 @@ SirveApp::SirveApp(QWidget *parent)
 	create_menu_actions();
 
 	this->resize(0, 0);
-		
-	INFO << "GUI: GUI Initialized";
 }
 
 SirveApp::~SirveApp() {
@@ -68,8 +63,6 @@ SirveApp::~SirveApp() {
 
 	thread_video.terminate();
 	thread_timer.terminate();
-
-	DEBUG << "GUI: GUI destructor called";
 
 }
 
@@ -1073,8 +1066,6 @@ void SirveApp::save_workspace()
 
 void SirveApp::load_workspace()
 {
-	INFO << "WORKSPACE: Start ABP load process";
-
 	QString current_workspace_name = cmb_workspace_name->currentText();
 	WorkspaceValues workspace_vals = workspace.load_state(current_workspace_name);
 
@@ -1084,18 +1075,17 @@ void SirveApp::load_workspace()
 		return;
 	}
 
-	INFO << "WORKSPACE: ABP image path in workspace, attempting to load";
-
 	bool validated = validate_abp_files(workspace_vals.image_path);
 	if (validated) {
 		load_osm_data();
 	}
 
-	if (workspace_vals.start_frame == 0 || workspace_vals.end_frame == 0) {
-		INFO << "No frames selected in the workspace";
+	if (workspace_vals.start_frame == 0 || workspace_vals.end_frame == 0)
+	{
 		return;
 	}
-	else {
+	else
+	{
 		load_abir_data(workspace_vals.start_frame, workspace_vals.end_frame);
 	}
 
@@ -1112,22 +1102,18 @@ void SirveApp::load_workspace()
 		switch (current_state.method)
 		{
 			case Processing_Method::background_subtraction:
-				INFO << "Creating background subtraction from workspace.";
 				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames);
 				break;
 
 			case Processing_Method::deinterlace:
-				INFO << "Creating deinterlace from workspace.";
 				create_deinterlace(current_state.deint_type);
 				break;
 
 			case Processing_Method::non_uniformity_correction:
-				INFO << "Creating non uniformity correction from workspace.";
 				create_non_uniformity_correction(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
 				break;
 
 			default:
-				INFO << "Unexpected processing method in workspace.";
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
 		}
 	}
@@ -1141,8 +1127,6 @@ void SirveApp::load_workspace()
 
 void SirveApp::ui_choose_abp_file()
 {
-	INFO << "GUI: Starting ABP selection and load process";
-
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
 	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
 	if (compare == 0) {
@@ -1162,8 +1146,6 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
-		INFO << "GUI: No valid file selected for load";
-
 		if (eng_data != NULL) {
 			// if eng_data already initialized, allow user to re-select frames
 			txt_start_frame->setEnabled(true);
@@ -1172,8 +1154,6 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 			btn_calibration_dialog->setEnabled(true);
 		}
 
-		INFO << "FILE SELECTION: Unable to load valid files";
-
 		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), possible_abp_file_metadata.error_msg);
 		
 		return false;
@@ -1181,16 +1161,14 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 
 	abp_file_metadata = possible_abp_file_metadata;
 
-	INFO << "FILE SELECTION: Success - both .abpimage and .abposm files exist";
 	return true;
 };
 
 void SirveApp::load_osm_data()
 {
 	osm_frames = osm_reader.read_osm_file(abp_file_metadata.osm_path);
-	if (osm_frames.size() == 0) {
-		WARN << "File Processing: OSM load process quit early. File not loaded correctly";
-		
+	if (osm_frames.size() == 0)
+	{
 		QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
 		return;
 	}
@@ -1212,10 +1190,8 @@ void SirveApp::load_osm_data()
 
 	set_lift_and_gain(0, 1);
 
-	if (eng_data != NULL) {
-			
-		DEBUG << "GUI: Deleting pointers to engineering data, data plots, and layout";
-
+	if (eng_data != NULL)
+	{
 		slider_video->setValue(0);
 		toggle_video_playback_options(false);
 
@@ -1237,8 +1213,6 @@ void SirveApp::load_osm_data()
 		tab_menu->setTabEnabled(2, false);
 		cmb_processing_states->setEnabled(false);
 	}
-
-	DEBUG << "GUI: Creating new objects for engineering data, data plots, and layout";
 
 	eng_data = new Engineering_Data(osm_frames);
 	track_info = new TrackInformation(osm_frames);
@@ -1315,8 +1289,6 @@ void SirveApp::load_osm_data()
 	enable_engineering_plot_options();
 	data_plots->set_plot_title(QString("EDIT CLASSIFICATION"));
 
-	INFO << "GUI: OSM successfully loaded";
-
 	return;
 }
 
@@ -1324,19 +1296,14 @@ void SirveApp::ui_load_abir_data()
 {
 	btn_get_frames->setEnabled(false);
 
-	INFO << "GUI: Starting ABIR load process";
-
 	int min_frame = get_integer_from_txt_box(txt_start_frame->text());
 	int max_frame = get_integer_from_txt_box(txt_end_frame->text());
 
 	if (!verify_frame_selection(min_frame, max_frame)) {
 		btn_get_frames->setEnabled(true);
 
-		INFO << "GUI: No video loaded";
 		return;
 	}
-
-	DEBUG << "GUI: Frame numbers are valid, loading ABIR data";
 
 	load_abir_data(min_frame, max_frame);
 }
@@ -1353,7 +1320,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Load the ABIR data
 	playback_controller->stop_timer();
 
-	INFO << "GUI: Reading in video data";
 	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
 	progress_dialog.setLabelText("Configuring application");
@@ -1361,7 +1327,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	
 	if (abir_data_result.had_error) {
 		QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
-		INFO << "GUI: Video import stopped. An error occurred.";
 		btn_get_frames->setEnabled(true);
 		return;
 	}
@@ -1371,7 +1336,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	int x_pixels = abir_data_result.x_pixels;
 	int y_pixels = abir_data_result.y_pixels;
-	DEBUG << "GUI: Frames are of size " << x_pixels << " x " << y_pixels;
 
 	video_details vid_details = {x_pixels, y_pixels, video_frames};
 
@@ -1430,7 +1394,6 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	tab_menu->setTabEnabled(2, true);
 
 	lbl_bad_pixel_count->setText("");
-	INFO << "GUI: ABIR file load complete";
 
 	cmb_processing_states->setEnabled(true);
 	btn_workspace_save->setEnabled(true);
@@ -1757,8 +1720,6 @@ void SirveApp::reset_color_correction()
 	slider_lift->setValue(0);
 	slider_gain->setValue(1000);
 	chk_relative_histogram->setChecked(false);
-
-	DEBUG << "GUI: Color correction reset";
 }
 
 
@@ -1768,8 +1729,6 @@ void SirveApp::toggle_plot_full_data()
 	menu_plot_all_data->setIconVisibleInMenu(data_plots->plot_all_data);
 
 	plot_change();
-	DEBUG << "GUI: Toggled plot full data";
-	
 }
 
 void SirveApp::toggle_plot_primary_only()
@@ -1778,15 +1737,14 @@ void SirveApp::toggle_plot_primary_only()
 	menu_plot_primary->setIconVisibleInMenu(data_plots->plot_primary_only);
 
 	plot_change();
-	DEBUG << "GUI: Toggled plot primary data only";
 }
 
-void SirveApp::toggle_plot_current_frame_marker() {
+void SirveApp::toggle_plot_current_frame_marker()
+{
 	data_plots->plot_current_marker = !data_plots->plot_current_marker;
 	menu_plot_frame_marker->setIconVisibleInMenu(data_plots->plot_current_marker);
 
 	plot_change();
-	DEBUG << "GUI: Toggled plot current frame marker";
 }
 
 void SirveApp::auto_change_plot_display(int index)
@@ -1850,7 +1808,6 @@ void SirveApp::close_window()
 void SirveApp::save_plot()
 {
 	data_plots->save_plot();
-	INFO << "GUI: Plot saved";
 }
 
 void SirveApp::save_frame()
@@ -1859,7 +1816,6 @@ void SirveApp::save_frame()
 		playback_controller->stop_timer();
 	
 	video_display->save_frame();
-	INFO << "GUI: Video frame saved  ";
 
 	if(playback_controller->is_running())
 		playback_controller->start_timer();
@@ -1929,25 +1885,23 @@ void SirveApp::edit_banner_text()
 	bool ok;
 	QString input_text = QInputDialog::getText(0, "Banner Text", "Input Banner Text", QLineEdit::Normal, video_display->banner_text, &ok);
 	
-	if (ok) {
-
-		DEBUG << "GUI: Banner text changed";
-		video_display->update_banner_text(input_text);
-
-		// checks if banners are the same and asks user if they want them to be the same
-		QString plot_banner_text = data_plots->title;
-		int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
-		if (check != 0)
-		{
-			auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
-			if (response == QMessageBox::Yes)
-			{
-				data_plots->set_plot_title(input_text);
-			}
-		}
+	if (!ok)
+	{
+		return;
 	}
-	else {
-		DEBUG << "GUI: Banner change cancelled";
+
+	video_display->update_banner_text(input_text);
+
+	// checks if banners are the same and asks user if they want them to be the same
+	QString plot_banner_text = data_plots->title;
+	int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
+	if (check != 0)
+	{
+		auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
+		if (response == QMessageBox::Yes)
+		{
+			data_plots->set_plot_title(input_text);
+		}
 	}
 }
 
@@ -1956,13 +1910,9 @@ void SirveApp::edit_plot_text()
 	bool ok;
 	QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, data_plots->title, &ok);
 
-	if (ok) {
+	if (ok)
+	{
 		data_plots->set_plot_title(input_text);
-		DEBUG << "GUI: Plot header text changed";
-
-	}
-	else {
-		DEBUG << "GUI: Plot header text change cancelled";
 	}
 }
 
@@ -2078,9 +2028,6 @@ void SirveApp::plot_change()
 		data_plots->toggle_yaxis_log(log_is_checked);
 		data_plots->toggle_yaxis_scientific(scientific_is_checked);
 
-		DEBUG << "GUI: Engineering plot units changed to case " << x_index;
-		DEBUG << "GUI: Engineering plot changed to case " << y_index;
-
 		switch (x_index)
 		{
 			case 0:
@@ -2126,12 +2073,12 @@ int SirveApp::get_integer_from_txt_box(QString input)
 	bool convert_value_numeric;
 	int value = input.toInt(&convert_value_numeric);
 		
-	if (convert_value_numeric) {
-		DEBUG << "GUI: Integer from text box is " << value;
+	if (convert_value_numeric)
+	{
 		return value;
 	}
-	else {
-		DEBUG << "GUI: Value is text box is non-numeric: " << input.toLocal8Bit().constData();
+	else
+	{
 		return -1;
 	}
 }
@@ -2297,16 +2244,15 @@ void SirveApp::create_non_uniformity_correction_from_external_file()
 	unsigned int min_frame = external_nuc_dialog.start_frame;
 	unsigned int max_frame = external_nuc_dialog.stop_frame;
 
-	try {
-
+	try
+	{
 		// assumes file version is same as base file opened
 		create_non_uniformity_correction(image_path, min_frame, max_frame);
 	}
 	catch (const std::exception& e)
 	{
 		// catch any errors when loading frames. try-catch not needed when loading frames from same file since no errors originally occurred
-		INFO << "NUC: Exception occurred when loading video data for the NUC: " << e.what();
-	
+		//TODO: LAUNCHMESSAGEBOX
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("NUC Correction from External File"));
 		QString box_text = "Error occurred when loading the frames for the NUC. See log for details.  ";
@@ -2331,7 +2277,8 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	if (!ok)
 		return;
 
-	if (item == "From Current File") {
+	if (item == "From Current File")
+	{
 		// get total number of frames
 		int num_messages = static_cast<int>(osm_frames.size());
 
@@ -2355,12 +2302,11 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		if (!ok)
 			return;
 
-		INFO << "GUI: Creating NUC from current file.";
 		create_non_uniformity_correction(abp_file_metadata.image_path, start_frame, stop_frame);
 
 	}
-	else {
-		INFO << "GUI: Creating NUC from external file.";
+	else
+	{
 		create_non_uniformity_correction_from_external_file();
 	}
 	
@@ -2368,11 +2314,8 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 
 void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
-	INFO << "Creating non-uniformity correction.";
-
-	if (!verify_frame_selection(min_frame, max_frame)) {
-		INFO << "GUI: NUC correction not completed, invalid frame selection";
-		
+	if (!verify_frame_selection(min_frame, max_frame))
+	{
 		QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "NUC correction not completed, invalid frame selection");
 		return;
 	}
@@ -2383,12 +2326,9 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	if (nuc_correction.size() == 0)
 	{
 		QtHelpers::LaunchMessageBox(QString("File Version Not Within Range"), "File version was not within valid range. See log for more details");
-		
-		INFO << "GUI: NUC correction not completed";
+
 		return;
 	}
-
-	INFO << "Calculated NUC correction";
 
 	processing_state original = video_display->container.copy_current_state();
 
@@ -2409,14 +2349,14 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 
 	for (auto i = 0; i < number_frames; i++) {
 		progress.setValue(i);
-		DEBUG << "GUI: Applying NUC correction to " << i + 1 << " of " << number_frames << " frames";
+
 		nuc_state.details.frames_16bit.push_back(nuc.apply_nuc_correction(original.details.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
 	}
 
-	if (progress.wasCanceled()) {
-		INFO << "GUI: NUC process was canceled";
+	if (progress.wasCanceled())
+	{
 		return;
 	}
 
@@ -2444,15 +2384,12 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 void SirveApp::ui_execute_deinterlace()
 {
 	deinterlace_type deinterlace_method_type = static_cast<deinterlace_type>(cmb_deinterlace_options->currentIndex());
-	
-	DEBUG << "GUI: Found de-interlacing method type";
+
 	create_deinterlace(deinterlace_method_type);
 }
 
 void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 {
-	INFO << "Creating deinterlace";
-
 	processing_state original = video_display->container.copy_current_state();
 	
 	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
@@ -2475,14 +2412,14 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 	for (int i = 0; i < number_frames; i++)
 	{
 		progress.setValue(i);
-		DEBUG << "GUI: Applying de-interlace to " << i + 1 << " of " << number_frames << " frames";
+
 		deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
 	}
 
-	if (progress.wasCanceled()) {
-		INFO << "De-interlace process was canceled";
+	if (progress.wasCanceled())
+	{
 		return;
 	}
 
@@ -2532,10 +2469,8 @@ void SirveApp::handle_cleared_processing_states()
 	lbl_fixed_suppression->setText("No Frames Selected");
 }
 
-void SirveApp::ui_execute_background_subtraction() {
-
-	INFO << "GUI: Background subtraction video being created";
-	
+void SirveApp::ui_execute_background_subtraction()
+{
 	//-----------------------------------------------------------------------------------------------
 	// get user selected frames for suppression
 
@@ -2550,7 +2485,6 @@ void SirveApp::ui_execute_background_subtraction() {
 	if (!ok)
 		return;
 
-	DEBUG << "GUI: Input value for background subtraction validated";
 	create_background_subtraction_correction(relative_start_frame, number_of_frames);
 }
 
@@ -2731,28 +2665,28 @@ QString SirveApp::create_epoch_string(std::vector<double> new_epoch) {
 
 bool SirveApp::verify_frame_selection(int min_frame, int max_frame)
 {
-	if (min_frame < 1) {
-		DEBUG << "Invalid choice for start frame. Entered: " << min_frame;
+	if (min_frame < 1)
+	{
 		QtHelpers::LaunchMessageBox(QString("Non-Numeric Data"), "Invalid data entered for the start frame");
 		return false;
 	}
 
-	if (max_frame < 1) {
-		DEBUG << "Invalid choice for end frame. Entered: " << max_frame;
+	if (max_frame < 1)
+	{
 		QtHelpers::LaunchMessageBox(QString("Non-Numeric Data"), "Invalid data entered for the end frame");
 		return false;
 	}
 
-	if (min_frame > max_frame) {
-		DEBUG << "User entered minimum frame (" << min_frame << ") is greater than maximum frame (" << max_frame << ")";
+	if (min_frame > max_frame)
+	{
 		QtHelpers::LaunchMessageBox(QString("Bad Data Entered"), "Start frame is greater than the end frame");
 		return false;
 	}
 
 	int frame_stop = data_plots->full_plot_xmax + 1;
 
-	if (max_frame > frame_stop) {
-		DEBUG << "Stop frame after maximum frame. Entered: " << max_frame << "Maximum: " << frame_stop;
+	if (max_frame > frame_stop)
+	{
 		QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (1-" + QString::number(frame_stop) + ")");
 		return false;
 	}

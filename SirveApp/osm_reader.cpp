@@ -11,8 +11,6 @@ OSMReader::~OSMReader()
 
 std::vector<Frame> OSMReader::read_osm_file(QString path)
 {
-	INFO << "Importing file " << path.toStdString();
-	
 	QByteArray array = path.toLocal8Bit();
 	const char* buffer = array.constData();
 	
@@ -21,49 +19,24 @@ std::vector<Frame> OSMReader::read_osm_file(QString path)
 
 std::vector<Frame> OSMReader::LoadFile(const char *file_path, bool input_combine_tracks)
 {
-	INFO << "OSM Load: Loading OSM data";
 	std::vector<Frame> data = std::vector<Frame>();
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
 	if (err != 0) {
-		WARN << "OSM Load: Error opening file";
 		return data;
 	}
 
 	frame_time.clear();
 
 	uint32_t num_messages = 0;
-	try
-	{
-		num_messages = FindMessageNumber();
-		data = LoadData(num_messages, input_combine_tracks);
-	}
-	catch (const std::exception& e)
-	{
-		INFO << "OSM Load: Exception occurred when loading OSM data: " << e.what();
-	}
-	catch (const std::system_error& e)
-	{
-		INFO << "OSM Load: System error occurred when loading OSM data: " << e.what();
-	}
-	catch (const std::runtime_error& e)
-	{
-		INFO << "OSM Load: Runtime error occurred when loading OSM data: " << e.what();
-	}
-	catch (...)
-	{
-		INFO << "OSM Load: An OS/CPU level error occurred when loading OSM data and could not be handled. Save log for further investigation.";
-	}
-	
+	num_messages = FindMessageNumber();
+	data = LoadData(num_messages, input_combine_tracks);
     fclose(fp);
 
 	if (data.size() < num_messages) {
-		INFO << "OSM Load: Quit unexpectedly. Only " << data.size() << " messages were loaded of " << num_messages;
 		return std::vector<Frame>();
 	}
-
-	INFO << "OSM Load: OSM data loaded complete";
 
 	location_from_file = false;
 
@@ -76,8 +49,6 @@ uint32_t OSMReader::FindMessageNumber()
     int number_iterations = 0;
     long int seek_position, current_p, current_p1, current_p2;
     size_t status_code;
-
-	INFO << "OSM Load: Searching for number of messages. Max iterations = " << kMAX_NUMBER_ITERATIONS;
 
     while (true && number_iterations < kMAX_NUMBER_ITERATIONS)
     {
@@ -111,8 +82,6 @@ uint32_t OSMReader::FindMessageNumber()
         number_iterations++;
     }
 
-	INFO << "OSM Load: " << number_iterations << " iterations executed";
-	INFO << "OSM Load: " << num_messages << " entries found";
 	return num_messages;
 }
 
@@ -134,8 +103,6 @@ std::vector<Frame> OSMReader::LoadData(uint32_t num_messages, bool combine_track
 
     for (int i = 0; i < num_messages; i++)
     {
-		INFO << "OSM Load: Reading message #" << i + 1;
-
         bool valid_step = i == 0 || frame_time[i] - frame_time[i - 1] != 0 || !combine_tracks;
         if (valid_step) {
 
@@ -156,7 +123,6 @@ std::vector<Frame> OSMReader::LoadData(uint32_t num_messages, bool combine_track
         }
         else
         {
-			INFO << "OSM Load: Adding track to last frame";
 			AddTrackToLastFrame(data);
         }
     }
@@ -177,8 +143,6 @@ void OSMReader::AddTrackToLastFrame(std::vector<Frame> &data)
 
     for (uint32_t j = start_track_index; j < last_frame.data.num_tracks; j++)
     {
-		INFO << "OSM Load: Adding track " << j << "of " << last_frame.data.num_tracks << " tracks to last frame";
-
 		TrackData current_track = GetTrackData(last_frame.data);
         last_frame.data.track_data.push_back(current_track);
     }
@@ -204,14 +168,11 @@ MessageHeader OSMReader::ReadMessageHeader()
     uint64_t tsize = ReadValue<uint64_t>();
 
 	MessageHeader current_message;
-    if (tsize < kSMALL_NUMBER) {
-		WARN << "OSM Load: Invalid tsize value in message header";
-
+    if (tsize < kSMALL_NUMBER)
+	{
 		current_message.size = -1;
 		return current_message;
     }
-
-	DEBUG << "OSM Load: Reading message header";
    
     current_message.seconds = seconds + nano_seconds * 1e-9;
     current_message.size = tsize;
@@ -219,10 +180,8 @@ MessageHeader OSMReader::ReadMessageHeader()
     return current_message;
 }
 
-FrameHeader OSMReader::ReadFrameHeader() {
-
-	DEBUG << "OSM Load: Reading frame header";
-
+FrameHeader OSMReader::ReadFrameHeader()
+{
     FrameHeader fh;
     fh.authorization = ReadValue<uint64_t>(true);
     fh.classification = ReadValue<uint32_t>(true);
@@ -244,15 +203,11 @@ FrameHeader OSMReader::ReadFrameHeader() {
     fh.message_length = ReadValue<uint32_t>(true);
     fh.software_version = ReadValue<uint32_t>(true);
 
-	DEBUG << "OSM Load: Frame header has been read";
-
     return fh;
 }
 
-FrameData OSMReader::ReadFrameData() {
-
-	DEBUG << "OSM Load: Reading frame data";
-
+FrameData OSMReader::ReadFrameData()
+{
     FrameData data;
 
     data.task_id = ReadValue<uint32_t>(true);
@@ -271,26 +226,27 @@ FrameData OSMReader::ReadFrameData() {
 
 	//-----------------------------------------------------------------------------------------------------------------
 	data.ecf = ReadMultipleDoubleValues(6, true);
-	DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
+	//DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
 	double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
 
 	if (sum < kSMALL_NUMBER)
 	{
-		if (location_from_file) {
+		if (location_from_file)
+		{
 			data.ecf = file_ecef_vector;
-			INFO << "Overridding location data with position in selected file";
 		}
-		else {
+		else
+		{
 			LocationInput get_location_file;
 			auto response = get_location_file.exec();
 			location_from_file = true;
 			
-			if (response && get_location_file.path_set) {
+			if (response && get_location_file.path_set)
+			{
 				file_ecef_vector = get_location_file.GetECEFVector();
-				INFO << "OSM Load: Using location from file " << get_location_file.selected_file_path.toLocal8Bit().constData();
 			}
-			else {
-				INFO << "OSM Load: Location file import canceled or file path not set";
+			else
+			{
 				FrameData bad_input;
 				location_from_file = false;
 				return bad_input;
@@ -310,12 +266,8 @@ FrameData OSMReader::ReadFrameData() {
 	std::vector<double> az_el_boresight = calculation_azimuth_elevation(0, 0, data);
 	data.az_el_boresight = az_el_boresight;
 
-	DEBUG << "OSM Load: Reading all " << data.num_tracks << " tracks";
-
     for (uint32_t j = 0; j < data.num_tracks; j++)
     {
-		DEBUG << "OSM Load: Reading track data #" << j;
-		
 		TrackData current_track = GetTrackData(data);
         data.track_data.push_back(current_track);
     }
@@ -326,8 +278,7 @@ FrameData OSMReader::ReadFrameData() {
 TrackData OSMReader::GetTrackData(FrameData & input)
 {
     TrackData current_track;
-	DEBUG << "OSM Load: Reading track specific data";
-    
+
 	current_track.track_id = ReadValue<uint32_t>(true);
     current_track.sensor_type = ReadValue<uint32_t>(true);
 
@@ -337,7 +288,6 @@ TrackData OSMReader::GetTrackData(FrameData & input)
     for (uint32_t k = 0; k < num_bands; k++)
     {
         IR_Data ir_data;
-		DEBUG << "OSM Load: Reading IR data from band #" << k + 1;
 
         ir_data.band_id = ReadValue<uint32_t>(true);
         ir_data.num_measurements = ReadValue<uint32_t>(true);
@@ -345,8 +295,6 @@ TrackData OSMReader::GetTrackData(FrameData & input)
         std::vector<double> irrad, irr_sigma, irr_time;
         for (uint32_t m = 0; m < ir_data.num_measurements; m++)
         {
-			DEBUG << "OSM Load: Reading measurment data #" << m + 1;
-
             ir_data.ir_radiance.push_back(ReadValue<double>(true));
             ir_data.ir_sigma.push_back(ReadValue<double>(true));
 
@@ -390,8 +338,6 @@ TrackData OSMReader::GetTrackData(FrameData & input)
 
     current_track.num_pixels = ReadValue<uint32_t>(true);
     current_track.object_type = ReadValue<uint32_t>(true);
-
-	DEBUG << "OSM Load: Completed track specific data";
 
     return current_track;
 }
