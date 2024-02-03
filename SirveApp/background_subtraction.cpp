@@ -2,8 +2,6 @@
 
 std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
 {
-	INFO << "Background Subtraction: Process started";
-
 	// Initialize output
 	std::vector<std::vector<double>>out;
 	int num_video_frames = original.frames_16bit.size();
@@ -41,14 +39,10 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 	{
 		if (progress.wasCanceled())
 		{
-			DEBUG << "Background Subtraction: Adjustment process canceled";
 			return std::vector<std::vector<double>>();
 		}
-	
 
-		
 		//arma::vec mean_frame = arma::mean(values, 1);
-		DEBUG << "Background Subtraction: Processing adjustment for frame #" << i + 1;
 		progress.setValue(i);
 
 		if (i > 0) {
@@ -67,8 +61,6 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 			}
 		}
 
-		DEBUG << "Background Subtraction: Value of first pixel of the last frame used is " << std::to_string(frame_data(0, 0));
-
 		// Take the mean of each row
 		arma::vec mean_frame = arma::mean(frame_data, 1);
 
@@ -77,8 +69,6 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 
 		out.push_back(vector_mean);
 	}
-
-	INFO << "Background Subtraction: Adjustment process completed";
 
 	return out;
 }
@@ -97,14 +87,11 @@ std::vector<uint16_t> AdaptiveNoiseSuppression::apply_correction(std::vector<uin
 
 	//arma::uvec index_negative = arma::find(corrected_values < 0);
 	//if (index_negative.size() > 0){
-	//	DEBUG << "Background Subtraction: " << index_negative.size() << "number of negative pixels found during subtraction.";
 	//	corrected_values.elem(index_negative) = arma::zeros(index_negative.size());
 	//}
 
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
-
-	DEBUG << "Background Subtraction: Adjustment  applied";
 
 	return vector_int;
 

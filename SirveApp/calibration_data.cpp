@@ -489,7 +489,6 @@ bool CalibrationDialog::check_configuration_values()
 
 	// check that configuration file can be opened
 	if (!file.open(QFile::ReadOnly)) {
-		INFO << "Calibration: Cannot open configuration file " + path.toStdString();
 		return false;
 	}
 
@@ -499,14 +498,12 @@ bool CalibrationDialog::check_configuration_values()
 
 	// check that there is a calibration section within json
 	if (!jsonObj.contains("calibration data")) {
-		INFO << "Calibration: No calibration data block found within the configuration file";
 		return false;
 	}
 
 	// check that path is defined within calibration object
 	QJsonObject calibration_object = jsonObj.value("calibration data").toObject();
 	if (!calibration_object.contains("path")) {
-		INFO << "Calibration: No calibration data block found within the configuration file";
 		return false;
 	}
 
@@ -514,7 +511,6 @@ bool CalibrationDialog::check_configuration_values()
 	QString path_det(calibration_object.value("path").toString());
 	bool file_path_exists = check_path(path_det);
 	if (!file_path_exists) {
-		INFO << "Calibration: Calibration data file was not found along path";
 		return false;
 	}
 
@@ -525,27 +521,22 @@ bool CalibrationDialog::check_configuration_values()
 
 	// check and retrieve other variables from calibration section
 	if (!calibration_object.contains("min transmittance")) {
-		INFO << "Calibration: Min transmittance variable not found in calibration data block";
 		return false;
 	}
 
 	if (!calibration_object.contains("max transmittance")) {
-		INFO << "Calibration: Max transmittance variable not found in calibration data block";
 		return false;
 	}
 
 	if (!calibration_object.contains("sharpness cutoff")) {
-		INFO << "Calibration: Sharpness cutoff variable not found in calibration data block";
 		return false;
 	}
 
 	if (!calibration_object.contains("center wavelength um")) {
-		INFO << "Calibration: Center wavelegnth variable not found in calibration data block";
 		return false;
 	}
 
 	if (!calibration_object.contains("width")) {
-		INFO << "Calibration: Width variable not found in calibration data block";
 		return false;
 	}
 
@@ -575,19 +566,18 @@ bool CalibrationDialog::check_filter_file(QString path)
 
 		int length = fields.size();
 		if (length != 2) {
-			INFO << "Calibration: Number of values does not match the 2 expected";
 			return false;
 		}
 
 		temp_wavelength = fields[0].toDouble(&check1);
 		if (!check1) {
-			INFO << "Calibration: Error in importing wavelength data";
+			//INFO << "Calibration: Error in importing wavelength data";
 			return false;
 		}
 
 		temp_filter = fields[1].toDouble(&check2);
 		if (!check2) {
-			INFO << "Calibration: Error in importing filter value";
+			//INFO << "Calibration: Error in importing filter value";
 			return false;
 		}
 
@@ -633,14 +623,12 @@ void CalibrationDialog::ok()
 	
 	if (!abp_metadata.error_msg.isEmpty())
 	{
-		INFO << "CALIBRATION: Cannot find files: " + abp_metadata.info_msg.toStdString();
 		return;
 	}
 
 	osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
 	if (osm_frames.size() == 0)
 	{
-		WARN << "CALIBRATION: OSM load process quit early. File not loaded correctly";
 		return;
 	}
 
@@ -649,21 +637,12 @@ void CalibrationDialog::ok()
 	QFile file(path);
 	double version = 0;
 
-	if (!file.open(QFile::ReadOnly)) {
-		INFO << "CALIBRATION: Cannot open configuration file " + path.toStdString();
-		INFO << "CALIBRATION: Version file being set on loading of image data";
-	}
-	else {
+	if (file.open(QFile::ReadOnly)) {
 		QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
 		QJsonObject jsonObj = jsonDoc.object();
 
 		if (jsonObj.contains("version")) {
 			version = jsonObj.value("version").toDouble();
-			INFO << "CALIBRATION: Overriding version of image file to " << version;
-		}
-		else {
-			INFO << "CALIBRATION: Cannot find key 'version' in configuration file " + path.toStdString();
-			INFO << "CALIBRATION: Version file being set on loading of image data";
 		}
 	}
 	//----------------------------------------------------------------------------
@@ -720,9 +699,7 @@ void CalibrationDialog::ok()
 		done(QDialog::Accepted);
 	}
 	else {
-
-		INFO << "CALIBRATION: Cannot find the calibration frames within the selected abpimage file.";
-
+		//TODO: Replace with QtHelpers::LaunchMessageBox
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString("Data Not Found"));
 		QString box_text("Cannot find the calibration frames within the selected abpimage file.");

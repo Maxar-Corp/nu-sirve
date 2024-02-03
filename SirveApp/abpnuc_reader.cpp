@@ -18,8 +18,6 @@ void ABPNUC_Data::read_apbnuc_file()
 {
     // Outline for file read function provided by John Albritton
 
-    INFO << "ABPNUC Load: Getting ABPNUC data";
-
     errno_t err = fopen_s(&fp, full_file_path, "rb");
 
     // if error in reading file, set read status to zero 
@@ -84,7 +82,4 @@ void ABPNUC_Data::read_apbnuc_file()
 
     fclose(fp);
     read_status = 1;
-
-    INFO << "ABPNUC Load: Data found for " << std::to_string(number_of_frames) << " frame(s)";
-
 }

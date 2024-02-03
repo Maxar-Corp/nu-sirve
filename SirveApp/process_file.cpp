@@ -80,25 +80,12 @@ ABIR_Data_Result Process_File::load_image_file(QString image_path, int first_fra
 	unsigned int frame_start = first_frame;
 	unsigned int frame_end = last_frame;
 
-	try
-	{
-		QByteArray array = image_path.toLocal8Bit();
-		char* buffer = array.data();
+	QByteArray array = image_path.toLocal8Bit();
+	char* buffer = array.data();
 
-		data_result = abir_data.Get_Frames(buffer, frame_start, frame_end, version, false);
-		if (data_result.had_error) {
-			return data_result;
-		}
-
-		INFO << "Number of frames imported: " << data_result.video_frames_16bit.size();
-	}
-	catch (const std::exception& e)
-	{
-		INFO << "File Processing: Exception occurred when loading video data: " << e.what();
-	}
-	catch (...)
-	{
-		INFO << "File Processing: An OS/CPU level error occurred when loading video data and could not be handled. Save log for further investigation.";
+	data_result = abir_data.Get_Frames(buffer, frame_start, frame_end, version, false);
+	if (data_result.had_error) {
+		return data_result;
 	}
 
 	return data_result;
