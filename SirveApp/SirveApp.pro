@@ -32,7 +32,6 @@ HEADERS += abir_reader.h \
             enhanced_label.h \
             histogram_plotter.h \
             location_input.h \
-            logging.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
@@ -81,7 +80,6 @@ SOURCES += abir_reader.cpp \
             enhanced_label.cpp \
             histogram_plotter.cpp \
             location_input.cpp \
-            logging.cpp \
             main.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
@@ -108,9 +106,6 @@ SOURCES += abir_reader.cpp \
             support/qthelpers.cpp
 
 QT += charts widgets
-
-INCLUDEPATH += ../boost_1_81_0/
-LIBS += "-L../boost_1_81_0/stage/lib/"
 
 INCLUDEPATH += ../armadillo-12.2.0/include
 LIBS += "-L../armadillo-12.2.0/examples/lib_win64/" -llibopenblas
