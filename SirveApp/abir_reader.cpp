@@ -21,8 +21,6 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
 
     std::vector<unsigned int> valid_frames { min_frame, max_frame };
 
-	INFO << "ABIR Load: Getting ABIR data";
-
 	QProgressDialog progress("", QString(), 0, 10);
 	progress.setWindowModality(Qt::WindowModal);
 
@@ -70,13 +68,9 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
     for (unsigned int frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
 		progress.setValue(frame_index);
-		INFO << "ABIR Load: Inputting frame " << frame_index + 1 << " of " << valid_frames[1] << " frames";
-
         ABIR_Header header_data;
 
 		size_t seek_rtn = _fseeki64(fp, (frame_index - 1) * frame_size, SEEK_SET);
-		if (seek_rtn != 0)
-			WARN << "ABIR Load: fseek command failed to find frame";
 
         uint64_t temp_seconds = ReadValue<uint64_t>();
         uint64_t temp_nano_seconds = ReadValue<uint64_t>();
@@ -84,7 +78,6 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
 
         // Break from empty frames
 		if (temp_size == 0) {
-			WARN << "ABIR Load: Empty frame found";
 			break;
 		}
 
@@ -113,8 +106,6 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
 
         header_data.pixel_depth = ReadValue<uint16_t>();
         header_data.bits_per_pixel = ReadValue<uint16_t>();
-
-		DEBUG << "ABIR Load: Loading frame data. Sample file value for frame time is " <<header_data.frame_time;
 
         // Skipped section only relevant for versions less than or equal to 3.0
 
@@ -259,7 +250,7 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
         header_data.image_size = ReadValue<uint32_t>();
 
         if (header_data.image_size > 20e6) {
-            WARN << "ABIR Load: Image size exceeds max allowable. Check version type.";
+            //WARN << "ABIR Load: Image size exceeds max allowable. Check version type.";
             fclose(fp);
 
             data_result.x_pixels = ir_data[0].header.image_x_size;
@@ -300,12 +291,11 @@ int ABIR_Data::File_Setup(const char* file_path, double version_number)
     errno_t err = fopen_s(&fp, file_path, "rb");
 
     if (err != 0) {
-        INFO << "ABIR Load: Error opening file";
         return err;
     }
 
 	if (version_number > 0) {
-        INFO << "ABIR Load: File version is being overridden to " << version_number;
+        //INFO << "ABIR Load: File version is being overridden to " << version_number;
         file_version = version_number;
 	}
     else {
@@ -330,26 +320,19 @@ double ABIR_Data::GetVersionNumberFromFile()
 	bool ok;
 	double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version", "Enter File Version to Use:", version_number, 1, 4.2, 2, &ok);
 
-	INFO << "ABIR Load: Version number from file is: " << version_number;
-	INFO << "ABIR Load: Version number selected by user is " << version_number_entered;
-
 	version_number = version_number_entered;
 
 	if (!ok) {
-		INFO << "User selected 'Cancel' for version. Import of video files canceled";
+		//INFO << "User selected 'Cancel' for version. Import of video files canceled";
 		return -1;
 	}
 
 	if (version_number < 1 || version_number > 20) {
-		WARN << "ABIR Load: File version is not between 1 and 20 (" << version_number << ")";
-		
 		return -1;
 	}
 
     if (version_number == 2.5)
         version_number = 3.0;
-
-	INFO << "ABIR Load: File version is " << version_number;
 
     return version_number;
 }
