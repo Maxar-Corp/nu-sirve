@@ -28,7 +28,6 @@ std::vector<double> LocationInput::GetECEFVector()
 	QString path = selected_file_path;
 	QFile file(path);
 	if (!file.open(QFile::ReadOnly)) {
-		INFO << "Location Input: Error, Cannot open location file " + path.toStdString();
 		return std::vector<double>();
 	}
 
@@ -68,7 +67,6 @@ void LocationInput::RefreshListBox()
 		QString path = directory.dirName() + "/" + filename;
 		QFile file(path);
 		if (!file.open(QFile::ReadOnly)) {
-			INFO << "Location Input: Error, Cannot open location file " + path.toStdString();
 			continue;
 		}
 
@@ -84,9 +82,7 @@ void LocationInput::OnItemChange(QString item) {
 
 	QString path = directory_path + item;
 	QFile file(path);
-	if (!file.open(QFile::ReadOnly)) {
-		INFO << "Location Input: Error, Cannot open location file " + path.toStdString();
-	}
+	file.open(QFile::ReadOnly);
 
 	QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
 	QJsonObject jsonObj = jsonDoc.object();

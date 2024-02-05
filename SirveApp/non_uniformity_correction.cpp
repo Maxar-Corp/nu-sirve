@@ -15,7 +15,6 @@ NUC::~NUC()
 
 std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version)
 {
-	INFO << "NUC: Starting correction process";
 	std::vector<double>out;
 
 	ABIR_Data_Result abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
@@ -26,8 +25,6 @@ std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned in
 	std::vector<std::vector<uint16_t>> video_frames_16bit = abir_result.video_frames_16bit;
 	x_pixels = abir_result.x_pixels;
 	y_pixels = abir_result.y_pixels;
-
-	DEBUG << "NUC: Retrieved video frames from ABIR file";
 
 	int number_frames = video_frames_16bit.size();
 	int number_pixels = video_frames_16bit[0].size();
@@ -42,11 +39,11 @@ std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned in
 		values = values + temp;
 	}
 
-	DEBUG << "NUC: Summation of all values in 1st row, 1st column: " << std::to_string(values(0));
+	//DEBUG << "NUC: Summation of all values in 1st row, 1st column: " << std::to_string(values(0));
 
 	values = values / number_frames;
 
-	DEBUG << "NUC: Summation of all values, normalized by number of frames, in 1st row, 1st column: " << std::to_string(values(0));
+	//DEBUG << "NUC: Summation of all values, normalized by number of frames, in 1st row, 1st column: " << std::to_string(values(0));
 
 	arma::vec adjusted_mean_frames = replace_broken_pixels(values);
 
@@ -61,8 +58,8 @@ std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned in
 
 	nuc_correction = out;
 
-	DEBUG << "NUC: Normalizing value for kernel adjusted mean frame: " << min_value;
-	DEBUG << "NUC: First value of the NUC correction: " << adjusted_mean_frames(0);
+	//DEBUG << "NUC: Normalizing value for kernel adjusted mean frame: " << min_value;
+	//DEBUG << "NUC: First value of the NUC correction: " << adjusted_mean_frames(0);
 
 	arma::mat nuc_correction(adjusted_mean_frames);
 	nuc_correction.reshape(x_pixels, y_pixels);
@@ -87,17 +84,17 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 	arma::vec values_dead_pixels = apply_kernel(original_frame, pixels_dead);
 
 	// Replace happy/dead pixels with adjusted mean frame
-	INFO << "NUC: Replacing happy pixels in frame";
+	//INFO << "NUC: Replacing happy pixels in frame";
 	replace_image_pixels(original_frame, pixels_happy, values_happy_pixels);
-	INFO << "NUC: Replacing dead pixels in frame";
+	//INFO << "NUC: Replacing dead pixels in frame";
 	replace_image_pixels(original_frame, pixels_dead, values_dead_pixels);
 
 	// ----------------------------------------------------------------------------------------------
 	
-	INFO << "NUC: Applying NUC to frame";
+	//INFO << "NUC: Applying NUC to frame";
 	arma::vec corrected_values = original_frame / nuc_values;
 
-	DEBUG << "NUC: NUC correction applied. First value after correction " << std::to_string(corrected_values(0));
+	//DEBUG << "NUC: NUC correction applied. First value after correction " << std::to_string(corrected_values(0));
 
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
@@ -276,10 +273,10 @@ arma::vec NUC::replace_broken_pixels(arma::vec values)
 	double min_value_vector = sorted_values(index_min);
 	double max_value_vector = sorted_values(index_max);
 
-	DEBUG << "NUC: Fixing pixels. Index of min value found is " << index_min;
-	DEBUG << "NUC: Fixing pixels. Min value found is " << min_value_vector;
-	DEBUG << "NUC: Fixing pixels. Index of max value found is " << index_max;
-	DEBUG << "NUC: Fixing pixels. Max value found is " << max_value_vector;
+	//DEBUG << "NUC: Fixing pixels. Index of min value found is " << index_min;
+	//DEBUG << "NUC: Fixing pixels. Min value found is " << min_value_vector;
+	//DEBUG << "NUC: Fixing pixels. Index of max value found is " << index_max;
+	//DEBUG << "NUC: Fixing pixels. Max value found is " << max_value_vector;
 
 	// -------------------------------------------------------------
 	// Apply kernel to the mean frame to replace happy/dead pixels
@@ -305,34 +302,28 @@ arma::vec NUC::replace_broken_pixels(arma::vec values)
 	pixels_dead = arma::find(values <= min_value_vector);
 	pixels_happy = arma::find(values >= max_value_vector);
 
-	DEBUG << "NUC: Mean frame value 2nd row, 1st col " << values(x_pixels);
-	DEBUG << "NUC: Fixing pixels. Number of dead pixels: " << pixels_dead.n_elem;
-	DEBUG << "NUC: Fixing pixels. Number of happy pixels " << pixels_happy.n_elem;	
+	//DEBUG << "NUC: Mean frame value 2nd row, 1st col " << values(x_pixels);
 	
 	// -------------------------------------------------------------
 	// Replace the happy/dead pixels in mean frame
-
-	INFO << "NUC: Replacing dead pixels";
 	replace_pixels(values, adj_mean_frame, pixels_dead);
-
-	INFO << "NUC: Replacing happy pixels";
 	replace_pixels(values, adj_mean_frame, pixels_happy);
 	
 	// -------------------------------------------------------------
 	// DEBUG STATEMENTS
 	double updated_min_value = values.min();
 	double updated_max_value = values.max();
-	DEBUG << "NUC: After replacing all dead pixels, new minimum value is: " << updated_min_value;
-	DEBUG << "NUC: After replacing all happy pixels, new maximum value is: " << updated_max_value;
+	//DEBUG << "NUC: After replacing all dead pixels, new minimum value is: " << updated_min_value;
+	//DEBUG << "NUC: After replacing all happy pixels, new maximum value is: " << updated_max_value;
 
 	arma::uvec check_pixels_happy = arma::find(values >= updated_max_value);
 	arma::uvec check_pixels_dead = arma::find(values <= updated_min_value);
 
-	DEBUG << "NUC: Number of pixels below or equal to the new minimum: " << check_pixels_dead.n_elem;
-	DEBUG << "NUC: Number of pixels above or equal to the new maximum: " << check_pixels_happy.n_elem;
+	//DEBUG << "NUC: Number of pixels below or equal to the new minimum: " << check_pixels_dead.n_elem;
+	//DEBUG << "NUC: Number of pixels above or equal to the new maximum: " << check_pixels_happy.n_elem;
 	// -------------------------------------------------------------
 
-	DEBUG << "NUC: Mean frame with pixels replaced and kernel applied; value at 2nd row, 1st col " << values(x_pixels);
+	//DEBUG << "NUC: Mean frame with pixels replaced and kernel applied; value at 2nd row, 1st col " << values(x_pixels);
 	
 	return values;
 }
@@ -354,9 +345,9 @@ void NUC::replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels)
 		value_before = base(pixel_index);
 		value_new = updated(pixel_index);
 
-		DEBUG << "NUC: Replacing pixel at (row, col) " << pixel_row << ", " << pixel_col;
-		DEBUG << "NUC: Original value was " << value_before;
-		DEBUG << "NUC: New value is " << value_new;
+		//DEBUG << "NUC: Replacing pixel at (row, col) " << pixel_row << ", " << pixel_col;
+		//DEBUG << "NUC: Original value was " << value_before;
+		//DEBUG << "NUC: New value is " << value_new;
 
 		base(pixel_index) = value_new;
 
