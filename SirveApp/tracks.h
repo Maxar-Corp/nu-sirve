@@ -39,6 +39,12 @@ struct TrackFileReadResult {
     QString error_string;
 };
 
+struct TrackEngineeringData {
+    double i_fov_x, i_fov_y;
+    double boresight_lat, boresight_long;
+    std::vector<double> dcm;
+};
+
 class TrackInformation {
     public:
         TrackInformation(unsigned int num_frames);
@@ -59,6 +65,7 @@ class TrackInformation {
         TrackInformation();
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;
+        std::vector<TrackEngineeringData> track_engineering_data;
         std::set<int> osm_track_ids;
 
         std::vector<TrackFrame> manual_frames;
