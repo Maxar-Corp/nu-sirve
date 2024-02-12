@@ -8,6 +8,8 @@ TrackInformation::TrackInformation()
 
     manual_track_ids = std::set<int>();
     manual_frames = std::vector<TrackFrame>();
+
+    track_engineering_data = std::vector<TrackEngineeringData>();
 }
 
 TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
@@ -25,6 +27,8 @@ TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
         PlottingTrackFrame track_frame;
         track_frame.details = std::vector<PlottingTrackDetails>();
         osm_plotting_track_frames.push_back(track_frame);
+
+        track_engineering_data.push_back(TrackEngineeringData());
     }
 }
 
@@ -33,6 +37,14 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
 {
     for (unsigned int i = 0; i < osm_file_frames.size(); i++)
     {
+        //Here we retain all the track "engineering" data (boresight lat/long, ifov, dcm)
+        //This is required to later calculate az/el for manual tracks
+        track_engineering_data[i].boresight_lat = osm_file_frames[i].data.lla[0];
+        track_engineering_data[i].boresight_long = osm_file_frames[i].data.lla[1];
+        track_engineering_data[i].dcm = osm_file_frames[i].data.dcm;
+        track_engineering_data[i].i_fov_x = osm_file_frames[i].data.i_fov_x;
+        track_engineering_data[i].i_fov_y = osm_file_frames[i].data.i_fov_y;
+
         int number_tracks = osm_file_frames[i].data.num_tracks;
 
         for (int track_index = 0; track_index < number_tracks; track_index++)
