@@ -18,7 +18,7 @@ void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plot
 	// export header
 	myfile << "Epoch Second,Track ID,Azimuth (deg),Elevation (deg),Sensor Counts" << std::endl;
 
-	for (unsigned int i = initial_frame; i <= final_frame; i++)
+	for (unsigned int i = initial_frame; i < final_frame; i++)
 	{
 		epoch_seconds = std::to_string(frame_data[i].seconds_past_midnight);
 		track_id = std::to_string(0);
