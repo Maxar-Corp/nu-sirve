@@ -1940,8 +1940,8 @@ void SirveApp::export_plot_data()
 		DataExport::write_track_data_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks());
 	}
 	else {
-		min_frame = data_plots->index_sub_plot_xmin + 1;
-		max_frame = data_plots->index_sub_plot_xmax + 1;
+		min_frame = data_plots->index_sub_plot_xmin;
+		max_frame = data_plots->index_sub_plot_xmax;
 
 		DataExport::write_track_data_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), min_frame, max_frame);
 	}
