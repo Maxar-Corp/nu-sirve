@@ -51,6 +51,7 @@ HEADERS += abir_reader.h \
             video_display.h \
             video_display_zoom.h \
             workspace.h \
+            support/az_el_calculation.h \
             support/earth.h \
             support/euler.h \
             support/jtime.h \
@@ -99,6 +100,7 @@ SOURCES += abir_reader.cpp \
             video_display.cpp \
             video_display_zoom.cpp \
             workspace.cpp \
+            support/az_el_calculation.cpp \
             support/earth.cpp \
             support/euler.cpp \
             support/jtime.cpp \

@@ -10,16 +10,16 @@
 #include <armadillo>
 #include <math.h>
 #include <qstring.h>
-
 #include <excpt.h>
 
 #include "location_input.h"
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
 #include "logging.h"
-
 #include "Data_Structures.h"
+
 #include "support/earth.h"
+#include "support/az_el_calculation.h"
 
 const int kMAX_NUMBER_ITERATIONS = 100000;
 const double kSMALL_NUMBER = 0.000001;
