@@ -20,6 +20,15 @@ struct PlottingTrackDetails {
     double elevation;
 };
 
+struct ManualPlottingTrackDetails {
+    double azimuth;
+    double elevation;
+};
+
+struct ManualPlottingTrackFrame {
+    std::map<int, ManualPlottingTrackDetails> tracks;
+};
+
 struct TrackDetails {
     int centroid_x;
     int centroid_y;
@@ -52,6 +61,8 @@ class TrackInformation {
         std::vector<TrackFrame> get_osm_frames(int start_index, int end_index);
         std::vector<TrackFrame> get_manual_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_plotting_tracks();
+        std::vector<ManualPlottingTrackFrame> get_manual_plotting_tracks();
+
         int get_count_of_tracks();
         std::set<int> get_manual_track_ids();
         void add_manual_tracks(std::vector<TrackFrame> new_frames);
@@ -70,6 +81,7 @@ class TrackInformation {
 
         std::vector<TrackFrame> manual_frames;
         std::set<int> manual_track_ids;
+        std::vector<ManualPlottingTrackFrame> manual_plotting_frames;
 };
 
 #endif
