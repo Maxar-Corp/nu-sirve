@@ -192,6 +192,26 @@ void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 		colors.GetNextColor();
 	}
 
+	for (int track_id : manual_track_ids)
+	{
+		QLineSeries* series = new QLineSeries();
+		QColor color("#000000");
+		series->setColor(color);
+
+		std::vector<double> x_values, y_values;
+
+		for (size_t i = 0; i < manual_track_frames.size(); i++)
+		{
+			std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
+			if (it != manual_track_frames[i].tracks.end())
+			{
+				x_values.push_back(get_single_x_axis_value(i));
+				y_values.push_back(it->second.azimuth);
+			}
+		}
+		add_series(series, x_values, y_values, true);
+	}
+
 	if (plot_all_data)
 		chart_options(full_plot_xmin, full_plot_xmax, 0, 360);
 	else
@@ -212,6 +232,26 @@ void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 		add_series(series, x_values, y_values, true);
 
 		colors.GetNextColor();
+	}
+	
+	for (int track_id : manual_track_ids)
+	{
+		QLineSeries* series = new QLineSeries();
+		QColor color("#000000");
+		series->setColor(color);
+
+		std::vector<double> x_values, y_values;
+
+		for (size_t i = 0; i < manual_track_frames.size(); i++)
+		{
+			std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
+			if (it != manual_track_frames[i].tracks.end())
+			{
+				x_values.push_back(get_single_x_axis_value(i));
+				y_values.push_back(it->second.elevation);
+			}
+		}
+		add_series(series, x_values, y_values, true);
 	}
 
 	if (plot_all_data)
@@ -472,6 +512,12 @@ void Engineering_Plots::toggle_subplot()
 	{
 		set_xaxis_limits(sub_plot_xmin, sub_plot_xmax);
 	}
+}
+
+void Engineering_Plots::update_manual_plotting_track_frames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+{
+	manual_track_frames = frames;
+	manual_track_ids = track_ids;
 }
 
 // Generic plotting functions

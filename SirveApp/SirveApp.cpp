@@ -923,6 +923,8 @@ void SirveApp::import_tracks()
 	int index0 = data_plots->index_sub_plot_xmin;
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+	data_plots->update_manual_plotting_track_frames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
+	plot_change();
 }
 
 void SirveApp::handle_btn_create_track()
@@ -1013,6 +1015,8 @@ void SirveApp::handle_btn_finish_create_track()
 		int index0 = data_plots->index_sub_plot_xmin;
 		int index1 = data_plots->index_sub_plot_xmax + 1;
 		video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
+		data_plots->update_manual_plotting_track_frames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
+		plot_change();
 	}
 
 	exit_track_creation_mode();
@@ -1040,6 +1044,8 @@ void SirveApp::handle_removal_of_track(int track_id)
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
 	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
+	data_plots->update_manual_plotting_track_frames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
+	plot_change();
 }
 
 void SirveApp::save_workspace()
