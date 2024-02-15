@@ -98,6 +98,7 @@ class Engineering_Plots : public QtPlotting
 
 		void set_xaxis_units(x_plot_variables unit_choice);
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+		void update_manual_plotting_track_frames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
 
 	public slots:
 
@@ -108,6 +109,8 @@ class Engineering_Plots : public QtPlotting
 	private:
 		int number_of_tracks;
 		std::vector<PlottingTrackFrame> track_frames;
+		std::set<int> manual_track_ids;
+		std::vector<ManualPlottingTrackFrame> manual_track_frames;
 
 		unsigned int num_frames;
 		x_plot_variables x_axis_units;
