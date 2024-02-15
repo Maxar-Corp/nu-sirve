@@ -12,6 +12,7 @@
 #include <optional>
 
 #include "Data_Structures.h"
+#include "support/az_el_calculation.h"
 
 struct PlottingTrackDetails {
     int track_id;
