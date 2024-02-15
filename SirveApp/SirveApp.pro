@@ -146,11 +146,13 @@ test {
 
     HEADERS += \
         testing/test_example.h \
+        testing/test_az_el_calculation.h \
         testing/test_bad_pixels.h \
         testing/test_video_display_zoom.h
 
     SOURCES += \
         testing/run_all_tests.cpp \
+        testing/test_az_el_calculation.cpp \
         testing/test_example.cpp \
         testing/test_bad_pixels.cpp \
         testing/test_video_display_zoom.cpp
