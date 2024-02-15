@@ -135,9 +135,11 @@ void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
 
+            TrackEngineeringData eng_data = track_engineering_data[i];
             ManualPlottingTrackDetails details;
-            details.azimuth = 5000;
-            details.elevation = 5001;
+            std::vector<double> az_el_result = AzElCalculation::calculate(trackData.second.centroid_x, trackData.second.centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y);
+            details.azimuth = az_el_result[0];
+            details.elevation = az_el_result[1];
             manual_plotting_frames[i].tracks[track_id] = details;
         }
     }
