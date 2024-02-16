@@ -15,7 +15,7 @@ private slots:
     void handle_button_click();
 
 private:
-    int track_id;
+    int id;
 };
 
 class QCheckBoxWithId : public QCheckBox
@@ -33,5 +33,5 @@ private slots:
     void handle_state_changed(int state);
 
 private:
-    int track_id;
+    int id;
 };
