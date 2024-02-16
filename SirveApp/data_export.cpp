@@ -1,6 +1,8 @@
 #include "data_export.h"
 
-void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plotting_Frame_Data> frame_data, std::vector<PlottingTrackFrame> track_data, int min_frame, int max_frame)
+void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plotting_Frame_Data> frame_data,
+										std::vector<PlottingTrackFrame> track_data, std::vector<ManualPlottingTrackFrame> manual_track_data,
+										int min_frame, int max_frame)
 {
     if (max_frame == 0)
 	{
@@ -37,6 +39,16 @@ void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plot
 			counts = std::to_string(track_data[i].details[j].irradiance);
 
 			myfile << epoch_seconds << ", " << track_id << ", " << azimuth << ", " << elevation << ", " << counts << std::endl;
+		}
+
+		size_t num_manual_tracks = manual_track_data[i].tracks.size();
+		for (auto track : manual_track_data[i].tracks)
+		{
+			track_id = std::to_string(track.first);
+			azimuth = std::to_string(track.second.azimuth);
+			elevation = std::to_string(track.second.elevation);
+
+			myfile << epoch_seconds << ", " << track_id << ", " << azimuth << ", " << elevation << ", " << "0" << std::endl;
 		}
 
 	}
