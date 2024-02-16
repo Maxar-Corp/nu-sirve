@@ -54,6 +54,7 @@ class QtPlotting : public QWidget
 		bool yaxis_is_log, yaxis_is_scientific;
 
 		void start_new_chart();
+		void add_series_with_color(std::vector<double> x, std::vector<double> y, QColor color);
 		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
 		void remove_series_legend();
 		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
