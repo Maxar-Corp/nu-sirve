@@ -18,7 +18,7 @@ void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plot
 	std::string epoch_seconds, track_id, azimuth, elevation, counts;
 
 	// export header
-	myfile << "Epoch Second,Track ID,Azimuth (deg),Elevation (deg),Sensor Counts" << std::endl;
+	myfile << "Epoch Second,Data Type,Track ID,Azimuth (deg),Elevation (deg),Sensor Counts" << std::endl;
 
 	for (unsigned int i = initial_frame; i < final_frame; i++)
 	{
@@ -28,7 +28,7 @@ void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plot
 		elevation = std::to_string(frame_data[i].elevation_sensor);
 		counts = std::to_string(0);
 
-		myfile << epoch_seconds << ", " << track_id << ", " << azimuth  << ", " << elevation << ", " << counts << std::endl;
+		myfile << epoch_seconds << ", Boresight, " << track_id << ", " << azimuth  << ", " << elevation << ", " << counts << std::endl;
 
 		size_t num_tracks = track_data[i].details.size();
 		for (size_t j = 0; j < num_tracks; j++)
@@ -38,7 +38,7 @@ void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plot
 			elevation = std::to_string(track_data[i].details[j].elevation);
 			counts = std::to_string(track_data[i].details[j].irradiance);
 
-			myfile << epoch_seconds << ", " << track_id << ", " << azimuth << ", " << elevation << ", " << counts << std::endl;
+			myfile << epoch_seconds << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << counts << std::endl;
 		}
 
 		size_t num_manual_tracks = manual_track_data[i].tracks.size();
@@ -48,7 +48,7 @@ void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plot
 			azimuth = std::to_string(track.second.azimuth);
 			elevation = std::to_string(track.second.elevation);
 
-			myfile << epoch_seconds << ", " << track_id << ", " << azimuth << ", " << elevation << ", " << "0" << std::endl;
+			myfile << epoch_seconds << ", Manual Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << "0" << std::endl;
 		}
 
 	}
