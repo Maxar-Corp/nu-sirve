@@ -25,9 +25,11 @@ signals:
     void display_track(int id);
     void hide_track(int id);
     void delete_track(int id);
+    void recolor_track(int id, QColor color);
 
 private:
     QWidget* create_track_control(int id);
+    void handle_track_color_choice(int id, int index);
 
     QVBoxLayout *layout;
 };

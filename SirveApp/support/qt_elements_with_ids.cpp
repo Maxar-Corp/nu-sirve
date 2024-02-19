@@ -1,5 +1,17 @@
 #include "support/qt_elements_with_ids.h"
 
+QComboBoxWithId::QComboBoxWithId(int id, QWidget *parent)
+    : QComboBox(parent), id(id)
+{
+    connect(this, qOverload<int>(&QComboBox::currentIndexChanged), this, &QComboBoxWithId::handle_index_changed);
+}
+
+void QComboBoxWithId::handle_index_changed(int index)
+{
+    emit current_index_changed_with_id(id, index);
+}
+
+
 QPushButtonWithId::QPushButtonWithId(int id, const QString& text, QWidget *parent)
     : QPushButton(text, parent), id(id)
 {

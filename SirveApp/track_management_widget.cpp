@@ -58,16 +58,34 @@ QWidget* TrackManagementWidget::create_track_control(int id)
     chk_should_display->setChecked(true);
     QPushButtonWithId *delete_button = new QPushButtonWithId(id, "Delete");
 
+    QComboBoxWithId *recolor_combobox = new QComboBoxWithId(id);
+    recolor_combobox->addItem("Red");
+    recolor_combobox->addItem("Green");
+
     connect(chk_should_display, &QCheckBoxWithId::checked_with_id, this, &TrackManagementWidget::display_track);
     connect(chk_should_display, &QCheckBoxWithId::unchecked_with_id, this, &TrackManagementWidget::hide_track);
     connect(delete_button, &QPushButtonWithId::clicked_with_id, this, &TrackManagementWidget::delete_track);
+    connect(recolor_combobox, &QComboBoxWithId::current_index_changed_with_id, this, &TrackManagementWidget::handle_track_color_choice);
 
     QHBoxLayout *control_layout = new QHBoxLayout(track_control);
     control_layout->addWidget(label);
 
     control_layout->addWidget(chk_should_display);
+    control_layout->addWidget(recolor_combobox);
     control_layout->addWidget(delete_button);
     control_layout->addStretch(1);
 
     return track_control;
+}
+
+void TrackManagementWidget::handle_track_color_choice(int id, int index)
+{
+    if (index == 0)
+    {
+        emit recolor_track(id, QColor("Red"));
+    }
+    else if (index == 1)
+    {
+        emit recolor_track(id, QColor("Green"));
+    }
 }

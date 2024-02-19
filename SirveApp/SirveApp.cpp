@@ -855,6 +855,7 @@ void SirveApp::setup_connections() {
 	connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
 	connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
 	connect(tm_widget, &TrackManagementWidget::delete_track, this, &SirveApp::handle_removal_of_track);
+	connect(tm_widget, &TrackManagementWidget::recolor_track, this, &SirveApp::handle_manual_track_recoloring);
 
 	// Connect epoch button click to function
 	connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
@@ -1046,6 +1047,11 @@ void SirveApp::handle_removal_of_track(int track_id)
 	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
 	data_plots->update_manual_plotting_track_frames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
 	plot_change();
+}
+
+void SirveApp::handle_manual_track_recoloring(int track_id, QColor new_color)
+{
+	QtHelpers::LaunchMessageBox("Yay", "Manual track " + QString::number(track_id) + " is recolored to " + new_color.name());
 }
 
 void SirveApp::save_workspace()
