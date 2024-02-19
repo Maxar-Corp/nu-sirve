@@ -6,7 +6,6 @@
 #include "ABIR_Reader.h"
 #include "video_display.h"
 #include "histogram_plotter.h"
-#include "osm_plotter.h"
 #include "playback.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
