@@ -319,15 +319,7 @@ QWidget* SirveApp::setup_color_correction_tab()
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(video_colors.maps[i].name);
 	
-	QList<QString> colors{};
-	colors.append("red");
-	colors.append("orange");
-	colors.append("yellow");
-	colors.append("green");
-	colors.append("blue");
-	colors.append("violet");
-	colors.append("black");
-	colors.append("white");
+	QStringList colors = ColorScheme::GetTrackColors();
 
 	cmb_tracker_color = new QComboBox();
 	cmb_text_color = new QComboBox();
