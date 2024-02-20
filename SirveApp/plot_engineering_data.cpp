@@ -206,7 +206,7 @@ void Engineering_Plots::plot_azimuth(size_t plot_number_tracks)
 			}
 		}
 
-		add_series_with_color(x_values, y_values, QColor("#000000"));
+		add_series_with_color(x_values, y_values, manual_track_colors[track_id]);
 	}
 
 	if (plot_all_data)
@@ -245,7 +245,7 @@ void Engineering_Plots::plot_elevation(size_t plot_number_tracks)
 			}
 		}
 
-		add_series_with_color(x_values, y_values, QColor("#000000"));
+		add_series_with_color(x_values, y_values, manual_track_colors[track_id]);
 	}
 
 	if (plot_all_data)
@@ -512,6 +512,17 @@ void Engineering_Plots::update_manual_plotting_track_frames(std::vector<ManualPl
 {
 	manual_track_frames = frames;
 	manual_track_ids = track_ids;
+
+	QColor starting_color = ColorScheme::GetTrackColors()[0];
+	for (auto track_id : track_ids)
+	{
+		manual_track_colors[track_id] = starting_color;
+	}
+}
+
+void Engineering_Plots::recolor_manual_track(int track_id, QColor new_color)
+{
+	manual_track_colors[track_id] = new_color;
 }
 
 // Generic plotting functions

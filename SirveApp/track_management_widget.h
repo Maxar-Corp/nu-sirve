@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+#include "color_scheme.h"
 #include "support/qt_elements_with_ids.h"
 
 class TrackManagementWidget : public QWidget
