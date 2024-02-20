@@ -51,6 +51,7 @@ HEADERS += abir_reader.h \
             video_display.h \
             video_display_zoom.h \
             workspace.h \
+            support/az_el_calculation.h \
             support/earth.h \
             support/euler.h \
             support/jtime.h \
@@ -99,6 +100,7 @@ SOURCES += abir_reader.cpp \
             video_display.cpp \
             video_display_zoom.cpp \
             workspace.cpp \
+            support/az_el_calculation.cpp \
             support/earth.cpp \
             support/euler.cpp \
             support/jtime.cpp \
@@ -144,11 +146,13 @@ test {
 
     HEADERS += \
         testing/test_example.h \
+        testing/test_az_el_calculation.h \
         testing/test_bad_pixels.h \
         testing/test_video_display_zoom.h
 
     SOURCES += \
         testing/run_all_tests.cpp \
+        testing/test_az_el_calculation.cpp \
         testing/test_example.cpp \
         testing/test_bad_pixels.cpp \
         testing/test_video_display_zoom.cpp
