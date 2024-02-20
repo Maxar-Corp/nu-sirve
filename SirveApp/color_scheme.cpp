@@ -16,6 +16,20 @@ ColorScheme::ColorScheme()
     index = 0;
 }
 
+QStringList ColorScheme::GetTrackColors()
+{
+    return {
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "violet",
+        "black",
+        "white",
+    };
+}
+
 QString ColorScheme::GetCurrentColor(){
     return colors[index];
 }
