@@ -172,6 +172,13 @@ void TrackInformation::add_created_manual_track(int track_id, const std::vector<
             QString csv_line = QString::number(track_id) + "," + QString::number(i+1) + "," + QString::number(track_details.centroid_x) + "," + QString::number(track_details.centroid_y);
             file.write(csv_line.toUtf8());
             file.write("\n");
+
+            TrackEngineeringData eng_data = track_engineering_data[i];
+            ManualPlottingTrackDetails details;
+            std::vector<double> az_el_result = AzElCalculation::calculate(track_details.centroid_x, track_details.centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y);
+            details.azimuth = az_el_result[0];
+            details.elevation = az_el_result[1];
+            manual_plotting_frames[i].tracks[track_id] = details;
         }
     }
 
