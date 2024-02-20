@@ -57,6 +57,7 @@
 #include <qgroupbox>
 #include <qmenu.h>
 #include <qmenubar.h>
+#include <QStringList>
 
 
 class SirveApp : public QMainWindow

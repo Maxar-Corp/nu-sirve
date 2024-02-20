@@ -4,6 +4,7 @@
 #define COLOR_SCHEME_H
 
 #include <QString>
+#include <QStringList>
 #include <vector>
 
 class ColorScheme
@@ -14,6 +15,8 @@ public:
 	QString Get_Color(int index);
     QString GetNextColor();
 	void reset_colors();
+
+    static QStringList GetTrackColors();
 
 private:
     uint index;
