@@ -66,13 +66,19 @@ QWidget* TrackManagementWidget::create_track_control(int id)
     connect(delete_button, &QPushButtonWithId::clicked_with_id, this, &TrackManagementWidget::delete_track);
     connect(recolor_combobox, &QComboBoxWithId::current_index_changed_with_id, this, &TrackManagementWidget::handle_track_color_choice);
 
-    QHBoxLayout *control_layout = new QHBoxLayout(track_control);
-    control_layout->addWidget(label);
+    QVBoxLayout *control_layout = new QVBoxLayout(track_control);
+    QHBoxLayout *top_box = new QHBoxLayout();
+    top_box->addWidget(label);
+    top_box->addWidget(chk_should_display);
+    top_box->addStretch(1);
 
-    control_layout->addWidget(chk_should_display);
-    control_layout->addWidget(recolor_combobox);
-    control_layout->addWidget(delete_button);
-    control_layout->addStretch(1);
+    QHBoxLayout *bottom_box = new QHBoxLayout();
+    bottom_box->addWidget(recolor_combobox);
+    bottom_box->addWidget(delete_button);
+    bottom_box->addStretch(1);
+
+    control_layout->addLayout(top_box);
+    control_layout->addLayout(bottom_box);
 
     return track_control;
 }
