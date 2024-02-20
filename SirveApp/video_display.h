@@ -77,7 +77,9 @@ public:
 	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
 	void add_manual_track_id_to_show_later(int id);
 	void hide_manual_track_id(int id);
+	void delete_manual_track(int id);
 	void show_manual_track_id(int id);
+	void recolor_manual_track(int id, QColor color);
 
 	void set_calibration_model(CalibrationData input);
 	bool start_recording(double fps);
@@ -164,6 +166,7 @@ private:
 	std::vector<TrackFrame> osm_track_frames;
 	std::vector<TrackFrame> manual_track_frames;
 	std::set<int> manual_track_ids_to_show;
+	std::map<int, QColor> manual_track_colors;
 	std::vector<ABIR_Frame> frame_headers;
 
 	void setup_labels();

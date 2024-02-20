@@ -705,6 +705,8 @@ void VideoDisplay::update_display_frame()
 				QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
 				if (rectangle.isNull())
 					continue;
+				QColor color = manual_track_colors[track_id];
+				rectangle_painter.setPen(QPen(color));
 				rectangle_painter.drawRect(rectangle);
 			}
 		}
@@ -955,6 +957,7 @@ void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_
 void VideoDisplay::add_manual_track_id_to_show_later(int id)
 {
 	manual_track_ids_to_show.insert(id);
+	manual_track_colors[id] = ColorScheme::GetTrackColors()[0];
 }
 
 void VideoDisplay::hide_manual_track_id(int id)
@@ -963,9 +966,22 @@ void VideoDisplay::hide_manual_track_id(int id)
 	update_display_frame();
 }
 
+void VideoDisplay::delete_manual_track(int id)
+{
+	manual_track_ids_to_show.erase(id);
+	manual_track_colors.erase(id);
+	update_display_frame();
+}
+
 void VideoDisplay::show_manual_track_id(int id)
 {
 	manual_track_ids_to_show.insert(id);
+	update_display_frame();
+}
+
+void VideoDisplay::recolor_manual_track(int id, QColor color)
+{
+	manual_track_colors[id] = color;
 	update_display_frame();
 }
 
