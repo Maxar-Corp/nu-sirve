@@ -8,9 +8,7 @@
 
 class ColorScheme
 {
-
 public:
-
     ColorScheme();
     QString GetCurrentColor();
 	QString Get_Color(int index);
@@ -19,9 +17,7 @@ public:
 
 private:
     uint index;
-    uint num_colors;
     std::vector<QString> colors;
-
 };
 
 
