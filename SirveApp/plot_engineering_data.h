@@ -54,6 +54,7 @@ class QtPlotting : public QWidget
 		bool yaxis_is_log, yaxis_is_scientific;
 
 		void start_new_chart();
+		void add_series_with_color(std::vector<double> x, std::vector<double> y, QColor color);
 		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
 		void remove_series_legend();
 		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
@@ -98,6 +99,7 @@ class Engineering_Plots : public QtPlotting
 
 		void set_xaxis_units(x_plot_variables unit_choice);
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+		void update_manual_plotting_track_frames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
 
 	public slots:
 
@@ -108,6 +110,8 @@ class Engineering_Plots : public QtPlotting
 	private:
 		int number_of_tracks;
 		std::vector<PlottingTrackFrame> track_frames;
+		std::set<int> manual_track_ids;
+		std::vector<ManualPlottingTrackFrame> manual_track_frames;
 
 		unsigned int num_frames;
 		x_plot_variables x_axis_units;

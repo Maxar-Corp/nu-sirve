@@ -386,36 +386,8 @@ std::vector<double> OSMReader::mr2dcos(std::vector<double> input)
 
 std::vector<double> OSMReader::calculation_azimuth_elevation(int x_pixel, int y_pixel, FrameData & input)
 {
-	
-	arma::mat a_ecf_to_seu = earth::Atf_Transformation(input.lla[0], input.lla[1]);
-	arma::mat rot_z = rotate::CoordFrame_Rotation3(180);
-	arma::mat rot_x = rotate::CoordFrame_Rotation1(180);
-
-	arma::mat a_ecf_to_ned = rot_x * rot_z * a_ecf_to_seu;
-
-	arma::mat cam_to_ecf(input.dcm);
-	cam_to_ecf.reshape(3, 3);
-
-	double dtheta = x_pixel * input.i_fov_x;
-	double dphi = -y_pixel * input.i_fov_y; //positive is up on the FPA in this case, so need a negative in front
-
-	arma::vec los(3);
-	los(0) = std::sin(dtheta) * std::cos(dphi);
-	los(1) = -std::sin(dphi);
-	los(2) = std::cos(dtheta) * std::cos(dphi);
-
-	arma::vec los_ned = a_ecf_to_ned * cam_to_ecf * los;
-
-	double rtd = 180 / std::_Pi;
-
-	double los_az = rtd * std::atan2(los_ned[1], los_ned[0]);
-	double los_el = rtd * std::atan2(-los_ned[2], std::sqrt(los_ned[0] * los_ned[0] + los_ned[1] * los_ned[1]));
-
-	if (los_az < 0)
-		los_az += 360;
-
-	return std::vector<double> {los_az, los_el};
-
+	std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y);
+	return results;
 }
 
 double OSMReader::get_gps_time(double offset_gps_seconds)
