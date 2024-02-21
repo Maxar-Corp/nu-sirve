@@ -1,7 +1,7 @@
 #include "color_scheme.h"
 
-ColorScheme::ColorScheme(){
-
+ColorScheme::ColorScheme()
+{
     colors.push_back(QString("#4e79a7")); //blue
     colors.push_back(QString("#f28e2b")); //orange
     colors.push_back(QString("#e15759")); //red
@@ -14,7 +14,20 @@ ColorScheme::ColorScheme(){
     colors.push_back(QString("#bab0ac")); //grey
 
     index = 0;
-    num_colors = colors.size();
+}
+
+QStringList ColorScheme::GetTrackColors()
+{
+    return {
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "violet",
+        "black",
+        "white",
+    };
 }
 
 QString ColorScheme::GetCurrentColor(){
@@ -25,10 +38,11 @@ QString ColorScheme::Get_Color(int index) {
 	return colors[index];
 }
 
-QString ColorScheme::GetNextColor(){
-
+QString ColorScheme::GetNextColor()
+{
     index++;
-    if (index == num_colors){
+    if (index == colors.size())
+    {
         index = 0;
     }
 

@@ -319,15 +319,7 @@ QWidget* SirveApp::setup_color_correction_tab()
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(video_colors.maps[i].name);
 	
-	QList<QString> colors{};
-	colors.append("red");
-	colors.append("orange");
-	colors.append("yellow");
-	colors.append("green");
-	colors.append("blue");
-	colors.append("violet");
-	colors.append("black");
-	colors.append("white");
+	QStringList colors = ColorScheme::GetTrackColors();
 
 	cmb_tracker_color = new QComboBox();
 	cmb_text_color = new QComboBox();
@@ -855,6 +847,7 @@ void SirveApp::setup_connections() {
 	connect(tm_widget, &TrackManagementWidget::display_track, video_display, &VideoDisplay::show_manual_track_id);
 	connect(tm_widget, &TrackManagementWidget::hide_track, video_display, &VideoDisplay::hide_manual_track_id);
 	connect(tm_widget, &TrackManagementWidget::delete_track, this, &SirveApp::handle_removal_of_track);
+	connect(tm_widget, &TrackManagementWidget::recolor_track, this, &SirveApp::handle_manual_track_recoloring);
 
 	// Connect epoch button click to function
 	connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::apply_epoch_time);
@@ -1043,9 +1036,16 @@ void SirveApp::handle_removal_of_track(int track_id)
 	int index0 = data_plots->index_sub_plot_xmin;
 	int index1 = data_plots->index_sub_plot_xmax + 1;
 	video_display->update_manual_track_data(track_info->get_manual_frames(index0, index1));
-	video_display->hide_manual_track_id(track_id); //This is a leaking implementation detail, shouldn't be needed
+	video_display->delete_manual_track(track_id);
 	data_plots->update_manual_plotting_track_frames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
 	plot_change();
+}
+
+void SirveApp::handle_manual_track_recoloring(int track_id, QColor new_color)
+{
+	video_display->recolor_manual_track(track_id, new_color);
+	data_plots->recolor_manual_track(track_id, new_color);
+	plot_change(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
 void SirveApp::save_workspace()
