@@ -83,6 +83,8 @@ class TrackInformation {
         std::vector<TrackFrame> manual_frames;
         std::set<int> manual_track_ids;
         std::vector<ManualPlottingTrackFrame> manual_plotting_frames;
+
+        ManualPlottingTrackDetails calculate_az_el(int frame_number, int centroid_x, int centroid_y);
 };
 
 #endif
