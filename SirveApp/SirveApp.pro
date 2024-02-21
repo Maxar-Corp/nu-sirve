@@ -35,7 +35,6 @@ HEADERS += abir_reader.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
-            osm_plotter.h \
             osm_reader.h \
             playback.h \
             plot_engineering_data.h \
@@ -85,7 +84,6 @@ SOURCES += abir_reader.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
             non_uniformity_correction.cpp \
-            osm_plotter.cpp \
             osm_reader.cpp \
             playback.cpp \
             plot_engineering_data.cpp \

@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+#include "color_scheme.h"
 #include "support/qt_elements_with_ids.h"
 
 class TrackManagementWidget : public QWidget
@@ -25,9 +26,11 @@ signals:
     void display_track(int id);
     void hide_track(int id);
     void delete_track(int id);
+    void recolor_track(int id, QColor color);
 
 private:
     QWidget* create_track_control(int id);
+    void handle_track_color_choice(int id, int index);
 
     QVBoxLayout *layout;
 };

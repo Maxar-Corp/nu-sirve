@@ -135,12 +135,7 @@ void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
 
-            TrackEngineeringData eng_data = track_engineering_data[i];
-            ManualPlottingTrackDetails details;
-            std::vector<double> az_el_result = AzElCalculation::calculate(trackData.second.centroid_x, trackData.second.centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y);
-            details.azimuth = az_el_result[0];
-            details.elevation = az_el_result[1];
-            manual_plotting_frames[i].tracks[track_id] = details;
+            manual_plotting_frames[i].tracks[track_id] = calculate_az_el(i, trackData.second.centroid_x, trackData.second.centroid_y);
         }
     }
 }
@@ -172,6 +167,8 @@ void TrackInformation::add_created_manual_track(int track_id, const std::vector<
             QString csv_line = QString::number(track_id) + "," + QString::number(i+1) + "," + QString::number(track_details.centroid_x) + "," + QString::number(track_details.centroid_y);
             file.write(csv_line.toUtf8());
             file.write("\n");
+
+            manual_plotting_frames[i].tracks[track_id] = calculate_az_el(i, track_details.centroid_x, track_details.centroid_y);
         }
     }
 
@@ -264,4 +261,14 @@ TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_fil
     }
 
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
+}
+
+ManualPlottingTrackDetails TrackInformation::calculate_az_el(int frame_number, int centroid_x, int centroid_y)
+{
+    TrackEngineeringData eng_data = track_engineering_data[frame_number];
+    ManualPlottingTrackDetails details;
+    std::vector<double> az_el_result = AzElCalculation::calculate(centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y);
+    details.azimuth = az_el_result[0];
+    details.elevation = az_el_result[1];
+    return details;
 }
