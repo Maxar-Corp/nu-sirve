@@ -6,7 +6,6 @@
 #include "ABIR_Reader.h"
 #include "video_display.h"
 #include "histogram_plotter.h"
-#include "osm_plotter.h"
 #include "playback.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
@@ -58,6 +57,7 @@
 #include <qgroupbox>
 #include <qmenu.h>
 #include <qmenubar.h>
+#include <QStringList>
 
 
 class SirveApp : public QMainWindow
@@ -158,6 +158,7 @@ public:
 		void load_workspace();
 		void import_tracks();
 		void handle_removal_of_track(int track_id);
+		void handle_manual_track_recoloring(int track_id, QColor color);
 
 		void ui_choose_abp_file();
 		bool validate_abp_files(QString path_to_image_file);
