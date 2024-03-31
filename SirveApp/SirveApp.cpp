@@ -13,6 +13,9 @@ SirveApp::SirveApp(QWidget *parent)
 	histogram_plot = new HistogramLine_Plot();
 
 	setup_ui();
+	popout_video = new PopoutDialog();
+	popout_histogram = new PopoutDialog();
+	popout_engineering = new PopoutDialog();
 
 	//---------------------------------------------------------------------------
 
@@ -959,7 +962,7 @@ void SirveApp::prepare_for_track_creation(int track_id)
 	btn_workspace_load->setDisabled(true);
 	btn_workspace_save->setDisabled(true);
 
-	if (popout_video != nullptr)
+	if (popout_video->isVisible())
 	{
 		popout_video->close();
 	}
@@ -1426,7 +1429,7 @@ void SirveApp::handle_popout_engineering_btn(bool checked)
 
 void SirveApp::open_popout_engineering_plot()
 {
-	popout_engineering = new PopoutDialog(data_plots->chart_view);
+	popout_engineering->acquire(data_plots->chart_view);
 	connect(popout_engineering, &QDialog::finished, this, &SirveApp::popout_engineering_closed);
 	popout_engineering->open();
 }
@@ -1436,8 +1439,6 @@ void SirveApp::popout_engineering_closed()
 	btn_popout_engineering->setChecked(false);
 	engineering_plot_layout->addWidget(data_plots->chart_view);
 	frame_plots->setLayout(engineering_plot_layout);
-	
-	delete popout_engineering;
 }
 
 void SirveApp::handle_popout_histogram_btn(bool checked)
@@ -1453,7 +1454,7 @@ void SirveApp::handle_popout_histogram_btn(bool checked)
 
 void SirveApp::open_popout_histogram_plot()
 {
-	popout_histogram = new PopoutDialog(histogram_plot->abs_chart_view);
+	popout_histogram->acquire(histogram_plot->abs_chart_view);
 	connect(popout_histogram, &QDialog::finished, this, &SirveApp::popout_histogram_closed);
 	popout_histogram->open();
 }
@@ -1462,8 +1463,6 @@ void SirveApp::popout_histogram_closed()
 {
 	btn_popout_histogram->setChecked(false);
 	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
-
-	delete popout_histogram;
 }
 
 void SirveApp::handle_popout_video_btn(bool checked)
@@ -1480,7 +1479,7 @@ void SirveApp::open_popout_video_display()
 {
 	video_display->label->disable();
 	video_display->label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	popout_video = new PopoutDialog(video_display->label);
+	popout_video->acquire(video_display->label);
 	connect(popout_video, &QDialog::finished, this, &SirveApp::popout_video_closed);
 	popout_video->open();
 }
@@ -1491,7 +1490,6 @@ void SirveApp::popout_video_closed()
 	video_display->label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	btn_popout_video->setChecked(false);
 	video_display->reclaim_label();
-	delete popout_video;
 }
 
 void SirveApp::start_stop_video_record()
