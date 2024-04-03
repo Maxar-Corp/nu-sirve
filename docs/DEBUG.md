@@ -35,3 +35,11 @@ In the WinDbg command window, the following list of commands will set a breakpoi
 4.	When WinDbg has stopped program execution at a breakpoint, a variety of commands like `dv` or `x` to display local variables, `?` to execute any C++ command you wish, etc. can be used to debug the application state.
 
 A full WinDbg reference with all commands [can be found here](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/commands).
+
+## Debugging Using the Log File
+
+Another way to debug the executable is to use the --debug flag when launching it.  Simply add the flag on command line like so:
+
+`SirveApp.exe --debug`
+
+The log file will be put in the 'log' folder under SIRVE/release.
