@@ -22,8 +22,8 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 
 int main(int argc, char *argv[])
 {
-    const bool DEBUG_MODE = false;
-    if (DEBUG_MODE) {
+	// Check the command line argument count before checking if the first true argument is a debug flag
+    if (argc > 1 && std::strcmp(argv[1],"--debug") == 0) {
         QString LOG_FILE_PATH = "log/debug_log_file.txt";
 
         //Create the intermediate directories if they don't exist
