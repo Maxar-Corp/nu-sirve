@@ -3,11 +3,9 @@
 #include <QtWidgets/QApplication>
 
 #include <iostream>
-#include "logging.h"
 
 #include <QFile>
 #include <QTextStream>
-#include <QDebug>
 
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QString LOG_FILE_PATH = "log/debug_log_file.txt";

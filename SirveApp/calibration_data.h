@@ -11,7 +11,6 @@
 
 #include <armadillo>
 
-#include "logging.h"
 #include "abpnuc_reader.h"
 #include "clickable_chartview.h"
 #include "color_scheme.h"

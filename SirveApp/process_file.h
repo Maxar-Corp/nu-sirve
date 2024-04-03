@@ -10,7 +10,6 @@
 #include <qstring.h>
 
 #include "abir_reader.h"
-#include "logging.h"
 #include <qfiledialog.h>
 
 struct AbpFileMetadata {
