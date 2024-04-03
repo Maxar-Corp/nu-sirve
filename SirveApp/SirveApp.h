@@ -16,7 +16,6 @@
 #include "background_subtraction.h"
 #include "deinterlace.h"
 #include "deinterlace_type.h"
-#include "logging.h"
 #include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"

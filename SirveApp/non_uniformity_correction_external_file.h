@@ -3,8 +3,6 @@
 #ifndef EXTERNAL_NUC_H
 #define EXTERNAL_NUC_H
 
-#include "logging.h"
-
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qobject.h>

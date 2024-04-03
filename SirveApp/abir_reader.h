@@ -15,7 +15,6 @@
 
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
-#include "logging.h"
 
 
 struct Object {

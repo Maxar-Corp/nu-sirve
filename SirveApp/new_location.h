@@ -4,8 +4,6 @@
 
 #include "ui_new_location.h"
 
-#include "logging.h"
-
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qobject.h>

@@ -2,8 +2,6 @@
 #ifndef CUSTOM_INPUT_DIALOG_H
 #define CUSTOM_INPUT_DIALOG_H
 
-#include "logging.h"
-
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qobject.h>
