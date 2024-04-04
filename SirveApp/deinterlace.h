@@ -5,7 +5,6 @@
 #include <vector>
 #include <armadillo>
 #include <fftw3.h>
-#include "logging.h"
 
 #include "deinterlace_type.h"
 
