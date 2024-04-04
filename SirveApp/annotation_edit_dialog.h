@@ -2,8 +2,6 @@
 #ifndef ANNOTATIONS_NEW_H
 #define ANNOTATIONS_NEW_H
 
-#include "logging.h"
-
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qobject.h>

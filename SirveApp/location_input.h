@@ -5,8 +5,6 @@
 
 #include <ui_location_gui.h>
 
-#include "logging.h"
-
 #include "new_location.h"
 #include "support/earth.h"
 
