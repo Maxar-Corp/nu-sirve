@@ -5,7 +5,6 @@
 
 #include <QString>
 
-#include "logging.h"
 #include "processing_state.h"
 #include "deinterlace_type.h"
 

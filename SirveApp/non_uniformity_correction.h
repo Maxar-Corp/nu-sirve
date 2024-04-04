@@ -3,7 +3,6 @@
 #define NUC_H
 
 #include "abir_reader.h"
-#include "logging.h"
 
 #include <armadillo>
 #include <qstring.h>
