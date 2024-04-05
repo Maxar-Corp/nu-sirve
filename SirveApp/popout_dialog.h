@@ -12,10 +12,12 @@ class PopoutDialog : public QDialog
 	Q_OBJECT
 
 public:
-	PopoutDialog(QWidget *widget);
+	PopoutDialog();
 	~PopoutDialog();
 
     QGridLayout * mainLayout;
+
+	void acquire(QWidget *widget);
 };
 
 

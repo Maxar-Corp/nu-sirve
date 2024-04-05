@@ -1,9 +1,8 @@
 #include "popout_dialog.h"
 
-PopoutDialog::PopoutDialog(QWidget* widget)
+PopoutDialog::PopoutDialog()
 {
     mainLayout = new QGridLayout();
-    mainLayout->addWidget(widget);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Popout Display"));
@@ -15,4 +14,9 @@ PopoutDialog::PopoutDialog(QWidget* widget)
 PopoutDialog::~PopoutDialog()
 {
     delete mainLayout;
+}
+
+void PopoutDialog::acquire(QWidget* widget)
+{
+    mainLayout->addWidget(widget);
 }
