@@ -14,7 +14,7 @@ const int OSM_CENTROID_SHIFT = 1;
 
 namespace AzElCalculation
 {
-    std::vector<double> calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref);
+    std::vector<double> calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref, bool adjust_base, bool adjust_rounding_err);
 };
 
 #endif
