@@ -2,11 +2,11 @@
 
 std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {
-	int offset_x = adjust_frame_ref ? FOCAL_PLANE_ARRAY_WIDTH / 2 + OSM_CENTROID_SHIFT : 0;
-	int offset_y = adjust_frame_ref ? FOCAL_PLANE_ARRAY_HEIGHT / 2 + OSM_CENTROID_SHIFT : 0;
-	
-	x -= offset_x;
-    y -= offset_y;
+	if (adjust_frame_ref)
+	{
+		x -= FOCAL_PLANE_ARRAY_WIDTH / 2;
+		y -= FOCAL_PLANE_ARRAY_HEIGHT / 2;
+	}
 	
     arma::mat a_ecf_to_seu = earth::Atf_Transformation(sensor_lat, sensor_long);
 	arma::mat rot_z = rotate::CoordFrame_Rotation3(180);
