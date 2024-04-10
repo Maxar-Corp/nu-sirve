@@ -386,7 +386,7 @@ std::vector<double> OSMReader::mr2dcos(std::vector<double> input)
 
 std::vector<double> OSMReader::calculation_azimuth_elevation(int x_pixel, int y_pixel, FrameData & input)
 {
-	std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y, false, false, false, false);
+	std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y, false, false, false);
 	return results;
 }
 
