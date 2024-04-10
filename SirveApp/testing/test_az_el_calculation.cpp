@@ -20,12 +20,11 @@ void TestAzElCalculation::test_azimuth_elevation_calculation()
 
 	bool adjust_frame_ref = false;
 	bool adjust_base = false;
-	bool adjust_rounding_err_az = false;
-	bool adjust_rounding_err_el = false;
+	bool adjust_rounding_err = false;
 
     // Verify the boresight az/el from frame 0 matches reality
     int boresight_x = 0, boresight_y = 0;
-    std::vector<double> results = AzElCalculation::calculate(boresight_x, boresight_y, sensor_lat_frame_0, sensor_long_frame_0, dcm_frame_0, ifovx, ifovy, adjust_frame_ref, adjust_base, adjust_rounding_err_az, adjust_rounding_err_el);
+    std::vector<double> results = AzElCalculation::calculate(boresight_x, boresight_y, sensor_lat_frame_0, sensor_long_frame_0, dcm_frame_0, ifovx, ifovy, adjust_frame_ref, adjust_base, adjust_rounding_err);
     double data_export_expected_az = 99.904309, data_export_expected_el = 28.537447;
 	
 	qDebug() << "The value of results[0] -> " << results[0];
@@ -52,13 +51,12 @@ void TestAzElCalculation::test_azimuth_elevation_calculation()
 	
 	adjust_frame_ref = true;
 	adjust_base = true;
-	adjust_rounding_err_az = true;
-	adjust_rounding_err_el = false;
+	adjust_rounding_err = true;
     
     // Verify the OSM track az/el from frame 0 matches reality
     int pinpoint_track_x = 624, pinpoint_track_y = 206;
 	
-    results = AzElCalculation::calculate(pinpoint_track_x, pinpoint_track_y, sensor_lat_frame_0, sensor_long_frame_0, dcm_frame_0, ifovx, ifovy,  adjust_frame_ref, adjust_base, adjust_rounding_err_az, adjust_rounding_err_el);
+    results = AzElCalculation::calculate(pinpoint_track_x, pinpoint_track_y, sensor_lat_frame_0, sensor_long_frame_0, dcm_frame_0, ifovx, ifovy,  adjust_frame_ref, adjust_base, adjust_rounding_err);
     data_export_expected_az = 100.245425, data_export_expected_el = 28.572941;
 	
 	qDebug() << "The value of results[0] -> " << results[0];
@@ -69,13 +67,12 @@ void TestAzElCalculation::test_azimuth_elevation_calculation()
 
 	adjust_frame_ref = true;
 	adjust_base = true;
-	adjust_rounding_err_az = false;
-	adjust_rounding_err_el = true;
+	adjust_rounding_err = false;
 
     // Verify the OSM track az/el from frame 1 matches reality
     pinpoint_track_x = 624, pinpoint_track_y = 205;
 
-	results = AzElCalculation::calculate(pinpoint_track_x, pinpoint_track_y, sensor_lat_frame_1, sensor_long_frame_1, dcm_frame_1, ifovx, ifovy,  adjust_frame_ref, adjust_base, adjust_rounding_err_az, adjust_rounding_err_el);
+	results = AzElCalculation::calculate(pinpoint_track_x, pinpoint_track_y, sensor_lat_frame_1, sensor_long_frame_1, dcm_frame_1, ifovx, ifovy,  adjust_frame_ref, adjust_base, adjust_rounding_err);
     data_export_expected_az = 100.250388, data_export_expected_el = 28.569998;
     QVERIFY(results[0] - delta <= data_export_expected_az && results[0] + delta >= data_export_expected_az);
     QVERIFY(results[1] - delta <= data_export_expected_el && results[1] + delta >= data_export_expected_el);
