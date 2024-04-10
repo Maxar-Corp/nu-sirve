@@ -52,7 +52,7 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 			
 			if (index_first_frame > 0 && index_last_frame < num_video_frames)
 			{
-				std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
+				std::vector<double> frame_values(original.frames_16bit[index_first_frame].begin(), original.frames_16bit[index_first_frame].end());
 				arma::vec frame_vector(frame_values);
 
 				int num_cols = frame_data.n_cols;
