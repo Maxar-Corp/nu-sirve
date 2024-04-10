@@ -269,10 +269,8 @@ ManualPlottingTrackDetails TrackInformation::calculate_az_el(int frame_number, i
     ManualPlottingTrackDetails details;
 	
 	bool adjust_frame_ref = true;
-	bool adjust_base = true;
-	bool adjust_rounding_err = false;
 	
-    std::vector<double> az_el_result = AzElCalculation::calculate(centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y, adjust_frame_ref, adjust_base, adjust_rounding_err);
+    std::vector<double> az_el_result = AzElCalculation::calculate(centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y, adjust_frame_ref);
     details.azimuth = az_el_result[0];
     details.elevation = az_el_result[1];
 	
