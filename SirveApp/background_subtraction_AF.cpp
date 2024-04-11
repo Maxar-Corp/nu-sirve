@@ -50,15 +50,24 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 			index_first_frame = i + start_frame - (number_of_frames - 1);
 			index_last_frame = i + start_frame;
 			
-			if (index_first_frame > 0 && index_last_frame < num_video_frames)
+			if (index_first_frame < 0)
 			{
+				index_first_frame = number_of_frames - index_first_frame;
+				index_last_frame = index_first_frame + number_of_frames - 1;
+				if (index_last_frame > num_video_frames)
+				{
+					index_last_frame = num_video_frames;
+				}
+			}
+			//if (index_first_frame > 0 && index_last_frame < num_video_frames)
+			//{
 				std::vector<double> frame_values(original.frames_16bit[index_first_frame].begin(), original.frames_16bit[index_first_frame].end());
 				arma::vec frame_vector(frame_values);
 
 				int num_cols = frame_data.n_cols;
 				frame_data.insert_cols(num_cols, frame_vector);
 				frame_data.shed_col(0);
-			}
+			//}
 		}
 
 		// Take the mean of each row
