@@ -1,7 +1,13 @@
 #include "az_el_calculation.h"
 
-std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y)
+std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {
+	if (adjust_frame_ref)
+	{
+		x -= FOCAL_PLANE_ARRAY_WIDTH / 2;
+		y -= FOCAL_PLANE_ARRAY_HEIGHT / 2;
+	}
+	
     arma::mat a_ecf_to_seu = earth::Atf_Transformation(sensor_lat, sensor_long);
 	arma::mat rot_z = rotate::CoordFrame_Rotation3(180);
 	arma::mat rot_x = rotate::CoordFrame_Rotation1(180);
