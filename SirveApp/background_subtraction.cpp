@@ -96,3 +96,83 @@ std::vector<uint16_t> AdaptiveNoiseSuppression::apply_correction(std::vector<uin
 	return vector_int;
 
 }
+
+std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
+{
+	// Initialize output
+	std::vector<std::vector<double>>out;
+	int num_video_frames = original.frames_16bit.size();
+	out.reserve(num_video_frames);
+
+	//Initialize video frame storage
+	int num_pixels = original.frames_16bit[0].size();
+	arma::mat frame_data(num_pixels, 1);
+
+	// initialize noise frames
+	int index_first_frame, index_last_frame;
+
+		index_first_frame = start_frame - 1;
+		
+		if (index_first_frame < 0)
+		{
+			index_first_frame = 0;
+		}
+		
+		index_last_frame = start_frame + (number_of_frames - 1);
+
+		if (index_last_frame > num_video_frames - 1)
+		{
+			index_last_frame = num_video_frames - 1;
+		}
+
+	for (int i = index_first_frame; i <= index_last_frame; i++)
+	{
+		std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
+		arma::vec frame_vector(frame_values);
+
+		frame_data.insert_cols(0, frame_vector);
+	}
+	
+	//iterate through frames to calculate suppression for each individual frame
+	arma:: vec limVal = arma::zeros(num_video_frames);
+	// Take the mean of each row
+	arma::vec mean_frame = arma::mean(frame_data, 1);
+	for (int i = 0; i < num_video_frames; i++)
+	{
+		if (progress.wasCanceled())
+		{
+			return std::vector<std::vector<double>>();
+		}
+
+		//Convert mean to double and store
+		std::vector<double> vector_mean = arma::conv_to<std::vector<double>>::from(mean_frame);
+
+		out.push_back(vector_mean);
+	}
+
+	return out;
+}
+
+std::vector<uint16_t> FixedNoiseSuppression::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction)
+{
+
+	std::vector<double> converted_values(frame.begin(), frame.end());
+
+	arma::vec original_frame(converted_values);
+	arma::vec correction_values(correction);
+
+	arma::vec corrected_values = original_frame - correction_values;
+	double min_value = abs(corrected_values.min());
+	corrected_values = corrected_values + min_value * arma::ones(corrected_values.size());
+
+	//arma::uvec index_negative = arma::find(corrected_values < 0);
+	//if (index_negative.size() > 0){
+	//	corrected_values.elem(index_negative) = arma::zeros(index_negative.size());
+	//}
+
+	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
+	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
+
+	return vector_int;
+
+}
