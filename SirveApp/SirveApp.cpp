@@ -2277,37 +2277,26 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 
 	bool ok;
 	QString item = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", options, 0, false, &ok);
-	
+	//Pause the video if it's running
+	playback_controller->stop_timer();
+
+	processing_state original = video_display->container.copy_current_state();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 	if (!ok)
 		return;
 
 	if (item == "From Current File")
 	{
-		// get total number of frames
-		int num_messages = static_cast<int>(osm_frames.size());
-
-		QString prompt1 = "Start Frame (";
-		prompt1.append(QString::number(num_messages));
-		prompt1.append(" frames total)");
-
-		QString prompt2 = "Stop Frame (";
-		prompt2.append(QString::number(num_messages));
-		prompt2.append(" frames total)");
-
-		bool ok;
-
-		// get min frame for nuc while limiting input between 1 and total messages
-		int start_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt1, 1, 1, num_messages, 1, &ok);
+		int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
+		int start_frame = QInputDialog::getInt(this, "Fixed Background Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
 		if (!ok)
 			return;
 
-		// get max frame for nuc while limiting input between min and total messages
-		int stop_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt2, start_frame, start_frame, num_messages, 1, &ok);
+		int number_of_frames = QInputDialog::getInt(this, "Fixed Background Suppresssion", "Number of frames to use for suppression", 1, 1, number_frames, 1, &ok);
 		if (!ok)
 			return;
 
-		create_non_uniformity_correction(abp_file_metadata.image_path, start_frame, stop_frame);
-
+		create_fixed_background_subtraction_correction(start_frame, number_of_frames);
 	}
 	else
 	{
@@ -2491,6 +2480,63 @@ void SirveApp::ui_execute_background_subtraction()
 
 	create_background_subtraction_correction(relative_start_frame, number_of_frames);
 }
+
+
+void SirveApp::create_fixed_background_subtraction_correction(int start_frame, int num_frames)
+{
+	//Pause the video if it's running
+	playback_controller->stop_timer();
+
+	processing_state original = video_display->container.copy_current_state();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	QProgressDialog progress_dialog("Creating adjustment", "Cancel", 0, number_frames * 2 + 2);
+	progress_dialog.setWindowTitle("Fixed Background Subtraction");
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+
+	std::vector<std::vector<double>> background_correction = FixedNoiseSuppression::get_correction(start_frame, num_frames, original.details, progress_dialog);
+
+	if (background_correction.size() == 0) {
+		return;
+	}
+	progress_dialog.setValue(number_frames);
+	progress_dialog.setLabelText("Adjusting frames and copying data");
+
+	processing_state background_subtraction_state = original;
+	background_subtraction_state.details.frames_16bit.clear();
+
+	for (auto i = 0; i < number_frames; i++) {
+		progress_dialog.setValue(number_frames + 1 + i);
+		background_subtraction_state.details.frames_16bit.push_back(FixedNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
+		if (progress_dialog.wasCanceled())
+		{
+			return;
+		}
+	}
+	progress_dialog.setLabelText("Finalizing background subtraction");
+	progress_dialog.setValue(number_frames * 2 + 1);
+
+	QString description = "Filter starts at "; 
+	if (start_frame > 0)
+		description += "+";
+
+	lbl_adaptive_background_suppression->setWordWrap(true);
+	description += QString::number(start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
+	
+	lbl_adaptive_background_suppression->setText(description);
+
+	background_subtraction_state.method = Processing_Method::background_subtraction;
+	background_subtraction_state.bgs_relative_start_frame = start_frame;
+	background_subtraction_state.bgs_num_frames = num_frames;
+	video_display->container.add_processing_state(background_subtraction_state);
+
+	chk_auto_lift_gain->setChecked(true);
+	progress_dialog.setValue(number_frames * 2 + 2);
+}
+
+
 
 void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames)
 {

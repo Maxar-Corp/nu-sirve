@@ -259,6 +259,7 @@ private:
 	void ui_replace_bad_pixels();
 	void replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace);
 
+	void create_fixed_background_subtraction_correction(int start_frame, int num_frames);
 	void create_background_subtraction_correction(int relative_start_frame, int num_frames);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
 	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
