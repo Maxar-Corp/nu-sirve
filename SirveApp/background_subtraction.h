@@ -11,13 +11,16 @@
 namespace AdaptiveNoiseSuppression
 {
 	std::vector<std::vector<double>> get_correction(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
-	std::vector<uint16_t> apply_correction(std::vector<uint16_t> frame, std::vector<double> correction);
 };
 
 namespace FixedNoiseSuppression
 {
 	std::vector<std::vector<double>> get_correction(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
-	std::vector<uint16_t> apply_correction(std::vector<uint16_t> frame, std::vector<double> correction);
+};
+
+namespace ApplyCorrection
+{
+	std::vector<uint16_t> apply_correction(std::vector<uint16_t> frame, std::vector<double> correction, QString & hide_shadow_choice);
 };
 
 #endif
