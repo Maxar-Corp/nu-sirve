@@ -1111,7 +1111,7 @@ void SirveApp::load_workspace()
 		switch (current_state.method)
 		{
 			case Processing_Method::background_subtraction:
-				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames);
+				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames, "Hide Shadow");
 				break;
 
 			case Processing_Method::deinterlace:
@@ -2275,6 +2275,9 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	QStringList options;
 	options << tr("From Current File") << tr("From External File");
 
+	QStringList shadow_options;
+	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
+
 	bool ok;
 	QString item = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", options, 0, false, &ok);
 	//Pause the video if it's running
@@ -2295,8 +2298,11 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		int number_of_frames = QInputDialog::getInt(this, "Fixed Background Suppresssion", "Number of frames to use for suppression", 1, 1, number_frames, 1, &ok);
 		if (!ok)
 			return;
+		QString hide_shadow_choice = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", shadow_options, 0, false, &ok);
+		if (!ok)
+			return;
 
-		create_fixed_background_subtraction_correction(start_frame, number_of_frames);
+		create_fixed_background_subtraction_correction(start_frame, number_of_frames, hide_shadow_choice);
 	}
 	else
 	{
@@ -2469,6 +2475,9 @@ void SirveApp::ui_execute_background_subtraction()
 
 	int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
 
+	QStringList shadow_options;
+	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
+
 	bool ok;
 	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
 	if (!ok)
@@ -2478,11 +2487,15 @@ void SirveApp::ui_execute_background_subtraction()
 	if (!ok)
 		return;
 
-	create_background_subtraction_correction(relative_start_frame, number_of_frames);
+	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Background Suppression", "Options", shadow_options, 0, false, &ok);
+	if (!ok)
+		return;
+
+	create_background_subtraction_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
 
-void SirveApp::create_fixed_background_subtraction_correction(int start_frame, int num_frames)
+void SirveApp::create_fixed_background_subtraction_correction(int start_frame, int num_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
 	playback_controller->stop_timer();
@@ -2509,7 +2522,7 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 
 	for (auto i = 0; i < number_frames; i++) {
 		progress_dialog.setValue(number_frames + 1 + i);
-		background_subtraction_state.details.frames_16bit.push_back(FixedNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
+		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], background_correction[i], hide_shadow_choice));
 		if (progress_dialog.wasCanceled())
 		{
 			return;
@@ -2538,7 +2551,7 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 
 
 
-void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames)
+void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
 	playback_controller->stop_timer();
@@ -2565,7 +2578,7 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 
 	for (auto i = 0; i < number_frames; i++) {
 		progress_dialog.setValue(number_frames + 1 + i);
-		background_subtraction_state.details.frames_16bit.push_back(AdaptiveNoiseSuppression::apply_correction(original.details.frames_16bit[i], background_correction[i]));
+		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], background_correction[i], hide_shadow_choice));
 		if (progress_dialog.wasCanceled())
 		{
 			return;
