@@ -75,32 +75,6 @@ std::vector<std::vector<double>> AdaptiveNoiseSuppression::get_correction(int st
 	return out;
 }
 
-std::vector<uint16_t> AdaptiveNoiseSuppression::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction)
-{
-
-	std::vector<double> converted_values(frame.begin(), frame.end());
-
-	arma::vec original_frame(converted_values);
-	arma::vec correction_values(correction);
-
-	arma::vec corrected_values = original_frame - correction_values;
-	arma::uvec index_negative = arma::find(corrected_values < 0);
-	double min_value = abs(corrected_values.min());
-	corrected_values = corrected_values + min_value * arma::ones(corrected_values.size());
-
-	if (index_negative.size() > 0){
-		double m = arma::mean(corrected_values);
-		double s = arma::stddev(corrected_values);
-		arma::vec v = arma::randn<arma::vec>(index_negative.size());
-		corrected_values.elem(index_negative) = s * v + m;
-	}
-
-	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
-	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
-
-	return vector_int;
-}
-
 std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
 {
 	// Initialize output
@@ -157,29 +131,34 @@ std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start
 	return out;
 }
 
-std::vector<uint16_t> FixedNoiseSuppression::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction)
+std::vector<uint16_t> ApplyCorrection::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction, QString & hide_shadow_choice)
 {
-
 	std::vector<double> converted_values(frame.begin(), frame.end());
 
 	arma::vec original_frame(converted_values);
 	arma::vec correction_values(correction);
 
 	arma::vec corrected_values = original_frame - correction_values;
-	arma::uvec index_negative = arma::find(corrected_values < 0);
+	arma::uvec index_negative = arma::find(corrected_values <= 0);
+	arma::uvec index_positive = arma::find(corrected_values > 0);
 	double min_value = abs(corrected_values.min());
 	corrected_values = corrected_values + min_value * arma::ones(corrected_values.size());
 
-	if (index_negative.size() > 0){
-		double m = arma::mean(corrected_values);
-		double s = arma::stddev(corrected_values);
-		arma::vec v = arma::randn<arma::vec>(index_negative.size());
-		corrected_values.elem(index_negative) = s * v + m;
+	if (hide_shadow_choice == "Hide Shadow"){
+		if (index_negative.size() > 0){
+			double m = arma::mean(corrected_values);
+			double s = arma::stddev(corrected_values);
+			if (index_positive.size() > 0){
+				m = arma::mean(corrected_values(index_positive));
+				s = arma::stddev(corrected_values(index_positive));
+			}
+			arma::vec v = arma::randn<arma::vec>(index_negative.size());
+			corrected_values.elem(index_negative) = s * v + m;
+		}
 	}
 
 	std::vector<double> vector_double = arma::conv_to<std::vector<double>>::from(corrected_values);
 	std::vector<uint16_t> vector_int(vector_double.begin(), vector_double.end());
 
 	return vector_int;
-
 }
