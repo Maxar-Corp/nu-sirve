@@ -131,6 +131,47 @@ std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start
 	return out;
 }
 
+std::vector<std::vector<double>> FixedNoiseSuppressionExternal::get_correction(QString path_video_file, int min_frame, int max_frame, int number_of_frames, double version)
+{
+	// Initialize output
+	std::vector<std::vector<double>>out;
+
+	
+	ABIR_Data_Result abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
+	
+	if (abir_result.had_error) {
+		return out;
+	}
+
+	std::vector<std::vector<uint16_t>> video_frames_16bit = abir_result.video_frames_16bit;
+	//Initialize video frame storage
+	int number_frames = video_frames_16bit.size();
+	out.reserve(number_of_frames);
+	int num_pixels = abir_result.video_frames_16bit[0].size();
+	arma::mat frame_data(num_pixels, 1);
+
+	for (int i = 0; i < number_frames; i++)
+	{
+		std::vector<double> frame_values(video_frames_16bit[i].begin(), video_frames_16bit[i].end());
+		arma::vec frame_vector(frame_values);
+		frame_data.insert_cols(0, frame_vector);
+	}
+	
+	//iterate through frames to calculate suppression for each individual frame
+	arma:: vec limVal = arma::zeros(number_frames);
+	// Take the mean of each row
+	arma::vec mean_frame = arma::mean(frame_data, 1);
+	for (int i = 0; i < number_of_frames; i++)
+	{
+		//Convert mean to double and store
+		std::vector<double> vector_mean = arma::conv_to<std::vector<double>>::from(mean_frame);
+
+		out.push_back(vector_mean);
+	}
+
+	return out;
+}
+
 std::vector<uint16_t> ApplyCorrection::apply_correction(std::vector<uint16_t> frame, std::vector<double> correction, QString & hide_shadow_choice)
 {
 	std::vector<double> converted_values(frame.begin(), frame.end());
