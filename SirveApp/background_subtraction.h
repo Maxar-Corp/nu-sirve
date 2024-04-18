@@ -7,6 +7,8 @@
 #include <armadillo>
 #include <qstring.h>
 #include <QProgressDialog>
+#include "abir_reader.h"
+//#include "process_file.h"
 
 namespace AdaptiveNoiseSuppression
 {
@@ -21,6 +23,20 @@ namespace FixedNoiseSuppression
 namespace ApplyCorrection
 {
 	std::vector<uint16_t> apply_correction(std::vector<uint16_t> frame, std::vector<double> correction, QString & hide_shadow_choice);
+};
+
+class FixedNoiseSuppressionExternal
+{
+
+public:
+
+	//FixedNoiseSuppressionExternal();
+	//~FixedNoiseSuppressionExternal();
+	std::vector<std::vector<double>> get_correction(QString path_video_file, int start_frame, int end_frame, int number_of_frames, double version);
+
+private:
+	ABIR_Data abir_data;
+	//Process_File file_processor;
 };
 
 #endif
