@@ -1119,7 +1119,7 @@ void SirveApp::load_workspace()
 				break;
 
 			case Processing_Method::non_uniformity_correction:
-				create_non_uniformity_correction(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
+				fixed_background_suppression(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
 				break;
 
 			default:
@@ -2233,7 +2233,7 @@ void SirveApp::receive_new_good_pixels(std::vector<unsigned int> pixels)
 	}
 }
 
-void SirveApp::create_non_uniformity_correction_from_external_file()
+void SirveApp::fixed_background_suppression_from_external_file()
 {
 	ExternalNUCInformationWidget external_nuc_dialog;
 
@@ -2251,7 +2251,7 @@ void SirveApp::create_non_uniformity_correction_from_external_file()
 	try
 	{
 		// assumes file version is same as base file opened
-		create_non_uniformity_correction(image_path, min_frame, max_frame);
+		fixed_background_suppression(image_path, min_frame, max_frame);
 	}
 	catch (const std::exception& e)
 	{
@@ -2278,6 +2278,8 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	QStringList shadow_options;
 	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
 
+	QString hide_shadow_choice = "Hide Shadow";
+
 	bool ok;
 	QString item = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", options, 0, false, &ok);
 	//Pause the video if it's running
@@ -2298,20 +2300,17 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		int number_of_frames = QInputDialog::getInt(this, "Fixed Background Suppresssion", "Number of frames to use for suppression", 1, 1, number_frames, 1, &ok);
 		if (!ok)
 			return;
-		QString hide_shadow_choice = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", shadow_options, 0, false, &ok);
-		if (!ok)
-			return;
 
 		create_fixed_background_subtraction_correction(start_frame, number_of_frames, hide_shadow_choice);
 	}
 	else
 	{
-		create_non_uniformity_correction_from_external_file();
+		fixed_background_suppression_from_external_file();
 	}
 	
 }
 
-void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame)
+void SirveApp::fixed_background_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
 	if (!verify_frame_selection(min_frame, max_frame))
 	{
@@ -2319,24 +2318,25 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 		return;
 	}
 
-	NUC nuc;
-	std::vector<double> nuc_correction = nuc.get_nuc_correction(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+	processing_state original = video_display->container.copy_current_state();
 
-	if (nuc_correction.size() == 0)
+	processing_state nuc_state = original;
+	nuc_state.details.frames_16bit.clear();
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	FixedNoiseSuppressionExternal fixed_bgs;
+	std::vector<std::vector<double>> fixed_correction = fixed_bgs.get_correction(abp_file_metadata.image_path, min_frame, max_frame, number_frames, config_values.version);
+
+	if (fixed_correction.size() == 0)
 	{
 		QtHelpers::LaunchMessageBox(QString("File Version Not Within Range"), "File version was not within valid range. See log for more details");
 
 		return;
 	}
 
-	processing_state original = video_display->container.copy_current_state();
-
-	processing_state nuc_state = original;
-	nuc_state.details.frames_16bit.clear();
-
+	
 	// Apply NUC to the frames		
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-
+	
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
@@ -2346,19 +2346,16 @@ void SirveApp::create_non_uniformity_correction(QString file_path, unsigned int 
 	progress.setLabelText(QString("Applying correction..."));
 	progress.setMinimumWidth(300);
 
+	QString hide_shadow = "Hide Shadow";
 	for (auto i = 0; i < number_frames; i++) {
 		progress.setValue(i);
 
-		nuc_state.details.frames_16bit.push_back(nuc.apply_nuc_correction(original.details.frames_16bit[i]));
+		nuc_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], fixed_correction[i], hide_shadow));;
 		if (progress.wasCanceled())
 			break;
 	}
 
-	if (progress.wasCanceled())
-	{
-		return;
-	}
-
+	
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 	nuc_state.method = Processing_Method::non_uniformity_correction;
@@ -2780,7 +2777,7 @@ void SirveApp::update_global_frame_vector()
 	int max_value = std::pow(2, config_values.max_used_bits);
 	image_vector = image_vector / max_value;
 
-	if (image_vector.max() < 1) {
+	if (image_vector.max() != 1) {
 		double sigma = arma::stddev(image_vector);
 		double meanVal = arma::mean(image_vector);
 		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
