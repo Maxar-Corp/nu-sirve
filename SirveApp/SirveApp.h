@@ -191,7 +191,7 @@ public:
 		void toggle_relative_histogram(bool input);
 		void apply_epoch_time();
 
-		void create_non_uniformity_correction_from_external_file();
+		void fixed_background_suppression_from_external_file();
 
 		void toggle_osm_tracks();
 
@@ -262,7 +262,7 @@ private:
 	void create_fixed_background_subtraction_correction(int start_frame, int num_frames, QString hide_shadow_choice);
 	void create_background_subtraction_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void fixed_background_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 
