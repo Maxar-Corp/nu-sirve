@@ -396,7 +396,7 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	// ------------------------------------------------------------------------
 
-	QLabel* label_nuc = new QLabel("Fixed Background Suppression");
+	QLabel* label_nuc = new QLabel("Fixed Noise Suppression");
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 
 	btn_create_nuc = new QPushButton("Create Filter");
@@ -413,7 +413,7 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	// ------------------------------------------------------------------------
 
-	QLabel* label_background_subtraction = new QLabel("Adaptive Background Suppression");
+	QLabel* label_background_subtraction = new QLabel("Adaptive Noise Suppression");
 	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
 	btn_bgs = new QPushButton("Create Filter");
 
@@ -1062,6 +1062,9 @@ void SirveApp::save_workspace()
 		QString workspace_name = QInputDialog::getText(0, "Workspace Name", "Choose workspace file name (reusing a file will overwrite the workspace)", QLineEdit::Normal, current_workspace_name, &ok);
 		if (!ok)
 			return;
+		if (!workspace_name.endsWith(".json")){
+			workspace_name.append(".json");
+		}
 		if (!workspace_name.endsWith(".json")) {
 			QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
 			return;
@@ -1108,19 +1111,24 @@ void SirveApp::load_workspace()
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
 		processing_state current_state = workspace_vals.all_states[i];
-		QString bgs_hide_shadow_str = current_state.bgs_hide_shadow ? "Hide Shadow" : "Show Shadow";
+		QString ANS_hide_shadow_str = "Hide Shadow";
+		if (!current_state.ANS_hide_shadow){
+			ANS_hide_shadow_str = "Show Shadow";
+		}
+
+		//QString ANS_hide_shadow_str = current_state.ANS_hide_shadow ? "Hide Shadow" : "Show Shadow";
 		switch (current_state.method)
 		{
-			case Processing_Method::background_subtraction:
-				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames, bgs_hide_shadow_str);
+			case Processing_Method::adaptive_noise_suppression:
+				create_adaptive_noise_correction(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str);
 				break;
 
 			case Processing_Method::deinterlace:
 				create_deinterlace(current_state.deint_type);
 				break;
 
-			case Processing_Method::non_uniformity_correction:
-				fixed_background_suppression(current_state.nuc_file_path, current_state.nuc_start_frame, current_state.nuc_stop_frame);
+			case Processing_Method::fixed_noise_suppression:
+				fixed_noise_suppression(current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
 			default:
@@ -2234,7 +2242,7 @@ void SirveApp::receive_new_good_pixels(std::vector<unsigned int> pixels)
 	}
 }
 
-void SirveApp::fixed_background_suppression_from_external_file()
+void SirveApp::fixed_noise_suppression_from_external_file()
 {
 	ExternalNUCInformationWidget external_nuc_dialog;
 
@@ -2252,7 +2260,7 @@ void SirveApp::fixed_background_suppression_from_external_file()
 	try
 	{
 		// assumes file version is same as base file opened
-		fixed_background_suppression(image_path, min_frame, max_frame);
+		fixed_noise_suppression(image_path, min_frame, max_frame);
 	}
 	catch (const std::exception& e)
 	{
@@ -2282,7 +2290,7 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	QString hide_shadow_choice = "Hide Shadow";
 
 	bool ok;
-	QString item = QInputDialog::getItem(this, "Fixed Mean Background Suppression", "Options", options, 0, false, &ok);
+	QString item = QInputDialog::getItem(this, "Fixed Mean Noise Suppression", "Options", options, 0, false, &ok);
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
@@ -2294,7 +2302,7 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	if (item == "From Current File")
 	{
 		int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
-		int start_frame = QInputDialog::getInt(this, "Fixed Background Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
+		int start_frame = QInputDialog::getInt(this, "Fixed Noise Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
 		if (!ok)
 			return;
 
@@ -2302,16 +2310,16 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		if (!ok)
 			return;
 
-		create_fixed_background_subtraction_correction(start_frame, number_of_frames, hide_shadow_choice);
+		create_fixed_noise_correction(start_frame, number_of_frames, hide_shadow_choice);
 	}
 	else
 	{
-		fixed_background_suppression_from_external_file();
+		fixed_noise_suppression_from_external_file();
 	}
 	
 }
 
-void SirveApp::fixed_background_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame)
+void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame)
 {
 	if (!verify_frame_selection(min_frame, max_frame))
 	{
@@ -2321,12 +2329,12 @@ void SirveApp::fixed_background_suppression(QString file_path, unsigned int min_
 
 	processing_state original = video_display->container.copy_current_state();
 
-	processing_state nuc_state = original;
-	nuc_state.details.frames_16bit.clear();
+	processing_state background_subtraction_state = original;
+	background_subtraction_state.details.frames_16bit.clear();
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	FixedNoiseSuppressionExternal fixed_bgs;
-	std::vector<std::vector<double>> fixed_correction = fixed_bgs.get_correction(abp_file_metadata.image_path, min_frame, max_frame, number_frames, config_values.version);
+	FixedNoiseSuppressionExternal FNS;
+	std::vector<std::vector<double>> fixed_correction = FNS.get_correction(abp_file_metadata.image_path, min_frame, max_frame, number_frames, config_values.version);
 
 	if (fixed_correction.size() == 0)
 	{
@@ -2335,13 +2343,10 @@ void SirveApp::fixed_background_suppression(QString file_path, unsigned int min_
 		return;
 	}
 
-	
-	// Apply NUC to the frames		
-	
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
-	progress.setWindowTitle(QString("Fixed Background Suppression"));
+	progress.setWindowTitle(QString("Fixed Noise Suppression"));
 	progress.setMinimum(0);
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Applying correction..."));
@@ -2351,7 +2356,7 @@ void SirveApp::fixed_background_suppression(QString file_path, unsigned int min_
 	for (auto i = 0; i < number_frames; i++) {
 		progress.setValue(i);
 
-		nuc_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], fixed_correction[i], hide_shadow));;
+		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], fixed_correction[i], hide_shadow));;
 		if (progress.wasCanceled())
 			break;
 	}
@@ -2359,11 +2364,11 @@ void SirveApp::fixed_background_suppression(QString file_path, unsigned int min_
 	
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
-	nuc_state.method = Processing_Method::non_uniformity_correction;
-	nuc_state.nuc_file_path = file_path;
-	nuc_state.nuc_start_frame = min_frame;
-	nuc_state.nuc_stop_frame = max_frame;
-	video_display->container.add_processing_state(nuc_state);
+	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
+	background_subtraction_state.FNS_file_path = file_path;
+	background_subtraction_state.FNS_start_frame = min_frame;
+	background_subtraction_state.FNS_stop_frame = max_frame;
+	video_display->container.add_processing_state(background_subtraction_state);
 
 	QFileInfo fi(file_path);
 	QString fileName = fi.fileName().toLower();
@@ -2449,11 +2454,11 @@ void SirveApp::handle_processing_state_removal(Processing_Method method, int ind
 {
 	cmb_processing_states->removeItem(index);
 
-	if (method == Processing_Method::background_subtraction)
+	if (method == Processing_Method::adaptive_noise_suppression)
 	{
 		lbl_adaptive_background_suppression->setText("No Frames Setup");
 	}
-	else if (method == Processing_Method::non_uniformity_correction)
+	else if (method == Processing_Method::fixed_noise_suppression)
 	{
 		lbl_fixed_suppression->setText("No Frames Selected");
 	}
@@ -2477,7 +2482,7 @@ void SirveApp::ui_execute_background_subtraction()
 	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
 
 	bool ok;
-	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Background Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
+	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Noise Suppression", "Relative start frame", -5, -delta_frames, delta_frames, 1, &ok);
 	if (!ok)
 		return;
 
@@ -2485,17 +2490,17 @@ void SirveApp::ui_execute_background_subtraction()
 	if (!ok)
 		return;
 
-	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Background Suppression", "Options", shadow_options, 0, false, &ok);
+	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
 	if (!ok)
 		return;
 
-	create_background_subtraction_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
+	create_adaptive_noise_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
 
-void SirveApp::create_fixed_background_subtraction_correction(int start_frame, int num_frames, QString hide_shadow_choice)
+void SirveApp::create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice)
 {
-	bool hide_shadow = hide_shadow_choice == "Hide Shadow";
+	//bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 	
 	//Pause the video if it's running
 	playback_controller->stop_timer();
@@ -2509,9 +2514,9 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 	progress_dialog.setMinimumDuration(0);
 	progress_dialog.setValue(1);
 
-	std::vector<std::vector<double>> background_correction = FixedNoiseSuppression::get_correction(start_frame, num_frames, original.details, progress_dialog);
+	std::vector<std::vector<double>> noise_suppression = FixedNoiseSuppression::get_correction(start_frame, num_frames, original.details, progress_dialog);
 
-	if (background_correction.size() == 0) {
+	if (noise_suppression.size() == 0) {
 		return;
 	}
 	progress_dialog.setValue(number_frames);
@@ -2522,7 +2527,7 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 
 	for (auto i = 0; i < number_frames; i++) {
 		progress_dialog.setValue(number_frames + 1 + i);
-		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], background_correction[i], hide_shadow_choice));
+		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], noise_suppression[i], hide_shadow_choice));
 		if (progress_dialog.wasCanceled())
 		{
 			return;
@@ -2535,15 +2540,15 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 	if (start_frame > 0)
 		description += "+";
 
-	lbl_adaptive_background_suppression->setWordWrap(true);
-	description += QString::number(start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
+	//lbl_adaptive_background_suppression->setWordWrap(true);
+	//description += QString::number(start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
 	
-	lbl_adaptive_background_suppression->setText(description);
+	//lbl_adaptive_background_suppression->setText(description);
 
-	background_subtraction_state.method = Processing_Method::background_subtraction;
-	background_subtraction_state.bgs_relative_start_frame = start_frame;
-	background_subtraction_state.bgs_num_frames = num_frames;
-	background_subtraction_state.bgs_hide_shadow = hide_shadow;
+	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
+	background_subtraction_state.FNS_start_frame = data_plots->index_sub_plot_xmin + start_frame;
+	background_subtraction_state.FNS_stop_frame = data_plots->index_sub_plot_xmin + start_frame + num_frames - 1;
+	background_subtraction_state.FNS_file_path = abp_file_metadata.directory_path;
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);
@@ -2552,7 +2557,7 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 
 
 
-void SirveApp::create_background_subtraction_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice)
+void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
 	playback_controller->stop_timer();
@@ -2566,9 +2571,9 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	progress_dialog.setMinimumDuration(0);
 	progress_dialog.setValue(1);
 
-	std::vector<std::vector<double>> background_correction = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details, progress_dialog);
+	std::vector<std::vector<double>> noise_suppression = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details, progress_dialog);
 
-	if (background_correction.size() == 0) {
+	if (noise_suppression.size() == 0) {
 		return;
 	}
 	progress_dialog.setValue(number_frames);
@@ -2579,7 +2584,7 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 
 	for (auto i = 0; i < number_frames; i++) {
 		progress_dialog.setValue(number_frames + 1 + i);
-		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], background_correction[i], hide_shadow_choice));
+		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], noise_suppression[i], hide_shadow_choice));
 		if (progress_dialog.wasCanceled())
 		{
 			return;
@@ -2597,12 +2602,12 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	
 	lbl_adaptive_background_suppression->setText(description);
 	
-	bool hide_shadow_bool = hide_shadow_choice == "Hide_Shadow";
+	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
-	background_subtraction_state.method = Processing_Method::background_subtraction;
-	background_subtraction_state.bgs_relative_start_frame = relative_start_frame;
-	background_subtraction_state.bgs_num_frames = num_frames;
-	background_subtraction_state.bgs_hide_shadow = hide_shadow_bool;
+	background_subtraction_state.method = Processing_Method::adaptive_noise_suppression;
+	background_subtraction_state.ANS_relative_start_frame = relative_start_frame;
+	background_subtraction_state.ANS_num_frames = num_frames;
+	background_subtraction_state.ANS_hide_shadow = hide_shadow_bool;
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);

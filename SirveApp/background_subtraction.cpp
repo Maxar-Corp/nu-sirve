@@ -110,11 +110,12 @@ std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start
 
 		frame_data.insert_cols(0, frame_vector);
 	}
-	
-	//iterate through frames to calculate suppression for each individual frame
+	frame_data.shed_col(frame_data.n_cols - 1);
+
 	arma:: vec limVal = arma::zeros(num_video_frames);
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(frame_data, 1);
+
 	for (int i = 0; i < num_video_frames; i++)
 	{
 		if (progress.wasCanceled())
@@ -156,8 +157,8 @@ std::vector<std::vector<double>> FixedNoiseSuppressionExternal::get_correction(Q
 		arma::vec frame_vector(frame_values);
 		frame_data.insert_cols(0, frame_vector);
 	}
-	
-	//iterate through frames to calculate suppression for each individual frame
+	frame_data.shed_col(frame_data.n_cols - 1);
+
 	arma:: vec limVal = arma::zeros(number_frames);
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(frame_data, 1);

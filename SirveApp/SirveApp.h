@@ -191,7 +191,7 @@ public:
 		void toggle_relative_histogram(bool input);
 		void apply_epoch_time();
 
-		void fixed_background_suppression_from_external_file();
+		void fixed_noise_suppression_from_external_file();
 
 		void toggle_osm_tracks();
 
@@ -259,10 +259,10 @@ private:
 	void ui_replace_bad_pixels();
 	void replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace);
 
-	void create_fixed_background_subtraction_correction(int start_frame, int num_frames, QString hide_shadow_choice);
-	void create_background_subtraction_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
+	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
+	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void fixed_background_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 
