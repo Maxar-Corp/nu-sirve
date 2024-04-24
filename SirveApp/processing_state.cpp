@@ -20,6 +20,7 @@ processing_state create_processing_state_from_json(const QJsonObject & json_obj)
         processing_state temp = { Processing_Method::background_subtraction };
         temp.bgs_relative_start_frame = json_obj.value("bgs_relative_start_frame").toInt();
         temp.bgs_num_frames = json_obj.value("bgs_num_frames").toInt();
+		temp.bgs_hide_shadow = json_obj.value("bgs_hide_shadow").toBool();
         return temp;
     }
     if (method == "Deinterlace")
