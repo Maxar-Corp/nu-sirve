@@ -1108,10 +1108,11 @@ void SirveApp::load_workspace()
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
 		processing_state current_state = workspace_vals.all_states[i];
+		QString bgs_hide_shadow_str = current_state.bgs_hide_shadow ? "Hide Shadow" : "Show Shadow";
 		switch (current_state.method)
 		{
 			case Processing_Method::background_subtraction:
-				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames, "Hide Shadow");
+				create_background_subtraction_correction(current_state.bgs_relative_start_frame, current_state.bgs_num_frames, bgs_hide_shadow_str);
 				break;
 
 			case Processing_Method::deinterlace:
@@ -2494,6 +2495,8 @@ void SirveApp::ui_execute_background_subtraction()
 
 void SirveApp::create_fixed_background_subtraction_correction(int start_frame, int num_frames, QString hide_shadow_choice)
 {
+	bool hide_shadow = hide_shadow_choice == "Hide Shadow";
+	
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
@@ -2540,6 +2543,7 @@ void SirveApp::create_fixed_background_subtraction_correction(int start_frame, i
 	background_subtraction_state.method = Processing_Method::background_subtraction;
 	background_subtraction_state.bgs_relative_start_frame = start_frame;
 	background_subtraction_state.bgs_num_frames = num_frames;
+	background_subtraction_state.bgs_hide_shadow = hide_shadow;
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);
@@ -2592,10 +2596,13 @@ void SirveApp::create_background_subtraction_correction(int relative_start_frame
 	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
 	
 	lbl_adaptive_background_suppression->setText(description);
+	
+	bool hide_shadow_bool = hide_shadow_choice == "Hide_Shadow";
 
 	background_subtraction_state.method = Processing_Method::background_subtraction;
 	background_subtraction_state.bgs_relative_start_frame = relative_start_frame;
 	background_subtraction_state.bgs_num_frames = num_frames;
+	background_subtraction_state.bgs_hide_shadow = hide_shadow_bool;
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);

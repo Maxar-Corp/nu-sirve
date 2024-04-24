@@ -51,7 +51,7 @@ struct processing_state {
                 }
                 break;
             case Processing_Method::background_subtraction:
-                return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames.  Hide Shadow option set to " + QString::boolean(bgs_hide_shadow);
+                return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames.  Hide Shadow option set to " + QString::number(bgs_hide_shadow);
                 break;
             case Processing_Method::non_uniformity_correction:
                 //may potentially want to leave nuc_file_path empty if it isn't an external file?
