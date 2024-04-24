@@ -34,6 +34,8 @@ struct processing_state {
     int nuc_stop_frame;
 
     deinterlace_type deint_type;
+	
+	bool bgs_hide_shadow;
 
     QString get_friendly_description() {
        switch (method)
@@ -49,7 +51,7 @@ struct processing_state {
                 }
                 break;
             case Processing_Method::background_subtraction:
-                return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames";
+                return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames.  Hide Shadow option set to " + QString::boolean(bgs_hide_shadow);
                 break;
             case Processing_Method::non_uniformity_correction:
                 //may potentially want to leave nuc_file_path empty if it isn't an external file?
@@ -83,6 +85,7 @@ struct processing_state {
                 state_object.insert("method", "Background Subtraction");
                 state_object.insert("bgs_relative_start_frame", bgs_relative_start_frame);
                 state_object.insert("bgs_num_frames", bgs_num_frames);
+				state_object.insert("bgs_hide_shadow", bgs_hide_shadow);
                 break;
             case Processing_Method::deinterlace:
                 state_object.insert("method", "Deinterlace");
