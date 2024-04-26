@@ -2150,19 +2150,75 @@ void SirveApp::apply_epoch_time()
 void SirveApp::ui_replace_bad_pixels()
 {
 	auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue?");
-
+	int min_frame = 1;
+	int max_frame = osm_frames.size();
 	if (response == QMessageBox::Yes) {
-		ABIR_Data_Result abir_first_50_frames = file_processor.load_image_file(abp_file_metadata.image_path, 1, 50, config_values.version);
-		
-		if (abir_first_50_frames.had_error) {
-			QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading first 50 frames from .abpimage file, cannot identify bad pixels.");
-			return;
-		}
 
-		std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels(abir_first_50_frames.video_frames_16bit);
-		replace_bad_pixels(dead_pixels);
-	}
+		bool cont_process = true;
+
+		QStringList type_options;
+		type_options << tr("All Bad Pixels") << tr("Only Dead Pixels");
+		
+		QStringList sensitivity_options;
+		sensitivity_options << tr("Low") << tr("Medium") << tr("High");
+
+		bool ok;
+		int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame,  max_frame, 1, &ok);
+		if (!ok)
+			return;
+
+		max_frame = std::min(max_frame,start_frame + 500);
+		int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame", start_frame + 5, start_frame + 5,  max_frame, 1, &ok);
+		if (!ok)
+			return;
+
+		if (end_frame - start_frame > 1000){
+			auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "This might be too many frames. Are you sure you want to continue?");
+
+			if (response == QMessageBox::No) {	
+				cont_process = false;
+			}
+		}
+		
+		QString bad_pixel_method = QInputDialog::getItem(this, "Bad Pixel Method", "Options", type_options, 0, false, &ok);
+			if (!ok)
+				return;
+
+		bool only_dead = false;
+		if (bad_pixel_method == "Only Dead Pixels"){
+			only_dead = true;
+		}
+		double N = 6.0;
+		if (cont_process){
+			if (!only_dead){
+				QString outlier_sensitivity = QInputDialog::getItem(this, "Bad Pixel Confirmation", "Options", sensitivity_options, 0, false, &ok);
+				if (!ok)
+					return;
+
+				if (outlier_sensitivity == "Low"){
+					N = 6.0;
+				}
+				else if (outlier_sensitivity == "Medium"){
+					N = 5.0;
+				}
+				else{
+					N = 3.0;
+				}
+			}
+			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+
+			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,4);
+			progress_dialog.setWindowTitle("Bad Pixels");
+			progress_dialog.setWindowModality(Qt::ApplicationModal);
+			progress_dialog.setMinimumDuration(0);
+			progress_dialog.setValue(1);
+			std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_new(N,test_frames.video_frames_16bit, only_dead, progress_dialog);
+			replace_bad_pixels(dead_pixels);
+
+		}
+	}				
 }
+
 
 void SirveApp::receive_new_bad_pixels(std::vector<unsigned int> new_pixels)
 {
@@ -2198,7 +2254,12 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 {
 	processing_state base_state = video_display->container.processing_states[0];
 	base_state.replaced_pixels = pixels_to_replace;
-	BadPixels::replace_pixels_with_neighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels);
+	QProgressDialog progress_dialog("Replacing Bad Pixels", "Cancel", 0, base_state.details.frames_16bit.size());
+	progress_dialog.setWindowTitle("Adjusting Bad Pixels");
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+	BadPixels::replace_pixels_with_neighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels, progress_dialog);
 
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(base_state);
@@ -2323,7 +2384,7 @@ void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame
 {
 	if (!verify_frame_selection(min_frame, max_frame))
 	{
-		QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "NUC correction not completed, invalid frame selection");
+		QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "Fixed noise suppression not completed, invalid frame selection");
 		return;
 	}
 

@@ -84,7 +84,7 @@ std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start
 
 	//Initialize video frame storage
 	int num_pixels = original.frames_16bit[0].size();
-	arma::mat frame_data(num_pixels, 1);
+	// arma::mat frame_data(num_pixels, 1);
 
 	// initialize noise frames
 	int index_first_frame, index_last_frame;
@@ -103,16 +103,15 @@ std::vector<std::vector<double>> FixedNoiseSuppression::get_correction(int start
 			index_last_frame = num_video_frames - 1;
 		}
 
-	for (int i = index_first_frame; i <= index_last_frame; i++)
-	{
-		std::vector<double> frame_values(original.frames_16bit[i].begin(), original.frames_16bit[i].end());
-		arma::vec frame_vector(frame_values);
+	// Create an Armadillo matrix
+    arma::mat frame_data(num_pixels, number_of_frames);
+	std::vector<int> framesi(number_of_frames);
+	std::iota (framesi.begin(), framesi.end(),index_first_frame);
+    // Fill the Armadillo matrix from the std::vector
+    for (int i = 0; i < number_of_frames; i++) {
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[framesi[i]]);
+    }
 
-		frame_data.insert_cols(0, frame_vector);
-	}
-	frame_data.shed_col(frame_data.n_cols - 1);
-
-	arma:: vec limVal = arma::zeros(num_video_frames);
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(frame_data, 1);
 
@@ -137,36 +136,29 @@ std::vector<std::vector<double>> FixedNoiseSuppressionExternal::get_correction(Q
 	// Initialize output
 	std::vector<std::vector<double>>out;
 
-	
 	ABIR_Data_Result abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
 	
 	if (abir_result.had_error) {
 		return out;
 	}
 
-	std::vector<std::vector<uint16_t>> video_frames_16bit = abir_result.video_frames_16bit;
-	//Initialize video frame storage
-	int number_frames = video_frames_16bit.size();
-	out.reserve(number_of_frames);
+	int number_avg_frames = abir_result.video_frames_16bit.size();
 	int num_pixels = abir_result.video_frames_16bit[0].size();
-	arma::mat frame_data(num_pixels, 1);
+	out.reserve(number_of_frames);
 
-	for (int i = 0; i < number_frames; i++)
-	{
-		std::vector<double> frame_values(video_frames_16bit[i].begin(), video_frames_16bit[i].end());
-		arma::vec frame_vector(frame_values);
-		frame_data.insert_cols(0, frame_vector);
-	}
-	frame_data.shed_col(frame_data.n_cols - 1);
+    arma::mat frame_data(num_pixels, number_avg_frames);
 
-	arma:: vec limVal = arma::zeros(number_frames);
+    // Fill the Armadillo matrix from the std::vector
+    for (int i = 0; i < number_avg_frames; i++) {
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(abir_result.video_frames_16bit[i]);
+    }
+
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(frame_data, 1);
 	for (int i = 0; i < number_of_frames; i++)
 	{
 		//Convert mean to double and store
 		std::vector<double> vector_mean = arma::conv_to<std::vector<double>>::from(mean_frame);
-
 		out.push_back(vector_mean);
 	}
 

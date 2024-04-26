@@ -33,7 +33,7 @@ std::vector<unsigned int> BadPixels::identify_dead_pixels(const std::vector<std:
     return dead_pixels;
 }
 
-void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels, QProgressDialog & progress)
+void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels)
 {
     //For each frame, replaces any bad pixels with the mean of the value of 2 pixels above, below, left, and right
     //Other bad pixels are exempted from the calculation
@@ -43,7 +43,6 @@ void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>>
 
     for (auto frame = 0; frame < original_pixels.size(); frame++)
     {
-        progress.setValue(frame);
         for (auto i = 0; i < bad_pixel_indeces.size(); i++)
         {
             int bad_pixel_index = bad_pixel_indeces[i];
@@ -117,12 +116,33 @@ void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>>
     }
 }
 
-std::vector<unsigned int> BadPixels::identify_dead_pixels_new(double N, std::vector<std::vector<uint16_t>>& input_pixels, bool only_dead, QProgressDialog & progress)
+std::vector<unsigned int> BadPixels::identify_dead_pixels_new(std::vector<std::vector<uint16_t>>& input_pixels)
 {    
+    //std::ofstream myfile("test.bin", std::ios::binary);
+    //std::ofstream myfile;
+    //std::string path = "test.txt";
+	//myfile.open(path);
     int num_frames = input_pixels.size();
-    num_frames = std::min(num_frames,500);
+    num_frames = std::max(num_frames,100);
+	//Initialize video frame storage
 	int num_pixels = input_pixels[0].size();
+	//arma::mat frame_data(num_pixels, 1);
 
+    //arma::cube ircube(480,640,num_frames);
+    //arma::mat frame_slice(640,480);
+    //arma::mat frame_data(arma::conv_to<arma::mat>::from(input_pixels));
+ 	// for (int i = 0; i < num_frames; i++)
+	// {
+	// 	std::vector<double> frame_values(input_pixels[i].begin(), input_pixels[i].end());
+	// 	arma::vec frame_vector(frame_values);
+    //     //frame_slice = arma::reshape(frame_vector,640,480);
+    //     //ircube.slice(i) = frame_slice.t();
+	// 	frame_data.insert_cols(0, frame_vector);
+	// }
+ 
+    // frame_data.shed_col(frame_data.n_cols-1);
+    // Create a std::vector
+ 
     // Create an Armadillo matrix
     arma::mat frame_data(num_pixels, num_frames);
 
@@ -131,26 +151,49 @@ std::vector<unsigned int> BadPixels::identify_dead_pixels_new(double N, std::vec
         frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
     }
     
-    arma::vec std_frame = arma::stddev(frame_data,0,1);
-    arma::uvec index_dead = arma::find(std_frame == 0);
-    if (!only_dead){
-        arma::vec med_frame = arma::median(frame_data,1);
-        arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
-        progress.setValue(2);  
-        double c = 1.4826;
-        arma::mat diff_from_med = arma::abs(frame_data - med_frame_M);
-        arma::vec MAD = c*arma::median(diff_from_med,1);
-        arma::mat MADM = arma::repmat(MAD,1,frame_data.n_cols);
-        arma::umat OUTL = diff_from_med > 3*MADM;
-        arma::uvec SUMB = arma::sum(OUTL,1);
-        progress.setValue(3);  
-        arma::vec P = arma::conv_to<arma::vec>::from(SUMB);
-        arma::uvec index_outlier = arma::find(abs(P - arma::mean(P)) > N*arma::stddev(P));
-    
-        index_dead = arma::unique(arma::join_vert(index_outlier,index_dead));
-    }
-    progress.setValue(4);  
-    std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead);
 
+    arma::vec std_frame = arma::stddev(frame_data,0,1);
+    arma::vec med_frame = arma::median(frame_data,1);
+    arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
+    //arma::mat m1 = arma::conv_to<arma::mat>::from(med_frame);
+    double c = 1.4826;
+    arma::mat diff_from_med = arma::abs(frame_data - med_frame_M);
+    //arma::vec avg_diff_from_med = arma::mean(diff_from_med,1);
+    arma::vec MAD = c*arma::median(diff_from_med,1);
+    arma::mat MADM = arma::repmat(MAD,1,frame_data.n_cols);
+    arma::umat OUTL = diff_from_med > 3*MADM;
+    arma::uvec SUMB = arma::sum(OUTL,1);
+    arma::vec P = arma::conv_to<arma::vec>::from(SUMB);
+    arma::uvec index_outlier = arma::find(abs(P - arma::mean(P)) > 5.0*arma::stddev(P));
+    arma::uvec index_dead = arma::find(std_frame == 0);
+    arma::uvec index_bad = arma::unique(arma::join_vert(index_outlier,index_dead));
+ 
+    // diff_from_med.save("diff_from_med.bin",arma::arma_binary);
+    // std_frame.save("std_frame.bin",arma::arma_binary);
+    // med_frame_M.save("med_frame_M.bin",arma::arma_binary);
+    // SUMB.save("SUMB.bin",arma::arma_binary);
+    // frame_slice.save("frame_slice.bin",arma::arma_binary);
+    // ircube.save("ircube.bin",arma::arma_binary);
+    // MAD.save("MAD.bin",arma::arma_binary);
+    // index_dead.save("index_dead.bin",arma::arma_binary);
+    //diff_from_med.save(myfile);
+    //myfile.close();
+	//std::vector<unsigned int> dead_pixels(index_dead.begin(), index_dead.end());
+    std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_bad);
+
+    // std::ofstream myfile;
+    // std::string path = "test.txt";
+	// myfile.open(path);
+    // myfile << num_frames;
+    // myfile.close();
+// processing_state original = video_display->container.copy_current_state();
+			// std::vector<std::vector<uint16_t>> test_frames;
+			// test_frames.reserve(number_of_frames);
+			// for (int i = 0; i < number_of_frames; i++){
+			// 	int j = i + start_frame;
+			// 	if (j<original.details.frames_16bit.size()){
+			// 		test_frames.push_back(original.details.frames_16bit[j]);
+			// 	}
+			// }
     return dead_pixels;
 }
