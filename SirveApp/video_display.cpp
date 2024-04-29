@@ -564,8 +564,8 @@ void VideoDisplay::update_display_frame()
 			int pixel_x = pixel_index % image_x;
 			int pixel_y = pixel_index / image_x;
 
-			QRgb red = QColorConstants::Yellow.rgb();
-			frame.setPixel(pixel_x, pixel_y, red);
+			QRgb bp_color = QColorConstants::Red.rgb();
+			frame.setPixel(pixel_x, pixel_y, bp_color);
 		}
 	}
 
