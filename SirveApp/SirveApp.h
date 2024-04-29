@@ -71,10 +71,10 @@ public:
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
 	Workspace workspace;
-	
+
 	QWidget *main_widget;
 	QGridLayout *engineering_plot_layout;
-	
+
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
 
@@ -89,17 +89,17 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_background_suppression, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *label_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
-	
+
 	QLineEdit* txt_start_frame, * txt_end_frame;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_bgs, * btn_create_nuc,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
 		* btn_import_tracks, * btn_create_track, * btn_finish_create_track;
-	
+
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QGroupBox * grpbox_auto_lift_gain;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states;
@@ -121,7 +121,7 @@ public:
 	TrackInformation *track_info;
 	TrackManagementWidget *tm_widget;
 	bool record_video;
-	
+
 	SirveApp(QWidget *parent = Q_NULLPTR);
 	~SirveApp();
 
@@ -146,7 +146,7 @@ public:
 		void change_tracker_color(QString color);
 
 	public slots:
-	
+
 		void histogram_clicked(double x0, double x1);
 		void handle_chk_auto_lift_gain(int state);
 		void set_lift_and_gain(double lift, double gain);
@@ -162,7 +162,7 @@ public:
 		void ui_choose_abp_file();
 		bool validate_abp_files(QString path_to_image_file);
 		void ui_load_abir_data();
-		void ui_execute_background_subtraction();
+		void ui_execute_noise_suppression();
 		void ui_execute_deinterlace();
 		void ui_execute_non_uniformity_correction_selection_option();
 
@@ -173,15 +173,15 @@ public:
 
 		void update_fps();
 		void reset_color_correction();
-	
+
 		void toggle_plot_full_data();
 		void toggle_plot_primary_only();
 		void toggle_plot_current_frame_marker();
 
-		void auto_change_plot_display(int index);	
+		void auto_change_plot_display(int index);
 
 		void show_calibration_dialog();
-		
+
 		void set_data_timing_offset();
 		void close_window();
 
@@ -191,7 +191,7 @@ public:
 		void toggle_relative_histogram(bool input);
 		void apply_epoch_time();
 
-		void create_non_uniformity_correction_from_external_file();
+		void fixed_noise_suppression_from_external_file();
 
 		void toggle_osm_tracks();
 
@@ -201,7 +201,7 @@ public:
 		void handle_new_processing_state(QString state_name, int index);
 		void handle_processing_state_removal(Processing_Method method, int index);
 		void SirveApp::handle_cleared_processing_states();
-		
+
 		void popout_video_closed();
 		void popout_histogram_closed();
 		void popout_engineering_closed();
@@ -237,7 +237,7 @@ private:
 
 	void handle_popout_video_btn(bool checked);
 	void open_popout_video_display();
-	
+
 	void handle_popout_histogram_btn(bool checked);
 	void open_popout_histogram_plot();
 
@@ -252,16 +252,17 @@ private:
 	int get_integer_from_txt_box(QString input);
 	int get_color_index(QVector<QString> colors, QColor input_color);
 	CalibrationData calibration_model;
-	
+
 	void load_osm_data();
 	void load_abir_data(int start_frame, int end_frame);
 
 	void ui_replace_bad_pixels();
 	void replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace);
 
-	void create_background_subtraction_correction(int relative_start_frame, int num_frames);
+	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
+	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void create_non_uniformity_correction(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 
