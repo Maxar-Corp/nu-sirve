@@ -12,8 +12,8 @@
 enum struct Processing_Method
 {
 	original,
-	background_subtraction,
-	non_uniformity_correction,
+	adaptive_noise_suppression,
+	fixed_noise_suppression,
     deinterlace
 };
 
@@ -26,14 +26,16 @@ struct processing_state {
     //The burden is on consumers of the processing_state struct to correctly interpret the fields
     std::vector<unsigned int> replaced_pixels;
 
-    int bgs_relative_start_frame;
-    int bgs_num_frames;
+    int ANS_relative_start_frame;
+    int ANS_num_frames;
 
-    QString nuc_file_path;
-    int nuc_start_frame;
-    int nuc_stop_frame;
+    QString FNS_file_path;
+    int FNS_start_frame;
+    int FNS_stop_frame;
 
     deinterlace_type deint_type;
+	
+	bool ANS_hide_shadow;
 
     QString get_friendly_description() {
        switch (method)
@@ -48,12 +50,12 @@ struct processing_state {
                     return "Original";
                 }
                 break;
-            case Processing_Method::background_subtraction:
-                return "BGS - from " + QString::number(bgs_relative_start_frame) + ", averaging " + QString::number(bgs_num_frames) + " frames";
+            case Processing_Method::adaptive_noise_suppression:
+                return "ANS - from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow);
                 break;
-            case Processing_Method::non_uniformity_correction:
-                //may potentially want to leave nuc_file_path empty if it isn't an external file?
-                return "NUC - " + QString::number(nuc_start_frame) + " to " + QString::number(nuc_stop_frame);
+            case Processing_Method::fixed_noise_suppression:
+                //may potentially want to leave fns_file_path empty if it isn't an external file?
+                return "FNS - " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
                 break;
             case Processing_Method::deinterlace:
                 return "Deinterlace - " + QString::number(deint_type);
@@ -79,20 +81,21 @@ struct processing_state {
                     state_object.insert("replaced_pixels", pixels);
                     break;
                 }
-            case Processing_Method::background_subtraction:
-                state_object.insert("method", "Background Subtraction");
-                state_object.insert("bgs_relative_start_frame", bgs_relative_start_frame);
-                state_object.insert("bgs_num_frames", bgs_num_frames);
+            case Processing_Method::adaptive_noise_suppression:
+                state_object.insert("method", "ANS");
+                state_object.insert("ANS_relative_start_frame", ANS_relative_start_frame);
+                state_object.insert("ANS_num_frames", ANS_num_frames);
+				state_object.insert("ANS_hide_shadow", ANS_hide_shadow);
                 break;
             case Processing_Method::deinterlace:
                 state_object.insert("method", "Deinterlace");
                 state_object.insert("deint_type", QString::number(static_cast<int>(deint_type)));
                 break;
-            case Processing_Method::non_uniformity_correction:
-                state_object.insert("method", "NUC");
-                state_object.insert("nuc_start_frame", nuc_start_frame);
-                state_object.insert("nuc_stop_frame", nuc_stop_frame);
-                state_object.insert("nuc_file_path", nuc_file_path);
+            case Processing_Method::fixed_noise_suppression:
+                state_object.insert("method", "FNS");
+                state_object.insert("FNS_start_frame", FNS_start_frame);
+                state_object.insert("FNS_stop_frame", FNS_stop_frame);
+                state_object.insert("FNS_file_path", FNS_file_path);
                 break;
             default:
                 state_object.insert("method", "error");
