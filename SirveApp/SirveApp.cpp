@@ -2458,7 +2458,6 @@ void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame
 			break;
 	}
 
-	
 	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
 
 	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
@@ -2662,33 +2661,39 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	processing_state original = video_display->container.copy_current_state();
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	QProgressDialog progress_dialog("Creating frame-by-frame adjustment", "Cancel", 0, number_frames * 2 + 2);
-	progress_dialog.setWindowTitle("Adaptive Background Subtraction");
+	QProgressDialog progress_dialog("Computing adaptive noise suppression", "Cancel", 0, 2*number_frames);
+	progress_dialog.setWindowTitle("Adaptive Noise SUppression");
 	progress_dialog.setWindowModality(Qt::ApplicationModal);
 	progress_dialog.setMinimumDuration(0);
 	progress_dialog.setValue(1);
 
-	std::vector<std::vector<double>> noise_suppression = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details, progress_dialog);
-
-	if (noise_suppression.size() == 0) {
-		return;
-	}
-	progress_dialog.setValue(number_frames);
-	progress_dialog.setLabelText("Adjusting frames and copying data");
-
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
 
-	for (auto i = 0; i < number_frames; i++) {
-		progress_dialog.setValue(number_frames + 1 + i);
-		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], noise_suppression[i], hide_shadow_choice));
-		if (progress_dialog.wasCanceled())
-		{
-			return;
-		}
-	}
-	progress_dialog.setLabelText("Finalizing adaptive background subtraction");
-	progress_dialog.setValue(number_frames * 2 + 1);
+	background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames(relative_start_frame, num_frames, original.details, hide_shadow_choice, progress_dialog);
+
+	// std::vector<std::vector<double>> noise_suppression = AdaptiveNoiseSuppression::get_correction(relative_start_frame, num_frames, original.details, progress_dialog);
+
+	// if (noise_suppression.size() == 0) {
+	// 	return;
+	// }
+	// progress_dialog.setValue(number_frames);
+	// progress_dialog.setLabelText("Adjusting frames and copying data");
+
+	// processing_state background_subtraction_state = original;
+	// background_subtraction_state.details.frames_16bit.clear();
+
+	// for (auto i = 0; i < number_frames; i++) {
+	// 	progress_dialog.setValue(number_frames + 1 + i);
+	// 	background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], noise_suppression[i], hide_shadow_choice));
+	// 	if (progress_dialog.wasCanceled())
+	// 	{
+	// 		return;
+	// 	}
+	// }
+
+	// progress_dialog.setLabelText("Finalizing adaptive background subtraction");
+	// progress_dialog.setValue(number_frames * 2 + 1);
 
 	QString description = "Filter starts at "; 
 	if (relative_start_frame > 0)
