@@ -107,15 +107,6 @@ SOURCES += abir_reader.cpp \
 
 QT += charts widgets
 
-INCLUDEPATH += ../armadillo-12.2.0/include
-LIBS += "-L../armadillo-12.2.0/examples/lib_win64/" -llibopenblas
-
-INCLUDEPATH += ../opencv/build/include
-LIBS += "-L../opencv/build/x64/vc16/lib/" -lopencv_world470
-
-INCLUDEPATH += ../fftw-3.3.5-dll64
-LIBS += "-L../fftw-3.3.5-dll64/" -llibfftw3-3 -llibfftw3f-3 -llibfftw3l-3
-
 LIBS += "-L../5.15.2/msvc2019_64/lib/"
 
 #To copy all the required files alongside the exe, run `nmake install`
@@ -178,3 +169,19 @@ else {
 
 dlls.path = $${DESTDIR}
 INSTALLS += dlls
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../armadillo-12.2.0/examples/lib_win64/ -llibopenblas
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../armadillo-12.2.0/examples/lib_win64/ -llibopenblas
+
+INCLUDEPATH += $$PWD/../armadillo-12.2.0/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../opencv/build/x64/vc16/lib/ -lopencv_world470
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../opencv/build/x64/vc16/lib/ -lopencv_world470d
+
+INCLUDEPATH += $$PWD/../opencv/build/include
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../fftw-3.3.5-dll64/ -llibfftw3-3
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../fftw-3.3.5-dll64/ -llibfftw3-3
+
+INCLUDEPATH += $$PWD/../fftw-3.3.5-dll64
+DEPENDPATH += $$PWD/../fftw-3.3.5-dll64
