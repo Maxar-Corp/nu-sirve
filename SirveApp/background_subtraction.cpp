@@ -235,6 +235,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames(int 
 	std::vector<std::vector<uint16_t>> frames_out;
 
 	frame_data = frame_data - arma::shift(moving_mean,-start_frame,1);
+	moving_mean.clear();
 	arma::rowvec min_values = arma::abs(arma::min(frame_data,0));
 	if (hide_shadow_choice == "Hide Shadow"){
 		for (int i = 0; i < num_video_frames; i++){
