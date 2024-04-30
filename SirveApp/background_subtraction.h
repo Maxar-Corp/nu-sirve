@@ -8,11 +8,12 @@
 #include <qstring.h>
 #include <QProgressDialog>
 #include "abir_reader.h"
-//#include "process_file.h"
+#include "process_file.h"
 
 namespace AdaptiveNoiseSuppression
 {
 	std::vector<std::vector<double>> get_correction(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
+	std::vector<std::vector<uint16_t>> process_frames(int start_frame, int number_of_frames_input, video_details & original, QString & hide_shadow_choice, QProgressDialog & progress);
 };
 
 namespace FixedNoiseSuppression
