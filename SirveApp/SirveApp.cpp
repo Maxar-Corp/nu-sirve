@@ -2661,7 +2661,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	processing_state original = video_display->container.copy_current_state();
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	QProgressDialog progress_dialog("Computing adaptive noise suppression", "Cancel", 0, 2*number_frames);
+	QProgressDialog progress_dialog("Computing adaptive noise suppression", "Cancel", 0, 3*number_frames);
 	progress_dialog.setWindowTitle("Adaptive Noise SUppression");
 	progress_dialog.setWindowModality(Qt::ApplicationModal);
 	progress_dialog.setMinimumDuration(0);
@@ -2713,7 +2713,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);
-	progress_dialog.setValue(number_frames * 2 + 2);
+	// progress_dialog.setValue(number_frames * 2 + 2);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
