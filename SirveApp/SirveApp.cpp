@@ -5,6 +5,15 @@ SirveApp::SirveApp(QWidget *parent)
 {
 	config_values = configreader::load();
 
+    // use this to change the current working directory
+    DirectoryPicker *directoryPicker = new DirectoryPicker(this);
+
+    // Connect to the directorySelected signal if you want to perform some action when a directory is selected
+    connect(directoryPicker, &DirectoryPicker::directorySelected, [=](const QString &directory) {
+        qDebug() << "Selected directory:" << directory;
+        // Do something with the selected directory
+    });
+
 	// establish object that will hold video and connect it to the playback thread
 	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors);
 	video_display = new VideoDisplay(video_colors.maps[0].colors);
@@ -53,7 +62,7 @@ SirveApp::SirveApp(QWidget *parent)
 
 	create_menu_actions();
 
-	this->resize(0, 0);
+    this->resize(0, 0);
 }
 
 SirveApp::~SirveApp() {
@@ -148,6 +157,7 @@ void SirveApp::setup_ui() {
 
 	this->setCentralWidget(frame_main);
 	this->show();
+    this->directoryPicker.show();
 
 }
 
