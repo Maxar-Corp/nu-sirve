@@ -6,8 +6,10 @@
     "min transmittance": 0.0,
     "max transmittance": 0.88,
     "sharpness cutoff": 20.0,
-    "width": 1.4, 
+    "width": 1.4,
     "center wavelength um": 4.4,
     "path": "config/det.txt"
-  }
+  },
+
+  "workspace folder": "da_workspace"
 }
