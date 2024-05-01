@@ -2427,35 +2427,14 @@ void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame
 	background_subtraction_state.details.frames_16bit.clear();
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
+	QProgressDialog progress_dialog("Creating adjustment", "Cancel", 0, number_frames);
+	progress_dialog.setWindowTitle("Fixed Background Subtraction");
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+
 	FixedNoiseSuppressionExternal FNS;
-	std::vector<std::vector<double>> fixed_correction = FNS.get_correction(abp_file_metadata.image_path, min_frame, max_frame, number_frames, config_values.version);
-
-	if (fixed_correction.size() == 0)
-	{
-		QtHelpers::LaunchMessageBox(QString("File Version Not Within Range"), "File version was not within valid range. See log for more details");
-
-		return;
-	}
-
-	QProgressDialog progress("", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setWindowTitle(QString("Fixed Noise Suppression"));
-	progress.setMinimum(0);
-	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Applying correction..."));
-	progress.setMinimumWidth(300);
-
-	QString hide_shadow = "Hide Shadow";
-	for (auto i = 0; i < number_frames; i++) {
-		progress.setValue(i);
-
-		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], fixed_correction[i], hide_shadow));;
-		if (progress.wasCanceled())
-			break;
-	}
-
-	progress.setLabelText(QString("Down-converting video and creating histogram data..."));
+	background_subtraction_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, min_frame, max_frame, number_frames, config_values.version, original.details, progress_dialog);
 
 	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
 	background_subtraction_state.FNS_file_path = file_path;
@@ -2601,42 +2580,20 @@ void SirveApp::create_fixed_noise_correction(int start_frame, int num_frames, QS
 	processing_state original = video_display->container.copy_current_state();
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	QProgressDialog progress_dialog("Creating adjustment", "Cancel", 0, number_frames * 2 + 2);
+	processing_state background_subtraction_state = original;
+	background_subtraction_state.details.frames_16bit.clear();
+
+	QProgressDialog progress_dialog("Creating adjustment", "Cancel", 0, number_frames);
 	progress_dialog.setWindowTitle("Fixed Background Subtraction");
 	progress_dialog.setWindowModality(Qt::ApplicationModal);
 	progress_dialog.setMinimumDuration(0);
 	progress_dialog.setValue(1);
 
-	std::vector<std::vector<double>> noise_suppression = FixedNoiseSuppression::get_correction(start_frame, num_frames, original.details, progress_dialog);
-
-	if (noise_suppression.size() == 0) {
-		return;
-	}
-	progress_dialog.setValue(number_frames);
-	progress_dialog.setLabelText("Adjusting frames and copying data");
-
-	processing_state background_subtraction_state = original;
-	background_subtraction_state.details.frames_16bit.clear();
-
-	for (auto i = 0; i < number_frames; i++) {
-		progress_dialog.setValue(number_frames + 1 + i);
-		background_subtraction_state.details.frames_16bit.push_back(ApplyCorrection::apply_correction(original.details.frames_16bit[i], noise_suppression[i], hide_shadow_choice));
-		if (progress_dialog.wasCanceled())
-		{
-			return;
-		}
-	}
-	progress_dialog.setLabelText("Finalizing background subtraction");
-	progress_dialog.setValue(number_frames * 2 + 1);
+	background_subtraction_state.details.frames_16bit = FixedNoiseSuppression::process_frames(start_frame, num_frames, original.details, progress_dialog);
 
 	QString description = "Filter starts at "; 
 	if (start_frame > 0)
 		description += "+";
-
-	//lbl_adaptive_background_suppression->setWordWrap(true);
-	//description += QString::number(start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
-	
-	//lbl_adaptive_background_suppression->setText(description);
 
 	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
 	background_subtraction_state.FNS_start_frame = data_plots->index_sub_plot_xmin + start_frame;
@@ -2645,7 +2602,6 @@ void SirveApp::create_fixed_noise_correction(int start_frame, int num_frames, QS
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	chk_auto_lift_gain->setChecked(true);
-	progress_dialog.setValue(number_frames * 2 + 2);
 }
 
 

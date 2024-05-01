@@ -12,33 +12,23 @@
 
 namespace AdaptiveNoiseSuppression
 {
-	std::vector<std::vector<double>> get_correction(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
 	std::vector<std::vector<uint16_t>> process_frames_fast(int start_frame, int number_of_frames_input, video_details & original, QString & hide_shadow_choice, QProgressDialog & progress);
 	std::vector<std::vector<uint16_t>> process_frames_conserve_memory(int start_frame, int number_of_frames_input, video_details & original, QString & hide_shadow_choice, QProgressDialog & progress);
 };
 
 namespace FixedNoiseSuppression
 {
-	std::vector<std::vector<double>> get_correction(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
-};
-
-namespace ApplyCorrection
-{
-	std::vector<uint16_t> apply_correction(std::vector<uint16_t> frame, std::vector<double> correction, QString & hide_shadow_choice);
+	std::vector<std::vector<uint16_t>> process_frames(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
 };
 
 class FixedNoiseSuppressionExternal
 {
-
 public:
 
-	//FixedNoiseSuppressionExternal();
-	//~FixedNoiseSuppressionExternal();
-	std::vector<std::vector<double>> get_correction(QString path_video_file, int start_frame, int end_frame, int number_of_frames, double version);
+	std::vector<std::vector<uint16_t>> process_frames(QString path_video_file, int start_frame, int end_frame, int number_of_frames, double version, video_details & original, QProgressDialog & progress);
 
 private:
 	ABIR_Data abir_data;
-	//Process_File file_processor;
 };
 
 #endif
