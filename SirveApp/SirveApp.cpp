@@ -3,18 +3,21 @@
 SirveApp::SirveApp(QWidget *parent)
 	: QMainWindow(parent)
 {
-	config_values = configreader::load();
+    config_values = configReaderWriter::load();
 
     workspace = new Workspace(config_values.workspace_folder);
 
     // use this to change the current working directory
     DirectoryPicker *directoryPicker = new DirectoryPicker(this);
 
-    // Connect to the directorySelected signal if you want to perform some action when a directory is selected
-    connect(directoryPicker, &DirectoryPicker::directorySelected, [=](const QString &directory) {
-        qDebug() << "Selected directory:" << directory;
-        // Do something with the selected directory
-    });
+    //Connect to the directorySelected signal if you want to perform some action when a directory is selected
+    //connect(directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::receiveWorkspaceDirectory);
+    //    int i;
+    //});
+
+    // Inside ParentWidget constructor or initialization function
+    //connect(childWidgetPointer, &ChildWidget::mySignal, this, &ParentWidget::mySlot);
+
 
 	// establish object that will hold video and connect it to the playback thread
 	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors);
@@ -53,7 +56,7 @@ SirveApp::SirveApp(QWidget *parent)
 	// links chart with frame where it will be contained
 	histogram_abs_layout = new QVBoxLayout();
 	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
-	frame_histogram_abs->setLayout(histogram_abs_layout);
+    frame_histogram_abs->setLayout(histogram_abs_layout);
 
 	// establish connections to all qwidgets
 	setup_connections();
@@ -65,6 +68,11 @@ SirveApp::SirveApp(QWidget *parent)
 	create_menu_actions();
 
     this->resize(0, 0);
+}
+
+void SirveApp::rereceiveWorkspaceDirectory(QString workspaceDirectory)
+{
+    qDebug() << "Got here";
 }
 
 SirveApp::~SirveApp() {
@@ -158,9 +166,7 @@ void SirveApp::setup_ui() {
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
-	this->show();
-    this->directoryPicker.show();
-
+    this->show();
 }
 
 QWidget* SirveApp::setup_file_import_tab() {
@@ -753,6 +759,8 @@ void SirveApp::setup_plot_frame() {
 
 	tab_plots->addTab(widget_tab_histogram, "Histogram");
 	tab_plots->addTab(widget_plots_tab_color, "Plots");
+
+    //directoryPicker = new DirectoryPicker(this);
 }
 
 void SirveApp::setup_connections() {
@@ -888,6 +896,10 @@ void SirveApp::setup_connections() {
 
 	//---------------------------------------------------------------------------
 	connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::handle_popout_histogram_btn);
+
+    //connect(directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::receiveWorkspaceDirectory);
+
+    connect(&directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::do_something);
 }
 
 void SirveApp::import_tracks()
@@ -1825,6 +1837,11 @@ void SirveApp::set_data_timing_offset()
 	}
 }
 
+void SirveApp::change_workspace_directory()
+{
+    this->directoryPicker.show();
+}
+
 void SirveApp::close_window()
 {
 	close();
@@ -1858,11 +1875,16 @@ void SirveApp::create_menu_actions()
 	action_set_timing_offset->setStatusTip("Set a time offset to apply to collected data");
 	connect(action_set_timing_offset, &QAction::triggered, this, &SirveApp::set_data_timing_offset);
 
+    action_change_workspace_directory = new QAction("Change Workspace Directory");
+    action_change_workspace_directory->setStatusTip("Customize workspace directory so it points to your own folder.");
+    connect(action_change_workspace_directory, &QAction::triggered, this, &SirveApp::change_workspace_directory);
+
 	menu_file = menuBar()->addMenu(tr("&File"));
 	menu_file->addAction(action_close);
 
 	menu_settings = menuBar()->addMenu(tr("&Settings"));
 	menu_settings->addAction(action_set_timing_offset);
+    menu_settings->addAction(action_change_workspace_directory);
 
 
 	// ------------------------- PLOT MENU ACTIONS -------------------------
@@ -2481,6 +2503,11 @@ void SirveApp::handle_cleared_processing_states()
 	cmb_processing_states->clear();
 	label_adaptive_noise_suppression_status->setText("No Frames Setup");
 	lbl_fixed_suppression->setText("No Frames Selected");
+}
+
+void SirveApp::do_something(QString temp)
+{
+    qDebug() << "Hello";
 }
 
 void SirveApp::ui_execute_noise_suppression()

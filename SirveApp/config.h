@@ -23,9 +23,10 @@ struct ConfigValues {
     QString workspace_folder;
 };
 
-namespace configreader
+namespace configReaderWriter
 {
-        ConfigValues load();
+ConfigValues load();
+void saveWorkspaceFolder(QString workspaceFolder);
 }
 
 #endif //CONFIG_H
