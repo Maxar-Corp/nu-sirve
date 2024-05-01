@@ -16,14 +16,16 @@ public:
     QString selectedDirectory() const;
 
 signals:
-    void directorySelected(const QString &directory);
+    void directorySelected(QString directory);
 
 private slots:
     void openDirectoryPicker();
+    void commitDirectory();
 
 private:
     QLineEdit *lineEdit;
     QPushButton *browseButton;
+    QPushButton *chooseButton;
     QString currentDirectory;
 };
 

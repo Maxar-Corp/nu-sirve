@@ -186,6 +186,7 @@ public:
 		void show_calibration_dialog();
 
 		void set_data_timing_offset();
+        void change_workspace_directory();
 		void close_window();
 
 		void save_plot();
@@ -210,6 +211,10 @@ public:
 		void popout_engineering_closed();
 
 		void handle_frame_change();
+
+        void SirveApp::do_something(QString temp);
+
+        void SirveApp::rereceiveWorkspaceDirectory(QString workspaceDirectory);
 
 private:
 	ColorMap video_colors;
@@ -250,7 +255,7 @@ private:
 	void resize_ui();
 
 	QMenu *menu_file, *menu_settings;
-	QAction *action_close, *action_set_timing_offset;
+    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory;
 
 	int get_integer_from_txt_box(QString input);
 	int get_color_index(QVector<QString> colors, QColor input_color);
