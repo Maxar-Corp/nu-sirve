@@ -28,6 +28,7 @@ HEADERS += abir_reader.h \
             data_export.h \
             deinterlace.h \
             deinterlace_type.h \
+            directory_picker.h \
             engineering_data.h \
             enhanced_label.h \
             histogram_plotter.h \
@@ -76,6 +77,7 @@ SOURCES += abir_reader.cpp \
             custom_input_dialog.cpp \
             data_export.cpp \
             deinterlace.cpp \
+            directory_picker.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
             histogram_plotter.cpp \

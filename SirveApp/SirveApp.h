@@ -57,6 +57,7 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <QStringList>
+#include "directory_picker.h"
 
 
 class SirveApp : public QMainWindow
@@ -139,6 +140,8 @@ public:
 	void update_epoch_string(QString new_epoch_string);
 	void display_original_epoch(QString new_epoch_string);
 	QString create_epoch_string(std::vector<double> new_epoch);
+
+    DirectoryPicker directoryPicker;
 
 	signals:
 		void change_banner(QString banner_text);
