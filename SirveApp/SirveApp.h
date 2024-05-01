@@ -32,6 +32,7 @@
 #include "track_management_widget.h"
 #include "data_export.h"
 #include "color_correction.h"
+#include "windows.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -57,7 +58,6 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <QStringList>
-
 
 class SirveApp : public QMainWindow
 {

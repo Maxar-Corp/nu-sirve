@@ -196,7 +196,7 @@ std::vector<uint16_t> ApplyCorrection::apply_correction(std::vector<uint16_t> fr
 	return vector_int;
 }
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	// Initialize output
 
@@ -228,9 +228,11 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames(int 
 
 		progress.setValue(i + num_video_frames);
 
-        index_first_frame = std::max(i - half_window_length + 1,0);
-        index_last_frame = std::min(i + half_window_length - 1,num_video_frames - 1);  
-        moving_mean.col(i) = arma::mean(frame_data.cols(index_first_frame,index_last_frame), 1);
+        // index_first_frame = std::max(i - half_window_length + 1,0);
+        // index_last_frame = std::min(i + half_window_length - 1,num_video_frames - 1);  
+		// moving_mean.col(i) = arma::mean(frame_data.cols(index_first_frame,index_last_frame), 1);
+        index_last_frame = std::min(i + number_of_frames - 1,num_video_frames - 1);  
+        moving_mean.col(i) = arma::mean(frame_data.cols(i,index_last_frame), 1);
     }
 
 	moving_mean = arma::shift(moving_mean,-start_frame,1);
@@ -265,5 +267,60 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames(int 
 			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_data.col(i)));
 		}
 	}
+	return frames_out;
+}
+
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+{
+	int num_video_frames = original.frames_16bit.size();
+	
+	int num_pixels = original.frames_16bit[0].size();
+
+	int index_first_frame, index_last_frame;
+
+	std::vector<std::vector<uint16_t>> frames_out;
+
+    arma::mat window_data(num_pixels,number_of_frames);
+	arma::vec moving_mean(num_pixels, 1);
+	arma::vec frame_vector(num_pixels,1);
+	double min_value;
+
+	for (int j = 0; j < number_of_frames - 1; j++) { 
+		index_first_frame = std::max(start_frame,0);
+        index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
+		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j+index_first_frame]);
+	}
+	window_data.insert_cols(0,window_data.col(0));
+    for (int i = 0; i < num_video_frames; i++) {
+		progress.setValue(i);
+		index_first_frame = std::max(i + start_frame,0);
+        index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
+		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+		window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
+		window_data.shed_col(0);
+		moving_mean = arma::mean(window_data,1);
+		frame_vector = frame_vector - moving_mean;
+		min_value = abs(arma::min(frame_vector));
+		if (hide_shadow_choice == "Hide Shadow"){
+			arma::uvec index_negative = arma::find(frame_vector < 0);
+			arma::uvec index_positive = arma::find(frame_vector > 0);
+			frame_vector = frame_vector + min_value;
+			if (index_negative.size() > 0){
+				double m = arma::mean(frame_vector);
+				double s = arma::stddev(frame_vector);
+				if (index_positive.size() > 0){
+					m = arma::mean(frame_vector(index_positive));
+					s = arma::stddev(frame_vector(index_positive));
+				}
+				arma::vec v = arma::randn<arma::vec>(index_negative.size());
+				frame_vector.elem(index_negative) = s * v + m;
+			}
+		}
+		else{
+			frame_vector = frame_vector + min_value;
+		}
+		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+    }
+
 	return frames_out;
 }
