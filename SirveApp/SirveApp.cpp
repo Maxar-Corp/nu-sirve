@@ -5,6 +5,8 @@ SirveApp::SirveApp(QWidget *parent)
 {
 	config_values = configreader::load();
 
+    workspace = new Workspace(config_values.workspace_folder);
+
     // use this to change the current working directory
     DirectoryPicker *directoryPicker = new DirectoryPicker(this);
 
@@ -467,7 +469,7 @@ QWidget* SirveApp::setup_workspace_tab(){
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
 	cmb_workspace_name = new QComboBox();
-	cmb_workspace_name->addItems(workspace.get_workspace_names());
+    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_save = new QPushButton("Save Workspace");
@@ -890,7 +892,7 @@ void SirveApp::setup_connections() {
 
 void SirveApp::import_tracks()
 {
-	QString base_track_folder = "workspace";
+    QString base_track_folder = config_values.workspace_folder;
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), base_track_folder, ("Track File (*.csv)"));
 
 	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
@@ -1006,7 +1008,7 @@ void SirveApp::handle_btn_finish_create_track()
 
 	if (response == QMessageBox::Yes)
 	{
-		QString base_track_folder = "workspace";
+        QString base_track_folder = config_values.workspace_folder;;
 		QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", base_track_folder, "CSV (*.csv)");
 		if (new_track_file_name.isEmpty())
 		{
@@ -1079,17 +1081,17 @@ void SirveApp::save_workspace()
 			QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
 			return;
 		}
-		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+        workspace->save_state(workspace_name, config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
 		cmb_workspace_name->clear();
-		cmb_workspace_name->addItems(workspace.get_workspace_names());
+        cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 		cmb_workspace_name->setCurrentText(workspace_name);
-	}
+    }
 }
 
 void SirveApp::load_workspace()
 {
 	QString current_workspace_name = cmb_workspace_name->currentText();
-	WorkspaceValues workspace_vals = workspace.load_state(current_workspace_name);
+    WorkspaceValues workspace_vals = workspace->load_state(current_workspace_name, config_values.workspace_folder);
 
 	int compare = QString::compare(workspace_vals.image_path, "", Qt::CaseInsensitive);
 	if (compare == 0) {

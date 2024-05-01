@@ -71,7 +71,7 @@ public:
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
-	Workspace workspace;
+    Workspace *workspace;
 
 	QWidget *main_widget;
 	QGridLayout *engineering_plot_layout;
