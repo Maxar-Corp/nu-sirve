@@ -1,15 +1,13 @@
 {
-  "max number of bits": 14,
-  "version": 4.2,
-
-  "calibration data": {
-    "min transmittance": 0.0,
-    "max transmittance": 0.88,
-    "sharpness cutoff": 20.0,
-    "width": 1.4,
-    "center wavelength um": 4.4,
-    "path": "config/det.txt"
-  },
-
-  "workspace folder": "da_workspace"
+    "calibration data": {
+        "center wavelength um": 4.4,
+        "max transmittance": 0.88,
+        "min transmittance": 0,
+        "path": "config/det.txt",
+        "sharpness cutoff": 20,
+        "width": 1.4
+    },
+    "max number of bits": 14,
+    "version": 4.2,
+    "workspace folder": "C:/Users/da032083/Desktop/new_workspace_dir"
 }
