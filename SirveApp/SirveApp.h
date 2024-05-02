@@ -212,9 +212,7 @@ public:
 
 		void handle_frame_change();
 
-        void SirveApp::do_something(QString temp);
-
-        void SirveApp::rereceiveWorkspaceDirectory(QString workspaceDirectory);
+        void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory);
 
 private:
 	ColorMap video_colors;
