@@ -5,16 +5,14 @@
 
 std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
 {
-	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
 	int num_video_frames = original.frames_16bit.size();
 	
-	//Initialize video frame storage
 	int num_pixels = original.frames_16bit[0].size();
-	// arma::mat frame_data(num_pixels, 1);
 
-	// initialize noise frames
-	int index_last_frame = std::min(start_frame + number_of_frames - 1,num_video_frames - 1);
+	int index_first_frame = start_frame - 1;
+
+	int index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
 	
 	// Create an Armadillo matrix
     arma::mat window_data(num_pixels, index_last_frame - start_frame + 1);
@@ -36,19 +34,78 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(int sta
 		progress.setValue(i);
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		frame_vector = frame_vector - mean_frame;
-		arma::uvec index_negative = arma::find(frame_vector < 0);
-		arma::uvec index_positive = arma::find(frame_vector > 0);
+		//arma::uvec index_negative = arma::find(frame_vector < 0);
+		//arma::uvec index_positive = arma::find(frame_vector > 0);
 		frame_vector = frame_vector + abs(arma::min(frame_vector));
-			if (index_negative.size() > 0){
-				double m = arma::mean(frame_vector);
-				double s = arma::stddev(frame_vector);
-				if (index_positive.size() > 0){
-					m = arma::mean(frame_vector(index_positive));
-					s = arma::stddev(frame_vector(index_positive));
-				}
-				arma::vec v = arma::randn<arma::vec>(index_negative.size());
-				frame_vector.elem(index_negative) = s * v + m;
-			}	
+		//NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);	
+		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+    }
+	return frames_out;
+}
+
+std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
+{
+	std::vector<std::vector<uint16_t>> frames_out;
+	int num_video_frames = original.frames_16bit.size();
+	
+	int num_pixels = original.frames_16bit[0].size();
+
+	int index_first_frame = start_frame - 1;
+
+	int index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
+	
+	// Create an Armadillo matrix
+    arma::mat window_data(num_pixels, index_last_frame - index_first_frame + 1);
+	arma::mat frame_data(num_pixels,num_video_frames);
+	arma::vec frame_vector(num_pixels,1);
+    // Fill the Armadillo matrix from the std::vector
+    for (int i = 0; i < num_video_frames; i++) {
+		progress.setValue(i);
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+    }
+	
+	window_data = frame_data.cols(index_first_frame,index_last_frame);
+	
+	// Take the mean of each row
+	arma::vec mean_frame = arma::mean(window_data, 1);
+
+	// arma::mat processed_frames = frame_data - arma::repmat(mean_frame,1,num_video_frames);
+	// frame_data = frame_data - arma::repmat(mean_frame,1,num_video_frames);
+	// arma::rowvec amin = arma::abs(arma::min(frame_data,0));
+	// arma::mat Amin = arma::repmat(amin,num_pixels,1);
+	// frame_data = frame_data + Amin;
+	// frame_data = frame_data + arma::repmat(arma::abs(arma::min(frame_data,0)),num_pixels,1);
+	// for (int i = 0; i < num_video_frames; i++){
+	// 	if (progress.wasCanceled()){
+	// 		return std::vector<std::vector<uint16_t>>();
+	// 	}
+	// 	progress.setValue(i + num_video_frames);
+	// 	frame_vector = processed_frames.col(i);
+	// 	arma::uvec index_negative = arma::find(frame_vector < 0);
+	// 	arma::uvec index_positive = arma::find(frame_vector > 0);
+	// 	frame_vector = frame_vector + abs(arma::min(frame_vector));
+	// 	NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);	
+	// 	frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+    // }
+	// for (int i = 0; i < num_video_frames; i++){
+	// 	if (progress.wasCanceled()){
+	// 		return std::vector<std::vector<uint16_t>>();
+	// 	}
+	// 	progress.setValue(i + num_video_frames);
+	// 	frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_data.col(i)));
+    // }
+	// return frames_out;
+
+	for (int i = 0; i < num_video_frames; i++){
+		if (progress.wasCanceled()){
+			return std::vector<std::vector<uint16_t>>();
+		}
+		progress.setValue(i + num_video_frames);
+		frame_vector = frame_data.col(i) - mean_frame;
+		//arma::uvec index_negative = arma::find(frame_vector < 0);
+		//arma::uvec index_positive = arma::find(frame_vector > 0);
+		frame_vector = frame_vector + abs(arma::min(frame_vector));
+		//NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);	
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
 	return frames_out;
@@ -89,16 +146,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppressionExternal::process_frames
 		arma::uvec index_negative = arma::find(frame_vector < 0);
 		arma::uvec index_positive = arma::find(frame_vector > 0);
 		frame_vector = frame_vector + abs(arma::min(frame_vector));
-			if (index_negative.size() > 0){
-				double m = arma::mean(frame_vector);
-				double s = arma::stddev(frame_vector);
-				if (index_positive.size() > 0){
-					m = arma::mean(frame_vector(index_positive));
-					s = arma::stddev(frame_vector(index_positive));
-				}
-				arma::vec v = arma::randn<arma::vec>(index_negative.size());
-				frame_vector.elem(index_negative) = s * v + m;
-			}	
+		NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
 	return frames_out;
@@ -156,16 +204,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 			arma::uvec index_negative = arma::find(frame_data.col(i) < 0);
 			arma::uvec index_positive = arma::find(frame_data.col(i) > 0);
 			arma::vec processed_frame = frame_data.col(i) + min_values(i)*arma::ones(num_pixels,1);
-			if (index_negative.size() > 0){
-				double m = arma::mean(processed_frame);
-				double s = arma::stddev(processed_frame);
-				if (index_positive.size() > 0){
-					m = arma::mean(processed_frame(index_positive));
-					s = arma::stddev(processed_frame(index_positive));
-				}
-				arma::vec v = arma::randn<arma::vec>(index_negative.size());
-				processed_frame.elem(index_negative) = s * v + m;
-			}
+			NoiseSuppressionGeneral::remove_shadow(processed_frame, index_negative, index_positive);
 			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(processed_frame));
 			}
 		}
@@ -223,16 +262,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 			arma::uvec index_negative = arma::find(frame_vector < 0);
 			arma::uvec index_positive = arma::find(frame_vector > 0);
 			frame_vector = frame_vector + min_value;
-			if (index_negative.size() > 0){
-				double m = arma::mean(frame_vector);
-				double s = arma::stddev(frame_vector);
-				if (index_positive.size() > 0){
-					m = arma::mean(frame_vector(index_positive));
-					s = arma::stddev(frame_vector(index_positive));
-				}
-				arma::vec v = arma::randn<arma::vec>(index_negative.size());
-				frame_vector.elem(index_negative) = s * v + m;
-			}
+			NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
 		}
 		else{
 			frame_vector = frame_vector + min_value;
@@ -241,4 +271,18 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
     }
 
 	return frames_out;
+}
+
+void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive)
+{
+	if (index_negative.size() > 0){
+		double m = arma::mean(frame_vector);
+		double s = arma::stddev(frame_vector);
+		if (index_positive.size() > 0){
+			m = arma::mean(frame_vector(index_positive));
+			s = arma::stddev(frame_vector(index_positive));
+		}
+		arma::vec v = arma::randn<arma::vec>(index_negative.size());
+		frame_vector.elem(index_negative) = s * v + m;
+	}
 }
