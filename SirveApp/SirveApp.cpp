@@ -2507,7 +2507,7 @@ void SirveApp::handle_cleared_processing_states()
 
 void SirveApp::do_something(QString temp)
 {
-    qDebug() << "Hello";
+    configReaderWriter::saveWorkspaceFolder(temp);
 }
 
 void SirveApp::ui_execute_noise_suppression()
