@@ -70,11 +70,6 @@ SirveApp::SirveApp(QWidget *parent)
     this->resize(0, 0);
 }
 
-void SirveApp::rereceiveWorkspaceDirectory(QString workspaceDirectory)
-{
-    qDebug() << "Got here";
-}
-
 SirveApp::~SirveApp() {
 	delete video_display;
 
@@ -899,7 +894,7 @@ void SirveApp::setup_connections() {
 
     //connect(directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::receiveWorkspaceDirectory);
 
-    connect(&directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::do_something);
+    connect(&directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::handle_changed_workspace_dir);
 }
 
 void SirveApp::import_tracks()
@@ -2505,9 +2500,14 @@ void SirveApp::handle_cleared_processing_states()
 	lbl_fixed_suppression->setText("No Frames Selected");
 }
 
-void SirveApp::do_something(QString temp)
+void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory)
 {
-    configReaderWriter::saveWorkspaceFolder(temp);
+    configReaderWriter::saveWorkspaceFolder(workspaceDirectory);
+    config_values = configReaderWriter::load();
+    workspace = new Workspace(config_values.workspace_folder);
+
+    cmb_workspace_name->clear();
+    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 }
 
 void SirveApp::ui_execute_noise_suppression()
@@ -2535,7 +2535,6 @@ void SirveApp::ui_execute_noise_suppression()
 
 	create_adaptive_noise_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
-
 
 void SirveApp::create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice)
 {
