@@ -2583,13 +2583,29 @@ void SirveApp::create_fixed_noise_correction(int start_frame, int num_frames, QS
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
 
-	QProgressDialog progress_dialog("Creating adjustment", "Cancel", 0, number_frames);
-	progress_dialog.setWindowTitle("Fixed Background Subtraction");
-	progress_dialog.setWindowModality(Qt::ApplicationModal);
-	progress_dialog.setMinimumDuration(0);
-	progress_dialog.setValue(1);
-
-	background_subtraction_state.details.frames_16bit = FixedNoiseSuppression::process_frames(start_frame, num_frames, original.details, progress_dialog);
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	// DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
+	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
+	double R = double(availPhysMem)/(double(number_frames)*16*640*480);
+	
+	if ( R >= 1.5 ){
+		QProgressDialog progress_dialog("Fast fixed noise suppression", "Cancel", 0, 2*number_frames);
+		progress_dialog.setWindowTitle("Fixed Noise Suppression");
+		progress_dialog.setWindowModality(Qt::ApplicationModal);
+		progress_dialog.setMinimumDuration(0);
+		progress_dialog.setValue(1);
+		background_subtraction_state.details.frames_16bit = FixedNoiseSuppression::process_frames_fast(start_frame, num_frames, original.details, progress_dialog);
+	}
+	else{
+		QProgressDialog progress_dialog("Memory safe fixed noise suppression", "Cancel", 0, number_frames);
+		progress_dialog.setWindowTitle("Adaptive Noise SUppression");
+		progress_dialog.setWindowModality(Qt::ApplicationModal);
+		progress_dialog.setMinimumDuration(0);
+		progress_dialog.setValue(1);
+		background_subtraction_state.details.frames_16bit = FixedNoiseSuppression::process_frames(start_frame, num_frames, original.details, progress_dialog);
+	}
 
 	QString description = "Filter starts at "; 
 	if (start_frame > 0)

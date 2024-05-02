@@ -18,7 +18,13 @@ namespace AdaptiveNoiseSuppression
 
 namespace FixedNoiseSuppression
 {
+	std::vector<std::vector<uint16_t>> process_frames_fast(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress);
 	std::vector<std::vector<uint16_t>> process_frames(int start_frame, int number_of_frames_input, video_details & original, QProgressDialog & progress);
+};
+
+namespace NoiseSuppressionGeneral
+{
+	void remove_shadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive);
 };
 
 class FixedNoiseSuppressionExternal
