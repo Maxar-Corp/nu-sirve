@@ -2508,6 +2508,8 @@ void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory)
 
     cmb_workspace_name->clear();
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
+
+    directoryPicker.close();
 }
 
 void SirveApp::ui_execute_noise_suppression()
