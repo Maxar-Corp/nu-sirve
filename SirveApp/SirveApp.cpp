@@ -144,6 +144,7 @@ void SirveApp::setup_ui() {
 
 	btn_import_tracks->setEnabled(false);
 	btn_create_track->setEnabled(false);
+	chk_auto_lift_gain->setChecked(true);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -1116,7 +1117,6 @@ void SirveApp::load_workspace()
 			ANS_hide_shadow_str = "Show Shadow";
 		}
 
-		//QString ANS_hide_shadow_str = current_state.ANS_hide_shadow ? "Hide Shadow" : "Show Shadow";
 		switch (current_state.method)
 		{
 			case Processing_Method::adaptive_noise_suppression:
@@ -1128,7 +1128,7 @@ void SirveApp::load_workspace()
 				break;
 
 			case Processing_Method::fixed_noise_suppression:
-				fixed_noise_suppression(current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
+				fixed_noise_suppression(abp_file_metadata, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
 			default:
@@ -2207,16 +2207,8 @@ void SirveApp::ui_replace_bad_pixels()
 			return;
 
 		
-		// if (end_frame - start_frame > 1000){
-		// 	auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "This might be too many frames. Are you sure you want to continue?");
-
-		// 	if (response == QMessageBox::No) {	
-		// 		cont_process = false;
-		// 	}
-		// }
-
 		if (bad_pixel_removal_method == "Median - Faster"){
-			max_frame = std::min(max_frame,start_frame + 500);
+			max_frame = std::min(max_frame,start_frame + 499);
 			int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
 			if (!ok)
 				return;
@@ -2348,13 +2340,13 @@ void SirveApp::fixed_noise_suppression_from_external_file()
 	}
 
 	QString image_path = external_nuc_dialog.abp_metadata.image_path;
-	unsigned int min_frame = external_nuc_dialog.start_frame;
-	unsigned int max_frame = external_nuc_dialog.stop_frame;
+	unsigned int start_frame = external_nuc_dialog.start_frame;
+	unsigned int end_frame = external_nuc_dialog.stop_frame;
 
 	try
 	{
 		// assumes file version is same as base file opened
-		fixed_noise_suppression(image_path, min_frame, max_frame);
+		fixed_noise_suppression(abp_file_metadata, image_path, start_frame, end_frame);
 	}
 	catch (const std::exception& e)
 	{
@@ -2389,7 +2381,7 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	playback_controller->stop_timer();
 
 	processing_state original = video_display->container.copy_current_state();
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 	if (!ok)
 		return;
 
@@ -2400,11 +2392,13 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		if (!ok)
 			return;
 
-		int number_of_frames = QInputDialog::getInt(this, "Fixed Background Suppresssion", "Number of frames to use for suppression", 1, 1, number_frames, 1, &ok);
+		int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
 		if (!ok)
 			return;
+		
+		int end_frame = start_frame + number_of_frames_for_avg - 1;
 
-		create_fixed_noise_correction(start_frame, number_of_frames, hide_shadow_choice);
+		fixed_noise_suppression(abp_file_metadata, abp_file_metadata.image_path, start_frame, end_frame);
 	}
 	else
 	{
@@ -2413,9 +2407,9 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	
 }
 
-void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame)
+void SirveApp::fixed_noise_suppression(AbpFileMetadata abp_file_metadata, QString file_path, unsigned int start_frame, unsigned int end_frame)
 {
-	if (!verify_frame_selection(min_frame, max_frame))
+	if (!verify_frame_selection(start_frame, end_frame))
 	{
 		QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "Fixed noise suppression not completed, invalid frame selection");
 		return;
@@ -2425,21 +2419,22 @@ void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame
 
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
+
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	QProgressDialog progress_dialog("Creating adjustment", "Cancel", 0, number_frames);
-	progress_dialog.setWindowTitle("Fixed Background Subtraction");
+	QProgressDialog progress_dialog("Memory safe fixed noise suppression", "Cancel", 0, number_frames);
+	progress_dialog.setWindowTitle("Fixed Noise Suppression");
 	progress_dialog.setWindowModality(Qt::ApplicationModal);
 	progress_dialog.setMinimumDuration(0);
 	progress_dialog.setValue(1);
 
-	FixedNoiseSuppressionExternal FNS;
-	background_subtraction_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, min_frame, max_frame, number_frames, config_values.version, original.details, progress_dialog);
+	FixedNoiseSuppression FNS;
+	background_subtraction_state.details.frames_16bit = FNS.process_frames(abp_file_metadata, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
 	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
 	background_subtraction_state.FNS_file_path = file_path;
-	background_subtraction_state.FNS_start_frame = min_frame;
-	background_subtraction_state.FNS_stop_frame = max_frame;
+	background_subtraction_state.FNS_start_frame = start_frame;
+	background_subtraction_state.FNS_stop_frame = end_frame;
 	video_display->container.add_processing_state(background_subtraction_state);
 
 	QFileInfo fi(file_path);
@@ -2450,9 +2445,11 @@ void SirveApp::fixed_noise_suppression(QString file_path, unsigned int min_frame
 		fileName = "Current File";
 
 	QString description = "File: " + fileName + "\n";
-	description += "From frame " + QString::number(min_frame) + " to " + QString::number(max_frame);
+	description += "From frame " + QString::number(start_frame) + " to " + QString::number(end_frame);
 
 	lbl_fixed_suppression->setText(description);
+
+	chk_auto_lift_gain->setChecked(true);
 }
 
 void SirveApp::ui_execute_deinterlace()
@@ -2569,58 +2566,6 @@ void SirveApp::ui_execute_background_subtraction()
 	create_adaptive_noise_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
-
-void SirveApp::create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice)
-{
-	//bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
-	
-	//Pause the video if it's running
-	playback_controller->stop_timer();
-
-	processing_state original = video_display->container.copy_current_state();
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-
-	processing_state background_subtraction_state = original;
-	background_subtraction_state.details.frames_16bit.clear();
-
-	MEMORYSTATUSEX memInfo;
-	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-	GlobalMemoryStatusEx(&memInfo);
-	// DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
-	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-	double R = double(availPhysMem)/(double(number_frames)*16*640*480);
-	
-	if ( R >= 1.5 ){
-		QProgressDialog progress_dialog("Fast fixed noise suppression", "Cancel", 0, 2*number_frames);
-		progress_dialog.setWindowTitle("Fixed Noise Suppression");
-		progress_dialog.setWindowModality(Qt::ApplicationModal);
-		progress_dialog.setMinimumDuration(0);
-		progress_dialog.setValue(1);
-		background_subtraction_state.details.frames_16bit = FixedNoiseSuppression::process_frames_fast(start_frame, num_frames, original.details, progress_dialog);
-	}
-	else{
-		QProgressDialog progress_dialog("Memory safe fixed noise suppression", "Cancel", 0, number_frames);
-		progress_dialog.setWindowTitle("Adaptive Noise SUppression");
-		progress_dialog.setWindowModality(Qt::ApplicationModal);
-		progress_dialog.setMinimumDuration(0);
-		progress_dialog.setValue(1);
-		background_subtraction_state.details.frames_16bit = FixedNoiseSuppression::process_frames(start_frame, num_frames, original.details, progress_dialog);
-	}
-
-	QString description = "Filter starts at "; 
-	if (start_frame > 0)
-		description += "+";
-
-	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
-	background_subtraction_state.FNS_start_frame = data_plots->index_sub_plot_xmin + start_frame;
-	background_subtraction_state.FNS_stop_frame = data_plots->index_sub_plot_xmin + start_frame + num_frames - 1;
-	background_subtraction_state.FNS_file_path = abp_file_metadata.directory_path;
-	video_display->container.add_processing_state(background_subtraction_state);
-
-	chk_auto_lift_gain->setChecked(true);
-}
-
-
 void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
@@ -2641,7 +2586,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	
 	if ( R >= 1.5 ){
 		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_frames);
-		progress_dialog.setWindowTitle("Adaptive Noise SUppression");
+		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
@@ -2649,7 +2594,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	}
 	else{
 		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_frames);
-		progress_dialog.setWindowTitle("Adaptive Noise SUppression");
+		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
@@ -2848,14 +2793,10 @@ void SirveApp::update_global_frame_vector()
 	arma::vec image_vector(original_frame_vector);
 
 	//Normalize the image to values between 0 - 1
-	int max_value = std::pow(2, config_values.max_used_bits);
+	int max_value = std::pow(2, config_values.max_used_bits) - 1;
+	// int maxv = image_vector.max();
+	// image_vector = image_vector / image_vector.max();
 	image_vector = image_vector / max_value;
-
-	if (image_vector.max() != 1) {
-		double sigma = arma::stddev(image_vector);
-		double meanVal = arma::mean(image_vector);
-		image_vector = image_vector / (meanVal + 3. * sigma) - .5;
-	}
 
 	if (chk_auto_lift_gain->isChecked())
 	{

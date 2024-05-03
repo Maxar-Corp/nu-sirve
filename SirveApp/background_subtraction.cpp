@@ -2,24 +2,42 @@
 #include <vector>
 #include <random>
 
-
-std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(AbpFileMetadata abp_file_metadata, QString path_video_file, int start_frame, int end_frame, double version, video_details & original, QProgressDialog & progress)
 {
+	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
+
 	int num_video_frames = original.frames_16bit.size();
+	int number_avg_frames;
 	
-	int num_pixels = original.frames_16bit[0].size();
+	ABIR_Data_Result abir_result;
 
-	int index_first_frame = start_frame - 1;
+	if (path_video_file != abp_file_metadata.image_path){
+		abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), start_frame, end_frame, version, false);
+		if (abir_result.had_error) {
+			return frames_out;
+		}
+		 number_avg_frames = abir_result.video_frames_16bit.size();
+		 progress.setWindowTitle("External Fixed Noise Suppression");
+	}
+	else{
+		abir_result.video_frames_16bit = original.frames_16bit;
+		number_avg_frames = end_frame - start_frame + 1;
+	}
 
-	int index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
-	
-	// Create an Armadillo matrix
-    arma::mat window_data(num_pixels, index_last_frame - start_frame + 1);
-	arma::vec frame_vector(num_pixels, 1);
+	int num_pixels = abir_result.video_frames_16bit[0].size();
+
+    int index_first_frame = start_frame - 1;
+
+	int index_last_frame = std::min(index_first_frame + number_avg_frames - 1, num_video_frames - 1);
+	number_avg_frames = index_last_frame - index_first_frame + 1;
+
+	// Create an Armadillo matrix for submatrix average
+    arma::mat window_data(num_pixels, number_avg_frames);
+
 	int k = 0;
     // Fill the Armadillo matrix from the std::vector
-    for (int i = start_frame; i < index_last_frame; i++){
+    for (int i = index_first_frame; i < index_last_frame; i++){
         window_data.col(k) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		k += 1;
     }
@@ -27,115 +45,8 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(int sta
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(window_data, 1);
 	
-	for (int i = 0; i < num_video_frames; i++){
-		if (progress.wasCanceled()){
-			return std::vector<std::vector<uint16_t>>();
-		}
-		progress.setValue(i);
-		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
-		frame_vector = frame_vector - mean_frame;
-		//arma::uvec index_negative = arma::find(frame_vector < 0);
-		//arma::uvec index_positive = arma::find(frame_vector > 0);
-		frame_vector = frame_vector + abs(arma::min(frame_vector));
-		//NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);	
-		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
-    }
-	return frames_out;
-}
-
-std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, video_details & original, QProgressDialog & progress)
-{
-	std::vector<std::vector<uint16_t>> frames_out;
-	int num_video_frames = original.frames_16bit.size();
-	
-	int num_pixels = original.frames_16bit[0].size();
-
-	int index_first_frame = start_frame - 1;
-
-	int index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
-	
-	// Create an Armadillo matrix
-    arma::mat window_data(num_pixels, index_last_frame - index_first_frame + 1);
-	arma::mat frame_data(num_pixels,num_video_frames);
-	arma::vec frame_vector(num_pixels,1);
-    // Fill the Armadillo matrix from the std::vector
-    for (int i = 0; i < num_video_frames; i++) {
-		progress.setValue(i);
-        frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
-    }
-	
-	window_data = frame_data.cols(index_first_frame,index_last_frame);
-	
-	// Take the mean of each row
-	arma::vec mean_frame = arma::mean(window_data, 1);
-
-	// arma::mat processed_frames = frame_data - arma::repmat(mean_frame,1,num_video_frames);
-	// frame_data = frame_data - arma::repmat(mean_frame,1,num_video_frames);
-	// arma::rowvec amin = arma::abs(arma::min(frame_data,0));
-	// arma::mat Amin = arma::repmat(amin,num_pixels,1);
-	// frame_data = frame_data + Amin;
-	// frame_data = frame_data + arma::repmat(arma::abs(arma::min(frame_data,0)),num_pixels,1);
-	// for (int i = 0; i < num_video_frames; i++){
-	// 	if (progress.wasCanceled()){
-	// 		return std::vector<std::vector<uint16_t>>();
-	// 	}
-	// 	progress.setValue(i + num_video_frames);
-	// 	frame_vector = processed_frames.col(i);
-	// 	arma::uvec index_negative = arma::find(frame_vector < 0);
-	// 	arma::uvec index_positive = arma::find(frame_vector > 0);
-	// 	frame_vector = frame_vector + abs(arma::min(frame_vector));
-	// 	NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);	
-	// 	frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
-    // }
-	// for (int i = 0; i < num_video_frames; i++){
-	// 	if (progress.wasCanceled()){
-	// 		return std::vector<std::vector<uint16_t>>();
-	// 	}
-	// 	progress.setValue(i + num_video_frames);
-	// 	frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_data.col(i)));
-    // }
-	// return frames_out;
-
-	for (int i = 0; i < num_video_frames; i++){
-		if (progress.wasCanceled()){
-			return std::vector<std::vector<uint16_t>>();
-		}
-		progress.setValue(i + num_video_frames);
-		frame_vector = frame_data.col(i) - mean_frame;
-		//arma::uvec index_negative = arma::find(frame_vector < 0);
-		//arma::uvec index_positive = arma::find(frame_vector > 0);
-		frame_vector = frame_vector + abs(arma::min(frame_vector));
-		//NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);	
-		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
-    }
-	return frames_out;
-}
-
-std::vector<std::vector<uint16_t>> FixedNoiseSuppressionExternal::process_frames(QString path_video_file, int min_frame, int max_frame, int number_of_frames, double version, video_details & original, QProgressDialog & progress)
-{
-	// Initialize output
-	std::vector<std::vector<uint16_t>> frames_out;
-	int num_video_frames = original.frames_16bit.size();
-	
-	ABIR_Data_Result abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
-	
-	if (abir_result.had_error) {
-		return frames_out;
-	}
-
-	int number_avg_frames = abir_result.video_frames_16bit.size();
-	int num_pixels = abir_result.video_frames_16bit[0].size();
-
-    arma::mat window_data(num_pixels, number_avg_frames);
 	arma::vec frame_vector(num_pixels, 1);
-    // Fill the Armadillo matrix from the std::vector
-    for (int i = 0; i < number_avg_frames; i++) {
-       window_data.col(i) = arma::conv_to<arma::vec>::from(abir_result.video_frames_16bit[i]);
-    }
-
-	// Take the mean of each row
-	arma::vec mean_frame = arma::mean(window_data, 1);
-	
+	//Loop through frames to subtract mean
 	for (int i = 0; i < num_video_frames; i++){
 		if (progress.wasCanceled()){
 			return std::vector<std::vector<uint16_t>>();
@@ -143,10 +54,9 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppressionExternal::process_frames
 		progress.setValue(i);
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		frame_vector = frame_vector - mean_frame;
-		arma::uvec index_negative = arma::find(frame_vector < 0);
-		arma::uvec index_positive = arma::find(frame_vector > 0);
+		//Renormalize to 0-16383
 		frame_vector = frame_vector + abs(arma::min(frame_vector));
-		NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
+		frame_vector = 16383 * frame_vector / frame_vector.max();
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
 	return frames_out;
@@ -154,15 +64,11 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppressionExternal::process_frames
 
 std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
-	// Initialize output
-
 	int num_video_frames = original.frames_16bit.size();
 	
-	//Initialize video frame storage
 	int num_pixels = original.frames_16bit[0].size();
 	 // Create an Armadillo matrix
     arma::mat frame_data(num_pixels,num_video_frames);
-	arma::mat moving_mean(num_pixels, num_video_frames);
 
     // Fill the Armadillo matrix from the std::vector
     for (int i = 0; i < num_video_frames; i++) {
@@ -170,12 +76,9 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
         frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
     }
     
-	// initialize noise frames
-	// int index_first_frame, index_last_frame;
-
 	int index_last_frame;
 
-	// int half_window_length = std::round(number_of_frames/2);
+	arma::mat moving_mean(num_pixels, num_video_frames);
 
 	for (int i = 0; i < num_video_frames; i++)
 	{
@@ -185,10 +88,6 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 		}
 
 		progress.setValue(i + num_video_frames);
-
-        // index_first_frame = std::max(i - half_window_length + 1,0);
-        // index_last_frame = std::min(i + half_window_length - 1,num_video_frames - 1);  
-		// moving_mean.col(i) = arma::mean(frame_data.cols(index_first_frame,index_last_frame), 1);
         index_last_frame = std::min(i + number_of_frames - 1,num_video_frames - 1);  
         moving_mean.col(i) = arma::mean(frame_data.cols(i,index_last_frame), 1);
     }
@@ -196,6 +95,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 	moving_mean = arma::shift(moving_mean,-start_frame,1);
 	frame_data = frame_data - moving_mean;
 	moving_mean.clear();
+	arma::vec frame_vector(num_pixels,1) ;
 	arma::rowvec min_values = arma::abs(arma::min(frame_data,0));
 	std::vector<std::vector<uint16_t>> frames_out;
 	if (hide_shadow_choice == "Hide Shadow"){
@@ -203,9 +103,10 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 			progress.setValue(i + 2*num_video_frames);
 			arma::uvec index_negative = arma::find(frame_data.col(i) < 0);
 			arma::uvec index_positive = arma::find(frame_data.col(i) > 0);
-			arma::vec processed_frame = frame_data.col(i) + min_values(i)*arma::ones(num_pixels,1);
-			NoiseSuppressionGeneral::remove_shadow(processed_frame, index_negative, index_positive);
-			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(processed_frame));
+			frame_vector = frame_data.col(i) + min_values(i)*arma::ones(num_pixels,1);
+			NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
+			frame_vector = 16383 * frame_vector / frame_vector.max();
+			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
 			}
 		}
 	else
@@ -213,7 +114,8 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 		frame_data = frame_data + arma::repmat(min_values,num_pixels,1);
 		for (int i = 0; i < num_video_frames; i++){
 			progress.setValue(i + 2*num_video_frames);	
-			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_data.col(i)));
+			frame_vector = 16383 * frame_data.col(i) / frame_data.col(i).max();
+			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
 		}
 	}
 	return frames_out;
@@ -236,7 +138,6 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 
 	for (int j = 0; j < number_of_frames - 1; j++) { 
 		index_first_frame = std::max(start_frame,0);
-        index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
 		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j+index_first_frame]);
 	}
 
@@ -263,9 +164,11 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 			arma::uvec index_positive = arma::find(frame_vector > 0);
 			frame_vector = frame_vector + min_value;
 			NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
+			frame_vector = 16383 * frame_vector / frame_vector.max();
 		}
 		else{
 			frame_vector = frame_vector + min_value;
+			frame_vector = 16383 * frame_vector / frame_vector.max();
 		}
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }

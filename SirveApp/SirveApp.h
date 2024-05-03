@@ -262,7 +262,7 @@ private:
 	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
 	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void fixed_noise_suppression(AbpFileMetadata abp_file_metadata, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 
