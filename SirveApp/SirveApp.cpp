@@ -1128,7 +1128,7 @@ void SirveApp::load_workspace()
 				break;
 
 			case Processing_Method::fixed_noise_suppression:
-				fixed_noise_suppression(abp_file_metadata, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
+				fixed_noise_suppression(abp_file_metadata.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
 			default:
@@ -2346,7 +2346,7 @@ void SirveApp::fixed_noise_suppression_from_external_file()
 	try
 	{
 		// assumes file version is same as base file opened
-		fixed_noise_suppression(abp_file_metadata, image_path, start_frame, end_frame);
+		fixed_noise_suppression(abp_file_metadata.image_path, image_path, start_frame, end_frame);
 	}
 	catch (const std::exception& e)
 	{
@@ -2398,7 +2398,7 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		
 		int end_frame = start_frame + number_of_frames_for_avg - 1;
 
-		fixed_noise_suppression(abp_file_metadata, abp_file_metadata.image_path, start_frame, end_frame);
+		fixed_noise_suppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame);
 	}
 	else
 	{
@@ -2407,12 +2407,15 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	
 }
 
-void SirveApp::fixed_noise_suppression(AbpFileMetadata abp_file_metadata, QString file_path, unsigned int start_frame, unsigned int end_frame)
+void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, unsigned int start_frame, unsigned int end_frame)
 {
-	if (!verify_frame_selection(start_frame, end_frame))
-	{
-		QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "Fixed noise suppression not completed, invalid frame selection");
-		return;
+	int compare = QString::compare(file_path, image_path, Qt::CaseInsensitive);
+	if (compare!=0){
+		if (!verify_frame_selection(start_frame, end_frame))
+		{
+			QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "Fixed noise suppression not completed, invalid frame selection");
+			return;
+		}
 	}
 
 	processing_state original = video_display->container.copy_current_state();
@@ -2429,7 +2432,7 @@ void SirveApp::fixed_noise_suppression(AbpFileMetadata abp_file_metadata, QStrin
 	progress_dialog.setValue(1);
 
 	FixedNoiseSuppression FNS;
-	background_subtraction_state.details.frames_16bit = FNS.process_frames(abp_file_metadata, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
+	background_subtraction_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
 	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
 	background_subtraction_state.FNS_file_path = file_path;
