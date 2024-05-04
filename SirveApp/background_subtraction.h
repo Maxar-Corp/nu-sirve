@@ -25,7 +25,7 @@ class FixedNoiseSuppression
 {
 public:
 
-	std::vector<std::vector<uint16_t>> process_frames(AbpFileMetadata abp_file_metadata, QString path_video_file, int start_frame, int end_frame, double version, video_details & original, QProgressDialog & progress);
+	std::vector<std::vector<uint16_t>> process_frames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, video_details & original, QProgressDialog & progress);
 
 private:
 	ABIR_Data abir_data;
