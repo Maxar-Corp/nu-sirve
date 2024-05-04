@@ -51,11 +51,8 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 	double tmpMax = window_data.max();
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(window_data, 1);
-	mean_frame.save("mean_frame.bin",arma::arma_binary);
-	window_data.save("window_data.bin",arma::arma_binary);
 	
 	arma::vec frame_vector(num_pixels, 1);
-	arma::mat tmpMat(num_pixels,num_video_frames);
 	//Loop through frames to subtract mean
 	for (int i = 0; i < num_video_frames; i++){
 		if (progress.wasCanceled()){
@@ -67,10 +64,8 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 		//Renormalize to 0-16383
 		frame_vector = frame_vector - arma::min(frame_vector);
 		frame_vector = 16383 * frame_vector / frame_vector.max();
-		tmpMat.col(i) = frame_vector;
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
-	tmpMat.save("tmpMat.bin",arma::arma_binary);
 	return frames_out;
 }
 
