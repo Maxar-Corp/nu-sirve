@@ -414,15 +414,15 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	// ------------------------------------------------------------------------
 
-	QLabel* label_background_subtraction = new QLabel("Adaptive Noise Suppression");
-	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
+	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression");
+	lbl_adaptive_noise_suppression = new QLabel("No Frames Setup");
 
 	btn_bgs = new QPushButton("Create Filter");
 
 	//QWidget* widget_tab_processing_bgs = new QWidget();
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
-	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(lbl_adaptive_noise_suppression, 0, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 1, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
 	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
@@ -2563,7 +2563,7 @@ void SirveApp::ui_execute_noise_suppression()
 	if (!ok)
 		return;
 
-	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
+	int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
 	if (!ok)
 		return;
 
@@ -2574,13 +2574,13 @@ void SirveApp::ui_execute_noise_suppression()
 	create_adaptive_noise_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
-void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice)
+void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
 	processing_state original = video_display->container.copy_current_state();
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	processing_state background_subtraction_state = original;
 	background_subtraction_state.details.frames_16bit.clear();
@@ -2590,23 +2590,23 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	GlobalMemoryStatusEx(&memInfo);
 	// DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
 	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-	double R = double(availPhysMem)/(double(number_frames)*16*640*480);
+	double R = double(availPhysMem)/(double(number_video_frames)*16*640*480);
 	
 	if ( R >= 1.5 ){
-		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_frames);
+		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, num_frames, original.details, hide_shadow_choice, progress_dialog);
+		background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 	else{
-		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_frames);
+		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, num_frames, original.details, hide_shadow_choice, progress_dialog);
+		background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 
 	QString description = "Filter starts at ";
@@ -2614,15 +2614,15 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 		description += "+";
 
 	label_adaptive_noise_suppression_status->setWordWrap(true);
-	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
+	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
 	
-	lbl_adaptive_background_suppression->setText(description);
+	label_adaptive_noise_suppression_status->setText(description);
 	
 	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
 	background_subtraction_state.method = Processing_Method::adaptive_noise_suppression;
 	background_subtraction_state.ANS_relative_start_frame = relative_start_frame;
-	background_subtraction_state.ANS_num_frames = num_frames;
+	background_subtraction_state.ANS_num_frames = number_of_frames;
 	background_subtraction_state.ANS_hide_shadow = hide_shadow_bool;
 	video_display->container.add_processing_state(background_subtraction_state);
 
