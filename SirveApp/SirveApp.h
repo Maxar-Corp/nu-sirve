@@ -32,6 +32,7 @@
 #include "track_management_widget.h"
 #include "data_export.h"
 #include "color_correction.h"
+#include "windows.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -57,7 +58,6 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <QStringList>
-
 
 class SirveApp : public QMainWindow
 {
@@ -262,7 +262,7 @@ private:
 	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
 	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void fixed_noise_suppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 
