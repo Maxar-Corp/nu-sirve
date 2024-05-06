@@ -185,7 +185,7 @@ void VideoDisplay::reclaim_label()
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
-void VideoDisplay::receive_video_data(int x, int y, int num_frames)
+void VideoDisplay::receive_video_data(int x, int y)
 {
 	image_x = x;
 	image_y = y;
