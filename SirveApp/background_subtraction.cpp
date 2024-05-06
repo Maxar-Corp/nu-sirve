@@ -133,14 +133,12 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	int num_video_frames = original.frames_16bit.size();
-	
 	int num_pixels = original.frames_16bit[0].size();
-
 	int index_first_frame, index_last_frame;
 
 	std::vector<std::vector<uint16_t>> frames_out;
 
-    arma::mat window_data(num_pixels,number_of_frames);
+  arma::mat window_data(num_pixels,number_of_frames);
 	arma::vec moving_mean(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
 	double min_value;
@@ -184,12 +182,13 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
 
+
 	return frames_out;
 }
 
 void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive)
 {
-	if (index_negative.size() > 0){
+	if (index_negative.size() > 0) {
 		double m = arma::mean(frame_vector);
 		double s = arma::stddev(frame_vector);
 		if (index_positive.size() > 0){
