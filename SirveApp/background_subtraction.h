@@ -2,13 +2,12 @@
 #ifndef BACKGROUND_SUBTRACTION_H
 #define BACKGROUND_SUBTRACTION_H
 
-#include "video_details.h"
-
 #include <armadillo>
 #include <qstring.h>
 #include <QProgressDialog>
 #include "abir_reader.h"
 #include "process_file.h"
+#include "video_details.h"
 
 namespace AdaptiveNoiseSuppression
 {
@@ -29,6 +28,7 @@ public:
 
 private:
 	ABIR_Data abir_data;
+
 };
 
 #endif
