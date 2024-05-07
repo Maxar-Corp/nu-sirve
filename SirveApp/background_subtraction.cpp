@@ -48,7 +48,6 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 		}
     }
 
-	double tmpMax = window_data.max();
 	// Take the mean of each row
 	arma::vec mean_frame = arma::mean(window_data, 1);
 	
