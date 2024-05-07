@@ -13,7 +13,7 @@
 #include "video_details.h"
 #include "process_file.h"
 #include "non_uniformity_correction.h"
-#include "background_subtraction.h"
+#include "noise_suppression.h"
 #include "deinterlace.h"
 #include "deinterlace_type.h"
 #include "annotation_info.h"
