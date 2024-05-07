@@ -2801,10 +2801,12 @@ void SirveApp::update_global_frame_vector()
 	arma::vec image_vector(original_frame_vector);
 
 	//Normalize the image to values between 0 - 1
-	int max_value = std::pow(2, config_values.max_used_bits) - 1;
+	// int max_value = std::pow(2, config_values.max_used_bits) - 1;
 	// int maxv = image_vector.max();
-	// image_vector = image_vector / image_vector.max();
-	image_vector = image_vector / max_value;
+	image_vector = image_vector - arma::mean(image_vector);
+	image_vector = image_vector - image_vector.min();
+	image_vector = image_vector/(arma::mean(image_vector) + 4.*arma::stddev(image_vector));
+
 
 	if (chk_auto_lift_gain->isChecked())
 	{
