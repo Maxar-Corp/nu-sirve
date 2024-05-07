@@ -14,7 +14,6 @@ HEADERS += abir_reader.h \
             abpnuc_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
-            background_subtraction.h \
             bad_pixels.h \
             binary_file_reader.h \
             calibration_data.h \
@@ -33,6 +32,7 @@ HEADERS += abir_reader.h \
             histogram_plotter.h \
             location_input.h \
             new_location.h \
+            noise_suppression.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
             osm_reader.h \
@@ -64,7 +64,6 @@ SOURCES += abir_reader.cpp \
             annotation_edit_dialog.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \
-            background_subtraction.cpp \
             bad_pixels.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
@@ -82,6 +81,7 @@ SOURCES += abir_reader.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
+            noise_suppression.cpp \
             non_uniformity_correction_external_file.cpp \
             non_uniformity_correction.cpp \
             osm_reader.cpp \
