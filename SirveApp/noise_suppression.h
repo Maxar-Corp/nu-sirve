@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BACKGROUND_SUBTRACTION_H
-#define BACKGROUND_SUBTRACTION_H
+#ifndef NOISE_SUPPRESSION_H
+#define NOISE_SUPPRESSION_H
 
 #include <armadillo>
 #include <qstring.h>
