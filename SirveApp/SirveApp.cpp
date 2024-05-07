@@ -414,8 +414,8 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	// ------------------------------------------------------------------------
 
-	QLabel* label_background_subtraction = new QLabel("Adaptive Noise Suppression");
-	lbl_adaptive_background_suppression = new QLabel("No Frames Setup");
+	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression");
+	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 
 	btn_bgs = new QPushButton("Create Filter");
 
@@ -1387,7 +1387,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	video_display->initialize_track_data(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	video_display->initialize_frame_data(min_frame, temp, file_processor.abir_data.ir_data);
-	video_display->receive_video_data(x_pixels, y_pixels, number_frames);
+	video_display->receive_video_data(x_pixels, y_pixels);
 	update_global_frame_vector();
 
 	// Reset engineering plots with new sub plot indices
@@ -2423,8 +2423,8 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 
 	processing_state original = video_display->container.copy_current_state();
 
-	processing_state background_subtraction_state = original;
-	background_subtraction_state.details.frames_16bit.clear();
+	processing_state noise_suppresions_state = original;
+	noise_suppresions_state.details.frames_16bit.clear();
 
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
@@ -2435,14 +2435,14 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 	progress_dialog.setValue(1);
 
 	FixedNoiseSuppression FNS;
-	background_subtraction_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
+	noise_suppresions_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
 
-	background_subtraction_state.method = Processing_Method::fixed_noise_suppression;
-	background_subtraction_state.FNS_file_path = file_path;
-	background_subtraction_state.FNS_start_frame = start_frame;
-	background_subtraction_state.FNS_stop_frame = end_frame;
-	video_display->container.add_processing_state(background_subtraction_state);
+	noise_suppresions_state.method = Processing_Method::fixed_noise_suppression;
+	noise_suppresions_state.FNS_file_path = file_path;
+	noise_suppresions_state.FNS_start_frame = start_frame;
+	noise_suppresions_state.FNS_stop_frame = end_frame;
+	video_display->container.add_processing_state(noise_suppresions_state);
 
 	QFileInfo fi(file_path);
 	QString fileName = fi.fileName().toLower();
@@ -2563,7 +2563,7 @@ void SirveApp::ui_execute_noise_suppression()
 	if (!ok)
 		return;
 
-	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
+	int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
 	if (!ok)
 		return;
 
@@ -2574,39 +2574,39 @@ void SirveApp::ui_execute_noise_suppression()
 	create_adaptive_noise_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
-void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice)
+void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
 	processing_state original = video_display->container.copy_current_state();
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	processing_state background_subtraction_state = original;
-	background_subtraction_state.details.frames_16bit.clear();
+	processing_state noise_suppresions_state = original;
+	noise_suppresions_state.details.frames_16bit.clear();
 
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&memInfo);
 	// DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
 	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-	double R = double(availPhysMem)/(double(number_frames)*16*640*480);
+	double R = double(availPhysMem)/(double(number_video_frames)*16*640*480);
 	
 	if ( R >= 1.5 ){
-		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_frames);
+		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, num_frames, original.details, hide_shadow_choice, progress_dialog);
+		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 	else{
-		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_frames);
+		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		background_subtraction_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, num_frames, original.details, hide_shadow_choice, progress_dialog);
+		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 
 	QString description = "Filter starts at ";
@@ -2614,17 +2614,17 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 		description += "+";
 
 	label_adaptive_noise_suppression_status->setWordWrap(true);
-	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(num_frames) + " frames";
+	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
 	
-	lbl_adaptive_background_suppression->setText(description);
+	label_adaptive_noise_suppression_status->setText(description);
 	
 	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
-	background_subtraction_state.method = Processing_Method::adaptive_noise_suppression;
-	background_subtraction_state.ANS_relative_start_frame = relative_start_frame;
-	background_subtraction_state.ANS_num_frames = num_frames;
-	background_subtraction_state.ANS_hide_shadow = hide_shadow_bool;
-	video_display->container.add_processing_state(background_subtraction_state);
+	noise_suppresions_state.method = Processing_Method::adaptive_noise_suppression;
+	noise_suppresions_state.ANS_relative_start_frame = relative_start_frame;
+	noise_suppresions_state.ANS_num_frames = number_of_frames;
+	noise_suppresions_state.ANS_hide_shadow = hide_shadow_bool;
+	video_display->container.add_processing_state(noise_suppresions_state);
 
 	chk_auto_lift_gain->setChecked(true);
 }
@@ -2801,10 +2801,12 @@ void SirveApp::update_global_frame_vector()
 	arma::vec image_vector(original_frame_vector);
 
 	//Normalize the image to values between 0 - 1
-	int max_value = std::pow(2, config_values.max_used_bits) - 1;
+	// int max_value = std::pow(2, config_values.max_used_bits) - 1;
 	// int maxv = image_vector.max();
-	// image_vector = image_vector / image_vector.max();
-	image_vector = image_vector / max_value;
+	image_vector = image_vector - arma::mean(image_vector);
+	image_vector = image_vector - image_vector.min();
+	image_vector = image_vector/(arma::mean(image_vector) + 4.*arma::stddev(image_vector));
+
 
 	if (chk_auto_lift_gain->isChecked())
 	{
