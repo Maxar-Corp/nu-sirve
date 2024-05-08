@@ -13,7 +13,7 @@
 #include "video_details.h"
 #include "process_file.h"
 #include "non_uniformity_correction.h"
-#include "background_subtraction.h"
+#include "noise_suppression.h"
 #include "deinterlace.h"
 #include "deinterlace_type.h"
 #include "annotation_info.h"
@@ -32,6 +32,7 @@
 #include "track_management_widget.h"
 #include "data_export.h"
 #include "color_correction.h"
+#include "windows.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -58,7 +59,6 @@
 #include <qmenubar.h>
 #include <QStringList>
 #include "directory_picker.h"
-
 
 class SirveApp : public QMainWindow
 {
@@ -90,7 +90,7 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *label_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *label_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
@@ -268,7 +268,7 @@ private:
 	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
 	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void fixed_noise_suppression(QString file_path, unsigned int min_frame, unsigned int max_frame);
+	void fixed_noise_suppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();
 

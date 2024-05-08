@@ -97,7 +97,7 @@ public:
 	void save_frame();
 
 	void remove_frame();
-	void receive_video_data(int x, int y, int num_frames);
+	void receive_video_data(int x, int y);
 	void initialize_toggles();
 
 	void view_frame(unsigned int frame_number);
