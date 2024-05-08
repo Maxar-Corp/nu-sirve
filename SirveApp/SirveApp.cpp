@@ -3,7 +3,9 @@
 SirveApp::SirveApp(QWidget *parent)
 	: QMainWindow(parent)
 {
-	config_values = configreader::load();
+    config_values = configReaderWriter::load();
+
+    workspace = new Workspace(config_values.workspace_folder);
 
 	// establish object that will hold video and connect it to the playback thread
 	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors);
@@ -22,7 +24,7 @@ SirveApp::SirveApp(QWidget *parent)
 	// establish object to control playback timer and move to a new thread
 	playback_controller = new Playback(1);
 	playback_controller->moveToThread(&thread_timer);
-	
+
 	// establish copy copy
 	clipboard = QApplication::clipboard();
 	connect(btn_copy_directory, &QPushButton::clicked, this, &SirveApp::copy_osm_directory);
@@ -42,7 +44,7 @@ SirveApp::SirveApp(QWidget *parent)
 	// links chart with frame where it will be contained
 	histogram_abs_layout = new QVBoxLayout();
 	histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
-	frame_histogram_abs->setLayout(histogram_abs_layout);
+    frame_histogram_abs->setLayout(histogram_abs_layout);
 
 	// establish connections to all qwidgets
 	setup_connections();
@@ -53,7 +55,7 @@ SirveApp::SirveApp(QWidget *parent)
 
 	create_menu_actions();
 
-	this->resize(0, 0);
+    this->resize(0, 0);
 }
 
 SirveApp::~SirveApp() {
@@ -150,8 +152,7 @@ void SirveApp::setup_ui() {
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
-	this->show();
-
+    this->show();
 }
 
 QWidget* SirveApp::setup_file_import_tab() {
@@ -501,7 +502,7 @@ QWidget* SirveApp::setup_workspace_tab(){
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
 	cmb_workspace_name = new QComboBox();
-	cmb_workspace_name->addItems(workspace.get_workspace_names());
+    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_load->setStyleSheet("color: black;"
@@ -810,6 +811,8 @@ void SirveApp::setup_plot_frame() {
 
 	tab_plots->addTab(widget_tab_histogram, "Histogram");
 	tab_plots->addTab(widget_plots_tab_color, "Plots");
+
+    //directoryPicker = new DirectoryPicker(this);
 }
 
 void SirveApp::setup_connections() {
@@ -945,11 +948,15 @@ void SirveApp::setup_connections() {
 
 	//---------------------------------------------------------------------------
 	connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::handle_popout_histogram_btn);
+
+    //connect(directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::receiveWorkspaceDirectory);
+
+    connect(&directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::handle_changed_workspace_dir);
 }
 
 void SirveApp::import_tracks()
 {
-	QString base_track_folder = "workspace";
+    QString base_track_folder = config_values.workspace_folder;
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), base_track_folder, ("Track File (*.csv)"));
 
 	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
@@ -1065,7 +1072,7 @@ void SirveApp::handle_btn_finish_create_track()
 
 	if (response == QMessageBox::Yes)
 	{
-		QString base_track_folder = "workspace";
+        QString base_track_folder = config_values.workspace_folder;;
 		QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", base_track_folder, "CSV (*.csv)");
 		if (new_track_file_name.isEmpty())
 		{
@@ -1138,17 +1145,17 @@ void SirveApp::save_workspace()
 			QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
 			return;
 		}
-		workspace.save_state(workspace_name, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+        workspace->save_state(workspace_name, config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
 		cmb_workspace_name->clear();
-		cmb_workspace_name->addItems(workspace.get_workspace_names());
+        cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 		cmb_workspace_name->setCurrentText(workspace_name);
-	}
+    }
 }
 
 void SirveApp::load_workspace()
 {
 	QString current_workspace_name = cmb_workspace_name->currentText();
-	WorkspaceValues workspace_vals = workspace.load_state(current_workspace_name);
+    WorkspaceValues workspace_vals = workspace->load_state(current_workspace_name, config_values.workspace_folder);
 
 	int compare = QString::compare(workspace_vals.image_path, "", Qt::CaseInsensitive);
 	if (compare == 0) {
@@ -1905,6 +1912,11 @@ void SirveApp::set_data_timing_offset()
 	}
 }
 
+void SirveApp::change_workspace_directory()
+{
+    this->directoryPicker.show();
+}
+
 void SirveApp::close_window()
 {
 	close();
@@ -1938,11 +1950,16 @@ void SirveApp::create_menu_actions()
 	action_set_timing_offset->setStatusTip("Set a time offset to apply to collected data");
 	connect(action_set_timing_offset, &QAction::triggered, this, &SirveApp::set_data_timing_offset);
 
+    action_change_workspace_directory = new QAction("Change Workspace Directory");
+    action_change_workspace_directory->setStatusTip("Customize workspace directory so it points to your own folder.");
+    connect(action_change_workspace_directory, &QAction::triggered, this, &SirveApp::change_workspace_directory);
+
 	menu_file = menuBar()->addMenu(tr("&File"));
 	menu_file->addAction(action_close);
 
 	menu_settings = menuBar()->addMenu(tr("&Settings"));
 	menu_settings->addAction(action_set_timing_offset);
+    menu_settings->addAction(action_change_workspace_directory);
 
 
 	// ------------------------- PLOT MENU ACTIONS -------------------------
@@ -2250,7 +2267,7 @@ void SirveApp::ui_replace_bad_pixels()
 
 		QStringList type_options;
 		type_options << tr("All Bad Pixels") << tr("Only Dead Pixels");
-		
+
 		QStringList sensitivity_options;
 		sensitivity_options << tr("Low - 6 sigma") << tr("Medium - 5 sigma") << tr("High - 4 sigma") << tr("Highest - 3 sigma");
 
@@ -2258,7 +2275,7 @@ void SirveApp::ui_replace_bad_pixels()
 		method_options << tr("Median - Faster") << tr("Moving Median - Slower");
 
 		bool ok;
-		
+
 		QString return_only_dead_choice = QInputDialog::getItem(this, "Bad Pixel Method", "Options", type_options, 0, false, &ok);
 			if (!ok)
 				return;
@@ -2293,7 +2310,7 @@ void SirveApp::ui_replace_bad_pixels()
 			if (!ok)
 				return;
 		}
-		
+
 		int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame,  max_frame, 1, &ok);
 		if (!ok)
 			return;
@@ -2321,7 +2338,7 @@ void SirveApp::ui_replace_bad_pixels()
 				return;
 			//processing_state original = video_display->container.copy_current_state();
 			// QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,original.details.frames_16bit.size());
-			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);	
+			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
 			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,test_frames.video_frames_16bit.size());
 			progress_dialog.setWindowTitle("Bad Pixels");
 			progress_dialog.setWindowModality(Qt::ApplicationModal);
@@ -2332,7 +2349,7 @@ void SirveApp::ui_replace_bad_pixels()
 			replace_bad_pixels(dead_pixels);
 		}
 
-	}				
+	}
 }
 
 
@@ -2488,7 +2505,7 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 		int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
 		if (!ok)
 			return;
-		
+
 		int end_frame = start_frame + number_of_frames_for_avg - 1;
 		fixed_noise_suppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame);
 
@@ -2635,6 +2652,18 @@ void SirveApp::handle_cleared_processing_states()
 	lbl_fixed_suppression->setText("No Frames Selected");
 }
 
+void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory)
+{
+    configReaderWriter::saveWorkspaceFolder(workspaceDirectory);
+    config_values = configReaderWriter::load();
+    workspace = new Workspace(config_values.workspace_folder);
+
+    cmb_workspace_name->clear();
+    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
+
+    directoryPicker.close();
+}
+
 void SirveApp::ui_execute_noise_suppression()
 {
 	//-----------------------------------------------------------------------------------------------
@@ -2679,7 +2708,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	// DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
 	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
 	double R = double(availPhysMem)/(double(number_video_frames)*16*640*480);
-	
+
 	if ( R >= 1.5 ){
 		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
@@ -2703,9 +2732,9 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 
 	label_adaptive_noise_suppression_status->setWordWrap(true);
 	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
-	
+
 	label_adaptive_noise_suppression_status->setText(description);
-	
+
 	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
 	noise_suppresions_state.method = Processing_Method::adaptive_noise_suppression;
