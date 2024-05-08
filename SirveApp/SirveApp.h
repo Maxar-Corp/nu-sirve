@@ -58,6 +58,7 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <QStringList>
+#include "directory_picker.h"
 
 class SirveApp : public QMainWindow
 {
@@ -70,7 +71,7 @@ public:
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
-	Workspace workspace;
+    Workspace *workspace;
 
 	QWidget *main_widget;
 	QGridLayout *engineering_plot_layout;
@@ -140,6 +141,8 @@ public:
 	void display_original_epoch(QString new_epoch_string);
 	QString create_epoch_string(std::vector<double> new_epoch);
 
+    DirectoryPicker directoryPicker;
+
 	signals:
 		void change_banner(QString banner_text);
 		void change_banner_color(QString color);
@@ -183,6 +186,7 @@ public:
 		void show_calibration_dialog();
 
 		void set_data_timing_offset();
+        void change_workspace_directory();
 		void close_window();
 
 		void save_plot();
@@ -207,6 +211,8 @@ public:
 		void popout_engineering_closed();
 
 		void handle_frame_change();
+
+        void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory);
 
 private:
 	ColorMap video_colors;
@@ -247,7 +253,7 @@ private:
 	void resize_ui();
 
 	QMenu *menu_file, *menu_settings;
-	QAction *action_close, *action_set_timing_offset;
+    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory;
 
 	int get_integer_from_txt_box(QString input);
 	int get_color_index(QVector<QString> colors, QColor input_color);
