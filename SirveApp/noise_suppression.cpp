@@ -14,7 +14,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 
 	ABIR_Data_Result abir_result;
 	int compare = QString::compare(path_video_file, image_path, Qt::CaseInsensitive);
-		if (compare!=0){ 
+	if (compare!=0){ 
 			QByteArray array = image_path.toLocal8Bit();
 			char* buffer = array.data();
 			abir_result = abir_data.Get_Frames(buffer, start_frame, end_frame, version, false);
