@@ -185,7 +185,7 @@ void VideoDisplay::reclaim_label()
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
-void VideoDisplay::receive_video_data(int x, int y, int num_frames)
+void VideoDisplay::receive_video_data(int x, int y)
 {
 	image_x = x;
 	image_y = y;
@@ -564,8 +564,8 @@ void VideoDisplay::update_display_frame()
 			int pixel_x = pixel_index % image_x;
 			int pixel_y = pixel_index / image_x;
 
-			QRgb red = QColorConstants::Yellow.rgb();
-			frame.setPixel(pixel_x, pixel_y, red);
+			QRgb bp_color = QColorConstants::Red.rgb();
+			frame.setPixel(pixel_x, pixel_y, bp_color);
 		}
 	}
 

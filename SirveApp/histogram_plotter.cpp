@@ -92,7 +92,7 @@ void  HistogramLine_Plot::setup_histogram_plot(QChart *input_chart) {
 	x_axis->setMax(1);
 	x_axis->setMinorGridLineVisible(true);
 	x_axis->setLabelsVisible(true);
-	x_axis->setTitleText("Luminance");
+	x_axis->setTitleText("Normalized Counts");
 
 	if (input_chart == rel_chart)
 		input_chart->setTitle(QString("Relative Histogram"));
@@ -111,7 +111,7 @@ void HistogramLine_Plot::remove_histogram_plots()
 
 arma::vec HistogramLine_Plot::create_histogram_midpoints()
 {
-	int number_of_bins = 100;
+	int number_of_bins = 255;
 	double bin_size = 1.0 / number_of_bins;
 
 	arma::vec bin_midpoints = arma::regspace(0, bin_size, 1);

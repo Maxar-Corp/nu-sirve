@@ -17,10 +17,15 @@ bool folderExists(const std::string& currentDir, const std::string& folderName) 
 
 std::string findPath(const std::string& filePath,  const std::string& folderName) {
 
-    std::string parentPath = getParentFolderPath(filePath);
-    if (!folderExists(parentPath, folderName))
-        parentPath = getParentFolderPath(parentPath);
-    return parentPath;
+    if (folderExists(filePath, folderName))
+        return filePath;
+    else {
+        std::string parentPath = getParentFolderPath(filePath);
+        if (!folderExists(parentPath, folderName))
+            parentPath = getParentFolderPath(parentPath);
+
+        return parentPath;
+    }
 }
 
 QJsonObject getDataObject() {
@@ -82,8 +87,14 @@ void saveWorkspaceFolder(QString workspace_folder) {
     data_object["workspace folder"] = workspace_folder;
 
     QString currentPath = QDir::currentPath();
+
+    qDebug() << "Current Path: " << currentPath;
+
     std::string baseFolder = findPath(currentPath.toStdString(), CONFIG_FOLDER);
+
     QString filePath = QString::fromStdString(baseFolder) + "/" + CONFIG_FOLDER + "/" + QString(CONFIG_FILE);
+
+    qDebug() << "File Path: " << filePath;
 
     writeJsonObjectToFile(data_object, filePath);
 }
