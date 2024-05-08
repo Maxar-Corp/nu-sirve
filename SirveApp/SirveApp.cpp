@@ -145,6 +145,8 @@ void SirveApp::setup_ui() {
 	btn_import_tracks->setEnabled(false);
 	btn_create_track->setEnabled(false);
 	chk_auto_lift_gain->setChecked(true);
+	btn_reset_color_correction->setEnabled(false);
+	grpbox_auto_lift_gain->setEnabled(true);
 	// ------------------------------------------------------------------------
 
 	this->setCentralWidget(frame_main);
@@ -162,8 +164,18 @@ QWidget* SirveApp::setup_file_import_tab() {
 
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load Image File");
+	btn_load_osm->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,150,0,200);"
+								"font-weight: bold;"
+                        		);
 	btn_copy_directory = new QPushButton("Copy File Path");
+	btn_copy_directory->setStyleSheet("color: black;"
+								"font-weight: bold;"
+                        		);
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
+	btn_calibration_dialog->setStyleSheet("color: black;"
+								"font-weight: bold;"
+                        		);
 
 	//btn_load_osm->setMinimumWidth(30);
 	//btn_copy_directory->setMinimumWidth(30);
@@ -188,6 +200,10 @@ QWidget* SirveApp::setup_file_import_tab() {
 	txt_end_frame = new QLineEdit();
 	txt_end_frame->setAlignment(Qt::AlignHCenter);
 	btn_get_frames = new QPushButton(" Load Frames");
+	btn_get_frames->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,150,0,200);"
+								"font-weight: bold;"
+                        		);
 
 	QGridLayout* grid_tab_import_frames = new QGridLayout();
 	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
@@ -214,6 +230,9 @@ QWidget* SirveApp::setup_file_import_tab() {
 
 	lbl_current_epoch = new QLabel("Applied Epoch: ");
 	btn_apply_epoch = new QPushButton("Apply Epoch");
+	btn_apply_epoch->setStyleSheet("color: black;"
+								"font-weight: bold;"
+                        		);
 	//btn_apply_epoch->setMinimumWidth(30);
 
 	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
@@ -277,6 +296,9 @@ QWidget* SirveApp::setup_color_correction_tab()
 	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain", widget_tab_color);
 	hlayout_additional_color_settings->addWidget(chk_auto_lift_gain);
 	btn_reset_color_correction = new QPushButton("Reset Set Points", widget_tab_color);
+	btn_reset_color_correction->setStyleSheet("color: black;"
+								"font-weight: bold;"
+                        		);
 	hlayout_additional_color_settings->addWidget(btn_reset_color_correction);
 
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
@@ -316,8 +338,13 @@ QWidget* SirveApp::setup_color_correction_tab()
 	chk_show_time = new QCheckBox("Show Zulu Time");
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
+	btn_change_banner_text->setStyleSheet("color: black;"
+								"font-weight: bold;"
+                        		);
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
-
+	btn_add_annotations->setStyleSheet("color: black;"
+								"font-weight: bold;"
+                        		);
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
@@ -388,6 +415,10 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 0, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
+	btn_bad_pixel_identification->setStyleSheet("color: black;"
+                        		"background-color: rgb(255,140,0,200);"
+								"font-weight: bold;"
+                        		);
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 3, 1, 1, 1);
 
@@ -400,14 +431,18 @@ QWidget* SirveApp::setup_filter_tab() {
 	QLabel* label_nuc = new QLabel("Fixed Noise Suppression");
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 
-	btn_create_nuc = new QPushButton("Create Filter");
+	btn_FNS = new QPushButton("Fixed Noise Suppression");
+	btn_FNS->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,150,0,200);"
+								"font-weight: bold;"
+                        		);
 
 	//QWidget* widget_tab_processing_nuc = new QWidget();
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
 
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
 	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 1, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(btn_create_nuc, 2, 1);
+	grid_tab_processing_nuc->addWidget(btn_FNS, 2, 1);
 	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
@@ -417,22 +452,29 @@ QWidget* SirveApp::setup_filter_tab() {
 	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression");
 	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 
-	btn_bgs = new QPushButton("Create Filter");
-
+	btn_ANS = new QPushButton("Adaptive Noise Suppression");
+	btn_ANS->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,150,0,200);"
+								"font-weight: bold;"
+                        		);
 	//QWidget* widget_tab_processing_bgs = new QWidget();
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 1, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(btn_bgs, 2, 1);
+	grid_tab_processing_bgs->addWidget(btn_ANS, 2, 1);
 	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
 
 	// ------------------------------------------------------------------------
-	QLabel* label_deinterlace = new QLabel("De-Interlace Methods");
+	QLabel* label_deinterlace = new QLabel("Deinterlace Methods");
 	cmb_deinterlace_options = new QComboBox();
-	btn_deinterlace = new QPushButton("Create Filter");
+	btn_deinterlace = new QPushButton("Deinterlace");
+	btn_deinterlace->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,115,250,200);"
+								"font-weight: bold;"
+                        		);
 
 	cmb_deinterlace_options->addItem("Max Absolute Value");
 	cmb_deinterlace_options->addItem("Centroid");
@@ -462,10 +504,23 @@ QWidget* SirveApp::setup_workspace_tab(){
 	cmb_workspace_name->addItems(workspace.get_workspace_names());
 
 	btn_workspace_load = new QPushButton("Load Workspace");
+	btn_workspace_load->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,150,0,200);"
+								"font-weight: bold;"
+                        		);
+	
 	btn_workspace_save = new QPushButton("Save Workspace");
+	btn_workspace_save->setStyleSheet("color: black;"
+                        		"background-color: rgb(255,140,0,255);"
+								"font-weight: bold;"
+                        		);
 
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
+	btn_undo_step->setStyleSheet("color: black;"
+                        		"background-color: rgb(252,207,3,255);"
+								"font-weight: bold;"
+                        		);
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
@@ -474,10 +529,22 @@ QWidget* SirveApp::setup_workspace_tab(){
 	large_font.setPointSize(16);
 	lbl_create_track_message->setFont(large_font);
 	btn_create_track = new QPushButton("Create Track");
+	btn_create_track->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,115,250,200);"
+								"font-weight: bold;"
+                        		);
 	btn_finish_create_track = new QPushButton("Finish");
+	btn_finish_create_track->setStyleSheet("color: black;"
+                        		"background-color: rgb(170,0,0,200);"
+								"font-weight: bold;"
+                        		);
 	btn_finish_create_track->setHidden(true);
-	btn_finish_create_track->setFont(large_font);
+	// btn_finish_create_track->setFont(large_font);
 	btn_import_tracks = new QPushButton("Import Tracks");
+	btn_import_tracks->setStyleSheet("color: black;"
+                        		"background-color: rgb(0,115,250,200);"
+								"font-weight: bold;"
+                        		);
 
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
@@ -834,9 +901,9 @@ void SirveApp::setup_connections() {
 
 	connect(chk_highlight_bad_pixels, &QPushButton::clicked, video_display, &VideoDisplay::highlight_bad_pixels);
 
-	connect(btn_create_nuc, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
+	connect(btn_FNS, &QPushButton::clicked, this, &SirveApp::ui_execute_non_uniformity_correction_selection_option);
 
-	connect(btn_bgs, &QPushButton::clicked, this, &SirveApp::ui_execute_noise_suppression);
+	connect(btn_ANS, &QPushButton::clicked, this, &SirveApp::ui_execute_noise_suppression);
 
 	connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ui_execute_deinterlace);
 
@@ -1130,7 +1197,7 @@ void SirveApp::load_workspace()
 
 			case Processing_Method::fixed_noise_suppression:
 
-				fixed_noise_suppression(abp_file_metadata.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
+				fixed_noise_suppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
 			default:
@@ -1150,13 +1217,21 @@ void SirveApp::ui_choose_abp_file()
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
 	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
 	if (compare == 0) {
-		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No file was selected.");
+		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No file was selected.");		
 		return;
 	}
 
 	bool validated = validate_abp_files(file_selection);
 	if (validated) {
 		load_osm_data();
+		txt_start_frame->setStyleSheet("color: black;"
+                        		"background-color: rgb(250,170,0,200);"
+								"font-weight: bold;"
+                        		);
+		txt_end_frame->setStyleSheet("color: black;"
+                        		"background-color: rgb(250,170,0,200);"
+								"font-weight: bold;"
+                        		);				
 	}
 };
 
@@ -1172,6 +1247,20 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);
 			btn_calibration_dialog->setEnabled(true);
+			txt_start_frame->setStyleSheet("color: black;"
+                        		"background-color: rgb(250,170,0,200);"
+								"font-weight: bold;"
+                        		);
+			txt_end_frame->setStyleSheet("color: black;"
+                        		"background-color: rgb(250,170,0,200);"
+								"font-weight: bold;"
+                        		);		
+		}
+		else{
+			txt_start_frame->setEnabled(false);
+			txt_end_frame->setEnabled(false);
+			btn_get_frames->setEnabled(false);
+			btn_calibration_dialog->setEnabled(false);	
 		}
 
 		QtHelpers::LaunchMessageBox(QString("Issue Finding File"), possible_abp_file_metadata.error_msg);
@@ -1493,6 +1582,7 @@ void SirveApp::open_popout_video_display()
 	popout_video->acquire(video_display->label);
 	connect(popout_video, &QDialog::finished, this, &SirveApp::popout_video_closed);
 	popout_video->open();
+
 }
 
 void SirveApp::popout_video_closed()
@@ -2455,8 +2545,6 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 	description += "From frame " + QString::number(start_frame) + " to " + QString::number(end_frame);
 
 	lbl_fixed_suppression->setText(description);
-
-	chk_auto_lift_gain->setChecked(true);
 }
 
 void SirveApp::ui_execute_deinterlace()
@@ -2625,8 +2713,6 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	noise_suppresions_state.ANS_num_frames = number_of_frames;
 	noise_suppresions_state.ANS_hide_shadow = hide_shadow_bool;
 	video_display->container.add_processing_state(noise_suppresions_state);
-
-	chk_auto_lift_gain->setChecked(true);
 }
 
 void SirveApp::toggle_video_playback_options(bool input)
