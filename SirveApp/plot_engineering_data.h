@@ -51,7 +51,7 @@ class QtPlotting : public QWidget
 		QLogValueAxis *axis_ylog;
 		QString x_title, y_title, title;
 
-		bool yaxis_is_log, yaxis_is_scientific;
+        bool yaxis_is_log, yaxis_is_scientific, xaxis_is_scientific;
 
 		void start_new_chart();
 		void add_series_with_color(std::vector<double> x, std::vector<double> y, QColor color);
@@ -96,6 +96,7 @@ class Engineering_Plots : public QtPlotting
 
 		void toggle_yaxis_log(bool input);
 		void toggle_yaxis_scientific(bool input);
+        void toggle_xaxis_scientific(bool input);
 
 		void set_xaxis_units(x_plot_variables unit_choice);
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
