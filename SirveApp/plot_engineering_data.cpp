@@ -450,6 +450,11 @@ void Engineering_Plots::toggle_yaxis_scientific(bool input)
 	yaxis_is_scientific = input;
 }
 
+void Engineering_Plots::toggle_xaxis_scientific(bool input)
+{
+    xaxis_is_scientific = input;
+}
+
 void Engineering_Plots::plot_current_step(int counter)
 {
 	if (plot_current_marker)
@@ -611,6 +616,16 @@ void QtPlotting::start_new_chart()
 		axis_y->setLabelFormat("%i");
 		axis_ylog->setLabelFormat("%i");
 	}
+
+    switch (cmb_plot_xaxis->currentIndex())
+    {
+        case frames:
+            axis_x->setLabelFormat("%.3d");
+        default:
+            axis_x->setLabelFormat("%.3f");
+    }
+
+    axis_x->setLabelFormat("%.3f");
 
 	chart->addAxis(axis_x, Qt::AlignBottom);
 
