@@ -617,15 +617,14 @@ void QtPlotting::start_new_chart()
 		axis_ylog->setLabelFormat("%i");
 	}
 
-    switch (cmb_plot_xaxis->currentIndex())
+    if (xaxis_is_scientific)
     {
-        case frames:
-            axis_x->setLabelFormat("%.3d");
-        default:
-            axis_x->setLabelFormat("%.3f");
+        axis_x->setLabelFormat("%.3f");
     }
-
-    axis_x->setLabelFormat("%.3f");
+    else
+    {
+        axis_x->setLabelFormat("%.3d");
+    }
 
 	chart->addAxis(axis_x, Qt::AlignBottom);
 
