@@ -2149,6 +2149,7 @@ void SirveApp::plot_change()
 		bool log_is_checked = rad_log->isChecked();
 		data_plots->toggle_yaxis_log(log_is_checked);
 		data_plots->toggle_yaxis_scientific(scientific_is_checked);
+        data_plots->toggle_xaxis_scientific(cmb_plot_xaxis->currentIndex() != 0); // Frames should be integers.
 
 		switch (x_index)
 		{
