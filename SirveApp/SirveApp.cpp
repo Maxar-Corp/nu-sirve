@@ -166,7 +166,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load Image File");
 	btn_load_osm->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0,200);"
+                        		"background-color: rgb(0,150,0);"
 								"font-weight: bold;"
                         		);
 	btn_copy_directory = new QPushButton("Copy File Path");
@@ -202,7 +202,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 	txt_end_frame->setAlignment(Qt::AlignHCenter);
 	btn_get_frames = new QPushButton(" Load Frames");
 	btn_get_frames->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0,200);"
+                        		"background-color: rgb(0,150,0);"
 								"font-weight: bold;"
                         		);
 
@@ -417,7 +417,7 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
 	btn_bad_pixel_identification->setStyleSheet("color: black;"
-                        		"background-color: rgb(255,140,0,200);"
+                        		"background-color: rgb(255,140,0);"
 								"font-weight: bold;"
                         		);
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
@@ -434,7 +434,7 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
 	btn_FNS->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0,200);"
+                        		"background-color: rgb(0,150,0);"
 								"font-weight: bold;"
                         		);
 
@@ -455,7 +455,7 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
 	btn_ANS->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0,200);"
+                        		"background-color: rgb(0,150,0);"
 								"font-weight: bold;"
                         		);
 	//QWidget* widget_tab_processing_bgs = new QWidget();
@@ -473,7 +473,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	cmb_deinterlace_options = new QComboBox();
 	btn_deinterlace = new QPushButton("Deinterlace");
 	btn_deinterlace->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250,200);"
+                        		"background-color: rgb(0,115,250);"
 								"font-weight: bold;"
                         		);
 
@@ -506,20 +506,20 @@ QWidget* SirveApp::setup_workspace_tab(){
 
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_load->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0,200);"
+                        		"background-color: rgb(0,150,0);"
 								"font-weight: bold;"
                         		);
 	
 	btn_workspace_save = new QPushButton("Save Workspace");
 	btn_workspace_save->setStyleSheet("color: black;"
-                        		"background-color: rgb(255,140,0,255);"
+                        		"background-color: rgb(255,140,0);"
 								"font-weight: bold;"
                         		);
 
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
 	btn_undo_step->setStyleSheet("color: black;"
-                        		"background-color: rgb(252,207,3,255);"
+                        		"background-color: rgb(252,207,3);"
 								"font-weight: bold;"
                         		);
 
@@ -531,19 +531,19 @@ QWidget* SirveApp::setup_workspace_tab(){
 	lbl_create_track_message->setFont(large_font);
 	btn_create_track = new QPushButton("Create Track");
 	btn_create_track->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250,200);"
+                        		"background-color: rgb(0,115,250);"
 								"font-weight: bold;"
                         		);
 	btn_finish_create_track = new QPushButton("Finish");
 	btn_finish_create_track->setStyleSheet("color: black;"
-                        		"background-color: rgb(170,0,0,200);"
+                        		"background-color: rgb(170,0,0);"
 								"font-weight: bold;"
                         		);
 	btn_finish_create_track->setHidden(true);
 	// btn_finish_create_track->setFont(large_font);
 	btn_import_tracks = new QPushButton("Import Tracks");
 	btn_import_tracks->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250,200);"
+                        		"background-color: rgb(0,115,250);"
 								"font-weight: bold;"
                         		);
 
@@ -1232,11 +1232,11 @@ void SirveApp::ui_choose_abp_file()
 	if (validated) {
 		load_osm_data();
 		txt_start_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0,200);"
+                        		"background-color: rgb(250,170,0);"
 								"font-weight: bold;"
                         		);
 		txt_end_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0,200);"
+                        		"background-color: rgb(250,170,0);"
 								"font-weight: bold;"
                         		);				
 	}
@@ -1255,11 +1255,11 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 			btn_get_frames->setEnabled(true);
 			btn_calibration_dialog->setEnabled(true);
 			txt_start_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0,200);"
+                        		"background-color: rgb(250,170,0);"
 								"font-weight: bold;"
                         		);
 			txt_end_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0,200);"
+                        		"background-color: rgb(250,170,0);"
 								"font-weight: bold;"
                         		);		
 		}
@@ -2915,19 +2915,12 @@ void SirveApp::update_global_frame_vector()
 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
 
-	//Normalize the image to values between 0 - 1
-	// int max_value = std::pow(2, config_values.max_used_bits) - 1;
-	// int maxv = image_vector.max();
-	image_vector = image_vector - arma::mean(image_vector);
-	image_vector = image_vector - image_vector.min();
-	image_vector = image_vector/(arma::mean(image_vector) + 4.*arma::stddev(image_vector));
-
+	image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
 
 	if (chk_auto_lift_gain->isChecked())
 	{
 		double lift_sigma = txt_lift_sigma->text().toDouble();
 		double gain_sigma = txt_gain_sigma->text().toDouble();
-
 		double sigma = arma::stddev(image_vector);
 		double meanVal = arma::mean(image_vector);
 		double lift = meanVal - (lift_sigma * sigma);
@@ -2948,8 +2941,8 @@ void SirveApp::update_global_frame_vector()
 
 	histogram_plot->update_histogram_rel_plot(image_vector);
 
-	image_vector = image_vector * 255;
-	//arma::vec out_frame_flat = arma::vectorise(image_vector);
+	image_vector = image_vector/image_vector.max() * 255;
+
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
 	std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
 
