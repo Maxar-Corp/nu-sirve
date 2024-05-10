@@ -1195,7 +1195,7 @@ void SirveApp::load_workspace()
 		switch (current_state.method)
 		{
 			case Processing_Method::adaptive_noise_suppression:
-				create_adaptive_noise_correction(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str);
+				adaptive_noise_suppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str);
 				break;
 
 			case Processing_Method::deinterlace:
@@ -2544,6 +2544,14 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 	FixedNoiseSuppression FNS;
 	noise_suppresions_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
+	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_frames);
+	// progress_dialog2.setWindowTitle("Filter");
+	// progress_dialog2.setWindowModality(Qt::ApplicationModal);
+	// progress_dialog2.setMinimumDuration(0);
+	// progress_dialog2.setValue(1);
+	// // noise_suppresions_state.details.frames_16bit = Deinterlacing::cross_correlation(original.details, progress_dialog);
+	// noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(original.details, 5, progress_dialog2);
+
 
 	noise_suppresions_state.method = Processing_Method::fixed_noise_suppression;
 	noise_suppresions_state.FNS_file_path = file_path;
@@ -2688,10 +2696,10 @@ void SirveApp::ui_execute_noise_suppression()
 	if (!ok)
 		return;
 
-	create_adaptive_noise_correction(relative_start_frame, number_of_frames, hide_shadow_choice);
+	adaptive_noise_suppression(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
-void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
+void SirveApp::adaptive_noise_suppression(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
 {
 	//Pause the video if it's running
 	playback_controller->stop_timer();
@@ -2725,6 +2733,13 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 		progress_dialog.setValue(1);
 		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
+
+	QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
+	progress_dialog2.setWindowTitle("Filter");
+	progress_dialog2.setWindowModality(Qt::ApplicationModal);
+	progress_dialog2.setMinimumDuration(0);
+	progress_dialog2.setValue(1);
+	noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(noise_suppresions_state.details, 5, progress_dialog2);
 
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)
