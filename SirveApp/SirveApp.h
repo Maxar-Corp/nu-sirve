@@ -33,6 +33,7 @@
 #include "data_export.h"
 #include "color_correction.h"
 #include "windows.h"
+#include "image_processing.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -265,8 +266,7 @@ private:
 	void ui_replace_bad_pixels();
 	void replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace);
 
-	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
-	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
+	void adaptive_noise_suppression(int relative_start_frame, int num_frames, QString hide_shadow_choice);
 	void create_deinterlace(deinterlace_type deinterlace_method_type);
 	void fixed_noise_suppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
