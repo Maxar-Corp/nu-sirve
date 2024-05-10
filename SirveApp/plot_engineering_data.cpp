@@ -450,6 +450,11 @@ void Engineering_Plots::toggle_yaxis_scientific(bool input)
 	yaxis_is_scientific = input;
 }
 
+void Engineering_Plots::toggle_xaxis_fixed_pt(bool input)
+{
+    xaxis_is_fixed_pt = input;
+}
+
 void Engineering_Plots::plot_current_step(int counter)
 {
 	if (plot_current_marker)
@@ -603,14 +608,23 @@ void QtPlotting::start_new_chart()
 
 	if (yaxis_is_scientific)
 	{
-		axis_y->setLabelFormat("%.4e");
-		axis_ylog->setLabelFormat("%.4e");
+        axis_y->setLabelFormat("%.3e");
+        axis_ylog->setLabelFormat("%.3e");
 	}
 	else
 	{
-		axis_y->setLabelFormat("%i");
-		axis_ylog->setLabelFormat("%i");
+        axis_y->setLabelFormat("%.3f");
+        axis_ylog->setLabelFormat("%.3f");
 	}
+
+    if (xaxis_is_fixed_pt)
+    {
+        axis_x->setLabelFormat("%.3f");
+    }
+    else
+    {
+        axis_x->setLabelFormat("%d");
+    }
 
 	chart->addAxis(axis_x, Qt::AlignBottom);
 

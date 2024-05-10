@@ -2148,7 +2148,12 @@ void SirveApp::plot_change()
 		bool scientific_is_checked = rad_scientific->isChecked();
 		bool log_is_checked = rad_log->isChecked();
 		data_plots->toggle_yaxis_log(log_is_checked);
-		data_plots->toggle_yaxis_scientific(scientific_is_checked);
+
+        // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):
+        data_plots->toggle_yaxis_scientific(scientific_is_checked && cmb_plot_yaxis->currentIndex() == 0 );
+
+        // For y-axis, use fixed-point precision for 'seconds past' options only ('frame' option is first combo box option):
+        data_plots->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
 
 		switch (x_index)
 		{
