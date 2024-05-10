@@ -608,8 +608,8 @@ void QtPlotting::start_new_chart()
 
 	if (yaxis_is_scientific)
 	{
-		axis_y->setLabelFormat("%.4e");
-		axis_ylog->setLabelFormat("%.4e");
+        axis_y->setLabelFormat("%.3f");
+        axis_ylog->setLabelFormat("%.3f");
 	}
 	else
 	{
