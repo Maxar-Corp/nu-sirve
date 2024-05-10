@@ -33,6 +33,7 @@ HEADERS += abir_reader.h \
             engineering_data.h \
             enhanced_label.h \
             histogram_plotter.h \
+            image_processing.h \
             location_input.h \
             new_location.h \
             noise_suppression.h \
@@ -82,6 +83,7 @@ SOURCES += abir_reader.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
             histogram_plotter.cpp \
+            image_processing.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
