@@ -2583,7 +2583,7 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 {
 	processing_state original = video_display->container.copy_current_state();
 
-	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
+	//Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
 
 	processing_state deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
@@ -2595,19 +2595,20 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
-	progress.setWindowTitle(QString("De-interlace Frames"));
+	progress.setWindowTitle(QString("Deinterlacing Frames"));
 	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Creating de-interlaced frames..."));
+	progress.setLabelText(QString("Cross correlation..."));
 	progress.setMinimumWidth(300);
 
-	for (int i = 0; i < number_frames; i++)
-	{
-		progress.setValue(i);
+	deinterlace_state.details.frames_16bit =  Deinterlacing::cross_correlation(original.details, progress);
+	// for (int i = 0; i < number_frames; i++)
+	// {
+	// 	progress.setValue(i);
 
-		deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
-		if (progress.wasCanceled())
-			break;
-	}
+	// 	deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
+	// 	if (progress.wasCanceled())
+	// 		break;
+	// }
 
 	if (progress.wasCanceled())
 	{
@@ -2734,12 +2735,12 @@ void SirveApp::adaptive_noise_suppression(int relative_start_frame, int number_o
 		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 
-	QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
-	progress_dialog2.setWindowTitle("Filter");
-	progress_dialog2.setWindowModality(Qt::ApplicationModal);
-	progress_dialog2.setMinimumDuration(0);
-	progress_dialog2.setValue(1);
-	noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(noise_suppresions_state.details, 5, progress_dialog2);
+	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
+	// progress_dialog2.setWindowTitle("Filter");
+	// progress_dialog2.setWindowModality(Qt::ApplicationModal);
+	// progress_dialog2.setMinimumDuration(0);
+	// progress_dialog2.setValue(1);
+	// noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(noise_suppresions_state.details, 5, progress_dialog2);
 
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)

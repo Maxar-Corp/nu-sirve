@@ -49,34 +49,46 @@ std::vector<std::vector<uint16_t>> Deinterlacing::cross_correlation(video_detail
     std::vector<std::vector<uint16_t>> frames_out;
 
     int num_video_frames = original.frames_16bit.size();
-    int nRows = original.y_pixels;
+    int nRows = original.y_pixels, nRows2 = nRows/2;
     int nCols = original.x_pixels;
 
     arma::mat output(nRows, nCols);
-    arma::mat frame(nCols, nRows);
-   
-   	arma::uvec odd_rows = arma::regspace<arma::uvec>(1, 2, nCols);
-	arma::uvec even_rows = arma::regspace<arma::uvec>(2, 2, nCols);
-
-	// Set index values to start counting from zero
-	even_rows = even_rows - 1;
-	odd_rows = odd_rows - 1;
+    arma::mat frame(nRows, nCols);
+   	arma::uvec odd_rows = arma::regspace<arma::uvec>(0, 2, nRows - 1);
+	arma::uvec even_rows = arma::regspace<arma::uvec>(1, 2, nRows);
 
 	//Setup odd / even video frames
-    arma::mat odd_frame(even_rows.size(),nRows);
-    arma::mat even_frame(odd_rows.size(),nRows);
-    arma::mat cc_mat(even_rows.size(),nRows);
+    arma::mat odd_frame(nRows2,nCols);
+    arma::mat even_frame(nRows2,nCols);
+    arma::mat cc_mat(nRows2,nCols);
+    arma::uword i_max;
+    arma::uvec peak_index;
+    int yOffset, xOffset;
+    progress.setWindowTitle("I'm working");
     for (int framei = 0; framei < num_video_frames; framei++){
         progress.setValue(framei);
-        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows);
+        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
         odd_frame = frame.rows(odd_rows);
 	    even_frame = frame.rows(even_rows);    
         cc_mat = Deinterlacing::xcorr2(even_frame,odd_frame);
-        arma::uword i_max = arma::abs(cc_mat).index_max();
-		arma::uvec peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
-        output = arma::shift(frame,peak_index(0) - nCols,0);
-        output = arma::shift(output,peak_index(1) - nRows,1);
-        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.as_row()));
+        i_max = arma::abs(cc_mat).index_max();
+		peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
+        yOffset = peak_index(0) - nRows2 + 1;
+        xOffset = peak_index(1) - nCols + 1;
+        if(yOffset % nRows2 == 0){
+            yOffset = 0;
+        }
+        if(xOffset % nCols == 0){
+            xOffset = 0;
+        }
+        output.rows(odd_rows) = odd_frame;
+        output.rows(even_rows) = even_frame;
+        if(abs(xOffset) >= 2 || abs(yOffset >= 2)){
+            output.rows(even_rows) = arma::shift(arma::shift(even_frame,-yOffset,0),-xOffset,1);
+        }
+     
+        // output.rows(even_rows) = even_frame;
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
     }
 
     // arma::mat test(frames_out[0].size(), frames_out.size());
@@ -91,10 +103,17 @@ std::vector<std::vector<uint16_t>> Deinterlacing::cross_correlation(video_detail
 
  arma::mat Deinterlacing::xcorr2(arma::mat inFrame1, arma::mat inFrame2)
 {
-	inFrame1 = (inFrame1 - arma::mean(inFrame1.as_col()))/arma::stddev(inFrame1.as_col());
-	inFrame2 = (inFrame2 - arma::mean(inFrame2.as_col()))/arma::stddev(inFrame2.as_col());
+	// inFrame1 = (inFrame1 - arma::mean(inFrame1.as_col()))/arma::stddev(inFrame1.as_col());
+	// inFrame2 = (inFrame2 - arma::mean(inFrame2.as_col()))/arma::stddev(inFrame2.as_col());
+    inFrame1 = inFrame1 - arma::mean(inFrame1.as_col());
+    inFrame1.elem( arma::find(inFrame1 < (3.0*arma::stddev(inFrame1.as_col()))) ).zeros();
+	inFrame2 = inFrame2 - arma::mean(inFrame2.as_col());
+    inFrame2.elem( arma::find(inFrame2 < (3.0*arma::stddev(inFrame2.as_col()))) ).zeros();
 
-	arma::mat cc_mat = arma::conv2(inFrame1,arma::flipud(arma::fliplr(inFrame2)),"same");
+	// arma::mat cc_mat = arma::conv2(inFrame1,arma::flipud(arma::fliplr(inFrame2)),"same");
+
+    arma::cx_mat F = arma::fft2( inFrame1 ) % arma::fft2( arma::flipud( arma::fliplr( inFrame2 ) ) );
+    arma::mat cc_mat = arma::real(arma::ifft2(F));
 	
 	return cc_mat;
 }
