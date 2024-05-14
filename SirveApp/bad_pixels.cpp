@@ -132,7 +132,7 @@ std::vector<unsigned int> BadPixels::identify_dead_pixels_median(double N, std::
     }
     
     arma::vec std_frame = arma::stddev(frame_data,0,1);
-    arma::uvec index_dead = arma::find(std_frame == 0);
+    arma::uvec index_dead = arma::find(std_frame <= .75*arma::mean(std_frame));
     if (!only_dead){
         arma::vec med_frame = arma::median(frame_data,1);
         arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
