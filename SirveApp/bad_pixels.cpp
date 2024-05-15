@@ -131,8 +131,32 @@ std::vector<unsigned int> BadPixels::identify_dead_pixels_median(double N, std::
         frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
     }
     
-    arma::vec std_frame = arma::stddev(frame_data,0,1);
-    arma::uvec index_dead = arma::find(std_frame <= .75*arma::mean(std_frame));
+    arma::vec var_frame = arma::var(frame_data,0,1);
+    // arma::uvec index_dead = arma::find(var_frame <= .01*abs(frame_data.max() - frame_data.min()));
+    double jj = 0;
+    arma::uvec index_dead = arma::find(var_frame <= arma::mean(var_frame) - jj*arma::stddev(var_frame));
+    while (index_dead.size() > 0.0005 * num_pixels){
+        jj += .1;
+        index_dead = arma::find(var_frame <= arma::mean(var_frame) - jj*arma::stddev(var_frame));
+    }
+    arma::vec mean_frame = arma::mean(frame_data,1);
+    double mean_mean_frame = arma::mean(mean_frame);
+    double std_mean_frame = arma::stddev(mean_frame);
+
+    double kk = 1;
+    arma::uvec index_bad_scale = arma::find(arma::abs(mean_frame - mean_mean_frame) > kk*std_mean_frame);
+    while (index_bad_scale.size() > 0.0005 * num_pixels){
+        kk += .1;
+        index_bad_scale = arma::find(arma::abs(mean_frame - mean_mean_frame) > kk*std_mean_frame);
+    }
+    index_dead = arma::unique(arma::join_vert(index_bad_scale,index_dead));
+
+    // double kk = 1;
+    // arma::uvec index_dead = arma::find(std_frame <= arma::mean(std_frame) - kk*arma::stddev(std_frame));
+    // while (index_dead.size() > 150){
+    //     index_dead = arma::find(std_frame <= arma::mean(std_frame) - kk*arma::stddev(std_frame));
+    //     kk += 1;
+    // }
     if (!only_dead){
         arma::vec med_frame = arma::median(frame_data,1);
         arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
