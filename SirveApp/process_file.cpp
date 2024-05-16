@@ -1,14 +1,14 @@
 #include "process_file.h"
 
-Process_File::Process_File()
+ProcessFile::ProcessFile()
 {
 }
 
-Process_File::~Process_File()
+ProcessFile::~ProcessFile()
 {
 }
 
-AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
+AbpFileMetadata ProcessFile::locate_abp_files(QString candidate_image_path)
 {
 	/*
 	The returned struct will have error_msg populated if there was an error
@@ -58,7 +58,7 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	return abp_data;
 }
 
-bool Process_File::check_path(QString path)
+bool ProcessFile::check_path(QString path)
 {
 	QFileInfo check_file(path);
 	bool file_isFile = check_file.isFile();
@@ -67,7 +67,7 @@ bool Process_File::check_path(QString path)
 	return file_exists && file_isFile;
 }
 
-ABIR_Data_Result Process_File::load_image_file(QString image_path, int first_frame, int last_frame, double version)
+ABIR_Data_Result ProcessFile::load_image_file(QString image_path, int first_frame, int last_frame, double version)
 {
 	ABIR_Data_Result data_result;
 	data_result.had_error = true;

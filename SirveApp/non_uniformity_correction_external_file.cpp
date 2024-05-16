@@ -88,8 +88,8 @@ void ExternalNUCInformationWidget::plot_osm()
     if (height < 500)
         this->resize(500, 500);
 
-    engineering_data = new Engineering_Data(osm_frames);
-    plot_data = new Engineering_Plots(osm_frames);
+    engineering_data = new EngineeringData(osm_frames);
+    plot_data = new EngineeringPlots(osm_frames);
 
     track_info = new TrackInformation(osm_frames);
     plot_data->set_plotting_track_frames(track_info->get_plotting_tracks(), track_info->get_count_of_tracks());

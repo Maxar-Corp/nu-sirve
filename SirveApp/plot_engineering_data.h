@@ -70,7 +70,7 @@ class QtPlotting : public QWidget
 
 enum x_plot_variables{frames , seconds_past_midnight, seconds_from_epoch};
 
-class Engineering_Plots : public QtPlotting 
+class EngineeringPlots : public QtPlotting
 {
 	Q_OBJECT 
 	public:
@@ -86,8 +86,8 @@ class Engineering_Plots : public QtPlotting
 		// plot axes titles
 		QXYSeries *current_frame_marker;
 
-		Engineering_Plots(std::vector<Frame> const &osm_frames);
-		~Engineering_Plots();
+        EngineeringPlots(std::vector<Frame> const &osm_frames);
+        ~EngineeringPlots();
 
 		std::vector<Plotting_Frame_Data> engineering_data;
 

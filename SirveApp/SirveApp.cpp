@@ -12,7 +12,7 @@ SirveApp::SirveApp(QWidget *parent)
 	video_display = new VideoDisplay(video_colors.maps[0].colors);
 	video_display->moveToThread(&thread_video);
 
-	histogram_plot = new HistogramLine_Plot();
+	histogram_plot = new HistogramLinePlot();
 
 	setup_ui();
 	popout_video = new PopoutDialog();
@@ -820,17 +820,17 @@ void SirveApp::setup_connections() {
 
 	//---------------------------------------------------------------------------
 
-	connect(&video_display->container, &Video_Container::update_display_video, this, &SirveApp::handle_frame_change);
-	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &Video_Container::undo);
+	connect(&video_display->container, &VideoContainer::update_display_video, this, &SirveApp::handle_frame_change);
+	connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &VideoContainer::undo);
 	connect(playback_controller, &Playback::frame_selected, this, &SirveApp::handle_frame_number_change);
 
-	connect(&video_display->container, &Video_Container::state_added, this, &SirveApp::handle_new_processing_state);
-	connect(&video_display->container, &Video_Container::state_removed, this, &SirveApp::handle_processing_state_removal);
-	connect(&video_display->container, &Video_Container::states_cleared, this, &SirveApp::handle_cleared_processing_states);
+	connect(&video_display->container, &VideoContainer::state_added, this, &SirveApp::handle_new_processing_state);
+	connect(&video_display->container, &VideoContainer::state_removed, this, &SirveApp::handle_processing_state_removal);
+	connect(&video_display->container, &VideoContainer::states_cleared, this, &SirveApp::handle_cleared_processing_states);
 
-	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &Video_Container::select_state);
+	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &VideoContainer::select_state);
 
-	connect(histogram_plot, &HistogramLine_Plot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	connect(histogram_plot, &HistogramLinePlot::click_drag_histogram, this, &SirveApp::histogram_clicked);
 
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
@@ -1177,7 +1177,7 @@ void SirveApp::load_workspace()
 		load_abir_data(workspace_vals.start_frame, workspace_vals.end_frame);
 	}
 
-	processing_state original = workspace_vals.all_states[0];
+	processingState original = workspace_vals.all_states[0];
 	if (original.replaced_pixels.size() > 0)
 	{
 		std::vector<unsigned int> bad_pixels = original.replaced_pixels;
@@ -1186,7 +1186,7 @@ void SirveApp::load_workspace()
 
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
-		processing_state current_state = workspace_vals.all_states[i];
+		processingState current_state = workspace_vals.all_states[i];
 		QString ANS_hide_shadow_str = "Hide Shadow";
 		if (!current_state.ANS_hide_shadow){
 			ANS_hide_shadow_str = "Show Shadow";
@@ -1194,15 +1194,15 @@ void SirveApp::load_workspace()
 
 		switch (current_state.method)
 		{
-			case Processing_Method::adaptive_noise_suppression:
+			case ProcessingMethod::adaptive_noise_suppression:
 				create_adaptive_noise_correction(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str);
 				break;
 
-			case Processing_Method::deinterlace:
+			case ProcessingMethod::deinterlace:
 				create_deinterlace(current_state.deint_type);
 				break;
 
-			case Processing_Method::fixed_noise_suppression:
+			case ProcessingMethod::fixed_noise_suppression:
 
 				fixed_noise_suppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
@@ -1214,7 +1214,7 @@ void SirveApp::load_workspace()
 
 	for (auto i = 0; i < workspace_vals.annotations.size(); i++)
 	{
-		annotation_info anno = workspace_vals.annotations[i];
+		AnnotationInfo anno = workspace_vals.annotations[i];
 		video_display->annotation_list.push_back(anno);
 	}
 }
@@ -1330,9 +1330,9 @@ void SirveApp::load_osm_data()
 		cmb_processing_states->setEnabled(false);
 	}
 
-	eng_data = new Engineering_Data(osm_frames);
+	eng_data = new EngineeringData(osm_frames);
 	track_info = new TrackInformation(osm_frames);
-	data_plots = new Engineering_Plots(osm_frames);
+	data_plots = new EngineeringPlots(osm_frames);
 
 	size_t num_tracks = track_info->get_count_of_tracks();
 	if (num_tracks == 0)
@@ -1453,9 +1453,9 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	int x_pixels = abir_data_result.x_pixels;
 	int y_pixels = abir_data_result.y_pixels;
 
-	video_details vid_details = {x_pixels, y_pixels, video_frames};
+	VideoDetails vid_details = {x_pixels, y_pixels, video_frames};
 
-	processing_state primary = { Processing_Method::original, vid_details };
+	processingState primary = { ProcessingMethod::original, vid_details };
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(primary);
 
@@ -1496,7 +1496,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	plot_change();
 
 	//Update frame marker on engineering plot
-	connect(playback_controller, &Playback::frame_selected, data_plots, &Engineering_Plots::plot_current_step);
+	connect(playback_controller, &Playback::frame_selected, data_plots, &EngineeringPlots::plot_current_step);
 
 	playback_controller->set_initial_speed_index(10);
 	update_fps();
@@ -2390,7 +2390,7 @@ void SirveApp::receive_new_bad_pixels(std::vector<unsigned int> new_pixels)
 
 void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 {
-	processing_state base_state = video_display->container.processing_states[0];
+	processingState base_state = video_display->container.processing_states[0];
 	base_state.replaced_pixels = pixels_to_replace;
 	QProgressDialog progress_dialog("Replacing Bad Pixels", "Cancel", 0, base_state.details.frames_16bit.size());
 	progress_dialog.setWindowTitle("Adjusting Bad Pixels");
@@ -2493,7 +2493,7 @@ void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
-	processing_state original = video_display->container.copy_current_state();
+	processingState original = video_display->container.copy_current_state();
 
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 	if (!ok)
@@ -2533,9 +2533,9 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 		}
 	}
 
-	processing_state original = video_display->container.copy_current_state();
+	processingState original = video_display->container.copy_current_state();
 
-	processing_state noise_suppresions_state = original;
+	processingState noise_suppresions_state = original;
 	noise_suppresions_state.details.frames_16bit.clear();
 
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
@@ -2550,7 +2550,7 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 	noise_suppresions_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
 
-	noise_suppresions_state.method = Processing_Method::fixed_noise_suppression;
+	noise_suppresions_state.method = ProcessingMethod::fixed_noise_suppression;
 	noise_suppresions_state.FNS_file_path = file_path;
 	noise_suppresions_state.FNS_start_frame = start_frame;
 	noise_suppresions_state.FNS_stop_frame = end_frame;
@@ -2571,18 +2571,18 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 
 void SirveApp::ui_execute_deinterlace()
 {
-	deinterlace_type deinterlace_method_type = static_cast<deinterlace_type>(cmb_deinterlace_options->currentIndex());
+	deinterlaceType deinterlace_method_type = static_cast<deinterlaceType>(cmb_deinterlace_options->currentIndex());
 
 	create_deinterlace(deinterlace_method_type);
 }
 
-void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
+void SirveApp::create_deinterlace(deinterlaceType deinterlace_method_type)
 {
-	processing_state original = video_display->container.copy_current_state();
+	processingState original = video_display->container.copy_current_state();
 
 	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
 
-	processing_state deinterlace_state = original;
+	processingState deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
 
 	// Apply de-interlace to the frames
@@ -2611,7 +2611,7 @@ void SirveApp::create_deinterlace(deinterlace_type deinterlace_method_type)
 		return;
 	}
 
-	deinterlace_state.method = Processing_Method::deinterlace;
+	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
 	video_display->container.add_processing_state(deinterlace_state);
 }
@@ -2636,15 +2636,15 @@ void SirveApp::handle_new_processing_state(QString state_name, int index)
 	cmb_processing_states->setCurrentIndex(index);
 }
 
-void SirveApp::handle_processing_state_removal(Processing_Method method, int index)
+void SirveApp::handle_processing_state_removal(ProcessingMethod method, int index)
 {
 	cmb_processing_states->removeItem(index);
 
-	if (method == Processing_Method::adaptive_noise_suppression)
+	if (method == ProcessingMethod::adaptive_noise_suppression)
 	{
 		label_adaptive_noise_suppression_status->setText("No Frames Setup");
 	}
-	else if (method == Processing_Method::fixed_noise_suppression)
+	else if (method == ProcessingMethod::fixed_noise_suppression)
 	{
 		lbl_fixed_suppression->setText("No Frames Selected");
 	}
@@ -2701,10 +2701,10 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
-	processing_state original = video_display->container.copy_current_state();
+	processingState original = video_display->container.copy_current_state();
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	processing_state noise_suppresions_state = original;
+	processingState noise_suppresions_state = original;
 	noise_suppresions_state.details.frames_16bit.clear();
 
 	MEMORYSTATUSEX memInfo;
@@ -2742,7 +2742,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 
 	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
-	noise_suppresions_state.method = Processing_Method::adaptive_noise_suppression;
+	noise_suppresions_state.method = ProcessingMethod::adaptive_noise_suppression;
 	noise_suppresions_state.ANS_relative_start_frame = relative_start_frame;
 	noise_suppresions_state.ANS_num_frames = number_of_frames;
 	noise_suppresions_state.ANS_hide_shadow = hide_shadow_bool;

@@ -2,7 +2,7 @@
 #include <vector>
 #include <random>
 
-std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, video_details & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original, QProgressDialog & progress)
 {
 	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -68,7 +68,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	int num_video_frames = original.frames_16bit.size();
 	
@@ -129,7 +129,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();

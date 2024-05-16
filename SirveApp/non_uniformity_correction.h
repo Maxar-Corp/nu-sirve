@@ -21,7 +21,7 @@ public:
 
 private:
 	int x_pixels, y_pixels;
-	ABIR_Data abir_data;
+	ABIRData abir_data;
 	arma::uvec pixels_dead, pixels_happy;
 	arma::vec adj_mean_frame;
 	arma::mat kernel;

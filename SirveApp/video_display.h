@@ -56,13 +56,13 @@ public:
 	bool record_frame;
 	cv::VideoWriter video;
 	
-	std::vector<annotation_info> annotation_list;
+	std::vector<AnnotationInfo> annotation_list;
 
 	int image_x, image_y, number_pixels;
 
 	QImage frame;
     EnhancedLabel  *label;
-	Video_Container container;
+	VideoContainer container;
 
 	QString banner_text, boresight_text;
 	QColor tracker_color;

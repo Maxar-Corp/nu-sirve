@@ -13,7 +13,7 @@ QStringList Workspace::get_workspace_names(QString workspace_folder)
     return QDir(workspace_folder).entryList(QStringList() << "*.json");
 };
 
-void Workspace::save_state(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, std::vector<processing_state> all_states, std::vector<annotation_info> annotations)
+void Workspace::save_state(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, std::vector<processingState> all_states, std::vector<AnnotationInfo> annotations)
 {
     //Inspiration: https://forum.qt.io/topic/65874/create-json-using-qjsondocument
     QJsonObject json_object;
@@ -56,17 +56,17 @@ WorkspaceValues Workspace::load_state(QString workspace_name, QString workspace_
     int start_frame = data_object.value("start_frame").toInt();
     int end_frame = data_object.value("end_frame").toInt();
 
-    std::vector<processing_state> states;
+    std::vector<processingState> states;
     for (auto json_obj : data_object.value("processing_states").toArray())
     {
-        processing_state state = create_processing_state_from_json(json_obj.toObject());
+        processingState state = create_processing_state_from_json(json_obj.toObject());
         states.push_back(state);
     }
 
-    std::vector<annotation_info> annotations;
+    std::vector<AnnotationInfo> annotations;
     for (auto json_obj : data_object.value("annotations").toArray())
     {
-        annotation_info anno = create_annotation_info_from_json(json_obj.toObject());
+        AnnotationInfo anno = create_annotation_info_from_json(json_obj.toObject());
         annotations.push_back(anno);
     }
 
