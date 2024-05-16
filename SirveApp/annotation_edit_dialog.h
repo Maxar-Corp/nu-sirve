@@ -21,7 +21,7 @@ class AnnotationEditDialog : public QDialog
 	Q_OBJECT
 
 public:
-	AnnotationEditDialog(annotation_info &data, QWidget *parent = nullptr);
+    AnnotationEditDialog(AnnotationInfo &data, QWidget *parent = nullptr);
 	~AnnotationEditDialog();
 
 	int get_numeric_value(QString input);
@@ -42,7 +42,7 @@ public slots:
 
 private:
 	
-	annotation_info *current_data;
+    AnnotationInfo *current_data;
 
 	int min_frame, max_frame;
 

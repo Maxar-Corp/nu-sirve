@@ -1,16 +1,16 @@
 #include "clickable_chartview.h"
 
 	
-Clickable_QChartView::Clickable_QChartView(QChart *chart, QWidget *parent) :QChartView(chart) {
+ClickableQChartView::ClickableQChartView(QChart *chart, QWidget *parent) :QChartView(chart) {
 
 }
 
-Clickable_QChartView::~Clickable_QChartView() {
+ClickableQChartView::~ClickableQChartView() {
 
 }
 
 
-void Clickable_QChartView::mousePressEvent(QMouseEvent *event)
+void ClickableQChartView::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
@@ -18,7 +18,7 @@ void Clickable_QChartView::mousePressEvent(QMouseEvent *event)
 	}
 }
 
-void Clickable_QChartView::mouseReleaseEvent(QMouseEvent *event) 
+void ClickableQChartView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
@@ -27,7 +27,7 @@ void Clickable_QChartView::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
-double Clickable_QChartView::get_x_position(QMouseEvent * event)
+double ClickableQChartView::get_x_position(QMouseEvent * event)
 {
 	
 	// get coordinates from clicking on chart

@@ -110,14 +110,14 @@ private:
 
 	QVBoxLayout* mainLayout;
 	QChart* chart_temperature;
-	Clickable_QChartView* chart_view_temperatures;
+    ClickableQChartView* chart_view_temperatures;
 	QPushButton* btn_get_nuc_file, *btn_ok, *btn_cancel;
 	QLabel* lbl_nuc_filename;
 	QFrame* frame_plot;
 	QRadioButton *radio_temperature1, *radio_temperature2;
 	QLineSeries* selection1, * selection2;
 
-	Process_File file_processor;
+	ProcessFile file_processor;
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_metadata;
@@ -125,7 +125,7 @@ private:
 	void initialize_gui();
 	void get_new_nuc_file();
 	void import_nuc_file();
-	void get_plotting_data(ABPNUC_Data &nuc_data);
+	void get_plotting_data(ABPNUCData &nuc_data);
 	void create_temperature_plot(QList<QPointF> temperature);
 	
 	void show_user_selection(SelectedData &user_selection, double x0, double x1);

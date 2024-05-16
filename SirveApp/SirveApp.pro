@@ -10,8 +10,6 @@ INCLUDEPATH += .
 
 CONFIG += c++17
 
-CONFIG += console
-
 HEADERS += abir_reader.h \
             abpnuc_reader.h \
             annotation_edit_dialog.h \
@@ -30,7 +28,7 @@ HEADERS += abir_reader.h \
             deinterlace.h \
             deinterlace_type.h \
             directory_picker.h \
-            engineering_data.h \
+            engineeringdata.h \
             enhanced_label.h \
             histogram_plotter.h \
             location_input.h \
@@ -79,7 +77,7 @@ SOURCES += abir_reader.cpp \
             data_export.cpp \
             deinterlace.cpp \
             directory_picker.cpp \
-            engineering_data.cpp \
+            engineeringdata.cpp \
             enhanced_label.cpp \
             histogram_plotter.cpp \
             location_input.cpp \

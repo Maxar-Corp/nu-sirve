@@ -12,13 +12,13 @@ class Deinterlace
 {
 public:
 
-	deinterlace_type deinterlace_method;
+    deinterlaceType deinterlace_method;
 	int x_pixels, y_pixels, number_pixels;
 
-	Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_pixel_input);
+    Deinterlace(deinterlaceType input_type, int x_pixel_input, int y_pixel_input);
 	
 	std::vector<uint16_t> deinterlace_frame(std::vector<uint16_t> &frame);
-	static std::vector<uint16_t> deinterlace_frame(deinterlace_type input_type, int x_pixel_input, int y_pixel_input, std::vector<uint16_t> &frame);
+    static std::vector<uint16_t> deinterlace_frame(deinterlaceType input_type, int x_pixel_input, int y_pixel_input, std::vector<uint16_t> &frame);
 
 	arma::mat create_frame(std::vector<uint16_t>& frame);
 	static arma::mat create_frame(int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame);

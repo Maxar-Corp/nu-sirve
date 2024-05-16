@@ -1,15 +1,15 @@
 #include "video_container.h"
 
-Video_Container::Video_Container()
+VideoContainer::VideoContainer()
 {
 	current_idx = -1;
 }
 
-Video_Container::~Video_Container()
+VideoContainer::~VideoContainer()
 {
 }
 
-void Video_Container::select_state(int idx)
+void VideoContainer::select_state(int idx)
 {
 	if (idx == -1)
 	{
@@ -21,7 +21,7 @@ void Video_Container::select_state(int idx)
 	emit update_display_video();
 }
 
-void Video_Container::clear_processing_states()
+void VideoContainer::clear_processing_states()
 {
 	processing_states.clear();
 	current_idx = -1;
@@ -29,7 +29,7 @@ void Video_Container::clear_processing_states()
 	emit states_cleared();
 }
 
-void Video_Container::add_processing_state(processing_state new_state)
+void VideoContainer::add_processing_state(processingState new_state)
 {
 	processing_states.push_back(new_state);
 	current_idx = processing_states.size() - 1;
@@ -39,18 +39,18 @@ void Video_Container::add_processing_state(processing_state new_state)
 	emit update_display_video();
 }
 
-processing_state Video_Container::copy_current_state()
+processingState VideoContainer::copy_current_state()
 {
 	return processing_states[current_idx];
 }
 
-void Video_Container::undo()
+void VideoContainer::undo()
 {
 	if (processing_states.size() < 2) {
 		return;
 	}
 
-	Processing_Method method = processing_states.back().method;
+	ProcessingMethod method = processing_states.back().method;
 
 	processing_states.pop_back();
 
@@ -62,7 +62,7 @@ void Video_Container::undo()
 	}
 }
 
-std::vector<processing_state> Video_Container::get_processing_states()
+std::vector<processingState> VideoContainer::get_processing_states()
 {
 	return processing_states;
 }

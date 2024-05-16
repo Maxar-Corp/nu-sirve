@@ -751,7 +751,7 @@ void VideoDisplay::update_display_frame()
 		for (auto i = 0; i < num_annotations; i++) {
 
 			// get frame information
-			annotation_info a = annotation_list[i];
+			AnnotationInfo a = annotation_list[i];
 			unsigned int initial_frame_annotation = a.frame_start - a.min_frame;
 			unsigned int last_frame_annotation = initial_frame_annotation + a.num_frames;
 

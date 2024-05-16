@@ -17,7 +17,7 @@
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
 
-struct ABPNUC_Frame
+struct ABPNUCFrame
 {
 	int frame_number;
 	uint ir_temperature, tec_temperature_x100, tec_temperature_t1_x100, tec_temperature_t2_x100, tec_temperature_t3_x100,
@@ -30,15 +30,15 @@ struct ABPNUC_Frame
 //-------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------
 
-class ABPNUC_Data : private BinaryFileReader
+class ABPNUCData : private BinaryFileReader
 {
 public:
-	ABPNUC_Data(char* path);
-	~ABPNUC_Data();
+	ABPNUCData(char* path);
+	~ABPNUCData();
 
 	const char* full_file_path;
 	int read_status, number_of_frames;
-	std::vector<ABPNUC_Frame> data;
+    std::vector<ABPNUCFrame> data;
 
 	void read_apbnuc_file();
 

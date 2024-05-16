@@ -41,7 +41,7 @@ public slots:
 	
 private:
 	
-	Ui_Dialog_Add_Location ui;
+	UiDialogAddLocation ui;
 
 };
 

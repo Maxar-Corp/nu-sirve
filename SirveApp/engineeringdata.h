@@ -12,12 +12,12 @@
 #include "osm_reader.h"
 #include "Data_Structures.h"
 
-class Engineering_Data : public	QWidget
+class EngineeringData : public	QWidget
 {
 	Q_OBJECT;
 	public:
-		Engineering_Data(const std::vector<Frame> & osm_frames);
-		~Engineering_Data();
+        EngineeringData(const std::vector<Frame> & osm_frames);
+        ~EngineeringData();
 
 		void update_epoch_time(double new_julian_date);
 		std::vector<double>get_epoch(const std::vector<Frame> & osm_frames);

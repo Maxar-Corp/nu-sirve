@@ -85,7 +85,7 @@ CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* par
 
 	// initiliaze chart parameters
 	chart_temperature = new QChart();
-	chart_view_temperatures = new Clickable_QChartView(chart_temperature);
+    chart_view_temperatures = new ClickableQChartView(chart_temperature);
 
 	initialize_gui();
 
@@ -248,7 +248,7 @@ void CalibrationDialog::import_nuc_file()
 
 	QByteArray ba = path_nuc.toLocal8Bit();
 	char* file_path = ba.data();
-	ABPNUC_Data nuc_data(file_path);
+	ABPNUCData nuc_data(file_path);
 
 	if (nuc_data.read_status == 0) {
 
@@ -771,7 +771,7 @@ void CalibrationDialog::closeEvent(QCloseEvent* event)
 	close_window();
 }
 
-void CalibrationDialog::get_plotting_data(ABPNUC_Data &nuc_data)
+void CalibrationDialog::get_plotting_data(ABPNUCData &nuc_data)
 {
 
 	// enable selection options
@@ -840,7 +840,7 @@ void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
 	// set legend
 	chart_temperature->legend()->setVisible(false);
 
-	connect(chart_view_temperatures, &Clickable_QChartView::click_drag, this, &CalibrationDialog::point_selected);
+    connect(chart_view_temperatures, &ClickableQChartView::click_drag, this, &CalibrationDialog::point_selected);
 
 	// ----------------------------------------------------------------------------------------------------------------
 
