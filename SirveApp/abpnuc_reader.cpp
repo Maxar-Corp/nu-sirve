@@ -1,6 +1,6 @@
 #include "abpnuc_reader.h"
 
-ABPNUC_Data::ABPNUC_Data(char* path)
+ABPNUCData::ABPNUCData(char* path)
 {
 
     read_status = 0;
@@ -10,11 +10,11 @@ ABPNUC_Data::ABPNUC_Data(char* path)
 
 }
 
-ABPNUC_Data::~ABPNUC_Data()
+ABPNUCData::~ABPNUCData()
 {
 }
 
-void ABPNUC_Data::read_apbnuc_file()
+void ABPNUCData::read_apbnuc_file()
 {
     // Outline for file read function provided by John Albritton
 
@@ -30,7 +30,7 @@ void ABPNUC_Data::read_apbnuc_file()
     while (true)
     {
 
-        ABPNUC_Frame temp;
+        ABPNUCFrame temp;
 
         // Load message header, break if emptyand eliminate last message
         uint64_t sec = ReadValue<uint64_t>();

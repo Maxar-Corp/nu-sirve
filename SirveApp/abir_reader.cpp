@@ -1,14 +1,14 @@
 #include "abir_reader.h"
 
-ABIR_Data::ABIR_Data()
+ABIRData::ABIRData()
 {
 }
 
-ABIR_Data::~ABIR_Data()
+ABIRData::~ABIRData()
 {
 }
 
-ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number, bool header_only)
+ABIR_Data_Result ABIRData::Get_Frames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number, bool header_only)
 {
     ABIR_Data_Result data_result;
     data_result.had_error = false;
@@ -286,7 +286,7 @@ ABIR_Data_Result ABIR_Data::Get_Frames(const char* file_path, unsigned int min_f
     return data_result;
 }
 
-int ABIR_Data::File_Setup(const char* file_path, double version_number)
+int ABIRData::File_Setup(const char* file_path, double version_number)
 {
     errno_t err = fopen_s(&fp, file_path, "rb");
 
@@ -312,7 +312,7 @@ int ABIR_Data::File_Setup(const char* file_path, double version_number)
     return err;
 }
 
-double ABIR_Data::GetVersionNumberFromFile()
+double ABIRData::GetVersionNumberFromFile()
 {
     fseek(fp, 36, SEEK_SET);
     double version_number = ReadValue<double>(true);  //TODO matlab code has extra code for manipulating version number. double check this is correct

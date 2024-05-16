@@ -7,7 +7,7 @@
 #include "video_display.h"
 #include "histogram_plotter.h"
 #include "playback.h"
-#include "engineering_data.h"
+#include "engineeringdata.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"
 #include "video_details.h"
@@ -67,7 +67,7 @@ class SirveApp : public QMainWindow
 public:
 
 	//Variables
-	Process_File file_processor;
+	ProcessFile file_processor;
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
@@ -117,8 +117,8 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 	VideoDisplay *video_display;
-	Engineering_Plots *data_plots;
-	Engineering_Data *eng_data;
+	EngineeringPlots *data_plots;
+	EngineeringData *eng_data;
 	TrackInformation *track_info;
 	TrackManagementWidget *tm_widget;
 	bool record_video;
@@ -203,7 +203,7 @@ public:
 		void receive_new_good_pixels(std::vector<unsigned int> pixels);
 
 		void handle_new_processing_state(QString state_name, int index);
-		void handle_processing_state_removal(Processing_Method method, int index);
+		void handle_processing_state_removal(ProcessingMethod method, int index);
 		void SirveApp::handle_cleared_processing_states();
 
 		void popout_video_closed();
@@ -225,7 +225,7 @@ private:
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
 
-	HistogramLine_Plot *histogram_plot;
+	HistogramLinePlot *histogram_plot;
 
 	ConfigValues config_values;
 
@@ -267,7 +267,7 @@ private:
 
 	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
 	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
-	void create_deinterlace(deinterlace_type deinterlace_method_type);
+	void create_deinterlace(deinterlaceType deinterlace_method_type);
 	void fixed_noise_suppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();

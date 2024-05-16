@@ -27,21 +27,21 @@
 QT_CHARTS_USE_NAMESPACE
 
 
-class HistogramLine_Plot : public QWidget //public QChartView
+class HistogramLinePlot : public QWidget //public QChartView
 {
 
     Q_OBJECT
     public:
 		QChart *abs_chart, *rel_chart;
 		QChartView *rel_chart_view;
-		Clickable_QChartView *abs_chart_view;
+		ClickableQChartView *abs_chart_view;
 
 		QLabel *text;
 
 		arma::vec bin_midpoints;
 
-		HistogramLine_Plot(QWidget *parent = nullptr);
-        ~HistogramLine_Plot();
+        HistogramLinePlot(QWidget *parent = nullptr);
+        ~HistogramLinePlot();
 
 		QList<QPointF> create_qpoints(arma::vec & bins, arma::uvec & values);
 

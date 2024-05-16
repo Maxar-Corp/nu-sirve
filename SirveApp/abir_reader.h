@@ -107,11 +107,11 @@ struct ABIR_Data_Result
 //-------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------
 
-class ABIR_Data : private BinaryFileReader
+class ABIRData : private BinaryFileReader
 {
 public:
-    ABIR_Data();
-    ~ABIR_Data();
+    ABIRData();
+    ~ABIRData();
 
     const char* full_file_path;
     double file_version;

@@ -1,6 +1,6 @@
 #include "annotation_list_dialog.h"
 
-AnnotationListDialog::AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, QWidget * parent) : data(input_vector)
+AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, video_info details, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
 	
@@ -34,7 +34,7 @@ void AnnotationListDialog::show_annotation(int index)
 	QString output;
 
 	if (index >= 0) {
-		annotation_info d = data[index];
+		AnnotationInfo d = data[index];
 
 		output = "Annotation: " + d.text + "\n\n";
 		output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n\n";
@@ -108,7 +108,7 @@ void AnnotationListDialog::ok()
 void AnnotationListDialog::add()
 {
 	// set user definable attributes
-	annotation_info new_data;
+	AnnotationInfo new_data;
 	new_data.color = "red";
 	new_data.font_size = 8;
 	new_data.x_pixel = 50;
@@ -154,7 +154,7 @@ void AnnotationListDialog::edit()
 	
 	if (index >= 0) {
 		// store old data in case user cancels operation
-		annotation_info old_data = data[index];
+		AnnotationInfo old_data = data[index];
 
 		// display new annotation screen
 		AnnotationEditDialog annotation_edit_dialog(data[index]);

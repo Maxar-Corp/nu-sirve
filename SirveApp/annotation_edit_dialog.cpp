@@ -1,6 +1,6 @@
 #include "annotation_edit_dialog.h"
 
-AnnotationEditDialog::AnnotationEditDialog(annotation_info &data, QWidget * parent)
+AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * parent)
 {
 	initialize_gui();
 

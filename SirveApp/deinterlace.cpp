@@ -1,6 +1,6 @@
 #include "deinterlace.h"
 
-Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_pixel_input)
+Deinterlace::Deinterlace(deinterlaceType input_type, int x_pixel_input, int y_pixel_input)
 {
 	deinterlace_method = input_type;
 	x_pixels = x_pixel_input;
@@ -224,7 +224,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 	return converted_values;
 }
 
-std::vector<uint16_t> Deinterlace::deinterlace_frame(deinterlace_type input_type, int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame)
+std::vector<uint16_t> Deinterlace::deinterlace_frame(deinterlaceType input_type, int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame)
 {
 	arma::mat even_frames, odd_frames, mat_frame, cross_correlation;
 	mat_frame = Deinterlace::create_frame(x_pixel_input, y_pixel_input, frame);
