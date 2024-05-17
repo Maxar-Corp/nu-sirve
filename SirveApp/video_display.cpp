@@ -63,9 +63,9 @@ void VideoDisplay::SetupCreateTrackControls()
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
 	chk_auto_advance_frame = new QCheckBox("Auto Advance to Next Frame");
 	btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
-	connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::handle_btn_clear_track_centroid);
+    connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
 	QPushButton *btn_finish_create_track = new QPushButton("Finish Track Editing");
-	connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finish_create_track);
+    connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
 
 	QHBoxLayout *layout_create_track = new QHBoxLayout(grp_create_track);
 	layout_create_track->addWidget(lbl_create_track);
@@ -96,14 +96,14 @@ void VideoDisplay::SetupPinpointDisplay()
 	btn_pinpoint->setIcon(pinpoint_icon);
 	btn_pinpoint->setToolTip("Pinpoint");
 	btn_pinpoint->setCheckable(true);
-    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandlePinpointClick);
+    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
 
 	QVBoxLayout* button_layout = new QVBoxLayout();
 
 	btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
-	connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::add_pinpoints_to_bad_pixel_map);
+    connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::AddPinpointsToBadPixelMap);
 	btn_pinpoint_good_pixel = new QPushButton("Mark as Good Pixels");
-	connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::remove_pinpoints_from_bad_pixel_map);
+    connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::RemovePinpointsFromBadPixelMap);
 
 	button_layout->addWidget(btn_pinpoint_bad_pixel);
 	button_layout->addWidget(btn_pinpoint_good_pixel);
@@ -114,7 +114,7 @@ void VideoDisplay::SetupPinpointDisplay()
 	btn_clear_pinpoints->setMaximumSize(40, 40);
 	btn_clear_pinpoints->setIcon(clear_icon);
 	btn_clear_pinpoints->setToolTip("Clear");
-	connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::clear_pinpoints);
+    connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::ClearPinpoints);
 
 	pinpoint_layout->addWidget(btn_pinpoint);
 	pinpoint_layout->addWidget(lbl_pinpoint);
@@ -133,9 +133,9 @@ void VideoDisplay::SetupLabels()
 
 	label->setObjectName("video_object");
 
-	connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::handle_image_area_selection);
-	connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::unzoom);
-	connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::handle_click);
+    connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::HandleImageAreaSelection);
+    connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::UndoZoom);
+    connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::HandlePinpointClick);
 
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 
@@ -160,24 +160,24 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
 {
 	if (checked)
 	{
-		emit clear_mouse_buttons();
+        emit clearMouseButtons();
 		btn_pinpoint->setChecked(false);
 		is_zoom_active = false;
 		is_calculate_active = false;
 	}
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::HandlePinpointClick(bool checked)
 {
 	if (checked)
 	{
-		emit clear_mouse_buttons();
+        emit clearMouseButtons();
 		btn_select_track_centroid->setChecked(false);
 		is_zoom_active = false;
 		is_calculate_active = false;
 	}
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::ReclaimLabel()
@@ -193,7 +193,7 @@ void VideoDisplay::ReceiveVideoData(int x, int y)
 
 	delete zoom_manager;
 	zoom_manager = new VideoDisplayZoomManager(image_x, image_y);
-	pinpoint_indeces.clear();
+    pinpoint_indices.clear();
 
 	label->setMinimumWidth(image_x);
 	label->setMinimumHeight(image_y);
@@ -202,52 +202,52 @@ void VideoDisplay::ReceiveVideoData(int x, int y)
 void VideoDisplay::UpdateBannerText(QString input_banner_text)
 {
 	banner_text = input_banner_text;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::UpdateBannerColor(QString input_color)
 {
 	QColor new_color(input_color);
 	banner_color = new_color;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::toggle_frame_time(bool checked)
+void VideoDisplay::HandleFrameTimeToggle(bool checked)
 {
 	display_time = checked;
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::update_color_map(QVector<QRgb> color_table)
+void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
 {
 	colorTable = color_table;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::update_tracker_color(QString input_color)
+void VideoDisplay::HandleTrackerColorUpdate(QString input_color)
 {
 	QColor new_color(input_color);
 	tracker_color = new_color;
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::toggle_osm_tracks(bool input)
+void VideoDisplay::ToggleOsmTracks(bool input)
 {
 	plot_tracks = input;
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::toggle_sensor_boresight_data()
+void VideoDisplay::HandleSensorBoresightDataCheck()
 {
 	display_boresight_txt = !display_boresight_txt;
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::toggle_action_zoom(bool status)
+void VideoDisplay::ToggleActionZoom(bool status)
 {
 	if (status) {
 		is_zoom_active = true;
@@ -259,10 +259,10 @@ void VideoDisplay::toggle_action_zoom(bool status)
 		is_zoom_active = false;
 	}
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::toggle_action_calculate_radiance(bool status)
+void VideoDisplay::ToggleActionCalculateRadiance(bool status)
 {
 	if (status) {
 		is_zoom_active = false;
@@ -274,10 +274,10 @@ void VideoDisplay::toggle_action_calculate_radiance(bool status)
 		is_calculate_active = false;
 	}
 	
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details)
+void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details)
 {
 	track_details = starting_track_details;
 	in_track_creation_mode = true;
@@ -287,31 +287,31 @@ void VideoDisplay::enter_track_creation_mode(std::vector<std::optional<TrackDeta
 	
 	chk_auto_advance_frame->setChecked(true);
 
-	reset_create_track_min_and_max_frames();
+    ResetCreateTrackMinAndMaxFrames();
 	grp_create_track->setHidden(false);
 }
 
-const std::vector<std::optional<TrackDetails>> & VideoDisplay::get_created_track_details()
+const std::vector<std::optional<TrackDetails>> & VideoDisplay::GetCreatedTrackDetails()
 {
 	return track_details;
 }
 
-void VideoDisplay::exit_track_creation_mode()
+void VideoDisplay::ExitTrackCreationMode()
 {
 	in_track_creation_mode = false;
 	track_details_min_frame = 0;
 	track_details_max_frame = 0;
 	lbl_create_track->setText("");
 	grp_create_track->setHidden(true);
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::handle_annotation_changes()
+void VideoDisplay::HandleAnnotationChanges()
 {
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::handle_image_area_selection(QRect area)
+void VideoDisplay::HandleImageAreaSelection(QRect area)
 {
 	// check to make sure rectangle doesn't exceed dimensions. if so, shorten
 	if (area.x() + area.width() > image_x)
@@ -326,13 +326,13 @@ void VideoDisplay::handle_image_area_selection(QRect area)
 
 	if (is_zoom_active)
 	{
-		zoom_manager->zoom_image(area);
-		update_display_frame();
+        zoom_manager->ZoomImage(area);
+        UpdateDisplayFrame();
 	}
 	else if (is_calculate_active)
 	{
 		calibrate(area);
-		update_display_frame();
+        UpdateDisplayFrame();
 	}
 	else
 	{
@@ -383,16 +383,16 @@ void VideoDisplay::calibrate(QRect area)
 	}
 }
 
-void VideoDisplay::unzoom()
+void VideoDisplay::UndoZoom()
 {
 	if (zoom_manager->is_currently_zoomed())
 	{
-		zoom_manager->unzoom();
-		update_display_frame();
+        zoom_manager->UndoZoom();
+        UpdateDisplayFrame();
 	}
 }
 
-void VideoDisplay::handle_click(QPoint origin)
+void VideoDisplay::handle_btn_pinpoint(QPoint origin)
 {
 	// Note that each element in zoom_list contains the _relative_ position within the previous zoom state
 	// Simply storing the absolute position within the image makes a lot of code simpler - like the calculations in this function
@@ -404,7 +404,7 @@ void VideoDisplay::handle_click(QPoint origin)
 	// Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
 	if (btn_pinpoint->isChecked() || btn_select_track_centroid->isChecked())
 	{
-		absolute_zoom_info rectangle = zoom_manager->absolute_zoom_list[zoom_manager->zoom_list.size() - 1];
+        AbsoluteZoomInfo rectangle = zoom_manager->absolute_zoom_list[zoom_manager->zoom_list.size() - 1];
 		double absolute_x = rectangle.x + rectangle.width * (1.0 * origin.x() / image_x);
 		double absolute_y = rectangle.y + rectangle.height * (1.0 * origin.y() / image_y);
 
@@ -413,16 +413,16 @@ void VideoDisplay::handle_click(QPoint origin)
 
 		if (btn_pinpoint->isChecked())
 		{
-			pinpoint(x, y);
+            PinpointPixel(x, y);
 		}
 		else if (btn_select_track_centroid->isChecked())
 		{
-			select_track_centroid(x, y);
+            SelectTrackCentroid(x, y);
 		}
 	}
 }
 
-void VideoDisplay::select_track_centroid(unsigned int x, unsigned int y)
+void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
 	TrackDetails details;
 	details.centroid_x = x;
@@ -434,31 +434,31 @@ void VideoDisplay::select_track_centroid(unsigned int x, unsigned int y)
 		track_details_min_frame = current_frame_num;
 	}
 	track_details_max_frame = std::max(current_frame_num, track_details_max_frame);
-	update_create_track_label();
+    UpdateCreateTrackLabel();
 
 	track_details[current_frame_num - 1] = details;
 
 	if (chk_auto_advance_frame->isChecked())
 	{
-		emit advance_frame();
+        emit advanceFrame();
 	}
 	else
 	{
-		update_display_frame();
+        UpdateDisplayFrame();
 	}
 }
 
-void VideoDisplay::handle_btn_clear_track_centroid()
+void VideoDisplay::HandleClearTrackCentroidClick()
 {
 	int current_frame_num = starting_frame_number + counter;
 	track_details[current_frame_num - 1] = std::nullopt;
 
-	reset_create_track_min_and_max_frames();
+    ResetCreateTrackMinAndMaxFrames();
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::reset_create_track_min_and_max_frames()
+void VideoDisplay::ResetCreateTrackMinAndMaxFrames()
 {
 	track_details_min_frame = 0;
 	track_details_max_frame = 0;
@@ -473,10 +473,10 @@ void VideoDisplay::reset_create_track_min_and_max_frames()
 			track_details_max_frame = i + 1;
 		}
 	}
-	update_create_track_label();
+    UpdateCreateTrackLabel();
 }
 
-void VideoDisplay::update_create_track_label()
+void VideoDisplay::UpdateCreateTrackLabel()
 {
 	if (track_details_min_frame == 0)
 	{
@@ -488,56 +488,56 @@ void VideoDisplay::update_create_track_label()
 	}	
 }
 
-void VideoDisplay::pinpoint(unsigned int x, unsigned int y)
+void VideoDisplay::PinpointPixel(unsigned int x, unsigned int y)
 {
 	unsigned int pinpoint_idx = y * image_x + x;
 	
 	//Disallow clicking an already-pinpointed pixel
-	if ( std::find(pinpoint_indeces.begin(), pinpoint_indeces.end(), pinpoint_idx) != pinpoint_indeces.end())
+    if ( std::find(pinpoint_indices.begin(), pinpoint_indices.end(), pinpoint_idx) != pinpoint_indices.end())
 	{
 		return;
 	}
 
-	pinpoint_indeces.push_back(pinpoint_idx);
+    pinpoint_indices.push_back(pinpoint_idx);
 
-	if (pinpoint_indeces.size() > 3)
+    if (pinpoint_indices.size() > 3)
 	{
-		pinpoint_indeces.erase(pinpoint_indeces.begin());
+        pinpoint_indices.erase(pinpoint_indices.begin());
 	}
 	// Should be able to just update_partial_frame here or something
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::remove_pinpoints_from_bad_pixel_map()
+void VideoDisplay::RemovePinpointsFromBadPixelMap()
 {
-	if (pinpoint_indeces.size() > 0)
+    if (pinpoint_indices.size() > 0)
 	{
-		emit remove_bad_pixels(pinpoint_indeces);
+        emit removeBadPixels(pinpoint_indices);
 	}
 }
 
-void VideoDisplay::add_pinpoints_to_bad_pixel_map()
+void VideoDisplay::AddPinpointsToBadPixelMap()
 {
-	if (pinpoint_indeces.size() > 0)
+    if (pinpoint_indices.size() > 0)
 	{
-		emit add_new_bad_pixels(pinpoint_indeces);
+        emit addNewBadPixels(pinpoint_indices);
 	}
 }
 
-void VideoDisplay::clear_pinpoints()
+void VideoDisplay::ClearPinpoints()
 {
-	pinpoint_indeces.clear();
-	update_display_frame();
+    pinpoint_indices.clear();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted)
+void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted)
 {
 	original_frame_vector = original;
 	display_ready_converted_values = converted;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::update_display_frame()
+void VideoDisplay::UpdateDisplayFrame()
 {
 	//Prevent attempts to render until the video display has been fully initialized
 	if (number_pixels == 0)
@@ -570,9 +570,9 @@ void VideoDisplay::update_display_frame()
 	}
 
 	QString pinpoint_text("");
-	for (auto idx = 0; idx < pinpoint_indeces.size(); idx++)
+    for (auto idx = 0; idx < pinpoint_indices.size(); idx++)
 	{
-		int pinpoint_idx = pinpoint_indeces[idx];
+        int pinpoint_idx = pinpoint_indices[idx];
 		
 		if (pinpoint_idx < original_frame_vector.size())
 		{
@@ -660,7 +660,7 @@ void VideoDisplay::update_display_frame()
 	size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
 	if (plot_tracks && num_osm_tracks > 0)
 	{
-		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+        AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
 		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
 		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
 
@@ -686,7 +686,7 @@ void VideoDisplay::update_display_frame()
 	size_t num_manual_tracks = manual_track_frames[counter].tracks.size();
 	if (num_manual_tracks > 0 && manual_track_ids_to_show.size() > 0)
 	{
-		absolute_zoom_info final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+        AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
 		double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
 		double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
 
@@ -762,7 +762,7 @@ void VideoDisplay::update_display_frame()
 				int font_size = a.font_size;
 				QString annotation_text = a.text;
 
-				std::vector<int> loc = zoom_manager->get_position_within_zoom(a.x_pixel, a.y_pixel);
+                std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
 				int x = loc[0];
 				int y = loc[1];
 
@@ -791,8 +791,8 @@ void VideoDisplay::update_display_frame()
 
 		// get the coordinates of calculation region
 		calculation_region.getCoords(c1, r1, c2, r2);
-		std::vector<int> pt1 = zoom_manager->get_position_within_zoom(*c1, *r1);
-		std::vector<int> pt2 = zoom_manager->get_position_within_zoom(*c2, *r2);
+        std::vector<int> pt1 = zoom_manager->GetPositionWithinZoom(*c1, *r1);
+        std::vector<int> pt2 = zoom_manager->GetPositionWithinZoom(*c2, *r2);
 
 		// determine if calculation region is within zoomed image
 		bool region_within_zoom = pt1[0] >= 0 && pt2[0] >= 0;
@@ -864,7 +864,7 @@ void VideoDisplay::update_display_frame()
 
 	if (record_frame && video_frame_number != counter) {
 		video_frame_number = counter;
-		add_new_frame(frame, CV_8UC3);
+        AddNewFrame(frame, CV_8UC3);
 	}
 
 	label->setPixmap(QPixmap::fromImage(frame));
@@ -880,10 +880,10 @@ QRectF VideoDisplay::get_rectangle_around_pixel(int x_center, int y_center, int 
 	if (!zoom_manager->is_any_piece_within_zoom(x_center, y_center))
 		return QRectF();
 
-	std::vector<int> loc = zoom_manager->get_position_within_zoom(x_center, y_center);
+    std::vector<int> loc = zoom_manager->GetPositionWithinZoom(x_center, y_center);
 	int x = loc[0];
 	int y = loc[1];
-	std::vector<int> loc2 = zoom_manager->get_position_within_zoom(x_center + 1, y_center + 1);
+    std::vector<int> loc2 = zoom_manager->GetPositionWithinZoom(x_center + 1, y_center + 1);
 	int x2 = loc2[0];
 	int y2 = loc2[1];
 
@@ -929,75 +929,75 @@ QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 	return zulu_time;
 }
 
-void VideoDisplay::highlight_bad_pixels(bool status)
+void VideoDisplay::HighlightBadPixels(bool status)
 {
 	should_show_bad_pixels = status;
 
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::update_frame_data(std::vector<PlottingFrameData> input_data)
+void VideoDisplay::UpdateFrameData(std::vector<PlottingFrameData> input_data)
 {
 	display_data = input_data;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input)
+void VideoDisplay::InitializeTrackData(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input)
 {
 	osm_track_frames = osm_frame_input;
 	manual_track_frames = manual_frame_input;
 }
 
-void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_input)
+void VideoDisplay::UpdateManualTrackData(std::vector<TrackFrame> track_frame_input)
 {
 	manual_track_frames = track_frame_input;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::add_manual_track_id_to_show_later(int id)
+void VideoDisplay::AddManualTrackIdToShowLater(int id)
 {
 	manual_track_ids_to_show.insert(id);
     manual_track_colors[id] = ColorScheme::get_track_colors()[0];
 }
 
-void VideoDisplay::hide_manual_track_id(int id)
+void VideoDisplay::HideManualTrackId(int id)
 {
 	manual_track_ids_to_show.erase(id);
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::delete_manual_track(int id)
+void VideoDisplay::DeleteManualTrack(int id)
 {
 	manual_track_ids_to_show.erase(id);
 	manual_track_colors.erase(id);
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::show_manual_track_id(int id)
+void VideoDisplay::ShowManualTrackId(int id)
 {
 	manual_track_ids_to_show.insert(id);
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::recolor_manual_track(int id, QColor color)
+void VideoDisplay::RecolorManualTrack(int id, QColor color)
 {
 	manual_track_colors[id] = color;
-	update_display_frame();
+    UpdateDisplayFrame();
 }
 
-void VideoDisplay::initialize_frame_data(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIR_Frame>& input_frame_header)
+void VideoDisplay::InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
 	starting_frame_number = frame_number;
 	display_data = input_data;
 	frame_headers = input_frame_header;
 }
 
-void VideoDisplay::set_calibration_model(CalibrationData input)
+void VideoDisplay::SetCalibrationModel(CalibrationData input)
 {
 	model = input;
 }
 
-bool VideoDisplay::start_recording(double fps)
+bool VideoDisplay::StartRecording(double fps)
 {
 
 	QString file_name = QFileDialog::getSaveFileName(this, "Save File", "", "Video (*.avi)");
@@ -1017,21 +1017,21 @@ bool VideoDisplay::start_recording(double fps)
 	return video_opened;
 }
 
-void VideoDisplay::add_new_frame(QImage& img, int format)
+void VideoDisplay::AddNewFrame(QImage& img, int format)
 {
 	QImage image = img.rgbSwapped();
 	cv::Mat output_frame(image.height(), image.width(), format, image.bits(), image.bytesPerLine());
 	video.write(output_frame);
 }
 
-void VideoDisplay::stop_recording()
+void VideoDisplay::StopRecording()
 {
 	video.release();
 	record_frame = false;
 }
 
 
-void VideoDisplay::save_frame()
+void VideoDisplay::SaveFrame()
 {
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Images (*.png)"));
 
@@ -1040,7 +1040,7 @@ void VideoDisplay::save_frame()
 	}
 }
 
-void VideoDisplay::remove_frame()
+void VideoDisplay::RemoveFrame()
 {
 	delete label;
 	
@@ -1062,7 +1062,7 @@ void VideoDisplay::remove_frame()
 	original_frame_vector.clear();
 }
 
-void VideoDisplay::view_frame(unsigned int frame_number)
+void VideoDisplay::ViewFrame(unsigned int frame_number)
 {
 	counter = frame_number;
 }

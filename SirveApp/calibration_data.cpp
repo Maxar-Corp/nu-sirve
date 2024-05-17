@@ -616,7 +616,7 @@ void CalibrationDialog::verifyCalibrationValues()
 	msgBox.exec();
 
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-	abp_metadata = file_processor.locate_abp_files(file_selection);
+	abp_metadata = file_processor.LocateAbpFiles(file_selection);
 	
 	if (!abp_metadata.error_msg.isEmpty())
 	{
@@ -664,9 +664,9 @@ void CalibrationDialog::verifyCalibrationValues()
         double irradiance2 = CalculateTrapezoidalArea(x, response2);
 
 		// get counts from abp image file
-		ABIRDataResult result1 = file_processor.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
+		ABIRDataResult result1 = file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
 		std::vector<std::vector<uint16_t>> video_frames1 = result1.video_frames_16bit;
-		ABIRDataResult result2 = file_processor.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
+		ABIRDataResult result2 = file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
 		std::vector<std::vector<uint16_t>> video_frames2 = result2.video_frames_16bit;
 
 		double integration_time = file_processor.abir_data.ir_data[0].header.int_time;
