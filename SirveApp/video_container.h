@@ -12,31 +12,29 @@ class VideoContainer : public QObject
 {
 	Q_OBJECT
 	
-	public:
-		std::vector<processingState> processing_states;
-		int current_idx;
-
+    public:
         VideoContainer();
         ~VideoContainer();
 
-		void clear_processing_states();
-		void add_processing_state(processingState new_details);
+		std::vector<processingState> processing_states;
+		int current_idx;
 
-		processingState copy_current_state();
-
-		void undo();
+        void ClearProcessingStates();
+        void AddProcessingState(processingState new_details);
+        processingState CopyCurrentState();
+        void PopProcessingState();
 
 		std::vector<processingState> get_processing_states();
 
 	signals:
-		void update_display_video();
+        void updateDisplayVideo();
 
-		void states_cleared();
-		void state_added(QString state_name, int index);
-		void state_removed(ProcessingMethod method, int index);
+        void statesCleared();
+        void stateAdded(QString state_name, int index);
+        void stateRemoved(ProcessingMethod method, int index);
 
 	public slots:
-		void select_state(int idx);
+        void SelectState(int idx);
 
 	private:
 };

@@ -6,14 +6,14 @@ VideoDisplayZoomManager::VideoDisplayZoomManager(int x_pixels, int y_pixels)
     image_y = y_pixels;
 	QRect new_zoom(0, 0, image_x, image_y);
 	zoom_list.push_back(new_zoom);
-	absolute_zoom_list.push_back(absolute_zoom_info {0, 0, 1.0*image_x, 1.0*image_y});
+    absolute_zoom_list.push_back(AbsoluteZoomInfo {0, 0, 1.0*image_x, 1.0*image_y});
 }
 
 VideoDisplayZoomManager::~VideoDisplayZoomManager()
 {
 }
 
-void VideoDisplayZoomManager::zoom_image(QRect area)
+void VideoDisplayZoomManager::ZoomImage(QRect area)
 {
     int height = area.height();
     int width = area.width();
@@ -61,15 +61,15 @@ void VideoDisplayZoomManager::zoom_image(QRect area)
 	QRect new_zoom(x, y, width, height);
 	zoom_list.push_back(new_zoom);
 
-	absolute_zoom_info starting_rectangle = absolute_zoom_list[absolute_zoom_list.size() - 1];
+    AbsoluteZoomInfo starting_rectangle = absolute_zoom_list[absolute_zoom_list.size() - 1];
 	double absolute_x = starting_rectangle.x + x * starting_rectangle.width / image_x;
 	double absolute_y = starting_rectangle.y + y * starting_rectangle.height / image_y;
 	double absolute_width = starting_rectangle.width * (1.0 * width / image_x);
 	double absolute_height = starting_rectangle.height * (1.0 * height / image_y);
-	absolute_zoom_list.push_back(absolute_zoom_info {absolute_x, absolute_y, absolute_width, absolute_height});
+    absolute_zoom_list.push_back(AbsoluteZoomInfo {absolute_x, absolute_y, absolute_width, absolute_height});
 }
 
-void VideoDisplayZoomManager::unzoom()
+void VideoDisplayZoomManager::UndoZoom()
 {
     zoom_list.pop_back();
     absolute_zoom_list.pop_back();
@@ -77,7 +77,7 @@ void VideoDisplayZoomManager::unzoom()
 
 bool VideoDisplayZoomManager::is_any_piece_within_zoom(int x0, int y0)
 {
-	absolute_zoom_info final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
+    AbsoluteZoomInfo final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
 
 	if (x0 + 1 < final_zoom_level.x)
 		return false;
@@ -94,7 +94,7 @@ bool VideoDisplayZoomManager::is_any_piece_within_zoom(int x0, int y0)
 	return true;
 }
 
-std::vector<int> VideoDisplayZoomManager::get_position_within_zoom(int x0, int y0)
+std::vector<int> VideoDisplayZoomManager::GetPositionWithinZoom(int x0, int y0)
 {
 	size_t num_zooms = zoom_list.size();
 	bool pt_within_area = true;

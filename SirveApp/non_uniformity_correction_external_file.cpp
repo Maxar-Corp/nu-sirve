@@ -51,7 +51,7 @@ void ExternalNUCInformationWidget::InitializeGui()
 void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-    abp_metadata = file_processor.locate_abp_files(file_selection);
+    abp_metadata = file_processor.LocateAbpFiles(file_selection);
 
     // check that osm and image files are present
     if (!abp_metadata.error_msg.isEmpty())
