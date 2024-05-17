@@ -6,7 +6,7 @@ ABPNUCData::ABPNUCData(char* path)
     read_status = 0;
     full_file_path = path;
 
-    read_apbnuc_file();
+    ReadABPNUCFile();
 
 }
 
@@ -14,7 +14,7 @@ ABPNUCData::~ABPNUCData()
 {
 }
 
-void ABPNUCData::read_apbnuc_file()
+void ABPNUCData::ReadABPNUCFile()
 {
     // Outline for file read function provided by John Albritton
 

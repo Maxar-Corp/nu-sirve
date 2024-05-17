@@ -40,7 +40,7 @@ public:
 	int read_status, number_of_frames;
     std::vector<ABPNUCFrame> data;
 
-	void read_apbnuc_file();
+	void ReadABPNUCFile();
 
 };
 

@@ -11,17 +11,18 @@ class ColorScheme
 {
 public:
     ColorScheme();
-    QString GetCurrentColor();
-	QString Get_Color(int index);
-    QString GetNextColor();
-	void reset_colors();
 
-    static QStringList GetTrackColors();
+    void ResetColors();
+
+    QString get_current_color();
+	QString get_color(int index);
+    QString get_next_color();
+
+    static QStringList get_track_colors();
 
 private:
     uint index;
     std::vector<QString> colors;
 };
-
 
 #endif // COLOR_SCHEME_H

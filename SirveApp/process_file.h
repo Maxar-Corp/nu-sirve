@@ -31,7 +31,7 @@ public:
 	AbpFileMetadata locate_abp_files(QString candidate_image_path);
 
 	bool check_path(QString path);
-	ABIR_Data_Result load_image_file(QString image_path, int first_frame, int last_frame, double version);
+	ABIRDataResult load_image_file(QString image_path, int first_frame, int last_frame, double version);
 
 private:
 

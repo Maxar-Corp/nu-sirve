@@ -33,7 +33,7 @@ struct processingState {
     int FNS_start_frame;
     int FNS_stop_frame;
 
-    deinterlaceType deint_type;
+    DeinterlaceType deint_type;
 	
 	bool ANS_hide_shadow;
 

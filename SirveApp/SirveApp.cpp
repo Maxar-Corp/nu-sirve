@@ -3,7 +3,7 @@
 SirveApp::SirveApp(QWidget *parent)
 	: QMainWindow(parent)
 {
-    config_values = configReaderWriter::load();
+    config_values = configReaderWriter::ExtractWorkspaceConfigValues();
 
     workspace = new Workspace(config_values.workspace_folder);
 
@@ -351,7 +351,7 @@ QWidget* SirveApp::setup_color_correction_tab()
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(video_colors.maps[i].name);
 
-	QStringList colors = ColorScheme::GetTrackColors();
+	QStringList colors = ColorScheme::get_track_colors();
 
 	cmb_tracker_color = new QComboBox();
 	cmb_text_color = new QComboBox();
@@ -830,7 +830,7 @@ void SirveApp::setup_connections() {
 
 	connect(cmb_processing_states, qOverload<int>(&QComboBox::currentIndexChanged), &video_display->container, &VideoContainer::select_state);
 
-	connect(histogram_plot, &HistogramLinePlot::click_drag_histogram, this, &SirveApp::histogram_clicked);
+	connect(histogram_plot, &HistogramLinePlot::clickDragHistogram, this, &SirveApp::histogram_clicked);
 
 	connect(video_display, &VideoDisplay::add_new_bad_pixels, this, &SirveApp::receive_new_bad_pixels);
 	connect(video_display, &VideoDisplay::remove_bad_pixels, this, &SirveApp::receive_new_good_pixels);
@@ -1323,7 +1323,7 @@ void SirveApp::load_osm_data()
 
 		video_display->container.clear_processing_states();
 		video_display->remove_frame();
-		histogram_plot->remove_histogram_plots();
+		histogram_plot->RemoveHistogramPlots();
 
 		tab_menu->setTabEnabled(1, false);
 		tab_menu->setTabEnabled(2, false);
@@ -1436,7 +1436,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 	// Load the ABIR data
 	playback_controller->stop_timer();
 
-	ABIR_Data_Result abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+	ABIRDataResult abir_data_result = file_processor.load_image_file(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
 	progress_dialog.setLabelText("Configuring application");
 	progress_dialog.setValue(2);
@@ -1476,7 +1476,7 @@ void SirveApp::load_abir_data(int min_frame, int max_frame)
 
 	int index0 = min_frame - 1;
 	int index1 = max_frame;
-	std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
+    std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 
 	progress_dialog.setLabelText("Finalizing application state");
 	progress_dialog.setValue(3);
@@ -1905,7 +1905,7 @@ void SirveApp::set_data_timing_offset()
 		int index0 = data_plots->index_sub_plot_xmin;
 		int index1 = data_plots->index_sub_plot_xmax;
 
-		std::vector<Plotting_Frame_Data> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
+        std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 		video_display->update_frame_data(temp);
 
 		plot_change();
@@ -2059,13 +2059,13 @@ void SirveApp::export_plot_data()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data")
 	{
-		DataExport::write_track_data_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), track_info->get_manual_plotting_tracks());
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), track_info->get_manual_plotting_tracks());
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin;
 		max_frame = data_plots->index_sub_plot_xmax;
 
-		DataExport::write_track_data_to_csv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), track_info->get_manual_plotting_tracks(), min_frame, max_frame);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), track_info->get_manual_plotting_tracks(), min_frame, max_frame);
 	}
 
 	QMessageBox msgBox;
@@ -2183,7 +2183,7 @@ void SirveApp::plot_change()
 
 void SirveApp::annotate_video()
 {
-	video_info standard_info;
+    VideoInfo standard_info;
 	standard_info.x_pixels = video_display->image_x;
 	standard_info.y_pixels = video_display->image_y;
 
@@ -2325,13 +2325,13 @@ void SirveApp::ui_replace_bad_pixels()
 			int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
 			if (!ok)
 				return;
-			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+			ABIRDataResult test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
 			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,4);
 			progress_dialog.setWindowTitle("Bad Pixels");
 			progress_dialog.setWindowModality(Qt::ApplicationModal);
 			progress_dialog.setMinimumDuration(0);
 			progress_dialog.setValue(1);
-			std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_median(N,test_frames.video_frames_16bit, only_dead, progress_dialog);
+			std::vector<unsigned int> dead_pixels = BadPixels::IdentifyDeadPixelsMedian(N,test_frames.video_frames_16bit, only_dead, progress_dialog);
 			replace_bad_pixels(dead_pixels);
 		}
 		else{
@@ -2343,14 +2343,14 @@ void SirveApp::ui_replace_bad_pixels()
 				return;
 			//processing_state original = video_display->container.copy_current_state();
 			// QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,original.details.frames_16bit.size());
-			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+			ABIRDataResult test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
 			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,test_frames.video_frames_16bit.size());
 			progress_dialog.setWindowTitle("Bad Pixels");
 			progress_dialog.setWindowModality(Qt::ApplicationModal);
 			progress_dialog.setMinimumDuration(0);
 			progress_dialog.setValue(1);
-			// std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_moving_median(window_length,N,original.details.frames_16bit, progress_dialog);
-			std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog);
+			// std::vector<unsigned int> dead_pixels = BadPixels::IdentifyDeadPixelsMovingMedian(window_length,N,original.details.frames_16bit, progress_dialog);
+			std::vector<unsigned int> dead_pixels = BadPixels::IdentifyDeadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit, progress_dialog);
 			replace_bad_pixels(dead_pixels);
 		}
 
@@ -2397,7 +2397,7 @@ void SirveApp::replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace)
 	progress_dialog.setWindowModality(Qt::ApplicationModal);
 	progress_dialog.setMinimumDuration(0);
 	progress_dialog.setValue(1);
-	BadPixels::replace_pixels_with_neighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels, progress_dialog);
+    BadPixels::ReplacePixelsWithNeighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels, progress_dialog);
 
 	video_display->container.clear_processing_states();
 	video_display->container.add_processing_state(base_state);
@@ -2547,7 +2547,7 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 	progress_dialog.setValue(1);
 
 	FixedNoiseSuppression FNS;
-	noise_suppresions_state.details.frames_16bit = FNS.process_frames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
+	noise_suppresions_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
 
 	noise_suppresions_state.method = ProcessingMethod::fixed_noise_suppression;
@@ -2571,12 +2571,12 @@ void SirveApp::fixed_noise_suppression(QString image_path, QString file_path, un
 
 void SirveApp::ui_execute_deinterlace()
 {
-	deinterlaceType deinterlace_method_type = static_cast<deinterlaceType>(cmb_deinterlace_options->currentIndex());
+	DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(cmb_deinterlace_options->currentIndex());
 
 	create_deinterlace(deinterlace_method_type);
 }
 
-void SirveApp::create_deinterlace(deinterlaceType deinterlace_method_type)
+void SirveApp::create_deinterlace(DeinterlaceType deinterlace_method_type)
 {
 	processingState original = video_display->container.copy_current_state();
 
@@ -2601,7 +2601,7 @@ void SirveApp::create_deinterlace(deinterlaceType deinterlace_method_type)
 	{
 		progress.setValue(i);
 
-		deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
+        deinterlace_state.details.frames_16bit.push_back(deinterlace_method.DeinterlaceFrame(original.details.frames_16bit[i]));
 		if (progress.wasCanceled())
 			break;
 	}
@@ -2659,8 +2659,8 @@ void SirveApp::handle_cleared_processing_states()
 
 void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory)
 {
-    configReaderWriter::saveWorkspaceFolder(workspaceDirectory);
-    config_values = configReaderWriter::load();
+    configReaderWriter::SaveWorkspaceFolder(workspaceDirectory);
+    config_values = configReaderWriter::ExtractWorkspaceConfigValues();
     workspace = new Workspace(config_values.workspace_folder);
 
     cmb_workspace_name->clear();
@@ -2720,7 +2720,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
+		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesFast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 	else{
 		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
@@ -2728,7 +2728,7 @@ void SirveApp::create_adaptive_noise_correction(int relative_start_frame, int nu
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
+		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesConserveMemory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
 	}
 
 	QString description = "Filter starts at ";
@@ -2939,12 +2939,12 @@ void SirveApp::update_global_frame_vector()
 	double lift = slider_lift->value() / 1000.;
 	double gain = slider_gain->value() / 1000.;
 
-	histogram_plot->update_histogram_abs_plot(image_vector, lift, gain);
+	histogram_plot->UpdateHistogramAbsPlot(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
-	ColorCorrection::update_color(image_vector, lift, gain);
+    ColorCorrection::UpdateColor(image_vector, lift, gain);
 
-	histogram_plot->update_histogram_rel_plot(image_vector);
+	histogram_plot->UpdateHistogramRelPlot(image_vector);
 
 	image_vector = image_vector/image_vector.max() * 255;
 

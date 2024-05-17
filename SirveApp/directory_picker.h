@@ -19,7 +19,7 @@ signals:
     void directorySelected(QString directory);
 
 private slots:
-    void openDirectoryPicker();
+    void OpenDirectoryPicker();
     void commitDirectory();
 
 private:

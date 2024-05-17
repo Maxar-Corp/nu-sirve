@@ -267,7 +267,7 @@ private:
 
 	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
 	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
-	void create_deinterlace(deinterlaceType deinterlace_method_type);
+	void create_deinterlace(DeinterlaceType deinterlace_method_type);
 	void fixed_noise_suppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
 	void enable_engineering_plot_options();

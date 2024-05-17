@@ -70,10 +70,10 @@ public:
 
 	void highlight_bad_pixels(bool status);
 
-	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
+	void update_frame_data(std::vector<PlottingFrameData> input_data);
 
 	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
-	void initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
+	void initialize_frame_data(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIR_Frame>& input_frame_header);
 	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
 	void add_manual_track_id_to_show_later(int id);
 	void hide_manual_track_id(int id);
@@ -162,7 +162,7 @@ private:
 	bool display_boresight_txt, display_time;
 
 	CalibrationData model;
-	std::vector<Plotting_Frame_Data> display_data;
+	std::vector<PlottingFrameData> display_data;
 	std::vector<TrackFrame> osm_track_frames;
 	std::vector<TrackFrame> manual_track_frames;
 	std::set<int> manual_track_ids_to_show;

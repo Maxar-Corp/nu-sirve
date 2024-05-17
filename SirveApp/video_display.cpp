@@ -818,7 +818,7 @@ void VideoDisplay::update_display_frame()
 			original_mat_frame.clear();
 
 			double frame_integration_time = frame_headers[counter].header.int_time;
-			std::vector<double>measurements = model.measure_irradiance(*r1, *c1, *r2, *c2, counts, frame_integration_time);
+			std::vector<double>measurements = model.MeasureIrradiance(*r1, *c1, *r2, *c2, counts, frame_integration_time);
 
 			// -----------------------------------------------------------------------------------
 			// print radiance calculation data onto frame
@@ -936,7 +936,7 @@ void VideoDisplay::highlight_bad_pixels(bool status)
 	update_display_frame();
 }
 
-void VideoDisplay::update_frame_data(std::vector<Plotting_Frame_Data> input_data)
+void VideoDisplay::update_frame_data(std::vector<PlottingFrameData> input_data)
 {
 	display_data = input_data;
 	update_display_frame();
@@ -957,7 +957,7 @@ void VideoDisplay::update_manual_track_data(std::vector<TrackFrame> track_frame_
 void VideoDisplay::add_manual_track_id_to_show_later(int id)
 {
 	manual_track_ids_to_show.insert(id);
-	manual_track_colors[id] = ColorScheme::GetTrackColors()[0];
+    manual_track_colors[id] = ColorScheme::get_track_colors()[0];
 }
 
 void VideoDisplay::hide_manual_track_id(int id)
@@ -985,7 +985,7 @@ void VideoDisplay::recolor_manual_track(int id, QColor color)
 	update_display_frame();
 }
 
-void VideoDisplay::initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header)
+void VideoDisplay::initialize_frame_data(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIR_Frame>& input_frame_header)
 {
 	starting_frame_number = frame_number;
 	display_data = input_data;

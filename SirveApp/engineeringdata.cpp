@@ -90,9 +90,9 @@ std::vector<double> EngineeringData::get_seconds_from_epoch()
 	return output;
 }
 
-std::vector<Plotting_Frame_Data> EngineeringData::get_plotting_frame_data()
+std::vector<PlottingFrameData> EngineeringData::get_plotting_frame_data()
 {
-	std::vector<Plotting_Frame_Data> output;
+	std::vector<PlottingFrameData> output;
 	int length = frame_data.size();
 
 	if (std::abs(timing_offset) < 0.001)
@@ -100,7 +100,7 @@ std::vector<Plotting_Frame_Data> EngineeringData::get_plotting_frame_data()
 
 	for (size_t i = 0; i < length; i++)
 	{
-		Plotting_Frame_Data temp;
+		PlottingFrameData temp;
 
 		temp.azimuth_sensor = frame_data[i].azimuth_sensor;
 		temp.elevation_sensor = frame_data[i].elevation_sensor;
@@ -113,13 +113,13 @@ std::vector<Plotting_Frame_Data> EngineeringData::get_plotting_frame_data()
 	return output;
 }
 
-std::vector<Plotting_Frame_Data> EngineeringData::get_subset_plotting_frame_data(int index0, int index1)
+std::vector<PlottingFrameData> EngineeringData::get_subset_plotting_frame_data(int index0, int index1)
 {
 	
-	std::vector<Plotting_Frame_Data> temp_data = get_plotting_frame_data();
-	std::vector<Plotting_Frame_Data>::const_iterator first = temp_data.begin() + index0;
-	std::vector<Plotting_Frame_Data>::const_iterator last = temp_data.begin() + index1;
-	std::vector<Plotting_Frame_Data> subset_data(first, last);
+	std::vector<PlottingFrameData> temp_data = get_plotting_frame_data();
+	std::vector<PlottingFrameData>::const_iterator first = temp_data.begin() + index0;
+	std::vector<PlottingFrameData>::const_iterator last = temp_data.begin() + index1;
+	std::vector<PlottingFrameData> subset_data(first, last);
 	
 	return subset_data;
 }
@@ -128,7 +128,7 @@ void EngineeringData::extract_engineering_data(const std::vector<Frame> & osm_fr
 {
 	for (unsigned int i = 0; i < osm_frames.size(); i++) {
 
-		Plotting_Frame_Data temp;
+		PlottingFrameData temp;
 
 		// ----------------------------------------------------------------------------------------
 		// Get Az-El of sensor and primary target
