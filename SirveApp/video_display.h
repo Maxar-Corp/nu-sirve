@@ -48,7 +48,7 @@ public:
 	VideoDisplay(QVector<QRgb> starting_color_table);
 	~VideoDisplay();
 	QVBoxLayout *video_display_layout;
-	void reclaim_label();
+	void ReclaimLabel();
 
 	unsigned int counter;
 
@@ -97,8 +97,8 @@ public:
 	void save_frame();
 
 	void remove_frame();
-	void receive_video_data(int x, int y);
-	void initialize_toggles();
+	void ReceiveVideoData(int x, int y);
+	void InitializeToggles();
 
 	void view_frame(unsigned int frame_number);
 
@@ -111,8 +111,8 @@ signals:
 
 public slots:
 	void update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted);
-	void update_banner_text(QString input_banner_text);
-	void update_banner_color(QString input_color);
+	void UpdateBannerText(QString input_banner_text);
+	void UpdateBannerColor(QString input_color);
 	void update_tracker_color(QString input_color);
 	void update_color_map(QVector<QRgb> color_table);
 
@@ -169,9 +169,9 @@ private:
 	std::map<int, QColor> manual_track_colors;
 	std::vector<ABIR_Frame> frame_headers;
 
-	void setup_labels();
-	void setup_create_track_controls();
-	void setup_pinpoint_display();
+	void SetupLabels();
+	void SetupCreateTrackControls();
+	void SetupPinpointDisplay();
 
 	void calibrate(QRect area);
 
@@ -182,8 +182,8 @@ private:
 
 	void add_pinpoints_to_bad_pixel_map();
 	void remove_pinpoints_from_bad_pixel_map();
-	void handle_btn_pinpoint(bool checked);
-	void handle_btn_select_track_centroid(bool checked);
+    void HandlePinpointClick(bool checked);
+	void HandleBtnSelectTrackCentroid(bool checked);
 	void handle_btn_clear_track_centroid();
 	void reset_create_track_min_and_max_frames();
 	void update_create_track_label();

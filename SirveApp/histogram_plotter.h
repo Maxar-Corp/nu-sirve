@@ -32,6 +32,9 @@ class HistogramLinePlot : public QWidget //public QChartView
 
     Q_OBJECT
     public:
+        HistogramLinePlot(QWidget *parent = nullptr);
+        ~HistogramLinePlot();
+
 		QChart *abs_chart, *rel_chart;
 		QChartView *rel_chart_view;
 		ClickableQChartView *abs_chart_view;
@@ -39,9 +42,6 @@ class HistogramLinePlot : public QWidget //public QChartView
 		QLabel *text;
 
 		arma::vec bin_midpoints;
-
-        HistogramLinePlot(QWidget *parent = nullptr);
-        ~HistogramLinePlot();
 
 		QList<QPointF> CreateQPoints(arma::vec & bins, arma::uvec & values);
 
@@ -58,8 +58,6 @@ class HistogramLinePlot : public QWidget //public QChartView
 		void AdjustColorCorrection(double x0, double x1);
 
     private:
-
-		//std::vector<uint8_t*> video_frames;
 
 		unsigned int counter, number_of_frames;
 

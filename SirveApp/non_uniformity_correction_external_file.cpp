@@ -60,7 +60,7 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
         return;
     }
 
-    osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
+    osm_frames = osm_reader.ReadOsmFileData(abp_metadata.osm_path);
     if (osm_frames.size() == 0)
 	{
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -96,13 +96,13 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
 
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
-    plot_data->set_plot_title("");
+    plot_data->SetPlotTitle("");
 
     frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);
-    plot_data->set_yaxis_chart_id(0);
-    plot_data->plot();
+    plot_data->SetYAxisChartId(0);
+    plot_data->PlotChart();
 
     btn_load_frames->setEnabled(true);    
     

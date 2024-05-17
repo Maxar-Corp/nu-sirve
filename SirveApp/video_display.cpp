@@ -6,9 +6,9 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 	label = new EnhancedLabel(this);
 	video_display_layout = new QVBoxLayout();
 	video_display_layout->addStretch(1);
-	setup_create_track_controls();
-	setup_pinpoint_display();
-	setup_labels();
+    SetupCreateTrackControls();
+    SetupPinpointDisplay();
+    SetupLabels();
 
 	is_zoom_active = false;
 	is_calculate_active = false;
@@ -21,7 +21,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 	record_frame = false;
 	number_pixels = 0;
 
-	initialize_toggles();
+    InitializeToggles();
 
 	plot_tracks = false;
 	display_time = false;
@@ -42,14 +42,14 @@ VideoDisplay::~VideoDisplay()
 	delete zoom_manager;
 }
 
-void VideoDisplay::initialize_toggles()
+void VideoDisplay::InitializeToggles()
 {
 	banner_color = QString("red");
 	banner_text = QString("EDIT CLASSIFICATION");
 	tracker_color = QString("red");
 }
 
-void VideoDisplay::setup_create_track_controls()
+void VideoDisplay::SetupCreateTrackControls()
 {
 	grp_create_track = new QGroupBox("Track Editing");
 	grp_create_track->setMaximumHeight(150);
@@ -60,7 +60,7 @@ void VideoDisplay::setup_create_track_controls()
 	lbl_create_track = new QLabel("");
 	btn_select_track_centroid = new QPushButton("Select Track Centroid");
 	btn_select_track_centroid->setCheckable(true);
-	connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::handle_btn_select_track_centroid);
+    connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
 	chk_auto_advance_frame = new QCheckBox("Auto Advance to Next Frame");
 	btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
 	connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::handle_btn_clear_track_centroid);
@@ -80,7 +80,7 @@ void VideoDisplay::setup_create_track_controls()
 	video_display_layout->addWidget(grp_create_track);
 }
 
-void VideoDisplay::setup_pinpoint_display()
+void VideoDisplay::SetupPinpointDisplay()
 {
 	grp_pinpoint = new QGroupBox("Selected Pixels");
 	grp_pinpoint->setMaximumHeight(200);
@@ -96,7 +96,7 @@ void VideoDisplay::setup_pinpoint_display()
 	btn_pinpoint->setIcon(pinpoint_icon);
 	btn_pinpoint->setToolTip("Pinpoint");
 	btn_pinpoint->setCheckable(true);
-	connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
+    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandlePinpointClick);
 
 	QVBoxLayout* button_layout = new QVBoxLayout();
 
@@ -125,7 +125,7 @@ void VideoDisplay::setup_pinpoint_display()
 	video_display_layout->addWidget(grp_pinpoint);
 }
 
-void VideoDisplay::setup_labels()
+void VideoDisplay::SetupLabels()
 {
 	label->setBackgroundRole(QPalette::Base);
 	label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -156,7 +156,7 @@ void VideoDisplay::setup_labels()
 	lbl_pinpoint->setText("");
 }
 
-void VideoDisplay::handle_btn_select_track_centroid(bool checked)
+void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
 {
 	if (checked)
 	{
@@ -168,7 +168,7 @@ void VideoDisplay::handle_btn_select_track_centroid(bool checked)
 	update_display_frame();
 }
 
-void VideoDisplay::handle_btn_pinpoint(bool checked)
+void VideoDisplay::HandlePinpointClick(bool checked)
 {
 	if (checked)
 	{
@@ -180,12 +180,12 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 	update_display_frame();
 }
 
-void VideoDisplay::reclaim_label()
+void VideoDisplay::ReclaimLabel()
 {
 	video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
 }
 
-void VideoDisplay::receive_video_data(int x, int y)
+void VideoDisplay::ReceiveVideoData(int x, int y)
 {
 	image_x = x;
 	image_y = y;
@@ -199,13 +199,13 @@ void VideoDisplay::receive_video_data(int x, int y)
 	label->setMinimumHeight(image_y);
 }
 
-void VideoDisplay::update_banner_text(QString input_banner_text)
+void VideoDisplay::UpdateBannerText(QString input_banner_text)
 {
 	banner_text = input_banner_text;
 	update_display_frame();
 }
 
-void VideoDisplay::update_banner_color(QString input_color)
+void VideoDisplay::UpdateBannerColor(QString input_color)
 {
 	QColor new_color(input_color);
 	banner_color = new_color;
@@ -283,7 +283,7 @@ void VideoDisplay::enter_track_creation_mode(std::vector<std::optional<TrackDeta
 	in_track_creation_mode = true;
 
 	btn_select_track_centroid->setChecked(true);
-	handle_btn_select_track_centroid(true);
+    HandleBtnSelectTrackCentroid(true);
 	
 	chk_auto_advance_frame->setChecked(true);
 
@@ -1049,7 +1049,7 @@ void VideoDisplay::remove_frame()
 	delete lbl_zulu_time;
 
 	label = new EnhancedLabel(this);
-	setup_labels();
+    SetupLabels();
 
 	frame_data.clear();
 

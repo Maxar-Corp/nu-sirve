@@ -9,15 +9,15 @@ OSMReader::~OSMReader()
 {
 }
 
-std::vector<Frame> OSMReader::read_osm_file(QString path)
+std::vector<Frame> OSMReader::ReadOsmFileData(QString path)
 {
 	QByteArray array = path.toLocal8Bit();
 	const char* buffer = array.constData();
 	
-	return LoadFile(buffer, false);
+    return LoadFrameVectors(buffer, false);
 }
 
-std::vector<Frame> OSMReader::LoadFile(const char *file_path, bool input_combine_tracks)
+std::vector<Frame> OSMReader::LoadFrameVectors(const char *file_path, bool input_combine_tracks)
 {
 	std::vector<Frame> data = std::vector<Frame>();
 
@@ -148,7 +148,7 @@ void OSMReader::AddTrackToLastFrame(std::vector<Frame> &data)
     }
 }
 
-std::vector<double> OSMReader::get_lat_lon_alt(std::vector<double> ecf)
+std::vector<double> OSMReader::CalculateLatLonAltVector(std::vector<double> ecf)
 {
 	
 	arma::vec ecf_vector(ecf);
@@ -215,7 +215,7 @@ FrameData OSMReader::ReadFrameData()
     uint32_t osm_micro_seconds = ReadValue<uint32_t>(true);
     data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
 
-	data.julian_date = get_gps_time(data.frametime);
+    data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
 	double modified_julian_date = data.julian_date + 0.5;
 	int midnight_julian = std::floor(modified_julian_date);
 	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
@@ -255,15 +255,15 @@ FrameData OSMReader::ReadFrameData()
 	}
 	//-----------------------------------------------------------------------------------------------------------------
 
-	data.lla = get_lat_lon_alt(data.ecf);
+    data.lla = CalculateLatLonAltVector(data.ecf);
 
-	data.dcm = mr2dcos(data.mrp);    
+    data.dcm = CalculateDirectionCosineMatrix(data.mrp);
 
     data.i_fov_x = ReadValue<double>(true);
     data.i_fov_y = ReadValue<double>(true);
     data.num_tracks = ReadValue<uint32_t>(true);
 	
-	std::vector<double> az_el_boresight = calculation_azimuth_elevation(0, 0, data);
+    std::vector<double> az_el_boresight = CalculateAzimuthElevation(0, 0, data);
 	data.az_el_boresight = az_el_boresight;
 
     for (uint32_t j = 0; j < data.num_tracks; j++)
@@ -331,7 +331,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
     current_track.centroid_variance_x = ReadValue<double>(true);
     current_track.centroid_variance_y = ReadValue<double>(true);
 
-	std::vector<double> az_el_track = calculation_azimuth_elevation(current_track.centroid_x, current_track.centroid_y, input);
+    std::vector<double> az_el_track = CalculateAzimuthElevation(current_track.centroid_x, current_track.centroid_y, input);
 	current_track.az_el_track = az_el_track;
 
     current_track.covariance = ReadValue<double>(true);
@@ -342,7 +342,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
     return current_track;
 }
 
-std::vector<double> OSMReader::mr2dcos(std::vector<double> input)
+std::vector<double> OSMReader::CalculateDirectionCosineMatrix(std::vector<double> input)
 {
 	
 	arma::vec mr(input);
@@ -384,13 +384,13 @@ std::vector<double> OSMReader::mr2dcos(std::vector<double> input)
 	return out;
 }
 
-std::vector<double> OSMReader::calculation_azimuth_elevation(int x_pixel, int y_pixel, FrameData & input)
+std::vector<double> OSMReader::CalculateAzimuthElevation(int x_pixel, int y_pixel, FrameData & input)
 {
 	std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y, false);
 	return results;
 }
 
-double OSMReader::get_gps_time(double offset_gps_seconds)
+double OSMReader::CalculateGpsUtcJulianDate(double offset_gps_seconds)
 {
 	
 	//Load leap seconds file organized as year, month, day

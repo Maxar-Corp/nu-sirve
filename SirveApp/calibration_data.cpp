@@ -623,7 +623,7 @@ void CalibrationDialog::verifyCalibrationValues()
 		return;
 	}
 
-	osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
+	osm_frames = osm_reader.ReadOsmFileData(abp_metadata.osm_path);
 	if (osm_frames.size() == 0)
 	{
 		return;
@@ -836,7 +836,7 @@ void CalibrationDialog::CreateTemperaturePlot(QList<QPointF> temperature) {
 	// set legend
 	chart_temperature->legend()->setVisible(false);
 
-    connect(chart_view_temperatures, &ClickableQChartView::click_drag, this, &CalibrationDialog::point_selected);
+    connect(chart_view_temperatures, &ClickableQChartView::clickDrag, this, &CalibrationDialog::point_selected);
 
 	// ----------------------------------------------------------------------------------------------------------------
 

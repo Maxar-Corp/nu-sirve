@@ -23,7 +23,7 @@ void ClickableQChartView::mouseReleaseEvent(QMouseEvent *event)
 	if (event->button() == Qt::LeftButton)
 	{
 		x1 = get_x_position(event);
-		emit click_drag(x0, x1);
+		emit clickDrag(x0, x1);
 	}
 }
 
