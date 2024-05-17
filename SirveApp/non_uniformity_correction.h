@@ -15,8 +15,8 @@ public:
 	NUC();
 	~NUC();
 
-	std::vector<double> get_nuc_correction(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version);
-	std::vector<uint16_t> apply_nuc_correction(std::vector<uint16_t> frame);
+	std::vector<double> CalculateNucCorrection(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version);
+    std::vector<uint16_t> ApplyNucCorrection(std::vector<uint16_t> frame);
 	
 
 private:
@@ -26,13 +26,13 @@ private:
 	arma::vec adj_mean_frame;
 	arma::mat kernel;
 
-	arma::vec apply_kernel(arma::vec data, arma::uvec indices);
-	arma::mat ordfilt2(arma::mat input_matrix, int order, arma::mat domain);
-	double ordfilt2(arma::mat input_matrix, int order, arma::mat domain, int i, int j);
+    arma::vec ApplyKernel(arma::vec data, arma::uvec indices);
+    arma::mat ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain);
+    double ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain, int i, int j);
 
-	arma::vec replace_broken_pixels(arma::vec values);
-	void replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels);
-	void replace_image_pixels(arma::vec &frame, arma::uvec &indices, arma::vec &update);
+    arma::vec ReplaceBrokenPixels(arma::vec values);
+    void ReplacePixels(arma::vec &base, arma::vec &updated, arma::uvec pixels);
+    void ReplaceImagePixels(arma::vec &frame, arma::uvec &indices, arma::vec &update);
 };
 
 

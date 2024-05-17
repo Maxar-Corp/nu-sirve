@@ -7,7 +7,7 @@
 
 namespace ColorCorrection
 {
-	void update_color(arma::vec& input, double min_value, double max_value);
+	void UpdateColor(arma::vec& input, double min_value, double max_value);
 };
 
 #endif // COLOR_CORRECTION_H

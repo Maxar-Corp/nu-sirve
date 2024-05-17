@@ -35,7 +35,7 @@ public:
 
 	std::vector<double> GetECEFVector();
 	void RefreshListBox();
-	void clear();
+	void ClearWidgetListItems();
 
 public slots:
 	void OnItemChange(QString item);

@@ -14,19 +14,19 @@ HistogramLinePlot::HistogramLinePlot(QWidget *parent)
 	abs_chart->legend()->hide();
 	rel_chart->legend()->hide();
 
-	pen.setColor(colors.GetCurrentColor());
+	pen.setColor(colors.get_current_color());
 	pen.setStyle(Qt::SolidLine);
 	pen.setWidth(3);
 
-	pen_limits.setColor(colors.Get_Color(2));
+	pen_limits.setColor(colors.get_color(2));
 	pen_limits.setStyle(Qt::SolidLine);
 	pen_limits.setWidth(3);
 
 	// ------------------------------------------------------------------------------
 
-	bin_midpoints = create_histogram_midpoints();
+    bin_midpoints = CreateHistogramMidpoints();
 
-	connect(abs_chart_view, &ClickableQChartView::click_drag, this, &HistogramLinePlot::adjust_color_correction);
+    connect(abs_chart_view, &ClickableQChartView::click_drag, this, &HistogramLinePlot::AdjustColorCorrection);
 }
 
 HistogramLinePlot::~HistogramLinePlot(){
@@ -40,12 +40,12 @@ HistogramLinePlot::~HistogramLinePlot(){
 	delete text;
 }
 
-void HistogramLinePlot::adjust_color_correction(double x0, double x1)
+void HistogramLinePlot::AdjustColorCorrection(double x0, double x1)
 {
-	emit click_drag_histogram(x0, x1);
+    emit clickDragHistogram(x0, x1);
 }
 
-void HistogramLinePlot::plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart) {
+void HistogramLinePlot::PlotHistogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart) {
 
 	input_chart->removeAllSeries();
 	
@@ -72,11 +72,11 @@ void HistogramLinePlot::plot_histogram(QList<QPointF> & pts, double min, double 
 
 	// ---------------------------------------------------------------------------------
 
-	setup_histogram_plot(input_chart);
+    SetupHistogramPlot(input_chart);
 
 }
 
-void  HistogramLinePlot::setup_histogram_plot(QChart *input_chart) {
+void  HistogramLinePlot::SetupHistogramPlot(QChart *input_chart) {
 
 	input_chart->createDefaultAxes();
 	QAbstractAxis *x_axis = input_chart->axes(Qt::Horizontal)[0];
@@ -103,13 +103,13 @@ void  HistogramLinePlot::setup_histogram_plot(QChart *input_chart) {
 	input_chart->setContentsMargins(0, 0, 0, 0);
 }
 
-void HistogramLinePlot::remove_histogram_plots()
+void HistogramLinePlot::RemoveHistogramPlots()
 {
 	abs_chart->removeAllSeries();
 	rel_chart->removeAllSeries();
 }
 
-arma::vec HistogramLinePlot::create_histogram_midpoints()
+arma::vec HistogramLinePlot::CreateHistogramMidpoints()
 {
 	int number_of_bins = 255;
 	double bin_size = 1.0 / number_of_bins;
@@ -119,29 +119,29 @@ arma::vec HistogramLinePlot::create_histogram_midpoints()
 	return bin_midpoints;
 }
 
-void HistogramLinePlot::update_histogram_abs_plot(arma::vec & values, double lift, double gain)
+void HistogramLinePlot::UpdateHistogramAbsPlot(arma::vec & values, double lift, double gain)
 {
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
-	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
+    QList<QPointF> histogram_line = CreateQPoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
 
-	plot_histogram(histogram_line, lift, gain, max_hist_value, abs_chart);
+    PlotHistogram(histogram_line, lift, gain, max_hist_value, abs_chart);
 }
 
-void HistogramLinePlot::update_histogram_rel_plot(arma::vec & values)
+void HistogramLinePlot::UpdateHistogramRelPlot(arma::vec & values)
 {
 	arma::uvec bin_counts = arma::hist(values, bin_midpoints);
 
-	QList<QPointF> histogram_line = create_qpoints(bin_midpoints, bin_counts);
+    QList<QPointF> histogram_line = CreateQPoints(bin_midpoints, bin_counts);
 
 	double max_hist_value = bin_counts.max();
 
-	plot_histogram(histogram_line, 0, 1, max_hist_value, rel_chart);
+    PlotHistogram(histogram_line, 0, 1, max_hist_value, rel_chart);
 }
 
-QList<QPointF> HistogramLinePlot::create_qpoints(arma::vec & bins, arma::uvec & values)
+QList<QPointF> HistogramLinePlot::CreateQPoints(arma::vec & bins, arma::uvec & values)
 {
 	int num_bins = bins.n_elem;
 	

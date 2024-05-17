@@ -1,6 +1,6 @@
 #include "annotation_list_dialog.h"
 
-AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, video_info details, QWidget * parent) : data(input_vector)
+AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
 	
@@ -12,7 +12,7 @@ AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_ve
 	connect(btn_edit, &QPushButton::pressed, this, &AnnotationListDialog::edit);
 	connect(btn_delete, &QPushButton::pressed, this, &AnnotationListDialog::delete_object);
 
-	connect(lst_annotations, &QListWidget::currentRowChanged, this, &AnnotationListDialog::show_annotation);
+    connect(lst_annotations, &QListWidget::currentRowChanged, this, &AnnotationListDialog::ShowAnnotation);
 }
 
 AnnotationListDialog::~AnnotationListDialog() {
@@ -28,7 +28,7 @@ AnnotationListDialog::~AnnotationListDialog() {
 	delete lst_annotations;
 }
 
-void AnnotationListDialog::show_annotation(int index)
+void AnnotationListDialog::ShowAnnotation(int index)
 {
 	
 	QString output;

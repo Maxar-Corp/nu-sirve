@@ -89,7 +89,7 @@ class EngineeringPlots : public QtPlotting
         EngineeringPlots(std::vector<Frame> const &osm_frames);
         ~EngineeringPlots();
 
-		std::vector<Plotting_Frame_Data> engineering_data;
+		std::vector<PlottingFrameData> engineering_data;
 
 		void set_yaxis_chart_id(int yaxis_chart_id);
 		void plot();

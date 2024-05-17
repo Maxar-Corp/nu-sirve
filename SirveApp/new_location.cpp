@@ -4,37 +4,37 @@ AddLocation::AddLocation(QString path)
 {
 	ui.setupUi(this);
 	directory_path = path;
-	connect(ui.btn_create, &QPushButton::clicked, this, &AddLocation::create_sensor);
+    connect(ui.btn_create, &QPushButton::clicked, this, &AddLocation::CreateSensor);
 }
 
 AddLocation::~AddLocation()
 {
 }
 
-bool AddLocation::checkLatitude()
+bool AddLocation::VerifyLatitude()
 {
 	QString value = ui.txt_latitude->text();
 
 	bool check_numeric = isNumeric(value);
-	bool check_within_range = withinRange(value, -90, 90);
+    bool check_within_range = VerifyWithinRange(value, -90, 90);
 
 	return check_numeric & check_within_range;
 }
 
-bool AddLocation::checkLongitude()
+bool AddLocation::VerifyLongitude()
 {
 	QString value = ui.txt_longitude->text();
 
 	bool check_numeric = isNumeric(value);
-	bool check_within_range1 = withinRange(value, -180, 180);
-	bool check_within_range2 = withinRange(value, 0, 360);
+    bool check_within_range1 = VerifyWithinRange(value, -180, 180);
+    bool check_within_range2 = VerifyWithinRange(value, 0, 360);
 
 	return check_numeric & (check_within_range1 || check_within_range2);
 	
 	return false;
 }
 
-bool AddLocation::checkAltitude()
+bool AddLocation::VerifyAltitudeAsNumeric()
 {
 	QString value = ui.txt_altitude->text();
 
@@ -51,7 +51,7 @@ bool AddLocation::isNumeric(QString text)
 	return convert_value_numeric;
 }
 
-bool AddLocation::withinRange(QString text, double min_value, double max_value)
+bool AddLocation::VerifyWithinRange(QString text, double min_value, double max_value)
 {
 	int input_value = text.toDouble();
 	
@@ -64,7 +64,7 @@ bool AddLocation::withinRange(QString text, double min_value, double max_value)
 	return true;
 }
 
-void AddLocation::makeLocationFile()
+void AddLocation::MakeLocationFile()
 {
 	bool ok;
 	QString new_file_name = QInputDialog::getText(this, "Save File", "Enter filename", QLineEdit::Normal, "", &ok);
@@ -114,10 +114,10 @@ void AddLocation::makeLocationFile()
 	
 }
 
-void AddLocation::create_sensor() {
+void AddLocation::CreateSensor() {
 
-	if(checkLatitude() & checkLongitude() & checkAltitude())
-		makeLocationFile();
+    if(VerifyLatitude() & VerifyLongitude() & VerifyAltitudeAsNumeric())
+        MakeLocationFile();
 	else {
 
 		QMessageBox msgBox;

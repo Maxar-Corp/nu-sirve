@@ -41,7 +41,7 @@ void EngineeringPlots::plot()
 {
 	// Clear chart
 	chart->removeAllSeries();
-	colors.reset_colors();
+	colors.ResetColors();
 	start_new_chart();
 	create_current_marker();
 
@@ -91,7 +91,7 @@ void EngineeringPlots::plot()
 void EngineeringPlots::plot_boresight_az()
 {
 	QLineSeries* series = new QLineSeries();
-	QColor base_color(colors.GetCurrentColor());
+	QColor base_color(colors.get_current_color());
 	series->setColor(base_color);
 
 	if (plot_all_data)
@@ -113,7 +113,7 @@ void EngineeringPlots::plot_boresight_az()
 void EngineeringPlots::plot_boresight_el()
 {
 	QLineSeries* series = new QLineSeries();
-	QColor base_color(colors.GetCurrentColor());
+	QColor base_color(colors.get_current_color());
 	series->setColor(base_color);
 
 	if (plot_all_data)
@@ -135,7 +135,7 @@ void EngineeringPlots::plot_boresight_el()
 void EngineeringPlots::plot_fov_x()
 {
 	QLineSeries* series = new QLineSeries();
-	QColor base_color(colors.GetCurrentColor());
+	QColor base_color(colors.get_current_color());
 	series->setColor(base_color);
 
 	if (plot_all_data)
@@ -157,7 +157,7 @@ void EngineeringPlots::plot_fov_x()
 void EngineeringPlots::plot_fov_y()
 {
 	QLineSeries* series = new QLineSeries();
-	QColor base_color(colors.GetCurrentColor());
+	QColor base_color(colors.get_current_color());
 	series->setColor(base_color);
 
 	if (plot_all_data)
@@ -181,7 +181,7 @@ void EngineeringPlots::plot_azimuth(size_t plot_number_tracks)
 	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries* series = new QLineSeries();
-		QColor base_color(colors.GetCurrentColor());
+		QColor base_color(colors.get_current_color());
 		series->setColor(base_color);
 
 		std::vector<double> x_values = get_individual_x_track(i);
@@ -189,7 +189,7 @@ void EngineeringPlots::plot_azimuth(size_t plot_number_tracks)
 
 		add_series(series, x_values, y_values, true);
 
-		colors.GetNextColor();
+		colors.get_next_color();
 	}
 
 	for (int track_id : manual_track_ids)
@@ -220,7 +220,7 @@ void EngineeringPlots::plot_elevation(size_t plot_number_tracks)
 	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries *series = new QLineSeries();
-		QColor base_color(colors.GetCurrentColor());
+		QColor base_color(colors.get_current_color());
 		series->setColor(base_color);
 
 		std::vector<double> x_values = get_individual_x_track(i);
@@ -228,7 +228,7 @@ void EngineeringPlots::plot_elevation(size_t plot_number_tracks)
 
 		add_series(series, x_values, y_values, true);
 
-		colors.GetNextColor();
+		colors.get_next_color();
 	}
 	
 	for (int track_id : manual_track_ids)
@@ -261,7 +261,7 @@ void EngineeringPlots::plot_irradiance(size_t plot_number_tracks)
 	for (size_t i = 0; i < plot_number_tracks; i++)
 	{
 		QLineSeries *series = new QLineSeries();
-		QColor base_color(colors.GetCurrentColor());
+		QColor base_color(colors.get_current_color());
 		series->setColor(base_color);
 
 		std::vector<double> x_values = get_individual_x_track(i);
@@ -269,7 +269,7 @@ void EngineeringPlots::plot_irradiance(size_t plot_number_tracks)
 
 		add_series(series, x_values, y_values, true);
 
-		colors.GetNextColor();
+		colors.get_next_color();
 
 		y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 	}
@@ -428,7 +428,7 @@ void EngineeringPlots::create_current_marker()
 	current_frame_marker = new QLineSeries();
 
 	QPen pen;
-	pen.setColor(colors.Get_Color(2));
+	pen.setColor(colors.get_color(2));
 	pen.setStyle(Qt::SolidLine);
 	pen.setWidth(3);
 
@@ -518,7 +518,7 @@ void EngineeringPlots::update_manual_plotting_track_frames(std::vector<ManualPlo
 	manual_track_frames = frames;
 	manual_track_ids = track_ids;
 
-	QColor starting_color = ColorScheme::GetTrackColors()[0];
+	QColor starting_color = ColorScheme::get_track_colors()[0];
 	for (auto track_id : track_ids)
 	{
 		manual_track_colors[track_id] = starting_color;
@@ -695,7 +695,7 @@ void QtPlotting::add_series(QXYSeries *series, std::vector<double> x, std::vecto
 			num_breaks++;
 
 			series = new QLineSeries();
-			series->setColor(colors.GetCurrentColor());
+			series->setColor(colors.get_current_color());
 			series->append(x[i], y[i]);
 		}
 		else

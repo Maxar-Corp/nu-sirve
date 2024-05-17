@@ -2,7 +2,7 @@
 
 AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * parent)
 {
-	initialize_gui();
+    InitializeGui();
 
 	// store current annotation being worked on
 	current_data = &data;
@@ -35,9 +35,8 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * paren
 	connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::color_changed);
 	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::font_size_changed);
 
-	connect(btn_add, &QPushButton::pressed, this, &AnnotationEditDialog::add);
-	connect(btn_cancel, &QPushButton::pressed, this, &AnnotationEditDialog::close_window);
-
+    connect(btn_add, &QPushButton::pressed, this, &AnnotationEditDialog::AddDialog);
+    connect(btn_cancel, &QPushButton::pressed, this, &AnnotationEditDialog::CloseWindow);
 }
 
 AnnotationEditDialog::~AnnotationEditDialog()
@@ -115,7 +114,7 @@ void AnnotationEditDialog::frame_start_changed() {
 	else
 	{
 		QString msg("Input for starting frame is non-numeric");
-		display_error(msg);
+        DisplayError(msg);
 		txt_frame_start->setFocus();
 	}
 
@@ -148,7 +147,7 @@ void AnnotationEditDialog::number_of_frames_changed()
 	else
 	{
 		QString msg("Input for number of frames is non-numeric");
-		display_error(msg);
+        DisplayError(msg);
 	}
 }
 
@@ -179,7 +178,7 @@ void AnnotationEditDialog::x_location_changed()
 	else
 	{
 		QString msg("Input for x-location is non-numeric");
-		display_error(msg);
+        DisplayError(msg);
 	}
 }
 
@@ -210,7 +209,7 @@ void AnnotationEditDialog::y_location_changed()
 	else
 	{
 		QString msg("Input for y-location is non-numeric");
-		display_error(msg);
+        DisplayError(msg);
 	}
 }
 
@@ -231,7 +230,7 @@ void AnnotationEditDialog::font_size_changed(const QString & text)
 	emit annotation_changed();
 }
 
-void AnnotationEditDialog::initialize_gui()
+void AnnotationEditDialog::InitializeGui()
 {
 	// ------------------------------------------------------------
 	// add colors and sizes
@@ -317,7 +316,7 @@ void AnnotationEditDialog::initialize_gui()
 
 }
 
-void AnnotationEditDialog::display_error(QString msg)
+void AnnotationEditDialog::DisplayError(QString msg)
 {
 
 	QMessageBox msgBox;
@@ -332,7 +331,7 @@ void AnnotationEditDialog::display_error(QString msg)
 	return;
 }
 
-void AnnotationEditDialog::add()
+void AnnotationEditDialog::AddDialog()
 {
 	
 	done(QDialog::Accepted);
@@ -340,7 +339,7 @@ void AnnotationEditDialog::add()
 	current_data = NULL;
 }
 
-void AnnotationEditDialog::close_window()
+void AnnotationEditDialog::CloseWindow()
 {
 	
 	done(QDialog::Rejected);
@@ -348,7 +347,7 @@ void AnnotationEditDialog::close_window()
 	current_data = NULL;
 }
 
-void AnnotationEditDialog::closeEvent(QCloseEvent * event)
+void AnnotationEditDialog::CloseEvent(QCloseEvent * event)
 {
-	close_window();
+    CloseWindow();
 }

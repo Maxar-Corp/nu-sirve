@@ -3,7 +3,7 @@
 ExternalNUCInformationWidget::ExternalNUCInformationWidget()
 {
 
-    initialize_gui();
+    InitializeGui();
 	engineering_data = NULL;
     
     this->show();
@@ -13,7 +13,7 @@ ExternalNUCInformationWidget::~ExternalNUCInformationWidget()
 {
 }
 
-void ExternalNUCInformationWidget::initialize_gui()
+void ExternalNUCInformationWidget::InitializeGui()
 {
     mainLayout = new QGridLayout();
 
@@ -43,12 +43,12 @@ void ExternalNUCInformationWidget::initialize_gui()
 
     this->setLayout(mainLayout);
 
-    connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_osm_file);
-    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_frames);
+    connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames);
+    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::getFrames);
     connect(btn_close, &QPushButton::clicked, this, &ExternalNUCInformationWidget::close);
 }
 
-void ExternalNUCInformationWidget::get_osm_file()
+void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
     abp_metadata = file_processor.locate_abp_files(file_selection);
@@ -67,11 +67,11 @@ void ExternalNUCInformationWidget::get_osm_file()
 		return;
 	}
 
-    plot_osm();
+    PlotOsmFrameData();
 
 }
 
-void ExternalNUCInformationWidget::plot_osm()
+void ExternalNUCInformationWidget::PlotOsmFrameData()
 {
 
     if (engineering_data != NULL) {
@@ -108,7 +108,7 @@ void ExternalNUCInformationWidget::plot_osm()
     
 }
 
-void ExternalNUCInformationWidget::get_frames()
+void ExternalNUCInformationWidget::getFrames()
 {
     
     // get total number of frames
@@ -137,12 +137,12 @@ void ExternalNUCInformationWidget::get_frames()
     done(QDialog::Accepted);
 }
 
-void ExternalNUCInformationWidget::close_window()
+void ExternalNUCInformationWidget::closeWindow()
 {
     done(QDialog::Rejected);
 }
 
 void ExternalNUCInformationWidget::closeEvent(QCloseEvent* event)
 {
-    close_window();
+    closeWindow();
 }

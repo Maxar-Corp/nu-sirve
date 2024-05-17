@@ -19,7 +19,7 @@ DirectoryPicker::DirectoryPicker(QWidget *parent) : QWidget(parent)
     layout->addWidget(browseButton);
     layout->addWidget(chooseButton);
 
-    connect(browseButton, &QPushButton::clicked, this, &DirectoryPicker::openDirectoryPicker);
+    connect(browseButton, &QPushButton::clicked, this, &DirectoryPicker::OpenDirectoryPicker);
     connect(chooseButton, &QPushButton::clicked, this, &DirectoryPicker::commitDirectory);
 }
 
@@ -28,7 +28,7 @@ QString DirectoryPicker::selectedDirectory() const
     return currentDirectory;
 }
 
-void DirectoryPicker::openDirectoryPicker()
+void DirectoryPicker::OpenDirectoryPicker()
 {
     QString directory = QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::homePath());
     if (!directory.isEmpty())
