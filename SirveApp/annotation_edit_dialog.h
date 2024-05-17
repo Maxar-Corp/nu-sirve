@@ -55,11 +55,11 @@ private:
 
 	QGridLayout *mainLayout;	
 
-	void initialize_gui();
-	void display_error(QString msg);
-	void add();
-	void close_window();
-	void closeEvent(QCloseEvent *event);
+	void InitializeGui();
+	void DisplayError(QString msg);
+    void AddDialog();
+	void CloseWindow();
+    void CloseEvent(QCloseEvent *event);
 };
 
 

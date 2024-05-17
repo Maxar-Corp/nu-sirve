@@ -25,7 +25,7 @@ struct MessageHeader
 	double seconds;
 };
 
-struct IR_Data {
+struct IrradianceData {
 	uint32_t band_id, num_measurements;
 
 	std::vector<double> time, ir_radiance, ir_sigma;
@@ -40,7 +40,7 @@ struct TrackData {
 	double semi_major_axis, semi_minor_axis, orientation_angle, maxX, maxY;
 	double frame_stabilize_x, frame_stabilize_y, stable_frame_shift_x, stable_frame_shift_y, centroid_x, centroid_y, centroid_variance_x, centroid_variance_y, covariance;
 
-	std::vector<IR_Data> ir_measurements;
+    std::vector<IrradianceData> ir_measurements;
 	std::vector <double> az_el_track;
 
 };
@@ -63,12 +63,12 @@ struct Frame {
 
 };
 
-struct video_info {
+struct VideoInfo {
 
 	int x_pixels, y_pixels, min_frame, max_frame;
 };
 
-struct Plotting_Frame_Data {
+struct PlottingFrameData {
 	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
 };
 

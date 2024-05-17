@@ -38,7 +38,7 @@ public:
 
 public slots:
 
-	void get_osm_file();
+    void LoadOsmDataAndPlotFrames();
 
 private:
 
@@ -55,12 +55,12 @@ private:
 	QGridLayout* mainLayout;
 	QVBoxLayout* frame_layout;
 
-	void initialize_gui();
-	void display_error(QString msg);
-	void plot_osm();
-	void get_frames();
-	
-	void close_window();
+	void InitializeGui();
+    void DisplayError(QString msg);
+    void PlotOsmFrameData();
+
+    void getFrames();
+    void closeWindow();
 	void closeEvent(QCloseEvent* event);
 };
 

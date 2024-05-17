@@ -8,12 +8,12 @@ ABIRData::~ABIRData()
 {
 }
 
-ABIR_Data_Result ABIRData::Get_Frames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number, bool header_only)
+ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number, bool header_only)
 {
-    ABIR_Data_Result data_result;
+    ABIRDataResult data_result;
     data_result.had_error = false;
 
-    int check_value = File_Setup(file_path, version_number);
+    int check_value = FileSetup(file_path, version_number);
 	if (check_value < 0) {
         data_result.had_error = true;
 		return data_result;
@@ -286,7 +286,7 @@ ABIR_Data_Result ABIRData::Get_Frames(const char* file_path, unsigned int min_fr
     return data_result;
 }
 
-int ABIRData::File_Setup(const char* file_path, double version_number)
+int ABIRData::FileSetup(const char* file_path, double version_number)
 {
     errno_t err = fopen_s(&fp, file_path, "rb");
 

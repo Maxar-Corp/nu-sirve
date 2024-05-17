@@ -67,9 +67,9 @@ bool ProcessFile::check_path(QString path)
 	return file_exists && file_isFile;
 }
 
-ABIR_Data_Result ProcessFile::load_image_file(QString image_path, int first_frame, int last_frame, double version)
+ABIRDataResult ProcessFile::load_image_file(QString image_path, int first_frame, int last_frame, double version)
 {
-	ABIR_Data_Result data_result;
+	ABIRDataResult data_result;
 	data_result.had_error = true;
 	
 	if (first_frame < 0 || last_frame < 0)
@@ -83,7 +83,7 @@ ABIR_Data_Result ProcessFile::load_image_file(QString image_path, int first_fram
 	QByteArray array = image_path.toLocal8Bit();
 	char* buffer = array.data();
 
-	data_result = abir_data.Get_Frames(buffer, frame_start, frame_end, version, false);
+	data_result = abir_data.GetFrames(buffer, frame_start, frame_end, version, false);
 	if (data_result.had_error) {
 		return data_result;
 	}

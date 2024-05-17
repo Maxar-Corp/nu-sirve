@@ -26,7 +26,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
     if (method == "Deinterlace")
     {
         processingState temp = { ProcessingMethod::deinterlace };
-        temp.deint_type = static_cast<deinterlaceType>(json_obj.value("deint_type").toInt());
+        temp.deint_type = static_cast<DeinterlaceType>(json_obj.value("deint_type").toInt());
         return temp;
     }
     if (method == "FNS")

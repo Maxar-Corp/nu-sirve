@@ -132,7 +132,7 @@ void LocationInput::OnItemChange(QString item) {
 	}
 }
 
-void LocationInput::clear() {
+void LocationInput::ClearWidgetListItems() {
 
 	int num = ui.lst_locations->count();
 	
@@ -148,7 +148,7 @@ void LocationInput::OnAddNewPush()
 	AddLocation add_new_location(directory_path);
 	auto response = add_new_location.exec();
 	
-	clear();
+    ClearWidgetListItems();
 	RefreshListBox();	
 
 	if (response) {

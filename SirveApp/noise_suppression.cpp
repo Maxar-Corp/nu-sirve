@@ -2,7 +2,7 @@
 #include <vector>
 #include <random>
 
-std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original, QProgressDialog & progress)
 {
 	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -12,12 +12,12 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 	int  index_first_frame, index_last_frame;
 	index_first_frame = start_frame - 1;
 
-	ABIR_Data_Result abir_result;
+	ABIRDataResult abir_result;
 	int compare = QString::compare(path_video_file, image_path, Qt::CaseInsensitive);
 	if (compare!=0){ 
 			QByteArray array = image_path.toLocal8Bit();
 			char* buffer = array.data();
-			abir_result = abir_data.Get_Frames(buffer, start_frame, end_frame, version, false);
+			abir_result = abir_data.GetFrames(buffer, start_frame, end_frame, version, false);
 			if (abir_result.had_error) {
 				return frames_out;
 			}
@@ -68,7 +68,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesFast(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	int num_video_frames = original.frames_16bit.size();
 	
@@ -112,7 +112,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 			index_negative = arma::find(frame_data.col(i) < 0);
 			index_positive = arma::find(frame_data.col(i) > 0);
 			frame_vector = frame_data.col(i) - min_values(i)*arma::ones(num_pixels,1);
-			NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
+            NoiseSuppressionGeneral::RemoveShadow(frame_vector, index_negative, index_positive);
 			frame_vector = 16383 * frame_vector / frame_vector.max();
 			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
 			}
@@ -129,7 +129,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_fast
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -171,7 +171,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 			index_negative = arma::find(frame_vector < 0);
 			index_positive = arma::find(frame_vector > 0);
 			frame_vector = frame_vector - min_value;
-			NoiseSuppressionGeneral::remove_shadow(frame_vector, index_negative, index_positive);
+            NoiseSuppressionGeneral::RemoveShadow(frame_vector, index_negative, index_positive);
 			frame_vector = 16383 * frame_vector / frame_vector.max();
 		}
 		else{
@@ -185,7 +185,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 	return frames_out;
 }
 
-void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive)
+void NoiseSuppressionGeneral::RemoveShadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive)
 {
 	if (index_negative.size() > 0) {
 		double m = arma::mean(frame_vector);

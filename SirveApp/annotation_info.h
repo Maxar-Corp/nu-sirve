@@ -26,10 +26,11 @@ struct AnnotationInfo {
         anno_object.insert("frame_start", frame_start);
         anno_object.insert("num_frames", num_frames);
         anno_object.insert("font_size", font_size);
+
         return anno_object;
     }
 };
 
-AnnotationInfo create_annotation_info_from_json(const QJsonObject & json_obj);
+AnnotationInfo CreateAnnotationInfoFromJson(const QJsonObject & json_obj);
 
 #endif

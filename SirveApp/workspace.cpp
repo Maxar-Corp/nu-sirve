@@ -66,7 +66,7 @@ WorkspaceValues Workspace::load_state(QString workspace_name, QString workspace_
     std::vector<AnnotationInfo> annotations;
     for (auto json_obj : data_object.value("annotations").toArray())
     {
-        AnnotationInfo anno = create_annotation_info_from_json(json_obj.toObject());
+        AnnotationInfo anno = CreateAnnotationInfoFromJson(json_obj.toObject());
         annotations.push_back(anno);
     }
 

@@ -43,19 +43,19 @@ class HistogramLinePlot : public QWidget //public QChartView
         HistogramLinePlot(QWidget *parent = nullptr);
         ~HistogramLinePlot();
 
-		QList<QPointF> create_qpoints(arma::vec & bins, arma::uvec & values);
+		QList<QPointF> CreateQPoints(arma::vec & bins, arma::uvec & values);
 
-		void update_histogram_abs_plot(arma::vec & values, double lift, double gain);
-		void update_histogram_rel_plot(arma::vec & values);
+		void UpdateHistogramAbsPlot(arma::vec & values, double lift, double gain);
+		void UpdateHistogramRelPlot(arma::vec & values);
 	
-		void remove_histogram_plots();
+		void RemoveHistogramPlots();
 
 	signals:
-		void click_drag_histogram(double x0, double x1);
+        void clickDragHistogram(double x0, double x1);
 
 
 	public slots:
-		void adjust_color_correction(double x0, double x1);
+		void AdjustColorCorrection(double x0, double x1);
 
     private:
 
@@ -66,10 +66,10 @@ class HistogramLinePlot : public QWidget //public QChartView
 		QPen pen, pen_limits;
 		ColorScheme colors;
 
-		arma::vec create_histogram_midpoints();
+		arma::vec CreateHistogramMidpoints();
 
-		void plot_histogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart);
-		void setup_histogram_plot(QChart *input_chart);
+		void PlotHistogram(QList<QPointF> & pts, double min, double max, double maximum_histogram_level, QChart *input_chart);
+		void SetupHistogramPlot(QChart *input_chart);
 };
 
 #endif // HISTOGRAM_PLOTTER_H
