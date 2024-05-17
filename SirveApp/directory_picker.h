@@ -20,7 +20,7 @@ signals:
 
 private slots:
     void OpenDirectoryPicker();
-    void commitDirectory();
+    void CommitDirectory();
 
 private:
     QLineEdit *lineEdit;

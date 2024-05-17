@@ -1,6 +1,6 @@
-#include "playback.h"
+#include "frame_player.h"
 
-Playback::Playback(unsigned int number_frames)
+FramePlayer::FramePlayer(unsigned int number_frames)
 {
 	timer = new QTimer(this);
 	timer->setInterval(1000);
@@ -16,31 +16,31 @@ Playback::Playback(unsigned int number_frames)
 	speeds = {1/15.0, 0.10, 0.20, .25, 1/3.0, .5, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 60};
 	index_speed = 10;
 
-	connect(timer, &QTimer::timeout, this, &Playback::timer_update);
+    connect(timer, &QTimer::timeout, this, &FramePlayer::UpdateTimer);
 }
 
-Playback::~Playback() {
+FramePlayer::~FramePlayer() {
 
 	delete timer;
 }
 
-void Playback::set_number_of_frames(unsigned int value)
+void FramePlayer::set_number_of_frames(unsigned int value)
 {
 	max_frame_number = value - 1;
 	current_frame_number = 0;
 }
 
-unsigned int Playback::get_current_frame_number()
+unsigned int FramePlayer::get_current_frame_number()
 {
 	return current_frame_number;
 }
 
-unsigned int Playback::get_max_frame_number()
+unsigned int FramePlayer::get_max_frame_number()
 {
 	return max_frame_number;
 }
 
-void Playback::speed_timer() {
+void FramePlayer::IncreaseTimerInterval() {
 
 	if (index_speed + 1 >= speeds.size())
 	{
@@ -55,12 +55,12 @@ void Playback::speed_timer() {
 	timer->start();
 }
 
-double Playback::get_fps()
+double FramePlayer::get_fps()
 {
 	return speeds[index_speed];	
 }
 
-void Playback::slow_timer() {
+void FramePlayer::DecreaseTimerInterval() {
 
 	if (index_speed - 1 < 0)
 	{
@@ -75,14 +75,14 @@ void Playback::slow_timer() {
 	timer->start();
 }
 
-void Playback::start_timer() {
+void FramePlayer::StartTimer() {
 
 	is_reverse = false;
 	timer->start();
-	emit frame_selected(current_frame_number);
+    emit frameSelected(current_frame_number);
 }
 
-void Playback::timer_update()
+void FramePlayer::UpdateTimer()
 {
 	if (is_reverse)
 	{
@@ -102,10 +102,10 @@ void Playback::timer_update()
 		}
 	}
 
-	emit frame_selected(current_frame_number);
+    emit frameSelected(current_frame_number);
 }
 
-void Playback::set_current_frame_number(unsigned int value)
+void FramePlayer::set_current_frame_number(unsigned int value)
 {
 	if (value == current_frame_number)
 		return;
@@ -115,10 +115,10 @@ void Playback::set_current_frame_number(unsigned int value)
 	else
 		current_frame_number = value;
 
-	emit frame_selected(current_frame_number);
+    emit frameSelected(current_frame_number);
 }
 
-void Playback::prev_frame()
+void FramePlayer::GotoPrevFrame()
 {
 	timer->stop();
 	if (current_frame_number == 0)
@@ -126,10 +126,10 @@ void Playback::prev_frame()
 	else
 		current_frame_number--;
 
-	emit frame_selected(current_frame_number);
+    emit frameSelected(current_frame_number);
 }
 
-void Playback::next_frame()
+void FramePlayer::GotoNextFrame()
 {
 	
 	timer->stop();
@@ -139,28 +139,28 @@ void Playback::next_frame()
 	else
 		current_frame_number++;
 
-	emit frame_selected(current_frame_number);
+    emit frameSelected(current_frame_number);
 }
 
-void Playback::stop_timer() {
+void FramePlayer::StopTimer() {
 
 	timer->stop();
 }
 
-void Playback::reverse() {
+void FramePlayer::ReverseTimer() {
 
 	is_reverse = true;
 	timer->start();
 
-	emit frame_selected(current_frame_number);
+    emit frameSelected(current_frame_number);
 }
 
-bool Playback::is_running()
+bool FramePlayer::is_running()
 {
 	return timer->isActive();
 }
 
-void Playback::set_initial_speed_index(int index)
+void FramePlayer::set_initial_speed_index(int index)
 {
 	
 	if (index < speeds.size())

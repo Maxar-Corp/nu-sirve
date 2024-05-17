@@ -27,7 +27,7 @@ class Workspace {
         ~Workspace();
 
         QStringList Workspace::get_workspace_names(QString workspace_folder);
-        void Workspace::save_state(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, const std::vector<processingState> all_states, const std::vector<AnnotationInfo> annotations);
-        WorkspaceValues Workspace::load_state(QString workspace_name, QString workspace_folder);
+        void Workspace::SaveState(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, const std::vector<processingState> all_states, const std::vector<AnnotationInfo> annotations);
+        WorkspaceValues Workspace::LoadState(QString workspace_name, QString workspace_folder);
         void Workspace::update_workspace_directory(QString workspace_directory);
 };

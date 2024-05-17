@@ -36,7 +36,7 @@ public:
     void MakeLocationFile();
 
 public slots:
-	//void OnOkPress();
+
     void CreateSensor();
 	
 private:

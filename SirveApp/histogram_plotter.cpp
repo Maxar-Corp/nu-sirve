@@ -26,7 +26,7 @@ HistogramLinePlot::HistogramLinePlot(QWidget *parent)
 
     bin_midpoints = CreateHistogramMidpoints();
 
-    connect(abs_chart_view, &ClickableQChartView::click_drag, this, &HistogramLinePlot::AdjustColorCorrection);
+    connect(abs_chart_view, &ClickableQChartView::clickDrag, this, &HistogramLinePlot::AdjustColorCorrection);
 }
 
 HistogramLinePlot::~HistogramLinePlot(){
