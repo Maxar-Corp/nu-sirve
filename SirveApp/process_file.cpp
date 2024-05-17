@@ -8,7 +8,7 @@ ProcessFile::~ProcessFile()
 {
 }
 
-AbpFileMetadata ProcessFile::locate_abp_files(QString candidate_image_path)
+AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
 {
 	/*
 	The returned struct will have error_msg populated if there was an error
@@ -21,7 +21,7 @@ AbpFileMetadata ProcessFile::locate_abp_files(QString candidate_image_path)
 	// -----------------------------------------------------------------------------
 	// check abpimage file is valid
 	bool valid_image_extension = candidate_image_path.endsWith(".abpimage", Qt::CaseInsensitive);
-	bool image_file_exists = check_path(candidate_image_path);
+	bool image_file_exists = VerifyPath(candidate_image_path);
 
 	if (!valid_image_extension || !image_file_exists) {
 		abp_data.error_msg = QString("File with .abpimage extension not found");
@@ -34,7 +34,7 @@ AbpFileMetadata ProcessFile::locate_abp_files(QString candidate_image_path)
 	QString candidate_osm_path = candidate_image_path;
 	candidate_osm_path.replace(QString(".abpimage"), QString(".abposm"), Qt::CaseInsensitive);
 
-	if (!check_path(candidate_osm_path)) {
+	if (!VerifyPath(candidate_osm_path)) {
 		abp_data.error_msg = QString("No corresponding file found with .abposm extension that matches the image file name");
 		return abp_data;
 	}
@@ -58,7 +58,7 @@ AbpFileMetadata ProcessFile::locate_abp_files(QString candidate_image_path)
 	return abp_data;
 }
 
-bool ProcessFile::check_path(QString path)
+bool ProcessFile::VerifyPath(QString path)
 {
 	QFileInfo check_file(path);
 	bool file_isFile = check_file.isFile();
@@ -67,7 +67,7 @@ bool ProcessFile::check_path(QString path)
 	return file_exists && file_isFile;
 }
 
-ABIRDataResult ProcessFile::load_image_file(QString image_path, int first_frame, int last_frame, double version)
+ABIRDataResult ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_frame, double version)
 {
 	ABIRDataResult data_result;
 	data_result.had_error = true;

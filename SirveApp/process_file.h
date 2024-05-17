@@ -28,10 +28,9 @@ public:
     ProcessFile();
     ~ProcessFile();
 
-	AbpFileMetadata locate_abp_files(QString candidate_image_path);
-
-	bool check_path(QString path);
-	ABIRDataResult load_image_file(QString image_path, int first_frame, int last_frame, double version);
+    bool VerifyPath(QString path);
+    AbpFileMetadata LocateAbpFiles(QString candidate_image_path);
+    ABIRDataResult LoadImageFile(QString image_path, int first_frame, int last_frame, double version);
 
 private:
 
