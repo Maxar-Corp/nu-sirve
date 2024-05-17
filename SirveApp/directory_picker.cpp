@@ -20,7 +20,7 @@ DirectoryPicker::DirectoryPicker(QWidget *parent) : QWidget(parent)
     layout->addWidget(chooseButton);
 
     connect(browseButton, &QPushButton::clicked, this, &DirectoryPicker::OpenDirectoryPicker);
-    connect(chooseButton, &QPushButton::clicked, this, &DirectoryPicker::commitDirectory);
+    connect(chooseButton, &QPushButton::clicked, this, &DirectoryPicker::CommitDirectory);
 }
 
 QString DirectoryPicker::selectedDirectory() const
@@ -39,7 +39,7 @@ void DirectoryPicker::OpenDirectoryPicker()
     }
 }
 
-void DirectoryPicker::commitDirectory()
+void DirectoryPicker::CommitDirectory()
 {
     if (currentDirectory != NULL)
         emit directorySelected(currentDirectory);

@@ -13,7 +13,7 @@ QStringList Workspace::get_workspace_names(QString workspace_folder)
     return QDir(workspace_folder).entryList(QStringList() << "*.json");
 };
 
-void Workspace::save_state(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, std::vector<processingState> all_states, std::vector<AnnotationInfo> annotations)
+void Workspace::SaveState(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, std::vector<processingState> all_states, std::vector<AnnotationInfo> annotations)
 {
     //Inspiration: https://forum.qt.io/topic/65874/create-json-using-qjsondocument
     QJsonObject json_object;
@@ -44,7 +44,7 @@ void Workspace::save_state(QString workspace_name, QString workspace_folder, QSt
     file.close();
 };
 
-WorkspaceValues Workspace::load_state(QString workspace_name, QString workspace_folder) {
+WorkspaceValues Workspace::LoadState(QString workspace_name, QString workspace_folder) {
      //Inspiration: https://stackoverflow.com/questions/60723466/how-to-write-and-read-in-json-file-using-qt
     QFile file(QString(workspace_folder) + "/" + workspace_name);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
