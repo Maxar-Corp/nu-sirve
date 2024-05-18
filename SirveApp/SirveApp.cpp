@@ -161,22 +161,20 @@ QWidget* SirveApp::setup_file_import_tab() {
 	QWidget* widget_tab_import = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
 
+	QString load_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
+	QString secondary_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
+	
 	// ------------------------------------------------------------------------
 
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load Image File");
-	btn_load_osm->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
+	btn_load_osm->setStyleSheet(load_button_styleSheet);
+
 	btn_copy_directory = new QPushButton("Copy File Path");
-	btn_copy_directory->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
+	btn_copy_directory->setStyleSheet(secondary_button_styleSheet);
+
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
-	btn_calibration_dialog->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
+	btn_calibration_dialog->setStyleSheet(secondary_button_styleSheet);
 
 	//btn_load_osm->setMinimumWidth(30);
 	//btn_copy_directory->setMinimumWidth(30);
@@ -200,11 +198,8 @@ QWidget* SirveApp::setup_file_import_tab() {
 	txt_start_frame->setAlignment(Qt::AlignHCenter);
 	txt_end_frame = new QLineEdit();
 	txt_end_frame->setAlignment(Qt::AlignHCenter);
-	btn_get_frames = new QPushButton(" Load Frames");
-	btn_get_frames->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
+	btn_get_frames = new QPushButton("Load Frames");
+	btn_get_frames->setStyleSheet(load_button_styleSheet);
 
 	QGridLayout* grid_tab_import_frames = new QGridLayout();
 	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
@@ -231,9 +226,7 @@ QWidget* SirveApp::setup_file_import_tab() {
 
 	lbl_current_epoch = new QLabel("Applied Epoch: ");
 	btn_apply_epoch = new QPushButton("Apply Epoch");
-	btn_apply_epoch->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
+	btn_apply_epoch->setStyleSheet(secondary_button_styleSheet);
 	//btn_apply_epoch->setMinimumWidth(30);
 
 	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
@@ -392,7 +385,6 @@ QWidget* SirveApp::setup_color_correction_tab()
 
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
-
 	return widget_tab_color;
 }
 
@@ -401,6 +393,9 @@ QWidget* SirveApp::setup_filter_tab() {
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
 
+	QString process_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
+	QString deinterlace_button_styleSheet = "color: white; background-color:  #002147; font-weight: bold;";
+	QString bad_pixel_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
 
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_bad_pixels = new QGridLayout();
@@ -416,10 +411,8 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 0, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
-	btn_bad_pixel_identification->setStyleSheet("color: black;"
-                        		"background-color: rgb(255,140,0);"
-								"font-weight: bold;"
-                        		);
+	btn_bad_pixel_identification->setStyleSheet(bad_pixel_button_styleSheet);
+
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 3, 1, 1, 1);
 
@@ -433,10 +426,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
-	btn_FNS->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
+	btn_FNS->setStyleSheet(process_button_styleSheet);
 
 	//QWidget* widget_tab_processing_nuc = new QWidget();
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
@@ -454,11 +444,8 @@ QWidget* SirveApp::setup_filter_tab() {
 	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
-	btn_ANS->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
-	//QWidget* widget_tab_processing_bgs = new QWidget();
+	btn_ANS->setStyleSheet(process_button_styleSheet);
+
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
@@ -472,10 +459,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	QLabel* label_deinterlace = new QLabel("Deinterlace Methods");
 	cmb_deinterlace_options = new QComboBox();
 	btn_deinterlace = new QPushButton("Deinterlace");
-	btn_deinterlace->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250);"
-								"font-weight: bold;"
-                        		);
+	btn_deinterlace->setStyleSheet(deinterlace_button_styleSheet);
 
 	cmb_deinterlace_options->addItem("Max Absolute Value");
 	cmb_deinterlace_options->addItem("Centroid");
@@ -498,6 +482,12 @@ QWidget* SirveApp::setup_filter_tab() {
 }
 
 QWidget* SirveApp::setup_workspace_tab(){
+
+	QString load_save_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
+	QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
+	QString track_button_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
+	QString undo_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
+
 	QWidget* widget_tab_workspace = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
@@ -505,23 +495,14 @@ QWidget* SirveApp::setup_workspace_tab(){
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 
 	btn_workspace_load = new QPushButton("Load Workspace");
-	btn_workspace_load->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
+	btn_workspace_load->setStyleSheet(load_save_button_styleSheet);
 	
 	btn_workspace_save = new QPushButton("Save Workspace");
-	btn_workspace_save->setStyleSheet("color: black;"
-                        		"background-color: rgb(255,140,0);"
-								"font-weight: bold;"
-                        		);
+	btn_workspace_save->setStyleSheet(load_save_button_styleSheet);
 
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
-	btn_undo_step->setStyleSheet("color: black;"
-                        		"background-color: rgb(252,207,3);"
-								"font-weight: bold;"
-                        		);
+	btn_undo_step->setStyleSheet( undo_button_styleSheet);
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
@@ -530,22 +511,13 @@ QWidget* SirveApp::setup_workspace_tab(){
 	large_font.setPointSize(16);
 	lbl_create_track_message->setFont(large_font);
 	btn_create_track = new QPushButton("Create Track");
-	btn_create_track->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250);"
-								"font-weight: bold;"
-                        		);
+	btn_create_track->setStyleSheet(track_button_styleSheet);
 	btn_finish_create_track = new QPushButton("Finish");
-	btn_finish_create_track->setStyleSheet("color: black;"
-                        		"background-color: rgb(170,0,0);"
-								"font-weight: bold;"
-                        		);
+	btn_finish_create_track->setStyleSheet(track_button_stop_styleSheet);
 	btn_finish_create_track->setHidden(true);
 	// btn_finish_create_track->setFont(large_font);
 	btn_import_tracks = new QPushButton("Import Tracks");
-	btn_import_tracks->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250);"
-								"font-weight: bold;"
-                        		);
+	btn_import_tracks->setStyleSheet(track_button_styleSheet);
 
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
@@ -708,7 +680,7 @@ void SirveApp::setup_video_frame(){
 void SirveApp::setup_plot_frame() {
 
 	tab_plots->setTabPosition(QTabWidget::South);
-
+	QString load_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
 	// ------------------------------------------------------------------------
 
 	QWidget* widget_tab_histogram = new QWidget();
@@ -721,9 +693,11 @@ void SirveApp::setup_plot_frame() {
     frame_histogram_abs->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 
 	btn_popout_histogram = new QPushButton("Push to Popout Absolute Histogram");
+	btn_popout_histogram->setStyleSheet(load_button_styleSheet);
 	btn_popout_histogram->resize(40, 40);
 	btn_popout_histogram->setCheckable(true);
 	vlayout_tab_histogram->addWidget(btn_popout_histogram);
+	
 	vlayout_tab_histogram->addWidget(frame_histogram_abs);
 	vlayout_tab_histogram->addWidget(frame_histogram_rel);
 
@@ -1221,6 +1195,7 @@ void SirveApp::load_workspace()
 
 void SirveApp::ui_choose_abp_file()
 {
+	QString active_field_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
 	int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
 	if (compare == 0) {
@@ -1231,14 +1206,8 @@ void SirveApp::ui_choose_abp_file()
 	bool validated = validate_abp_files(file_selection);
 	if (validated) {
 		load_osm_data();
-		txt_start_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0);"
-								"font-weight: bold;"
-                        		);
-		txt_end_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0);"
-								"font-weight: bold;"
-                        		);				
+		txt_start_frame->setStyleSheet(active_field_styleSheet);
+		txt_end_frame->setStyleSheet(active_field_styleSheet);				
 	}
 };
 
@@ -1282,6 +1251,7 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 
 void SirveApp::load_osm_data()
 {
+	QString load_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
 	osm_frames = osm_reader.read_osm_file(abp_file_metadata.osm_path);
 	if (osm_frames.size() == 0)
 	{
@@ -1370,6 +1340,7 @@ void SirveApp::load_osm_data()
 
 	engineering_plot_layout = new QGridLayout();
 	btn_popout_engineering = new QPushButton("Push to Popout Plots");
+	btn_popout_engineering->setStyleSheet(load_button_styleSheet);
 	btn_popout_engineering->resize(40, 40);
 	btn_popout_engineering->setCheckable(true);
 	connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::handle_popout_engineering_btn);
