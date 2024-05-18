@@ -119,7 +119,7 @@ public slots:
     void HandleSensorBoresightDataCheck();
     void HandleFrameTimeToggle(bool checked);
 	
-    void handle_btn_pinpoint(QPoint origin);
+    void HandlePixelSelection(QPoint origin);
     void ClearPinpoints();
 
     void HandleAnnotationChanges();
@@ -180,7 +180,7 @@ private:
 
     void AddPinpointsToBadPixelMap();
     void RemovePinpointsFromBadPixelMap();
-    void HandlePinpointClick(bool checked);
+    void handle_btn_pinpoint(bool checked);
 	void HandleBtnSelectTrackCentroid(bool checked);
     void HandleClearTrackCentroidClick();
     void ResetCreateTrackMinAndMaxFrames();
