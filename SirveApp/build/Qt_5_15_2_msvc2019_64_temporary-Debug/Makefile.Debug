@@ -382,7 +382,7 @@ qmake: FORCE
 qmake_all: FORCE
 
 dist:
-	$(ZIP) SirveApp.zip $(SOURCES) $(DIST) ..\..\..\..\SirveApp.pro ..\..\..\5.15.2\msvc2019_64\mkspecs\features\spec_pre.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\angle.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\windows-desktop.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\windows_vulkan_sdk.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\windows-vulkan.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\msvc-desktop.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\qconfig.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3danimation.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3danimation_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dcore.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dcore_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dextras.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dextras_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dinput.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dinput_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dlogic.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dlogic_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquick.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquick_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickanimation.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickanimation_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickextras.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickextras_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickinput.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickinput_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickrender.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickrender_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickscene2d.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickscene2d_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3drender.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3drender_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_accessibility_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axbase.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axbase_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axcontainer.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axcontainer_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axserver.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axserver_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_bluetooth.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_bluetooth_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_bootstrap_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_charts.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_charts_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_concurrent.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_concurrent_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_core.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_core_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_dbus.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_dbus_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_designer.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_designer_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_designercomponents_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_devicediscovery_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_edid_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_egl_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_eventdispatcher_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_fb_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_fontdatabase_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gamepad.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gamepad_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gui.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gui_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_help.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_help_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_location.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_location_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimedia.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimedia_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimediawidgets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimediawidgets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_network.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_network_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_nfc.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_nfc_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_opengl.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_opengl_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_openglextensions.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_openglextensions_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_packetprotocol_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_platformcompositor_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioning.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioning_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioningquick.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioningquick_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_printsupport.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_printsupport_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qml.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qml_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmldebug_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmldevtools_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlmodels.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlmodels_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmltest.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmltest_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlworkerscript.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlworkerscript_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qtmultimediaquicktools_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quick.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quick_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickcontrols2.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickcontrols2_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickparticles_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickshapes_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quicktemplates2.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quicktemplates2_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickwidgets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickwidgets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_remoteobjects.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_remoteobjects_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_repparser.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_repparser_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_scxml.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_scxml_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sensors.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sensors_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialbus.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialbus_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialport.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialport_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sql.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sql_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_svg.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_svg_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_testlib.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_testlib_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_texttospeech.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_texttospeech_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_theme_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_uiplugin.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_uitools.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_uitools_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_vulkan_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webchannel.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webchannel_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_websockets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_websockets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webview.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webview_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_widgets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_widgets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_windowsuiautomation_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_winextras.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_winextras_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xml.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xml_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xmlpatterns.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xmlpatterns_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_zlib_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qt_functions.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qt_config.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\win32-msvc\qmake.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\spec_post.prf ..\..\.qmake.stash ..\..\..\5.15.2\msvc2019_64\mkspecs\features\exclusive_builds.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\msvc-version.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\toolchain.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\default_pre.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\default_pre.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\resolve_config.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\exclusive_builds_post.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\default_post.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\build_pass.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\console.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qml_debug.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\precompile_header.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\warn_on.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qt.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\resources_functions.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\resources.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\moc.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\opengl.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\uic.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qmake_use.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\file_copies.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\testcase_targets.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\exceptions.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\yacc.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\lex.prf ..\..\SirveApp.pro ..\..\..\5.15.2\msvc2019_64\lib\Qt5Chartsd.prl ..\..\..\5.15.2\msvc2019_64\lib\Qt5Widgetsd.prl ..\..\..\5.15.2\msvc2019_64\lib\Qt5Guid.prl ..\..\..\5.15.2\msvc2019_64\lib\Qt5Cored.prl    ..\..\..\5.15.2\msvc2019_64\mkspecs\features\data\dummy.cpp ..\..\abir_reader.h ..\..\abpnuc_reader.h ..\..\annotation_edit_dialog.h ..\..\annotation_list_dialog.h ..\..\bad_pixels.h ..\..\binary_file_reader.h ..\..\calibration_data.h ..\..\clickable_chartview.h ..\..\color_correction.h ..\..\color_map.h ..\..\color_scheme.h ..\..\config.h ..\..\custom_input_dialog.h ..\..\Data_Structures.h ..\..\data_export.h ..\..\deinterlace.h ..\..\deinterlace_type.h ..\..\directory_picker.h ..\..\engineering_data.h ..\..\enhanced_label.h ..\..\histogram_plotter.h ..\..\location_input.h ..\..\new_location.h ..\..\noise_suppression.h ..\..\non_uniformity_correction_external_file.h ..\..\non_uniformity_correction.h ..\..\osm_reader.h ..\..\playback.h ..\..\plot_engineering_data.h ..\..\popout_dialog.h ..\..\process_file.h ..\..\processing_state.h ..\..\Section.h ..\..\SirveApp.h ..\..\track_management_widget.h ..\..\tracks.h ..\..\video_container.h ..\..\video_details.h ..\..\video_display.h ..\..\video_display_zoom.h ..\..\workspace.h ..\..\support\az_el_calculation.h ..\..\support\earth.h ..\..\support\euler.h ..\..\support\jtime.h ..\..\support\qt_elements_with_ids.h ..\..\support\qthelpers.h  ..\..\abir_reader.cpp ..\..\abpnuc_reader.cpp ..\..\annotation_edit_dialog.cpp ..\..\annotation_info.cpp ..\..\annotation_list_dialog.cpp ..\..\bad_pixels.cpp ..\..\calibration_data.cpp ..\..\clickable_chartview.cpp ..\..\color_correction.cpp ..\..\color_map.cpp ..\..\color_scheme.cpp ..\..\config.cpp ..\..\custom_input_dialog.cpp ..\..\data_export.cpp ..\..\deinterlace.cpp ..\..\directory_picker.cpp ..\..\engineering_data.cpp ..\..\enhanced_label.cpp ..\..\histogram_plotter.cpp ..\..\location_input.cpp ..\..\main.cpp ..\..\new_location.cpp ..\..\noise_suppression.cpp ..\..\non_uniformity_correction_external_file.cpp ..\..\non_uniformity_correction.cpp ..\..\osm_reader.cpp ..\..\playback.cpp ..\..\plot_engineering_data.cpp ..\..\popout_dialog.cpp ..\..\process_file.cpp ..\..\processing_state.cpp ..\..\Section.cpp ..\..\SirveApp.cpp ..\..\track_management_widget.cpp ..\..\tracks.cpp ..\..\video_container.cpp ..\..\video_display.cpp ..\..\video_display_zoom.cpp ..\..\workspace.cpp ..\..\support\az_el_calculation.cpp ..\..\support\earth.cpp ..\..\support\euler.cpp ..\..\support\jtime.cpp ..\..\support\qt_elements_with_ids.cpp ..\..\support\qthelpers.cpp ..\..\location_gui.ui ..\..\new_location.ui    
+	$(ZIP) SirveApp.zip $(SOURCES) $(DIST) ..\..\SirveApp.pro ..\..\..\5.15.2\msvc2019_64\mkspecs\features\spec_pre.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\angle.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\windows-desktop.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\windows_vulkan_sdk.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\windows-vulkan.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\msvc-desktop.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\qconfig.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3danimation.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3danimation_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dcore.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dcore_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dextras.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dextras_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dinput.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dinput_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dlogic.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dlogic_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquick.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquick_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickanimation.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickanimation_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickextras.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickextras_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickinput.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickinput_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickrender.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickrender_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickscene2d.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3dquickscene2d_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3drender.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_3drender_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_accessibility_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axbase.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axbase_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axcontainer.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axcontainer_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axserver.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_axserver_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_bluetooth.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_bluetooth_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_bootstrap_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_charts.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_charts_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_concurrent.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_concurrent_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_core.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_core_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_dbus.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_dbus_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_designer.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_designer_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_designercomponents_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_devicediscovery_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_edid_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_egl_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_eventdispatcher_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_fb_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_fontdatabase_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gamepad.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gamepad_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gui.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_gui_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_help.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_help_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_location.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_location_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimedia.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimedia_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimediawidgets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_multimediawidgets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_network.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_network_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_nfc.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_nfc_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_opengl.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_opengl_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_openglextensions.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_openglextensions_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_packetprotocol_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_platformcompositor_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioning.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioning_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioningquick.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_positioningquick_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_printsupport.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_printsupport_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qml.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qml_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmldebug_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmldevtools_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlmodels.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlmodels_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmltest.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmltest_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlworkerscript.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qmlworkerscript_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_qtmultimediaquicktools_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quick.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quick_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickcontrols2.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickcontrols2_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickparticles_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickshapes_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quicktemplates2.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quicktemplates2_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickwidgets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_quickwidgets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_remoteobjects.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_remoteobjects_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_repparser.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_repparser_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_scxml.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_scxml_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sensors.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sensors_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialbus.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialbus_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialport.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_serialport_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sql.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_sql_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_svg.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_svg_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_testlib.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_testlib_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_texttospeech.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_texttospeech_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_theme_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_uiplugin.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_uitools.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_uitools_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_vulkan_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webchannel.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webchannel_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_websockets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_websockets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webview.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_webview_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_widgets.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_widgets_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_windowsuiautomation_support_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_winextras.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_winextras_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xml.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xml_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xmlpatterns.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_xmlpatterns_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\modules\qt_lib_zlib_private.pri ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qt_functions.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qt_config.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\win32-msvc\qmake.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\spec_post.prf ..\..\.qmake.stash ..\..\..\5.15.2\msvc2019_64\mkspecs\features\exclusive_builds.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\common\msvc-version.conf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\toolchain.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\default_pre.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\default_pre.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\resolve_config.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\exclusive_builds_post.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\default_post.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\build_pass.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\console.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qml_debug.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\precompile_header.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\warn_on.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qt.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\resources_functions.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\resources.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\moc.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\win32\opengl.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\uic.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\qmake_use.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\file_copies.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\testcase_targets.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\exceptions.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\yacc.prf ..\..\..\5.15.2\msvc2019_64\mkspecs\features\lex.prf ..\..\SirveApp.pro ..\..\..\5.15.2\msvc2019_64\lib\Qt5Chartsd.prl ..\..\..\5.15.2\msvc2019_64\lib\Qt5Widgetsd.prl ..\..\..\5.15.2\msvc2019_64\lib\Qt5Guid.prl ..\..\..\5.15.2\msvc2019_64\lib\Qt5Cored.prl    ..\..\..\5.15.2\msvc2019_64\mkspecs\features\data\dummy.cpp ..\..\abir_reader.h ..\..\abpnuc_reader.h ..\..\annotation_edit_dialog.h ..\..\annotation_list_dialog.h ..\..\bad_pixels.h ..\..\binary_file_reader.h ..\..\calibration_data.h ..\..\clickable_chartview.h ..\..\color_correction.h ..\..\color_map.h ..\..\color_scheme.h ..\..\config.h ..\..\custom_input_dialog.h ..\..\Data_Structures.h ..\..\data_export.h ..\..\deinterlace.h ..\..\deinterlace_type.h ..\..\directory_picker.h ..\..\engineering_data.h ..\..\enhanced_label.h ..\..\histogram_plotter.h ..\..\location_input.h ..\..\new_location.h ..\..\noise_suppression.h ..\..\non_uniformity_correction_external_file.h ..\..\non_uniformity_correction.h ..\..\osm_reader.h ..\..\playback.h ..\..\plot_engineering_data.h ..\..\popout_dialog.h ..\..\process_file.h ..\..\processing_state.h ..\..\Section.h ..\..\SirveApp.h ..\..\track_management_widget.h ..\..\tracks.h ..\..\video_container.h ..\..\video_details.h ..\..\video_display.h ..\..\video_display_zoom.h ..\..\workspace.h ..\..\support\az_el_calculation.h ..\..\support\earth.h ..\..\support\euler.h ..\..\support\jtime.h ..\..\support\qt_elements_with_ids.h ..\..\support\qthelpers.h  ..\..\abir_reader.cpp ..\..\abpnuc_reader.cpp ..\..\annotation_edit_dialog.cpp ..\..\annotation_info.cpp ..\..\annotation_list_dialog.cpp ..\..\bad_pixels.cpp ..\..\calibration_data.cpp ..\..\clickable_chartview.cpp ..\..\color_correction.cpp ..\..\color_map.cpp ..\..\color_scheme.cpp ..\..\config.cpp ..\..\custom_input_dialog.cpp ..\..\data_export.cpp ..\..\deinterlace.cpp ..\..\directory_picker.cpp ..\..\engineering_data.cpp ..\..\enhanced_label.cpp ..\..\histogram_plotter.cpp ..\..\location_input.cpp ..\..\main.cpp ..\..\new_location.cpp ..\..\noise_suppression.cpp ..\..\non_uniformity_correction_external_file.cpp ..\..\non_uniformity_correction.cpp ..\..\osm_reader.cpp ..\..\playback.cpp ..\..\plot_engineering_data.cpp ..\..\popout_dialog.cpp ..\..\process_file.cpp ..\..\processing_state.cpp ..\..\Section.cpp ..\..\SirveApp.cpp ..\..\track_management_widget.cpp ..\..\tracks.cpp ..\..\video_container.cpp ..\..\video_display.cpp ..\..\video_display_zoom.cpp ..\..\workspace.cpp ..\..\support\az_el_calculation.cpp ..\..\support\earth.cpp ..\..\support\euler.cpp ..\..\support\jtime.cpp ..\..\support\qt_elements_with_ids.cpp ..\..\support\qthelpers.cpp ..\..\location_gui.ui ..\..\new_location.ui    
 
 clean: compiler_clean 
 	-$(DEL_FILE) debug\abir_reader.obj debug\abpnuc_reader.obj debug\annotation_edit_dialog.obj debug\annotation_info.obj debug\annotation_list_dialog.obj debug\bad_pixels.obj debug\calibration_data.obj debug\clickable_chartview.obj debug\color_correction.obj debug\color_map.obj debug\color_scheme.obj debug\config.obj debug\custom_input_dialog.obj debug\data_export.obj debug\deinterlace.obj debug\directory_picker.obj debug\engineering_data.obj debug\enhanced_label.obj debug\histogram_plotter.obj debug\location_input.obj debug\main.obj debug\new_location.obj debug\noise_suppression.obj debug\non_uniformity_correction_external_file.obj debug\non_uniformity_correction.obj debug\osm_reader.obj debug\playback.obj debug\plot_engineering_data.obj debug\popout_dialog.obj debug\process_file.obj debug\processing_state.obj debug\Section.obj debug\SirveApp.obj debug\track_management_widget.obj debug\tracks.obj debug\video_container.obj debug\video_display.obj debug\video_display_zoom.obj debug\workspace.obj debug\az_el_calculation.obj debug\earth.obj debug\euler.obj debug\jtime.obj debug\qt_elements_with_ids.obj debug\qthelpers.obj debug\moc_annotation_edit_dialog.obj debug\moc_annotation_list_dialog.obj debug\moc_calibration_data.obj debug\moc_clickable_chartview.obj debug\moc_custom_input_dialog.obj debug\moc_directory_picker.obj debug\moc_engineering_data.obj debug\moc_enhanced_label.obj debug\moc_histogram_plotter.obj debug\moc_location_input.obj debug\moc_new_location.obj debug\moc_non_uniformity_correction_external_file.obj debug\moc_playback.obj debug\moc_plot_engineering_data.obj debug\moc_popout_dialog.obj debug\moc_process_file.obj debug\moc_Section.obj debug\moc_SirveApp.obj debug\moc_track_management_widget.obj debug\moc_video_container.obj debug\moc_video_display.obj debug\moc_qt_elements_with_ids.obj
@@ -1499,22 +1499,9 @@ debug\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		ui_location_gui.h \
 		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
+		ui_new_location.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -1522,6 +1509,7 @@ debug\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -2315,47 +2303,13 @@ debug\moc_calibration_data.cpp: ..\..\calibration_data.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
@@ -2365,7 +2319,19 @@ debug\moc_calibration_data.cpp: ..\..\calibration_data.h \
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -2375,6 +2341,10 @@ debug\moc_calibration_data.cpp: ..\..\calibration_data.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QXYSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qxyseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QList \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
 		debug\moc_predefs.h \
 		..\..\..\5.15.2\msvc2019_64\bin\moc.exe
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64_temporary-Debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt" ..\..\calibration_data.h -o debug\moc_calibration_data.cpp
@@ -3493,57 +3463,15 @@ debug\moc_engineering_data.cpp: ..\..\engineering_data.h \
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -3551,10 +3479,16 @@ debug\moc_engineering_data.cpp: ..\..\engineering_data.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -4450,10 +4384,12 @@ debug\moc_histogram_plotter.cpp: ..\..\histogram_plotter.h \
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64_temporary-Debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt" ..\..\histogram_plotter.h -o debug\moc_histogram_plotter.cpp
 
 debug\moc_location_input.cpp: ..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -4465,29 +4401,39 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsysinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlogging.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qflags.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasicatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_bootstrap.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qgenericatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_cxx11.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_msvc.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
@@ -4496,43 +4442,16 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvarlengtharray.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainerfwd.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmargins.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpaintdevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
@@ -4542,67 +4461,40 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qregion.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatastream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qline.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtransform.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qimage.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixelformat.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfont.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontmetrics.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qsizepolicy.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qkeysequence.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurlquery.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -4610,10 +4502,16 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\..\armadillo-12.2.0\include\armadillo \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\config.hpp \
@@ -5232,10 +5130,10 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64_temporary-Debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt" ..\..\location_input.h -o debug\moc_location_input.cpp
 
 debug\moc_new_location.cpp: ..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -5247,29 +5145,39 @@ debug\moc_new_location.cpp: ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsysinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlogging.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qflags.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasicatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_bootstrap.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qgenericatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_cxx11.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_msvc.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
@@ -5278,43 +5186,16 @@ debug\moc_new_location.cpp: ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvarlengtharray.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainerfwd.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmargins.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpaintdevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
@@ -5324,47 +5205,40 @@ debug\moc_new_location.cpp: ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qregion.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatastream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qline.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtransform.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qimage.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixelformat.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfont.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontmetrics.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qsizepolicy.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qkeysequence.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurlquery.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -5377,6 +5251,11 @@ debug\moc_new_location.cpp: ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		debug\moc_predefs.h \
 		..\..\..\5.15.2\msvc2019_64\bin\moc.exe
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64_temporary-Debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt" ..\..\new_location.h -o debug\moc_new_location.cpp
@@ -6140,25 +6019,9 @@ debug\moc_non_uniformity_correction_external_file.cpp: ..\..\non_uniformity_corr
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		ui_location_gui.h \
 		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -6181,6 +6044,7 @@ debug\moc_non_uniformity_correction_external_file.cpp: ..\..\non_uniformity_corr
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QtGlobal \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QPen \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QFont \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QAbstractSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qabstractseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QObject \
@@ -6221,6 +6085,7 @@ debug\moc_non_uniformity_correction_external_file.cpp: ..\..\non_uniformity_corr
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		debug\moc_predefs.h \
 		..\..\..\5.15.2\msvc2019_64\bin\moc.exe
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64_temporary-Debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\cppwinrt" ..\..\non_uniformity_correction_external_file.h -o debug\moc_non_uniformity_correction_external_file.cpp
@@ -8199,55 +8064,14 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -8255,10 +8079,16 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -8273,10 +8103,16 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTimer \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtimer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QColor \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpainter.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qfiledialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QVBoxLayout \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGroupBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgroupbox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QCheckBox \
@@ -8402,6 +8238,7 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QJsonArray \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonarray.h \
 		..\..\enhanced_label.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QMouseEvent \
 		..\..\color_map.h \
 		..\..\calibration_data.h \
@@ -8416,6 +8253,7 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QtGlobal \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QPen \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QFont \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QAbstractSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qabstractseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QObject \
@@ -8433,13 +8271,24 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGraphicsView \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgraphicsview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qscrollarea.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgraphicsscene.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QPointF \
 		..\..\process_file.h \
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -8475,6 +8324,10 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\deinterlace.h \
 		..\..\..\fftw-3.3.5-dll64\fftw3.h \
 		..\..\annotation_list_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
 		..\..\annotation_edit_dialog.h \
 		..\..\custom_input_dialog.h \
 		..\..\non_uniformity_correction_external_file.h \
@@ -8484,10 +8337,12 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QDir \
 		..\..\workspace.h \
 		..\..\popout_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGridLayout \
 		..\..\bad_pixels.h \
 		..\..\track_management_widget.h \
 		..\..\support\qt_elements_with_ids.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QComboBox \
 		..\..\data_export.h \
 		..\..\color_correction.h \
@@ -8507,6 +8362,7 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qactiongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmenubar.h \
 		..\..\directory_picker.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFileDialog \
 		debug\moc_predefs.h \
 		..\..\..\5.15.2\msvc2019_64\bin\moc.exe
@@ -9654,21 +9510,20 @@ debug\moc_video_display.cpp: ..\..\video_display.h \
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
+		..\..\support\earth.h \
+		..\..\support\Euler.h \
+		..\..\support\JTime.h \
+		..\..\support\az_el_calculation.h \
+		..\..\support\qthelpers.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
@@ -9678,22 +9533,7 @@ debug\moc_video_display.cpp: ..\..\video_display.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
-		..\..\support\earth.h \
-		..\..\support\Euler.h \
-		..\..\support\JTime.h \
-		..\..\support\az_el_calculation.h \
-		..\..\support\qthelpers.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -11255,22 +11095,9 @@ debug\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annotat
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		ui_location_gui.h \
 		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
+		ui_new_location.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -11278,6 +11105,7 @@ debug\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annotat
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -12785,47 +12613,13 @@ debug\calibration_data.obj: ..\..\calibration_data.cpp ..\..\calibration_data.h 
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
@@ -12835,7 +12629,19 @@ debug\calibration_data.obj: ..\..\calibration_data.cpp ..\..\calibration_data.h 
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -12844,7 +12650,11 @@ debug\calibration_data.obj: ..\..\calibration_data.cpp ..\..\calibration_data.h 
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qlineseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QXYSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qxyseries.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QList
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QList \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h
 
 debug\clickable_chartview.obj: ..\..\clickable_chartview.cpp ..\..\clickable_chartview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QChartView \
@@ -16112,57 +15922,15 @@ debug\engineering_data.obj: ..\..\engineering_data.cpp ..\..\engineering_data.h 
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -16170,10 +15938,16 @@ debug\engineering_data.obj: ..\..\engineering_data.cpp ..\..\engineering_data.h 
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -17060,10 +16834,12 @@ debug\histogram_plotter.obj: ..\..\histogram_plotter.cpp ..\..\histogram_plotter
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QMouseEvent
 
 debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -17075,29 +16851,39 @@ debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsysinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlogging.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qflags.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasicatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_bootstrap.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qgenericatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_cxx11.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_msvc.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
@@ -17106,43 +16892,16 @@ debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvarlengtharray.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainerfwd.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmargins.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpaintdevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
@@ -17152,67 +16911,40 @@ debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qregion.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatastream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qline.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtransform.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qimage.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixelformat.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfont.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontmetrics.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qsizepolicy.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qkeysequence.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurlquery.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -17220,10 +16952,16 @@ debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\..\armadillo-12.2.0\include\armadillo \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\config.hpp \
@@ -18557,55 +18295,14 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -18613,10 +18310,16 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -18631,10 +18334,16 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTimer \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtimer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QColor \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpainter.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qfiledialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QVBoxLayout \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGroupBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgroupbox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QCheckBox \
@@ -18760,6 +18469,7 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QJsonArray \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonarray.h \
 		..\..\enhanced_label.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QMouseEvent \
 		..\..\color_map.h \
 		..\..\calibration_data.h \
@@ -18774,6 +18484,7 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QtGlobal \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QPen \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QFont \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QAbstractSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qabstractseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QObject \
@@ -18791,13 +18502,24 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGraphicsView \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgraphicsview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qscrollarea.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgraphicsscene.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QPointF \
 		..\..\process_file.h \
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -18833,6 +18555,10 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\deinterlace.h \
 		..\..\..\fftw-3.3.5-dll64\fftw3.h \
 		..\..\annotation_list_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
 		..\..\annotation_edit_dialog.h \
 		..\..\custom_input_dialog.h \
 		..\..\non_uniformity_correction_external_file.h \
@@ -18842,10 +18568,12 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QDir \
 		..\..\workspace.h \
 		..\..\popout_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGridLayout \
 		..\..\bad_pixels.h \
 		..\..\track_management_widget.h \
 		..\..\support\qt_elements_with_ids.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QComboBox \
 		..\..\data_export.h \
 		..\..\color_correction.h \
@@ -18865,14 +18593,22 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qactiongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmenubar.h \
 		..\..\directory_picker.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFileDialog \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTextStream
 
 debug\new_location.obj: ..\..\new_location.cpp ..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -18884,29 +18620,39 @@ debug\new_location.obj: ..\..\new_location.cpp ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsysinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlogging.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qflags.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasicatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_bootstrap.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qgenericatomic.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_cxx11.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic_msvc.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobalstatic.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
@@ -18915,43 +18661,16 @@ debug\new_location.obj: ..\..\new_location.cpp ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvarlengtharray.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainerfwd.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmargins.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpaintdevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
@@ -18961,47 +18680,40 @@ debug\new_location.obj: ..\..\new_location.cpp ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qregion.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatastream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qline.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtransform.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qimage.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixelformat.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfont.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontmetrics.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qsizepolicy.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qkeysequence.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurlquery.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -19013,7 +18725,12 @@ debug\new_location.obj: ..\..\new_location.cpp ..\..\new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h
 
 debug\noise_suppression.obj: ..\..\noise_suppression.cpp ..\..\noise_suppression.h \
 		..\..\..\armadillo-12.2.0\include\armadillo \
@@ -20506,25 +20223,9 @@ debug\non_uniformity_correction_external_file.obj: ..\..\non_uniformity_correcti
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		ui_location_gui.h \
 		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -20547,6 +20248,7 @@ debug\non_uniformity_correction_external_file.obj: ..\..\non_uniformity_correcti
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QtGlobal \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QPen \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QFont \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QAbstractSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qabstractseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QObject \
@@ -20586,7 +20288,8 @@ debug\non_uniformity_correction_external_file.obj: ..\..\non_uniformity_correcti
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qprogressdialog.h \
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget
 
 debug\non_uniformity_correction.obj: ..\..\non_uniformity_correction.cpp ..\..\non_uniformity_correction.h \
 		..\..\abir_reader.h \
@@ -21957,9 +21660,21 @@ debug\osm_reader.obj: ..\..\osm_reader.cpp ..\..\osm_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
@@ -21972,43 +21687,16 @@ debug\osm_reader.obj: ..\..\osm_reader.cpp ..\..\osm_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvarlengtharray.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainerfwd.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs_win.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmargins.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpaintdevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
@@ -22018,67 +21706,40 @@ debug\osm_reader.obj: ..\..\osm_reader.cpp ..\..\osm_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qregion.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatastream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qline.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtransform.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qimage.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixelformat.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpixmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qshareddata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhash.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsharedpointer_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfont.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontmetrics.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qfontinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qsizepolicy.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcursor.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qkeysequence.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qevent.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmap.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdebug.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtextstream.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlocale.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qset.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontiguouscache.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qurlquery.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -22086,10 +21747,16 @@ debug\osm_reader.obj: ..\..\osm_reader.cpp ..\..\osm_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -24142,55 +23809,14 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsondocument.h \
@@ -24198,10 +23824,16 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborvalue.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdatetime.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcborcommon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qinputdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
 		..\..\support\JTime.h \
@@ -24216,10 +23848,16 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTimer \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtimer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QColor \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpainter.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qfiledialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QVBoxLayout \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGroupBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgroupbox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QCheckBox \
@@ -24345,6 +23983,7 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QJsonArray \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonarray.h \
 		..\..\enhanced_label.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QMouseEvent \
 		..\..\color_map.h \
 		..\..\calibration_data.h \
@@ -24359,6 +23998,7 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QtGlobal \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QPen \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QFont \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QAbstractSeries \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\qabstractseries.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QObject \
@@ -24376,13 +24016,24 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGraphicsView \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgraphicsview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qscrollarea.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractscrollarea.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgraphicsscene.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QPointF \
 		..\..\process_file.h \
 		..\..\support\qthelpers.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -24418,6 +24069,10 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\deinterlace.h \
 		..\..\..\fftw-3.3.5-dll64\fftw3.h \
 		..\..\annotation_list_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
 		..\..\annotation_edit_dialog.h \
 		..\..\custom_input_dialog.h \
 		..\..\non_uniformity_correction_external_file.h \
@@ -24427,10 +24082,12 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QDir \
 		..\..\workspace.h \
 		..\..\popout_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGridLayout \
 		..\..\bad_pixels.h \
 		..\..\track_management_widget.h \
 		..\..\support\qt_elements_with_ids.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QComboBox \
 		..\..\data_export.h \
 		..\..\color_correction.h \
@@ -24450,6 +24107,7 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qactiongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmenubar.h \
 		..\..\directory_picker.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFileDialog
 
 debug\track_management_widget.obj: ..\..\track_management_widget.cpp ..\..\track_management_widget.h \
@@ -26262,21 +25920,20 @@ debug\video_display.obj: ..\..\video_display.cpp ..\..\video_display.h \
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		..\..\ui_location_gui.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qeventloop.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdesktopwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qguiapplication.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qinputmethod.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qitemselectionmodel.h \
+		ui_location_gui.h \
+		..\..\new_location.h \
+		ui_new_location.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
+		..\..\support\earth.h \
+		..\..\support\Euler.h \
+		..\..\support\JTime.h \
+		..\..\support\az_el_calculation.h \
+		..\..\support\qthelpers.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemdelegate.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyleoption.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
@@ -26286,22 +25943,7 @@ debug\video_display.obj: ..\..\video_display.cpp ..\..\video_display.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
-		..\..\new_location.h \
-		..\..\ui_new_location.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
-		..\..\support\earth.h \
-		..\..\support\Euler.h \
-		..\..\support\JTime.h \
-		..\..\support\az_el_calculation.h \
-		..\..\support\qthelpers.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
