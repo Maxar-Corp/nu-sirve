@@ -96,13 +96,16 @@ void VideoDisplay::setup_pinpoint_display()
 	btn_pinpoint->setIcon(pinpoint_icon);
 	btn_pinpoint->setToolTip("Pinpoint");
 	btn_pinpoint->setCheckable(true);
+	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
 	connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
 
 	QVBoxLayout* button_layout = new QVBoxLayout();
 
 	btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
+	btn_pinpoint_bad_pixel->setStyleSheet(olive_green_button_styleSheet);
 	connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::add_pinpoints_to_bad_pixel_map);
 	btn_pinpoint_good_pixel = new QPushButton("Mark as Good Pixels");
+	btn_pinpoint_good_pixel->setStyleSheet(olive_green_button_styleSheet);
 	connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::remove_pinpoints_from_bad_pixel_map);
 
 	button_layout->addWidget(btn_pinpoint_bad_pixel);
@@ -114,6 +117,7 @@ void VideoDisplay::setup_pinpoint_display()
 	btn_clear_pinpoints->setMaximumSize(40, 40);
 	btn_clear_pinpoints->setIcon(clear_icon);
 	btn_clear_pinpoints->setToolTip("Clear");
+	btn_clear_pinpoints->setStyleSheet(dark_orange_button_styleSheet);
 	connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::clear_pinpoints);
 
 	pinpoint_layout->addWidget(btn_pinpoint);
