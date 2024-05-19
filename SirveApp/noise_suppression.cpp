@@ -187,13 +187,16 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 
 void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive)
 {
+	double m, s;
 	if (index_negative.size() > 0) {
-		double m = arma::mean(frame_vector);
-		double s = arma::stddev(frame_vector);
 		if (index_positive.size() > 0){
 			m = arma::mean(frame_vector(index_positive));
 			s = arma::stddev(frame_vector(index_positive));
 		}
+		else{
+			m = arma::mean(frame_vector);
+			s = arma::stddev(frame_vector);
+		}			
 		arma::vec v = arma::randn<arma::vec>(index_negative.size());
 		frame_vector.elem(index_negative) = s * v + m;
 	}

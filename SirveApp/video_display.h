@@ -45,6 +45,22 @@ class VideoDisplay : public QWidget
     Q_OBJECT
 public:
    
+	QString dark_green_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
+
+	QString olive_green_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
+
+	QString dark_blue_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
+
+	QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
+
+	QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
+
+	QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
+	
+	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
+
+	QString bright_green_styleSheet = "color: black; background-color: #73ee53; font-weight: bold;";
+
 	VideoDisplay(QVector<QRgb> starting_color_table);
 	~VideoDisplay();
 	QVBoxLayout *video_display_layout;
