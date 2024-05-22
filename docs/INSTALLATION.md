@@ -16,7 +16,7 @@ In order to build and run this code, a computer must have the following prerequi
     <summary>Click Here to View One-Time Installation Instructions</summary>
     <p>
 
-        #### MSVC: To install the MSVC 2019 C++ compiler and linker as well as the C++ runtime libraries, install the "Build Tools for Visual Studio 2019."
+        #### MSVC: To install the MSVC 2019 C++ compiler and linker as well as the C++ runtime libraries, install the "Build Tools for Visual Studio 2019."  As of 5/21/2024, this was available at https://visualstudio.microsoft.com/vs/older-downloads/
 
         On a Maxar-provided laptop, this can be installed from the Software Center. On any other system, it can be obtained from https://visualstudio.microsoft.com/vs/older-downloads/. Note that this code will not run with Visual C++ 2022 - the installation and codebase assumes Visual C++ 2019 in a number of places.
 
@@ -73,13 +73,10 @@ Once the pre-requisites are properly installed, the included `.pro` file can be 
 1. Open the "x64 Native Tools Command Prompt for VS 2019". This will open a `cmd` prompt with the right environment variables set to build the `.exe`.
     - Alternative method to configure the right environment variables: open a regular command prompt and execute the `vcvars64.bat` file from "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build"
 2. Navigate to the subdirectory in this repo with the source code (one folder down, `SirveApp`)
-3. Run the following command: `..\5.15.2\msvc2019_64\bin\qmake.exe`.
+3. Run the following command: `..\5.15.2\msvc2019_64\bin\qmake.exe`. (Yes, that is a '..' followed by a slash.  You will be executing qmake by dropping down a directory and then going UP three directories!  This command must be copied exactly as shown and then pasted to command line while you are in  the 'SirveApp' folder!!)
     This will generate three `Makefile` files. Note that you can manually delete these `Makefile`s and re-run qmake if problems arise.
-4. Run the following command: `nmake`.
-    This will use those generated Makefiles to compile and link all the code. The resulting `.exe` file will be placed in a `release` folder alongside the README file.
-5. If you have not yet run it, run the following command: `nmake install`.
-    This will copy all the required runtime dependencies alongside the `.exe` file. It only needs run once.
-    Note that the list of files copied over can be found in the SirveApp.pro file INSTALLS directives.
+4. Once you have used qmake to make the nmake files, run the following command: `nmake`.  This will use those generated Makefiles to compile and link all the code. The resulting `.exe` file will be placed in a `release` folder alongside the README file.
+5. If you have not yet run it, run the following command: `nmake install`. This will copy all the required runtime dependencies alongside the `.exe` file. It only needs run once, but the SIRVE executable will fail to run if these libraries are not available.  Note that the list of files copied over can be found in the SirveApp.pro file INSTALLS directives.
 
 If everything succeeded, the release folder alongside the README.md file will be fully sufficient to run the code on a machine with the C++ runtime installed.
 
