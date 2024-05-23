@@ -385,45 +385,67 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
-
+	QStringList colors = ColorScheme::GetTrackColors();
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_bad_pixels = new QGridLayout();
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 2);
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1,3);
 
 	QLabel* label_bad_pixel = new QLabel("Replacing Bad Pixels With Local Average");
-	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 2);
+	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 3);
 
 	lbl_bad_pixel_count = new QLabel("");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 2);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 3);
 	
+	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 3, 0, 1, 1);
+
 	cmb_bad_pixels_type = new QComboBox();
 	cmb_bad_pixels_type->addItem("All Bad Pixels");
 	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
 	cmb_bad_pixels_type->addItem("Outlier Only");
-	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 3, 0, 1, 2);
+	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 3, 1, 1, 1);
+
+	lbl_bad_pixel_method = new QLabel("Method:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_method, 4, 0, 1, 1);
 
 	cmb_outlier_processing_type = new QComboBox();
 	cmb_outlier_processing_type->addItem("Median");
 	cmb_outlier_processing_type->addItem("Moving Median");
-	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 4, 0, 1, 1);
+	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 4, 1, 1, 1);
+	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
+
+	txt_moving_median_N = new QLineEdit("30");
+	grid_bad_pixels->addWidget(txt_moving_median_N, 4, 2, 1, 1);
+	txt_moving_median_N->setEnabled(false);
+	
+	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 5, 0, 1, 1);
 
 	cmb_outlier_processing_sensitivity = new QComboBox();
 	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
 	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
 	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
 	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
-	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 4, 1, 1,1);
+	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 5, 1, 1, 1);
+
+	lbl_bad_pixel_color = new QLabel("Color:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 6, 0, 1, 1);
+
+	cmb_bad_pixel_color = new QComboBox();
+	cmb_bad_pixel_color->addItems(colors);
+	grid_bad_pixels->addWidget(cmb_bad_pixel_color, 6, 1, 1,1);
+	cmb_bad_pixel_color->setCurrentIndex(2);
+	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
 
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 5, 0, 1, 1);
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 6, 2, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
 	btn_bad_pixel_identification->setStyleSheet(dark_orange_button_styleSheet);
-
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
-	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 5, 1, 1, 1);
+	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 1, 2, 1, 1);
 
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 6, 0, 1, 2);
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 7, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_bad_pixels);
 
@@ -2091,6 +2113,21 @@ void SirveApp::edit_tracker_color()
 	video_display->update_tracker_color(tracker_color);
 }
 
+void SirveApp::handle_outlier_processing_change()
+{
+	if(cmb_outlier_processing_type->currentIndex() == 0){
+		txt_moving_median_N->setEnabled(false);
+	}
+	else{
+		txt_moving_median_N->setEnabled(true);
+	}
+}
+void SirveApp::edit_bad_pixel_color()
+{
+	QString bad_pixel_color = cmb_bad_pixel_color->currentText();
+	video_display->highlight_bad_pixels_colors(bad_pixel_color);
+}
+
 void SirveApp::plot_change()
 {
 	// x - axis
@@ -2286,9 +2323,7 @@ void SirveApp::ui_replace_bad_pixels()
 				replace_bad_pixels(dead_pixels);		
 			}
 			else{	
-				int window_length = QInputDialog::getInt(this, "Bad Pixel Replacement", "Half window length for moving median", 30, 1, max_frame/2, 1, &ok);
-				if (!ok)
-					return;
+				u_int window_length = txt_moving_median_N->text().toUInt();
 				arma::uvec index_outlier0 = BadPixels::identify_bad_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog0a);
 				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
 				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);	
@@ -2316,9 +2351,7 @@ void SirveApp::ui_replace_bad_pixels()
 				replace_bad_pixels(dead_pixels);		
 			}
 			else{	
-				int window_length = QInputDialog::getInt(this, "Bad Pixel Replacement", "Half window length for moving median", 30, 1, max_frame/2, 1, &ok);
-				if (!ok)
-					return;
+				u_int window_length = txt_moving_median_N->text().toUInt();
 				arma::uvec index_outlier2 = BadPixels::identify_bad_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog2);
 				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);	
 				replace_bad_pixels(dead_pixels);
