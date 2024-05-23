@@ -17,7 +17,7 @@ namespace MedianFilter
 namespace Deinterlacing
 {
     std::vector<std::vector<uint16_t>> cross_correlation(video_details & original, QProgressDialog & progress);
-    static arma::mat xcorr2(arma::mat inFrame1, arma::mat inFrame2);
+    static arma::cx_mat xcorr2(arma::mat inFrame1, arma::mat inFrame2);
 };
 
 #endif
