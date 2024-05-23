@@ -395,17 +395,35 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	lbl_bad_pixel_count = new QLabel("");
 	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 2);
+	
+	cmb_bad_pixels_type = new QComboBox();
+	cmb_bad_pixels_type->addItem("All Bad Pixels");
+	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
+	cmb_bad_pixels_type->addItem("Outlier Only");
+	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 3, 0, 1, 2);
+
+	cmb_outlier_processing_type = new QComboBox();
+	cmb_outlier_processing_type->addItem("Median");
+	cmb_outlier_processing_type->addItem("Moving Median");
+	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 4, 0, 1, 1);
+
+	cmb_outlier_processing_sensitivity = new QComboBox();
+	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
+	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
+	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
+	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
+	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 4, 1, 1,1);
 
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 0, 1, 1);
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 5, 0, 1, 1);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
 	btn_bad_pixel_identification->setStyleSheet(dark_orange_button_styleSheet);
 
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
-	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 3, 1, 1, 1);
+	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 5, 1, 1, 1);
 
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 2);
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 6, 0, 1, 2);
 
 	vlayout_tab_processing->addLayout(grid_bad_pixels);
 
@@ -2214,92 +2232,98 @@ void SirveApp::ui_replace_bad_pixels()
 	int min_frame = 1;
 	int max_frame = osm_frames.size();
 	if (response == QMessageBox::Yes) {
-
-		bool cont_process = true;
-
-		QStringList type_options;
-		type_options << tr("All Bad Pixels") << tr("Only Dead Pixels");
-
-		QStringList sensitivity_options;
-		sensitivity_options << tr("Low - 6 sigma") << tr("Medium - 5 sigma") << tr("High - 4 sigma") << tr("Highest - 3 sigma");
-
-		QStringList method_options;
-		method_options << tr("Median - Faster") << tr("Moving Median - Slower");
-
+	
 		bool ok;
 
-		QString return_only_dead_choice = QInputDialog::getItem(this, "Bad Pixel Method", "Options", type_options, 0, false, &ok);
-			if (!ok)
-				return;
+		int type_choice = cmb_bad_pixels_type->currentIndex();
+		
+		int outlier_method = cmb_outlier_processing_type->currentIndex();
 
-		bool only_dead = false;
-		if (return_only_dead_choice == "Only Dead Pixels"){
-			only_dead = true;
-		}
+		int outlier_sensitivity = cmb_outlier_processing_sensitivity->currentIndex();
 
 		double N = 6.0;
+		if (type_choice != 1){
 
-		QString bad_pixel_removal_method = "Median - Faster";
-		if (!only_dead){
-			QString outlier_sensitivity = QInputDialog::getItem(this, "Bad Pixel Confirmation", "Options", sensitivity_options, 0, false, &ok);
-			if (!ok)
-				return;
-
-			if (outlier_sensitivity == "Low - 6 sigma"){
+			if (outlier_sensitivity == 0){
 				N = 6.0;
 			}
-			else if (outlier_sensitivity == "Medium - 5 sigma"){
+			else if (outlier_sensitivity == 1){
 				N = 5.0;
 			}
-			else if (outlier_sensitivity == "High - 4 sigma"){
+			else if (outlier_sensitivity == 2){
 				N = 4.0;
 			}
 			else{
 				N = 3.0;
 			}
-
-			bad_pixel_removal_method = QInputDialog::getItem(this, "Bad Pixel Method", "Options", method_options, 0, false, &ok);
-			if (!ok)
-				return;
 		}
 
-		int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame,  max_frame, 1, &ok);
+		int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame, max_frame, 1, &ok);
+			if (!ok)
+				return;
+		int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
 		if (!ok)
 			return;
+		ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+		
+		if(type_choice == 0){ 
+			QProgressDialog progress_dialog0("Finding Dead/Out of Scale Pixels", "Cancel", 0, 4);
+			progress_dialog0.setWindowTitle("Bad Pixels");
+			progress_dialog0.setWindowModality(Qt::ApplicationModal);
+			progress_dialog0.setMinimumDuration(0);
+			arma::uvec index_dead0 = BadPixels::find_dead_badscale_pixels(test_frames.video_frames_16bit);
+			progress_dialog0.setValue(4);
 
-		if (bad_pixel_removal_method == "Median - Faster"){
-			max_frame = std::min(max_frame,start_frame + 499);
-			int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
-			if (!ok)
-				return;
-			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
-			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,4);
-			progress_dialog.setWindowTitle("Bad Pixels");
-			progress_dialog.setWindowModality(Qt::ApplicationModal);
-			progress_dialog.setMinimumDuration(0);
-			progress_dialog.setValue(1);
-			std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_median(N,test_frames.video_frames_16bit, only_dead, progress_dialog);
+			QProgressDialog progress_dialog0a("Finding Outlier Pixels", "Cancel", 0, test_frames.video_frames_16bit.size());
+			progress_dialog0a.setWindowTitle("Bad Pixels");
+			progress_dialog0a.setWindowModality(Qt::ApplicationModal);
+			progress_dialog0a.setMinimumDuration(0);
+
+			if (outlier_method == 0){		
+				arma::uvec index_outlier0 = BadPixels::identify_bad_pixels_median(N,test_frames.video_frames_16bit, progress_dialog0a);	
+				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
+				replace_bad_pixels(dead_pixels);		
+			}
+			else{	
+				int window_length = QInputDialog::getInt(this, "Bad Pixel Replacement", "Half window length for moving median", 30, 1, max_frame/2, 1, &ok);
+				if (!ok)
+					return;
+				arma::uvec index_outlier0 = BadPixels::identify_bad_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog0a);
+				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);	
+				replace_bad_pixels(dead_pixels);
+			}
+		} else if (type_choice == 1){
+			QProgressDialog progress_dialog1("Finding Dead/Out of Scale Pixels", "Cancel", 0,4);
+			progress_dialog1.setWindowTitle("Bad Pixels");
+			progress_dialog1.setWindowModality(Qt::ApplicationModal);
+			progress_dialog1.setMinimumDuration(0);
+			arma::uvec index_dead1 = BadPixels::find_dead_badscale_pixels(test_frames.video_frames_16bit);
+			progress_dialog1.setValue(2);
+			std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
+			progress_dialog1.setValue(3);
 			replace_bad_pixels(dead_pixels);
-		}
-		else{
-			int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame", start_frame + 5, start_frame + 5,  max_frame, 1, &ok);
-			if (!ok)
-				return;
-			int window_length = QInputDialog::getInt(this, "Bad Pixel Replacement", "Half window length for moving median", 30, 1, max_frame/2, 1, &ok);
-			if (!ok)
-				return;
-			//processing_state original = video_display->container.copy_current_state();
-			// QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,original.details.frames_16bit.size());
-			ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
-			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,test_frames.video_frames_16bit.size());
-			progress_dialog.setWindowTitle("Bad Pixels");
-			progress_dialog.setWindowModality(Qt::ApplicationModal);
-			progress_dialog.setMinimumDuration(0);
-			progress_dialog.setValue(1);
-			// std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_moving_median(window_length,N,original.details.frames_16bit, progress_dialog);
-			std::vector<unsigned int> dead_pixels = BadPixels::identify_dead_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog);
-			replace_bad_pixels(dead_pixels);
-		}
+			progress_dialog1.setValue(4);
+		} else {
+			QProgressDialog progress_dialog2("Finding Outlier Pixels", "Cancel", 0, test_frames.video_frames_16bit.size());
+			progress_dialog2.setWindowTitle("Bad Pixels");
+			progress_dialog2.setWindowModality(Qt::ApplicationModal);
+			progress_dialog2.setMinimumDuration(0);
+			if (outlier_method == 0){		
+				arma::uvec index_outlier2 = BadPixels::identify_bad_pixels_median(N,test_frames.video_frames_16bit, progress_dialog2);	
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
+				replace_bad_pixels(dead_pixels);		
+			}
+			else{	
+				int window_length = QInputDialog::getInt(this, "Bad Pixel Replacement", "Half window length for moving median", 30, 1, max_frame/2, 1, &ok);
+				if (!ok)
+					return;
+				arma::uvec index_outlier2 = BadPixels::identify_bad_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog2);
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);	
+				replace_bad_pixels(dead_pixels);
+			}
+		}		
 
 	}
 }
@@ -2670,22 +2694,22 @@ void SirveApp::adaptive_noise_suppression(int relative_start_frame, int number_o
 	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
 	double R = double(availPhysMem)/(double(number_video_frames)*16*640*480);
 
-	if ( R >= 1.5 ){
-		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
-		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
-		progress_dialog.setWindowModality(Qt::ApplicationModal);
-		progress_dialog.setMinimumDuration(0);
-		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
-	}
-	else{
+	// if ( R >= 1.5 ){
+	// 	QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
+	// 	progress_dialog.setWindowTitle("Adaptive Noise Suppression");
+	// 	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	// 	progress_dialog.setMinimumDuration(0);
+	// 	progress_dialog.setValue(1);
+	// 	noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
+	// }
+	// else{
 		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
 		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
-	}
+	// }
 
 	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
 	// progress_dialog2.setWindowTitle("Filter");
@@ -2884,6 +2908,7 @@ void SirveApp::update_global_frame_vector()
 	arma::vec image_vector(original_frame_vector);
 
 	image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
+	//  image_vector = (image_vector - arma::mean(image_vector))/(image_vector.max()) + .5;
 
 	if (chk_auto_lift_gain->isChecked())
 	{
