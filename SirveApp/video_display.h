@@ -81,10 +81,12 @@ public:
 	Video_Container container;
 
 	QString banner_text, boresight_text;
-	QColor tracker_color;
+	QColor tracker_color, bad_pixel_color;
 	bool plot_tracks;
 
 	void highlight_bad_pixels(bool status);
+	void highlight_bad_pixels_colors(QString input_color);
+
 
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 

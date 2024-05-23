@@ -47,6 +47,8 @@ void VideoDisplay::initialize_toggles()
 	banner_color = QString("red");
 	banner_text = QString("EDIT CLASSIFICATION");
 	tracker_color = QString("red");
+	QColor new_color(QString("Yellow"));
+	bad_pixel_color = new_color;
 }
 
 void VideoDisplay::setup_create_track_controls()
@@ -568,8 +570,8 @@ void VideoDisplay::update_display_frame()
 			int pixel_x = pixel_index % image_x;
 			int pixel_y = pixel_index / image_x;
 
-			QRgb bp_color = QColorConstants::Red.rgb();
-			frame.setPixel(pixel_x, pixel_y, bp_color);
+			// QRgb bp_color = QColorConstants::Yellow.rgb();
+			frame.setPixelColor(pixel_x, pixel_y, bad_pixel_color);
 		}
 	}
 
@@ -936,7 +938,14 @@ QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 void VideoDisplay::highlight_bad_pixels(bool status)
 {
 	should_show_bad_pixels = status;
+	update_display_frame();
+}
 
+void VideoDisplay::highlight_bad_pixels_colors(QString input_color)
+{
+	QColor new_color(input_color);
+	bad_pixel_color = new_color;
+	// QRgb bad_pixel_color = QColorConstants::Red.rgb();
 	update_display_frame();
 }
 

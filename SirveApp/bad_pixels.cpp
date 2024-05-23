@@ -179,9 +179,8 @@ arma::uvec BadPixels::identify_bad_pixels_moving_median(int half_window_length, 
     
     arma::umat OUTL(num_pixels, num_video_frames);
 
-    double c = 1.4826, NN;
+    double c = 1.4826;
     arma::uvec index_outlier;
-    arma::mat submat, matrix2;
     index_outlier.reset();
 	for (int i = 0; i < num_video_frames; i++)
 	{
@@ -191,15 +190,9 @@ arma::uvec BadPixels::identify_bad_pixels_moving_median(int half_window_length, 
 		}
 		progress.setValue(i);
         index_first_frame = std::max(i - (half_window_length),0);
-        index_last_frame = std::min(i + (half_window_length),num_video_frames - 1); 
-        NN = index_last_frame - index_last_frame;
-        submat = frame_data.cols(index_first_frame,index_last_frame);
-        submat = arma::sort(submat,"ascend",1);
-        moving_median.col(i) = submat.col(NN/2);
-        matrix2 = arma::sort(arma::abs(frame_data.cols(index_first_frame,index_last_frame).each_col() - moving_median.col(i)),"ascend",1);
-        // moving_median.col(i) =  arma::median(frame_data.cols(index_first_frame,index_last_frame), 1);
-
-        MAD.col(i) = c*(matrix2.col(NN/2));
+        index_last_frame = std::min(i + (half_window_length),num_video_frames - 1);  
+        moving_median.col(i) = arma::median(frame_data.cols(index_first_frame,index_last_frame),1);
+        MAD.col(i) = c*arma::median(arma::abs(frame_data.cols(index_first_frame,index_last_frame).each_col() - moving_median.col(i)),1);
     }
 
     OUTL = arma::abs(frame_data - moving_median) > 3*MAD;
