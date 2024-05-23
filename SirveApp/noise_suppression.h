@@ -17,7 +17,7 @@ namespace AdaptiveNoiseSuppression
 
 namespace NoiseSuppressionGeneral
 {
-	void remove_shadow(arma::vec & frame_vector, arma::uvec index_negative, arma::uvec index_positive);
+	void remove_shadow(arma::vec & frame_vector);
 };
 
 class FixedNoiseSuppression
