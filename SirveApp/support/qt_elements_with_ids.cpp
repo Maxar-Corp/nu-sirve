@@ -3,40 +3,40 @@
 QComboBoxWithId::QComboBoxWithId(int id, QWidget *parent)
     : QComboBox(parent), id(id)
 {
-    connect(this, qOverload<int>(&QComboBox::currentIndexChanged), this, &QComboBoxWithId::handle_index_changed);
+    connect(this, qOverload<int>(&QComboBox::currentIndexChanged), this, &QComboBoxWithId::HandleIndexChanged);
 }
 
-void QComboBoxWithId::handle_index_changed(int index)
+void QComboBoxWithId::HandleIndexChanged(int index)
 {
-    emit current_index_changed_with_id(id, index);
+    emit currentIndexChangedWithId(id, index);
 }
 
 
 QPushButtonWithId::QPushButtonWithId(int id, const QString& text, QWidget *parent)
     : QPushButton(text, parent), id(id)
 {
-    connect(this, &QPushButtonWithId::clicked, this, &QPushButtonWithId::handle_button_click);
+    connect(this, &QPushButtonWithId::clicked, this, &QPushButtonWithId::HandleButtonClick);
 }
 
-void QPushButtonWithId::handle_button_click()
+void QPushButtonWithId::HandleButtonClick()
 {
-    emit clicked_with_id(id);
+    emit clickedWithId(id);
 }
 
 QCheckBoxWithId::QCheckBoxWithId(int id, const QString& text, QWidget *parent)
     : QCheckBox(text, parent), id(id)
 {
-    connect(this, &QCheckBox::stateChanged, this, &QCheckBoxWithId::handle_state_changed);
+    connect(this, &QCheckBox::stateChanged, this, &QCheckBoxWithId::HandleStateChanged);
 }
 
-void QCheckBoxWithId::handle_state_changed(int state)
+void QCheckBoxWithId::HandleStateChanged(int state)
 {
     if (state == Qt::Checked)
     {
-        emit checked_with_id(id);
+        emit checkedWithId(id);
     }
     else
     {
-        emit unchecked_with_id(id);
+        emit uncheckedWithId(id);
     }
 }

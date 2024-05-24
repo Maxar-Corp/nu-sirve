@@ -48,7 +48,7 @@ void EnhancedLabel::mousePressEvent(QMouseEvent *event)
 	if (event->button() == Qt::RightButton)
 	{
 		right_button_clicked = true;
-		emit right_clicked(origin);
+		emit rightClicked(origin);
 	}
 
 }
@@ -129,6 +129,6 @@ void EnhancedLabel::mouseReleaseEvent(QMouseEvent *event)
 
 		// if area is large enough then emit signal
 		if(area.width() > 10 && area.height() > 10)
-			emit highlighted_area(area);
+			emit areaHighlighted(area);
 	}
 }
