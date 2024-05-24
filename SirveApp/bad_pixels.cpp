@@ -124,7 +124,8 @@ arma::uvec BadPixels::identify_bad_pixels_median(double N, std::vector<std::vect
     int num_video_frames = input_pixels.size();
 
 	int num_pixels = input_pixels[0].size();
-
+    num_video_frames = std::min(num_video_frames,500);  
+    
     // Create an Armadillo matrix
     arma::mat frame_data(num_pixels, num_video_frames);
 
@@ -132,8 +133,7 @@ arma::uvec BadPixels::identify_bad_pixels_median(double N, std::vector<std::vect
     for (int i = 0; i < num_video_frames; i++) {
         frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
     }
-	num_video_frames = std::min(num_video_frames,500);
-
+	
     arma::vec var_frame = arma::var(frame_data,0,1);
     arma::vec med_frame = arma::median(frame_data,1);
     arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
