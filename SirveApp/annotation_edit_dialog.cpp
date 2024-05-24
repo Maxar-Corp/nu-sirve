@@ -26,14 +26,14 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * paren
 	cmb_size->setCurrentIndex(index_size);
 
 	// set connections
-	connect(txt_annotation, &QLineEdit::editingFinished, this, &AnnotationEditDialog::text_changed);
-	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::frame_start_changed);
-	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::number_of_frames_changed);
-	connect(txt_x_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::x_location_changed);
-	connect(txt_y_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::y_location_changed);
+	connect(txt_annotation, &QLineEdit::editingFinished, this, &AnnotationEditDialog::TextChanged);
+	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartChanged);
+	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::NumberOfFramesChanged);
+	connect(txt_x_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::XLocationChanged);
+	connect(txt_y_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::YLocationChanged);
 
-	connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::color_changed);
-	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::font_size_changed);
+    connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::ColorChanged);
+	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::FontSizeChanged);
 
     connect(btn_add, &QPushButton::pressed, this, &AnnotationEditDialog::AddDialog);
     connect(btn_cancel, &QPushButton::pressed, this, &AnnotationEditDialog::CloseWindow);
@@ -76,18 +76,18 @@ bool AnnotationEditDialog::check_numeric_value(QString input)
 	bool convert_value_numeric;
 	int value = input.toInt(&convert_value_numeric);
 	
-	return convert_value_numeric;
+    return convert_value_numeric; // This should be 'value'??
 }
 
-void AnnotationEditDialog::text_changed() {
+void AnnotationEditDialog::TextChanged() {
 
 	QString input = txt_annotation->text();
 	current_data->text = input;
 
-	emit annotation_changed();
+	emit annotationChanged();
 }
 
-void AnnotationEditDialog::frame_start_changed() {
+void AnnotationEditDialog::FrameStartChanged() {
 	
 	// gets text
 	QString input = txt_frame_start->text();
@@ -108,7 +108,7 @@ void AnnotationEditDialog::frame_start_changed() {
 			current_data->num_frames = min_frame;
 			txt_frame_start->setText(QString::number(min_frame));
 
-			emit annotation_changed();
+			emit annotationChanged();
 		}
 	}
 	else
@@ -120,7 +120,7 @@ void AnnotationEditDialog::frame_start_changed() {
 
 }
 
-void AnnotationEditDialog::number_of_frames_changed()
+void AnnotationEditDialog::NumberOfFramesChanged()
 {
 	// gets text
 	QString input = txt_num_frames->text();
@@ -142,7 +142,7 @@ void AnnotationEditDialog::number_of_frames_changed()
 			txt_num_frames->setText(QString::number(max_frame - min_frame));
 		}
 
-		emit annotation_changed();
+		emit annotationChanged();
 	}
 	else
 	{
@@ -151,7 +151,7 @@ void AnnotationEditDialog::number_of_frames_changed()
 	}
 }
 
-void AnnotationEditDialog::x_location_changed()
+void AnnotationEditDialog::XLocationChanged()
 {
 	// gets text
 	QString input = txt_x_loc->text();
@@ -173,7 +173,7 @@ void AnnotationEditDialog::x_location_changed()
 		current_data->x_pixel = new_x_position;
 		txt_x_loc->setText(QString::number(new_x_position));
 
-		emit annotation_changed();
+		emit annotationChanged();
 	}
 	else
 	{
@@ -182,7 +182,7 @@ void AnnotationEditDialog::x_location_changed()
 	}
 }
 
-void AnnotationEditDialog::y_location_changed()
+void AnnotationEditDialog::YLocationChanged()
 {
 	// gets text
 	QString input = txt_y_loc->text();
@@ -204,7 +204,7 @@ void AnnotationEditDialog::y_location_changed()
 		current_data->y_pixel = new_y_position;
 		txt_y_loc->setText(QString::number(new_y_position));
 
-		emit annotation_changed();
+		emit annotationChanged();
 	}
 	else
 	{
@@ -213,21 +213,20 @@ void AnnotationEditDialog::y_location_changed()
 	}
 }
 
-void AnnotationEditDialog::color_changed(const QString & text)
+void AnnotationEditDialog::ColorChanged(const QString & text)
 {
 	QString input = text;
 	current_data->color = input;
 
-	emit annotation_changed();
-
+	emit annotationChanged();
 }
 
-void AnnotationEditDialog::font_size_changed(const QString & text)
+void AnnotationEditDialog::FontSizeChanged(const QString & text)
 {
 	int value = text.toInt();
 	current_data->font_size = value;
 
-	emit annotation_changed();
+	emit annotationChanged();
 }
 
 void AnnotationEditDialog::InitializeGui()

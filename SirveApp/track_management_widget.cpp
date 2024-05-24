@@ -61,10 +61,10 @@ QWidget* TrackManagementWidget::CreateTrackControl(int id)
     QComboBoxWithId *recolor_combobox = new QComboBoxWithId(id);
     recolor_combobox->addItems(ColorScheme::get_track_colors());
 
-    connect(chk_should_display, &QCheckBoxWithId::checked_with_id, this, &TrackManagementWidget::displayTrack);
-    connect(chk_should_display, &QCheckBoxWithId::unchecked_with_id, this, &TrackManagementWidget::hideTrack);
-    connect(delete_button, &QPushButtonWithId::clicked_with_id, this, &TrackManagementWidget::deleteTrack);
-    connect(recolor_combobox, &QComboBoxWithId::current_index_changed_with_id, this, &TrackManagementWidget::HandleTrackColorSelection);
+    connect(chk_should_display, &QCheckBoxWithId::checkedWithId, this, &TrackManagementWidget::displayTrack);
+    connect(chk_should_display, &QCheckBoxWithId::uncheckedWithId, this, &TrackManagementWidget::hideTrack);
+    connect(delete_button, &QPushButtonWithId::clickedWithId, this, &TrackManagementWidget::deleteTrack);
+    connect(recolor_combobox, &QComboBoxWithId::currentIndexChangedWithId, this, &TrackManagementWidget::HandleTrackColorSelection);
 
     QVBoxLayout *control_layout = new QVBoxLayout(track_control);
     QHBoxLayout *top_box = new QHBoxLayout();

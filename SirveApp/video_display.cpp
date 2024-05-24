@@ -133,8 +133,8 @@ void VideoDisplay::SetupLabels()
 
     label->setObjectName("video_object");
 
-    connect(label, &EnhancedLabel::highlighted_area, this, &VideoDisplay::HandleImageAreaSelection);
-    connect(label, &EnhancedLabel::right_clicked, this, &VideoDisplay::UndoZoom);
+    connect(label, &EnhancedLabel::areaHighlighted, this, &VideoDisplay::HandleImageAreaSelection);
+    connect(label, &EnhancedLabel::rightClicked, this, &VideoDisplay::UndoZoom);
     connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::HandlePixelSelection);
 
     video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
