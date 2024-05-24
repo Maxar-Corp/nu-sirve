@@ -129,14 +129,14 @@ void AnnotationListDialog::add()
 	
 	// display new annotation screen
 	AnnotationEditDialog annotation_edit_dialog(data.back());
-	connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
+	connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 
 	auto response = annotation_edit_dialog.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
 	if (response == 0) {
 		data.pop_back();
-		emit annotation_list_updated();
+		emit annotationListUpdated();
 		
 		return;
 	}
@@ -158,7 +158,7 @@ void AnnotationListDialog::edit()
 
 		// display new annotation screen
 		AnnotationEditDialog annotation_edit_dialog(data[index]);
-		connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
+		connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 		
 		auto response = annotation_edit_dialog.exec();
 
@@ -167,7 +167,7 @@ void AnnotationListDialog::edit()
 		{
 			data[index] = old_data;
 
-			emit annotation_list_updated();
+			emit annotationListUpdated();
 		}
 
 		repopulate_list();
@@ -194,7 +194,7 @@ void AnnotationListDialog::delete_object()
 
 			repopulate_list();
 			lst_annotations->setCurrentRow(-1);
-			emit annotation_list_updated();
+			emit annotationListUpdated();
 		}
 	}
 

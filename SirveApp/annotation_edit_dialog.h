@@ -28,17 +28,17 @@ public:
 	bool check_numeric_value(QString input);
 
 signals:
-	void annotation_changed();
+    void annotationChanged();
 
 public slots:
 
-	void text_changed();
-	void frame_start_changed();
-	void number_of_frames_changed();
-	void x_location_changed();
-	void y_location_changed();
-	void color_changed(const QString &text);
-	void font_size_changed(const QString &text);
+    void TextChanged();
+    void FrameStartChanged();
+    void NumberOfFramesChanged();
+    void XLocationChanged();
+    void YLocationChanged();
+    void ColorChanged(const QString &text);
+    void FontSizeChanged(const QString &text);
 
 private:
 	

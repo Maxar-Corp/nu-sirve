@@ -27,7 +27,7 @@ public:
 	void repopulate_list();
 
 signals:
-	void annotation_list_updated();
+    void annotationListUpdated();
 
 private:
 
