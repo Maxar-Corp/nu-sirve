@@ -2,36 +2,37 @@
 
 namespace configReaderWriter {
 
-std::string getParentFolderPath(const std::string& filePath) {
+std::string get_immediate_parent_folder_path(const std::string& filePath) {
 
     fs::path fullPath = fs::absolute(filePath);
-    fs::path baseFolderPath = fullPath.parent_path();
-    return baseFolderPath.string();
+    fs::path parentPath = fullPath.parent_path();
+
+    return parentPath.string();
 }
 
-bool folderExists(const std::string& currentDir, const std::string& folderName) {
+bool folder_exists(const std::string& currentDir, const std::string& folderName) {
 
     std::string folderPath = currentDir + "/" + folderName;
     return fs::exists(folderPath) && fs::is_directory(folderPath);
 }
 
-std::string findPath(const std::string& filePath,  const std::string& folderName) {
+std::string LocateConfigFileFolder(const std::string& filePath,  const std::string& folderName) {
 
-    if (folderExists(filePath, folderName))
+    if (folder_exists(filePath, folderName))
         return filePath;
     else {
-        std::string parentPath = getParentFolderPath(filePath);
-        if (!folderExists(parentPath, folderName))
-            parentPath = getParentFolderPath(parentPath);
+        std::string parentPath = get_immediate_parent_folder_path(filePath);
+        if (!folder_exists(parentPath, folderName))
+            parentPath = get_immediate_parent_folder_path(parentPath);
 
         return parentPath;
     }
 }
 
-QJsonObject getDataObject() {
+QJsonObject ExtractConfigDataJsonObject() {
 
     QString currentPath = QDir::currentPath();
-    std::string baseFolder = findPath(currentPath.toStdString(), CONFIG_FOLDER);
+    std::string baseFolder = LocateConfigFileFolder(currentPath.toStdString(), CONFIG_FOLDER);
     QFile file(QString::fromStdString(baseFolder) + "/" + CONFIG_FOLDER + "/" + QString(CONFIG_FILE));
     file.open(QIODevice::ReadOnly|QIODevice::Text);
     QString dataString=file.readAll();
@@ -41,9 +42,9 @@ QJsonObject getDataObject() {
     return  doc.object();
 }
 
-ConfigValues load() {
+ConfigValues ExtractWorkspaceConfigValues() {
 
-    QJsonObject data_object = getDataObject();
+    QJsonObject data_object = ExtractConfigDataJsonObject();
 
     //defaults
     int max_used_bits = 14;
@@ -63,7 +64,8 @@ ConfigValues load() {
     return ConfigValues { version, max_used_bits, workspace_folder };
 }
 
-void writeJsonObjectToFile(const QJsonObject &jsonObject, const QString &filePath) {
+void WriteJsonObjectToFile(const QJsonObject &jsonObject, const QString &filePath) {
+
     // Convert QJsonObject to QJsonDocument
     QJsonDocument jsonDoc(jsonObject);
 
@@ -81,21 +83,21 @@ void writeJsonObjectToFile(const QJsonObject &jsonObject, const QString &filePat
     }
 }
 
-void saveWorkspaceFolder(QString workspace_folder) {
+void SaveWorkspaceFolder(QString workspace_folder) {
 
-    QJsonObject data_object = getDataObject();
+    QJsonObject data_object = ExtractConfigDataJsonObject();
     data_object["workspace folder"] = workspace_folder;
 
-    QString currentPath = QDir::currentPath();
+    QString current_path = QDir::currentPath();
 
-    qDebug() << "Current Path: " << currentPath;
+    qDebug() << "Current Path: " << current_path;
 
-    std::string baseFolder = findPath(currentPath.toStdString(), CONFIG_FOLDER);
+    std::string baseFolder = LocateConfigFileFolder(current_path.toStdString(), CONFIG_FOLDER);
 
     QString filePath = QString::fromStdString(baseFolder) + "/" + CONFIG_FOLDER + "/" + QString(CONFIG_FILE);
 
     qDebug() << "File Path: " << filePath;
 
-    writeJsonObjectToFile(data_object, filePath);
+    WriteJsonObjectToFile(data_object, filePath);
 }
 }

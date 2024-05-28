@@ -3,7 +3,7 @@
 CustomInputDialog::CustomInputDialog(QVector<QString> combo_box_options, QString dialog_title, QString combo_label, int index_combo, QWidget * parent)
 {
 
-	initialize_gui(combo_box_options, dialog_title, combo_label);
+    InitializeGui(combo_box_options, dialog_title, combo_label);
 	
 	cmb_options->setCurrentIndex(index_combo);
 
@@ -32,7 +32,7 @@ CustomInputDialog::~CustomInputDialog()
 
 }
 
-void CustomInputDialog::initialize_gui(QVector<QString> combo_box_options, QString dialog_title, QString combo_label)
+void CustomInputDialog::InitializeGui(QVector<QString> combo_box_options, QString dialog_title, QString combo_label)
 {
 
 	// ------------------------------------------------------------
@@ -57,8 +57,8 @@ void CustomInputDialog::initialize_gui(QVector<QString> combo_box_options, QStri
 	btn_ok = new QPushButton(tr("Ok"));
 	btn_cancel = new QPushButton(tr("Cancel"));
 
-	connect(btn_ok, &QPushButton::pressed, this, &CustomInputDialog::ok);
-	connect(btn_cancel, &QPushButton::pressed, this, &CustomInputDialog::close_window);
+    connect(btn_ok, &QPushButton::pressed, this, &CustomInputDialog::verifyCustomInputValues);
+    connect(btn_cancel, &QPushButton::pressed, this, &CustomInputDialog::closeWindow);
 
 	// ------------------------------------------------------------
 	// set gridlayout
@@ -86,17 +86,17 @@ void CustomInputDialog::initialize_gui(QVector<QString> combo_box_options, QStri
 	setWindowTitle(dialog_title);
 }
 
-void CustomInputDialog::ok()
+void CustomInputDialog::verifyCustomInputValues()
 {
 	done(QDialog::Accepted);
 }
 
-void CustomInputDialog::close_window()
+void CustomInputDialog::closeWindow()
 {
 	done(QDialog::Rejected);
 }
 
 void CustomInputDialog::closeEvent(QCloseEvent * event)
 {
-	close_window();
+    closeWindow();
 }

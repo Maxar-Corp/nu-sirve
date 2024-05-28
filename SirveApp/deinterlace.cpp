@@ -1,6 +1,6 @@
 #include "deinterlace.h"
 
-Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_pixel_input)
+Deinterlace::Deinterlace(DeinterlaceType input_type, int x_pixel_input, int y_pixel_input)
 {
 	deinterlace_method = input_type;
 	x_pixels = x_pixel_input;
@@ -89,13 +89,13 @@ Deinterlace::Deinterlace(deinterlace_type input_type, int x_pixel_input, int y_p
 
 }
 
-std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& frame)
+std::vector<uint16_t> Deinterlace::DeinterlaceFrame(std::vector<uint16_t>& frame)
 {
 	arma::mat even_frames, odd_frames, mat_frame, cross_correlation;
-	mat_frame = create_frame(frame);
-	create_even_odd_frames(mat_frame, odd_frames, even_frames);
+    mat_frame = CreateFrame(frame);
+    CreateEvenOddFrames(mat_frame, odd_frames, even_frames);
 
-	cross_correlation = cross_correlate_frame(mat_frame, odd_frames, even_frames);
+    cross_correlation = CrossCorrelateFrame(mat_frame, odd_frames, even_frames);
 
 	arma::ivec offsets;
 
@@ -123,7 +123,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		arma::mat x_mat(x, y, arma::fill::zeros);
 		arma::mat y_mat(x, y, arma::fill::zeros);
 		
-		mesh_grid(x_values, y_values, x_mat, y_mat);
+        CalculateMeshGrid(x_values, y_values, x_mat, y_mat);
 
 		arma::mat v(cross_correlation);
 		double max_value = cross_correlation.max();
@@ -162,7 +162,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 		arma::mat x_mat(x, y, arma::fill::zeros);
 		arma::mat y_mat(x, y, arma::fill::zeros);
 
-		mesh_grid(x_values, y_values, x_mat, y_mat);
+        CalculateMeshGrid(x_values, y_values, x_mat, y_mat);
 
 		arma::mat v(cross_correlation);
 		double max_value = cross_correlation.max();
@@ -224,13 +224,13 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(std::vector<uint16_t>& fram
 	return converted_values;
 }
 
-std::vector<uint16_t> Deinterlace::deinterlace_frame(deinterlace_type input_type, int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame)
+std::vector<uint16_t> Deinterlace::DeinterlaceFrame(DeinterlaceType input_type, int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame)
 {
 	arma::mat even_frames, odd_frames, mat_frame, cross_correlation;
-	mat_frame = Deinterlace::create_frame(x_pixel_input, y_pixel_input, frame);
-	Deinterlace::create_even_odd_frames(mat_frame, odd_frames, even_frames, y_pixel_input);
+    mat_frame = Deinterlace::CreateFrame(x_pixel_input, y_pixel_input, frame);
+    Deinterlace::CreateEvenOddFrames(mat_frame, odd_frames, even_frames, y_pixel_input);
 
-	cross_correlation = Deinterlace::cross_correlate_frame(mat_frame, odd_frames, even_frames);
+    cross_correlation = Deinterlace::CrossCorrelateFrame(mat_frame, odd_frames, even_frames);
 
 	arma::ivec offsets;
 
@@ -258,7 +258,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(deinterlace_type input_type
 		arma::mat x_mat(x, y, arma::fill::zeros);
 		arma::mat y_mat(x, y, arma::fill::zeros);
 
-		Deinterlace::mesh_grid(x_values, y_values, x_mat, y_mat);
+        Deinterlace::CalculateMeshGrid(x_values, y_values, x_mat, y_mat);
 
 		arma::mat v(cross_correlation);
 		double max_value = cross_correlation.max();
@@ -297,7 +297,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(deinterlace_type input_type
 		arma::mat x_mat(x, y, arma::fill::zeros);
 		arma::mat y_mat(x, y, arma::fill::zeros);
 
-		Deinterlace::mesh_grid(x_values, y_values, x_mat, y_mat);
+        Deinterlace::CalculateMeshGrid(x_values, y_values, x_mat, y_mat);
 
 		arma::mat v(cross_correlation);
 		double max_value = cross_correlation.max();
@@ -360,7 +360,7 @@ std::vector<uint16_t> Deinterlace::deinterlace_frame(deinterlace_type input_type
 }
 
 
-arma::mat Deinterlace::cross_correlate_frame(arma::mat & mat_frame, arma::mat odd_frames, arma::mat even_frames)
+arma::mat Deinterlace::CrossCorrelateFrame(arma::mat & mat_frame, arma::mat odd_frames, arma::mat even_frames)
 {
 	double mean_value = arma::mean(arma::mean(mat_frame));
 	arma::mat frame1 = odd_frames - mean_value;
@@ -380,14 +380,14 @@ arma::mat Deinterlace::cross_correlate_frame(arma::mat & mat_frame, arma::mat od
 	arma::uvec reverse_index_cols = arma::regspace<arma::uvec>(cols_frame2 - 1, 0);
 	frame2_pad.submat(0, 0, rows_frame2 - 1, cols_frame2 - 1) = frame2.submat(reverse_index_rows, reverse_index_cols);
 
-	arma::mat cc_mat = fast_fourier_transform(frame1_pad, frame2_pad);
+    arma::mat cc_mat = CalculateFastFourierTransformMatrix(frame1_pad, frame2_pad);
 
 	//DEBUG << "De-interlace: Cross correlation matrix 1st row, 1st Column value is " << std::to_string(cc_mat(0, 0));
 	
 	return cc_mat;
 }
 
-arma::mat Deinterlace::fast_fourier_transform(arma::mat matrix1, arma::mat matrix2)
+arma::mat Deinterlace::CalculateFastFourierTransformMatrix(arma::mat matrix1, arma::mat matrix2)
 {
 	//--------------------------------------------------------------------------------
 	//FFT of matrix 1
@@ -464,7 +464,7 @@ arma::mat Deinterlace::fast_fourier_transform(arma::mat matrix1, arma::mat matri
 	return out_mat;
 }
 
-void Deinterlace::mesh_grid(arma::vec x_input, arma::vec y_input, arma::mat & x_mat, arma::mat & y_mat)
+void Deinterlace::CalculateMeshGrid(arma::vec x_input, arma::vec y_input, arma::mat & x_mat, arma::mat & y_mat)
 {
 	int n_rows = x_mat.n_rows;
 	int n_cols = x_mat.n_cols;
@@ -494,7 +494,7 @@ void Deinterlace::mesh_grid(arma::vec x_input, arma::vec y_input, arma::mat & x_
 
 }
 
-void Deinterlace::test_conversion(std::vector<uint16_t>& frame)
+void Deinterlace::TestConversion(std::vector<uint16_t>& frame)
 {
 	
 	// Test shift algorithm
@@ -519,7 +519,7 @@ void Deinterlace::test_conversion(std::vector<uint16_t>& frame)
 	bool check = arma::approx_equal(temp, out_frame_flat, "absdiff", 0.0001);
 }
 
-arma::mat Deinterlace::create_frame(std::vector<uint16_t>& frame) {
+arma::mat Deinterlace::CreateFrame(std::vector<uint16_t>& frame) {
 
 
 	// Convert the frame from a vector into armadillo matrix 
@@ -535,7 +535,7 @@ arma::mat Deinterlace::create_frame(std::vector<uint16_t>& frame) {
 }
 
 
-arma::mat Deinterlace::create_frame(int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame) {
+arma::mat Deinterlace::CreateFrame(int x_pixel_input, int y_pixel_input, std::vector<uint16_t>& frame) {
 
 
 	// Convert the frame from a vector into armadillo matrix 
@@ -551,7 +551,7 @@ arma::mat Deinterlace::create_frame(int x_pixel_input, int y_pixel_input, std::v
 }
 
 
-void Deinterlace::create_even_odd_frames(arma::mat & mat_frame, arma::mat & odd_frame, arma::mat & even_frame)
+void Deinterlace::CreateEvenOddFrames(arma::mat & mat_frame, arma::mat & odd_frame, arma::mat & even_frame)
 {
 
 	arma::uvec odd_rows = arma::regspace<arma::uvec>(1, 2, y_pixels);
@@ -570,7 +570,7 @@ void Deinterlace::create_even_odd_frames(arma::mat & mat_frame, arma::mat & odd_
 
 }
 
-void Deinterlace::create_even_odd_frames(arma::mat & mat_frame, arma::mat & odd_frame, arma::mat & even_frame, int y_pixel_input)
+void Deinterlace::CreateEvenOddFrames(arma::mat & mat_frame, arma::mat & odd_frame, arma::mat & even_frame, int y_pixel_input)
 {
 
 	arma::uvec odd_rows = arma::regspace<arma::uvec>(1, 2, y_pixel_input);

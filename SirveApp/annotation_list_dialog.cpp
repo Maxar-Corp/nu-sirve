@@ -1,6 +1,6 @@
 #include "annotation_list_dialog.h"
 
-AnnotationListDialog::AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, QWidget * parent) : data(input_vector)
+AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget * parent) : data(input_vector)
 {
 	initialize_gui();	
 	
@@ -12,7 +12,7 @@ AnnotationListDialog::AnnotationListDialog(std::vector<annotation_info> &input_v
 	connect(btn_edit, &QPushButton::pressed, this, &AnnotationListDialog::edit);
 	connect(btn_delete, &QPushButton::pressed, this, &AnnotationListDialog::delete_object);
 
-	connect(lst_annotations, &QListWidget::currentRowChanged, this, &AnnotationListDialog::show_annotation);
+    connect(lst_annotations, &QListWidget::currentRowChanged, this, &AnnotationListDialog::ShowAnnotation);
 }
 
 AnnotationListDialog::~AnnotationListDialog() {
@@ -28,13 +28,13 @@ AnnotationListDialog::~AnnotationListDialog() {
 	delete lst_annotations;
 }
 
-void AnnotationListDialog::show_annotation(int index)
+void AnnotationListDialog::ShowAnnotation(int index)
 {
 	
 	QString output;
 
 	if (index >= 0) {
-		annotation_info d = data[index];
+		AnnotationInfo d = data[index];
 
 		output = "Annotation: " + d.text + "\n\n";
 		output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n\n";
@@ -108,7 +108,7 @@ void AnnotationListDialog::ok()
 void AnnotationListDialog::add()
 {
 	// set user definable attributes
-	annotation_info new_data;
+	AnnotationInfo new_data;
 	new_data.color = "red";
 	new_data.font_size = 8;
 	new_data.x_pixel = 50;
@@ -129,14 +129,14 @@ void AnnotationListDialog::add()
 	
 	// display new annotation screen
 	AnnotationEditDialog annotation_edit_dialog(data.back());
-	connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
+	connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 
 	auto response = annotation_edit_dialog.exec();
 
 	// if action was cancelled or window closed, then remove the new annotation
 	if (response == 0) {
 		data.pop_back();
-		emit annotation_list_updated();
+		emit annotationListUpdated();
 		
 		return;
 	}
@@ -154,11 +154,11 @@ void AnnotationListDialog::edit()
 	
 	if (index >= 0) {
 		// store old data in case user cancels operation
-		annotation_info old_data = data[index];
+		AnnotationInfo old_data = data[index];
 
 		// display new annotation screen
 		AnnotationEditDialog annotation_edit_dialog(data[index]);
-		connect(&annotation_edit_dialog, &AnnotationEditDialog::annotation_changed, this, &AnnotationListDialog::annotation_list_updated);
+		connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 		
 		auto response = annotation_edit_dialog.exec();
 
@@ -167,7 +167,7 @@ void AnnotationListDialog::edit()
 		{
 			data[index] = old_data;
 
-			emit annotation_list_updated();
+			emit annotationListUpdated();
 		}
 
 		repopulate_list();
@@ -194,7 +194,7 @@ void AnnotationListDialog::delete_object()
 
 			repopulate_list();
 			lst_annotations->setCurrentRow(-1);
-			emit annotation_list_updated();
+			emit annotationListUpdated();
 		}
 	}
 

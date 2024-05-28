@@ -16,7 +16,7 @@ ColorScheme::ColorScheme()
     index = 0;
 }
 
-QStringList ColorScheme::GetTrackColors()
+QStringList ColorScheme::get_track_colors()
 {
     return {
         "red",
@@ -30,15 +30,15 @@ QStringList ColorScheme::GetTrackColors()
     };
 }
 
-QString ColorScheme::GetCurrentColor(){
+QString ColorScheme::get_current_color(){
     return colors[index];
 }
 
-QString ColorScheme::Get_Color(int index) {
+QString ColorScheme::get_color(int index) {
 	return colors[index];
 }
 
-QString ColorScheme::GetNextColor()
+QString ColorScheme::get_next_color()
 {
     index++;
     if (index == colors.size())
@@ -49,7 +49,7 @@ QString ColorScheme::GetNextColor()
     return colors[index];
 }
 
-void ColorScheme::reset_colors()
+void ColorScheme::ResetColors()
 {
 	index = 0;
 }

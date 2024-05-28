@@ -123,7 +123,7 @@ std::set<int> TrackInformation::get_manual_track_ids()
     return manual_track_ids;
 }
 
-void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
+void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
     for (int i = 0; i < manual_frames.size(); i++ )
@@ -135,12 +135,12 @@ void TrackInformation::add_manual_tracks(std::vector<TrackFrame> new_frames)
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
 
-            manual_plotting_frames[i].tracks[track_id] = calculate_az_el(i, trackData.second.centroid_x, trackData.second.centroid_y);
+            manual_plotting_frames[i].tracks[track_id] = CalculateAzimuthElevation(i, trackData.second.centroid_x, trackData.second.centroid_y);
         }
     }
 }
 
-void TrackInformation::remove_manual_track(int track_id)
+void TrackInformation::RemoveManualTrack(int track_id)
 {
     manual_track_ids.erase(track_id);
     for (int i = 0; i < manual_frames.size(); i++ )
@@ -149,7 +149,7 @@ void TrackInformation::remove_manual_track(int track_id)
     }
 }
 
-void TrackInformation::add_created_manual_track(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
+void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
 {
     //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
     manual_track_ids.insert(track_id);
@@ -168,14 +168,14 @@ void TrackInformation::add_created_manual_track(int track_id, const std::vector<
             file.write(csv_line.toUtf8());
             file.write("\n");
 
-            manual_plotting_frames[i].tracks[track_id] = calculate_az_el(i, track_details.centroid_x, track_details.centroid_y);
+            manual_plotting_frames[i].tracks[track_id] = CalculateAzimuthElevation(i, track_details.centroid_x, track_details.centroid_y);
         }
     }
 
     file.close();
 }
 
-std::vector<std::optional<TrackDetails>> TrackInformation::copy_manual_track(int track_id)
+std::vector<std::optional<TrackDetails>> TrackInformation::CopyManualTrack(int track_id)
 {
     std::vector<std::optional<TrackDetails>> single_track_frames;
     for (int i = 0; i < manual_frames.size(); i++ )
@@ -192,7 +192,7 @@ std::vector<std::optional<TrackDetails>> TrackInformation::copy_manual_track(int
     return single_track_frames;
 }
 
-std::vector<std::optional<TrackDetails>> TrackInformation::get_empty_track()
+std::vector<std::optional<TrackDetails>> TrackInformation::GetEmptyTrack()
 {
     std::vector<std::optional<TrackDetails>> track_frames;
     for (int i = 0; i < manual_frames.size(); i++ )
@@ -202,7 +202,7 @@ std::vector<std::optional<TrackDetails>> TrackInformation::get_empty_track()
     return track_frames;
 }
 
-TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_file_name) const
+TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_name) const
 {
     size_t num_frames = manual_frames.size();
 
@@ -263,7 +263,7 @@ TrackFileReadResult TrackInformation::read_tracks_from_file(QString absolute_fil
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
 }
 
-ManualPlottingTrackDetails TrackInformation::calculate_az_el(int frame_number, int centroid_x, int centroid_y)
+ManualPlottingTrackDetails TrackInformation::CalculateAzimuthElevation(int frame_number, int centroid_x, int centroid_y)
 {
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
     ManualPlottingTrackDetails details;

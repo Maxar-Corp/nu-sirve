@@ -10,10 +10,10 @@ public:
     QComboBoxWithId(int id, QWidget *parent = nullptr);
 
 signals:
-    void current_index_changed_with_id(int id, int index);
+    void currentIndexChangedWithId(int id, int index);
 
 private slots:
-    void handle_index_changed(int index);
+    void HandleIndexChanged(int index);
 
 private:
     int id;
@@ -27,10 +27,10 @@ public:
     QPushButtonWithId(int id, const QString& text, QWidget *parent = nullptr);
 
 signals:
-    void clicked_with_id(int id);
+    void clickedWithId(int id);
 
 private slots:
-    void handle_button_click();
+    void HandleButtonClick();
 
 private:
     int id;
@@ -44,11 +44,11 @@ public:
     QCheckBoxWithId(int id, const QString& text, QWidget *parent = nullptr);
 
 signals:
-    void checked_with_id(int id);
-    void unchecked_with_id(int id);
+    void checkedWithId(int id);
+    void uncheckedWithId(int id);
 
 private slots:
-    void handle_state_changed(int state);
+    void HandleStateChanged(int state);
 
 private:
     int id;

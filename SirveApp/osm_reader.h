@@ -27,7 +27,7 @@ const double kSMALL_NUMBER = 0.000001;
 class OSMReader: private BinaryFileReader
 {
 public:
-	std::vector<Frame> read_osm_file(QString path);
+    std::vector<Frame> ReadOsmFileData(QString path);
 
 	OSMReader();
 	~OSMReader();
@@ -37,12 +37,12 @@ private:
 	std::vector<double> file_ecef_vector;
 	std::vector<double> frame_time;
 	
-    std::vector<Frame> LoadFile(const char *file_path, bool input_combine_tracks = false);
+    std::vector<Frame> LoadFrameVectors(const char *file_path, bool input_combine_tracks = false);
 
     uint32_t FindMessageNumber();
     std::vector<Frame> LoadData(uint32_t num_messages, bool combine_tracks);
     void AddTrackToLastFrame(std::vector<Frame> &data);
-	std::vector<double> get_lat_lon_alt(std::vector<double> ecf);
+    std::vector<double> CalculateLatLonAltVector(std::vector<double> ecf);
 
 	MessageHeader ReadMessageHeader();
 	FrameHeader ReadFrameHeader();
@@ -50,11 +50,10 @@ private:
 
     TrackData GetTrackData(FrameData & input);
 	
-
-	std::vector<double> mr2dcos(std::vector<double> input);
-	std::vector<double> calculation_azimuth_elevation(int x_pixel, int y_pixel, FrameData & input);
+    std::vector<double> CalculateDirectionCosineMatrix(std::vector<double> input);
+    std::vector<double> CalculateAzimuthElevation(int x_pixel, int y_pixel, FrameData & input);
 	
-	double get_gps_time(double offset_gps_seconds);
+    double CalculateGpsUtcJulianDate(double offset_gps_seconds);
 };
 
 #endif

@@ -13,11 +13,11 @@ NUC::~NUC()
 {
 }
 
-std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version)
+std::vector<double> NUC::CalculateNucCorrection(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version)
 {
 	std::vector<double>out;
 
-	ABIR_Data_Result abir_result = abir_data.Get_Frames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
+	ABIRDataResult abir_result = abir_data.GetFrames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
 	if (abir_result.had_error) {
 		return out;
 	}
@@ -45,7 +45,7 @@ std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned in
 
 	//DEBUG << "NUC: Summation of all values, normalized by number of frames, in 1st row, 1st column: " << std::to_string(values(0));
 
-	arma::vec adjusted_mean_frames = replace_broken_pixels(values);
+    arma::vec adjusted_mean_frames = ReplaceBrokenPixels(values);
 
 	double min_value = adjusted_mean_frames.min();
 
@@ -69,7 +69,7 @@ std::vector<double> NUC::get_nuc_correction(QString path_video_file, unsigned in
 
 }
 
-std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
+std::vector<uint16_t> NUC::ApplyNucCorrection(std::vector<uint16_t> frame)
 {
 
 	std::vector<double> converted_values(frame.begin(), frame.end());
@@ -80,14 +80,14 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 	// ----------------------------------------------------------------------------------------------
 
 	// get updated values for happy and dead pixels
-	arma::vec values_happy_pixels = apply_kernel(original_frame, pixels_happy);
-	arma::vec values_dead_pixels = apply_kernel(original_frame, pixels_dead);
+    arma::vec values_happy_pixels = ApplyKernel(original_frame, pixels_happy);
+    arma::vec values_dead_pixels = ApplyKernel(original_frame, pixels_dead);
 
 	// Replace happy/dead pixels with adjusted mean frame
 	//INFO << "NUC: Replacing happy pixels in frame";
-	replace_image_pixels(original_frame, pixels_happy, values_happy_pixels);
+    ReplaceImagePixels(original_frame, pixels_happy, values_happy_pixels);
 	//INFO << "NUC: Replacing dead pixels in frame";
-	replace_image_pixels(original_frame, pixels_dead, values_dead_pixels);
+    ReplaceImagePixels(original_frame, pixels_dead, values_dead_pixels);
 
 	// ----------------------------------------------------------------------------------------------
 	
@@ -102,7 +102,7 @@ std::vector<uint16_t> NUC::apply_nuc_correction(std::vector<uint16_t> frame)
 	return vector_int;
 }
 
-arma::mat NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain)
+arma::mat NUC::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain)
 {
 	//Assumes a domain matrix that is square n x n, where n is an odd number greater than 1
 	
@@ -170,9 +170,9 @@ arma::mat NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain)
 	return output;
 }
 
-double NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain, int i, int j)
+double NUC::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain, int i, int j)
 {
-	//Assumes a domain matrix that is square n x n, where n is an odd number greater than 1
+    //Assumes a domain (kernel/filter) matrix that is square n x n, where n is an odd number greater than 1
 
 	int domain_rows = domain.n_rows;
 	int domain_cols = domain.n_cols;
@@ -232,7 +232,7 @@ double NUC::ordfilt2(arma::mat input_matrix, int order, arma::mat domain, int i,
 	return output;
 }
 
-arma::vec NUC::apply_kernel(arma::vec data, arma::uvec indices)
+arma::vec NUC::ApplyKernel(arma::vec data, arma::uvec indices)
 {
 
 	arma::mat data_matrix(data);
@@ -253,7 +253,7 @@ arma::vec NUC::apply_kernel(arma::vec data, arma::uvec indices)
 		pixel_col = pixel_index % x_pixels;
 
 		value_before = data_matrix(pixel_row, pixel_col);
-		value_new = ordfilt2(data_matrix, 5, kernel, pixel_row, pixel_col);
+        value_new = ApplyFilterMatrixWithOrderReduction(data_matrix, 5, kernel, pixel_row, pixel_col);
 
 		output(i) = value_new;
 	}
@@ -261,7 +261,7 @@ arma::vec NUC::apply_kernel(arma::vec data, arma::uvec indices)
 	return output;
 }
 
-arma::vec NUC::replace_broken_pixels(arma::vec values)
+arma::vec NUC::ReplaceBrokenPixels(arma::vec values)
 {
 	// -------------------------------------------------------------
 	// Find values for happy/dead pixels in selected frames
@@ -292,7 +292,7 @@ arma::vec NUC::replace_broken_pixels(arma::vec values)
 	mean_frame = mean_frame.t();
 
 	//arma::mat adj_mean_frame_matrix = arma::conv2(mean_frame, kernel, "same");
-	arma::mat adj_mean_frame_matrix = ordfilt2(mean_frame, 5, kernel);
+    arma::mat adj_mean_frame_matrix = ApplyFilterMatrixWithOrderReduction(mean_frame, 5, kernel);
 	
 	adj_mean_frame = arma::vectorise(adj_mean_frame_matrix.t());
 
@@ -306,8 +306,8 @@ arma::vec NUC::replace_broken_pixels(arma::vec values)
 	
 	// -------------------------------------------------------------
 	// Replace the happy/dead pixels in mean frame
-	replace_pixels(values, adj_mean_frame, pixels_dead);
-	replace_pixels(values, adj_mean_frame, pixels_happy);
+    ReplacePixels(values, adj_mean_frame, pixels_dead);
+    ReplacePixels(values, adj_mean_frame, pixels_happy);
 	
 	// -------------------------------------------------------------
 	// DEBUG STATEMENTS
@@ -328,7 +328,7 @@ arma::vec NUC::replace_broken_pixels(arma::vec values)
 	return values;
 }
 
-void NUC::replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels) {
+void NUC::ReplacePixels(arma::vec &base, arma::vec &updated, arma::uvec pixels) {
 
 	int num_pixels = pixels.size();
 
@@ -355,7 +355,7 @@ void NUC::replace_pixels(arma::vec &base, arma::vec &updated, arma::uvec pixels)
 
 }
 
-void  NUC::replace_image_pixels(arma::vec &frame, arma::uvec &indices, arma::vec &update)
+void  NUC::ReplaceImagePixels(arma::vec &frame, arma::uvec &indices, arma::vec &update)
 {
 	int num_pixels = indices.n_elem;
 	int pixel_index, pixel_row, pixel_col;

@@ -19,8 +19,8 @@ signals:
     void directorySelected(QString directory);
 
 private slots:
-    void openDirectoryPicker();
-    void commitDirectory();
+    void OpenDirectoryPicker();
+    void CommitDirectory();
 
 private:
     QLineEdit *lineEdit;
