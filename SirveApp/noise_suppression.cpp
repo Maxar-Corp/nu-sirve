@@ -169,11 +169,11 @@ void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::mat 
 	frame_vector = frame_vector - arma::mean(frame_vector);
 	window_data.each_col() -= moving_mean;
 	window_data -= arma::repmat(arma::mean(window_data,0),frame_vector.n_rows,1);
-	arma::uvec index_other = arma::find(arma::abs(frame_vector) < 3. * arma::stddev(frame_vector));
-	arma::uvec index_negative = arma::find(frame_vector < 3. * arma::stddev(frame_vector));
-	arma::uvec index_old_positive = arma::find(arma::sum(window_data - 6*arma::repmat(arma::stddev(window_data,0),frame_vector.n_rows,1)>0,1)>0);
-	arma::uvec change_index = arma::unique(arma::join_cols(index_negative,index_old_positive));
-	// arma::uvec change_index = index_negative;
+	arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 1.*arma::stddev(frame_vector));
+	arma::uvec index_negative = arma::find(frame_vector < 1.*arma::stddev(frame_vector));
+	arma::uvec index_old_positive = arma::find(arma::sum(window_data - 1*arma::repmat(arma::stddev(window_data,0),frame_vector.n_rows,1)>0,1)>0);
+	// arma::uvec change_index = arma::unique(arma::join_cols(index_negative,index_old_positive));
+	arma::uvec change_index = arma::intersect(index_negative,index_old_positive);
 	if (change_index.size() > 0) {				
 		frame_vector.elem(change_index) = arma::randn<arma::vec>(change_index.size(),arma::distr_param(arma::mean(frame_vector.elem(index_other)),arma::stddev(frame_vector.elem(index_other))));
 	}
