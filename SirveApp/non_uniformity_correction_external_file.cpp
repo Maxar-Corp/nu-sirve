@@ -3,7 +3,7 @@
 ExternalNUCInformationWidget::ExternalNUCInformationWidget()
 {
 
-    initialize_gui();
+    InitializeGui();
 	engineering_data = NULL;
     
     this->show();
@@ -13,7 +13,7 @@ ExternalNUCInformationWidget::~ExternalNUCInformationWidget()
 {
 }
 
-void ExternalNUCInformationWidget::initialize_gui()
+void ExternalNUCInformationWidget::InitializeGui()
 {
     mainLayout = new QGridLayout();
 
@@ -43,15 +43,15 @@ void ExternalNUCInformationWidget::initialize_gui()
 
     this->setLayout(mainLayout);
 
-    connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_osm_file);
-    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::get_frames);
+    connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames);
+    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::getFrames);
     connect(btn_close, &QPushButton::clicked, this, &ExternalNUCInformationWidget::close);
 }
 
-void ExternalNUCInformationWidget::get_osm_file()
+void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-    abp_metadata = file_processor.locate_abp_files(file_selection);
+    abp_metadata = file_processor.LocateAbpFiles(file_selection);
 
     // check that osm and image files are present
     if (!abp_metadata.error_msg.isEmpty())
@@ -60,18 +60,18 @@ void ExternalNUCInformationWidget::get_osm_file()
         return;
     }
 
-    osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
+    osm_frames = osm_reader.ReadOsmFileData(abp_metadata.osm_path);
     if (osm_frames.size() == 0)
 	{
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
 		return;
 	}
 
-    plot_osm();
+    PlotOsmFrameData();
 
 }
 
-void ExternalNUCInformationWidget::plot_osm()
+void ExternalNUCInformationWidget::PlotOsmFrameData()
 {
 
     if (engineering_data != NULL) {
@@ -88,27 +88,27 @@ void ExternalNUCInformationWidget::plot_osm()
     if (height < 500)
         this->resize(500, 500);
 
-    engineering_data = new Engineering_Data(osm_frames);
-    plot_data = new Engineering_Plots(osm_frames);
+    engineering_data = new EngineeringData(osm_frames);
+    plot_data = new EngineeringPlots(osm_frames);
 
     track_info = new TrackInformation(osm_frames);
     plot_data->set_plotting_track_frames(track_info->get_plotting_tracks(), track_info->get_count_of_tracks());
 
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
-    plot_data->set_plot_title("");
+    plot_data->SetPlotTitle("");
 
     frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);
-    plot_data->set_yaxis_chart_id(0);
-    plot_data->plot();
+    plot_data->SetYAxisChartId(0);
+    plot_data->PlotChart();
 
     btn_load_frames->setEnabled(true);    
     
 }
 
-void ExternalNUCInformationWidget::get_frames()
+void ExternalNUCInformationWidget::getFrames()
 {
     
     // get total number of frames
@@ -137,12 +137,12 @@ void ExternalNUCInformationWidget::get_frames()
     done(QDialog::Accepted);
 }
 
-void ExternalNUCInformationWidget::close_window()
+void ExternalNUCInformationWidget::closeWindow()
 {
     done(QDialog::Rejected);
 }
 
 void ExternalNUCInformationWidget::closeEvent(QCloseEvent* event)
 {
-    close_window();
+    closeWindow();
 }

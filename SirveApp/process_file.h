@@ -19,19 +19,18 @@ struct AbpFileMetadata {
 	}
 };
 
-class Process_File : public QWidget
+class ProcessFile : public QWidget
 {
 	Q_OBJECT
 public:
-	ABIR_Data abir_data;
+	ABIRData abir_data;
 
-	Process_File();
-	~Process_File();
+    ProcessFile();
+    ~ProcessFile();
 
-	AbpFileMetadata locate_abp_files(QString candidate_image_path);
-
-	bool check_path(QString path);
-	ABIR_Data_Result load_image_file(QString image_path, int first_frame, int last_frame, double version);
+    bool VerifyPath(QString path);
+    AbpFileMetadata LocateAbpFiles(QString candidate_image_path);
+    ABIRDataResult LoadImageFile(QString image_path, int first_frame, int last_frame, double version);
 
 private:
 

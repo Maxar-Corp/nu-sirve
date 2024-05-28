@@ -9,7 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-enum struct Processing_Method
+enum struct ProcessingMethod
 {
 	original,
 	adaptive_noise_suppression,
@@ -17,13 +17,13 @@ enum struct Processing_Method
     deinterlace
 };
 
-struct processing_state {
-	Processing_Method method;
-	video_details details;
+struct processingState {
+    ProcessingMethod method;
+    VideoDetails details;
 
     //NOTE: This is a poor implementation of "polymorphic" configuration but can be cleaned up in a future refactor
     //These fields will only contain a value if the Processing_Method field is set to indicate they should
-    //The burden is on consumers of the processing_state struct to correctly interpret the fields
+    //The burden is on consumers of the processingState struct to correctly interpret the fields
     std::vector<unsigned int> replaced_pixels;
 
     int ANS_relative_start_frame;
@@ -33,14 +33,14 @@ struct processing_state {
     int FNS_start_frame;
     int FNS_stop_frame;
 
-    deinterlace_type deint_type;
+    DeinterlaceType deint_type;
 	
 	bool ANS_hide_shadow;
 
     QString get_friendly_description() {
        switch (method)
         {
-            case Processing_Method::original:
+            case ProcessingMethod::original:
                 if (replaced_pixels.size() > 0)
                 {
                     return "Original (with replaced pixels)";
@@ -50,14 +50,14 @@ struct processing_state {
                     return "Original";
                 }
                 break;
-            case Processing_Method::adaptive_noise_suppression:
+            case ProcessingMethod::adaptive_noise_suppression:
                 return "ANS - from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow);
                 break;
-            case Processing_Method::fixed_noise_suppression:
+            case ProcessingMethod::fixed_noise_suppression:
                 //may potentially want to leave fns_file_path empty if it isn't an external file?
                 return "FNS - " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
                 break;
-            case Processing_Method::deinterlace:
+            case ProcessingMethod::deinterlace:
                 return "Deinterlace - " + QString::number(deint_type);
                 break;
             default:
@@ -70,7 +70,7 @@ struct processing_state {
         QJsonObject state_object;
         switch (method)
         {
-            case Processing_Method::original:
+            case ProcessingMethod::original:
                 {
                     state_object.insert("method", "Original");
                     QJsonArray pixels;
@@ -81,17 +81,17 @@ struct processing_state {
                     state_object.insert("replaced_pixels", pixels);
                     break;
                 }
-            case Processing_Method::adaptive_noise_suppression:
+            case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");
                 state_object.insert("ANS_relative_start_frame", ANS_relative_start_frame);
                 state_object.insert("ANS_num_frames", ANS_num_frames);
 				state_object.insert("ANS_hide_shadow", ANS_hide_shadow);
                 break;
-            case Processing_Method::deinterlace:
+            case ProcessingMethod::deinterlace:
                 state_object.insert("method", "Deinterlace");
                 state_object.insert("deint_type", QString::number(static_cast<int>(deint_type)));
                 break;
-            case Processing_Method::fixed_noise_suppression:
+            case ProcessingMethod::fixed_noise_suppression:
                 state_object.insert("method", "FNS");
                 state_object.insert("FNS_start_frame", FNS_start_frame);
                 state_object.insert("FNS_stop_frame", FNS_stop_frame);
@@ -104,6 +104,6 @@ struct processing_state {
     };
 };
 
-processing_state create_processing_state_from_json(const QJsonObject & json_obj);
+processingState create_processing_state_from_json(const QJsonObject & json_obj);
 
 #endif

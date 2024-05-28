@@ -59,6 +59,14 @@ class TrackInformation {
     public:
         TrackInformation(unsigned int num_frames);
         TrackInformation(const std::vector<Frame> & osm_file_frames);
+
+        TrackFileReadResult ReadTracksFromFile(QString file_name) const;
+        void AddManualTracks(std::vector<TrackFrame> new_frames);
+        void RemoveManualTrack(int track_id);
+        void AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
+        std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
+        std::vector<std::optional<TrackDetails>> GetEmptyTrack();
+
         std::vector<TrackFrame> get_osm_frames(int start_index, int end_index);
         std::vector<TrackFrame> get_manual_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_plotting_tracks();
@@ -66,15 +74,11 @@ class TrackInformation {
 
         int get_count_of_tracks();
         std::set<int> get_manual_track_ids();
-        void add_manual_tracks(std::vector<TrackFrame> new_frames);
-        void remove_manual_track(int track_id);
-        void add_created_manual_track(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
-        std::vector<std::optional<TrackDetails>> copy_manual_track(int track_id);
-        std::vector<std::optional<TrackDetails>> get_empty_track();
 
-        TrackFileReadResult read_tracks_from_file(QString file_name) const;
     private:
         TrackInformation();
+        ManualPlottingTrackDetails CalculateAzimuthElevation(int frame_number, int centroid_x, int centroid_y);
+
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;
         std::vector<TrackEngineeringData> track_engineering_data;
@@ -83,8 +87,6 @@ class TrackInformation {
         std::vector<TrackFrame> manual_frames;
         std::set<int> manual_track_ids;
         std::vector<ManualPlottingTrackFrame> manual_plotting_frames;
-
-        ManualPlottingTrackDetails calculate_az_el(int frame_number, int centroid_x, int centroid_y);
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "data_export.h"
 
-void DataExport::write_track_data_to_csv(std::string save_path, std::vector<Plotting_Frame_Data> frame_data,
+void DataExport::WriteTrackDataToCsv(std::string save_path, std::vector<PlottingFrameData> frame_data,
 										std::vector<PlottingTrackFrame> track_data, std::vector<ManualPlottingTrackFrame> manual_track_data,
 										int min_frame, int max_frame)
 {

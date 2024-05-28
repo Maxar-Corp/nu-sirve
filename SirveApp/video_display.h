@@ -48,7 +48,7 @@ public:
 	VideoDisplay(QVector<QRgb> starting_color_table);
 	~VideoDisplay();
 	QVBoxLayout *video_display_layout;
-	void reclaim_label();
+	void ReclaimLabel();
 
 	unsigned int counter;
 
@@ -56,76 +56,76 @@ public:
 	bool record_frame;
 	cv::VideoWriter video;
 	
-	std::vector<annotation_info> annotation_list;
+	std::vector<AnnotationInfo> annotation_list;
 
 	int image_x, image_y, number_pixels;
 
 	QImage frame;
     EnhancedLabel  *label;
-	Video_Container container;
+	VideoContainer container;
 
 	QString banner_text, boresight_text;
 	QColor tracker_color;
 	bool plot_tracks;
 
-	void highlight_bad_pixels(bool status);
+    void HighlightBadPixels(bool status);
 
-	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
+    void UpdateFrameData(std::vector<PlottingFrameData> input_data);
 
-	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
-	void initialize_frame_data(unsigned int frame_number, std::vector<Plotting_Frame_Data> input_data, std::vector<ABIR_Frame>& input_frame_header);
-	void update_manual_track_data(std::vector<TrackFrame> track_frame_input);
-	void add_manual_track_id_to_show_later(int id);
-	void hide_manual_track_id(int id);
-	void delete_manual_track(int id);
-	void show_manual_track_id(int id);
-	void recolor_manual_track(int id, QColor color);
+    void InitializeTrackData(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
+    void InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIR_Frame>& input_frame_header);
+    void UpdateManualTrackData(std::vector<TrackFrame> track_frame_input);
 
-	void set_calibration_model(CalibrationData input);
-	bool start_recording(double fps);
-	void add_new_frame(QImage &img, int format);
-	void stop_recording();
+    void AddManualTrackIdToShowLater(int id);
+    void HideManualTrackId(int id);
+    void ShowManualTrackId(int id);
+    void RecolorManualTrack(int id, QColor color);
+    void DeleteManualTrack(int id);
 
-	void toggle_osm_tracks(bool input);
+    void SetCalibrationModel(CalibrationData input);
+    void AddNewFrame(QImage &img, int format);
+    bool StartRecording(double fps);
+    void StopRecording();
 
-	void toggle_action_zoom(bool status);
-	void toggle_action_calculate_radiance(bool status);
-	void enter_track_creation_mode(std::vector<std::optional<TrackDetails>> starting_track_details);
-	const std::vector<std::optional<TrackDetails>> & get_created_track_details();
-	void exit_track_creation_mode();
+    void ToggleActionZoom(bool status);
+    void ToggleActionCalculateRadiance(bool status);
+    void ToggleOsmTracks(bool input);
 
-	void save_frame();
+    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details);
+    const std::vector<std::optional<TrackDetails>> & GetCreatedTrackDetails();
+    void ExitTrackCreationMode();
 
-	void remove_frame();
-	void receive_video_data(int x, int y);
-	void initialize_toggles();
+    void SaveFrame();
+    void ViewFrame(unsigned int frame_number);
+    void RemoveFrame();
 
-	void view_frame(unsigned int frame_number);
+	void ReceiveVideoData(int x, int y);
+	void InitializeToggles();;
 
 signals:
-	void clear_mouse_buttons();
-	void add_new_bad_pixels(std::vector<unsigned int> new_pixels);
-	void remove_bad_pixels(std::vector<unsigned int> pixels);
-	void advance_frame();
-	void finish_create_track();
+    void clearMouseButtons();
+    void addNewBadPixels(std::vector<unsigned int> new_pixels);
+    void removeBadPixels(std::vector<unsigned int> pixels);
+    void advanceFrame();
+    void finishTrackCreation();
 
 public slots:
-	void update_frame_vector(std::vector<double> original, std::vector<uint8_t> converted);
-	void update_banner_text(QString input_banner_text);
-	void update_banner_color(QString input_color);
-	void update_tracker_color(QString input_color);
-	void update_color_map(QVector<QRgb> color_table);
+    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted);
+	void UpdateBannerText(QString input_banner_text);
+	void UpdateBannerColor(QString input_color);
+    void HandleTrackerColorUpdate(QString input_color);
+    void HandleColorMapUpdate(QVector<QRgb> color_table);
 
-	void toggle_sensor_boresight_data();
-	void toggle_frame_time(bool checked);
+    void HandleSensorBoresightDataCheck();
+    void HandleFrameTimeToggle(bool checked);
 	
-	void handle_click(QPoint origin);
-	void clear_pinpoints();
+    void HandlePixelSelection(QPoint origin);
+    void ClearPinpoints();
 
-	void handle_annotation_changes();
+    void HandleAnnotationChanges();
 
-	void handle_image_area_selection(QRect area);
-	void unzoom();
+    void HandleImageAreaSelection(QRect area);
+    void UndoZoom();
 
 
 private:
@@ -138,7 +138,7 @@ private:
 	QLabel *lbl_pinpoint;
 	QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
 	QGroupBox *grp_pinpoint;
-	std::vector<unsigned int> pinpoint_indeces;
+    std::vector<unsigned int> pinpoint_indices;
 
 	QLabel *lbl_create_track;
 	QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
@@ -162,34 +162,33 @@ private:
 	bool display_boresight_txt, display_time;
 
 	CalibrationData model;
-	std::vector<Plotting_Frame_Data> display_data;
+	std::vector<PlottingFrameData> display_data;
 	std::vector<TrackFrame> osm_track_frames;
 	std::vector<TrackFrame> manual_track_frames;
 	std::set<int> manual_track_ids_to_show;
 	std::map<int, QColor> manual_track_colors;
 	std::vector<ABIR_Frame> frame_headers;
 
-	void setup_labels();
-	void setup_create_track_controls();
-	void setup_pinpoint_display();
+	void SetupLabels();
+	void SetupCreateTrackControls();
+	void SetupPinpointDisplay();
 
 	void calibrate(QRect area);
 
-	QRectF get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height);
+    void PinpointPixel(unsigned int x, unsigned int y);
+    void SelectTrackCentroid(unsigned int x, unsigned int y);
 
-	void pinpoint(unsigned int x, unsigned int y);
-	void select_track_centroid(unsigned int x, unsigned int y);
-
-	void add_pinpoints_to_bad_pixel_map();
-	void remove_pinpoints_from_bad_pixel_map();
-	void handle_btn_pinpoint(bool checked);
-	void handle_btn_select_track_centroid(bool checked);
-	void handle_btn_clear_track_centroid();
-	void reset_create_track_min_and_max_frames();
-	void update_create_track_label();
-    void update_display_frame();
+    void AddPinpointsToBadPixelMap();
+    void RemovePinpointsFromBadPixelMap();
+    void handle_btn_pinpoint(bool checked);
+	void HandleBtnSelectTrackCentroid(bool checked);
+    void HandleClearTrackCentroidClick();
+    void ResetCreateTrackMinAndMaxFrames();
+    void UpdateCreateTrackLabel();
+    void UpdateDisplayFrame();
 
 	QString get_zulu_time_string(double seconds_midnight);
+    QRectF get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height);
 };
 
 #endif // VIDEO_DISPLAY_H

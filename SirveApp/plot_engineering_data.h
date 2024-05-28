@@ -53,27 +53,30 @@ class QtPlotting : public QWidget
 
         bool yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
 
-		void start_new_chart();
-		void add_series_with_color(std::vector<double> x, std::vector<double> y, QColor color);
-		void add_series(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
-		void remove_series_legend();
-		double find_tick_spacing(double value, int min_number_ticks, int max_number_ticks);
-		void chart_options(double min_x, double max_x, double min_y, double max_y);
+        void StartNewChart();
+        void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
+        void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, QColor color);
+        void RemoveSeriesLegend();
+        void DefineChartProperties(double min_x, double max_x, double min_y, double max_y);
+        void SavePlot();
+
+        double FindTickSpacing(double value, int min_number_ticks, int max_number_ticks);
+        double FindMaxForAxis(std::vector<double> data);
+
 		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
 		void set_xaxis_limits(double min_x, double max_x);
 		void set_yaxis_limits(double min_y, double max_y);
-		double find_max_for_axis(std::vector<double> data);
-
-		void save_plot();
-
 };
 
-enum x_plot_variables{frames , seconds_past_midnight, seconds_from_epoch};
+enum XAxisPlotVariables{frames , seconds_past_midnight, seconds_from_epoch};
 
-class Engineering_Plots : public QtPlotting 
+class EngineeringPlots : public QtPlotting
 {
 	Q_OBJECT 
 	public:
+        EngineeringPlots(std::vector<Frame> const &osm_frames);
+        ~EngineeringPlots();
+
 		// Parameters to display subplot
 		bool plot_all_data, plot_primary_only, plot_current_marker;
 		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
@@ -86,28 +89,25 @@ class Engineering_Plots : public QtPlotting
 		// plot axes titles
 		QXYSeries *current_frame_marker;
 
-		Engineering_Plots(std::vector<Frame> const &osm_frames);
-		~Engineering_Plots();
+		std::vector<PlottingFrameData> engineering_data;
 
-		std::vector<Plotting_Frame_Data> engineering_data;
-
-		void set_yaxis_chart_id(int yaxis_chart_id);
-		void plot();
+        void SetYAxisChartId(int yaxis_chart_id);
+        void PlotChart();
+        void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
+        void Recolor_manual_track(int track_id, QColor new_color);
 
 		void toggle_yaxis_log(bool input);
 		void toggle_yaxis_scientific(bool input);
         void toggle_xaxis_fixed_pt(bool input);
 
-		void set_xaxis_units(x_plot_variables unit_choice);
+        void set_xaxis_units(XAxisPlotVariables unit_choice);
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
-		void update_manual_plotting_track_frames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
-		void recolor_manual_track(int track_id, QColor new_color);
 
 	public slots:
 
-		void toggle_subplot();
-		void plot_current_step(int counter);
-		void set_plot_title(QString input_title);
+        void ToggleSubplot();
+        void PlotCurrentStep(int counter);
+        void SetPlotTitle(QString input_title);
 
 	private:
 		int number_of_tracks;
@@ -117,19 +117,19 @@ class Engineering_Plots : public QtPlotting
 		std::map<int, QColor> manual_track_colors;
 
 		unsigned int num_frames;
-		x_plot_variables x_axis_units;
+        XAxisPlotVariables x_axis_units;
 
-		void establish_plot_limits();
-		void create_current_marker();
-		void draw_title();
+        void EstablishPlotLimits();
+        void CreateCurrentMarker();
+        void DrawTitle();
 
-		void plot_azimuth(size_t plot_number_tracks);
-		void plot_elevation(size_t plot_number_tracks);
-		void plot_irradiance(size_t plot_number_tracks);
-		void plot_fov_x();
-		void plot_fov_y();
-		void plot_boresight_az();
-		void plot_boresight_el();
+        void PlotAzimuth(size_t plot_number_tracks);
+        void PlotElevation(size_t plot_number_tracks);
+        void PlotIrradiance(size_t plot_number_tracks);
+        void PlotFovX();
+        void PlotFovY();
+        void PlotBoresightAzimuth();
+        void PlotBoresightElevation();
 
 		std::vector<double> get_individual_x_track(size_t i);
 		std::vector<double> get_individual_y_track_irradiance(size_t i);
