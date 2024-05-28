@@ -87,7 +87,6 @@ public:
 	void highlight_bad_pixels(bool status);
 	void highlight_bad_pixels_colors(QString input_color);
 
-
 	void update_frame_data(std::vector<Plotting_Frame_Data> input_data);
 
 	void initialize_track_data(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
