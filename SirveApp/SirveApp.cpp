@@ -388,64 +388,71 @@ QWidget* SirveApp::setup_filter_tab() {
 	QStringList colors = ColorScheme::GetTrackColors();
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_bad_pixels = new QGridLayout();
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1,3);
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 3);
 
-	QLabel* label_bad_pixel = new QLabel("Replacing Bad Pixels With Local Average");
-	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 3);
-
-	lbl_bad_pixel_count = new QLabel("");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 3);
-	
-	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 3, 0, 1, 1);
-
-	cmb_bad_pixels_type = new QComboBox();
-	cmb_bad_pixels_type->addItem("All Bad Pixels");
-	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
-	cmb_bad_pixels_type->addItem("Outlier Only");
-	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 3, 1, 1, 1);
-
-	lbl_bad_pixel_method = new QLabel("Method:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_method, 4, 0, 1, 1);
-
-	cmb_outlier_processing_type = new QComboBox();
-	cmb_outlier_processing_type->addItem("Median");
-	cmb_outlier_processing_type->addItem("Moving Median");
-	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 4, 1, 1, 1);
-	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
-
-	txt_moving_median_N = new QLineEdit("30");
-	grid_bad_pixels->addWidget(txt_moving_median_N, 4, 2, 1, 1);
-	txt_moving_median_N->setEnabled(false);
-	
-	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 5, 0, 1, 1);
-
-	cmb_outlier_processing_sensitivity = new QComboBox();
-	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
-	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
-	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
-	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
-	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 5, 1, 1, 1);
-
-	lbl_bad_pixel_color = new QLabel("Color:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 6, 0, 1, 1);
-
-	cmb_bad_pixel_color = new QComboBox();
-	cmb_bad_pixel_color->addItems(colors);
-	grid_bad_pixels->addWidget(cmb_bad_pixel_color, 6, 1, 1,1);
-	cmb_bad_pixel_color->setCurrentIndex(2);
-	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
-
-	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 6, 2, 1, 1);
+	QLabel* label_bad_pixel = new QLabel("Replacing Bad Pixels");
+	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 2);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
 	btn_bad_pixel_identification->setStyleSheet(dark_orange_button_styleSheet);
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 1, 2, 1, 1);
 
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 7, 0, 1, 3);
+	lbl_bad_pixel_count = new QLabel("");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 2);
+	
+	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 3, 0, 1, 1);
+	cmb_bad_pixels_type = new QComboBox();
+	cmb_bad_pixels_type->addItem("All Bad Pixels");
+	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
+	cmb_bad_pixels_type->addItem("Outlier Only");
+	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 4, 0, 1, 1);
+
+	lbl_bad_pixel_method = new QLabel("Method:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_method, 3, 1, 1, 1);
+	cmb_outlier_processing_type = new QComboBox();
+	cmb_outlier_processing_type->addItem("Median");
+	cmb_outlier_processing_type->addItem("Moving Median");
+	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 4, 1, 1, 1);
+	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
+
+	lbl_bad_pixel_start_frame = new QLabel("Start:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 5, 0, 1, 1);
+	txt_bad_pixel_start_frame = new QLineEdit("1");
+	grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 6, 0, 1, 1);
+	lbl_bad_pixel_stop_frame = new QLabel("Stop:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 5, 1, 1, 1);
+	txt_bad_pixel_end_frame = new QLineEdit("500");
+	grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 6, 1, 1, 1);
+
+	lbl_moving_median_window_length = new QLabel("Window Length:");
+	grid_bad_pixels->addWidget(lbl_moving_median_window_length, 7, 0, 1, 1);
+	txt_moving_median_N = new QLineEdit("30");
+	grid_bad_pixels->addWidget(txt_moving_median_N, 8, 0, 1, 1);
+	txt_moving_median_N->setEnabled(false);
+	
+	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 7, 1, 1, 1);
+	cmb_outlier_processing_sensitivity = new QComboBox();
+	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
+	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
+	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
+	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
+	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 8, 1, 1, 1);
+
+	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 4, 2, 1, 1);
+
+	lbl_bad_pixel_color = new QLabel("Color:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 5, 2, 1, 1);
+	cmb_bad_pixel_color = new QComboBox();
+	cmb_bad_pixel_color->addItems(colors);
+	grid_bad_pixels->addWidget(cmb_bad_pixel_color,6, 2, 1,1);
+	cmb_bad_pixel_color->setCurrentIndex(2);
+	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
+
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 11, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_bad_pixels);
 
@@ -457,14 +464,24 @@ QWidget* SirveApp::setup_filter_tab() {
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
 	btn_FNS->setStyleSheet(dark_blue_button_styleSheet);
 
-	//QWidget* widget_tab_processing_nuc = new QWidget();
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
 
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
 	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 1, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(btn_FNS, 2, 1);
-	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	grid_tab_processing_nuc->addWidget(btn_FNS,0,2,1,1);
 
+	lbl_FNS_start_frame = new QLabel("Start:");
+	grid_tab_processing_nuc->addWidget(lbl_FNS_start_frame, 2, 0, 1, 1);
+	txt_FNS_start_frame = new QLineEdit("1");
+	grid_tab_processing_nuc->addWidget(txt_FNS_start_frame, 3, 0, 1, 1);
+	lbl_FNS_stop_frame = new QLabel("Stop:");
+	grid_tab_processing_nuc->addWidget(lbl_FNS_stop_frame, 2, 1, 1, 1);
+	txt_FNS_end_frame = new QLineEdit("50");
+	grid_tab_processing_nuc->addWidget(txt_FNS_end_frame, 3, 1, 1, 1);
+	chk_FNS_external_file = new QCheckBox("External File");
+	grid_tab_processing_nuc->addWidget(chk_FNS_external_file, 3, 2, 1, 1);
+
+	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 3);
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
 
 	// ------------------------------------------------------------------------
@@ -478,9 +495,21 @@ QWidget* SirveApp::setup_filter_tab() {
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 1, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(btn_ANS, 2, 1);
-	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 1, 0, 1, 3);
+	grid_tab_processing_bgs->addWidget(btn_ANS, 0, 2, 1, 1);
+
+	lbl_ANS_offset_frames = new QLabel("Offset:");
+	grid_tab_processing_bgs->addWidget(lbl_ANS_offset_frames, 2, 0, 1, 1);
+	txt_ANS_offset_frames = new QLineEdit("-30");
+	grid_tab_processing_bgs->addWidget(txt_ANS_offset_frames, 3, 0, 1, 1);
+	lbl_ANS_number_frames = new QLabel("Number:");
+	grid_tab_processing_bgs->addWidget(lbl_ANS_number_frames, 2, 1, 1, 1);
+	txt_ANS_number_frames = new QLineEdit("5");
+	grid_tab_processing_bgs->addWidget(txt_ANS_number_frames, 3, 1, 1, 1);
+	chk_hide_shadow = new QCheckBox("Hide Shadow");
+	chk_hide_shadow->setChecked(true);
+	grid_tab_processing_bgs->addWidget(chk_hide_shadow, 3, 2, 1, 1);
+	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
 
@@ -498,11 +527,19 @@ QWidget* SirveApp::setup_filter_tab() {
 
 	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 2);
 	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
-	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 2, 1);
-	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 0,2,1,1);
+	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
 
+	QGridLayout* grid_tab_processing_extra = new QGridLayout();
+	cmb_processing_states = new QComboBox();
+	btn_undo_step = new QPushButton("Undo One Step");
+	btn_undo_step->setStyleSheet(olive_green_button_styleSheet);
+	grid_tab_processing_extra->addWidget(cmb_processing_states, 0, 0, 1, 2);
+	grid_tab_processing_extra->addWidget(btn_undo_step, 0, 2, 1, 2);
+	grid_tab_processing_extra->addWidget(QtHelpers::HorizontalLine(), 1, 0, 1, 4);
+	vlayout_tab_processing->addLayout(grid_tab_processing_extra);
 	// ------------------------------------------------------------------------
 
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
@@ -524,9 +561,9 @@ QWidget* SirveApp::setup_workspace_tab(){
 	btn_workspace_save = new QPushButton("Save Workspace");
 	btn_workspace_save->setStyleSheet(dark_green_button_styleSheet);
 
-	cmb_processing_states = new QComboBox();
-	btn_undo_step = new QPushButton("Undo One Step");
-	btn_undo_step->setStyleSheet(olive_green_button_styleSheet);
+	// cmb_processing_states = new QComboBox();
+	// btn_undo_step = new QPushButton("Undo One Step");
+	// btn_undo_step->setStyleSheet(olive_green_button_styleSheet);
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
@@ -548,8 +585,8 @@ QWidget* SirveApp::setup_workspace_tab(){
 	grid_workspace->addWidget(btn_workspace_load, 1, 0, 1, 1);
 	grid_workspace->addWidget(btn_workspace_save, 1, 1, 1, 1);
 	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, -1);
-	grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
-	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
+	// grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
+	// grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
 	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, -1);
 	grid_workspace->addWidget(lbl_track, 5, 0, 1, -1, Qt::AlignCenter);
 	grid_workspace->addWidget(lbl_create_track_message, 6, 0, 1, 1);
@@ -2295,12 +2332,14 @@ void SirveApp::ui_replace_bad_pixels()
 			}
 		}
 
-		int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame, max_frame, 1, &ok);
-			if (!ok)
-				return;
-		int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
-		if (!ok)
-			return;
+		// int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame, max_frame, 1, &ok);
+		// 	if (!ok)
+		// 		return;
+		// int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
+		// if (!ok)
+		// 	return;
+		int start_frame = txt_bad_pixel_start_frame->text().toInt();
+		int end_frame = txt_bad_pixel_end_frame->text().toInt();
 		ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
 		
 		if(type_choice == 0){ 
@@ -2459,7 +2498,8 @@ void SirveApp::fixed_noise_suppression_from_external_file()
 	QString image_path = external_nuc_dialog.abp_metadata.image_path;
 	unsigned int start_frame = external_nuc_dialog.start_frame;
 	unsigned int end_frame = external_nuc_dialog.stop_frame;
-
+	txt_FNS_start_frame->setText(QString::number(start_frame));
+	txt_FNS_end_frame->setText(QString::number(end_frame));
 	try
 	{
 		// assumes file version is same as base file opened
@@ -2484,38 +2524,41 @@ void SirveApp::fixed_noise_suppression_from_external_file()
 
 void SirveApp::ui_execute_non_uniformity_correction_selection_option()
 {
-	QStringList options;
-	options << tr("From Current File") << tr("From External File");
+	// QStringList options;
+	// options << tr("From Current File") << tr("From External File");
 
-	QStringList shadow_options;
-	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
+	// QStringList shadow_options;
+	// shadow_options << tr("Hide Shadow") << tr("Show Shadow");
 
-	QString hide_shadow_choice = "Hide Shadow";
+	// QString hide_shadow_choice = "Hide Shadow";
 
-	bool ok;
-	QString item = QInputDialog::getItem(this, "Fixed Mean Noise Suppression", "Options", options, 0, false, &ok);
+	// bool ok;
+	// QString item = QInputDialog::getItem(this, "Fixed Mean Noise Suppression", "Options", options, 0, false, &ok);
 	//Pause the video if it's running
 	playback_controller->stop_timer();
 
 	processing_state original = video_display->container.copy_current_state();
 
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-	if (!ok)
-		return;
+	// if (!ok)
+	// 	return;
 
-	if (item == "From Current File")
+	if (!chk_FNS_external_file->isChecked())
 	{
 		int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
-		int start_frame = QInputDialog::getInt(this, "Fixed Noise Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
-		if (!ok)
-			return;
+		// int start_frame = QInputDialog::getInt(this, "Fixed Noise Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
+		// if (!ok)
+		// 	return;
+
+		int start_frame = txt_FNS_start_frame->text().toInt();
 
 
-		int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
-		if (!ok)
-			return;
+		// int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
+		// if (!ok)
+		// 	return;
 
-		int end_frame = start_frame + number_of_frames_for_avg - 1;
+		int end_frame = txt_FNS_end_frame->text().toInt();
+		// int end_frame = start_frame + number_of_frames_for_avg - 1;
 		fixed_noise_suppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame);
 
 	}
@@ -2689,22 +2732,33 @@ void SirveApp::ui_execute_noise_suppression()
 
 	int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
 
-	QStringList shadow_options;
-	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
+	// QStringList shadow_options;
+	// shadow_options << tr("Hide Shadow") << tr("Show Shadow");
 
-	bool ok;
+	// bool ok;
 
-	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Noise Suppression", "Relative start frame", -30, -delta_frames, delta_frames, 1, &ok);
-	if (!ok)
-		return;
+	// int relative_start_frame = QInputDialog::getInt(this, "Adaptive Noise Suppression", "Relative start frame", -30, -delta_frames, delta_frames, 1, &ok);
+	// if (!ok)
+	// 	return;
 
-	int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
-	if (!ok)
-		return;
+	// int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
+	// if (!ok)
+	// 	return;
 
-	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
-	if (!ok)
-		return;
+	// QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
+	// if (!ok)
+	// 	return;
+
+	int relative_start_frame = txt_ANS_offset_frames->text().toInt();
+	int number_of_frames = txt_ANS_number_frames->text().toInt();
+	QString hide_shadow_choice = "Hide Shadow";
+	if(chk_hide_shadow->isChecked()){
+		hide_shadow_choice = "Hide Shadow";
+	}
+	else
+	{
+		hide_shadow_choice = "Show Shadow";
+	}
 
 	adaptive_noise_suppression(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
