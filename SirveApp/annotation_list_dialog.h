@@ -20,19 +20,19 @@ class AnnotationListDialog : public QDialog
 	Q_OBJECT
 
 public:
-	AnnotationListDialog(std::vector<annotation_info> &input_vector, video_info details, QWidget *parent = nullptr);
+	AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent = nullptr);
 	~AnnotationListDialog();
 
-	void show_annotation(int index);
+	void ShowAnnotation(int index);
 	void repopulate_list();
 
 signals:
-	void annotation_list_updated();
+    void annotationListUpdated();
 
 private:
 
-	std::vector<annotation_info> &data;
-	video_info base_data;
+	std::vector<AnnotationInfo> &data;
+	VideoInfo base_data;
 
 	QLabel *lbl_annotations, *lbl_description;
 	QListWidget *lst_annotations;

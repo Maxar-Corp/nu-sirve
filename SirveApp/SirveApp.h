@@ -6,8 +6,8 @@
 #include "ABIR_Reader.h"
 #include "video_display.h"
 #include "histogram_plotter.h"
-#include "playback.h"
-#include "engineering_data.h"
+#include "frame_player.h"
+#include "engineeringdata.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"
 #include "video_details.h"
@@ -33,6 +33,7 @@
 #include "data_export.h"
 #include "color_correction.h"
 #include "windows.h"
+#include "SirveApp.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -66,8 +67,11 @@ class SirveApp : public QMainWindow
 
 public:
 
+    SirveApp(QWidget *parent = Q_NULLPTR);
+    ~SirveApp();
+
 	//Variables
-	Process_File file_processor;
+	ProcessFile file_processor;
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
@@ -81,7 +85,7 @@ public:
 
 	QThread thread_video, thread_timer;
 
-	Playback *playback_controller;
+	FramePlayer *playback_controller;
 	QMenu *menu, *plot_menu;
 
 	/* --------------------------------------------------------------------------------------------
@@ -117,102 +121,93 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 	VideoDisplay *video_display;
-	Engineering_Plots *data_plots;
-	Engineering_Data *eng_data;
+	EngineeringPlots *data_plots;
+	EngineeringData *eng_data;
 	TrackInformation *track_info;
 	TrackManagementWidget *tm_widget;
 	bool record_video;
 
-	SirveApp(QWidget *parent = Q_NULLPTR);
-	~SirveApp();
+    void SetupUi();
+    QWidget* SetupFileImportTab();
+    QWidget* SetupColorCorrectionTab();
+    QWidget* SetupFilterTab();
+    QWidget* SetupWorkspaceTab();
+    void SetupVideoFrame();
+    void SetupPlotFrame();
+    void setupConnections();
 
-	void setup_ui();
-	QWidget* setup_file_import_tab();
-	QWidget* setup_color_correction_tab();
-	QWidget* setup_filter_tab();
-	QWidget* setup_workspace_tab();
-	void setup_video_frame();
-	void setup_plot_frame();
-	void setup_connections();
-
-	void toggle_video_playback_options(bool input);
-	bool verify_frame_selection(int min_frame, int max_frame);
-	void update_epoch_string(QString new_epoch_string);
-	void display_original_epoch(QString new_epoch_string);
-	QString create_epoch_string(std::vector<double> new_epoch);
+    void ToggleVideoPlaybackOptions(bool input);
+    bool VerifyFrameSelection(int min_frame, int max_frame);
+    void UpdateEpochString(QString new_epoch_string);
+    void DisplayOriginalEpoch(QString new_epoch_string);
+    QString CreateEpochString(std::vector<double> new_epoch);
 
     DirectoryPicker directoryPicker;
 
 	signals:
-		void change_banner(QString banner_text);
-		void change_banner_color(QString color);
-		void change_tracker_color(QString color);
+        void changeBanner(QString banner_text);
+        void changeBannerColor(QString color);
+        void changeTrackerColor(QString color);
 
 	public slots:
 
-		void histogram_clicked(double x0, double x1);
-		void handle_chk_auto_lift_gain(int state);
-		void set_lift_and_gain(double lift, double gain);
-		void lift_slider_toggled();
-		void gain_slider_toggled();
+        void SetLiftAndGain(double lift, double gain);
+        void HandleHistogramClick(double x0, double x1);
+        void HandleAutoLiftGainCheck(int state);
+        void HandleLiftSliderToggled();
+        void HandleGainSliderToggled();
 
-		void save_workspace();
-		void load_workspace();
-		void import_tracks();
-		void handle_removal_of_track(int track_id);
-		void handle_manual_track_recoloring(int track_id, QColor color);
+        void SaveWorkspace();
+        void LoadWorkspace();
+        void ImportTracks();
+        void HandleTrackRemoval(int track_id);
+        void HandleManualTrackRecoloring(int track_id, QColor color);
 
-		void ui_choose_abp_file();
-		bool validate_abp_files(QString path_to_image_file);
-		void ui_load_abir_data();
-		void ui_execute_noise_suppression();
-		void ui_execute_deinterlace();
-		void ui_execute_non_uniformity_correction_selection_option();
+        void HandleAbpFileSelected();
+        bool ValidateAbpFiles(QString path_to_image_file);
+        void UiLoadAbirData();
+        void ExecuteNoiseSuppression();
+        void ExecuteDeinterlace();
+        void ExecuteNonUniformityCorrectionSelectionOption();
 
-		void start_stop_video_record();
-		void toggle_zoom_on_video();
-		void toggle_calculation_on_video();
-		void clear_zoom_and_calculation_buttons();
+        void StartStopVideoRecording();
+        void HandleZoomOnVideoToggle();
+        void HandleCalculationOnVideoToggle();
+        void ClearZoomAndCalculationButtons();
 
-		void update_fps();
-		void reset_color_correction();
+        void UpdateFps();
+        void ResetColorCorrection();
 
-		void toggle_plot_full_data();
-		void toggle_plot_primary_only();
-		void toggle_plot_current_frame_marker();
+        void HandlePlotFullDataToggle();
+        void HandlePlotPrimaryOnlyToggle();
+        void HandlePlotCurrentFrameMarkerToggle();
+        void HandlePlotDisplayAutoChange(int index);
 
-		void auto_change_plot_display(int index);
+        void ShowCalibrationDialog();
 
-		void show_calibration_dialog();
+        void SetDataTimingOffset();
+        void ChangeWorkspaceDirectory();
+        void CloseWindow();
 
-		void set_data_timing_offset();
-        void change_workspace_directory();
-		void close_window();
+        void SavePlot();
+        void SaveFrame();
+        void CopyOsmDirectory();
+        void HandleRelativeHistogramToggle(bool input);
+        void ApplyEpochTime();
+        void ApplyFixedNoiseSuppressionFromExternalFile();
+        void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
+        void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
 
-		void save_plot();
-		void save_frame();
-		void copy_osm_directory();
-		void toggle_relative_histogram(bool input);
-		void apply_epoch_time();
+        void HandleFrameChange();
+        void HandleOsmTracksToggle();
+        void HandleNewProcessingState(QString state_name, int index);
+        void HandleProcessingStateRemoval(ProcessingMethod method, int index);
+        void HandlePopoutVideoClosed();
+        void HandlePopoutHistogramClosed();
+        void HandlePopoutEngineeringClosed();
 
-		void fixed_noise_suppression_from_external_file();
-
-		void toggle_osm_tracks();
-
-		void receive_new_bad_pixels(std::vector<unsigned int> new_pixels);
-		void receive_new_good_pixels(std::vector<unsigned int> pixels);
-
-		void handle_new_processing_state(QString state_name, int index);
-		void handle_processing_state_removal(Processing_Method method, int index);
-		void SirveApp::handle_cleared_processing_states();
-
-		void popout_video_closed();
-		void popout_histogram_closed();
-		void popout_engineering_closed();
-
-		void handle_frame_change();
-
-        void SirveApp::handle_changed_workspace_dir(QString workspaceDirectory);
+        void SirveApp::HandleProcessingStatesCleared();
+        void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
 
 private:
 	ColorMap video_colors;
@@ -225,59 +220,58 @@ private:
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
 
-	HistogramLine_Plot *histogram_plot;
+	HistogramLinePlot *histogram_plot;
 
 	ConfigValues config_values;
 
 	int currently_editing_or_creating_track_id;
 
-	void create_menu_actions();
-	void edit_color_map();
-	void edit_banner_text();
-	void edit_plot_text();
-	void export_plot_data();
-	void edit_banner_color();
-	void edit_tracker_color();
-	void plot_change();
-	void annotate_video();
+    void CreateMenuActions();
+    void EditColorMap();
+    void EditBannerText();
+    void EditPlotText();
+    void ExportPlotData();
+    void EditBannerColor();
+    void EditTrackerColor();
+    void UpdatePlots();
+    void AnnotateVideo();
 
-	void handle_popout_video_btn(bool checked);
-	void open_popout_video_display();
+    void HandlePopoutVideoClick(bool checked);
+    void OpenPopoutVideoDisplay();
 
-	void handle_popout_histogram_btn(bool checked);
-	void open_popout_histogram_plot();
+    void HandlePopoutHistogramClick(bool checked);
+    void OpenPopoutHistogramPlot();
 
-	void handle_popout_engineering_btn(bool checked);
-	void open_popout_engineering_plot();
+    void HandlePopoutEngineeringClick(bool checked);
+    void OpenPopoutEngineeringPlot();
 
-	void resize_ui();
+    void ResizeUi();
 
 	QMenu *menu_file, *menu_settings;
     QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory;
 
-	int get_integer_from_txt_box(QString input);
-	int get_color_index(QVector<QString> colors, QColor input_color);
+    int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
+    int ConvertFrameNumberTextToInt(QString input);
 	CalibrationData calibration_model;
 
-	void load_osm_data();
-	void load_abir_data(int start_frame, int end_frame);
+    void LoadOsmData();
+    void LoadAbirData(int start_frame, int end_frame);
 
-	void ui_replace_bad_pixels();
-	void replace_bad_pixels(std::vector<unsigned int> & pixels_to_replace);
+    void HandleBadPixelReplacement();
+    void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace);
 
-	void create_fixed_noise_correction(int start_frame, int num_frames, QString hide_shadow_choice);
-	void create_adaptive_noise_correction(int relative_start_frame, int num_frames, QString hide_shadow_choice);
-	void create_deinterlace(deinterlace_type deinterlace_method_type);
-	void fixed_noise_suppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
+    void ApplyFixedNoiseCorrection(int start_frame, int num_frames, QString hide_shadow_choice);
+    void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice);
+    void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
+    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
-	void enable_engineering_plot_options();
+    void EnableEngineeringPlotOptions();
+    void ExitTrackCreationMode();
+    void HandleCreateTrackClick();
+    void HandleFinishCreateTrackClick();
+    void PrepareForTrackCreation(int track_id);
 
-	void handle_btn_create_track();
-	void prepare_for_track_creation(int track_id);
-	void exit_track_creation_mode();
-	void handle_btn_finish_create_track();
+    void HandleFrameNumberChange(unsigned int new_frame_number);
 
-	void handle_frame_number_change(unsigned int new_frame_number);
-
-	void update_global_frame_vector();
+    void UpdateGlobalFrameVector();
 };

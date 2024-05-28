@@ -67,7 +67,7 @@ public:
 	CalibrationData();
 	~CalibrationData();
 
-	std::vector<double> measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time);
+	std::vector<double> MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time);
 	void setup_model(arma::mat input_m, arma::mat input_b);
 	bool set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2, double int_time);
 	bool check_path(QString path);
@@ -110,44 +110,44 @@ private:
 
 	QVBoxLayout* mainLayout;
 	QChart* chart_temperature;
-	Clickable_QChartView* chart_view_temperatures;
+    ClickableQChartView* chart_view_temperatures;
 	QPushButton* btn_get_nuc_file, *btn_ok, *btn_cancel;
 	QLabel* lbl_nuc_filename;
 	QFrame* frame_plot;
 	QRadioButton *radio_temperature1, *radio_temperature2;
 	QLineSeries* selection1, * selection2;
 
-	Process_File file_processor;
+	ProcessFile file_processor;
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_metadata;
 
-	void initialize_gui();
-	void get_new_nuc_file();
-	void import_nuc_file();
-	void get_plotting_data(ABPNUC_Data &nuc_data);
-	void create_temperature_plot(QList<QPointF> temperature);
+    void InitializeGui();
+    void ResetOrImportNucFile();
+    void ImportNucFile();
+    void PrepareAndPlotTemperature(ABPNUCData &nuc_data);
+    void CreateTemperaturePlot(QList<QPointF> temperature);
 	
-	void show_user_selection(SelectedData &user_selection, double x0, double x1);
-	void draw_series(SelectedData& data);
-	void update_user_selection_labels(SelectedData &data);
-	void draw_axes();
-	bool check_path(QString path);
-	ImportFrames find_frames_in_osm();
-	double calculate_black_body_radiance(double wavelength, double temperature);
-	arma::mat average_multiple_frames(std::vector<std::vector<uint16_t>>& frames);
+    void ShowUserSelection(SelectedData &user_selection, double x0, double x1);
+    void DrawSeries(SelectedData& data);
+    void UpdateUserSelectionLabels(SelectedData &data);
+    void DrawAxes();
 
-	bool check_configuration_values();
-	bool check_filter_file(QString path);
-	arma::vec get_total_filter_response();
-	double trapezoidal_integration(arma::vec x, arma::vec y);
+    ImportFrames FindOsmFrames();
+    double CalculateBlackBodyRadiance(double wavelength, double temperature);
+    arma::mat AverageMultipleFrames(std::vector<std::vector<uint16_t>>& frames);
 
+    bool CheckPath(QString path);
+    bool CheckConfigurationValues();
+    bool CheckFilterFile(QString path);
 
-	arma::vec plank_equation(double temperature);
+    arma::vec CalculateTotalFilterResponse();
+    double CalculateTrapezoidalArea(arma::vec x, arma::vec y);
+    arma::vec CalculatePlankEquation(double temperature);
 
-	void ok();
-	void close_window();
-	void closeEvent(QCloseEvent* event);
+    void verifyCalibrationValues();
+    void closeWindow();
+    void closeEvent(QCloseEvent* event);
 };
 
 #endif

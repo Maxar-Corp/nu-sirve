@@ -1,6 +1,6 @@
 #include "bad_pixels.h"
 
-std::vector<unsigned int> BadPixels::identify_dead_pixels(const std::vector<std::vector<uint16_t>>& input_pixels)
+std::vector<unsigned int> BadPixels::IdentifyDeadPixels(const std::vector<std::vector<uint16_t>>& input_pixels)
 {    
     std::vector<unsigned int> dead_pixels;
 
@@ -33,7 +33,7 @@ std::vector<unsigned int> BadPixels::identify_dead_pixels(const std::vector<std:
     return dead_pixels;
 }
 
-void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels, QProgressDialog & progress)
+void BadPixels::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels, QProgressDialog & progress)
 {
     //For each frame, replaces any bad pixels with the mean of the value of 2 pixels above, below, left, and right
     //Other bad pixels are exempted from the calculation
@@ -117,7 +117,7 @@ void BadPixels::replace_pixels_with_neighbors(std::vector<std::vector<uint16_t>>
     }
 }
 
-std::vector<unsigned int> BadPixels::identify_dead_pixels_median(double N, std::vector<std::vector<uint16_t>>& input_pixels, bool only_dead, QProgressDialog & progress)
+std::vector<unsigned int> BadPixels::IdentifyDeadPixelsMedian(double N, std::vector<std::vector<uint16_t>>& input_pixels, bool only_dead, QProgressDialog & progress)
 {    
     int num_frames = input_pixels.size();
     num_frames = std::min(num_frames,500);
@@ -155,7 +155,7 @@ std::vector<unsigned int> BadPixels::identify_dead_pixels_median(double N, std::
     return dead_pixels;
 }
 
-std::vector<unsigned int> BadPixels::identify_dead_pixels_moving_median(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
+std::vector<unsigned int> BadPixels::IdentifyDeadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
 {
 	// Initialize output
 	int num_video_frames = input_pixels.size();
