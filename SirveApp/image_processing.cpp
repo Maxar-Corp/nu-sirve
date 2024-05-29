@@ -77,33 +77,33 @@ std::vector<std::vector<uint16_t>> Deinterlacing::cross_correlation(video_detail
 		peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
         yOffset = peak_index(0) - nRows2 + 1;
         xOffset = peak_index(1) - nCols + 1;
-        if (framei == 448){
-            cc_mat.save("cc_mat448.bin",arma::arma_binary);
-            peak_index.save("peak_index448.bin",arma::arma_binary);
-            frame.save("frame448.bin",arma::arma_binary);
-            odd_frame.save("odd_frame448.bin",arma::arma_binary);
-            even_frame.save("even_frame448.bin",arma::arma_binary);
-            std::ofstream myfile1("imax448.txt");
-            myfile1 << i_max;
-            myfile1.close();
-            std::ofstream myfile2("off448.txt");
-            myfile2 << xOffset << yOffset;
-            myfile2.close();
+        // if (framei == 448){
+        //     cc_mat.save("cc_mat448.bin",arma::arma_binary);
+        //     peak_index.save("peak_index448.bin",arma::arma_binary);
+        //     frame.save("frame448.bin",arma::arma_binary);
+        //     odd_frame.save("odd_frame448.bin",arma::arma_binary);
+        //     even_frame.save("even_frame448.bin",arma::arma_binary);
+        //     std::ofstream myfile1("imax448.txt");
+        //     myfile1 << i_max;
+        //     myfile1.close();
+        //     std::ofstream myfile2("off448.txt");
+        //     myfile2 << xOffset << yOffset;
+        //     myfile2.close();
 
-        }
-        if (framei == 277){
-            cc_mat.save("cc_mat277.bin",arma::arma_binary);
-            peak_index.save("peak_index277.bin",arma::arma_binary);
-            frame.save("frame277.bin",arma::arma_binary);
-            odd_frame.save("odd_frame277.bin",arma::arma_binary);
-            even_frame.save("even_frame277.bin",arma::arma_binary);
-            std::ofstream myfile3("imax277.txt");
-            myfile3 << i_max;
-            myfile3.close();
-            std::ofstream myfile4("off277.txt");
-            myfile4 << xOffset << yOffset;
-            myfile4.close();
-        }
+        // }
+        // if (framei == 277){
+        //     cc_mat.save("cc_mat277.bin",arma::arma_binary);
+        //     peak_index.save("peak_index277.bin",arma::arma_binary);
+        //     frame.save("frame277.bin",arma::arma_binary);
+        //     odd_frame.save("odd_frame277.bin",arma::arma_binary);
+        //     even_frame.save("even_frame277.bin",arma::arma_binary);
+        //     std::ofstream myfile3("imax277.txt");
+        //     myfile3 << i_max;
+        //     myfile3.close();
+        //     std::ofstream myfile4("off277.txt");
+        //     myfile4 << xOffset << yOffset;
+        //     myfile4.close();
+        // }
         if(yOffset % nRows2 == 0){
             yOffset = 0;
         }
