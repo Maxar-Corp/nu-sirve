@@ -119,7 +119,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::process_frames(QString
 // 	return frames_out;
 // }
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_conserve_memory(int start_frame, int number_of_frames, int NThresh, video_details & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -153,7 +153,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 		M = frame_vector.max();
 		frame_vector -= moving_mean;
 		if (hide_shadow_choice == "Hide Shadow"){
-			NoiseSuppressionGeneral::remove_shadow(frame_vector,window_data,moving_mean);			
+			NoiseSuppressionGeneral::remove_shadow(frame_vector,window_data,moving_mean,NThresh);			
 		}
 		else{
 			frame_vector -= frame_vector.min();
@@ -164,14 +164,14 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::process_frames_cons
 	return frames_out;
 }
 
-void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::mat window_data, arma::vec moving_mean)
+void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::mat window_data, arma::vec moving_mean, int NThresh)
 {
 	frame_vector = frame_vector - arma::mean(frame_vector);
 	window_data.each_col() -= moving_mean;
 	window_data -= arma::repmat(arma::mean(window_data,0),frame_vector.n_rows,1);
 	arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 1.*arma::stddev(frame_vector));
-	arma::uvec index_negative = arma::find(frame_vector < 1.*arma::stddev(frame_vector));
-	arma::uvec index_old_positive = arma::find(arma::sum(window_data - 1*arma::repmat(arma::stddev(window_data,0),frame_vector.n_rows,1)>0,1)>0);
+	arma::uvec index_negative = arma::find(frame_vector < NThresh*arma::stddev(frame_vector));
+	arma::uvec index_old_positive = arma::find(arma::sum(window_data - NThresh*arma::repmat(arma::stddev(window_data,0),frame_vector.n_rows,1)>0,1)>0);
 	// arma::uvec change_index = arma::unique(arma::join_cols(index_negative,index_old_positive));
 	arma::uvec change_index = arma::intersect(index_negative,index_old_positive);
 	if (change_index.size() > 0) {				
