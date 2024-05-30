@@ -15,3 +15,7 @@ See the [debug instructions README](docs/DEBUG.md) for detailed debugging inform
 ## Running Tests in SIRVE
 
 See the [test instructions README](docs/TESTING.md) for detailed testing instructions.
+
+## Google Code Style Guide
+
+https://google.github.io/styleguide/cppguide.html
