@@ -1,16 +1,11 @@
 #include "workspace.h"
+#include "support/qthelpers.h"
 
 Workspace::Workspace(QString workspace_folder)
 {
-
     if (!fs::exists(workspace_folder.toStdString()))
     {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Workspace Alert");
-        msgBox.setText("Can't find your workspace folder. Use Settings->Change Workspace Directory to point SIRVE to your workspace folder.");
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-        msgBox.exec();
+        QtHelpers::LaunchMessageBox("Workspace Alert", "Can't find your workspace folder. Use Settings->Change Workspace Directory to point SIRVE to your workspace folder.");
     }
 };
 
