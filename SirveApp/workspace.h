@@ -10,11 +10,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QStringList>
-#include "config.h"
 #include "processing_state.h"
 #include "annotation_info.h"
-
-#include <QMessageBox>
+#include "support/qthelpers.h"
 
 namespace fs = std::filesystem;
 
