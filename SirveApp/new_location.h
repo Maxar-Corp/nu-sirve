@@ -38,9 +38,9 @@ public:
 public slots:
 
     void CreateSensor();
-	
+
 private:
-	
+
     Ui_Dialog_Add_Location ui;
 
 };
