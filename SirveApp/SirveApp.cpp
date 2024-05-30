@@ -961,8 +961,6 @@ void SirveApp::setupConnections() {
 	//---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
 
-    //connect(directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::receiveWorkspaceDirectory);
-
     connect(&directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::HandleWorkspaceDirChanged);
 }
 
