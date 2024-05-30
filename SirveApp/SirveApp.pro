@@ -27,9 +27,9 @@ HEADERS += abir_reader.h \
             data_export.h \
             deinterlace.h \
             deinterlace_type.h \
-            directory_picker.h \
-            engineering_data.h \
+            engineeringdata.h \
             enhanced_label.h \
+            frame_player.h \
             histogram_plotter.h \
             location_input.h \
             new_location.h \
@@ -37,7 +37,6 @@ HEADERS += abir_reader.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
             osm_reader.h \
-            playback.h \
             plot_engineering_data.h \
             popout_dialog.h \
             process_file.h \
@@ -76,9 +75,9 @@ SOURCES += abir_reader.cpp \
             custom_input_dialog.cpp \
             data_export.cpp \
             deinterlace.cpp \
-            directory_picker.cpp \
-            engineering_data.cpp \
+            engineeringdata.cpp \
             enhanced_label.cpp \
+            frame_player.cpp \
             histogram_plotter.cpp \
             location_input.cpp \
             main.cpp \
@@ -87,7 +86,6 @@ SOURCES += abir_reader.cpp \
             non_uniformity_correction_external_file.cpp \
             non_uniformity_correction.cpp \
             osm_reader.cpp \
-            playback.cpp \
             plot_engineering_data.cpp \
             popout_dialog.cpp \
             process_file.cpp \

@@ -21,28 +21,28 @@ class AnnotationEditDialog : public QDialog
 	Q_OBJECT
 
 public:
-	AnnotationEditDialog(annotation_info &data, QWidget *parent = nullptr);
+    AnnotationEditDialog(AnnotationInfo &data, QWidget *parent = nullptr);
 	~AnnotationEditDialog();
 
 	int get_numeric_value(QString input);
 	bool check_numeric_value(QString input);
 
 signals:
-	void annotation_changed();
+    void annotationChanged();
 
 public slots:
 
-	void text_changed();
-	void frame_start_changed();
-	void number_of_frames_changed();
-	void x_location_changed();
-	void y_location_changed();
-	void color_changed(const QString &text);
-	void font_size_changed(const QString &text);
+    void TextChanged();
+    void FrameStartChanged();
+    void NumberOfFramesChanged();
+    void XLocationChanged();
+    void YLocationChanged();
+    void ColorChanged(const QString &text);
+    void FontSizeChanged(const QString &text);
 
 private:
 	
-	annotation_info *current_data;
+    AnnotationInfo *current_data;
 
 	int min_frame, max_frame;
 
@@ -55,11 +55,11 @@ private:
 
 	QGridLayout *mainLayout;	
 
-	void initialize_gui();
-	void display_error(QString msg);
-	void add();
-	void close_window();
-	void closeEvent(QCloseEvent *event);
+	void InitializeGui();
+	void DisplayError(QString msg);
+    void AddDialog();
+	void CloseWindow();
+    void CloseEvent(QCloseEvent *event);
 };
 
 

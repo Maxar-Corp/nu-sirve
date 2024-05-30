@@ -1,6 +1,6 @@
 #include "color_correction.h"
 
-void ColorCorrection::update_color(arma::vec & input, double min_value, double max_value)
+void ColorCorrection::UpdateColor(arma::vec & input, double min_value, double max_value)
 {
 	// Normalize the values
 	double range = max_value - min_value;

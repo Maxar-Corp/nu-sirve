@@ -26,16 +26,16 @@ class LocationInput : public QDialog//, public QWidget
 
 public:
 
+    LocationInput();
+    ~LocationInput();
+
 	QString selected_file_path;
 	QString directory_path;
 	bool path_set;
 
-	LocationInput();
-	~LocationInput();
-
 	std::vector<double> GetECEFVector();
 	void RefreshListBox();
-	void clear();
+	void ClearWidgetListItems();
 
 public slots:
 	void OnItemChange(QString item);

@@ -1,14 +1,14 @@
 #include "process_file.h"
 
-Process_File::Process_File()
+ProcessFile::ProcessFile()
 {
 }
 
-Process_File::~Process_File()
+ProcessFile::~ProcessFile()
 {
 }
 
-AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
+AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
 {
 	/*
 	The returned struct will have error_msg populated if there was an error
@@ -21,7 +21,7 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	// -----------------------------------------------------------------------------
 	// check abpimage file is valid
 	bool valid_image_extension = candidate_image_path.endsWith(".abpimage", Qt::CaseInsensitive);
-	bool image_file_exists = check_path(candidate_image_path);
+	bool image_file_exists = VerifyPath(candidate_image_path);
 
 	if (!valid_image_extension || !image_file_exists) {
 		abp_data.error_msg = QString("File with .abpimage extension not found");
@@ -34,7 +34,7 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	QString candidate_osm_path = candidate_image_path;
 	candidate_osm_path.replace(QString(".abpimage"), QString(".abposm"), Qt::CaseInsensitive);
 
-	if (!check_path(candidate_osm_path)) {
+	if (!VerifyPath(candidate_osm_path)) {
 		abp_data.error_msg = QString("No corresponding file found with .abposm extension that matches the image file name");
 		return abp_data;
 	}
@@ -58,7 +58,7 @@ AbpFileMetadata Process_File::locate_abp_files(QString candidate_image_path)
 	return abp_data;
 }
 
-bool Process_File::check_path(QString path)
+bool ProcessFile::VerifyPath(QString path)
 {
 	QFileInfo check_file(path);
 	bool file_isFile = check_file.isFile();
@@ -67,9 +67,9 @@ bool Process_File::check_path(QString path)
 	return file_exists && file_isFile;
 }
 
-ABIR_Data_Result Process_File::load_image_file(QString image_path, int first_frame, int last_frame, double version)
+ABIRDataResult ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_frame, double version)
 {
-	ABIR_Data_Result data_result;
+	ABIRDataResult data_result;
 	data_result.had_error = true;
 	
 	if (first_frame < 0 || last_frame < 0)
@@ -83,7 +83,7 @@ ABIR_Data_Result Process_File::load_image_file(QString image_path, int first_fra
 	QByteArray array = image_path.toLocal8Bit();
 	char* buffer = array.data();
 
-	data_result = abir_data.Get_Frames(buffer, frame_start, frame_end, version, false);
+	data_result = abir_data.GetFrames(buffer, frame_start, frame_end, version, false);
 	if (data_result.had_error) {
 		return data_result;
 	}

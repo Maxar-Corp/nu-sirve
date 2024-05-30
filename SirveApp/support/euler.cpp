@@ -1,7 +1,7 @@
 
 #include "Euler.h"
 
-namespace rotate{
+namespace rotate {
 
 	/*==============================================================================
 	* Function: rotate::CoordFrame_Rotation1
