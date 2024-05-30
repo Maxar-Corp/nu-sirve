@@ -5,7 +5,7 @@
 
 #include <QJsonObject>
 
-struct annotation_info {
+struct AnnotationInfo {
 	int x_pixel, y_pixel, frame_start, num_frames, font_size;
 	int min_frame, max_frame, x_min_position, x_max_position, y_min_position, y_max_position;
 	QString text, color;
@@ -26,10 +26,11 @@ struct annotation_info {
         anno_object.insert("frame_start", frame_start);
         anno_object.insert("num_frames", num_frames);
         anno_object.insert("font_size", font_size);
+
         return anno_object;
     }
 };
 
-annotation_info create_annotation_info_from_json(const QJsonObject & json_obj);
+AnnotationInfo CreateAnnotationInfoFromJson(const QJsonObject & json_obj);
 
 #endif

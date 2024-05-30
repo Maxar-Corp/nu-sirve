@@ -26,22 +26,22 @@ public:
 	AddLocation(QString path);
 	~AddLocation();
 
-	bool checkLatitude();
-	bool checkLongitude();
-	bool checkAltitude();
+    bool VerifyLatitude();
+    bool VerifyLongitude();
+    bool VerifyAltitudeAsNumeric();
 
 	bool isNumeric(QString text);
-	bool withinRange(QString text, double min_value, double max_value);
+    bool VerifyWithinRange(QString text, double min_value, double max_value);
 
-	void makeLocationFile();
+    void MakeLocationFile();
 
 public slots:
-	//void OnOkPress();
-	void create_sensor();
-	
+
+    void CreateSensor();
+
 private:
-	
-	Ui_Dialog_Add_Location ui;
+
+    Ui_Dialog_Add_Location ui;
 
 };
 

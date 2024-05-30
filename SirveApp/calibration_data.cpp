@@ -12,7 +12,7 @@ CalibrationData::~CalibrationData()
 
 }
 
-std::vector<double> CalibrationData::measure_irradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time)
+std::vector<double> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time)
 {
 	double scale_factor = integration_time / frame_integration_time;
 
@@ -85,9 +85,9 @@ CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* par
 
 	// initiliaze chart parameters
 	chart_temperature = new QChart();
-	chart_view_temperatures = new Clickable_QChartView(chart_temperature);
+    chart_view_temperatures = new ClickableQChartView(chart_temperature);
 
-	initialize_gui();
+    InitializeGui();
 
 	selection1 = new QLineSeries();
 	selection2 = new QLineSeries();
@@ -100,13 +100,13 @@ CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* par
 		path_nuc = input_model.path_nuc;
 		path_image = input_model.path_image;
 
-		import_nuc_file();
+        ImportNucFile();
 
-		draw_series(user_selection1);
-		update_user_selection_labels(user_selection1);
+        DrawSeries(user_selection1);
+        UpdateUserSelectionLabels(user_selection1);
 
-		draw_series(user_selection2);
-		update_user_selection_labels(user_selection2);
+        DrawSeries(user_selection2);
+        UpdateUserSelectionLabels(user_selection2);
 
 		btn_ok->setEnabled(true);
 	}
@@ -114,11 +114,11 @@ CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* par
 	else {
 
 		user_selection1.valid_data = false;
-		user_selection1.color = colors.Get_Color(1);
+        user_selection1.color = colors.get_color(1);
 		user_selection1.id = 1;
 
 		user_selection2.valid_data = false;
-		user_selection2.color = colors.Get_Color(3);
+        user_selection2.color = colors.get_color(3);
 		user_selection2.id = 2;
 	}
 
@@ -130,7 +130,7 @@ CalibrationDialog::~CalibrationDialog()
 	delete selection2;
 }
 
-void CalibrationDialog::initialize_gui()
+void CalibrationDialog::InitializeGui()
 {
 
 	// define dialog buttons
@@ -138,8 +138,8 @@ void CalibrationDialog::initialize_gui()
 	btn_ok->setEnabled(false);
 	btn_cancel = new QPushButton(tr("Cancel"));
 
-	connect(btn_ok, &QPushButton::pressed, this, &CalibrationDialog::ok);
-	connect(btn_cancel, &QPushButton::pressed, this, &CalibrationDialog::close_window);
+    connect(btn_ok, &QPushButton::pressed, this, &CalibrationDialog::verifyCalibrationValues);
+    connect(btn_cancel, &QPushButton::pressed, this, &CalibrationDialog::closeWindow);
 
 	// ------------------------------------------------------------
 	// set layout
@@ -211,7 +211,7 @@ void CalibrationDialog::initialize_gui()
 
 	// ------------------------------------------------------------
 	// setup connections
-	connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::get_new_nuc_file);
+    connect(btn_get_nuc_file, &QPushButton::clicked, this, &CalibrationDialog::ResetOrImportNucFile);
 
 	// ------------------------------------------------------------
 
@@ -223,24 +223,23 @@ void CalibrationDialog::initialize_gui()
 	frame_plot->setFixedHeight(fixed_height);
 }
 
-void CalibrationDialog::get_new_nuc_file()
-
+void CalibrationDialog::ResetOrImportNucFile()
 {
-QString user_selection = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
+    QString user_selection = QFileDialog::getOpenFileName(this, ("Open Calibration File"), "", ("NUC File(*.abpnuc)"));
 
-// if no image path is selected then reset image path and return
-int compare = QString::compare(user_selection, "", Qt::CaseInsensitive);
-if (compare == 0) {
+    // if no image path is selected then reset image path and return
+    int compare = QString::compare(user_selection, "", Qt::CaseInsensitive);
+    if (compare == 0) {
 
-	return;
+        return;
+    }
+
+    path_nuc = user_selection;
+
+    ImportNucFile();
 }
 
-path_nuc = user_selection;
-
-import_nuc_file();
-}
-
-void CalibrationDialog::import_nuc_file()
+void CalibrationDialog::ImportNucFile()
 {
 
 	// -----------------------------------------------------------------------------
@@ -248,7 +247,7 @@ void CalibrationDialog::import_nuc_file()
 
 	QByteArray ba = path_nuc.toLocal8Bit();
 	char* file_path = ba.data();
-	ABPNUC_Data nuc_data(file_path);
+	ABPNUCData nuc_data(file_path);
 
 	if (nuc_data.read_status == 0) {
 
@@ -272,7 +271,7 @@ void CalibrationDialog::import_nuc_file()
 
 	// -----------------------------------------------------------------------------
 	// retrieve relevant data from calibration data
-	get_plotting_data(nuc_data);
+    PrepareAndPlotTemperature(nuc_data);
 
 	// -----------------------------------------------------------------------------
 	// get file name to display
@@ -292,14 +291,14 @@ void CalibrationDialog::point_selected(double x0, double x1) {
 
 	if (radio_temperature1->isChecked())
 	{
-		show_user_selection(user_selection1, x0, x1);
-		update_user_selection_labels(user_selection1);
+        ShowUserSelection(user_selection1, x0, x1);
+        UpdateUserSelectionLabels(user_selection1);
 
 	}
 	else
 	{
-		show_user_selection(user_selection2, x0, x1);
-		update_user_selection_labels(user_selection2);
+        ShowUserSelection(user_selection2, x0, x1);
+        UpdateUserSelectionLabels(user_selection2);
 
 	}
 
@@ -309,11 +308,9 @@ void CalibrationDialog::point_selected(double x0, double x1) {
 	else {
 		btn_ok->setEnabled(false);
 	}
-
-
 }
 
-void CalibrationDialog::show_user_selection(SelectedData& user_selection, double x0, double x1) {
+void CalibrationDialog::ShowUserSelection(SelectedData& user_selection, double x0, double x1) {
 
 
 	std::vector<double> vector_temperature;
@@ -365,7 +362,7 @@ void CalibrationDialog::show_user_selection(SelectedData& user_selection, double
 	if (user_selection.points.size() > 0) {
 
 		user_selection.valid_data = true;
-		draw_series(user_selection);
+        DrawSeries(user_selection);
 	}
 	else {
 		user_selection.valid_data = false;
@@ -374,7 +371,7 @@ void CalibrationDialog::show_user_selection(SelectedData& user_selection, double
 
 }
 
-void CalibrationDialog::draw_series(SelectedData& data)
+void CalibrationDialog::DrawSeries(SelectedData& data)
 {
 	data.valid_data = true;
 
@@ -401,10 +398,10 @@ void CalibrationDialog::draw_series(SelectedData& data)
 
 	series->setPen(pen);
 	chart_temperature->addSeries(series);
-	draw_axes();
+    DrawAxes();
 }
 
-void CalibrationDialog::update_user_selection_labels(SelectedData& data) {
+void CalibrationDialog::UpdateUserSelectionLabels(SelectedData& data) {
 
 	QRadioButton* radio_temperature;
 
@@ -425,7 +422,7 @@ void CalibrationDialog::update_user_selection_labels(SelectedData& data) {
 
 }
 
-arma::vec CalibrationDialog::get_total_filter_response()
+arma::vec CalibrationDialog::CalculateTotalFilterResponse()
 {
 	// read in configuration file 
 	QString path = "config/config.json";
@@ -460,7 +457,7 @@ arma::vec CalibrationDialog::get_total_filter_response()
 	return response;
 }
 
-arma::vec CalibrationDialog::plank_equation(double temperature)
+arma::vec CalibrationDialog::CalculatePlankEquation(double temperature)
 {
 	
 	arma::vec wavelengths(vector_wavelength);
@@ -481,7 +478,7 @@ arma::vec CalibrationDialog::plank_equation(double temperature)
 	return out;
 }
 
-bool CalibrationDialog::check_configuration_values()
+bool CalibrationDialog::CheckConfigurationValues()
 {
 	// read in configuration file 
 	QString path = "config/config.json";
@@ -509,12 +506,12 @@ bool CalibrationDialog::check_configuration_values()
 
 	// retrieve det file path and check that it is accessable
 	QString path_det(calibration_object.value("path").toString());
-	bool file_path_exists = check_path(path_det);
+    bool file_path_exists = CheckPath(path_det);
 	if (!file_path_exists) {
 		return false;
 	}
 
-	bool file_acceptable = check_filter_file(path_det);
+    bool file_acceptable = CheckFilterFile(path_det);
 	if (!file_acceptable) {
 		return false;
 	}
@@ -545,7 +542,7 @@ bool CalibrationDialog::check_configuration_values()
 	return true;
 }
 
-bool CalibrationDialog::check_filter_file(QString path)
+bool CalibrationDialog::CheckFilterFile(QString path)
 {
 
 	double temp_wavelength, temp_filter;
@@ -590,11 +587,11 @@ bool CalibrationDialog::check_filter_file(QString path)
 	return true;
 }
 
-void CalibrationDialog::ok()
+void CalibrationDialog::verifyCalibrationValues()
 {
 	
 	// check that proper variables are in place
-	bool check = check_configuration_values();
+    bool check = CheckConfigurationValues();
 	if (!check) {
 
 		QMessageBox msgBox;
@@ -604,7 +601,7 @@ void CalibrationDialog::ok()
 
 		msgBox.exec();
 
-		close_window();
+        closeWindow();
 
 		return;
 	}
@@ -619,14 +616,14 @@ void CalibrationDialog::ok()
 	msgBox.exec();
 
 	QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
-	abp_metadata = file_processor.locate_abp_files(file_selection);
+	abp_metadata = file_processor.LocateAbpFiles(file_selection);
 	
 	if (!abp_metadata.error_msg.isEmpty())
 	{
 		return;
 	}
 
-	osm_frames = osm_reader.read_osm_file(abp_metadata.osm_path);
+	osm_frames = osm_reader.ReadOsmFileData(abp_metadata.osm_path);
 	if (osm_frames.size() == 0)
 	{
 		return;
@@ -647,7 +644,7 @@ void CalibrationDialog::ok()
 	}
 	//----------------------------------------------------------------------------
 
-	ImportFrames abp_frames = find_frames_in_osm();
+    ImportFrames abp_frames = FindOsmFrames();
 	path_image = abp_metadata.image_path;
 
 	if (abp_frames.all_frames_found) {
@@ -655,27 +652,27 @@ void CalibrationDialog::ok()
 		btn_ok->setEnabled(false);
 		btn_cancel->setEnabled(false);
 
-		arma::vec filter = get_total_filter_response();
-		arma::vec irradiance_vector1 = plank_equation(user_selection1.temperature_mean + 273.15);
-		arma::vec irradiance_vector2 = plank_equation(user_selection2.temperature_mean + 273.15);
+        arma::vec filter = CalculateTotalFilterResponse();
+        arma::vec irradiance_vector1 = CalculatePlankEquation(user_selection1.temperature_mean + 273.15);
+        arma::vec irradiance_vector2 = CalculatePlankEquation(user_selection2.temperature_mean + 273.15);
 
 		arma::vec response1 = filter % irradiance_vector1;
 		arma::vec response2 = filter % irradiance_vector2;
 
 		arma::vec x(vector_wavelength);
-		double irradiance1 = trapezoidal_integration(x, response1);
-		double irradiance2 = trapezoidal_integration(x, response2);
+        double irradiance1 = CalculateTrapezoidalArea(x, response1);
+        double irradiance2 = CalculateTrapezoidalArea(x, response2);
 
 		// get counts from abp image file
-		ABIR_Data_Result result1 = file_processor.load_image_file(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
+		ABIRDataResult result1 = file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
 		std::vector<std::vector<uint16_t>> video_frames1 = result1.video_frames_16bit;
-		ABIR_Data_Result result2 = file_processor.load_image_file(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
+		ABIRDataResult result2 = file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
 		std::vector<std::vector<uint16_t>> video_frames2 = result2.video_frames_16bit;
 
 		double integration_time = file_processor.abir_data.ir_data[0].header.int_time;
 
-		arma::mat average_count1 = average_multiple_frames(video_frames1);
-		arma::mat average_count2 = average_multiple_frames(video_frames2);
+        arma::mat average_count1 = AverageMultipleFrames(video_frames1);
+        arma::mat average_count2 = AverageMultipleFrames(video_frames2);
 
 		arma::mat dx = average_count2 - average_count1;
 		double dy = irradiance2 - irradiance1;
@@ -706,12 +703,12 @@ void CalibrationDialog::ok()
 		msgBox.setText(box_text);
 
 		msgBox.exec();
-		close_window();
+        closeWindow();
 	}
 
 }
 
-ImportFrames CalibrationDialog::find_frames_in_osm() {
+ImportFrames CalibrationDialog::FindOsmFrames() {
 
 	
 	// initialize ImportFrames struct
@@ -761,17 +758,17 @@ ImportFrames CalibrationDialog::find_frames_in_osm() {
 	return output;
 }
 
-void CalibrationDialog::close_window()
+void CalibrationDialog::closeWindow()
 {
 	done(QDialog::Rejected);
 }
 
 void CalibrationDialog::closeEvent(QCloseEvent* event)
 {
-	close_window();
+    closeWindow();
 }
 
-void CalibrationDialog::get_plotting_data(ABPNUC_Data &nuc_data)
+void CalibrationDialog::PrepareAndPlotTemperature(ABPNUCData &nuc_data)
 {
 
 	// enable selection options
@@ -788,12 +785,11 @@ void CalibrationDialog::get_plotting_data(ABPNUC_Data &nuc_data)
 		all_frame_times.push_back(nuc_data.data[i].frame_time);
 	}
 
-	create_temperature_plot(temperature);
+    CreateTemperaturePlot(temperature);
 
 }
 
-void CalibrationDialog::draw_axes() {
-
+void CalibrationDialog::DrawAxes() {
 
 	// set up axes
 	chart_temperature->createDefaultAxes();
@@ -814,7 +810,7 @@ void CalibrationDialog::draw_axes() {
 	chart_temperature->setContentsMargins(0, 0, 0, 0);
 }
 
-void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
+void CalibrationDialog::CreateTemperaturePlot(QList<QPointF> temperature) {
 
 
 	chart_temperature->removeAllSeries();
@@ -824,7 +820,7 @@ void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
 
 	// set pen settings for line series
 	//pen_temperature.setColor(QString("black"));
-	pen_temperature.setColor(colors.Get_Color(0));
+    pen_temperature.setColor(colors.get_color(0));
 	pen_temperature.setStyle(Qt::SolidLine);
 	pen_temperature.setWidth(3);
 
@@ -840,14 +836,14 @@ void CalibrationDialog::create_temperature_plot(QList<QPointF> temperature) {
 	// set legend
 	chart_temperature->legend()->setVisible(false);
 
-	connect(chart_view_temperatures, &Clickable_QChartView::click_drag, this, &CalibrationDialog::point_selected);
+    connect(chart_view_temperatures, &ClickableQChartView::clickDrag, this, &CalibrationDialog::point_selected);
 
 	// ----------------------------------------------------------------------------------------------------------------
 
-	draw_axes();
+    DrawAxes();
 }
 
-bool CalibrationDialog::check_path(QString path)
+bool CalibrationDialog::CheckPath(QString path)
 {
 
 	QFileInfo check_file(path);
@@ -857,7 +853,7 @@ bool CalibrationDialog::check_path(QString path)
 	return file_exists && file_isFile;
 }
 
-double CalibrationDialog::calculate_black_body_radiance(double wavelength, double temperature) {
+double CalibrationDialog::CalculateBlackBodyRadiance(double wavelength, double temperature) {
 
 	// wavelength should have units of meters
 	// temperature should have units of K
@@ -875,7 +871,7 @@ double CalibrationDialog::calculate_black_body_radiance(double wavelength, doubl
 	return radiance;
 }
 
-double CalibrationDialog::trapezoidal_integration(arma::vec x, arma::vec y) {
+double CalibrationDialog::CalculateTrapezoidalArea(arma::vec x, arma::vec y) {
 
 	double delta_x = x[1] - x[0];
 	int last_index = y.size() - 1;
@@ -890,7 +886,7 @@ double CalibrationDialog::trapezoidal_integration(arma::vec x, arma::vec y) {
 	return area;
 }
 
-arma::mat CalibrationDialog::average_multiple_frames(std::vector<std::vector<uint16_t>> &frames) {
+arma::mat CalibrationDialog::AverageMultipleFrames(std::vector<std::vector<uint16_t>> &frames) {
 
 
 	int num_pixels = frames[0].size();

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef PLAYBACK_H
-#define PLAYBACK_H
+#ifndef FRAME_PLAYER_H
+#define FRAME_PLAYER_H
 
 #include <iostream>
 #include <string>
@@ -9,13 +9,15 @@
 #include <QWidget>
 #include <QTimer>
 
-class Playback : public QWidget
+class FramePlayer : public QWidget
 {
 	Q_OBJECT
 public:
 
-	Playback(unsigned int number_frames);
-	~Playback();
+    FramePlayer(unsigned int number_frames);
+    ~FramePlayer();
+
+    void set_current_frame_number(unsigned int value);
 	void set_number_of_frames(unsigned int value);
 	unsigned int get_current_frame_number();
 	unsigned int get_max_frame_number();
@@ -28,19 +30,19 @@ public:
 	bool is_running();
 	void set_initial_speed_index(int index);
 
-public slots:
-	void speed_timer();
-	void slow_timer();
-	void stop_timer();
-	void start_timer();
-	void timer_update();
-	void set_current_frame_number(unsigned int value);
-	void prev_frame();
-	void next_frame();
-	void reverse();
-	
 signals:
-	void frame_selected(unsigned int current_frame_number);
+    void frameSelected(unsigned int current_frame_number);
+
+public slots:
+    void IncreaseTimerInterval();
+    void DecreaseTimerInterval();
+    void StopTimer();
+    void StartTimer();
+    void UpdateTimer();
+    void ReverseTimer();
+
+    void GotoPrevFrame();
+    void GotoNextFrame();
 
 private:
 	unsigned int current_frame_number;
