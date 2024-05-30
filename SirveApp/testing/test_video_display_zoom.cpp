@@ -8,30 +8,30 @@ void TestVideoDisplayZoom::test_is_currently_zoomed()
     VideoDisplayZoomManager v(640, 480);
     QCOMPARE(v.is_currently_zoomed(), false);
 
-    v.zoom_image(QRect(1, 1, 10, 10));
+    v.ZoomImage(QRect(1, 1, 10, 10));
     QCOMPARE(v.is_currently_zoomed(), true);
 
-    v.zoom_image(QRect(1, 1, 10, 10));
+    v.ZoomImage(QRect(1, 1, 10, 10));
     QCOMPARE(v.is_currently_zoomed(), true);
     
-    v.unzoom();
+    v.UndoZoom();
     QCOMPARE(v.is_currently_zoomed(), true);
 
-    v.zoom_image(QRect(1, 1, 10, 10));
+    v.ZoomImage(QRect(1, 1, 10, 10));
     QCOMPARE(v.is_currently_zoomed(), true);
 
-    v.unzoom();
+    v.UndoZoom();
     QCOMPARE(v.is_currently_zoomed(), true);
 
-    v.unzoom();
+    v.UndoZoom();
     QCOMPARE(v.is_currently_zoomed(), false);
 }
 
 void TestVideoDisplayZoom::test_zoom_and_unzoom()
 {
     VideoDisplayZoomManager v(640, 480);
-    v.zoom_image(QRect(320, 240, 320, 240)); //the bottom right quadrant
-    v.zoom_image(QRect(320, 240, 320, 240)); //the bottom right quadrant of ^
+    v.ZoomImage(QRect(320, 240, 320, 240)); //the bottom right quadrant
+    v.ZoomImage(QRect(320, 240, 320, 240)); //the bottom right quadrant of ^
 
     //Ensure the last zoom is the final 1/4 of the image in both directions
     QCOMPARE(v.absolute_zoom_list.size(), 3);
@@ -40,7 +40,7 @@ void TestVideoDisplayZoom::test_zoom_and_unzoom()
     QCOMPARE(v.absolute_zoom_list[2].y, 360);
     QCOMPARE(v.absolute_zoom_list[2].height, 120);
 
-    v.unzoom();
+    v.UndoZoom();
 
     //Ensure the last zoom is 1/2 of the image in both directions starting at the midpoint
     QCOMPARE(v.absolute_zoom_list.size(), 2);
@@ -49,7 +49,7 @@ void TestVideoDisplayZoom::test_zoom_and_unzoom()
     QCOMPARE(v.absolute_zoom_list[1].y, 240);
     QCOMPARE(v.absolute_zoom_list[1].height, 240);
 
-    v.unzoom();
+    v.UndoZoom();
     //Ensure the "zoom" level is the full image
     QCOMPARE(v.absolute_zoom_list.size(), 1);
     QCOMPARE(v.absolute_zoom_list[0].x, 0);
@@ -67,7 +67,7 @@ void TestVideoDisplayZoom::test_get_position_within_zoom()
     QCOMPARE(result[0], 480);
     QCOMPARE(result[1], 360);
 
-    v.zoom_image(QRect(320, 240, 320, 240)); //the bottom right quadrant of the window
+    v.ZoomImage(QRect(320, 240, 320, 240)); //the bottom right quadrant of the window
     
     //Ensure a pixel in the middle of the zoom window is correctly found
     result = v.get_position_within_zoom(480, 360); //the center of the bottom right quadrant
@@ -88,7 +88,7 @@ void TestVideoDisplayZoom::test_get_position_within_zoom()
     QCOMPARE(result[1], -1);
 
     
-    v.zoom_image(QRect(320, 240, 320, 240)); //the bottom right quadrant of the remaining window
+    v.ZoomImage(QRect(320, 240, 320, 240)); //the bottom right quadrant of the remaining window
 
     //Ensure the same 4 tests still pass (middle, corner, corner, outside) with additional zoom
     result = v.get_position_within_zoom(560, 420);
@@ -110,7 +110,7 @@ void TestVideoDisplayZoom::test_is_any_piece_within_zoom()
     VideoDisplayZoomManager v(640, 480);
 
     //hyper zoom into a randomly chosen weird box in the top left
-    v.zoom_image(QRect(10, 10, 19, 11));
+    v.ZoomImage(QRect(10, 10, 19, 11));
     //The area selected for zooming gets changed to the aspect ratio to guard against, e.g., ...
     // ... distorting the viewport by selecting a very vertical rectangle
     //So for 19/11, the width/height get reset to be 20/15
@@ -118,7 +118,7 @@ void TestVideoDisplayZoom::test_is_any_piece_within_zoom()
     // 10 to 30 in the X direction with each "original" pixel now being 640/20 = 32 true pixels wide
     // 10 to 25 in the Y direction with each "original" pixel now being 480/17 = 32 true pixels high
     
-    v.zoom_image(QRect(80, 120, 320, 240));
+    v.ZoomImage(QRect(80, 120, 320, 240));
     //Now, we zoom into a box that is exactly half the width and half the height of that viewport
     //I'll start at 1/8 of the image (x) and thus end at 5/8 of the image (x) in order to get non-integer numbers for testing
     //I'll also choose just 1/4 of the image (y) and thus 3/4 of the image (y) for the same reason
@@ -158,7 +158,7 @@ void TestVideoDisplayZoom::test_zoom_resets_up_and_left_if_over_the_edge()
 
     //Remember that the zoom levels are 0-indexed, so the furthest right 10 pixels are 629-639
     //Try to zoom into a box that extends out of the viewport
-    v.zoom_image(QRect(629, 469, 20, 15));
+    v.ZoomImage(QRect(629, 469, 20, 15));
 
     //Assert that the additional 10 (x) pixels and 5 (y) pixels cause the zoom box to shift up and left
     QCOMPARE(v.absolute_zoom_list[1].x, 619);

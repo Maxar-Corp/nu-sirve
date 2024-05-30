@@ -19,18 +19,18 @@ public:
     TrackManagementWidget(QWidget *parent = nullptr);
     ~TrackManagementWidget();
 
-    void add_track_control(int id);
-    void remove_track_control(int id);
+    void AddTrackControl(int id);
+    void RemoveTrackControl(int id);
 
 signals:
-    void display_track(int id);
-    void hide_track(int id);
-    void delete_track(int id);
-    void recolor_track(int id, QColor color);
+    void displayTrack(int id);
+    void hideTrack(int id);
+    void deleteTrack(int id);
+    void recolorTrack(int id, QColor color);
 
 private:
-    QWidget* create_track_control(int id);
-    void handle_track_color_choice(int id, int index);
+    QWidget* CreateTrackControl(int id);
+    void HandleTrackColorSelection(int id, int index);
 
     QVBoxLayout *layout;
 };

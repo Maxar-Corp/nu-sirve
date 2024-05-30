@@ -26,9 +26,9 @@ public:
 
 signals:
 	void clicked(QPoint pt);
-	void right_clicked(QPoint pt);
-	void highlighted_area(QRect area);
-	void double_clicked(QPoint pt);
+    void rightClicked(QPoint pt);
+    void areaHighlighted(QRect area);
+    void doubleClicked(QPoint pt);
 
 protected:
 	void mousePressEvent(QMouseEvent *event);

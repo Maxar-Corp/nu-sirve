@@ -1,6 +1,7 @@
 #pragma once
 
-//#define WORKSPACE_FOLDER        "workspace"
+#ifndef WORKSPACE_H
+#define WORKSPACE_H
 
 #include <QDir>
 #include <QFile>
@@ -9,15 +10,17 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QStringList>
-#include "process_file.h"
 #include "processing_state.h"
 #include "annotation_info.h"
+#include "support/qthelpers.h"
+
+namespace fs = std::filesystem;
 
 struct WorkspaceValues {
     QString image_path;
     int start_frame, end_frame;
-    std::vector<processing_state> all_states;
-    std::vector<annotation_info> annotations;
+    std::vector<processingState> all_states;
+    std::vector<AnnotationInfo> annotations;
 };
 
 class Workspace {
@@ -26,8 +29,11 @@ class Workspace {
         Workspace(QString workspace_directory);
         ~Workspace();
 
+        void Workspace::SaveState(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, const std::vector<processingState> all_states, const std::vector<AnnotationInfo> annotations);
+        WorkspaceValues Workspace::LoadState(QString workspace_name, QString workspace_folder);
+        void Workspace::UpdateWorkspaceDirectory(QString workspace_directory);
+
         QStringList Workspace::get_workspace_names(QString workspace_folder);
-        void Workspace::save_state(QString workspace_name, QString workspace_folder, QString image_path, int start_frame, int end_frame, const std::vector<processing_state> all_states, const std::vector<annotation_info> annotations);
-        WorkspaceValues Workspace::load_state(QString workspace_name, QString workspace_folder);
-        void Workspace::update_workspace_directory(QString workspace_directory);
 };
+
+#endif //WORKSPACE_H

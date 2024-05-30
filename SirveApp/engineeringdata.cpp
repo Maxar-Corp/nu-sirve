@@ -1,18 +1,18 @@
-#include "engineering_data.h"
+#include "engineeringdata.h"
 
-Engineering_Data::Engineering_Data(const std::vector<Frame> & osm_frames)
+EngineeringData::EngineeringData(const std::vector<Frame> & osm_frames)
 {
 	extract_engineering_data(osm_frames);
 	timing_offset = 0;
 
 }
 
-Engineering_Data::~Engineering_Data()
+EngineeringData::~EngineeringData()
 {
 
 }
 
-void Engineering_Data::update_epoch_time(double new_julian_date)
+void EngineeringData::update_epoch_time(double new_julian_date)
 {
 	int length = seconds_from_epoch.size();
 
@@ -20,7 +20,7 @@ void Engineering_Data::update_epoch_time(double new_julian_date)
 
 }
 
-std::vector<double> Engineering_Data::get_epoch(const std::vector<Frame> & osm_frames)
+std::vector<double> EngineeringData::get_epoch(const std::vector<Frame> & osm_frames)
 {
 	std::vector<double>out;
 
@@ -32,7 +32,7 @@ std::vector<double> Engineering_Data::get_epoch(const std::vector<Frame> & osm_f
 	return out;
 }
 
-std::vector<double> Engineering_Data::get_adj_epoch(double num_days, const std::vector<Frame> & osm_frames)
+std::vector<double> EngineeringData::get_adj_epoch(double num_days, const std::vector<Frame> & osm_frames)
 {
 	std::vector<double>out;
 
@@ -45,17 +45,17 @@ std::vector<double> Engineering_Data::get_adj_epoch(double num_days, const std::
 	return out;
 }
 
-double Engineering_Data::get_offset_time() {
+double EngineeringData::get_offset_time() {
 	
 	return timing_offset;
 }
 
-void Engineering_Data::set_offset_time(double offset)
+void EngineeringData::set_offset_time(double offset)
 {
 	timing_offset = offset;
 }
 
-std::vector<double> Engineering_Data::get_seconds_from_midnight()
+std::vector<double> EngineeringData::get_seconds_from_midnight()
 {
 	if (std::abs(timing_offset) < 0.001)
 		return seconds_from_midnight;
@@ -71,7 +71,7 @@ std::vector<double> Engineering_Data::get_seconds_from_midnight()
 	return output;
 }
 
-std::vector<double> Engineering_Data::get_seconds_from_epoch()
+std::vector<double> EngineeringData::get_seconds_from_epoch()
 {
 	if (std::abs(timing_offset) < 0.001 && std::abs(data_epoch_date - user_epoch_date) < 0.0000001)
 		return seconds_from_epoch;
@@ -90,9 +90,9 @@ std::vector<double> Engineering_Data::get_seconds_from_epoch()
 	return output;
 }
 
-std::vector<Plotting_Frame_Data> Engineering_Data::get_plotting_frame_data()
+std::vector<PlottingFrameData> EngineeringData::get_plotting_frame_data()
 {
-	std::vector<Plotting_Frame_Data> output;
+	std::vector<PlottingFrameData> output;
 	int length = frame_data.size();
 
 	if (std::abs(timing_offset) < 0.001)
@@ -100,7 +100,7 @@ std::vector<Plotting_Frame_Data> Engineering_Data::get_plotting_frame_data()
 
 	for (size_t i = 0; i < length; i++)
 	{
-		Plotting_Frame_Data temp;
+		PlottingFrameData temp;
 
 		temp.azimuth_sensor = frame_data[i].azimuth_sensor;
 		temp.elevation_sensor = frame_data[i].elevation_sensor;
@@ -113,22 +113,22 @@ std::vector<Plotting_Frame_Data> Engineering_Data::get_plotting_frame_data()
 	return output;
 }
 
-std::vector<Plotting_Frame_Data> Engineering_Data::get_subset_plotting_frame_data(int index0, int index1)
+std::vector<PlottingFrameData> EngineeringData::get_subset_plotting_frame_data(int index0, int index1)
 {
 	
-	std::vector<Plotting_Frame_Data> temp_data = get_plotting_frame_data();
-	std::vector<Plotting_Frame_Data>::const_iterator first = temp_data.begin() + index0;
-	std::vector<Plotting_Frame_Data>::const_iterator last = temp_data.begin() + index1;
-	std::vector<Plotting_Frame_Data> subset_data(first, last);
+	std::vector<PlottingFrameData> temp_data = get_plotting_frame_data();
+	std::vector<PlottingFrameData>::const_iterator first = temp_data.begin() + index0;
+	std::vector<PlottingFrameData>::const_iterator last = temp_data.begin() + index1;
+	std::vector<PlottingFrameData> subset_data(first, last);
 	
 	return subset_data;
 }
 
-void Engineering_Data::extract_engineering_data(const std::vector<Frame> & osm_frames)
+void EngineeringData::extract_engineering_data(const std::vector<Frame> & osm_frames)
 {
 	for (unsigned int i = 0; i < osm_frames.size(); i++) {
 
-		Plotting_Frame_Data temp;
+		PlottingFrameData temp;
 
 		// ----------------------------------------------------------------------------------------
 		// Get Az-El of sensor and primary target

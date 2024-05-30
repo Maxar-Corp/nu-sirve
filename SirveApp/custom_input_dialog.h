@@ -33,9 +33,10 @@ private:
 
 	QGridLayout *mainLayout;
 
-	void initialize_gui(QVector<QString> combo_box_options, QString dialog_title, QString combo_label);
-	void ok();
-	void close_window();
+	void InitializeGui(QVector<QString> combo_box_options, QString dialog_title, QString combo_label);
+
+    void verifyCustomInputValues();
+    void closeWindow();
 	void closeEvent(QCloseEvent *event);
 };
 

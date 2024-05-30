@@ -16,7 +16,7 @@
 
 #include "Data_Structures.h"
 #include "tracks.h"
-#include "engineering_data.h"
+#include "engineeringdata.h"
 #include "plot_engineering_data.h"
 #include "process_file.h"
 #include "osm_reader.h"
@@ -30,7 +30,7 @@ class ExternalNUCInformationWidget : public QDialog
 public:
 	ExternalNUCInformationWidget();
 	~ExternalNUCInformationWidget();
-	Process_File file_processor;
+    ProcessFile file_processor;
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_metadata;
@@ -38,14 +38,14 @@ public:
 
 public slots:
 
-	void get_osm_file();
+    void LoadOsmDataAndPlotFrames();
 
 private:
 
 	QString file_path, instructions;
 	
-	Engineering_Data *engineering_data;
-	Engineering_Plots* plot_data;
+	EngineeringData *engineering_data;
+    EngineeringPlots* plot_data;
 	TrackInformation *track_info;
 
 	QPushButton* btn_load_file, *btn_load_frames, *btn_close;
@@ -55,12 +55,12 @@ private:
 	QGridLayout* mainLayout;
 	QVBoxLayout* frame_layout;
 
-	void initialize_gui();
-	void display_error(QString msg);
-	void plot_osm();
-	void get_frames();
-	
-	void close_window();
+	void InitializeGui();
+    void DisplayError(QString msg);
+    void PlotOsmFrameData();
+
+    void getFrames();
+    void closeWindow();
 	void closeEvent(QCloseEvent* event);
 };
 

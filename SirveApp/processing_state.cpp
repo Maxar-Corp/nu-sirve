@@ -1,12 +1,12 @@
 #include "processing_state.h"
 
-processing_state create_processing_state_from_json(const QJsonObject & json_obj)
+processingState create_processing_state_from_json(const QJsonObject & json_obj)
 {
     QString method = json_obj.value("method").toString();
 
     if (method == "Original")
     {
-        processing_state temp = { Processing_Method::original };
+        processingState temp = { ProcessingMethod::original };
         std::vector<unsigned int> replaced_pixels;
         for (auto json_item : json_obj.value("replaced_pixels").toArray())
         {
@@ -17,7 +17,7 @@ processing_state create_processing_state_from_json(const QJsonObject & json_obj)
     }
     if (method == "ANS")
     {
-        processing_state temp = { Processing_Method::adaptive_noise_suppression };
+        processingState temp = { ProcessingMethod::adaptive_noise_suppression };
         temp.ANS_relative_start_frame = json_obj.value("ANS_relative_start_frame").toInt();
         temp.ANS_num_frames = json_obj.value("ANS_num_frames").toInt();
 		temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
@@ -25,13 +25,13 @@ processing_state create_processing_state_from_json(const QJsonObject & json_obj)
     }
     if (method == "Deinterlace")
     {
-        processing_state temp = { Processing_Method::deinterlace };
-        temp.deint_type = static_cast<deinterlace_type>(json_obj.value("deint_type").toInt());
+        processingState temp = { ProcessingMethod::deinterlace };
+        temp.deint_type = static_cast<DeinterlaceType>(json_obj.value("deint_type").toInt());
         return temp;
     }
     if (method == "FNS")
     {
-        processing_state temp = { Processing_Method::fixed_noise_suppression };
+        processingState temp = { ProcessingMethod::fixed_noise_suppression };
         temp.FNS_start_frame = json_obj.value("FNS_start_frame").toInt();
         temp.FNS_stop_frame = json_obj.value("FNS_stop_frame").toInt();
         temp.FNS_file_path = json_obj.value("FNS_file_path").toInt();
