@@ -94,8 +94,8 @@ public:
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
-	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *label_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
-	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
+    QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *label_adaptive_noise_suppression_status, *lbl_current_workspace_folder, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+    QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
 	QLineEdit* txt_start_frame, * txt_end_frame;
@@ -103,7 +103,7 @@ public:
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
-		* btn_import_tracks, * btn_create_track, * btn_finish_create_track;
+        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data;
 	QGroupBox * grpbox_auto_lift_gain;
@@ -142,12 +142,11 @@ public:
     void DisplayOriginalEpoch(QString new_epoch_string);
     QString CreateEpochString(std::vector<double> new_epoch);
 
-    DirectoryPicker directoryPicker;
-
 	signals:
         void changeBanner(QString banner_text);
         void changeBannerColor(QString color);
         void changeTrackerColor(QString color);
+        void directorySelected(QString directory);
 
 	public slots:
 

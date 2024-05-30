@@ -1,6 +1,7 @@
 #include "workspace.h"
 
-Workspace::Workspace(QString workspace_folder) {
+Workspace::Workspace(QString workspace_folder)
+{
     QDir().mkdir(workspace_folder);
 };
 
