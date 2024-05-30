@@ -1,6 +1,7 @@
 #pragma once
 
-//#define WORKSPACE_FOLDER        "workspace"
+#ifndef WORKSPACE_H
+#define WORKSPACE_H
 
 #include <QDir>
 #include <QFile>
@@ -9,9 +10,11 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QStringList>
-#include "process_file.h"
 #include "processing_state.h"
 #include "annotation_info.h"
+#include "support/qthelpers.h"
+
+namespace fs = std::filesystem;
 
 struct WorkspaceValues {
     QString image_path;
@@ -32,3 +35,5 @@ class Workspace {
 
         QStringList Workspace::get_workspace_names(QString workspace_folder);
 };
+
+#endif //WORKSPACE_H
