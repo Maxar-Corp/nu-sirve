@@ -822,8 +822,6 @@ void SirveApp::SetupPlotFrame() {
 
 	tab_plots->addTab(widget_tab_histogram, "Histogram");
 	tab_plots->addTab(widget_plots_tab_color, "Plots");
-
-    //directoryPicker = new DirectoryPicker(this);
 }
 
 void SirveApp::setupConnections() {
@@ -960,8 +958,6 @@ void SirveApp::setupConnections() {
 
 	//---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
-
-    connect(&directoryPicker, &DirectoryPicker::directorySelected, this, &SirveApp::HandleWorkspaceDirChanged);
 }
 
 void SirveApp::ImportTracks()
@@ -1924,7 +1920,20 @@ void SirveApp::SetDataTimingOffset()
 
 void SirveApp::ChangeWorkspaceDirectory()
 {
-    this->directoryPicker.show();
+    QString directory = QFileDialog::getExistingDirectory(this, tr("Select Directory"), QDir::homePath());
+
+    if (!directory.isEmpty())
+    {
+        configReaderWriter::SaveWorkspaceFolder(directory);
+        config_values = configReaderWriter::ExtractWorkspaceConfigValues();
+        workspace = new Workspace(config_values.workspace_folder);
+
+        lbl_current_workspace_folder->setText("Current Workspace Folder: " + config_values.workspace_folder);
+        lbl_current_workspace_folder->setWordWrap(true);
+
+        cmb_workspace_name->clear();
+        cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
+    }
 }
 
 void SirveApp::CloseWindow()
@@ -2664,21 +2673,6 @@ void SirveApp::HandleProcessingStatesCleared()
 	cmb_processing_states->clear();
 	label_adaptive_noise_suppression_status->setText("No Frames Setup");
 	lbl_fixed_suppression->setText("No Frames Selected");
-}
-
-void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory)
-{
-    configReaderWriter::SaveWorkspaceFolder(workspaceDirectory);
-    config_values = configReaderWriter::ExtractWorkspaceConfigValues();
-    workspace = new Workspace(config_values.workspace_folder);
-
-    lbl_current_workspace_folder->setText("Current Workspace Folder: " + config_values.workspace_folder);
-    lbl_current_workspace_folder->setWordWrap(true);
-
-    cmb_workspace_name->clear();
-    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
-
-    directoryPicker.close();
 }
 
 void SirveApp::ExecuteNoiseSuppression()

@@ -27,7 +27,6 @@ HEADERS += abir_reader.h \
             data_export.h \
             deinterlace.h \
             deinterlace_type.h \
-            directory_picker.h \
             engineeringdata.h \
             enhanced_label.h \
             frame_player.h \
@@ -76,7 +75,6 @@ SOURCES += abir_reader.cpp \
             custom_input_dialog.cpp \
             data_export.cpp \
             deinterlace.cpp \
-            directory_picker.cpp \
             engineeringdata.cpp \
             enhanced_label.cpp \
             frame_player.cpp \

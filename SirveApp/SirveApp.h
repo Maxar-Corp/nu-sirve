@@ -142,12 +142,11 @@ public:
     void DisplayOriginalEpoch(QString new_epoch_string);
     QString CreateEpochString(std::vector<double> new_epoch);
 
-    DirectoryPicker directoryPicker;
-
 	signals:
         void changeBanner(QString banner_text);
         void changeBannerColor(QString color);
         void changeTrackerColor(QString color);
+        void directorySelected(QString directory);
 
 	public slots:
 
