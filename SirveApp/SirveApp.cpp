@@ -501,8 +501,17 @@ QWidget* SirveApp::SetupWorkspaceTab(){
 	QWidget* widget_tab_workspace = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
+    lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
+    lbl_current_workspace_folder->setWordWrap(true);
+
 	cmb_workspace_name = new QComboBox();
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
+
+    btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
+    btn_change_workspace_directory->setStyleSheet("color: black;"
+                                      "background-color: rgb(255,140,0);"
+                                      "font-weight: bold;"
+                                      );
 
 	btn_workspace_load = new QPushButton("Load Workspace");
 	btn_workspace_load->setStyleSheet("color: black;"
@@ -548,25 +557,27 @@ QWidget* SirveApp::SetupWorkspaceTab(){
                         		);
 
 	QGridLayout* grid_workspace = new QGridLayout();
-	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
-	grid_workspace->addWidget(btn_workspace_load, 1, 0, 1, 1);
-	grid_workspace->addWidget(btn_workspace_save, 1, 1, 1, 1);
-	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, -1);
-	grid_workspace->addWidget(cmb_processing_states, 3, 0, 1, 1);
-	grid_workspace->addWidget(btn_undo_step, 3, 1, 1, 1);
-	grid_workspace->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, -1);
-	grid_workspace->addWidget(lbl_track, 5, 0, 1, -1, Qt::AlignCenter);
-	grid_workspace->addWidget(lbl_create_track_message, 6, 0, 1, 1);
-	grid_workspace->addWidget(btn_create_track, 6, 1, 1, 1);
-	grid_workspace->addWidget(btn_finish_create_track, 6, 1, 1, 1);
-	grid_workspace->addWidget(btn_import_tracks, 7, 0, 1, -1);
+    grid_workspace->addWidget(lbl_current_workspace_folder, 0, 0, 1, 1);
+    grid_workspace->addWidget(cmb_workspace_name, 1, 0, 1, 1);
+    grid_workspace->addWidget(btn_change_workspace_directory, 1, 1, 1, 1);
+    grid_workspace->addWidget(btn_workspace_load, 2, 0, 1, 1);
+    grid_workspace->addWidget(btn_workspace_save, 2, 1, 1, 1);
+    grid_workspace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, -1);
+    grid_workspace->addWidget(cmb_processing_states, 4, 0, 1, 1);
+    grid_workspace->addWidget(btn_undo_step, 4, 1, 1, 1);
+    grid_workspace->addWidget(QtHelpers::HorizontalLine(), 5, 0, 1, -1);
+    grid_workspace->addWidget(lbl_track, 6, 0, 1, -1, Qt::AlignCenter);
+    grid_workspace->addWidget(lbl_create_track_message, 7, 0, 1, 1);
+    grid_workspace->addWidget(btn_create_track, 7, 1, 1, 1);
+    grid_workspace->addWidget(btn_finish_create_track, 7, 1, 1, 1);
+    grid_workspace->addWidget(btn_import_tracks, 8, 0, 1, -1);
 
 	tm_widget = new TrackManagementWidget(widget_tab_workspace);
 	QScrollArea *track_management_scroll_area = new QScrollArea();
     track_management_scroll_area->setWidgetResizable( true );
 	track_management_scroll_area->setWidget(tm_widget);
 	track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	grid_workspace->addWidget(track_management_scroll_area, 8, 0, 1, -1);
+    grid_workspace->addWidget(track_management_scroll_area, 9, 0, 1, -1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
 	vlayout_tab_workspace->insertStretch(-1, 0);
@@ -912,6 +923,7 @@ void SirveApp::setupConnections() {
 
 	//---------------------------------------------------------------------------
 
+    connect(btn_change_workspace_directory, &QPushButton::clicked, this, &SirveApp::ChangeWorkspaceDirectory);
     connect(btn_workspace_save, &QPushButton::clicked, this, &SirveApp::SaveWorkspace);
     connect(btn_workspace_load, &QPushButton::clicked, this, &SirveApp::LoadWorkspace);
     connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::ImportTracks);
@@ -2661,6 +2673,9 @@ void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory)
     configReaderWriter::SaveWorkspaceFolder(workspaceDirectory);
     config_values = configReaderWriter::ExtractWorkspaceConfigValues();
     workspace = new Workspace(config_values.workspace_folder);
+
+    lbl_current_workspace_folder->setText("Current Workspace Folder: " + config_values.workspace_folder);
+    lbl_current_workspace_folder->setWordWrap(true);
 
     cmb_workspace_name->clear();
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
