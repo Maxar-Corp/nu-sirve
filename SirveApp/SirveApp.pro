@@ -189,3 +189,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../fftw-3.3.5-dll64/ -l
 
 INCLUDEPATH += $$PWD/../fftw-3.3.5-dll64
 DEPENDPATH += $$PWD/../fftw-3.3.5-dll64
+
+RESOURCES += \
+    SirveApp.qrc

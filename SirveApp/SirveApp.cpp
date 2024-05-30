@@ -165,13 +165,10 @@ QWidget* SirveApp::setup_file_import_tab() {
 
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load Image File");
-	btn_load_osm->setStyleSheet(dark_green_button_styleSheet);
 
 	btn_copy_directory = new QPushButton("Copy File Path");
-	btn_copy_directory->setStyleSheet(olive_green_button_styleSheet);
 
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
-	btn_calibration_dialog->setStyleSheet(olive_green_button_styleSheet);
 
 	//btn_load_osm->setMinimumWidth(30);
 	//btn_copy_directory->setMinimumWidth(30);
@@ -196,7 +193,6 @@ QWidget* SirveApp::setup_file_import_tab() {
 	txt_end_frame = new QLineEdit();
 	txt_end_frame->setAlignment(Qt::AlignHCenter);
 	btn_get_frames = new QPushButton("Load Frames");
-	btn_get_frames->setStyleSheet(dark_green_button_styleSheet);
 
 	QGridLayout* grid_tab_import_frames = new QGridLayout();
 	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
@@ -223,7 +219,6 @@ QWidget* SirveApp::setup_file_import_tab() {
 
 	lbl_current_epoch = new QLabel("Applied Epoch: ");
 	btn_apply_epoch = new QPushButton("Apply Epoch");
-	btn_apply_epoch->setStyleSheet(olive_green_button_styleSheet);
 	//btn_apply_epoch->setMinimumWidth(30);
 
 	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
@@ -287,7 +282,6 @@ QWidget* SirveApp::setup_color_correction_tab()
 	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain", widget_tab_color);
 	hlayout_additional_color_settings->addWidget(chk_auto_lift_gain);
 	btn_reset_color_correction = new QPushButton("Reset Set Points", widget_tab_color);
-	btn_reset_color_correction->setStyleSheet(olive_green_button_styleSheet);
 	hlayout_additional_color_settings->addWidget(btn_reset_color_correction);
 
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
@@ -327,11 +321,10 @@ QWidget* SirveApp::setup_color_correction_tab()
 	chk_show_time = new QCheckBox("Show Zulu Time");
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
-	btn_change_banner_text->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
+	// btn_change_banner_text->setStyleSheet("color: black;"
+	// 							"font-weight: bold;"
+    //                     		);
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
-	btn_add_annotations->setStyleSheet(dark_blue_button_styleSheet);
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
@@ -390,7 +383,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	QGridLayout* grid_bad_pixels = new QGridLayout();
 	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 3);
 	QLabel* label_bad_pixel = new QLabel("Bad Pixels ");
-	label_bad_pixel->setStyleSheet(bold_large_styleSheet);
+	// label_bad_pixel->setStyleSheet(bold_large_styleSheet);
 	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 1);
 	lbl_bad_pixel_count = new QLabel("");
 	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 1, 1, 1, 2);
@@ -447,7 +440,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
 
 	btn_bad_pixel_identification = new QPushButton("Replace Bad Pixels");
-	btn_bad_pixel_identification->setStyleSheet(dark_orange_button_styleSheet);
 	connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::ui_replace_bad_pixels);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 7, 2, 1, 1);
 
@@ -459,7 +451,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
 
 	QLabel* label_nuc = new QLabel("Fixed Noise Suppression ");
-	label_nuc->setStyleSheet(bold_large_styleSheet);
+	// label_nuc->setStyleSheet(bold_large_styleSheet);
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 0, 2, 1, 2);
@@ -477,7 +469,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	grid_tab_processing_nuc->addWidget(txt_FNS_end_frame, 2, 2, 1, 1);
 	
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
-	btn_FNS->setStyleSheet(dark_blue_button_styleSheet);
 	grid_tab_processing_nuc->addWidget(btn_FNS,2,3,1,1);
 	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 4);
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
@@ -485,7 +476,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression ");
-	label_adaptive_noise_suppression->setStyleSheet(bold_large_styleSheet);
+	//label_adaptive_noise_suppression->setStyleSheet(bold_large_styleSheet);
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
 	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 0, 2, 1, 2);
@@ -501,7 +492,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	chk_hide_shadow = new QCheckBox("Hide Shadow");
 	chk_hide_shadow->setChecked(true);
 	grid_tab_processing_bgs->addWidget(chk_hide_shadow, 2, 2, 1, 1);
-	lbl_ANS_shadow_threshold = new QLabel("Shadow Threshold");
+	lbl_ANS_shadow_threshold = new QLabel("Shadow Threshold:");
 	grid_tab_processing_bgs->addWidget(lbl_ANS_shadow_threshold, 1, 3, 1, 1);
 	cmb_shadow_threshold = new QComboBox();
 	cmb_shadow_threshold->addItem("1 sigma");
@@ -509,7 +500,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	cmb_shadow_threshold->addItem("3 sigma");
 	grid_tab_processing_bgs->addWidget(cmb_shadow_threshold, 2, 3, 1, 1);
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
-	btn_ANS->setStyleSheet(dark_blue_button_styleSheet);
 	grid_tab_processing_bgs->addWidget(btn_ANS, 2, 4, 1, 1);
 
 	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 5);
@@ -519,7 +509,7 @@ QWidget* SirveApp::setup_filter_tab() {
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_tab_processing_deinterlace = new QGridLayout();
 	QLabel* label_deinterlace = new QLabel("Deinterlace Methods ");
-	label_deinterlace->setStyleSheet(bold_large_styleSheet);
+	// label_deinterlace->setStyleSheet(bold_large_styleSheet);
 	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 1);
 	cmb_deinterlace_options = new QComboBox();
 	cmb_deinterlace_options->addItem("Max Absolute Value");
@@ -527,7 +517,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	cmb_deinterlace_options->addItem("Avg Cross Correlation");
 	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
 	btn_deinterlace = new QPushButton("Deinterlace");
-	btn_deinterlace->setStyleSheet(dark_blue_button_styleSheet);	
 	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 1,2,1,1);
 	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, 3);
 
@@ -536,7 +525,6 @@ QWidget* SirveApp::setup_filter_tab() {
 	QGridLayout* grid_tab_processing_extra = new QGridLayout();
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
-	btn_undo_step->setStyleSheet(olive_green_button_styleSheet);
 	grid_tab_processing_extra->addWidget(cmb_processing_states, 0, 0, 1, 2);
 	grid_tab_processing_extra->addWidget(btn_undo_step, 0, 2, 1, 2);
 	// grid_tab_processing_extra->addWidget(QtHelpers::HorizontalLine(), 1, 0, 1, 4);
@@ -557,10 +545,8 @@ QWidget* SirveApp::setup_workspace_tab(){
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 
 	btn_workspace_load = new QPushButton("Load Workspace");
-	btn_workspace_load->setStyleSheet(dark_green_button_styleSheet);
 	
 	btn_workspace_save = new QPushButton("Save Workspace");
-	btn_workspace_save->setStyleSheet(dark_green_button_styleSheet);
 
 	// cmb_processing_states = new QComboBox();
 	// btn_undo_step = new QPushButton("Undo One Step");
@@ -568,18 +554,18 @@ QWidget* SirveApp::setup_workspace_tab(){
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
-	lbl_create_track_message->setStyleSheet("QLabel { color: red }");
-	QFont large_font;
-	large_font.setPointSize(16);
-	lbl_create_track_message->setFont(large_font);
+	// lbl_create_track_message->setStyleSheet("QLabel { color: red }");
+	// QFont large_font;
+	// large_font.setPointSize(16);
+	// lbl_create_track_message->setFont(large_font);
 	btn_create_track = new QPushButton("Create Track");
-	btn_create_track->setStyleSheet(track_button_styleSheet);
+	// btn_create_track->setStyleSheet(track_button_styleSheet);
 	btn_finish_create_track = new QPushButton("Finish");
-	btn_finish_create_track->setStyleSheet(dark_red_stop_styleSheet);
+	// btn_finish_create_track->setStyleSheet(dark_red_stop_styleSheet);
 	btn_finish_create_track->setHidden(true);
 	// btn_finish_create_track->setFont(large_font);
 	btn_import_tracks = new QPushButton("Import Tracks");
-	btn_import_tracks->setStyleSheet(track_button_styleSheet);
+	// btn_import_tracks->setStyleSheet(track_button_styleSheet);
 
 	QGridLayout* grid_workspace = new QGridLayout();
 	grid_workspace->addWidget(cmb_workspace_name, 0, 0, 1, -1);
@@ -755,7 +741,6 @@ void SirveApp::setup_plot_frame() {
     frame_histogram_abs->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 
 	btn_popout_histogram = new QPushButton("Push to Popout Absolute Histogram");
-	btn_popout_histogram->setStyleSheet(dark_green_button_styleSheet);
 	btn_popout_histogram->resize(40, 40);
 	btn_popout_histogram->setCheckable(true);
 	vlayout_tab_histogram->addWidget(btn_popout_histogram);
@@ -1267,8 +1252,8 @@ void SirveApp::ui_choose_abp_file()
 	bool validated = validate_abp_files(file_selection);
 	if (validated) {
 		load_osm_data();
-		txt_start_frame->setStyleSheet(orange_styleSheet);
-		txt_end_frame->setStyleSheet(orange_styleSheet);				
+		// txt_start_frame->setStyleSheet(orange_styleSheet);
+		// txt_end_frame->setStyleSheet(orange_styleSheet);				
 	}
 };
 
@@ -1284,8 +1269,8 @@ bool SirveApp::validate_abp_files(QString path_to_image_file)
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);
 			btn_calibration_dialog->setEnabled(true);
-			txt_start_frame->setStyleSheet(orange_styleSheet);
-			txt_end_frame->setStyleSheet(orange_styleSheet);		
+			// txt_start_frame->setStyleSheet(orange_styleSheet);
+			// txt_end_frame->setStyleSheet(orange_styleSheet);		
 		}
 		else{
 			txt_start_frame->setEnabled(false);
@@ -1394,7 +1379,6 @@ void SirveApp::load_osm_data()
 
 	engineering_plot_layout = new QGridLayout();
 	btn_popout_engineering = new QPushButton("Push to Popout Plots");
-	btn_popout_engineering->setStyleSheet(dark_green_button_styleSheet);
 	btn_popout_engineering->resize(40, 40);
 	btn_popout_engineering->setCheckable(true);
 	connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::handle_popout_engineering_btn);
