@@ -39,10 +39,16 @@ int main(int argc, char *argv[])
     }
 
 	QApplication a(argc, argv);
-	SirveApp w;
-	w.show();
-	
-	a.exec();
 
-	return 0;
+    QFile file(":/Ubuntu.qss");
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        a.setStyleSheet(file.readAll());
+        file.close();
+    }
+
+	SirveApp w;
+    w.show();
+
+    return a.exec();
 }

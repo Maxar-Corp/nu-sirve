@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Aqua.qss</file>
+        <file>MacOS.qss</file>
+        <file>Ubuntu.qss</file>
+    </qresource>
+</RCC>
