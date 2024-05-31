@@ -362,9 +362,11 @@ std::vector<uint16_t> Deinterlace::DeinterlaceFrame(DeinterlaceType input_type, 
 
 arma::mat Deinterlace::CrossCorrelateFrame(arma::mat & mat_frame, arma::mat odd_frames, arma::mat even_frames)
 {
-	double mean_value = arma::mean(arma::mean(mat_frame));
-	arma::mat frame1 = odd_frames - mean_value;
-	arma::mat frame2 = even_frames - mean_value;
+	// double mean_value = arma::mean(arma::mean(mat_frame));
+	// arma::mat frame1 = odd_frames - mean_value;
+	// arma::mat frame2 = even_frames - mean_value;
+	arma::mat frame1 = (odd_frames - arma::mean(odd_frames.as_col())) / arma::stddev(odd_frames.as_col());
+	arma::mat frame2 = (even_frames - arma::mean(even_frames.as_col())) / arma::stddev(even_frames.as_col());
 
 	int rows_frame1 = frame1.n_rows;
 	int cols_frame1 = frame1.n_cols;
