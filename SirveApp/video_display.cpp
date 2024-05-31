@@ -938,7 +938,7 @@ QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 void VideoDisplay::HighlightBadPixels(bool status)
 {
 	should_show_bad_pixels = status;
-	update_display_frame();
+	UpdateDisplayFrame();
 }
 
 void VideoDisplay::highlight_bad_pixels_colors(QString input_color)
@@ -946,7 +946,7 @@ void VideoDisplay::highlight_bad_pixels_colors(QString input_color)
 	QColor new_color(input_color);
 	bad_pixel_color = new_color;
 	// QRgb bad_pixel_color = QColorConstants::Red.rgb();
-	update_display_frame();
+	UpdateDisplayFrame();
 }
 
 void VideoDisplay::UpdateFrameData(std::vector<PlottingFrameData> input_data)
