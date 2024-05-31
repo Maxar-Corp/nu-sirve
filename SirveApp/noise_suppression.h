@@ -12,7 +12,7 @@
 namespace AdaptiveNoiseSuppression
 {
 	// std::vector<std::vector<uint16_t>> process_frames_fast(int start_frame, int number_of_frames_input, video_details & original, QString & hide_shadow_choice, QProgressDialog & progress);
-	std::vector<std::vector<uint16_t>> process_frames_conserve_memory(int start_frame, int number_of_frames_input, int NThresh, video_details & original, QString & hide_shadow_choice, QProgressDialog & progress);
+	std::vector<std::vector<uint16_t>> ProcessFramesConserveMemory(int start_frame, int number_of_frames_input, int NThresh, VideoDetails & original, QString & hide_shadow_choice, QProgressDialog & progress);
 };
 
 namespace NoiseSuppressionGeneral
