@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-std::vector<std::vector<uint16_t>> MedianFilter::median_filter_standard(video_details & original, int window_size, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> MedianFilter::MedianFilterStandard(VideoDetails & original, int window_size, QProgressDialog & progress)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -45,7 +45,7 @@ std::vector<std::vector<uint16_t>> MedianFilter::median_filter_standard(video_de
 
 }
 
-std::vector<std::vector<uint16_t>> Deinterlacing::cross_correlation(video_details & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> Deinterlacing::CrossCorrelation(VideoDetails & original, QProgressDialog & progress)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
