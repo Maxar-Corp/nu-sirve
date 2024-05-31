@@ -378,7 +378,7 @@ QWidget* SirveApp::SetupFilterTab() {
 
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
-	QStringList colors = ColorScheme::GetTrackColors();
+	QStringList colors = ColorScheme::get_track_colors();
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_bad_pixels = new QGridLayout();
 	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 3);
@@ -2350,14 +2350,14 @@ void SirveApp::HandleBadPixelReplacement()
 		// 	return;
 		int start_frame = txt_bad_pixel_start_frame->text().toInt();
 		int end_frame = txt_bad_pixel_end_frame->text().toInt();
-		ABIR_Data_Result test_frames = file_processor.load_image_file(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+		ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
 		
 		if(type_choice == 0){ 
 			QProgressDialog progress_dialog0("Finding Dead/Out of Scale Pixels", "Cancel", 0, 4);
 			progress_dialog0.setWindowTitle("Bad Pixels");
 			progress_dialog0.setWindowModality(Qt::ApplicationModal);
 			progress_dialog0.setMinimumDuration(0);
-			arma::uvec index_dead0 = BadPixels::find_dead_badscale_pixels(test_frames.video_frames_16bit);
+			arma::uvec index_dead0 = BadPixels::FindDeadBadscalePixels(test_frames.video_frames_16bit);
 			progress_dialog0.setValue(4);
 
 			QProgressDialog progress_dialog0a("Finding Outlier Pixels", "Cancel", 0, test_frames.video_frames_16bit.size());
@@ -2366,28 +2366,28 @@ void SirveApp::HandleBadPixelReplacement()
 			progress_dialog0a.setMinimumDuration(0);
 
 			if (outlier_method == 0){		
-				arma::uvec index_outlier0 = BadPixels::identify_bad_pixels_median(N,test_frames.video_frames_16bit, progress_dialog0a);	
+				arma::uvec index_outlier0 = BadPixels::IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit, progress_dialog0a);	
 				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
 				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
-				replace_bad_pixels(dead_pixels);		
+				ReplaceBadPixels(dead_pixels);		
 			}
 			else{	
 				u_int window_length = txt_moving_median_N->text().toUInt();
-				arma::uvec index_outlier0 = BadPixels::identify_bad_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog0a);
+				arma::uvec index_outlier0 = BadPixels::IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit, progress_dialog0a);
 				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
 				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);	
-				replace_bad_pixels(dead_pixels);
+				ReplaceBadPixels(dead_pixels);
 			}
 		} else if (type_choice == 1){
 			QProgressDialog progress_dialog1("Finding Dead/Out of Scale Pixels", "Cancel", 0,4);
 			progress_dialog1.setWindowTitle("Bad Pixels");
 			progress_dialog1.setWindowModality(Qt::ApplicationModal);
 			progress_dialog1.setMinimumDuration(0);
-			arma::uvec index_dead1 = BadPixels::find_dead_badscale_pixels(test_frames.video_frames_16bit);
+			arma::uvec index_dead1 = BadPixels::FindDeadBadscalePixels(test_frames.video_frames_16bit);
 			progress_dialog1.setValue(2);
 			std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
 			progress_dialog1.setValue(3);
-			replace_bad_pixels(dead_pixels);
+			ReplaceBadPixels(dead_pixels);
 			progress_dialog1.setValue(4);
 		} else {
 			QProgressDialog progress_dialog2("Finding Outlier Pixels", "Cancel", 0, test_frames.video_frames_16bit.size());
@@ -2395,15 +2395,15 @@ void SirveApp::HandleBadPixelReplacement()
 			progress_dialog2.setWindowModality(Qt::ApplicationModal);
 			progress_dialog2.setMinimumDuration(0);
 			if (outlier_method == 0){		
-				arma::uvec index_outlier2 = BadPixels::identify_bad_pixels_median(N,test_frames.video_frames_16bit, progress_dialog2);	
+				arma::uvec index_outlier2 = BadPixels::IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit, progress_dialog2);	
 				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
-				replace_bad_pixels(dead_pixels);		
+				ReplaceBadPixels(dead_pixels);		
 			}
 			else{	
 				u_int window_length = txt_moving_median_N->text().toUInt();
-				arma::uvec index_outlier2 = BadPixels::identify_bad_pixels_moving_median(window_length,N,test_frames.video_frames_16bit, progress_dialog2);
+				arma::uvec index_outlier2 = BadPixels::IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit, progress_dialog2);
 				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);	
-				replace_bad_pixels(dead_pixels);
+				ReplaceBadPixels(dead_pixels);
 			}
 		}		
 
@@ -2662,7 +2662,7 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	progress.setLabelText(QString("Cross correlation..."));
 	progress.setMinimumWidth(300);
 
-	deinterlace_state.details.frames_16bit =  Deinterlacing::cross_correlation(original.details, progress);
+	deinterlace_state.details.frames_16bit = Deinterlacing::CrossCorrelation(original.details, progress);
 	// for (int i = 0; i < number_frames; i++)
 	// {
 	// 	progress.setValue(i);
@@ -2758,7 +2758,7 @@ void SirveApp::ExecuteNoiseSuppression()
 		hide_shadow_choice = "Show Shadow";
 	}
 
-	adaptive_noise_suppression(relative_start_frame, number_of_frames, hide_shadow_choice);
+	ApplyAdaptiveNoiseCorrection(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
 void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
@@ -2768,7 +2768,7 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 
 	// int NThresh = cmb_shadow_threshold->currentIndex() + 1;
 	int NThresh = 1;
-	processing_state original = video_display->container.copy_current_state();
+	processingState original = video_display->container.CopyCurrentState();
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	processingState noise_suppresions_state = original;
@@ -2795,7 +2795,7 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_conserve_memory(relative_start_frame, number_of_frames, NThresh, original.details, hide_shadow_choice, progress_dialog);
+		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesConserveMemory(relative_start_frame, number_of_frames, NThresh, original.details, hide_shadow_choice, progress_dialog);
 	// }
 
 	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);

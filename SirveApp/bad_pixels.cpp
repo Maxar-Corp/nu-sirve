@@ -1,38 +1,5 @@
 #include "bad_pixels.h"
 
-std::vector<unsigned int> BadPixels::IdentifyDeadPixels(const std::vector<std::vector<uint16_t>>& input_pixels)
-{    
-    std::vector<unsigned int> dead_pixels;
-
-    size_t num_frames = input_pixels.size();
-    // Loop through each pixel
-    for (auto i = 0; i < input_pixels[0].size(); i++)
-    {
-        double mean = 0.0;
-        double squared_diff_sum = 0.0;
-
-        for (int j = 0; j < num_frames; j++) {
-            mean += input_pixels[j][i];
-        }
-        mean /= num_frames;
-
-        for (int j = 0; j < num_frames; j++) {
-            double diff = input_pixels[j][i] - mean;
-            squared_diff_sum += diff * diff;
-        }
-
-        double variance = squared_diff_sum / num_frames;
-        double std_deviation = std::sqrt(variance);
-
-        if (std_deviation == 0)
-        {
-            dead_pixels.push_back(i);
-        }
-    }
-
-    return dead_pixels;
-}
-
 void BadPixels::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels, QProgressDialog & progress)
 {
     //For each frame, replaces any bad pixels with the mean of the value of 2 pixels above, below, left, and right
@@ -117,8 +84,7 @@ void BadPixels::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & 
     }
 }
 
-std::vector<unsigned int> BadPixels::IdentifyDeadPixelsMedian(double N, std::vector<std::vector<uint16_t>>& input_pixels, bool only_dead, QProgressDialog & progress)
-arma::uvec BadPixels::identify_bad_pixels_median(double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
+arma::uvec BadPixels::IdentifyBadPixelsMedian(double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
 {    
     double c = 1.4826;
 
@@ -157,8 +123,7 @@ arma::uvec BadPixels::identify_bad_pixels_median(double N, std::vector<std::vect
     return index_outlier;
 }
 
-std::vector<unsigned int> BadPixels::IdentifyDeadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
-arma::uvec BadPixels::identify_bad_pixels_moving_median(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
+arma::uvec BadPixels::IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels, QProgressDialog & progress)
 {
     int index_first_frame, index_last_frame;
 
@@ -206,7 +171,7 @@ arma::uvec BadPixels::identify_bad_pixels_moving_median(int half_window_length, 
     return index_outlier;
 }
 
-arma::uvec BadPixels::find_dead_badscale_pixels(std::vector<std::vector<uint16_t>>& input_pixels)
+arma::uvec BadPixels::FindDeadBadscalePixels(std::vector<std::vector<uint16_t>>& input_pixels)
 {
     int num_video_frames = input_pixels.size();
 
