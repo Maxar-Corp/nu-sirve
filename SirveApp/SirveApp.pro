@@ -31,6 +31,7 @@ HEADERS += abir_reader.h \
             enhanced_label.h \
             frame_player.h \
             histogram_plotter.h \
+            image_processing.h \
             location_input.h \
             new_location.h \
             noise_suppression.h \
@@ -79,6 +80,7 @@ SOURCES += abir_reader.cpp \
             enhanced_label.cpp \
             frame_player.cpp \
             histogram_plotter.cpp \
+            image_processing.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
@@ -185,3 +187,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../fftw-3.3.5-dll64/ -l
 
 INCLUDEPATH += $$PWD/../fftw-3.3.5-dll64
 DEPENDPATH += $$PWD/../fftw-3.3.5-dll64
+
+RESOURCES += \
+    SirveApp.qrc
