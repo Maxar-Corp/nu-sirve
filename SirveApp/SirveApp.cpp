@@ -165,18 +165,10 @@ QWidget* SirveApp::SetupFileImportTab() {
 
 	lbl_file_name = new QLabel("File Name:");
 	btn_load_osm = new QPushButton("Load Image File");
-	btn_load_osm->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
+
 	btn_copy_directory = new QPushButton("Copy File Path");
-	btn_copy_directory->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
+
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
-	btn_calibration_dialog->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
 
 	//btn_load_osm->setMinimumWidth(30);
 	//btn_copy_directory->setMinimumWidth(30);
@@ -200,11 +192,7 @@ QWidget* SirveApp::SetupFileImportTab() {
 	txt_start_frame->setAlignment(Qt::AlignHCenter);
 	txt_end_frame = new QLineEdit();
 	txt_end_frame->setAlignment(Qt::AlignHCenter);
-	btn_get_frames = new QPushButton(" Load Frames");
-	btn_get_frames->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
+	btn_get_frames = new QPushButton("Load Frames");
 
 	QGridLayout* grid_tab_import_frames = new QGridLayout();
 	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
@@ -231,9 +219,6 @@ QWidget* SirveApp::SetupFileImportTab() {
 
 	lbl_current_epoch = new QLabel("Applied Epoch: ");
 	btn_apply_epoch = new QPushButton("Apply Epoch");
-	btn_apply_epoch->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
 	//btn_apply_epoch->setMinimumWidth(30);
 
 	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
@@ -297,9 +282,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain", widget_tab_color);
 	hlayout_additional_color_settings->addWidget(chk_auto_lift_gain);
 	btn_reset_color_correction = new QPushButton("Reset Set Points", widget_tab_color);
-	btn_reset_color_correction->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
 	hlayout_additional_color_settings->addWidget(btn_reset_color_correction);
 
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
@@ -339,13 +321,10 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	chk_show_time = new QCheckBox("Show Zulu Time");
 
 	btn_change_banner_text = new QPushButton("Change Banner Text");
-	btn_change_banner_text->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
+	// btn_change_banner_text->setStyleSheet("color: black;"
+	// 							"font-weight: bold;"
+    //                     		);
 	btn_add_annotations = new QPushButton("Add/Edit Annotations");
-	btn_add_annotations->setStyleSheet("color: black;"
-								"font-weight: bold;"
-                        		);
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
@@ -392,7 +371,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
-
 	return widget_tab_color;
 }
 
@@ -400,96 +378,157 @@ QWidget* SirveApp::SetupFilterTab() {
 
 	QWidget* widget_tab_processing = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_processing = new QVBoxLayout(widget_tab_processing);
-
-
+	QStringList colors = ColorScheme::get_track_colors();
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_bad_pixels = new QGridLayout();
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 2);
-
-	QLabel* label_bad_pixel = new QLabel("Replacing Bad Pixels With Local Average");
-	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 2);
-
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 3);
+	QLabel* label_bad_pixel = new QLabel("Bad Pixels ");
+	// label_bad_pixel->setStyleSheet(bold_large_styleSheet);
+	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 1);
 	lbl_bad_pixel_count = new QLabel("");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 2, 0, 1, 2);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 1, 1, 1, 2);
+
+	lbl_bad_pixel_type = new QLabel("Replace Pixels ");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 2, 0, 1, 1);
+	cmb_bad_pixels_type = new QComboBox();
+	cmb_bad_pixels_type->addItem("All Bad Pixels");
+	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
+	cmb_bad_pixels_type->addItem("Outlier Only");
+	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 3, 0, 1, 1);
+
+	lbl_bad_pixel_method = new QLabel("Method:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_method, 2, 1, 1, 1);
+	cmb_outlier_processing_type = new QComboBox();
+	cmb_outlier_processing_type->addItem("Median");
+	cmb_outlier_processing_type->addItem("Moving Median");
+	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 3, 1, 1, 1);
+	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
+
+	lbl_bad_pixel_start_frame = new QLabel("Start:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 4, 0, 1, 1);
+	txt_bad_pixel_start_frame = new QLineEdit("1");
+	grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 5, 0, 1, 1);
+	lbl_bad_pixel_stop_frame = new QLabel("Stop:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 4, 1, 1, 1);
+	txt_bad_pixel_end_frame = new QLineEdit("500");
+	grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 5, 1, 1, 1);
+
+	lbl_moving_median_window_length = new QLabel("Window Length:");
+	grid_bad_pixels->addWidget(lbl_moving_median_window_length, 6, 0, 1, 1);
+	txt_moving_median_N = new QLineEdit("30");
+	grid_bad_pixels->addWidget(txt_moving_median_N, 7, 0, 1, 1);
+	txt_moving_median_N->setEnabled(false);
+	
+	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 6, 1, 1, 1);
+	cmb_outlier_processing_sensitivity = new QComboBox();
+	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
+	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
+	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
+	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
+	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 7, 1, 1, 1);
 
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 0, 1, 1);
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 3, 2, 1, 1);
 
-	btn_bad_pixel_identification = new QPushButton("Replace Dead Pixels");
-	btn_bad_pixel_identification->setStyleSheet("color: black;"
-                        		"background-color: rgb(255,140,0);"
-								"font-weight: bold;"
-                        		);
+	lbl_bad_pixel_color = new QLabel("Color:");
+	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 4, 2, 1, 1);
+	cmb_bad_pixel_color = new QComboBox();
+	cmb_bad_pixel_color->addItems(colors);
+	grid_bad_pixels->addWidget(cmb_bad_pixel_color,5, 2, 1,1);
+	cmb_bad_pixel_color->setCurrentIndex(2);
+	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
+
+	btn_bad_pixel_identification = new QPushButton("Replace Bad Pixels");
     connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
-	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 3, 1, 1, 1);
+	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 7, 2, 1, 1);
 
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 2);
+	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 8, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_bad_pixels);
 
 	// ------------------------------------------------------------------------
-
-	QLabel* label_nuc = new QLabel("Fixed Noise Suppression");
-	lbl_fixed_suppression = new QLabel("No Frames Selected");
-
-	btn_FNS = new QPushButton("Fixed Noise Suppression");
-	btn_FNS->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
-
-	//QWidget* widget_tab_processing_nuc = new QWidget();
 	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
 
+	QLabel* label_nuc = new QLabel("Fixed Noise Suppression ");
+	// label_nuc->setStyleSheet(bold_large_styleSheet);
 	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 1, 0, 1, 2);
-	grid_tab_processing_nuc->addWidget(btn_FNS, 2, 1);
-	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	lbl_fixed_suppression = new QLabel("No Frames Selected");
+	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 0, 2, 1, 2);
 
+	chk_FNS_external_file = new QCheckBox("External File");
+	grid_tab_processing_nuc->addWidget(chk_FNS_external_file, 2, 0, 1, 1);
+
+	lbl_FNS_start_frame = new QLabel("Start:");
+	grid_tab_processing_nuc->addWidget(lbl_FNS_start_frame, 1, 1, 1, 1);
+	txt_FNS_start_frame = new QLineEdit("1");
+	grid_tab_processing_nuc->addWidget(txt_FNS_start_frame, 2, 1, 1, 1);
+	lbl_FNS_stop_frame = new QLabel("Stop:");
+	grid_tab_processing_nuc->addWidget(lbl_FNS_stop_frame, 1, 2, 1, 1);
+	txt_FNS_end_frame = new QLineEdit("50");
+	grid_tab_processing_nuc->addWidget(txt_FNS_end_frame, 2, 2, 1, 1);
+	
+	btn_FNS = new QPushButton("Fixed Noise Suppression");
+	grid_tab_processing_nuc->addWidget(btn_FNS,2,3,1,1);
+	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 4);
 	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
 
 	// ------------------------------------------------------------------------
-
-	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression");
-	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-
-	btn_ANS = new QPushButton("Adaptive Noise Suppression");
-	btn_ANS->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
-	//QWidget* widget_tab_processing_bgs = new QWidget();
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
-
+	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression ");
+	//label_adaptive_noise_suppression->setStyleSheet(bold_large_styleSheet);
 	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 1, 0, 1, 2);
-	grid_tab_processing_bgs->addWidget(btn_ANS, 2, 1);
-	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
+	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 0, 2, 1, 2);
+	
+	lbl_ANS_offset_frames = new QLabel("Offset:");
+	grid_tab_processing_bgs->addWidget(lbl_ANS_offset_frames, 1, 0, 1, 1);
+	txt_ANS_offset_frames = new QLineEdit("-30");
+	grid_tab_processing_bgs->addWidget(txt_ANS_offset_frames, 2, 0, 1, 1);
+	lbl_ANS_number_frames = new QLabel("Number:");
+	grid_tab_processing_bgs->addWidget(lbl_ANS_number_frames, 1, 1, 1, 1);
+	txt_ANS_number_frames = new QLineEdit("5");
+	grid_tab_processing_bgs->addWidget(txt_ANS_number_frames, 2, 1, 1, 1);
+	chk_hide_shadow = new QCheckBox("Hide Shadow");
+	chk_hide_shadow->setChecked(true);
+	grid_tab_processing_bgs->addWidget(chk_hide_shadow, 2, 2, 1, 1);
+	lbl_ANS_shadow_threshold = new QLabel("Shadow Threshold:");
+	grid_tab_processing_bgs->addWidget(lbl_ANS_shadow_threshold, 1, 3, 1, 1);
+	cmb_shadow_threshold = new QComboBox();
+	cmb_shadow_threshold->addItem("1 sigma");
+	cmb_shadow_threshold->addItem("2 sigma");
+	cmb_shadow_threshold->addItem("3 sigma");
+	grid_tab_processing_bgs->addWidget(cmb_shadow_threshold, 2, 3, 1, 1);
+	btn_ANS = new QPushButton("Adaptive Noise Suppression");
+	grid_tab_processing_bgs->addWidget(btn_ANS, 2, 4, 1, 1);
+
+	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 5);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
 
 	// ------------------------------------------------------------------------
-	QLabel* label_deinterlace = new QLabel("Deinterlace Methods");
+	QGridLayout* grid_tab_processing_deinterlace = new QGridLayout();
+	QLabel* label_deinterlace = new QLabel("Deinterlace Methods ");
+	// label_deinterlace->setStyleSheet(bold_large_styleSheet);
+	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 1);
 	cmb_deinterlace_options = new QComboBox();
-	btn_deinterlace = new QPushButton("Deinterlace");
-	btn_deinterlace->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250);"
-								"font-weight: bold;"
-                        		);
-
 	cmb_deinterlace_options->addItem("Max Absolute Value");
 	cmb_deinterlace_options->addItem("Centroid");
 	cmb_deinterlace_options->addItem("Avg Cross Correlation");
-
-	QGridLayout* grid_tab_processing_deinterlace = new QGridLayout();
-
-	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 2);
 	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
-	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 2, 1);
-	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
+	btn_deinterlace = new QPushButton("Deinterlace");
+	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 1,2,1,1);
+	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
-
+	// ------------------------------------------------------------------------
+	QGridLayout* grid_tab_processing_extra = new QGridLayout();
+	cmb_processing_states = new QComboBox();
+	btn_undo_step = new QPushButton("Undo One Step");
+	grid_tab_processing_extra->addWidget(cmb_processing_states, 0, 0, 1, 2);
+	grid_tab_processing_extra->addWidget(btn_undo_step, 0, 2, 1, 2);
+	// grid_tab_processing_extra->addWidget(QtHelpers::HorizontalLine(), 1, 0, 1, 4);
+	vlayout_tab_processing->addLayout(grid_tab_processing_extra);
 	// ------------------------------------------------------------------------
 
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
@@ -498,6 +537,7 @@ QWidget* SirveApp::SetupFilterTab() {
 }
 
 QWidget* SirveApp::SetupWorkspaceTab(){
+
 	QWidget* widget_tab_workspace = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
 
@@ -520,41 +560,25 @@ QWidget* SirveApp::SetupWorkspaceTab(){
                         		);
 	
 	btn_workspace_save = new QPushButton("Save Workspace");
-	btn_workspace_save->setStyleSheet("color: black;"
-                        		"background-color: rgb(255,140,0);"
-								"font-weight: bold;"
-                        		);
 
-	cmb_processing_states = new QComboBox();
-	btn_undo_step = new QPushButton("Undo One Step");
-	btn_undo_step->setStyleSheet("color: black;"
-                        		"background-color: rgb(252,207,3);"
-								"font-weight: bold;"
-                        		);
+	// cmb_processing_states = new QComboBox();
+	// btn_undo_step = new QPushButton("Undo One Step");
+	// btn_undo_step->setStyleSheet(olive_green_button_styleSheet);
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
-	lbl_create_track_message->setStyleSheet("QLabel { color: red }");
-	QFont large_font;
-	large_font.setPointSize(16);
-	lbl_create_track_message->setFont(large_font);
+	// lbl_create_track_message->setStyleSheet("QLabel { color: red }");
+	// QFont large_font;
+	// large_font.setPointSize(16);
+	// lbl_create_track_message->setFont(large_font);
 	btn_create_track = new QPushButton("Create Track");
-	btn_create_track->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250);"
-								"font-weight: bold;"
-                        		);
+	// btn_create_track->setStyleSheet(track_button_styleSheet);
 	btn_finish_create_track = new QPushButton("Finish");
-	btn_finish_create_track->setStyleSheet("color: black;"
-                        		"background-color: rgb(170,0,0);"
-								"font-weight: bold;"
-                        		);
+	// btn_finish_create_track->setStyleSheet(dark_red_stop_styleSheet);
 	btn_finish_create_track->setHidden(true);
 	// btn_finish_create_track->setFont(large_font);
 	btn_import_tracks = new QPushButton("Import Tracks");
-	btn_import_tracks->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,115,250);"
-								"font-weight: bold;"
-                        		);
+	// btn_import_tracks->setStyleSheet(track_button_styleSheet);
 
 	QGridLayout* grid_workspace = new QGridLayout();
     grid_workspace->addWidget(lbl_current_workspace_folder, 0, 0, 1, 1);
@@ -563,8 +587,8 @@ QWidget* SirveApp::SetupWorkspaceTab(){
     grid_workspace->addWidget(btn_workspace_load, 2, 0, 1, 1);
     grid_workspace->addWidget(btn_workspace_save, 2, 1, 1, 1);
     grid_workspace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, -1);
-    grid_workspace->addWidget(cmb_processing_states, 4, 0, 1, 1);
-    grid_workspace->addWidget(btn_undo_step, 4, 1, 1, 1);
+    // grid_workspace->addWidget(cmb_processing_states, 4, 0, 1, 1);
+    // grid_workspace->addWidget(btn_undo_step, 4, 1, 1, 1);
     grid_workspace->addWidget(QtHelpers::HorizontalLine(), 5, 0, 1, -1);
     grid_workspace->addWidget(lbl_track, 6, 0, 1, -1, Qt::AlignCenter);
     grid_workspace->addWidget(lbl_create_track_message, 7, 0, 1, 1);
@@ -735,6 +759,7 @@ void SirveApp::SetupPlotFrame() {
 	btn_popout_histogram->resize(40, 40);
 	btn_popout_histogram->setCheckable(true);
 	vlayout_tab_histogram->addWidget(btn_popout_histogram);
+	
 	vlayout_tab_histogram->addWidget(frame_histogram_abs);
 	vlayout_tab_histogram->addWidget(frame_histogram_rel);
 
@@ -822,6 +847,8 @@ void SirveApp::SetupPlotFrame() {
 
 	tab_plots->addTab(widget_tab_histogram, "Histogram");
 	tab_plots->addTab(widget_plots_tab_color, "Plots");
+
+    //directoryPicker = new DirectoryPicker(this);
 }
 
 void SirveApp::setupConnections() {
@@ -1237,14 +1264,8 @@ void SirveApp::HandleAbpFileSelected()
     bool validated = ValidateAbpFiles(file_selection);
 	if (validated) {
         LoadOsmData();
-		txt_start_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0);"
-								"font-weight: bold;"
-                        		);
-		txt_end_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0);"
-								"font-weight: bold;"
-                        		);				
+		// txt_start_frame->setStyleSheet(orange_styleSheet);
+		// txt_end_frame->setStyleSheet(orange_styleSheet);				
 	}
 };
 
@@ -1260,14 +1281,8 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);
 			btn_calibration_dialog->setEnabled(true);
-			txt_start_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0);"
-								"font-weight: bold;"
-                        		);
-			txt_end_frame->setStyleSheet("color: black;"
-                        		"background-color: rgb(250,170,0);"
-								"font-weight: bold;"
-                        		);		
+			// txt_start_frame->setStyleSheet(orange_styleSheet);
+			// txt_end_frame->setStyleSheet(orange_styleSheet);		
 		}
 		else{
 			txt_start_frame->setEnabled(false);
@@ -2142,7 +2157,22 @@ void SirveApp::EditBannerColor()
 void SirveApp::EditTrackerColor()
 {
 	QString tracker_color = cmb_tracker_color->currentText();
-    video_display->HandleTrackerColorUpdate(tracker_color);
+	video_display->HandleTrackerColorUpdate(tracker_color);
+}
+
+void SirveApp::handle_outlier_processing_change()
+{
+	if(cmb_outlier_processing_type->currentIndex() == 0){
+		txt_moving_median_N->setEnabled(false);
+	}
+	else{
+		txt_moving_median_N->setEnabled(true);
+	}
+}
+void SirveApp::edit_bad_pixel_color()
+{
+	QString bad_pixel_color = cmb_bad_pixel_color->currentText();
+	video_display->highlight_bad_pixels_colors(bad_pixel_color);
 }
 
 void SirveApp::UpdatePlots()
@@ -2286,92 +2316,97 @@ void SirveApp::HandleBadPixelReplacement()
 	int min_frame = 1;
 	int max_frame = osm_frames.size();
 	if (response == QMessageBox::Yes) {
-
-		bool cont_process = true;
-
-		QStringList type_options;
-		type_options << tr("All Bad Pixels") << tr("Only Dead Pixels");
-
-		QStringList sensitivity_options;
-		sensitivity_options << tr("Low - 6 sigma") << tr("Medium - 5 sigma") << tr("High - 4 sigma") << tr("Highest - 3 sigma");
-
-		QStringList method_options;
-		method_options << tr("Median - Faster") << tr("Moving Median - Slower");
-
+	
 		bool ok;
 
-		QString return_only_dead_choice = QInputDialog::getItem(this, "Bad Pixel Method", "Options", type_options, 0, false, &ok);
-			if (!ok)
-				return;
+		int type_choice = cmb_bad_pixels_type->currentIndex();
+		
+		int outlier_method = cmb_outlier_processing_type->currentIndex();
 
-		bool only_dead = false;
-		if (return_only_dead_choice == "Only Dead Pixels"){
-			only_dead = true;
-		}
+		int outlier_sensitivity = cmb_outlier_processing_sensitivity->currentIndex();
 
 		double N = 6.0;
+		if (type_choice != 1){
 
-		QString bad_pixel_removal_method = "Median - Faster";
-		if (!only_dead){
-			QString outlier_sensitivity = QInputDialog::getItem(this, "Bad Pixel Confirmation", "Options", sensitivity_options, 0, false, &ok);
-			if (!ok)
-				return;
-
-			if (outlier_sensitivity == "Low - 6 sigma"){
+			if (outlier_sensitivity == 0){
 				N = 6.0;
 			}
-			else if (outlier_sensitivity == "Medium - 5 sigma"){
+			else if (outlier_sensitivity == 1){
 				N = 5.0;
 			}
-			else if (outlier_sensitivity == "High - 4 sigma"){
+			else if (outlier_sensitivity == 2){
 				N = 4.0;
 			}
 			else{
 				N = 3.0;
 			}
-
-			bad_pixel_removal_method = QInputDialog::getItem(this, "Bad Pixel Method", "Options", method_options, 0, false, &ok);
-			if (!ok)
-				return;
 		}
 
-		int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame,  max_frame, 1, &ok);
-		if (!ok)
-			return;
+		// int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame, max_frame, 1, &ok);
+		// 	if (!ok)
+		// 		return;
+		// int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
+		// if (!ok)
+		// 	return;
+		int start_frame = txt_bad_pixel_start_frame->text().toInt();
+		int end_frame = txt_bad_pixel_end_frame->text().toInt();
+		ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+		
+		if(type_choice == 0){ 
+			QProgressDialog progress_dialog0("Finding Dead/Out of Scale Pixels", "Cancel", 0, 4);
+			progress_dialog0.setWindowTitle("Bad Pixels");
+			progress_dialog0.setWindowModality(Qt::ApplicationModal);
+			progress_dialog0.setMinimumDuration(0);
+			arma::uvec index_dead0 = BadPixels::FindDeadBadscalePixels(test_frames.video_frames_16bit);
+			progress_dialog0.setValue(4);
 
-		if (bad_pixel_removal_method == "Median - Faster"){
-			max_frame = std::min(max_frame,start_frame + 499);
-			int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
-			if (!ok)
-				return;
-			ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
-			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,4);
-			progress_dialog.setWindowTitle("Bad Pixels");
-			progress_dialog.setWindowModality(Qt::ApplicationModal);
-			progress_dialog.setMinimumDuration(0);
-			progress_dialog.setValue(1);
-			std::vector<unsigned int> dead_pixels = BadPixels::IdentifyDeadPixelsMedian(N,test_frames.video_frames_16bit, only_dead, progress_dialog);
-            ReplaceBadPixels(dead_pixels);
-		}
-		else{
-			int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame", start_frame + 5, start_frame + 5,  max_frame, 1, &ok);
-			if (!ok)
-				return;
-			int window_length = QInputDialog::getInt(this, "Bad Pixel Replacement", "Half window length for moving median", 30, 1, max_frame/2, 1, &ok);
-			if (!ok)
-				return;
-			//processing_state original = video_display->container.copy_current_state();
-			// QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,original.details.frames_16bit.size());
-			ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
-			QProgressDialog progress_dialog("Finding Bad Pixels", "Cancel", 0,test_frames.video_frames_16bit.size());
-			progress_dialog.setWindowTitle("Bad Pixels");
-			progress_dialog.setWindowModality(Qt::ApplicationModal);
-			progress_dialog.setMinimumDuration(0);
-			progress_dialog.setValue(1);
-			// std::vector<unsigned int> dead_pixels = BadPixels::IdentifyDeadPixelsMovingMedian(window_length,N,original.details.frames_16bit, progress_dialog);
-			std::vector<unsigned int> dead_pixels = BadPixels::IdentifyDeadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit, progress_dialog);
-            ReplaceBadPixels(dead_pixels);
-		}
+			QProgressDialog progress_dialog0a("Finding Outlier Pixels", "Cancel", 0, test_frames.video_frames_16bit.size());
+			progress_dialog0a.setWindowTitle("Bad Pixels");
+			progress_dialog0a.setWindowModality(Qt::ApplicationModal);
+			progress_dialog0a.setMinimumDuration(0);
+
+			if (outlier_method == 0){		
+				arma::uvec index_outlier0 = BadPixels::IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit, progress_dialog0a);	
+				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
+				ReplaceBadPixels(dead_pixels);		
+			}
+			else{	
+				u_int window_length = txt_moving_median_N->text().toUInt();
+				arma::uvec index_outlier0 = BadPixels::IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit, progress_dialog0a);
+				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);	
+				ReplaceBadPixels(dead_pixels);
+			}
+		} else if (type_choice == 1){
+			QProgressDialog progress_dialog1("Finding Dead/Out of Scale Pixels", "Cancel", 0,4);
+			progress_dialog1.setWindowTitle("Bad Pixels");
+			progress_dialog1.setWindowModality(Qt::ApplicationModal);
+			progress_dialog1.setMinimumDuration(0);
+			arma::uvec index_dead1 = BadPixels::FindDeadBadscalePixels(test_frames.video_frames_16bit);
+			progress_dialog1.setValue(2);
+			std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
+			progress_dialog1.setValue(3);
+			ReplaceBadPixels(dead_pixels);
+			progress_dialog1.setValue(4);
+		} else {
+			QProgressDialog progress_dialog2("Finding Outlier Pixels", "Cancel", 0, test_frames.video_frames_16bit.size());
+			progress_dialog2.setWindowTitle("Bad Pixels");
+			progress_dialog2.setWindowModality(Qt::ApplicationModal);
+			progress_dialog2.setMinimumDuration(0);
+			if (outlier_method == 0){		
+				arma::uvec index_outlier2 = BadPixels::IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit, progress_dialog2);	
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
+				ReplaceBadPixels(dead_pixels);		
+			}
+			else{	
+				u_int window_length = txt_moving_median_N->text().toUInt();
+				arma::uvec index_outlier2 = BadPixels::IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit, progress_dialog2);
+				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);	
+				ReplaceBadPixels(dead_pixels);
+			}
+		}		
+
 	}
 }
 
@@ -2473,7 +2508,8 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 	QString image_path = external_nuc_dialog.abp_metadata.image_path;
 	unsigned int start_frame = external_nuc_dialog.start_frame;
 	unsigned int end_frame = external_nuc_dialog.stop_frame;
-
+	txt_FNS_start_frame->setText(QString::number(start_frame));
+	txt_FNS_end_frame->setText(QString::number(end_frame));
 	try
 	{
 		// assumes file version is same as base file opened
@@ -2498,38 +2534,41 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 
 void SirveApp::ExecuteNonUniformityCorrectionSelectionOption()
 {
-	QStringList options;
-	options << tr("From Current File") << tr("From External File");
+	// QStringList options;
+	// options << tr("From Current File") << tr("From External File");
 
-	QStringList shadow_options;
-	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
+	// QStringList shadow_options;
+	// shadow_options << tr("Hide Shadow") << tr("Show Shadow");
 
-	QString hide_shadow_choice = "Hide Shadow";
+	// QString hide_shadow_choice = "Hide Shadow";
 
-	bool ok;
-	QString item = QInputDialog::getItem(this, "Fixed Mean Noise Suppression", "Options", options, 0, false, &ok);
+	// bool ok;
+	// QString item = QInputDialog::getItem(this, "Fixed Mean Noise Suppression", "Options", options, 0, false, &ok);
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
     processingState original = video_display->container.CopyCurrentState();
 
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-	if (!ok)
-		return;
+	// if (!ok)
+	// 	return;
 
-	if (item == "From Current File")
+	if (!chk_FNS_external_file->isChecked())
 	{
 		int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
-		int start_frame = QInputDialog::getInt(this, "Fixed Noise Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
-		if (!ok)
-			return;
+		// int start_frame = QInputDialog::getInt(this, "Fixed Noise Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
+		// if (!ok)
+		// 	return;
+
+		int start_frame = txt_FNS_start_frame->text().toInt();
 
 
-		int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
-		if (!ok)
-			return;
+		// int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
+		// if (!ok)
+		// 	return;
 
-		int end_frame = start_frame + number_of_frames_for_avg - 1;
+		int end_frame = txt_FNS_end_frame->text().toInt();
+		// int end_frame = start_frame + number_of_frames_for_avg - 1;
         ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame);
 
 	}
@@ -2567,6 +2606,14 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 	FixedNoiseSuppression FNS;
 	noise_suppresions_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
+	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_frames);
+	// progress_dialog2.setWindowTitle("Filter");
+	// progress_dialog2.setWindowModality(Qt::ApplicationModal);
+	// progress_dialog2.setMinimumDuration(0);
+	// progress_dialog2.setValue(1);
+	// // noise_suppresions_state.details.frames_16bit = Deinterlacing::cross_correlation(original.details, progress_dialog);
+	// noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(original.details, 5, progress_dialog2);
+
 
 	noise_suppresions_state.method = ProcessingMethod::fixed_noise_suppression;
 	noise_suppresions_state.FNS_file_path = file_path;
@@ -2598,7 +2645,7 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 {
     processingState original = video_display->container.CopyCurrentState();
 
-	Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
+	//Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
 
 	processingState deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
@@ -2610,19 +2657,20 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	QProgressDialog progress("", "Cancel", 0, 100);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setValue(0);
-	progress.setWindowTitle(QString("De-interlace Frames"));
+	progress.setWindowTitle(QString("Deinterlacing Frames"));
 	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Creating de-interlaced frames..."));
+	progress.setLabelText(QString("Cross correlation..."));
 	progress.setMinimumWidth(300);
 
-	for (int i = 0; i < number_frames; i++)
-	{
-		progress.setValue(i);
+	deinterlace_state.details.frames_16bit = Deinterlacing::CrossCorrelation(original.details, progress);
+	// for (int i = 0; i < number_frames; i++)
+	// {
+	// 	progress.setValue(i);
 
-        deinterlace_state.details.frames_16bit.push_back(deinterlace_method.DeinterlaceFrame(original.details.frames_16bit[i]));
-		if (progress.wasCanceled())
-			break;
-	}
+	// 	deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
+	// 	if (progress.wasCanceled())
+	// 		break;
+	// }
 
 	if (progress.wasCanceled())
 	{
@@ -2682,24 +2730,35 @@ void SirveApp::ExecuteNoiseSuppression()
 
 	int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
 
-	QStringList shadow_options;
-	shadow_options << tr("Hide Shadow") << tr("Show Shadow");
+	// QStringList shadow_options;
+	// shadow_options << tr("Hide Shadow") << tr("Show Shadow");
 
-	bool ok;
+	// bool ok;
 
-	int relative_start_frame = QInputDialog::getInt(this, "Adaptive Noise Suppression", "Relative start frame", -30, -delta_frames, delta_frames, 1, &ok);
-	if (!ok)
-		return;
+	// int relative_start_frame = QInputDialog::getInt(this, "Adaptive Noise Suppression", "Relative start frame", -30, -delta_frames, delta_frames, 1, &ok);
+	// if (!ok)
+	// 	return;
 
-	int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
-	if (!ok)
-		return;
+	// int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
+	// if (!ok)
+	// 	return;
 
-	QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
-	if (!ok)
-		return;
+	// QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
+	// if (!ok)
+	// 	return;
 
-    ApplyAdaptiveNoiseCorrection(relative_start_frame, number_of_frames, hide_shadow_choice);
+	int relative_start_frame = txt_ANS_offset_frames->text().toInt();
+	int number_of_frames = txt_ANS_number_frames->text().toInt();
+	QString hide_shadow_choice = "Hide Shadow";
+	if(chk_hide_shadow->isChecked()){
+		hide_shadow_choice = "Hide Shadow";
+	}
+	else
+	{
+		hide_shadow_choice = "Show Shadow";
+	}
+
+	ApplyAdaptiveNoiseCorrection(relative_start_frame, number_of_frames, hide_shadow_choice);
 }
 
 void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
@@ -2707,7 +2766,9 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-    processingState original = video_display->container.CopyCurrentState();
+	// int NThresh = cmb_shadow_threshold->currentIndex() + 1;
+	int NThresh = 1;
+	processingState original = video_display->container.CopyCurrentState();
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	processingState noise_suppresions_state = original;
@@ -2720,22 +2781,29 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
 	double R = double(availPhysMem)/(double(number_video_frames)*16*640*480);
 
-	if ( R >= 1.5 ){
-		QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
-		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
-		progress_dialog.setWindowModality(Qt::ApplicationModal);
-		progress_dialog.setMinimumDuration(0);
-		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesFast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
-	}
-	else{
+	// if ( R >= 1.5 ){
+	// 	QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
+	// 	progress_dialog.setWindowTitle("Adaptive Noise Suppression");
+	// 	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	// 	progress_dialog.setMinimumDuration(0);
+	// 	progress_dialog.setValue(1);
+	// 	noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
+	// }
+	// else{
 		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
 		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesConserveMemory(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
-	}
+		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesConserveMemory(relative_start_frame, number_of_frames, NThresh, original.details, hide_shadow_choice, progress_dialog);
+	// }
+
+	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
+	// progress_dialog2.setWindowTitle("Filter");
+	// progress_dialog2.setWindowModality(Qt::ApplicationModal);
+	// progress_dialog2.setMinimumDuration(0);
+	// progress_dialog2.setValue(1);
+	// noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(noise_suppresions_state.details, 5, progress_dialog2);
 
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)
@@ -2927,6 +2995,7 @@ void SirveApp::UpdateGlobalFrameVector()
 	arma::vec image_vector(original_frame_vector);
 
 	image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
+	//  image_vector = (image_vector - arma::mean(image_vector))/(image_vector.max()) + .5;
 
 	if (chk_auto_lift_gain->isChecked())
 	{
