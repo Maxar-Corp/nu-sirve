@@ -44,9 +44,11 @@ VideoDisplay::~VideoDisplay()
 
 void VideoDisplay::InitializeToggles()
 {
-    banner_color = QString("red");
-    banner_text = QString("EDIT CLASSIFICATION");
-    tracker_color = QString("red");
+	banner_color = QString("red");
+	banner_text = QString("EDIT CLASSIFICATION");
+	tracker_color = QString("red");
+	QColor new_color(QString("Yellow"));
+	bad_pixel_color = new_color;
 }
 
 void VideoDisplay::SetupCreateTrackControls()
@@ -96,13 +98,16 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setIcon(pinpoint_icon);
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
+	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
     connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
 
     btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
+	btn_pinpoint_bad_pixel->setStyleSheet(dark_blue_button_styleSheet);
     connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::AddPinpointsToBadPixelMap);
     btn_pinpoint_good_pixel = new QPushButton("Mark as Good Pixels");
+	btn_pinpoint_good_pixel->setStyleSheet(dark_blue_button_styleSheet);
     connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::RemovePinpointsFromBadPixelMap);
 
     button_layout->addWidget(btn_pinpoint_bad_pixel);
@@ -114,6 +119,7 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_clear_pinpoints->setMaximumSize(40, 40);
     btn_clear_pinpoints->setIcon(clear_icon);
     btn_clear_pinpoints->setToolTip("Clear");
+	btn_clear_pinpoints->setStyleSheet(dark_orange_button_styleSheet);
     connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::ClearPinpoints);
 
     pinpoint_layout->addWidget(btn_pinpoint);
@@ -564,10 +570,10 @@ void VideoDisplay::UpdateDisplayFrame()
             int pixel_x = pixel_index % image_x;
             int pixel_y = pixel_index / image_x;
 
-            QRgb bp_color = QColorConstants::Red.rgb();
-            frame.setPixel(pixel_x, pixel_y, bp_color);
-        }
-    }
+			// QRgb bp_color = QColorConstants::Yellow.rgb();
+			frame.setPixelColor(pixel_x, pixel_y, bad_pixel_color);
+		}
+	}
 
     QString pinpoint_text("");
     for (auto idx = 0; idx < pinpoint_indices.size(); idx++)
@@ -931,9 +937,16 @@ QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
 
 void VideoDisplay::HighlightBadPixels(bool status)
 {
-    should_show_bad_pixels = status;
+	should_show_bad_pixels = status;
+	UpdateDisplayFrame();
+}
 
-    UpdateDisplayFrame();
+void VideoDisplay::highlight_bad_pixels_colors(QString input_color)
+{
+	QColor new_color(input_color);
+	bad_pixel_color = new_color;
+	// QRgb bad_pixel_color = QColorConstants::Red.rgb();
+	UpdateDisplayFrame();
 }
 
 void VideoDisplay::UpdateFrameData(std::vector<PlottingFrameData> input_data)
