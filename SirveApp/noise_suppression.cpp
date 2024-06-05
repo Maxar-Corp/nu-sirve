@@ -123,41 +123,47 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
-	int index_first_frame, index_last_frame;
+	int index_first_frame, index_last_frame, old_i, index_frame;
+	double min_value, M;
+
 	std::vector<std::vector<uint16_t>> frames_out;
   	arma::mat window_data(num_pixels,number_of_frames);
 	arma::vec moving_mean(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec old_frame(num_pixels,1);
-	double min_value;
-	int old_i;
+
 	for (int j = 0; j < number_of_frames - 1; j++) { 
-		index_first_frame = std::max(start_frame,0);
-		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j+index_first_frame]);
+		index_frame = std::max(start_frame + j,0);
+		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[index_frame]);
 	}
 	window_data.insert_cols(0,window_data.col(0));
-	double M;
+
     for (int i = 0; i < num_video_frames; i++) {
-		
 		if (progress.wasCanceled())
 		{
 			return std::vector<std::vector<uint16_t>>();
 		}
 		progress.setValue(i);
-		index_first_frame = std::max(i + start_frame,0);
-        index_last_frame = std::min(index_first_frame + number_of_frames - 1,num_video_frames - 1);
+
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+
+		index_first_frame = std::max(i + start_frame,0);
+        index_last_frame = std::min(index_first_frame + number_of_frames,num_video_frames - 1);
 		window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
 		window_data.shed_col(0);
+
 		moving_mean = arma::mean(window_data,1);
+
 		M = frame_vector.max();
 		frame_vector -= moving_mean;
+
 		if (hide_shadow_choice == "Hide Shadow"){
 			NoiseSuppressionGeneral::remove_shadow(frame_vector,window_data,moving_mean,NThresh);			
 		}
 		else{
 			frame_vector -= frame_vector.min();
 		}
+
 		frame_vector = M * frame_vector / frame_vector.max();
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
@@ -166,13 +172,13 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 
 void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::mat window_data, arma::vec moving_mean, int NThresh)
 {
+
 	frame_vector = frame_vector - arma::mean(frame_vector);
 	window_data.each_col() -= moving_mean;
 	window_data -= arma::repmat(arma::mean(window_data,0),frame_vector.n_rows,1);
 	arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 1.*arma::stddev(frame_vector));
 	arma::uvec index_negative = arma::find(frame_vector < NThresh*arma::stddev(frame_vector));
 	arma::uvec index_old_positive = arma::find(arma::sum(window_data - NThresh*arma::repmat(arma::stddev(window_data,0),frame_vector.n_rows,1)>0,1)>0);
-	// arma::uvec change_index = arma::unique(arma::join_cols(index_negative,index_old_positive));
 	arma::uvec change_index = arma::intersect(index_negative,index_old_positive);
 	if (change_index.size() > 0) {				
 		frame_vector.elem(change_index) = arma::randn<arma::vec>(change_index.size(),arma::distr_param(arma::mean(frame_vector.elem(index_other)),arma::stddev(frame_vector.elem(index_other))));
