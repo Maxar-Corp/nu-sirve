@@ -100,12 +100,12 @@ public:
 	// QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
 	// QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
-	// QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 14px";
+	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
 	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *lbl_bad_pixel_color, *lbl_current_workspace_folder;
-	QLabel *label_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message, * lbl_bad_pixel_type,  * lbl_bad_pixel_sensitivity,  * lbl_bad_pixel_method, *lbl_moving_median_window_length;
+	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message, * lbl_bad_pixel_type,  * lbl_bad_pixel_sensitivity,  * lbl_bad_pixel_method, *lbl_moving_median_window_length;
 	QLabel *lbl_bad_pixel_start_frame, *lbl_bad_pixel_stop_frame, *lbl_ANS_number_frames, *lbl_ANS_offset_frames, *lbl_FNS_start_frame, * lbl_FNS_stop_frame, * lbl_ANS_shadow_threshold;
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;

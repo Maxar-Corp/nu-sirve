@@ -89,8 +89,8 @@ void SirveApp::SetupUi() {
 
 	// Add all to tab widget
     tab_menu->addTab(SetupFileImportTab(), "Import");
+	tab_menu->addTab(SetupFilterTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
-    tab_menu->addTab(SetupFilterTab(), "Processing");
     tab_menu->addTab(SetupWorkspaceTab(), "Workspace");
 
 	QSizePolicy fixed_width;
@@ -156,7 +156,6 @@ void SirveApp::SetupUi() {
 }
 
 QWidget* SirveApp::SetupFileImportTab() {
-
 
 	QWidget* widget_tab_import = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
@@ -383,7 +382,7 @@ QWidget* SirveApp::SetupFilterTab() {
 	QGridLayout* grid_bad_pixels = new QGridLayout();
 	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 0, 0, 1, 3);
 	QLabel* label_bad_pixel = new QLabel("Bad Pixels ");
-	// label_bad_pixel->setStyleSheet(bold_large_styleSheet);
+	label_bad_pixel->setStyleSheet(bold_large_styleSheet);
 	grid_bad_pixels->addWidget(label_bad_pixel, 1, 0, 1, 1);
 	lbl_bad_pixel_count = new QLabel("");
 	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 1, 1, 1, 2);
@@ -448,76 +447,76 @@ QWidget* SirveApp::SetupFilterTab() {
 	vlayout_tab_processing->addLayout(grid_bad_pixels);
 
 	// ------------------------------------------------------------------------
-	QGridLayout* grid_tab_processing_nuc = new QGridLayout();
+	QGridLayout* grid_tab_processing_fns = new QGridLayout();
 
-	QLabel* label_nuc = new QLabel("Fixed Noise Suppression ");
-	// label_nuc->setStyleSheet(bold_large_styleSheet);
-	grid_tab_processing_nuc->addWidget(label_nuc, 0, 0, 1, 2);
+	QLabel* label_FNS = new QLabel("Fixed Noise Suppression ");
+	label_FNS->setStyleSheet(bold_large_styleSheet);
+	grid_tab_processing_fns->addWidget(label_FNS, 0, 0, 1, 2);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
-	grid_tab_processing_nuc->addWidget(lbl_fixed_suppression, 0, 2, 1, 2);
+	grid_tab_processing_fns->addWidget(lbl_fixed_suppression,1, 0, 1, 4);
 
 	chk_FNS_external_file = new QCheckBox("External File");
-	grid_tab_processing_nuc->addWidget(chk_FNS_external_file, 2, 0, 1, 1);
+	grid_tab_processing_fns->addWidget(chk_FNS_external_file, 3, 0, 1, 1);
 
 	lbl_FNS_start_frame = new QLabel("Start:");
-	grid_tab_processing_nuc->addWidget(lbl_FNS_start_frame, 1, 1, 1, 1);
+	grid_tab_processing_fns->addWidget(lbl_FNS_start_frame, 2, 1, 1, 1);
 	txt_FNS_start_frame = new QLineEdit("1");
-	grid_tab_processing_nuc->addWidget(txt_FNS_start_frame, 2, 1, 1, 1);
+	grid_tab_processing_fns->addWidget(txt_FNS_start_frame, 3, 1, 1, 1);
 	lbl_FNS_stop_frame = new QLabel("Stop:");
-	grid_tab_processing_nuc->addWidget(lbl_FNS_stop_frame, 1, 2, 1, 1);
+	grid_tab_processing_fns->addWidget(lbl_FNS_stop_frame, 2, 2, 1, 1);
 	txt_FNS_end_frame = new QLineEdit("50");
-	grid_tab_processing_nuc->addWidget(txt_FNS_end_frame, 2, 2, 1, 1);
+	grid_tab_processing_fns->addWidget(txt_FNS_end_frame, 3, 2, 1, 1);
 	
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
-	grid_tab_processing_nuc->addWidget(btn_FNS,2,3,1,1);
-	grid_tab_processing_nuc->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 4);
-	vlayout_tab_processing->addLayout(grid_tab_processing_nuc);
+	grid_tab_processing_fns->addWidget(btn_FNS,3,3,1,1);
+	grid_tab_processing_fns->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 4);
+	vlayout_tab_processing->addLayout(grid_tab_processing_fns);
 
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_tab_processing_bgs = new QGridLayout();
 	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression ");
-	//label_adaptive_noise_suppression->setStyleSheet(bold_large_styleSheet);
-	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 2);
-	label_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression_status, 0, 2, 1, 2);
+	label_adaptive_noise_suppression->setStyleSheet(bold_large_styleSheet);
+	grid_tab_processing_bgs->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 4);
+	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
+	grid_tab_processing_bgs->addWidget(lbl_adaptive_noise_suppression_status, 1, 0, 1, 4);
 	
 	lbl_ANS_offset_frames = new QLabel("Offset:");
-	grid_tab_processing_bgs->addWidget(lbl_ANS_offset_frames, 1, 0, 1, 1);
+	grid_tab_processing_bgs->addWidget(lbl_ANS_offset_frames, 2, 0, 1, 1);
 	txt_ANS_offset_frames = new QLineEdit("-30");
-	grid_tab_processing_bgs->addWidget(txt_ANS_offset_frames, 2, 0, 1, 1);
+	grid_tab_processing_bgs->addWidget(txt_ANS_offset_frames, 3, 0, 1, 1);
 	lbl_ANS_number_frames = new QLabel("Number:");
-	grid_tab_processing_bgs->addWidget(lbl_ANS_number_frames, 1, 1, 1, 1);
+	grid_tab_processing_bgs->addWidget(lbl_ANS_number_frames, 2, 1, 1, 1);
 	txt_ANS_number_frames = new QLineEdit("5");
-	grid_tab_processing_bgs->addWidget(txt_ANS_number_frames, 2, 1, 1, 1);
+	grid_tab_processing_bgs->addWidget(txt_ANS_number_frames, 3, 1, 1, 1);
 	chk_hide_shadow = new QCheckBox("Hide Shadow");
 	chk_hide_shadow->setChecked(true);
-	grid_tab_processing_bgs->addWidget(chk_hide_shadow, 2, 2, 1, 1);
+	grid_tab_processing_bgs->addWidget(chk_hide_shadow, 4, 0, 1, 1);
 	lbl_ANS_shadow_threshold = new QLabel("Shadow Threshold:");
-	grid_tab_processing_bgs->addWidget(lbl_ANS_shadow_threshold, 1, 3, 1, 1);
+	grid_tab_processing_bgs->addWidget(lbl_ANS_shadow_threshold, 2, 2, 1, 1);
 	cmb_shadow_threshold = new QComboBox();
 	cmb_shadow_threshold->addItem("1 sigma");
 	cmb_shadow_threshold->addItem("2 sigma");
 	cmb_shadow_threshold->addItem("3 sigma");
-	grid_tab_processing_bgs->addWidget(cmb_shadow_threshold, 2, 3, 1, 1);
+	grid_tab_processing_bgs->addWidget(cmb_shadow_threshold, 3, 2, 1, 1);
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
-	grid_tab_processing_bgs->addWidget(btn_ANS, 2, 4, 1, 1);
+	grid_tab_processing_bgs->addWidget(btn_ANS, 4, 2, 1, 2);
 
-	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 5);
+	grid_tab_processing_bgs->addWidget(QtHelpers::HorizontalLine(), 5, 0, 1, 5);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_bgs);
 
 	// ------------------------------------------------------------------------
 	QGridLayout* grid_tab_processing_deinterlace = new QGridLayout();
-	QLabel* label_deinterlace = new QLabel("Deinterlace Methods ");
-	// label_deinterlace->setStyleSheet(bold_large_styleSheet);
-	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1, 1);
-	cmb_deinterlace_options = new QComboBox();
-	cmb_deinterlace_options->addItem("Max Absolute Value");
-	cmb_deinterlace_options->addItem("Centroid");
-	cmb_deinterlace_options->addItem("Avg Cross Correlation");
-	grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
+	QLabel* label_deinterlace = new QLabel("Deinterlace ");
+	label_deinterlace->setStyleSheet(bold_large_styleSheet);
+	grid_tab_processing_deinterlace->addWidget(label_deinterlace, 0, 0, 1,1);
+	// cmb_deinterlace_options = new QComboBox();
+	// cmb_deinterlace_options->addItem("Max Absolute Value");
+	// cmb_deinterlace_options->addItem("Centroid");
+	// cmb_deinterlace_options->addItem("Avg Cross Correlation");
+	// grid_tab_processing_deinterlace->addWidget(cmb_deinterlace_options, 1, 0, 1, 2);
 	btn_deinterlace = new QPushButton("Deinterlace");
-	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 1,2,1,1);
+	grid_tab_processing_deinterlace->addWidget(btn_deinterlace, 0,2,1,1);
 	grid_tab_processing_deinterlace->addWidget(QtHelpers::HorizontalLine(), 2, 0, 1, 3);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_deinterlace);
@@ -525,10 +524,15 @@ QWidget* SirveApp::SetupFilterTab() {
 	QGridLayout* grid_tab_processing_extra = new QGridLayout();
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
-	grid_tab_processing_extra->addWidget(cmb_processing_states, 0, 0, 1, 2);
-	grid_tab_processing_extra->addWidget(btn_undo_step, 0, 2, 1, 2);
+	grid_tab_processing_extra->addWidget(cmb_processing_states, 0, 0, 1, 4);
+	grid_tab_processing_extra->addWidget(btn_undo_step, 1, 3, 1, 1);
 	// grid_tab_processing_extra->addWidget(QtHelpers::HorizontalLine(), 1, 0, 1, 4);
+	// lbl_progress_status = new QLabel("Status:");
+	// grid_tab_processing_extra->addWidget(btn_undo_step, 2, 0, 1,3);
+	// progress_bar = new QProgressBar();
+	// grid_tab_processing_extra->addWidget(progress_bar,3,0,1,3);
 	vlayout_tab_processing->addLayout(grid_tab_processing_extra);
+
 	// ------------------------------------------------------------------------
 
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
@@ -2708,7 +2712,7 @@ void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
 
 	if (method == ProcessingMethod::adaptive_noise_suppression)
 	{
-		label_adaptive_noise_suppression_status->setText("No Frames Setup");
+		lbl_adaptive_noise_suppression_status->setText("No Frames Setup");
 	}
 	else if (method == ProcessingMethod::fixed_noise_suppression)
 	{
@@ -2719,7 +2723,7 @@ void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
 void SirveApp::HandleProcessingStatesCleared()
 {
 	cmb_processing_states->clear();
-	label_adaptive_noise_suppression_status->setText("No Frames Setup");
+	lbl_adaptive_noise_suppression_status->setText("No Frames Setup");
 	lbl_fixed_suppression->setText("No Frames Selected");
 }
 
@@ -2809,10 +2813,10 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	if (relative_start_frame > 0)
 		description += "+";
 
-	label_adaptive_noise_suppression_status->setWordWrap(true);
+	lbl_adaptive_noise_suppression_status->setWordWrap(true);
 	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
 
-	label_adaptive_noise_suppression_status->setText(description);
+	lbl_adaptive_noise_suppression_status->setText(description);
 
 	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
