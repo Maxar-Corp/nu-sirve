@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
 	QApplication a(argc, argv);
 
-    QFile file(":/Ubuntu.qss");
+    QFile file(":/stylesheets/Modified_Ubuntu.qss");
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         a.setStyleSheet(file.readAll());

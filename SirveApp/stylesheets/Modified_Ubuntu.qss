@@ -10,6 +10,8 @@ QMainWindow {
 }
 QCheckBox {
 	padding:2px;
+	font-size: 12px;
+	font-weight: bold;
 }
 QCheckBox:hover {
 	border:1px solid rgb(255,150,60);
@@ -33,6 +35,8 @@ QColorDialog {
 QComboBox {
 	color:rgb(81,72,65);
 	background: #ffffff;
+	font-size: 12px;
+	font-weight: bold;
 }
 QComboBox:editable {
 	selection-color:rgb(81,72,65);
@@ -56,6 +60,8 @@ QDialog {
 
 QLabel,QLineEdit {
 	color:rgb(17,17,17);
+	font-size: 12px;
+	font-weight: bold;
 }
 QLineEdit {
 	background-color:rgb(255,255,255);
@@ -64,6 +70,8 @@ QLineEdit {
 QMenuBar {
 	color:rgb(223,219,210);
 	background-color:rgb(65,64,59);
+	font-size: 12px;
+	font-weight: bold;
 }
 QMenuBar::item {
 	padding-top:4px;
@@ -71,6 +79,8 @@ QMenuBar::item {
 	padding-right:4px;
 	color:rgb(223,219,210);
 	background-color:rgb(65,64,59);
+	font-size: 12px;
+	font-weight: bold;
 }
 QMenuBar::item:selected {
 	color:rgb(255,255,255);
@@ -91,6 +101,8 @@ QMenuBar::item:selected {
 QMenu {
 	color:rgb(223,219,210);
 	background-color:rgb(65,64,59);
+	font-size: 12px;
+	font-weight: bold;
 }
 QMenu::item {
 	color:rgb(223,219,210);
@@ -111,7 +123,9 @@ QPlainTextEdit {
 	border: 1px solid transparent;
 	color:rgb(17,17,17);
 	selection-background-color:rgb(236,116,64);
-    background-color: #FFFFFF;
+    	background-color: #FFFFFF;
+	font-size: 12px;
+	font-weight: bold;
 }
 QProgressBar {
 	text-align: center;
@@ -119,6 +133,8 @@ QProgressBar {
 	border: 1px inset rgb(150,150,150); 
 	border-radius: 10px;
 	background-color:rgb(221,221,219);
+	font-size: 12px;
+	font-weight: bold;
 }
 QProgressBar::chunk:horizontal {
 	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(225, 108, 54, 255), stop:1 rgba(246, 134, 86, 255));
@@ -138,8 +154,10 @@ QPushButton{
 	border-left-color: rgb(165,165,165);
 	border-top-color: rgb(180,180,180);
 	border-style: solid;
+	font-size: 12px;
+	font-weight: bold;
 	padding: 4px;
-	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(220, 220, 220, 255), stop:1 rgba(255, 255, 255, 255));
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(120, 193, 218, 255), stop:1 rgba(140, 213, 238, 255));
 }
 QPushButton:hover{
 	color:rgb(17,17,17);
@@ -162,8 +180,10 @@ QPushButton:default{
 	border-left-color:  qlineargradient(spread:pad, x1:1, y1:0, x2:0, y2:0, stop:0 rgba(200, 70, 20, 255), stop:1 rgba(255,150,60, 255));
 	border-bottom-color: rgb(200,70,20);
 	border-style: solid;
+	font-size: 12px;
+	font-weight: bold;
 	padding: 2px;
-	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(220, 220, 220, 255), stop:1 rgba(255, 255, 255, 255));
+	background-color:  qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(120, 193, 218, 255), stop:1 rgba(140, 213, 238, 255));
 }
 QPushButton:pressed{
 	color:rgb(17,17,17);
@@ -186,6 +206,8 @@ QPushButton:disabled{
 }
 QRadioButton {
 	padding: 1px;
+	font-size: 12px;
+	font-weight: bold;
 }
 QRadioButton::indicator:checked {
 	height: 10px;
@@ -450,6 +472,8 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 QTabWidget {
 	color:rgb(0,0,0);
 	background-color:rgb(247,246,246);
+	font-size: 12px;
+	font-weight: bold;
 }
 QTabWidget::pane {
 	border-color: rgb(180,180,180);
@@ -473,15 +497,20 @@ QTabBar::tab {
 	border-left-color: rgb(180,180,180);
 	border-right-color: rgb(180,180,180);
 	border-bottom-color: transparent;
+	color:rgb(0,0,0);
 }
 QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover {
   	background-color:rgb(247,246,246);
   	margin-left: 0px;
   	margin-right: 1px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(120, 193, 218, 255), stop:1 rgba(140, 213, 238, 255));
+
 }
 QTabBar::tab:!selected {
 	margin-top: 1px;
 	margin-right: 1px;
+	color:rgb(81,72,65);
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(221,218,217,255), stop:1 rgba(240,239,238,255));
 }
 QTextEdit {
 	border-width: 1px;
