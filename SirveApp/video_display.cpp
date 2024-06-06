@@ -105,10 +105,10 @@ void VideoDisplay::SetupPinpointDisplay()
     QVBoxLayout* button_layout = new QVBoxLayout();
 
     btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
-	btn_pinpoint_bad_pixel->setStyleSheet(dark_blue_button_styleSheet);
+	// btn_pinpoint_bad_pixel->setStyleSheet(dark_blue_button_styleSheet);
     connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::AddPinpointsToBadPixelMap);
     btn_pinpoint_good_pixel = new QPushButton("Mark as Good Pixels");
-	btn_pinpoint_good_pixel->setStyleSheet(dark_blue_button_styleSheet);
+	// btn_pinpoint_good_pixel->setStyleSheet(dark_blue_button_styleSheet);
     connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::RemovePinpointsFromBadPixelMap);
 
     button_layout->addWidget(btn_pinpoint_bad_pixel);
