@@ -494,9 +494,9 @@ QWidget* SirveApp::SetupFilterTab() {
 	lbl_ANS_shadow_threshold = new QLabel("Shadow Threshold:");
 	grid_tab_processing_bgs->addWidget(lbl_ANS_shadow_threshold, 2, 2, 1, 1);
 	cmb_shadow_threshold = new QComboBox();
-	cmb_shadow_threshold->addItem("1 sigma");
-	cmb_shadow_threshold->addItem("2 sigma");
 	cmb_shadow_threshold->addItem("3 sigma");
+	cmb_shadow_threshold->addItem("2 sigma");
+	cmb_shadow_threshold->addItem("1 sigma");
 	grid_tab_processing_bgs->addWidget(cmb_shadow_threshold, 3, 2, 1, 1);
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
 	grid_tab_processing_bgs->addWidget(btn_ANS, 4, 2, 1, 2);
@@ -2733,8 +2733,7 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-	// int NThresh = cmb_shadow_threshold->currentIndex() + 1;
-	int NThresh = 1;
+	int NThresh = 3 - cmb_shadow_threshold->currentIndex();
 	processingState original = video_display->container.CopyCurrentState();
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
