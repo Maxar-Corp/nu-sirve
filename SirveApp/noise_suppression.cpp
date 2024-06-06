@@ -2,6 +2,19 @@
 #include <vector>
 #include <random>
 
+arma::mat kernel = {{0,0,0,0.0012,0.0050,0.0063,0.0050,0.0012,0,0,0},
+    {0,0.0000,0.0062,0.0124,0.0127,0.0127,0.0127,0.0124,0.0062,0.0000,0},
+    {0,0.0062,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0062,0},
+    {0.0012,0.0124,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0124,0.0012},
+    {0.0050,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0050},
+    {0.0063,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0063},
+    {0.0050,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0050},
+    {0.0012,0.0124,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0124,0.0012},
+    {0,0.0062,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0127,0.0062,0},
+    {0,0.0000,0.0062,0.0124,0.0127,0.0127,0.0127,0.0124,0.0062,0.0000,0},
+    {0,0,0,0.0012,0.0050,0.0063,0.0050,0.0012,0,0,0}};
+
+
 std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original, QProgressDialog & progress)
 {
 	// Initialize output
@@ -9,7 +22,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 
 	int num_video_frames = original.frames_16bit.size();
 	int number_avg_frames;
-	int  index_first_frame, index_last_frame;
+	int index_first_frame, index_last_frame;
 	index_first_frame = start_frame - 1;
 
 	ABIRDataResult abir_result;
@@ -123,6 +136,8 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
+	int nRows = original.y_pixels;
+    int nCols = original.x_pixels;
 	int index_first_frame, index_last_frame, old_i, index_frame;
 	double min_value, M;
 
@@ -158,7 +173,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 		frame_vector -= moving_mean;
 
 		if (hide_shadow_choice == "Hide Shadow"){
-			NoiseSuppressionGeneral::remove_shadow(frame_vector,window_data,moving_mean,NThresh);			
+			AdaptiveNoiseSuppression::remove_shadow(nRows, nCols, frame_vector,window_data,moving_mean,NThresh);			
 		}
 		else{
 			frame_vector -= frame_vector.min();
@@ -170,15 +185,21 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 	return frames_out;
 }
 
-void NoiseSuppressionGeneral::remove_shadow(arma::vec & frame_vector, arma::mat window_data, arma::vec moving_mean, int NThresh)
-{
-
+void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, arma::vec moving_mean, int NThresh)
+{	
+	
 	frame_vector = frame_vector - arma::mean(frame_vector);
-	window_data.each_col() -= moving_mean;
-	window_data -= arma::repmat(arma::mean(window_data,0),frame_vector.n_rows,1);
-	arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 1.*arma::stddev(frame_vector));
-	arma::uvec index_negative = arma::find(frame_vector < NThresh*arma::stddev(frame_vector));
-	arma::uvec index_old_positive = arma::find(arma::sum(window_data - NThresh*arma::repmat(arma::stddev(window_data,0),frame_vector.n_rows,1)>0,1)>0);
+	arma::vec old_frame = arma::sum(window_data,1);
+	arma::mat old_frameM = arma::reshape(old_frame,nCols,nRows).t();
+
+	arma::mat old_frameM_blurred = arma::conv2(old_frameM,kernel,"same");
+	arma::vec old_frameNew = old_frameM_blurred.as_col();
+	old_frameNew = old_frameNew - arma::mean(old_frameNew);
+	double sp = arma::stddev(old_frameNew);
+	arma::uvec index_old_positive = arma::find(old_frameNew >= NThresh * sp);
+	arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 3.*arma::stddev(frame_vector));
+	arma::uvec index_negative = arma::find(frame_vector < -NThresh*arma::stddev(frame_vector));
+
 	arma::uvec change_index = arma::intersect(index_negative,index_old_positive);
 	if (change_index.size() > 0) {				
 		frame_vector.elem(change_index) = arma::randn<arma::vec>(change_index.size(),arma::distr_param(arma::mean(frame_vector.elem(index_other)),arma::stddev(frame_vector.elem(index_other))));
