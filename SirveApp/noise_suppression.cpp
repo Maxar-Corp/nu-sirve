@@ -18,7 +18,7 @@ AdaptiveNoiseSuppression::AdaptiveNoiseSuppression()
 				{0.0, 0.0, 0.0, 0.0012, 0.0050, 0.0063, 0.0050, 0.0012, 0.0, 0.0, 0.0}
 			};
 
-	outfile.open("test.txt", std::ios_base::app); // append instead of overwrite
+	// outfile.open("test.txt", std::ios_base::app); // append instead of overwrite
 }
 
 AdaptiveNoiseSuppression::~AdaptiveNoiseSuppression()
@@ -144,9 +144,9 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 
 std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int number_of_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
-	outfile << NThresh <<"\n";
-	outfile << start_frame <<"\n";
-	outfile << kernel << "\n";
+	// outfile << NThresh <<"\n";
+	// outfile << start_frame <<"\n";
+	// outfile << kernel << "\n";
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
 	int nRows = original.y_pixels;
@@ -161,19 +161,12 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 	adjusted_window_data.fill(0.0);
 	arma::vec moving_mean(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
+	arma::vec frame_vector_out(num_pixels,1);
 
 	for (int j = 0; j < number_of_frames - 1; j++) { 
 		index_frame = std::max(start_frame + j,0);
 		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[index_frame]);
 	}
-	// window_data.insert_cols(0,window_data.col(0));
-
-	// for (int k = 0; k < abs(start_frame) - 1; k++) { 
-	// 	adjusted_window_data.col(k) = arma::conv_to<arma::vec>::from(original.frames_16bit[k]);
-	// }
-	// adjusted_window_data.insert_cols(0,adjusted_window_data.col(0));
- 	// adjusted_window_data = window_data;
-	// adjusted_window_data.col(0) = arma::conv_to<arma::vec>::from(original.frames_16bit[0]);
     for (int i = 0; i < num_video_frames; i++) {
 		if (progress.wasCanceled())
 		{
@@ -190,7 +183,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 
 		moving_mean = arma::mean(window_data,1);
 
-		// M = frame_vector.max();
+		M = frame_vector.max();
 		frame_vector -= moving_mean;
 
 		if (hide_shadow_choice == "Hide Shadow"){
@@ -211,10 +204,10 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 			frame_vector -= frame_vector.min();
 		}
 
-		// frame_vector = M * frame_vector / frame_vector.max();
-		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+		frame_vector_out = M * frame_vector / frame_vector.max();
+		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
     }
-	outfile.close();
+	// outfile.close();
 	return frames_out;
 }
 
@@ -230,8 +223,6 @@ void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & f
 	int numCols = window_data.n_cols;
 	int maxNcols = std::min(number_of_frames-1,numCols-1);
 	if(index_negative.n_elem>0){
-		// arma::vec window_mean = arma::mean(window_data,1);
-		// window_data.each_col() -= window_mean;
 		if(maxNcols>0){
 			old_frame_sum = arma::sum(window_data.cols(0,maxNcols),1);
 		}
@@ -244,7 +235,7 @@ void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & f
 		arma::vec old_frame_sum_vec_blurred = old_frame_sum_mat_blurred.t().as_col();
 		arma::uvec index_positive = arma::find(old_frame_sum_vec_blurred > NThresh*arma::stddev(old_frame_sum_vec_blurred));
 		index_change = arma::intersect(index_negative,index_positive);
-		// if(i==50){
+		// if(i==249){
 		// 	frame_matrix.save("frame_matrix.bin",arma::arma_binary);
 		// 	frame_matrix_blurred.save("frame_matrix_blurred.bin",arma::arma_binary);
 		// 	old_frame_sum_mat.save("old_frame_sum_mat.bin",arma::arma_binary);
@@ -259,7 +250,7 @@ void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & f
 			else{
 				frame_vector.elem(index_change) = arma::randn<arma::vec>(index_change.size(),arma::distr_param(arma::mean(frame_vector),arma::stddev(frame_vector)));
 			}		
-			outfile << index_change.n_elem << "\n";
+			// outfile << i << " " << index_change.n_elem << "\n";
 		}
 	}
 
