@@ -15,7 +15,7 @@ class AdaptiveNoiseSuppression
 private:
 	arma::mat kernel;
 	std::ofstream outfile;
-	void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, arma::vec moving_mean, int NThresh, int i);	
+	void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int number_of_frames, int i);	
 
 public:
 	AdaptiveNoiseSuppression();
