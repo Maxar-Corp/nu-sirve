@@ -552,16 +552,8 @@ QWidget* SirveApp::SetupWorkspaceTab(){
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
 
     btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
-    btn_change_workspace_directory->setStyleSheet("color: black;"
-                                      "background-color: rgb(255,140,0);"
-                                      "font-weight: bold;"
-                                      );
 
 	btn_workspace_load = new QPushButton("Load Workspace");
-	btn_workspace_load->setStyleSheet("color: black;"
-                        		"background-color: rgb(0,150,0);"
-								"font-weight: bold;"
-                        		);
 	
 	btn_workspace_save = new QPushButton("Save Workspace");
 
