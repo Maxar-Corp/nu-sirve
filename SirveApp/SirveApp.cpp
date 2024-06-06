@@ -2538,41 +2538,21 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 
 void SirveApp::ExecuteNonUniformityCorrectionSelectionOption()
 {
-	// QStringList options;
-	// options << tr("From Current File") << tr("From External File");
-
-	// QStringList shadow_options;
-	// shadow_options << tr("Hide Shadow") << tr("Show Shadow");
-
-	// QString hide_shadow_choice = "Hide Shadow";
-
-	// bool ok;
-	// QString item = QInputDialog::getItem(this, "Fixed Mean Noise Suppression", "Options", options, 0, false, &ok);
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
     processingState original = video_display->container.CopyCurrentState();
 
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-	// if (!ok)
-	// 	return;
 
 	if (!chk_FNS_external_file->isChecked())
 	{
 		int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
-		// int start_frame = QInputDialog::getInt(this, "Fixed Noise Suppression", "Start frame", 1, -delta_frames, delta_frames, 1, &ok);
-		// if (!ok)
-		// 	return;
 
 		int start_frame = txt_FNS_start_frame->text().toInt();
 
-
-		// int number_of_frames_for_avg = QInputDialog::getInt(this, "Fixed Noise Suppresssion", "Number of frames to use for suppression", 10, 1,  number_video_frames, 1, &ok);
-		// if (!ok)
-		// 	return;
-
 		int end_frame = txt_FNS_end_frame->text().toInt();
-		// int end_frame = start_frame + number_of_frames_for_avg - 1;
+
         ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame);
 
 	}
@@ -2734,23 +2714,6 @@ void SirveApp::ExecuteNoiseSuppression()
 
 	int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
 
-	// QStringList shadow_options;
-	// shadow_options << tr("Hide Shadow") << tr("Show Shadow");
-
-	// bool ok;
-
-	// int relative_start_frame = QInputDialog::getInt(this, "Adaptive Noise Suppression", "Relative start frame", -30, -delta_frames, delta_frames, 1, &ok);
-	// if (!ok)
-	// 	return;
-
-	// int number_of_frames = QInputDialog::getInt(this, "Adaptive Noise Suppresssion", "Number of frames to use for suppression", 5, 1, std::abs(relative_start_frame), 1, &ok);
-	// if (!ok)
-	// 	return;
-
-	// QString hide_shadow_choice = QInputDialog::getItem(this, "Adaptive Noise Suppression", "Options", shadow_options, 0, false, &ok);
-	// if (!ok)
-	// 	return;
-
 	int relative_start_frame = txt_ANS_offset_frames->text().toInt();
 	int number_of_frames = txt_ANS_number_frames->text().toInt();
 	QString hide_shadow_choice = "Hide Shadow";
@@ -2799,7 +2762,8 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 		progress_dialog.setWindowModality(Qt::ApplicationModal);
 		progress_dialog.setMinimumDuration(0);
 		progress_dialog.setValue(1);
-		noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::ProcessFramesConserveMemory(relative_start_frame, number_of_frames, NThresh, original.details, hide_shadow_choice, progress_dialog);
+		AdaptiveNoiseSuppression ANS;
+		noise_suppresions_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, NThresh, original.details, hide_shadow_choice, progress_dialog);
 	// }
 
 	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
