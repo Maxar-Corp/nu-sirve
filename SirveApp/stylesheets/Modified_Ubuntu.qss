@@ -27,7 +27,7 @@ QCheckBox::indicator:checked {
 QCheckBox::indicator:unchecked {
 	border-width:1px solid rgb(246, 134, 86);
 	border-radius:4px;
-  	background-color:rgb(255,255,255);
+  	background-color:rgb(200,200,200);
 }
 QColorDialog {
 	background-color:#f0f0f0;
@@ -269,6 +269,9 @@ QSlider::add-page:horizontal, QSlider::add-page:vertical {
 }
 QSlider::sub-page:horizontal, QSlider::sub-page:vertical {
 	background: rgb(246, 134, 86);
+}
+QSlider::sub-page:horizontal:disabled, QSlider::sub-page:vertical:disabled {
+	background: rgb(200, 200, 200);
 }
 QStatusBar, QSpinBox {
 	color:rgb(81,72,65);
