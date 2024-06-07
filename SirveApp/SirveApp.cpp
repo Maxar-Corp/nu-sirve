@@ -8,7 +8,7 @@ SirveApp::SirveApp(QWidget *parent)
     workspace = new Workspace(config_values.workspace_folder);
 
 	// establish object that will hold video and connect it to the playback thread
-	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors);
+	color_map_display = new ColorMapDisplay(video_colors.maps[0].colors, 0, 1);
 	video_display = new VideoDisplay(video_colors.maps[0].colors);
 	video_display->moveToThread(&thread_video);
 
@@ -242,9 +242,9 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 
-	QLabel* label_lift = new QLabel("Dark \nSet Point");
+	label_lift = new QLabel("Dark \nSet Point");
 	label_lift->setToolTip("Dark Set Point pushes the image darker");
-	QLabel* label_gain = new QLabel("Light \nSet Point");
+	label_gain = new QLabel("Light \nSet Point");
 	label_gain->setToolTip("Light Set Point pushes the image lighter");
 	lbl_lift_value = new QLabel("0.0");
 	lbl_gain_value = new QLabel("1.0");
@@ -2147,7 +2147,6 @@ void SirveApp::EditColorMap()
 		if (color == video_colors.maps[i].name)
 		{
             video_display->HandleColorMapUpdate(video_colors.maps[i].colors);
-			color_map_display->set_color_map(video_colors.maps[i].colors);
 			return;
 		}
 	}
@@ -2961,15 +2960,15 @@ void SirveApp::UpdateGlobalFrameVector()
 
 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
-
-	int max_val = image_vector.max();
+	// image_vector = image_vector + 1;
+	int max_val = std::round(image_vector.max()* lbl_gain_value->text().toDouble());
 	QString max_val_info = "High: " + QString::number(max_val);
 	lbl_max_count_val->setText(max_val_info);
 
-	int min_val = image_vector.min();
+	int min_val = std::round(image_vector.max() * lbl_lift_value->text().toDouble());
 	QString min_val_info = "Low: " + QString::number(min_val);
 	lbl_min_count_val->setText(min_val_info);
-	
+	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
 	image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
 
 	if (chk_auto_lift_gain->isChecked())
