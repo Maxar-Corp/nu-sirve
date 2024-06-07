@@ -297,7 +297,8 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1,1,1);
 	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 0);
 	color_map_display->setMinimumHeight(20);
-	color_map_display->setFixedWidth(511);
+	color_map_display->setMaximumWidth(500);
+	color_map_display->setMinimumWidth(500);
 	grid_grpbox_image_controls->addWidget(color_map_display, 3, 0, 1, 6);
 	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 4);
 
