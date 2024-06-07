@@ -242,12 +242,18 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 
+	grpbox_image_controls = new QGroupBox("Image Controls");
+	grpbox_image_controls->setStyleSheet(bold_large_styleSheet);
+	QGridLayout* grid_grpbox_image_controls = new QGridLayout(grpbox_image_controls);
+
 	label_lift = new QLabel("Dark \nSet Point");
 	label_lift->setToolTip("Dark Set Point pushes the image darker");
 	label_gain = new QLabel("Light \nSet Point");
 	label_gain->setToolTip("Light Set Point pushes the image lighter");
 	lbl_lift_value = new QLabel("0.0");
+	lbl_lift_value->setFixedWidth(50);
 	lbl_gain_value = new QLabel("1.0");
+	lbl_gain_value->setFixedWidth(50);
 
 	slider_lift = new QSlider();
 	slider_lift->setOrientation(Qt::Horizontal);
@@ -258,6 +264,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	slider_lift->setValue(0);
 	slider_lift->setTickPosition(QSlider::TicksAbove);
 	slider_lift->setTickInterval(100);
+	slider_lift->setEnabled(false);
 
 	slider_gain = new QSlider();
 	slider_gain->setOrientation(Qt::Horizontal);
@@ -268,116 +275,98 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	slider_gain->setValue(1000);
 	slider_gain->setTickPosition(QSlider::TicksAbove);
 	slider_gain->setTickInterval(100);
-
-	QGridLayout* grid_tab_color_sliders = new QGridLayout(widget_tab_color);
-	grid_tab_color_sliders->addWidget(label_lift, 0, 0);
-	grid_tab_color_sliders->addWidget(slider_lift, 0, 1);
-	grid_tab_color_sliders->addWidget(lbl_lift_value, 0, 2);
-	grid_tab_color_sliders->addWidget(label_gain, 1, 0);
-	grid_tab_color_sliders->addWidget(slider_gain, 1, 1);
-	grid_tab_color_sliders->addWidget(lbl_gain_value, 1, 2);
-
-	QHBoxLayout* hlayout_additional_color_settings = new QHBoxLayout();
-	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain", widget_tab_color);
-	hlayout_additional_color_settings->addWidget(chk_auto_lift_gain);
-	btn_reset_color_correction = new QPushButton("Reset Set Points", widget_tab_color);
-	hlayout_additional_color_settings->addWidget(btn_reset_color_correction);
-
-	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
-	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
-	QLabel* lbl_auto_lift = new QLabel("Lift adjustment\n(sigma below mean)", grpbox_auto_lift_gain);
-	txt_lift_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
-	txt_lift_sigma->setValidator(ensure_double);
-	QLabel* lbl_auto_gain = new QLabel("Gain adjustment\n(sigma above mean)", grpbox_auto_lift_gain);
-	txt_gain_sigma = new QLineEdit("3", grpbox_auto_lift_gain);
-	txt_gain_sigma->setValidator(ensure_double);
-
-	QGridLayout* grid_grpbox_auto_lift_gain = new QGridLayout(grpbox_auto_lift_gain);
-	grid_grpbox_auto_lift_gain->addWidget(lbl_auto_lift, 0, 0);
-	grid_grpbox_auto_lift_gain->addWidget(txt_lift_sigma, 0, 1);
-	grid_grpbox_auto_lift_gain->addWidget(lbl_auto_gain, 1, 0);
-	grid_grpbox_auto_lift_gain->addWidget(txt_gain_sigma, 1, 1);
-
+	slider_gain->setEnabled(false);
+	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain");
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
+	btn_reset_color_correction = new QPushButton("Reset Set Points");
 
-	vlayout_tab_color->addLayout(grid_tab_color_sliders);
-	vlayout_tab_color->addLayout(hlayout_additional_color_settings);
-	vlayout_tab_color->addWidget(grpbox_auto_lift_gain);
-	vlayout_tab_color->addWidget(chk_relative_histogram);
-	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-
-	 // --------------------------------------------------------------------------
-
-	QHBoxLayout* hlayout_osm_tracks = new QHBoxLayout(widget_tab_color);
-	QHBoxLayout* hlayout_text_color = new QHBoxLayout(widget_tab_color);
-	QHBoxLayout* hlayout_color_map = new QHBoxLayout(widget_tab_color);
-
+	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 6);
+	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 6);
+	lbl_min_count_val = new QLabel("Low");
+	lbl_max_count_val = new QLabel("High");
 	QLabel* lbl_colormap = new QLabel("Set Colormap:");
-	QLabel* lbl_text_color = new QLabel("Set Text Color:");
-
-	chk_show_tracks = new QCheckBox("Show OSM Tracks");
-	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
-	chk_show_time = new QCheckBox("Show Zulu Time");
-
-	btn_change_banner_text = new QPushButton("Change Banner Text");
-	// btn_change_banner_text->setStyleSheet("color: black;"
-	// 							"font-weight: bold;"
-    //                     		);
-	btn_add_annotations = new QPushButton("Add/Edit Annotations");
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(video_colors.maps[i].name);
+	grid_grpbox_image_controls->addWidget(lbl_colormap, 2, 0);
+	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1,1,1);
+	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 0);
+	color_map_display->setMinimumHeight(20);
+	color_map_display->setFixedWidth(511);
+	grid_grpbox_image_controls->addWidget(color_map_display, 3, 0, 1, 6);
+	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 4);
 
+	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 0);
+	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 1);
+	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 4, 1, 1);
+
+	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
+	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
+	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
+	QLabel* lbl_auto_lift = new QLabel("Lift adjustment (sigma below mean)");
+	txt_lift_sigma = new QLineEdit("3");
+	txt_lift_sigma->setValidator(ensure_double);
+	QLabel* lbl_auto_gain = new QLabel("Gain adjustment (sigma above mean)");
+	txt_gain_sigma = new QLineEdit("3");
+	txt_gain_sigma->setValidator(ensure_double);
+	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,2);
+	grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,4,1,1);
+	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,2);
+	grid_grpbox_lift_controls->addWidget(txt_gain_sigma,1,4,1,1);
+
+	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 6, 0, 1, 3);
+
+	// lbl_min_count_val = new QLabel("Low");
+	// lbl_max_count_val = new QLabel("High");
+	// QLabel* lbl_colormap = new QLabel("Set Colormap:");
+	// cmb_color_maps = new QComboBox();
+	// int number_maps = video_colors.maps.size();
+	// for (int i = 0; i < number_maps; i++)
+	// 	cmb_color_maps->addItem(video_colors.maps[i].name);
+
+	// grid_grpbox_image_controls->addWidget(lbl_colormap, 4, 0);
+	// grid_grpbox_image_controls->addWidget(cmb_color_maps, 4, 1,1,1);
+	// grid_grpbox_image_controls->addWidget(lbl_min_count_val,6, 0);
+	// color_map_display->setMinimumHeight(20);
+	// grid_grpbox_image_controls->addWidget(color_map_display, 5, 0, 1, 6);
+	// grid_grpbox_image_controls->addWidget(lbl_max_count_val, 6, 4);
+
+	vlayout_tab_color->addWidget(grpbox_image_controls);
+
+	grpbox_overlay_controls = new QGroupBox("Overlay Controls");
+	grpbox_overlay_controls->setStyleSheet(bold_large_styleSheet);
+	QGridLayout* grid_overlay_controls = new QGridLayout(grpbox_overlay_controls);
+
+	chk_show_tracks = new QCheckBox("Show OSM Tracks");
+	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
+	chk_show_time = new QCheckBox("Show Zulu Time");
+	btn_change_banner_text = new QPushButton("Change Banner Text");
+	btn_add_annotations = new QPushButton("Add/Edit Annotations");
 	QStringList colors = ColorScheme::get_track_colors();
+	QLabel* lbl_text_color = new QLabel("Set Text Color:");
 
 	cmb_tracker_color = new QComboBox();
 	cmb_text_color = new QComboBox();
-
 	cmb_tracker_color->addItems(colors);
 	cmb_text_color->addItems(colors);
-
 	cmb_tracker_color->setEnabled(false);
 
-	// --------------------------------------------------------------------------
-	hlayout_osm_tracks->addWidget(chk_show_tracks);
-	hlayout_osm_tracks->addStretch();
-	hlayout_osm_tracks->addWidget(cmb_tracker_color);
+	grid_overlay_controls->addWidget(chk_show_tracks,0,0);
+	grid_overlay_controls->addWidget(cmb_tracker_color,0,1);
+	grid_overlay_controls->addWidget(lbl_text_color,1,0);
+	grid_overlay_controls->addWidget(cmb_text_color,1,1);
 
-	hlayout_text_color->addWidget(lbl_text_color);
-	hlayout_text_color->addStretch();
-	hlayout_text_color->addWidget(cmb_text_color);
+	grid_overlay_controls->addWidget(chk_sensor_track_data,0,2);
+	grid_overlay_controls->addWidget(chk_show_time,1,2);
+	grid_overlay_controls->addWidget(btn_change_banner_text,0,3);
+	grid_overlay_controls->addWidget(btn_add_annotations,1,3);
 
-	vlayout_tab_color->addLayout(hlayout_osm_tracks);
-	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-	vlayout_tab_color->addWidget(chk_sensor_track_data);
-	vlayout_tab_color->addWidget(chk_show_time);
-
-	// ------------------------------------------------------------------------
-
-	vlayout_tab_color->addLayout(hlayout_text_color);
-	vlayout_tab_color->addWidget(btn_change_banner_text);
-	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-	// vlayout_tab_color->addLayout(hlayout_color_map);
-
-	QGridLayout *grid_colormap_info = new QGridLayout(widget_tab_color);
-	lbl_min_count_val = new QLabel("Low");
-	lbl_max_count_val = new QLabel("High");
-
-	// hlayout_color_map->addWidget(lbl_colormap);
-	// hlayout_color_map->addStretch();
-	// hlayout_color_map->addWidget(cmb_color_maps);
-	grid_colormap_info->addWidget(lbl_colormap, 0, 0);
-	grid_colormap_info->addWidget(cmb_color_maps, 0, 2);
-	grid_colormap_info->addWidget(lbl_min_count_val, 2, 0);
-	color_map_display->setMinimumHeight(20);
-	grid_colormap_info->addWidget(color_map_display, 1, 0, 1, 3);
-	grid_colormap_info->addWidget(lbl_max_count_val, 2, 2);
-	vlayout_tab_color->addLayout(grid_colormap_info);
-
-	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-	vlayout_tab_color->addWidget(btn_add_annotations);
-
+	vlayout_tab_color->addWidget(grpbox_overlay_controls);
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
 	return widget_tab_color;
@@ -2135,21 +2124,21 @@ int SirveApp::GetCurrentColorIndex(QVector<QString> colors, QColor input_color) 
 
 void SirveApp::EditColorMap()
 {
-	QString color = cmb_color_maps->currentText();
+	// QString color = cmb_color_maps->currentText();
 
 	// find number of color maps
 	int number_maps = video_colors.maps.size();
-
+	int i = cmb_color_maps->currentIndex();
 	// cycle through all color maps
-	for (int i = 0; i < number_maps; i++)
-	{
+	// for (int i = 0; i < number_maps; i++)
+	// {
 		// checks to find where input_map matches provided maps
-		if (color == video_colors.maps[i].name)
-		{
+		// if (color == video_colors.maps[i].name)
+			color_map_display->set_color_map(video_colors.maps[i].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
             video_display->HandleColorMapUpdate(video_colors.maps[i].colors);
-			return;
-		}
-	}
+			// return;
+		
+	// }
 }
 
 void SirveApp::EditBannerColor()
