@@ -14,11 +14,13 @@
 #include <math.h>
 #include <qpainter.h>
 #include <qbrush.h>
+#include <armadillo>
 
 class ColorMapDisplay : public QWidget
 {
 	public:
 		double minVal, maxVal;
+		int initWidth;
 		ColorMapDisplay(QVector<QRgb> initial_color_map, double minV, double maxV);
 		void set_color_map(QVector<QRgb> color_map, double minV, double maxV);
 	protected:
