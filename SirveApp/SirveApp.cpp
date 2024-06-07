@@ -348,10 +348,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	hlayout_text_color->addStretch();
 	hlayout_text_color->addWidget(cmb_text_color);
 
-	hlayout_color_map->addWidget(lbl_colormap);
-	hlayout_color_map->addStretch();
-	hlayout_color_map->addWidget(cmb_color_maps);
-
 	vlayout_tab_color->addLayout(hlayout_osm_tracks);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(chk_sensor_track_data);
@@ -362,9 +358,23 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	vlayout_tab_color->addLayout(hlayout_text_color);
 	vlayout_tab_color->addWidget(btn_change_banner_text);
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
-	vlayout_tab_color->addLayout(hlayout_color_map);
+	// vlayout_tab_color->addLayout(hlayout_color_map);
+
+	QGridLayout *grid_colormap_info = new QGridLayout(widget_tab_color);
+	lbl_min_count_val = new QLabel("Low");
+	lbl_max_count_val = new QLabel("High");
+
+	// hlayout_color_map->addWidget(lbl_colormap);
+	// hlayout_color_map->addStretch();
+	// hlayout_color_map->addWidget(cmb_color_maps);
+	grid_colormap_info->addWidget(lbl_colormap, 0, 0);
+	grid_colormap_info->addWidget(cmb_color_maps, 0, 2);
+	grid_colormap_info->addWidget(lbl_min_count_val, 2, 0);
 	color_map_display->setMinimumHeight(20);
-	vlayout_tab_color->addWidget(color_map_display);
+	grid_colormap_info->addWidget(color_map_display, 1, 0, 1, 3);
+	grid_colormap_info->addWidget(lbl_max_count_val, 2, 2);
+	vlayout_tab_color->addLayout(grid_colormap_info);
+
 	vlayout_tab_color->addWidget(QtHelpers::HorizontalLine());
 	vlayout_tab_color->addWidget(btn_add_annotations);
 
@@ -882,7 +892,6 @@ void SirveApp::setupConnections() {
     connect(chk_auto_lift_gain, &QCheckBox::stateChanged, this, &SirveApp::HandleAutoLiftGainCheck);
     connect(txt_lift_sigma, &QLineEdit::editingFinished, this, &SirveApp::UpdateGlobalFrameVector);
     connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::UpdateGlobalFrameVector);
-
 	//---------------------------------------------------------------------------
 
     connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::HandleOsmTracksToggle);
@@ -2953,8 +2962,15 @@ void SirveApp::UpdateGlobalFrameVector()
 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
 
+	int max_val = image_vector.max();
+	QString max_val_info = "High: " + QString::number(max_val);
+	lbl_max_count_val->setText(max_val_info);
+
+	int min_val = image_vector.min();
+	QString min_val_info = "Low: " + QString::number(min_val);
+	lbl_min_count_val->setText(min_val_info);
+	
 	image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
-	//  image_vector = (image_vector - arma::mean(image_vector))/(image_vector.max()) + .5;
 
 	if (chk_auto_lift_gain->isChecked())
 	{
