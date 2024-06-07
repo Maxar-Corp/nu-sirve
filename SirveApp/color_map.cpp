@@ -18,23 +18,33 @@ void ColorMapDisplay::set_color_map(QVector<QRgb> new_color_map, double minV, do
 void ColorMapDisplay::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 
-	//Math explanation: The color maps are a gradient list of 256 colors. Since 256 ...
-	//... is evenly divisible by 16, starting at 0 and incrementing by 17 gives an evenly ...
-	//... spaced selection of 16 numbers across the range, inclusive: 0,17,34,...221,238,255
-	const int NUM_BUCKETS = 256;
+	int NUM_BUCKETS = 256;
 	
-
 	QPainter painter(this);
 	int blockWidth = width() / (NUM_BUCKETS - 1);
 
 	int iStart = round(minVal*NUM_BUCKETS);
 	int iStop = round(maxVal*NUM_BUCKETS);
 	int INCREMENT_AMOUNT = 1;
-	
+
 	for (int i = iStart; i <iStop; i++) {
 		int color_index = i * INCREMENT_AMOUNT;
 		painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[color_index]));
 	}
+	// int NUM_BUCKETS = 256;
+	
+	// QPainter painter(this);
+
+	// int NEW_NUM_BUCKETS = ceil(NUM_BUCKETS*abs(maxVal - minVal));
+	// double blockWidth = 511. / (NEW_NUM_BUCKETS - 1);
+	// int INCREMENT_AMOUNT = ceil(NUM_BUCKETS/NEW_NUM_BUCKETS);
+	// if(NEW_NUM_BUCKETS>1 && INCREMENT_AMOUNT>=1){
+	// 	for (int i = 0; i <NEW_NUM_BUCKETS; i++) {
+	// 		int color_index = std::round(std::min(i * INCREMENT_AMOUNT,255));
+	// 		painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[color_index]));
+	// 	}
+	// }
+
 }
 
 ColorMap::ColorMap()
