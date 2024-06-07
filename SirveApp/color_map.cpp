@@ -1,10 +1,12 @@
 #include "color_map.h"
+#include <armadillo>
 
 ColorMapDisplay::ColorMapDisplay(QVector<QRgb> initial_color_map, double minV, double maxV)
 {
 	minVal = minV;
 	maxVal = maxV;
 	color_map = initial_color_map;
+	initWidth = width();
 }
 
 void ColorMapDisplay::set_color_map(QVector<QRgb> new_color_map, double minV, double maxV)
@@ -19,17 +21,30 @@ void ColorMapDisplay::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 
 	int NUM_BUCKETS = 256;
-	
+	int NEW_NUM_BUCKETS = NUM_BUCKETS;
+	int blockWidth = initWidth / ( NUM_BUCKETS - 1);
+	if (maxVal>minVal){
+		NEW_NUM_BUCKETS = ceil(NUM_BUCKETS*abs(maxVal - minVal));
+		NEW_NUM_BUCKETS = std::max(NEW_NUM_BUCKETS,2);
+		blockWidth = initWidth / (NEW_NUM_BUCKETS - 1);
+	}
 	QPainter painter(this);
-	int blockWidth = width() / (NUM_BUCKETS - 1);
-
-	int iStart = round(minVal*NUM_BUCKETS);
-	int iStop = round(maxVal*NUM_BUCKETS);
-	int INCREMENT_AMOUNT = 1;
-
-	for (int i = iStart; i <iStop; i++) {
-		int color_index = i * INCREMENT_AMOUNT;
-		painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[color_index]));
+	
+	std::vector<uint16_t> color_indices = (arma::conv_to<std::vector<uint16_t>>::from(arma::round(arma::linspace(0,255,NEW_NUM_BUCKETS))));
+	
+	int CI;
+	if(color_indices.size()>1 && NEW_NUM_BUCKETS>1 && blockWidth >1){
+		for (int i = 0; i <color_indices.size(); i++) {
+			CI = color_indices[i];
+			CI = std::min(CI,255);
+			painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[CI]));
+		}
+	}
+	else{
+		blockWidth = initWidth / (NUM_BUCKETS - 1);
+		for (int i = 0; i < NUM_BUCKETS; i++) {			
+			painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[i]));
+		}
 	}
 	// int NUM_BUCKETS = 256;
 	
