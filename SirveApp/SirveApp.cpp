@@ -1878,14 +1878,14 @@ void SirveApp::HandlePlotCurrentFrameMarkerToggle()
 void SirveApp::HandlePlotDisplayAutoChange(int index)
 {
 	// When color tab is selected, the histogram is automatically displayed
-	if (index == 1) {
+	if (index == 2) {
 		tab_plots->setCurrentIndex(0);
 	}
 
-	// When processing tab is selected, the engineering plots are automically displayed
-	if (index == 2) {
-		tab_plots->setCurrentIndex(1);
-	}
+	// When processing tab is selected, the engineering plots are automatically displayed
+	// if (index == 1) {
+	// 	tab_plots->setCurrentIndex(1);
+	// }
 }
 
 void SirveApp::ShowCalibrationDialog()
@@ -2610,8 +2610,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
 void SirveApp::ExecuteDeinterlace()
 {
-	DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(cmb_deinterlace_options->currentIndex());
-
+	// DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(cmb_deinterlace_options->currentIndex());
+	DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(0);
     ApplyDeinterlacing(deinterlace_method_type);
 }
 
@@ -2950,16 +2950,23 @@ void SirveApp::UpdateGlobalFrameVector()
 
 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
-	// image_vector = image_vector + 1;
-	int max_val = std::round(image_vector.max()* lbl_gain_value->text().toDouble());
-	QString max_val_info = "High: " + QString::number(max_val);
-	lbl_max_count_val->setText(max_val_info);
 
-	int min_val = std::round(image_vector.max() * lbl_lift_value->text().toDouble());
-	QString min_val_info = "Low: " + QString::number(min_val);
-	lbl_min_count_val->setText(min_val_info);
-	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
-	image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
+	int image_max_value = image_vector.max();
+	int image_min_value = image_vector.min();
+
+	// int max_val = std::round(image_vector.max()* lbl_gain_value->text().toDouble());
+	// QString max_val_info = "High: " + QString::number(max_val);
+	// lbl_max_count_val->setText(max_val_info);
+
+	// int min_val = std::round(image_vector.max() * lbl_lift_value->text().toDouble());
+	// QString min_val_info = "Low: " + QString::number(min_val);
+	// lbl_min_count_val->setText(min_val_info);
+
+	// color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
+	// image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
+	image_vector = image_vector - image_vector.min();
+	image_vector = image_vector / arma::range(image_vector);
+
 
 	if (chk_auto_lift_gain->isChecked())
 	{
@@ -2975,9 +2982,20 @@ void SirveApp::UpdateGlobalFrameVector()
         SetLiftAndGain(lift, gain);
 	}
 
-	double lift = slider_lift->value() / 1000.;
-	double gain = slider_gain->value() / 1000.;
+	double lift = lbl_lift_value->text().toDouble();
+	double gain = lbl_gain_value->text().toDouble();
 
+	int max_val = std::round(image_max_value* gain);
+	QString max_val_info = "High: " + QString::number(max_val);
+	lbl_max_count_val->setText(max_val_info);
+
+	int min_val = std::round(image_max_value * lift);
+	QString min_val_info = "Low: " + QString::number(min_val);
+	lbl_min_count_val->setText(min_val_info);
+
+	// double lift = slider_lift->value() / 1000.;
+	// double gain = slider_gain->value() / 1000.;
+	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);
 	histogram_plot->UpdateHistogramAbsPlot(image_vector, lift, gain);
 
 	// Correct image based on min/max value inputs
@@ -2985,7 +3003,7 @@ void SirveApp::UpdateGlobalFrameVector()
 
 	histogram_plot->UpdateHistogramRelPlot(image_vector);
 
-	image_vector = image_vector/image_vector.max() * 255;
+	image_vector = image_vector * 255;
 
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
 	std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
