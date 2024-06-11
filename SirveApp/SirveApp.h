@@ -98,7 +98,7 @@ public:
 	// QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
 	// QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
 	// QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
-	// QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
+	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
@@ -115,10 +115,10 @@ public:
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
-        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory;
+        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_osm;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
-	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls;
+	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_image_processing, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
@@ -142,7 +142,7 @@ public:
     void SetupUi();
     QWidget* SetupFileImportTab();
     QWidget* SetupColorCorrectionTab();
-    QWidget* SetupFilterTab();
+    QWidget* SetupProcessingTab();
     QWidget* SetupWorkspaceTab();
     void SetupVideoFrame();
     void SetupPlotFrame();
