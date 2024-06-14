@@ -539,10 +539,6 @@ QWidget* SirveApp::SetupWorkspaceTab(){
 
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
-	// lbl_create_track_message->setStyleSheet("QLabel { color: red }");
-	// QFont large_font;
-	// large_font.setPointSize(16);
-	// lbl_create_track_message->setFont(large_font);
 	btn_create_track = new QPushButton("Create Track");
 	btn_finish_create_track = new QPushButton("Finish");
 	btn_finish_create_track->setHidden(true);
@@ -1193,7 +1189,7 @@ void SirveApp::LoadWorkspace()
 		switch (current_state.method)
 		{
 			case ProcessingMethod::adaptive_noise_suppression:
-                ApplyAdaptiveNoiseCorrection(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str);
+                ApplyAdaptiveNoiseCorrection(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str, current_state.ANS_shadow_threshold);
 				break;
 
 			case ProcessingMethod::deinterlace:
@@ -1852,10 +1848,6 @@ void SirveApp::HandlePlotDisplayAutoChange(int index)
 		tab_plots->setCurrentIndex(0);
 	}
 
-	// When processing tab is selected, the engineering plots are automatically displayed
-	// if (index == 1) {
-	// 	tab_plots->setCurrentIndex(1);
-	// }
 }
 
 void SirveApp::ShowCalibrationDialog()
@@ -2097,19 +2089,11 @@ void SirveApp::EditColorMap()
 {
 	// QString color = cmb_color_maps->currentText();
 
-	// find number of color maps
-	int number_maps = video_colors.maps.size();
 	int i = cmb_color_maps->currentIndex();
-	// cycle through all color maps
-	// for (int i = 0; i < number_maps; i++)
-	// {
-		// checks to find where input_map matches provided maps
-		// if (color == video_colors.maps[i].name)
-			color_map_display->set_color_map(video_colors.maps[i].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
-            video_display->HandleColorMapUpdate(video_colors.maps[i].colors);
-			// return;
-		
-	// }
+	
+	color_map_display->set_color_map(video_colors.maps[i].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
+	video_display->HandleColorMapUpdate(video_colors.maps[i].colors);
+
 }
 
 void SirveApp::EditBannerColor()
@@ -2306,12 +2290,6 @@ void SirveApp::HandleBadPixelReplacement()
 			}
 		}
 
-		// int start_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "Start frame", 1,  min_frame, max_frame, 1, &ok);
-		// 	if (!ok)
-		// 		return;
-		// int end_frame = QInputDialog::getInt(this, "Bad Pixel Replacement", "End frame (maximum 500 frames from start)", max_frame, start_frame + 5, max_frame, 1, &ok);
-		// if (!ok)
-		// 	return;
 		int start_frame = txt_bad_pixel_start_frame->text().toInt();
 		int end_frame = txt_bad_pixel_end_frame->text().toInt();
 		ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
@@ -2536,8 +2514,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
     processingState original = video_display->container.CopyCurrentState();
 
-	processingState noise_suppresions_state = original;
-	noise_suppresions_state.details.frames_16bit.clear();
+	processingState noise_suppresion_state = original;
+	noise_suppresion_state.details.frames_16bit.clear();
 
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
 
@@ -2548,22 +2526,13 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 	progress_dialog.setValue(1);
 
 	FixedNoiseSuppression FNS;
-	noise_suppresions_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
+	noise_suppresion_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
 
-	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_frames);
-	// progress_dialog2.setWindowTitle("Filter");
-	// progress_dialog2.setWindowModality(Qt::ApplicationModal);
-	// progress_dialog2.setMinimumDuration(0);
-	// progress_dialog2.setValue(1);
-	// // noise_suppresions_state.details.frames_16bit = Deinterlacing::cross_correlation(original.details, progress_dialog);
-	// noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(original.details, 5, progress_dialog2);
-
-
-	noise_suppresions_state.method = ProcessingMethod::fixed_noise_suppression;
-	noise_suppresions_state.FNS_file_path = file_path;
-	noise_suppresions_state.FNS_start_frame = start_frame;
-	noise_suppresions_state.FNS_stop_frame = end_frame;
-    video_display->container.AddProcessingState(noise_suppresions_state);
+	noise_suppresion_state.method = ProcessingMethod::fixed_noise_suppression;
+	noise_suppresion_state.FNS_file_path = file_path;
+	noise_suppresion_state.FNS_start_frame = start_frame;
+	noise_suppresion_state.FNS_stop_frame = end_frame;
+    video_display->container.AddProcessingState(noise_suppresion_state);
 
 	QFileInfo fi(file_path);
 	QString fileName = fi.fileName().toLower();
@@ -2580,7 +2549,6 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
 void SirveApp::ExecuteDeinterlace()
 {
-	// DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(cmb_deinterlace_options->currentIndex());
 	DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(0);
     ApplyDeinterlacing(deinterlace_method_type);
 }
@@ -2607,14 +2575,6 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	progress.setMinimumWidth(300);
 
 	deinterlace_state.details.frames_16bit = Deinterlacing::CrossCorrelation(original.details, progress);
-	// for (int i = 0; i < number_frames; i++)
-	// {
-	// 	progress.setValue(i);
-
-	// 	deinterlace_state.details.frames_16bit.push_back(deinterlace_method.deinterlace_frame(original.details.frames_16bit[i]));
-	// 	if (progress.wasCanceled())
-	// 		break;
-	// }
 
 	if (progress.wasCanceled())
 	{
@@ -2684,54 +2644,29 @@ void SirveApp::ExecuteNoiseSuppression()
 	{
 		hide_shadow_choice = "Show Shadow";
 	}
-
-	ApplyAdaptiveNoiseCorrection(relative_start_frame, number_of_frames, hide_shadow_choice);
+	int shadow_sigma_thresh = 3 - cmb_shadow_threshold->currentIndex();
+	ApplyAdaptiveNoiseCorrection(relative_start_frame, number_of_frames, hide_shadow_choice, shadow_sigma_thresh);
 }
 
-void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number_of_frames, QString hide_shadow_choice)
+void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number_of_frames, QString hide_shadow_choice, int shadow_sigma_thresh)
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-	int NThresh = 3 - cmb_shadow_threshold->currentIndex();
 	processingState original = video_display->container.CopyCurrentState();
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	processingState noise_suppresions_state = original;
-	noise_suppresions_state.details.frames_16bit.clear();
-
-	MEMORYSTATUSEX memInfo;
-	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-	GlobalMemoryStatusEx(&memInfo);
-	// DWORDLONG totalPhysMem = memInfo.ullTotalPhys;
-	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-	double R = double(availPhysMem)/(double(number_video_frames)*16*640*480);
-
-	// if ( R >= 1.5 ){
-	// 	QProgressDialog progress_dialog("Fast adaptive noise suppression", "Cancel", 0, 3*number_video_frames);
-	// 	progress_dialog.setWindowTitle("Adaptive Noise Suppression");
-	// 	progress_dialog.setWindowModality(Qt::ApplicationModal);
-	// 	progress_dialog.setMinimumDuration(0);
-	// 	progress_dialog.setValue(1);
-	// 	noise_suppresions_state.details.frames_16bit = AdaptiveNoiseSuppression::process_frames_fast(relative_start_frame, number_of_frames, original.details, hide_shadow_choice, progress_dialog);
-	// }
-	// else{
-		QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
-		progress_dialog.setWindowTitle("Adaptive Noise Suppression");
-		progress_dialog.setWindowModality(Qt::ApplicationModal);
-		progress_dialog.setMinimumDuration(0);
-		progress_dialog.setValue(1);
-		AdaptiveNoiseSuppression ANS;
-		noise_suppresions_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, NThresh, original.details, hide_shadow_choice, progress_dialog);
-	// }
-
-	// QProgressDialog progress_dialog2("Median Filter", "Cancel", 0, number_video_frames);
-	// progress_dialog2.setWindowTitle("Filter");
-	// progress_dialog2.setWindowModality(Qt::ApplicationModal);
-	// progress_dialog2.setMinimumDuration(0);
-	// progress_dialog2.setValue(1);
-	// noise_suppresions_state.details.frames_16bit = MedianFilter::median_filter_standard(noise_suppresions_state.details, 5, progress_dialog2);
-
+	processingState noise_suppresion_state = original;
+	noise_suppresion_state.details.frames_16bit.clear();
+	
+	QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
+	progress_dialog.setWindowTitle("Adaptive Noise Suppression");
+	progress_dialog.setWindowModality(Qt::ApplicationModal);
+	progress_dialog.setMinimumDuration(0);
+	progress_dialog.setValue(1);
+	AdaptiveNoiseSuppression ANS;
+	noise_suppresion_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice, progress_dialog);
+	
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)
 		description += "+";
@@ -2743,11 +2678,12 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 
 	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
 
-	noise_suppresions_state.method = ProcessingMethod::adaptive_noise_suppression;
-	noise_suppresions_state.ANS_relative_start_frame = relative_start_frame;
-	noise_suppresions_state.ANS_num_frames = number_of_frames;
-	noise_suppresions_state.ANS_hide_shadow = hide_shadow_bool;
-    video_display->container.AddProcessingState(noise_suppresions_state);
+	noise_suppresion_state.method = ProcessingMethod::adaptive_noise_suppression;
+	noise_suppresion_state.ANS_relative_start_frame = relative_start_frame;
+	noise_suppresion_state.ANS_num_frames = number_of_frames;
+	noise_suppresion_state.ANS_hide_shadow = hide_shadow_bool;
+	noise_suppresion_state.ANS_shadow_threshold = shadow_sigma_thresh;
+    video_display->container.AddProcessingState(noise_suppresion_state);
 }
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)
@@ -2924,16 +2860,6 @@ void SirveApp::UpdateGlobalFrameVector()
 	int image_max_value = image_vector.max();
 	int image_min_value = image_vector.min();
 
-	// int max_val = std::round(image_vector.max()* lbl_gain_value->text().toDouble());
-	// QString max_val_info = "High: " + QString::number(max_val);
-	// lbl_max_count_val->setText(max_val_info);
-
-	// int min_val = std::round(image_vector.max() * lbl_lift_value->text().toDouble());
-	// QString min_val_info = "Low: " + QString::number(min_val);
-	// lbl_min_count_val->setText(min_val_info);
-
-	// color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lbl_lift_value->text().toDouble(),lbl_gain_value->text().toDouble());
-	// image_vector = (image_vector - arma::mean(image_vector))/(12*arma::stddev(image_vector)) + .5;
 	image_vector = image_vector - image_vector.min();
 	image_vector = image_vector / arma::range(image_vector);
 
@@ -2963,8 +2889,6 @@ void SirveApp::UpdateGlobalFrameVector()
 	QString min_val_info = "Low: " + QString::number(min_val);
 	lbl_min_count_val->setText(min_val_info);
 
-	// double lift = slider_lift->value() / 1000.;
-	// double gain = slider_gain->value() / 1000.;
 	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);
 	histogram_plot->UpdateHistogramAbsPlot(image_vector, lift, gain);
 

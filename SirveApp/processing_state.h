@@ -28,6 +28,7 @@ struct processingState {
 
     int ANS_relative_start_frame;
     int ANS_num_frames;
+    int ANS_shadow_threshold;
 
     QString FNS_file_path;
     int FNS_start_frame;
@@ -51,7 +52,7 @@ struct processingState {
                 }
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
-                return "ANS - from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow);
+                return "ANS - from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 //may potentially want to leave fns_file_path empty if it isn't an external file?
@@ -86,6 +87,7 @@ struct processingState {
                 state_object.insert("ANS_relative_start_frame", ANS_relative_start_frame);
                 state_object.insert("ANS_num_frames", ANS_num_frames);
 				state_object.insert("ANS_hide_shadow", ANS_hide_shadow);
+                state_object.insert("ANS_shadow_threshold", ANS_shadow_threshold);
                 break;
             case ProcessingMethod::deinterlace:
                 state_object.insert("method", "Deinterlace");

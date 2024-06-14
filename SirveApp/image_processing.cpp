@@ -35,12 +35,6 @@ std::vector<std::vector<uint16_t>> MedianFilter::MedianFilterStandard(VideoDetai
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.as_row()));
     }
 
-    // arma::mat test(frames_out[0].size(), frames_out.size());
-    // for (int framei = 0; framei < frames_out.size(); framei++){
-    //     test.col(framei) = arma::conv_to<arma::vec>::from(frames_out[framei]);
-    // }
-    // test.save("test.bin",arma::arma_binary);
-
     return frames_out;
 
 }
@@ -77,33 +71,6 @@ std::vector<std::vector<uint16_t>> Deinterlacing::CrossCorrelation(VideoDetails 
 		peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
         yOffset = peak_index(0) - nRows2 + 1;
         xOffset = peak_index(1) - nCols + 1;
-        // if (framei == 448){
-        //     cc_mat.save("cc_mat448.bin",arma::arma_binary);
-        //     peak_index.save("peak_index448.bin",arma::arma_binary);
-        //     frame.save("frame448.bin",arma::arma_binary);
-        //     odd_frame.save("odd_frame448.bin",arma::arma_binary);
-        //     even_frame.save("even_frame448.bin",arma::arma_binary);
-        //     std::ofstream myfile1("imax448.txt");
-        //     myfile1 << i_max;
-        //     myfile1.close();
-        //     std::ofstream myfile2("off448.txt");
-        //     myfile2 << xOffset << yOffset;
-        //     myfile2.close();
-
-        // }
-        // if (framei == 277){
-        //     cc_mat.save("cc_mat277.bin",arma::arma_binary);
-        //     peak_index.save("peak_index277.bin",arma::arma_binary);
-        //     frame.save("frame277.bin",arma::arma_binary);
-        //     odd_frame.save("odd_frame277.bin",arma::arma_binary);
-        //     even_frame.save("even_frame277.bin",arma::arma_binary);
-        //     std::ofstream myfile3("imax277.txt");
-        //     myfile3 << i_max;
-        //     myfile3.close();
-        //     std::ofstream myfile4("off277.txt");
-        //     myfile4 << xOffset << yOffset;
-        //     myfile4.close();
-        // }
         if(yOffset % nRows2 == 0){
             yOffset = 0;
         }
@@ -117,16 +84,8 @@ std::vector<std::vector<uint16_t>> Deinterlacing::CrossCorrelation(VideoDetails 
                 output.rows(even_rows) = arma::shift(arma::shift(even_frame,-yOffset,0),-xOffset,1);
             }
         }
-     
-        // output.rows(even_rows) = even_frame;
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
     }
-
-    // arma::mat test(frames_out[0].size(), frames_out.size());
-    // for (int framei = 0; framei < frames_out.size(); framei++){
-    //     test.col(framei) = arma::conv_to<arma::vec>::from(frames_out[framei]);
-    // }
-    // test.save("test.bin",arma::arma_binary);
 
     return frames_out;
 
@@ -134,15 +93,10 @@ std::vector<std::vector<uint16_t>> Deinterlacing::CrossCorrelation(VideoDetails 
 
  arma::cx_mat Deinterlacing::xcorr2(arma::mat inFrame1, arma::mat inFrame2)
 {
-	// inFrame1 = (inFrame1 - arma::mean(inFrame1.as_col()))/arma::stddev(inFrame1.as_col());
-	// inFrame2 = (inFrame2 - arma::mean(inFrame2.as_col()))/arma::stddev(inFrame2.as_col());
     inFrame1 = inFrame1 - arma::mean(inFrame1.as_col());
     inFrame1.elem( arma::find(inFrame1 < (3.0*arma::stddev(inFrame1.as_col()))) ).zeros();
 	inFrame2 = inFrame2 - arma::mean(inFrame2.as_col());
     inFrame2.elem( arma::find(inFrame2 < (3.0*arma::stddev(inFrame2.as_col()))) ).zeros();
-
-	// arma::mat cc_mat = arma::conv2(inFrame1,arma::flipud(arma::fliplr(inFrame2)),"same");
-
     arma::cx_mat F = arma::fft2( inFrame1 ) % arma::fft2( arma::flipud( arma::fliplr( inFrame2 ) ) );
     arma::cx_mat cc_mat = arma::ifft2(F);
 	

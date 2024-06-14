@@ -21,21 +21,9 @@ void ColorMapDisplay::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 
 	int NUM_BUCKETS = 256;
-	// int NEW_NUM_BUCKETS = ceil(NUM_BUCKETS*abs(maxVal - minVal));
-	// NEW_NUM_BUCKETS = std::max(NEW_NUM_BUCKETS,2);
-	// int blockWidth = initWidth / (NEW_NUM_BUCKETS - 1);
 	int blockWidth = initWidth / (NUM_BUCKETS - 1);
-	// int iStart = floor(minVal*(NUM_BUCKETS));
-	// int iStop = ceil(maxVal*(NUM_BUCKETS));
-	// iStop = std::min(255,iStop);
-	// if(iStop<=iStart){
-	// 	iStop = iStart + 1;
-	// }
 	QPainter painter(this);
-	// std::vector<uint16_t> color_indices = (arma::conv_to<std::vector<uint16_t>>::from(arma::round(arma::linspace(iStart,iStop,NUM_BUCKETS))));
-	// for (int i = 0; i < color_indices.size(); i++) {
 	for (int i = 0; i < NUM_BUCKETS; i++) {
-		// painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[color_indices[i]]));
 		painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[i]));
 	}
 
