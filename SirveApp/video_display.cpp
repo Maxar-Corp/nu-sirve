@@ -3,7 +3,7 @@
 VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 {
     zoom_manager = new VideoDisplayZoomManager(0, 0);
-    label = new EnhancedLabel(this);
+    lbl_image_canvas = new EnhancedLabel(this);
     video_display_layout = new QVBoxLayout();
     video_display_layout->addStretch(1);
     SetupCreateTrackControls();
@@ -33,7 +33,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
 VideoDisplay::~VideoDisplay()
 {
-    delete label;
+    delete lbl_image_canvas;
 
     delete lbl_frame_number;
     delete lbl_video_time_midnight;
@@ -133,17 +133,17 @@ void VideoDisplay::SetupPinpointDisplay()
 
 void VideoDisplay::SetupLabels()
 {
-    label->setBackgroundRole(QPalette::Base);
-    label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    label->setScaledContents(true);
+    lbl_image_canvas->setBackgroundRole(QPalette::Base);
+    lbl_image_canvas->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    lbl_image_canvas->setScaledContents(true);
 
-    label->setObjectName("video_object");
+    lbl_image_canvas->setObjectName("video_object");
 
-    connect(label, &EnhancedLabel::areaHighlighted, this, &VideoDisplay::HandleImageAreaSelection);
-    connect(label, &EnhancedLabel::rightClicked, this, &VideoDisplay::UndoZoom);
-    connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::HandlePixelSelection);
+    connect(lbl_image_canvas, &EnhancedLabel::areaHighlighted, this, &VideoDisplay::HandleImageAreaSelection);
+    connect(lbl_image_canvas, &EnhancedLabel::rightClicked, this, &VideoDisplay::UndoZoom);
+    connect(lbl_image_canvas, &EnhancedLabel::clicked, this, &VideoDisplay::HandlePixelSelection);
 
-    video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+    video_display_layout->insertWidget(0, lbl_image_canvas, 0, Qt::AlignHCenter);
 
     QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
     lbl_frame_number = new QLabel("");
@@ -188,7 +188,7 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 
 void VideoDisplay::ReclaimLabel()
 {
-    video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+    video_display_layout->insertWidget(0, lbl_image_canvas, 0, Qt::AlignHCenter);
 }
 
 void VideoDisplay::ReceiveVideoData(int x, int y)
@@ -201,8 +201,8 @@ void VideoDisplay::ReceiveVideoData(int x, int y)
     zoom_manager = new VideoDisplayZoomManager(image_x, image_y);
     pinpoint_indices.clear();
 
-    label->setMinimumWidth(image_x);
-    label->setMinimumHeight(image_y);
+    lbl_image_canvas->setMinimumWidth(image_x);
+    lbl_image_canvas->setMinimumHeight(image_y);
 }
 
 void VideoDisplay::UpdateBannerText(QString input_banner_text)
@@ -656,11 +656,11 @@ void VideoDisplay::UpdateDisplayFrame()
 
     if (zoom_manager->is_currently_zoomed())
     {
-        label->setStyleSheet("#video_object { border: 3px solid blue; }");
+        lbl_image_canvas->setStyleSheet("#video_object { border: 3px solid blue; }");
     }
     else
     {
-        label->setStyleSheet("#video_object { border: 1px solid light gray; }");
+        lbl_image_canvas->setStyleSheet("#video_object { border: 1px solid light gray; }");
     }
 
     size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
@@ -873,10 +873,10 @@ void VideoDisplay::UpdateDisplayFrame()
         AddNewFrame(frame, CV_8UC3);
     }
 
-    label->setPixmap(QPixmap::fromImage(frame));
+    lbl_image_canvas->setPixmap(QPixmap::fromImage(frame));
 
-    label->update();
-    label->repaint();
+    lbl_image_canvas->update();
+    lbl_image_canvas->repaint();
 
     //counter++;
 }
@@ -1055,13 +1055,13 @@ void VideoDisplay::SaveFrame()
 
 void VideoDisplay::RemoveFrame()
 {
-    delete label;
+    delete lbl_image_canvas;
 
     delete lbl_frame_number;
     delete lbl_video_time_midnight;
     delete lbl_zulu_time;
 
-    label = new EnhancedLabel(this);
+    lbl_image_canvas = new EnhancedLabel(this);
     SetupLabels();
 
     frame_data.clear();

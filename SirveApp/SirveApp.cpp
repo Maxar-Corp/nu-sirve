@@ -1605,9 +1605,9 @@ void SirveApp::HandlePopoutVideoClick(bool checked)
 
 void SirveApp::OpenPopoutVideoDisplay()
 {
-	video_display->label->disable();
-	video_display->label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	popout_video->acquire(video_display->label);
+	video_display->lbl_image_canvas->disable();
+	video_display->lbl_image_canvas->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	popout_video->acquire(video_display->lbl_image_canvas);
     connect(popout_video, &QDialog::finished, this, &SirveApp::HandlePopoutVideoClosed);
 	popout_video->open();
 
@@ -1615,8 +1615,8 @@ void SirveApp::OpenPopoutVideoDisplay()
 
 void SirveApp::HandlePopoutVideoClosed()
 {
-	video_display->label->enable();
-	video_display->label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	video_display->lbl_image_canvas->enable();
+	video_display->lbl_image_canvas->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	btn_popout_video->setChecked(false);
     video_display->ReclaimLabel();
 }
