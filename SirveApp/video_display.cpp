@@ -99,7 +99,7 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
 	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
-    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
+    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
 
@@ -174,7 +174,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::handle_btn_pinpoint(bool checked)
+void VideoDisplay::HandleBtnPinpoint(bool checked)
 {
     if (checked)
     {
@@ -337,7 +337,7 @@ void VideoDisplay::HandleImageAreaSelection(QRect area)
     }
     else if (is_calculate_active)
     {
-        calibrate(area);
+        Calibrate(area);
         UpdateDisplayFrame();
     }
     else
@@ -346,7 +346,7 @@ void VideoDisplay::HandleImageAreaSelection(QRect area)
     }
 }
 
-void VideoDisplay::calibrate(QRect area)
+void VideoDisplay::Calibrate(QRect area)
 {
     // The calculation_region should be calculated by the zoom manager,
     // but I'm leaving this code as-is since it is unused and untestable
@@ -682,7 +682,7 @@ void VideoDisplay::UpdateDisplayFrame()
             //The OSM tracks are stored offset from the center instead of the top left
             int x_center = image_x / 2 + trackData.second.centroid_x;
             int y_center = image_y / 2 + trackData.second.centroid_y;
-            QRectF rectangle = get_rectangle_around_pixel(x_center, y_center, box_size, box_width, box_height);
+            QRectF rectangle = GetRectangleAroundPixel(x_center, y_center, box_size, box_width, box_height);
             if (rectangle.isNull())
                 continue;
             rectangle_painter.drawRect(rectangle);
@@ -708,7 +708,7 @@ void VideoDisplay::UpdateDisplayFrame()
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
-                QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
+                QRectF rectangle = GetRectangleAroundPixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
                 if (rectangle.isNull())
                     continue;
                 QColor color = manual_track_colors[track_id];
@@ -733,7 +733,7 @@ void VideoDisplay::UpdateDisplayFrame()
     double seconds_midnight = display_data[counter].seconds_past_midnight;
     lbl_video_time_midnight->setText("From Midnight " + QString::number(seconds_midnight, 'g', 8));
 
-    QString zulu_time = get_zulu_time_string(seconds_midnight);
+    QString zulu_time = GetZuluTimeString(seconds_midnight);
     lbl_zulu_time->setText(zulu_time);
 
     if (display_time) {
@@ -881,7 +881,7 @@ void VideoDisplay::UpdateDisplayFrame()
     //counter++;
 }
 
-QRectF VideoDisplay::get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height)
+QRectF VideoDisplay::GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height)
 {
     if (!zoom_manager->is_any_piece_within_zoom(x_center, y_center))
         return QRectF();
@@ -911,7 +911,7 @@ QRectF VideoDisplay::get_rectangle_around_pixel(int x_center, int y_center, int 
     return rectangle;
 }
 
-QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
+QString VideoDisplay::GetZuluTimeString(double seconds_midnight)
 {
     int hour = seconds_midnight / 3600;
     int minutes = (seconds_midnight - hour * 3600) / 60;
@@ -941,7 +941,7 @@ void VideoDisplay::HighlightBadPixels(bool status)
 	UpdateDisplayFrame();
 }
 
-void VideoDisplay::highlight_bad_pixels_colors(QString input_color)
+void VideoDisplay::HighlightBadPixelsColors(QString input_color)
 {
 	QColor new_color(input_color);
 	bad_pixel_color = new_color;

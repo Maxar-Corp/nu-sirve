@@ -2172,7 +2172,7 @@ void SirveApp::handle_outlier_processing_change()
 void SirveApp::edit_bad_pixel_color()
 {
 	QString bad_pixel_color = cmb_bad_pixel_color->currentText();
-	video_display->highlight_bad_pixels_colors(bad_pixel_color);
+	video_display->HighlightBadPixelsColors(bad_pixel_color);
 }
 
 void SirveApp::UpdatePlots()
