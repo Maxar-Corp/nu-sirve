@@ -183,6 +183,9 @@ private:
     void SetupCreateTrackControls();
     void SetupPinpointDisplay();
 
+    void SetupCrosshairsCursor();
+    void ExitSelectTrackCentroidMode();
+
     void Calibrate(QRect area);
 
     void PinpointPixel(unsigned int x, unsigned int y);
