@@ -276,7 +276,7 @@ private:
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace);
 
     void ApplyFixedNoiseCorrection(int start_frame, int num_frames, QString hide_shadow_choice);
-    void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice);
+    void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 

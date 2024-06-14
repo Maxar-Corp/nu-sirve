@@ -15,13 +15,13 @@ class AdaptiveNoiseSuppression
 private:
 	arma::mat kernel;
 	std::ofstream outfile;
-	void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int number_of_frames, int i);	
+	void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames, int i);	
 
 public:
 	AdaptiveNoiseSuppression();
 	~AdaptiveNoiseSuppression();
 
-	std::vector<std::vector<uint16_t>> ProcessFramesConserveMemory(int start_frame, int number_of_frames_input, int NThresh, VideoDetails & original, QString & hide_shadow_choice, QProgressDialog & progress);
+	std::vector<std::vector<uint16_t>> ProcessFramesConserveMemory(int start_frame, int num_of_averaging_frames_input, int NThresh, VideoDetails & original, QString & hide_shadow_choice, QProgressDialog & progress);
 };
 
 
@@ -29,6 +29,7 @@ public:
 class FixedNoiseSuppression
 {
 private:
+
 	ABIRData abir_data;
 
 public:

@@ -20,6 +20,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         processingState temp = { ProcessingMethod::adaptive_noise_suppression };
         temp.ANS_relative_start_frame = json_obj.value("ANS_relative_start_frame").toInt();
         temp.ANS_num_frames = json_obj.value("ANS_num_frames").toInt();
+        temp.ANS_shadow_threshold = json_obj.value("ANS_shadow_threshold").toInt();
 		temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
         return temp;
     }
