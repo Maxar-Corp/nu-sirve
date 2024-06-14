@@ -2,6 +2,7 @@
 #ifndef IMAGE_PROCESSING_H
 #define IMAGE_PROCESSING_H
 #include "video_details.h"
+#include "tracks.h"
 
 #include <cmath>
 #include <vector>
@@ -18,6 +19,11 @@ namespace Deinterlacing
 {
     std::vector<std::vector<uint16_t>> CrossCorrelation(VideoDetails & original, QProgressDialog & progress);
     static arma::cx_mat xcorr2(arma::mat inFrame1, arma::mat inFrame2);
+};
+
+namespace CenterOnTracks
+{
+    std::vector<std::vector<uint16_t>> CenterOnOSM(VideoDetails & original, std::vector<TrackFrame> osmFrames, QProgressDialog & progress);
 };
 
 #endif
