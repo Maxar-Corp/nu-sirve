@@ -51,6 +51,18 @@ void VideoDisplay::InitializeToggles()
 	bad_pixel_color = new_color;
 }
 
+void VideoDisplay::SetupCrosshairsCursor()
+{
+    QPixmap crosshairs_icon("icons/crosshair-golden.png");
+
+    if (crosshairs_icon.isNull()) {
+        qWarning("Failed to load cursor icon.");
+    } else {
+        QCursor crosshairs_cursor(crosshairs_icon);
+        lbl_image_canvas->setCursor(crosshairs_cursor);
+    }
+}
+
 void VideoDisplay::SetupCreateTrackControls()
 {
     grp_create_track = new QGroupBox("Track Editing");
@@ -172,6 +184,11 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         is_calculate_active = false;
     }
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::ExitSelectTrackCentroidMode() {
+    btn_select_track_centroid->setChecked(false);
+    lbl_image_canvas->unsetCursor();
 }
 
 void VideoDisplay::HandleBtnPinpoint(bool checked)
