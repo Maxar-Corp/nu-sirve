@@ -179,6 +179,7 @@ public:
         void UiLoadAbirData();
         void ExecuteNoiseSuppression();
         void ExecuteDeinterlace();
+        void ExecuteCenterOnOSM();
         void ExecuteNonUniformityCorrectionSelectionOption();
 
         void StartStopVideoRecording();
@@ -278,6 +279,7 @@ private:
     void ApplyFixedNoiseCorrection(int start_frame, int num_frames, QString hide_shadow_choice);
     void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
+    void CenterOnOSM();
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
     void EnableEngineeringPlotOptions();

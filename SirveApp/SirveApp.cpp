@@ -906,6 +906,7 @@ void SirveApp::setupConnections() {
     connect(btn_ANS, &QPushButton::clicked, this, &SirveApp::ExecuteNoiseSuppression);
 
     connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlace);
+	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
 
 	//---------------------------------------------------------------------------
 
@@ -1763,10 +1764,10 @@ void SirveApp::HandleAutoLiftGainCheck(int state)
 void SirveApp::SetLiftAndGain(double lift, double gain)
 {
 	slider_lift->setValue(lift * 1000);
-	lbl_lift_value->setText(QString::number(lift));
+	lbl_lift_value->setText(QString::number(lift, 'f', 2));
 
 	slider_gain->setValue(gain * 1000);
-	lbl_gain_value->setText(QString::number(gain));
+	lbl_gain_value->setText(QString::number(gain, 'f', 2));
 }
 
 void SirveApp::HandleLiftSliderToggled() {
@@ -1784,7 +1785,7 @@ void SirveApp::HandleLiftSliderToggled() {
     }
 
     slider_lift->setValue(lift_value);
-    lbl_lift_value->setText(QString::number(lift_value / 1000.));
+    lbl_lift_value->setText(QString::number(lift_value / 1000., 'f', 2));
 
     UpdateGlobalFrameVector();
 }
@@ -1804,7 +1805,7 @@ void SirveApp::HandleGainSliderToggled() {
 	}
 
 	slider_gain->setValue(gain_value);
-	lbl_gain_value->setText(QString::number(gain_value / 1000.));
+	lbl_gain_value->setText(QString::number(gain_value / 1000., 'f', 2));
 
     UpdateGlobalFrameVector();
 }
@@ -2585,6 +2586,43 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	deinterlace_state.deint_type = deinterlace_method_type;
     video_display->container.AddProcessingState(deinterlace_state);
 }
+
+
+void SirveApp::ExecuteCenterOnOSM()
+{
+    CenterOnOSM();
+}
+
+void SirveApp::CenterOnOSM()
+{
+    processingState original = video_display->container.CopyCurrentState();
+
+	processingState OSM_centered_state = original;
+	OSM_centered_state.details.frames_16bit.clear();
+
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	QProgressDialog progress("", "Cancel", 0, 100);
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setValue(0);
+	progress.setWindowTitle(QString("Centering on OSM"));
+	progress.setMaximum(number_frames - 1);
+	progress.setLabelText(QString("Working..."));
+	progress.setMinimumWidth(300);
+  	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+    int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
+	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame, max_frame+1);
+	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, osmFrames, progress);
+
+	if (progress.wasCanceled())
+	{
+		return;
+	}
+
+    video_display->container.AddProcessingState(OSM_centered_state);
+}
+
+
 
 void SirveApp::HandleOsmTracksToggle()
 {
