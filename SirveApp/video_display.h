@@ -70,7 +70,7 @@ public:
 	int image_x, image_y, number_pixels;
 
 	QImage frame;
-    EnhancedLabel  *label;
+    EnhancedLabel  *lbl_image_canvas;
 	VideoContainer container;
 
 	QString banner_text, boresight_text;
