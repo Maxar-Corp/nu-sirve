@@ -182,8 +182,12 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
+        SetupCrosshairsCursor();
+    } else
+    {
+        lbl_image_canvas->unsetCursor();
+        UpdateDisplayFrame();
     }
-    UpdateDisplayFrame();
 }
 
 void VideoDisplay::ExitSelectTrackCentroidMode() {
@@ -196,7 +200,7 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
     if (checked)
     {
         emit clearMouseButtons();
-        btn_select_track_centroid->setChecked(false);
+        ExitSelectTrackCentroidMode();
         is_zoom_active = false;
         is_calculate_active = false;
     }
@@ -275,7 +279,7 @@ void VideoDisplay::ToggleActionZoom(bool status)
     if (status) {
         is_zoom_active = true;
         is_calculate_active = false;
-        btn_select_track_centroid->setChecked(false);
+        ExitSelectTrackCentroidMode();
         btn_pinpoint->setChecked(false);
     }
     else {
@@ -327,6 +331,7 @@ void VideoDisplay::ExitTrackCreationMode()
     lbl_create_track->setText("");
     grp_create_track->setHidden(true);
     UpdateDisplayFrame();
+    ExitSelectTrackCentroidMode();
 }
 
 void VideoDisplay::HandleAnnotationChanges()
