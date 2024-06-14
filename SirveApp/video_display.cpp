@@ -186,8 +186,8 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
     } else
     {
         lbl_image_canvas->unsetCursor();
-        UpdateDisplayFrame();
     }
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::ExitSelectTrackCentroidMode() {
@@ -294,7 +294,7 @@ void VideoDisplay::ToggleActionCalculateRadiance(bool status)
     if (status) {
         is_zoom_active = false;
         is_calculate_active = true;
-        btn_select_track_centroid->setChecked(false);
+        ExitSelectTrackCentroidMode();
         btn_pinpoint->setChecked(false);
     }
     else {
