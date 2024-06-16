@@ -14,25 +14,27 @@
 #include "Data_Structures.h"
 #include "support/az_el_calculation.h"
 
+struct TrackDetails {
+    int centroid_x;
+    int centroid_y;
+};
+
 struct PlottingTrackDetails {
     int track_id;
+    TrackDetails centroid;
     double irradiance;
     double azimuth;
     double elevation;
 };
 
 struct ManualPlottingTrackDetails {
+    TrackDetails centroid;
     double azimuth;
     double elevation;
 };
 
 struct ManualPlottingTrackFrame {
     std::map<int, ManualPlottingTrackDetails> tracks;
-};
-
-struct TrackDetails {
-    int centroid_x;
-    int centroid_y;
 };
 
 struct PlottingTrackFrame {
@@ -69,15 +71,16 @@ class TrackInformation {
 
         std::vector<TrackFrame> get_osm_frames(int start_index, int end_index);
         std::vector<TrackFrame> get_manual_frames(int start_index, int end_index);
-        std::vector<PlottingTrackFrame> get_plotting_tracks();
-        std::vector<ManualPlottingTrackFrame> get_manual_plotting_tracks();
+        std::vector<PlottingTrackFrame> get_osm_plotting_track_frames();
+        std::vector<ManualPlottingTrackFrame> get_manual_plotting_frames();
 
-        int get_count_of_tracks();
+        int get_track_count();
+        int get_frame_count();
         std::set<int> get_manual_track_ids();
 
     private:
         TrackInformation();
-        ManualPlottingTrackDetails CalculateAzimuthElevation(int frame_number, int centroid_x, int centroid_y);
+        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y);
 
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;

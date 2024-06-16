@@ -1,8 +1,11 @@
 #include "data_export.h"
 
-void DataExport::WriteTrackDataToCsv(std::string save_path, std::vector<PlottingFrameData> frame_data,
-										std::vector<PlottingTrackFrame> track_data, std::vector<ManualPlottingTrackFrame> manual_track_data,
-                                     int min_frame, int max_frame, std::vector<TrackFrame> osm_track_frame_data)
+void DataExport::WriteTrackDataToCsv(   std::string save_path,
+                                        std::vector<PlottingFrameData> frame_data,
+                                        std::vector<PlottingTrackFrame> track_data,
+                                        std::vector<ManualPlottingTrackFrame> manual_track_data,
+                                        std::vector<TrackFrame> osm_track_frame_data,
+                                        int min_frame, int max_frame)
 {
     if (max_frame == 0)
 	{
@@ -38,27 +41,25 @@ void DataExport::WriteTrackDataToCsv(std::string save_path, std::vector<Plotting
             azimuth = std::to_string(track_data[i].details[j].azimuth);
             elevation = std::to_string(track_data[i].details[j].elevation);
 
-            // instantiating a map in order to access data...
             std::map<int, TrackDetails> track_map = osm_track_frame_data[i].tracks;
-            centroid_x = std::to_string(track_map.at(j+2).centroid_x);
-            centroid_y = std::to_string(track_map.at(j+2).centroid_y);
+            centroid_x = std::to_string(track_map.find(track_data[i].details[j].track_id)->second.centroid_x);
+            centroid_y = std::to_string(track_map.find(track_data[i].details[j].track_id)->second.centroid_y);
 
             counts = std::to_string(track_data[i].details[j].irradiance);
 
             myfile << frame_number << ", " << epoch_seconds  << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
 		}
 
-        size_t num_manual_tracks = manual_track_data[i].tracks.size();
+        for (auto track : manual_track_data[i].tracks)
+        {
+            track_id = std::to_string(track.first);
+            azimuth = std::to_string(manual_track_data[i].tracks[track.first].azimuth);
+            elevation = std::to_string(manual_track_data[i].tracks[track.first].elevation);
 
-        if (num_manual_tracks > 0) {
-            for (auto track : manual_track_data[i].tracks)
-            {
-                track_id = std::to_string(track.first);
-                azimuth = std::to_string(track.second.azimuth);
-                elevation = std::to_string(track.second.elevation);
+            centroid_x = std::to_string(track.second.centroid.centroid_x);
+            centroid_y = std::to_string(track.second.centroid.centroid_y);
 
-                myfile << frame_number << ", " << epoch_seconds << ", Manual Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << "0" << ", " << "0" << ", " << "0" << std::endl;
-            }
+            myfile << frame_number << ", " << epoch_seconds << ", Manual Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x << ", " << centroid_y << ", " << "0" << std::endl;
         }
 	}
 
