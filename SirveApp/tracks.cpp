@@ -7,6 +7,7 @@ TrackInformation::TrackInformation()
     osm_plotting_track_frames = std::vector<PlottingTrackFrame>();
 
     manual_track_ids = std::set<int>();
+
     manual_frames = std::vector<TrackFrame>();
 
     track_engineering_data = std::vector<TrackEngineeringData>();
@@ -121,6 +122,11 @@ std::vector<ManualPlottingTrackFrame> TrackInformation::get_manual_plotting_trac
 std::set<int> TrackInformation::get_manual_track_ids()
 {
     return manual_track_ids;
+}
+
+std::set<int> TrackInformation::get_OSM_track_ids()
+{
+    return osm_track_ids;
 }
 
 void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
