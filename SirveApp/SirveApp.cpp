@@ -370,7 +370,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
 
 	lbl_bad_pixel_count = new QLabel("");
-	// lbl_bad_pixel_color->setStyleSheet("background-color: rgb(200,200,200);");
 	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 0, 0, 1, 3);
 
 	lbl_bad_pixel_type = new QLabel("Replace Pixels ");
@@ -499,8 +498,14 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	grid_Image_Shift->addWidget(btn_deinterlace,0,0,1,1);
+	QLabel* lbl_OSM_track_ID = new QLabel("Track ID:");
 	btn_center_on_osm = new QPushButton("Center on OSM");
-	grid_Image_Shift->addWidget(btn_center_on_osm,0,2,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_osm,0,1,1,1);
+	cmb_OSM_track_IDs = new QComboBox();
+	cmb_OSM_track_IDs->setCurrentIndex(0);
+	grid_Image_Shift->addWidget(lbl_OSM_track_ID,0,2,1,1);
+	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,0,3,1,1);
+	
 	vlayout_image_processing->addWidget(grpbox_Image_Shift);
 
 	vlayout_tab_processing->addWidget(grpbox_image_processing);
@@ -1465,6 +1470,12 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 	progress_dialog.setValue(3);
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
+	std::set<int> track_ids = track_info->get_OSM_track_ids();
+	for ( int track_id : track_ids ){
+		cmb_OSM_track_IDs->addItem(QString::number(track_id));
+	}
+
+
     video_display->InitializeFrameData(min_frame, temp, file_processor.abir_data.ir_data);
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
@@ -2611,8 +2622,9 @@ void SirveApp::CenterOnOSM()
 	progress.setMinimumWidth(300);
   	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
-	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame, max_frame+1);
-	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, osmFrames, progress);
+	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
+	int track_id = cmb_OSM_track_IDs->currentText().toInt();
+	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, track_id, osmFrames, progress);
 
 	if (progress.wasCanceled())
 	{
