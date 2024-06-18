@@ -38,6 +38,12 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.FNS_file_path = json_obj.value("FNS_file_path").toInt();
         return temp;
     }
+     if (method == "Center on OSM")
+    {
+        processingState temp = { ProcessingMethod::center_on_OSM };
+        temp.track_id = json_obj.value("Track_ID").toInt();
+        return temp;
+    }
 
     throw "Unexpected";
 }
