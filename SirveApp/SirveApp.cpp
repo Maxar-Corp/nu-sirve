@@ -1207,6 +1207,10 @@ void SirveApp::LoadWorkspace()
                 ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
+			case ProcessingMethod::center_on_OSM:
+                CenterOnOSM(current_state.track_id);
+				break;
+
 			default:
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
 		}
@@ -1470,11 +1474,11 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 	progress_dialog.setValue(3);
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
+	cmb_OSM_track_IDs->addItem("Primary");
 	std::set<int> track_ids = track_info->get_OSM_track_ids();
 	for ( int track_id : track_ids ){
 		cmb_OSM_track_IDs->addItem(QString::number(track_id));
 	}
-
 
     video_display->InitializeFrameData(min_frame, temp, file_processor.abir_data.ir_data);
     video_display->ReceiveVideoData(x_pixels, y_pixels);
@@ -2601,10 +2605,17 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 
 void SirveApp::ExecuteCenterOnOSM()
 {
-    CenterOnOSM();
+	int track_id;
+	if (cmb_OSM_track_IDs->currentIndex()==0){
+		track_id = -1;
+	}
+	else{
+		track_id = cmb_OSM_track_IDs->currentText().toInt();
+	}
+    CenterOnOSM(track_id);
 }
 
-void SirveApp::CenterOnOSM()
+void SirveApp::CenterOnOSM(int track_id)
 {
     processingState original = video_display->container.CopyCurrentState();
 
@@ -2623,14 +2634,9 @@ void SirveApp::CenterOnOSM()
   	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
 	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
-	int track_id = cmb_OSM_track_IDs->currentText().toInt();
+	OSM_centered_state.track_id = track_id;
+	OSM_centered_state.method = ProcessingMethod::center_on_OSM;
 	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, track_id, osmFrames, progress);
-
-	if (progress.wasCanceled())
-	{
-		return;
-	}
-
     video_display->container.AddProcessingState(OSM_centered_state);
 }
 
