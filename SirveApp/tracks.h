@@ -74,6 +74,7 @@ class TrackInformation {
 
         int get_count_of_tracks();
         std::set<int> get_manual_track_ids();
+        std::set<int> get_OSM_track_ids();
 
     private:
         TrackInformation();
