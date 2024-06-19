@@ -499,12 +499,20 @@ QWidget* SirveApp::SetupProcessingTab() {
 	btn_deinterlace = new QPushButton("Deinterlace");
 	grid_Image_Shift->addWidget(btn_deinterlace,0,0,1,1);
 	QLabel* lbl_OSM_track_ID = new QLabel("Track ID:");
-	btn_center_on_osm = new QPushButton("Center on OSM");
+	btn_center_on_osm = new QPushButton("Center on\n OSM");
 	grid_Image_Shift->addWidget(btn_center_on_osm,0,1,1,1);
 	cmb_OSM_track_IDs = new QComboBox();
 	cmb_OSM_track_IDs->setCurrentIndex(0);
 	grid_Image_Shift->addWidget(lbl_OSM_track_ID,0,2,1,1);
 	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,0,3,1,1);
+	btn_center_on_manual = new QPushButton("Center on\n Manual");
+	QLabel* lbl_Manual_track_ID = new QLabel("Manual\n Track ID:");
+	cmb_manual_track_IDs = new QComboBox();
+	cmb_manual_track_IDs->setCurrentIndex(0);
+	cmb_manual_track_IDs->setEnabled(false);
+	grid_Image_Shift->addWidget(lbl_Manual_track_ID,0,4,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_manual,0,5,1,1);
+	grid_Image_Shift->addWidget(cmb_manual_track_IDs,0,6,1,1);
 	
 	vlayout_image_processing->addWidget(grpbox_Image_Shift);
 
@@ -840,7 +848,7 @@ void SirveApp::setupConnections() {
 
 	//---------------------------------------------------------------------------
 
-    connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::HandlePlotDisplayAutoChange);
+    // connect(tab_menu, &QTabWidget::currentChanged, this, &SirveApp::HandlePlotDisplayAutoChange);
     connect(chk_relative_histogram, &QCheckBox::toggled, this, &SirveApp::HandleRelativeHistogramToggle);
 
 	//---------------------------------------------------------------------------
@@ -912,6 +920,7 @@ void SirveApp::setupConnections() {
 
     connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlace);
 	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
+	connect(btn_center_on_manual, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnManual);
 
 	//---------------------------------------------------------------------------
 
@@ -1089,6 +1098,8 @@ void SirveApp::HandleFinishCreateTrackClick()
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 		data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
         UpdatePlots();
+		cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
+		cmb_manual_track_IDs->setEnabled(true);
 	}
 
     ExitTrackCreationMode();
@@ -1110,6 +1121,8 @@ void SirveApp::ExitTrackCreationMode()
 
 void SirveApp::HandleTrackRemoval(int track_id)
 {
+	int ind_delete = cmb_manual_track_IDs->findText(QString::number(track_id));
+	cmb_manual_track_IDs->removeItem(ind_delete);
     tm_widget->RemoveTrackControl(track_id);
 	track_info->RemoveManualTrack(track_id);
 	int index0 = data_plots->index_sub_plot_xmin;
@@ -1209,6 +1222,10 @@ void SirveApp::LoadWorkspace()
 
 			case ProcessingMethod::center_on_OSM:
                 CenterOnOSM(current_state.track_id, current_state.offsets);
+				break;
+
+			case ProcessingMethod::center_on_manual:
+                CenterOnManual(current_state.track_id, current_state.offsets);
 				break;
 
 			default:
@@ -1857,14 +1874,14 @@ void SirveApp::HandlePlotCurrentFrameMarkerToggle()
     UpdatePlots();
 }
 
-void SirveApp::HandlePlotDisplayAutoChange(int index)
-{
-	// When color tab is selected, the histogram is automatically displayed
-	if (index == 2) {
-		tab_plots->setCurrentIndex(0);
-	}
+// void SirveApp::HandlePlotDisplayAutoChange(int index)
+// {
+// 	// When color tab is selected, the histogram is automatically displayed
+// 	if (index == 2) {
+// 		tab_plots->setCurrentIndex(0);
+// 	}
 
-}
+// }
 
 void SirveApp::ShowCalibrationDialog()
 {
@@ -2642,6 +2659,41 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
     video_display->container.AddProcessingState(OSM_centered_state);
 }
 
+void SirveApp::ExecuteCenterOnManual()
+{
+	if (cmb_manual_track_IDs->isEnabled()){
+		int track_id = cmb_manual_track_IDs->currentText().toInt();
+		std::vector<std::vector<int>> manual_centered_offsets;
+		CenterOnManual(track_id, manual_centered_offsets);
+	}
+}
+
+void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets)
+{
+	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end()){
+		processingState original = video_display->container.CopyCurrentState();
+		processingState manual_centered_state = original;
+		manual_centered_state.details.frames_16bit.clear();
+		int number_frames = static_cast<int>(original.details.frames_16bit.size());
+		QProgressDialog progress("", "Cancel", 0, 100);
+		progress.setWindowModality(Qt::WindowModal);
+		progress.setValue(0);
+		// progress.setWindowTitle(QString("Centering on Manual track ") + QString::number(track_id));
+		progress.setWindowTitle(QString("Centering on Manual track "));
+		progress.setMaximum(number_frames - 1);
+		progress.setLabelText(QString("Working..."));
+		progress.setMinimumWidth(300);
+		int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+		int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
+		std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
+		manual_centered_state.track_id = track_id;
+		manual_centered_state.method = ProcessingMethod::center_on_manual;
+		manual_centered_state.details.frames_16bit = CenterOnTracks::CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets, progress);
+		manual_centered_state.offsets = manual_centered_offsets;
+		video_display->container.AddProcessingState(manual_centered_state);
+	}
+}
 
 
 void SirveApp::HandleOsmTracksToggle()

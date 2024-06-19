@@ -160,3 +160,37 @@ std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & or
     return frames_out;
 
 }
+
+std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnManual(VideoDetails & original, int track_id, std::vector<TrackFrame> manualFrames, std::vector<std::vector<int>> & manual_centered_offsets, QProgressDialog & progress)
+{
+    // Initialize output
+    std::vector<std::vector<uint16_t>> frames_out;
+
+    int num_video_frames = original.frames_16bit.size();
+    int nRows = original.y_pixels, nRows2 = nRows/2;
+    int nCols = original.x_pixels, nCols2 = nCols/2;
+
+    arma::mat output(nRows, nCols);
+    arma::mat frame(nRows, nCols);
+    int yOffset, xOffset;
+
+    progress.setWindowTitle("Centering... ");
+    for (int framei = 0; framei < num_video_frames; framei++){
+        progress.setValue(framei);
+        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+        if (manualFrames[framei].tracks.find(track_id) != manualFrames[framei].tracks.end()) {      
+            yOffset = manualFrames[framei].tracks[track_id].centroid_y - nRows2;
+            xOffset = manualFrames[framei].tracks[track_id].centroid_x - nCols2;
+            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+            manual_centered_offsets.push_back({framei,xOffset,yOffset});
+        }
+        else {
+            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
+        }
+
+    }
+
+    return frames_out;
+
+}
