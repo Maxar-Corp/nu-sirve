@@ -1492,6 +1492,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	cmb_OSM_track_IDs->addItem("Primary");
+	cmb_manual_track_IDs->addItem("Primary");
 	std::set<int> track_ids = track_info->get_OSM_track_ids();
 	for ( int track_id : track_ids ){
 		cmb_OSM_track_IDs->addItem(QString::number(track_id));
@@ -2662,7 +2663,14 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
 void SirveApp::ExecuteCenterOnManual()
 {
 	if (cmb_manual_track_IDs->isEnabled()){
-		int track_id = cmb_manual_track_IDs->currentText().toInt();
+	
+	int track_id;
+	if (cmb_manual_track_IDs->currentIndex()==0){
+		track_id = -1;
+	}
+	else{
+		track_id = cmb_manual_track_IDs->currentText().toInt();
+	}
 		std::vector<std::vector<int>> manual_centered_offsets;
 		CenterOnManual(track_id, manual_centered_offsets);
 	}
@@ -2671,7 +2679,7 @@ void SirveApp::ExecuteCenterOnManual()
 void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets)
 {
 	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end()){
+	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end() || track_id<0){
 		processingState original = video_display->container.CopyCurrentState();
 		processingState manual_centered_state = original;
 		manual_centered_state.details.frames_16bit.clear();
