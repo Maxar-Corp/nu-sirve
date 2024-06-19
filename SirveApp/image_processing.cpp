@@ -174,23 +174,44 @@ std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnManual(VideoDetails &
     arma::mat frame(nRows, nCols);
     int yOffset, xOffset;
 
-    progress.setWindowTitle("Centering... ");
-    for (int framei = 0; framei < num_video_frames; framei++){
-        progress.setValue(framei);
-        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
-        if (manualFrames[framei].tracks.find(track_id) != manualFrames[framei].tracks.end()) {      
-            yOffset = manualFrames[framei].tracks[track_id].centroid_y - nRows2;
-            xOffset = manualFrames[framei].tracks[track_id].centroid_x - nCols2;
-            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
-            manual_centered_offsets.push_back({framei,xOffset,yOffset});
-        }
-        else {
-            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
-        }
+    if (track_id>0){
+        for (int framei = 0; framei < num_video_frames; framei++){
+            progress.setValue(framei);
+            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+            if (manualFrames[framei].tracks.find(track_id) != manualFrames[framei].tracks.end()) {      
+                yOffset = manualFrames[framei].tracks[track_id].centroid_y - nRows2;
+                xOffset = manualFrames[framei].tracks[track_id].centroid_x - nCols2;
+                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+                manual_centered_offsets.push_back({framei,xOffset,yOffset});
+            }
+            else {
+                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
+            }
 
+        }
     }
-
+    else{
+         for (int framei = 0; framei < num_video_frames; framei++){
+            progress.setValue(framei);
+            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+            output = frame;
+            bool cont_search = true;
+            int i = 0;
+            while (cont_search && i < manualFrames[framei].tracks.size()){
+                if (manualFrames[framei].tracks[i].centroid_x != NULL){
+                    yOffset = manualFrames[framei].tracks[i].centroid_y - nRows2;
+                    xOffset = manualFrames[framei].tracks[i].centroid_x - nCols2;
+                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                    manual_centered_offsets.push_back({framei,xOffset,yOffset});
+                    cont_search = false;
+                }
+                else{
+                    i+=1;
+                } 
+            }
+            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));                  
+        }
+    }
     return frames_out;
-
 }
