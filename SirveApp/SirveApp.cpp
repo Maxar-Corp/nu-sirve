@@ -1208,7 +1208,7 @@ void SirveApp::LoadWorkspace()
 				break;
 
 			case ProcessingMethod::center_on_OSM:
-                CenterOnOSM(current_state.track_id);
+                CenterOnOSM(current_state.track_id, current_state.offsets);
 				break;
 
 			default:
@@ -2612,10 +2612,11 @@ void SirveApp::ExecuteCenterOnOSM()
 	else{
 		track_id = cmb_OSM_track_IDs->currentText().toInt();
 	}
-    CenterOnOSM(track_id);
+	std::vector<std::vector<int>> OSM_centered_offsets;
+    CenterOnOSM(track_id, OSM_centered_offsets);
 }
 
-void SirveApp::CenterOnOSM(int track_id)
+void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets)
 {
     processingState original = video_display->container.CopyCurrentState();
 
@@ -2636,7 +2637,8 @@ void SirveApp::CenterOnOSM(int track_id)
 	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
 	OSM_centered_state.track_id = track_id;
 	OSM_centered_state.method = ProcessingMethod::center_on_OSM;
-	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, track_id, osmFrames, progress);
+	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets, progress);
+	OSM_centered_state.offsets = OSM_centered_offsets;
     video_display->container.AddProcessingState(OSM_centered_state);
 }
 
