@@ -1,4 +1,5 @@
 #include "processing_state.h"
+#include <armadillo>
 
 processingState create_processing_state_from_json(const QJsonObject & json_obj)
 {
@@ -42,6 +43,20 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
     {
         processingState temp = { ProcessingMethod::center_on_OSM };
         temp.track_id = json_obj.value("Track_ID").toInt();
+        std::vector<int> offsets0;
+        std::vector<std::vector<int>> offsets;
+
+        for (auto json_item : json_obj.value("offsets").toArray()){          
+            offsets0.push_back(json_item.toInt());
+        }
+
+        arma::vec tmpvec = arma::conv_to<arma::vec>::from(offsets0);
+        int numRows = tmpvec.n_elem/3;
+        arma::mat tmpmat = arma::reshape(tmpvec,3,numRows).t();
+        for (int i = 0; i<numRows; i++){
+            offsets.push_back(arma::conv_to<std::vector<int>>::from(tmpmat.row(i)));
+        }
+        temp.offsets = offsets;
         return temp;
     }
 
