@@ -29,6 +29,9 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
     colorTable = starting_color_table;
 
     original_frame_vector = {};
+
+    xCorrection = 0;
+    yCorrection = 0;
 }
 
 VideoDisplay::~VideoDisplay()
@@ -432,8 +435,8 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
-    details.centroid_x = x;
-    details.centroid_y = y;
+    details.centroid_x = x + xCorrection;
+    details.centroid_y = y + yCorrection;
 
     int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
@@ -537,10 +540,13 @@ void VideoDisplay::ClearPinpoints()
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted)
+void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted,std::vector<std::vector<int>> offsets0)
 {
     original_frame_vector = original;
     display_ready_converted_values = converted;
+    xCorrection = 0;
+    yCorrection = 0;
+    offsets = offsets0;
     UpdateDisplayFrame();
 }
 
@@ -562,6 +568,23 @@ void VideoDisplay::UpdateDisplayFrame()
     // Convert image back to RGB to facilitate use of the colors
     frame = frame.convertToFormat(QImage::Format_RGB888);
 
+    // int xCorrection = 0;
+    // int yCorrection = 0;
+    arma::mat offset_matrix(1,3);
+    offset_matrix.zeros();
+    if ( offsets.size() > 0 ){
+        for (int rowi = 0; rowi< offsets.size(); rowi++){
+            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
+        }
+        offset_matrix.shed_row(0);
+        arma::uvec ind = arma::find(offset_matrix.col(0) == counter);
+        if (ind.n_elem>0){
+            int ri = ind(0);
+            xCorrection = offsets[ri][1];
+            yCorrection = offsets[ri][2];
+        }
+    }
+
     if (should_show_bad_pixels)
     {
         for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
@@ -572,7 +595,7 @@ void VideoDisplay::UpdateDisplayFrame()
             int pixel_y = pixel_index / image_x;
 
 			// QRgb bp_color = QColorConstants::Yellow.rgb();
-			frame.setPixelColor(pixel_x, pixel_y, bad_pixel_color);
+			frame.setPixelColor(pixel_x - xCorrection, pixel_y - yCorrection, bad_pixel_color);
 		}
 	}
 
@@ -596,7 +619,7 @@ void VideoDisplay::UpdateDisplayFrame()
             if (btn_pinpoint->isChecked())
             {
                 QRgb rgb_red = QColorConstants::Red.rgb();
-                frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);
+                frame.setPixel(pinpoint_x - xCorrection, pinpoint_y - yCorrection, rgb_red);
             }
         }
         else
@@ -614,7 +637,7 @@ void VideoDisplay::UpdateDisplayFrame()
         {
             TrackDetails td = track_details[starting_frame_number + counter - 1].value();
             QRgb rgb_cyan = QColorConstants::Cyan.rgb();
-            frame.setPixel(td.centroid_x, td.centroid_y, rgb_cyan);
+            frame.setPixel(td.centroid_x - xCorrection, td.centroid_y - yCorrection, rgb_cyan);
         }
     }
 
@@ -681,8 +704,8 @@ void VideoDisplay::UpdateDisplayFrame()
         for ( const auto &trackData : osm_track_frames[counter].tracks )
         {
             //The OSM tracks are stored offset from the center instead of the top left
-            int x_center = image_x / 2 + trackData.second.centroid_x;
-            int y_center = image_y / 2 + trackData.second.centroid_y;
+            int x_center = image_x / 2 + trackData.second.centroid_x - xCorrection;
+            int y_center = image_y / 2 + trackData.second.centroid_y - yCorrection;
             QRectF rectangle = get_rectangle_around_pixel(x_center, y_center, box_size, box_width, box_height);
             if (rectangle.isNull())
                 continue;
@@ -709,7 +732,7 @@ void VideoDisplay::UpdateDisplayFrame()
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
-                QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
+                QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x - xCorrection, trackData.second.centroid_y - yCorrection, box_size, box_width, box_height);
                 if (rectangle.isNull())
                     continue;
                 QColor color = manual_track_colors[track_id];

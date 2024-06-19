@@ -2959,6 +2959,10 @@ void SirveApp::UpdateGlobalFrameVector()
 
 	std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
 	std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
+	std::vector<std::vector<int>> offsets;
+	if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
+		offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+	}
 
-    video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values);
+    video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets);
 }

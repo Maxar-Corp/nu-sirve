@@ -61,6 +61,9 @@ public:
 	void ReclaimLabel();
 
 	unsigned int counter;
+	std::vector<std::vector<int>> offsets;
+	int xCorrection = 0;
+    int yCorrection = 0;
 
 	int counter_record, video_frame_number;
 	bool record_frame;
@@ -121,7 +124,7 @@ signals:
     void finishTrackCreation();
 
 public slots:
-    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted);
+    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, std::vector<std::vector<int>> offsets);
 	void UpdateBannerText(QString input_banner_text);
 	void UpdateBannerColor(QString input_color);
     void HandleTrackerColorUpdate(QString input_color);
