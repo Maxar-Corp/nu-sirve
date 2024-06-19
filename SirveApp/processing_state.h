@@ -15,7 +15,8 @@ enum struct ProcessingMethod
 	adaptive_noise_suppression,
 	fixed_noise_suppression,
     deinterlace,
-    center_on_OSM
+    center_on_OSM,
+    center_on_manual
 };
 
 struct processingState {
@@ -67,6 +68,9 @@ struct processingState {
             case ProcessingMethod::center_on_OSM:
                 return "Centered on OSM - " + QString::number(track_id);
                 break;
+            case ProcessingMethod::center_on_manual:
+                return "Centered on Manual - " + QString::number(track_id);
+                break;
             default:
                 return "Unknown";
                 break;
@@ -108,6 +112,19 @@ struct processingState {
             case ProcessingMethod::center_on_OSM:
             {
                 state_object.insert("method", "Center on OSM");
+                state_object.insert("Track_ID", track_id);
+                QJsonArray offsetsixy;
+                for (auto i = 0; i < offsets.size(); i++){
+                    for (auto j = 0; j < 3; j++){
+                            offsetsixy.push_back(offsets[i][j]);
+                        }
+                    }
+                state_object.insert("offsets", offsetsixy);
+                break;
+            }
+            case ProcessingMethod::center_on_manual:
+            {
+                state_object.insert("method", "Center on Manual");
                 state_object.insert("Track_ID", track_id);
                 QJsonArray offsetsixy;
                 for (auto i = 0; i < offsets.size(); i++){
