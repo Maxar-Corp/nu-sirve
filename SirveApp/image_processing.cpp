@@ -103,7 +103,7 @@ std::vector<std::vector<uint16_t>> Deinterlacing::CrossCorrelation(VideoDetails 
 	return cc_mat;
 }
 
-std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets, QProgressDialog & progress)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -126,6 +126,7 @@ std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & or
                 xOffset = osmFrames[framei].tracks[track_id].centroid_x;
                 output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                 frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+                OSM_centered_offsets.push_back({framei,xOffset,yOffset});
             }
             else {
                 frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
@@ -145,6 +146,7 @@ std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & or
                     yOffset = osmFrames[framei].tracks[i].centroid_y;
                     xOffset = osmFrames[framei].tracks[i].centroid_x;
                     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                    OSM_centered_offsets.push_back({framei,xOffset,yOffset});
                     cont_search = false;
                 }
                 else{

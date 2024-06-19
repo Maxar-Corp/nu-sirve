@@ -23,7 +23,7 @@ namespace Deinterlacing
 
 namespace CenterOnTracks
 {
-    std::vector<std::vector<uint16_t>> CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, QProgressDialog & progress);
+    std::vector<std::vector<uint16_t>> CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets, QProgressDialog & progress);
 };
 
 #endif
