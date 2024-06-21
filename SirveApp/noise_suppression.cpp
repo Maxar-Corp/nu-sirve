@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <fstream>
+
 AdaptiveNoiseSuppression::AdaptiveNoiseSuppression()
 {
 	kernel = {
@@ -31,7 +32,8 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 
 	int num_video_frames = original.frames_16bit.size();
 	int number_avg_frames;
-	int index_first_frame, index_last_frame;
+  
+	int index_first_frame, index_last_frame;  
 	index_first_frame = start_frame - 1;
 
 	ABIRDataResult abir_result;
@@ -88,7 +90,6 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 	return frames_out;
 }
 
-
 std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
 {
 
@@ -112,6 +113,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[index_frame]);
 	}
     for (int i = 0; i < num_video_frames; i++) {
+
 		if (progress.wasCanceled())
 		{
 			return std::vector<std::vector<uint16_t>>();
@@ -150,6 +152,7 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 
 		frame_vector_out = M * frame_vector / frame_vector.max();
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
+
     }
 	return frames_out;
 }
