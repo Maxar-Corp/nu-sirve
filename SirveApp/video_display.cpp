@@ -3,7 +3,7 @@
 VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 {
     zoom_manager = new VideoDisplayZoomManager(0, 0);
-    label = new EnhancedLabel(this);
+    lbl_image_canvas = new EnhancedLabel(this);
     video_display_layout = new QVBoxLayout();
     video_display_layout->addStretch(1);
     SetupCreateTrackControls();
@@ -33,7 +33,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
 VideoDisplay::~VideoDisplay()
 {
-    delete label;
+    delete lbl_image_canvas;
 
     delete lbl_frame_number;
     delete lbl_video_time_midnight;
@@ -49,6 +49,18 @@ void VideoDisplay::InitializeToggles()
 	tracker_color = QString("red");
 	QColor new_color(QString("Yellow"));
 	bad_pixel_color = new_color;
+}
+
+void VideoDisplay::SetupCrosshairsCursor()
+{
+    QPixmap crosshairs_icon("icons/crosshair-golden.png");
+
+    if (crosshairs_icon.isNull()) {
+        qWarning("Failed to load cursor icon.");
+    } else {
+        QCursor crosshairs_cursor(crosshairs_icon);
+        lbl_image_canvas->setCursor(crosshairs_cursor);
+    }
 }
 
 void VideoDisplay::SetupCreateTrackControls()
@@ -102,7 +114,7 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
 	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
-    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::handle_btn_pinpoint);
+    connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
 
@@ -136,17 +148,17 @@ void VideoDisplay::SetupPinpointDisplay()
 
 void VideoDisplay::SetupLabels()
 {
-    label->setBackgroundRole(QPalette::Base);
-    label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    label->setScaledContents(true);
+    lbl_image_canvas->setBackgroundRole(QPalette::Base);
+    lbl_image_canvas->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    lbl_image_canvas->setScaledContents(true);
 
-    label->setObjectName("video_object");
+    lbl_image_canvas->setObjectName("video_object");
 
-    connect(label, &EnhancedLabel::areaHighlighted, this, &VideoDisplay::HandleImageAreaSelection);
-    connect(label, &EnhancedLabel::rightClicked, this, &VideoDisplay::UndoZoom);
-    connect(label, &EnhancedLabel::clicked, this, &VideoDisplay::HandlePixelSelection);
+    connect(lbl_image_canvas, &EnhancedLabel::areaHighlighted, this, &VideoDisplay::HandleImageAreaSelection);
+    connect(lbl_image_canvas, &EnhancedLabel::rightClicked, this, &VideoDisplay::UndoZoom);
+    connect(lbl_image_canvas, &EnhancedLabel::clicked, this, &VideoDisplay::HandlePixelSelection);
 
-    video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+    video_display_layout->insertWidget(0, lbl_image_canvas, 0, Qt::AlignHCenter);
 
     QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
     lbl_frame_number = new QLabel("");
@@ -173,16 +185,25 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
+        SetupCrosshairsCursor();
+    } else
+    {
+        lbl_image_canvas->unsetCursor();
     }
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::handle_btn_pinpoint(bool checked)
+void VideoDisplay::ExitSelectTrackCentroidMode() {
+    btn_select_track_centroid->setChecked(false);
+    lbl_image_canvas->unsetCursor();
+}
+
+void VideoDisplay::HandleBtnPinpoint(bool checked)
 {
     if (checked)
     {
         emit clearMouseButtons();
-        btn_select_track_centroid->setChecked(false);
+        ExitSelectTrackCentroidMode();
         is_zoom_active = false;
         is_calculate_active = false;
     }
@@ -191,7 +212,7 @@ void VideoDisplay::handle_btn_pinpoint(bool checked)
 
 void VideoDisplay::ReclaimLabel()
 {
-    video_display_layout->insertWidget(0, label, 0, Qt::AlignHCenter);
+    video_display_layout->insertWidget(0, lbl_image_canvas, 0, Qt::AlignHCenter);
 }
 
 void VideoDisplay::ReceiveVideoData(int x, int y)
@@ -204,8 +225,8 @@ void VideoDisplay::ReceiveVideoData(int x, int y)
     zoom_manager = new VideoDisplayZoomManager(image_x, image_y);
     pinpoint_indices.clear();
 
-    label->setMinimumWidth(image_x);
-    label->setMinimumHeight(image_y);
+    lbl_image_canvas->setMinimumWidth(image_x);
+    lbl_image_canvas->setMinimumHeight(image_y);
 }
 
 void VideoDisplay::UpdateBannerText(QString input_banner_text)
@@ -261,7 +282,7 @@ void VideoDisplay::ToggleActionZoom(bool status)
     if (status) {
         is_zoom_active = true;
         is_calculate_active = false;
-        btn_select_track_centroid->setChecked(false);
+        ExitSelectTrackCentroidMode();
         btn_pinpoint->setChecked(false);
     }
     else {
@@ -276,7 +297,7 @@ void VideoDisplay::ToggleActionCalculateRadiance(bool status)
     if (status) {
         is_zoom_active = false;
         is_calculate_active = true;
-        btn_select_track_centroid->setChecked(false);
+        ExitSelectTrackCentroidMode();
         btn_pinpoint->setChecked(false);
     }
     else {
@@ -313,6 +334,7 @@ void VideoDisplay::ExitTrackCreationMode()
     lbl_create_track->setText("");
     grp_create_track->setHidden(true);
     UpdateDisplayFrame();
+    ExitSelectTrackCentroidMode();
 }
 
 void VideoDisplay::HandleAnnotationChanges()
@@ -340,7 +362,7 @@ void VideoDisplay::HandleImageAreaSelection(QRect area)
     }
     else if (is_calculate_active)
     {
-        calibrate(area);
+        Calibrate(area);
         UpdateDisplayFrame();
     }
     else
@@ -349,7 +371,7 @@ void VideoDisplay::HandleImageAreaSelection(QRect area)
     }
 }
 
-void VideoDisplay::calibrate(QRect area)
+void VideoDisplay::Calibrate(QRect area)
 {
     // The calculation_region should be calculated by the zoom manager,
     // but I'm leaving this code as-is since it is unused and untestable
@@ -659,11 +681,11 @@ void VideoDisplay::UpdateDisplayFrame()
 
     if (zoom_manager->is_currently_zoomed())
     {
-        label->setStyleSheet("#video_object { border: 3px solid blue; }");
+        lbl_image_canvas->setStyleSheet("#video_object { border: 3px solid blue; }");
     }
     else
     {
-        label->setStyleSheet("#video_object { border: 1px solid light gray; }");
+        lbl_image_canvas->setStyleSheet("#video_object { border: 1px solid light gray; }");
     }
 
     size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
@@ -685,7 +707,7 @@ void VideoDisplay::UpdateDisplayFrame()
             //The OSM tracks are stored offset from the center instead of the top left
             int x_center = image_x / 2 + trackData.second.centroid_x;
             int y_center = image_y / 2 + trackData.second.centroid_y;
-            QRectF rectangle = get_rectangle_around_pixel(x_center, y_center, box_size, box_width, box_height);
+            QRectF rectangle = GetRectangleAroundPixel(x_center, y_center, box_size, box_width, box_height);
             if (rectangle.isNull())
                 continue;
             rectangle_painter.drawRect(rectangle);
@@ -711,7 +733,7 @@ void VideoDisplay::UpdateDisplayFrame()
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
-                QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
+                QRectF rectangle = GetRectangleAroundPixel(trackData.second.centroid_x, trackData.second.centroid_y, box_size, box_width, box_height);
                 if (rectangle.isNull())
                     continue;
                 QColor color = manual_track_colors[track_id];
@@ -736,7 +758,7 @@ void VideoDisplay::UpdateDisplayFrame()
     double seconds_midnight = display_data[counter].seconds_past_midnight;
     lbl_video_time_midnight->setText("From Midnight " + QString::number(seconds_midnight, 'g', 8));
 
-    QString zulu_time = get_zulu_time_string(seconds_midnight);
+    QString zulu_time = GetZuluTimeString(seconds_midnight);
     lbl_zulu_time->setText(zulu_time);
 
     if (display_time) {
@@ -876,15 +898,15 @@ void VideoDisplay::UpdateDisplayFrame()
         AddNewFrame(frame, CV_8UC3);
     }
 
-    label->setPixmap(QPixmap::fromImage(frame));
+    lbl_image_canvas->setPixmap(QPixmap::fromImage(frame));
 
-    label->update();
-    label->repaint();
+    lbl_image_canvas->update();
+    lbl_image_canvas->repaint();
 
     //counter++;
 }
 
-QRectF VideoDisplay::get_rectangle_around_pixel(int x_center, int y_center, int box_size, double box_width, double box_height)
+QRectF VideoDisplay::GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height)
 {
     if (!zoom_manager->is_any_piece_within_zoom(x_center, y_center))
         return QRectF();
@@ -914,7 +936,7 @@ QRectF VideoDisplay::get_rectangle_around_pixel(int x_center, int y_center, int 
     return rectangle;
 }
 
-QString VideoDisplay::get_zulu_time_string(double seconds_midnight)
+QString VideoDisplay::GetZuluTimeString(double seconds_midnight)
 {
     int hour = seconds_midnight / 3600;
     int minutes = (seconds_midnight - hour * 3600) / 60;
@@ -944,7 +966,7 @@ void VideoDisplay::HighlightBadPixels(bool status)
 	UpdateDisplayFrame();
 }
 
-void VideoDisplay::highlight_bad_pixels_colors(QString input_color)
+void VideoDisplay::HighlightBadPixelsColors(QString input_color)
 {
 	QColor new_color(input_color);
 	bad_pixel_color = new_color;
@@ -1058,13 +1080,13 @@ void VideoDisplay::SaveFrame()
 
 void VideoDisplay::RemoveFrame()
 {
-    delete label;
+    delete lbl_image_canvas;
 
     delete lbl_frame_number;
     delete lbl_video_time_midnight;
     delete lbl_zulu_time;
 
-    label = new EnhancedLabel(this);
+    lbl_image_canvas = new EnhancedLabel(this);
     SetupLabels();
 
     frame_data.clear();
