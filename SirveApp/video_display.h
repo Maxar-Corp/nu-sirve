@@ -53,6 +53,7 @@ public:
     QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
     QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
     QString bright_green_styleSheet = "color: black; background-color: #73ee53; font-weight: bold;";
+    QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
     VideoDisplay(QVector<QRgb> starting_color_table);
     ~VideoDisplay();
