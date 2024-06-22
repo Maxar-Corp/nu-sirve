@@ -1003,7 +1003,7 @@ void SirveApp::ImportTracks()
 	int index0 = data_plots->index_sub_plot_xmin;
 	int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-	data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
+    data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     UpdatePlots();
 }
 
@@ -1095,7 +1095,7 @@ void SirveApp::HandleFinishCreateTrackClick()
 		int index0 = data_plots->index_sub_plot_xmin;
 		int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-		data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
+        data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
         UpdatePlots();
 	}
 
@@ -1124,7 +1124,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
 	int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
-	data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_tracks(), track_info->get_manual_track_ids());
+    data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     UpdatePlots();
 }
 
@@ -1336,7 +1336,7 @@ void SirveApp::LoadOsmData()
 	track_info = new TrackInformation(osm_frames);
 	data_plots = new EngineeringPlots(osm_frames);
 
-	size_t num_tracks = track_info->get_count_of_tracks();
+    size_t num_tracks = track_info->get_track_count();
 	if (num_tracks == 0)
 	{
 		QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
@@ -1345,7 +1345,7 @@ void SirveApp::LoadOsmData()
 	data_plots->past_midnight = eng_data->get_seconds_from_midnight();
 	data_plots->past_epoch = eng_data->get_seconds_from_epoch();
 
-	data_plots->set_plotting_track_frames(track_info->get_plotting_tracks(), track_info->get_count_of_tracks());
+    data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
 
 	//--------------------------------------------------------------------------------
 	// Enable setting of epoch
@@ -2076,13 +2076,13 @@ void SirveApp::ExportPlotData()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data")
 	{
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), track_info->get_manual_plotting_tracks());
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin;
 		max_frame = data_plots->index_sub_plot_xmax;
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_plotting_tracks(), track_info->get_manual_plotting_tracks(), min_frame, max_frame);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
 	}
 
 	QMessageBox msgBox;
