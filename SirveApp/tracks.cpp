@@ -75,6 +75,8 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
             ptd.irradiance = osm_file_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
 			ptd.azimuth = osm_file_frames[i].data.track_data[track_index].az_el_track[0];
 			ptd.elevation = osm_file_frames[i].data.track_data[track_index].az_el_track[1];
+            ptd.centroid.centroid_x = td.centroid_x;
+            ptd.centroid.centroid_y = td.centroid_y;
 
             //Needed for the data export.
             //In the future, all track data should probably live in one struct or a more logical format
@@ -85,10 +87,16 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
     }
 }
 
-int TrackInformation::get_count_of_tracks()
+int TrackInformation::get_track_count()
 {
     return static_cast<int>(osm_track_ids.size());
 }
+
+int TrackInformation::get_frame_count()
+{
+    return static_cast<int>(osm_frames.size());
+}
+
 
 std::vector<TrackFrame> TrackInformation::get_osm_frames(int start_index, int end_index)
 {
@@ -108,12 +116,12 @@ std::vector<TrackFrame> TrackInformation::get_manual_frames(int start_index, int
     return subset;
 }
 
-std::vector<PlottingTrackFrame> TrackInformation::get_plotting_tracks()
+std::vector<PlottingTrackFrame> TrackInformation::get_osm_plotting_track_frames()
 {
     return osm_plotting_track_frames;
 }
 
-std::vector<ManualPlottingTrackFrame> TrackInformation::get_manual_plotting_tracks()
+std::vector<ManualPlottingTrackFrame> TrackInformation::get_manual_plotting_frames()
 {
     return manual_plotting_frames;
 }
@@ -135,7 +143,7 @@ void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
 
-            manual_plotting_frames[i].tracks[track_id] = CalculateAzimuthElevation(i, trackData.second.centroid_x, trackData.second.centroid_y);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x, trackData.second.centroid_y);
         }
     }
 }
@@ -168,7 +176,7 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
             file.write(csv_line.toUtf8());
             file.write("\n");
 
-            manual_plotting_frames[i].tracks[track_id] = CalculateAzimuthElevation(i, track_details.centroid_x, track_details.centroid_y);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y);
         }
     }
 
@@ -263,16 +271,19 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
 }
 
-ManualPlottingTrackDetails TrackInformation::CalculateAzimuthElevation(int frame_number, int centroid_x, int centroid_y)
+ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y)
 {
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
-    ManualPlottingTrackDetails details;
+    struct ManualPlottingTrackDetails details;
 	
 	bool adjust_frame_ref = true;
 	
     std::vector<double> az_el_result = AzElCalculation::calculate(centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y, adjust_frame_ref);
     details.azimuth = az_el_result[0];
     details.elevation = az_el_result[1];
-	
+
+    details.centroid.centroid_x = centroid_x;
+    details.centroid.centroid_y = centroid_y;
+
     return details;
 }
