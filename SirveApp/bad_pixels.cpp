@@ -101,7 +101,6 @@ arma::uvec BadPixels::IdentifyBadPixelsMedian(double N, std::vector<std::vector<
         frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
     }
 	
-    arma::vec var_frame = arma::var(frame_data,0,1);
     arma::vec med_frame = arma::median(frame_data,1);
     arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
 
