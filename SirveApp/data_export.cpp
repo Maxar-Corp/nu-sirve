@@ -4,7 +4,6 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
                                         std::vector<PlottingFrameData> frame_data,
                                         std::vector<PlottingTrackFrame> track_data,
                                         std::vector<ManualPlottingTrackFrame> manual_track_data,
-                                        std::vector<TrackFrame> osm_track_frame_data,
                                         int min_frame, int max_frame)
 {
     if (max_frame == 0)
@@ -34,21 +33,19 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
         myfile << frame_number << ", " << epoch_seconds << ", Boresight, " << track_id << ", " << azimuth  << ", " << elevation << ", " << "0" << ", " << "0" << ", " << counts << std::endl;
 
-		size_t num_tracks = track_data[i].details.size();
-		for (size_t j = 0; j < num_tracks; j++)
-		{
+        for (size_t j = 0; j < track_data[i].details.size(); j++)
+        {
             track_id = std::to_string(track_data[i].details[j].track_id);
             azimuth = std::to_string(track_data[i].details[j].azimuth);
             elevation = std::to_string(track_data[i].details[j].elevation);
 
-            std::map<int, TrackDetails> track_map = osm_track_frame_data[i].tracks;
-            centroid_x = std::to_string(track_map.find(track_data[i].details[j].track_id)->second.centroid_x);
-            centroid_y = std::to_string(track_map.find(track_data[i].details[j].track_id)->second.centroid_y);
+            centroid_x = std::to_string(track_data[i].details[j].centroid.centroid_x);
+            centroid_y = std::to_string(track_data[i].details[j].centroid.centroid_y);
 
             counts = std::to_string(track_data[i].details[j].irradiance);
 
             myfile << frame_number << ", " << epoch_seconds  << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
-		}
+        }
 
         for (auto track : manual_track_data[i].tracks)
         {
