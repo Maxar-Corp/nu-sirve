@@ -2093,13 +2093,13 @@ void SirveApp::ExportPlotData()
 	unsigned int min_frame, max_frame;
 	if (item == "Export All Data")
 	{
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), track_info->get_osm_frames(0, track_info->get_frame_count()));
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
 	}
 	else {
 		min_frame = data_plots->index_sub_plot_xmin;
 		max_frame = data_plots->index_sub_plot_xmax;
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), track_info->get_osm_frames(min_frame, max_frame), min_frame, max_frame);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
 	}
 
 	QMessageBox msgBox;
