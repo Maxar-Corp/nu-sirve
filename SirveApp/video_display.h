@@ -44,23 +44,26 @@ class VideoDisplay : public QWidget
 {
     Q_OBJECT
 public:
-
-    QString dark_green_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
-    QString olive_green_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
-    QString dark_blue_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
-    QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
-    QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
-    QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
-    QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
-    QString bright_green_styleSheet = "color: black; background-color: #73ee53; font-weight: bold;";
-    QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
+   
+	QString dark_green_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
+	QString olive_green_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
+	QString dark_blue_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
+	QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
+	QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
+	QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
+	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
+	QString bright_green_styleSheet = "color: black; background-color: #73ee53; font-weight: bold;";
+	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
     VideoDisplay(QVector<QRgb> starting_color_table);
     ~VideoDisplay();
     QVBoxLayout *video_display_layout;
     void ReclaimLabel();
 
-    unsigned int counter;
+	unsigned int counter;
+	std::vector<std::vector<int>> offsets;
+	int xCorrection = 0;
+    int yCorrection = 0;
 
     int counter_record, video_frame_number;
     bool record_frame;
@@ -121,9 +124,9 @@ signals:
     void finishTrackCreation();
 
 public slots:
-    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted);
-    void UpdateBannerText(QString input_banner_text);
-    void UpdateBannerColor(QString input_color);
+    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, std::vector<std::vector<int>> offsets);
+	void UpdateBannerText(QString input_banner_text);
+	void UpdateBannerColor(QString input_color);
     void HandleTrackerColorUpdate(QString input_color);
     void HandleColorMapUpdate(QVector<QRgb> color_table);
 

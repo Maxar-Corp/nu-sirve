@@ -14,7 +14,9 @@ enum struct ProcessingMethod
 	original,
 	adaptive_noise_suppression,
 	fixed_noise_suppression,
-    deinterlace
+    deinterlace,
+    center_on_OSM,
+    center_on_manual
 };
 
 struct processingState {
@@ -35,7 +37,9 @@ struct processingState {
     int FNS_stop_frame;
 
     DeinterlaceType deint_type;
-	
+    int track_id;
+	std::vector<std::vector<int>> offsets;
+
 	bool ANS_hide_shadow;
 
     QString get_friendly_description() {
@@ -60,6 +64,12 @@ struct processingState {
                 break;
             case ProcessingMethod::deinterlace:
                 return "Deinterlace - " + QString::number(deint_type);
+                break;
+            case ProcessingMethod::center_on_OSM:
+                return "Centered on OSM - " + QString::number(track_id);
+                break;
+            case ProcessingMethod::center_on_manual:
+                return "Centered on Manual - " + QString::number(track_id);
                 break;
             default:
                 return "Unknown";
@@ -99,6 +109,32 @@ struct processingState {
                 state_object.insert("FNS_stop_frame", FNS_stop_frame);
                 state_object.insert("FNS_file_path", FNS_file_path);
                 break;
+            case ProcessingMethod::center_on_OSM:
+            {
+                state_object.insert("method", "Center on OSM");
+                state_object.insert("Track_ID", track_id);
+                QJsonArray offsetsixy;
+                for (auto i = 0; i < offsets.size(); i++){
+                    for (auto j = 0; j < 3; j++){
+                            offsetsixy.push_back(offsets[i][j]);
+                        }
+                    }
+                state_object.insert("offsets", offsetsixy);
+                break;
+            }
+            case ProcessingMethod::center_on_manual:
+            {
+                state_object.insert("method", "Center on Manual");
+                state_object.insert("Track_ID", track_id);
+                QJsonArray offsetsixy;
+                for (auto i = 0; i < offsets.size(); i++){
+                    for (auto j = 0; j < 3; j++){
+                            offsetsixy.push_back(offsets[i][j]);
+                        }
+                    }
+                state_object.insert("offsets", offsetsixy);
+                break;
+            }
             default:
                 state_object.insert("method", "error");
         }
