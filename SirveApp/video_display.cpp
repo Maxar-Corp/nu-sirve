@@ -728,7 +728,7 @@ void VideoDisplay::UpdateDisplayFrame()
             //The OSM tracks are stored offset from the center instead of the top left
             int x_center = image_x / 2 + trackData.second.centroid_x - xCorrection;
             int y_center = image_y / 2 + trackData.second.centroid_y - yCorrection;
-            QRectF rectangle = get_rectangle_around_pixel(x_center, y_center, box_size, box_width, box_height);
+            QRectF rectangle = GetRectangleAroundPixel(x_center, y_center, box_size, box_width, box_height);
             if (rectangle.isNull())
                 continue;
             rectangle_painter.drawRect(rectangle);
@@ -754,7 +754,7 @@ void VideoDisplay::UpdateDisplayFrame()
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
-                QRectF rectangle = get_rectangle_around_pixel(trackData.second.centroid_x - xCorrection, trackData.second.centroid_y - yCorrection, box_size, box_width, box_height);
+                QRectF rectangle = GetRectangleAroundPixel(trackData.second.centroid_x - xCorrection, trackData.second.centroid_y - yCorrection, box_size, box_width, box_height);
                 if (rectangle.isNull())
                     continue;
                 QColor color = manual_track_colors[track_id];
