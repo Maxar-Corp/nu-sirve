@@ -22,6 +22,7 @@ class VideoContainer : public QObject
         void ClearProcessingStates();
         void AddProcessingState(processingState new_details);
         processingState CopyCurrentState();
+        processingState CopyCurrentStateIdx(int idx);
         void PopProcessingState();
 
 		std::vector<processingState> get_processing_states();

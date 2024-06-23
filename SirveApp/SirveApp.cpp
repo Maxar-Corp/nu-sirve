@@ -1236,11 +1236,11 @@ void SirveApp::LoadWorkspace()
 				break;
 
 			case ProcessingMethod::center_on_OSM:
-                CenterOnOSM(current_state.track_id, current_state.offsets);
+                CenterOnOSM(current_state.track_id, current_state.offsets, cmb_processing_states->currentIndex());
 				break;
 
 			case ProcessingMethod::center_on_manual:
-                CenterOnManual(current_state.track_id, current_state.offsets);
+                CenterOnManual(current_state.track_id, current_state.offsets,cmb_processing_states->currentIndex());
 				break;
 
 			default:
@@ -1507,6 +1507,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
 	cmb_OSM_track_IDs->addItem("Primary");
+	cmb_manual_track_IDs->clear();
 	cmb_manual_track_IDs->addItem("Primary");
 	std::set<int> track_ids = track_info->get_OSM_track_ids();
 	for ( int track_id : track_ids ){
@@ -2528,7 +2529,7 @@ void SirveApp::ExecuteNonUniformityCorrectionSelectionOption()
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-    processingState original = video_display->container.CopyCurrentState();
+    processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
 
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
@@ -2561,7 +2562,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 		}
 	}
 
-    processingState original = video_display->container.CopyCurrentState();
+    processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
 
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
@@ -2604,7 +2605,7 @@ void SirveApp::ExecuteDeinterlace()
 
 void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 {
-    processingState original = video_display->container.CopyCurrentState();
+    processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
 
 	//Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
 
@@ -2646,12 +2647,13 @@ void SirveApp::ExecuteCenterOnOSM()
 		track_id = cmb_OSM_track_IDs->currentText().toInt();
 	}
 	std::vector<std::vector<int>> OSM_centered_offsets;
-    CenterOnOSM(track_id, OSM_centered_offsets);
+	int processing_state_idx = cmb_processing_states->currentIndex();
+    CenterOnOSM(track_id, OSM_centered_offsets, processing_state_idx);
 }
 
-void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets)
+void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets, int processing_state_idx)
 {
-    processingState original = video_display->container.CopyCurrentState();
+    processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
 
 	processingState OSM_centered_state = original;
 	OSM_centered_state.details.frames_16bit.clear();
@@ -2685,14 +2687,15 @@ void SirveApp::ExecuteCenterOnManual()
 		track_id = cmb_manual_track_IDs->currentText().toInt();
 	}
 		std::vector<std::vector<int>> manual_centered_offsets;
-		CenterOnManual(track_id, manual_centered_offsets);
+		int processing_state_idx = cmb_processing_states->currentIndex();
+		CenterOnManual(track_id, manual_centered_offsets,processing_state_idx);
 }
 
-void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets)
+void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets, int processing_state_idx)
 {
 	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
 	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end() || (track_id<0 && previous_manual_track_ids.size()>0)){
-		processingState original = video_display->container.CopyCurrentState();
+		processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
 		processingState manual_centered_state = original;
 		manual_centered_state.details.frames_16bit.clear();
 		int number_frames = static_cast<int>(original.details.frames_16bit.size());
@@ -2783,7 +2786,7 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-	processingState original = video_display->container.CopyCurrentState();
+	processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	processingState noise_suppresion_state = original;

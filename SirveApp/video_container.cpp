@@ -44,6 +44,11 @@ processingState VideoContainer::CopyCurrentState()
 	return processing_states[current_idx];
 }
 
+processingState VideoContainer::CopyCurrentStateIdx(int idx)
+{
+	return processing_states[idx];
+}
+
 void VideoContainer::PopProcessingState()
 {
 	if (processing_states.size() < 2) {
