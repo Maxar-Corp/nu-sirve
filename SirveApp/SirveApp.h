@@ -286,8 +286,8 @@ private:
     void ApplyFixedNoiseCorrection(int start_frame, int num_frames, QString hide_shadow_choice);
     void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
-    void CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets);
-    void CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets) ;
+    void CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets, int processing_state_idx);
+    void CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets, int processing_state_idx);
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
     void EnableEngineeringPlotOptions();
