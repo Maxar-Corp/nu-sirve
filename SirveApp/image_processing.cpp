@@ -99,15 +99,71 @@ std::vector<std::vector<uint16_t>> Deinterlacing::CrossCorrelation(VideoDetails 
     inFrame1.elem( arma::find(inFrame1 < (3.0*arma::stddev(inFrame1.as_col()))) ).zeros();
 	  inFrame2 = inFrame2 - arma::mean(inFrame2.as_col());
     inFrame2.elem( arma::find(inFrame2 < (3.0*arma::stddev(inFrame2.as_col()))) ).zeros();
-
     arma::cx_mat F = arma::fft2( inFrame1 ) % arma::fft2( arma::flipud( arma::fliplr( inFrame2 ) ) );
     arma::cx_mat cc_mat = arma::ifft2(F);
 	
 	return cc_mat;
 }
 
+std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets, QProgressDialog & progress)
+{
+    // Initialize output
+    std::vector<std::vector<uint16_t>> frames_out;
 
-std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & original, std::vector<TrackFrame> osmFrames, QProgressDialog & progress)
+    int num_video_frames = original.frames_16bit.size();
+    int nRows = original.y_pixels;
+    int nCols = original.x_pixels;
+
+    arma::mat output(nRows, nCols);
+    arma::mat frame(nRows, nCols);
+    int yOffset, xOffset;
+
+    progress.setWindowTitle("Centering... ");
+    if (track_id>0){
+        for (int framei = 0; framei < num_video_frames; framei++){
+            progress.setValue(framei);
+            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+            if (osmFrames[framei].tracks.find(track_id) != osmFrames[framei].tracks.end()) {      
+                yOffset = osmFrames[framei].tracks[track_id].centroid_y;
+                xOffset = osmFrames[framei].tracks[track_id].centroid_x;
+                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+                OSM_centered_offsets.push_back({framei,xOffset,yOffset});
+            }
+            else {
+                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
+            }
+
+        }
+    }
+    else{
+         for (int framei = 0; framei < num_video_frames; framei++){
+            progress.setValue(framei);
+            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+            output = frame;
+            bool cont_search = true;
+            int i = 0;
+            while (cont_search && i < osmFrames[framei].tracks.size()){
+                if (osmFrames[framei].tracks[i].centroid_x != NULL){
+                    yOffset = osmFrames[framei].tracks[i].centroid_y;
+                    xOffset = osmFrames[framei].tracks[i].centroid_x;
+                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                    OSM_centered_offsets.push_back({framei,xOffset,yOffset});
+                    cont_search = false;
+                }
+                else{
+                    i+=1;
+                } 
+            }
+            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));                  
+        }
+    }
+
+    return frames_out;
+
+}
+
+std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnManual(VideoDetails & original, int track_id, std::vector<TrackFrame> manualFrames, std::vector<std::vector<int>> & manual_centered_offsets, QProgressDialog & progress)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -119,23 +175,45 @@ std::vector<std::vector<uint16_t>> CenterOnTracks::CenterOnOSM(VideoDetails & or
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
     int yOffset, xOffset;
-    progress.setWindowTitle("Centering... ");
-    for (int framei = 0; framei < num_video_frames; framei++){
-        progress.setValue(framei);
-        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
-        if (osmFrames.size()>=framei){
-            try {      
-                yOffset = osmFrames[framei].tracks[3].centroid_y  + 1;
-                xOffset = osmFrames[framei].tracks[3].centroid_x  + 1;
+
+    if (track_id>0){
+        for (int framei = 0; framei < num_video_frames; framei++){
+            progress.setValue(framei);
+            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+            if (manualFrames[framei].tracks.find(track_id) != manualFrames[framei].tracks.end()) {      
+                yOffset = manualFrames[framei].tracks[track_id].centroid_y - nRows2;
+                xOffset = manualFrames[framei].tracks[track_id].centroid_x - nCols2;
                 output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                 frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+                manual_centered_offsets.push_back({framei,xOffset,yOffset});
             }
-            catch (const std::exception& e) {
-            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
+            else {
+                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
             }
+
         }
     }
-
+    else{
+         for (int framei = 0; framei < num_video_frames; framei++){
+            progress.setValue(framei);
+            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+            output = frame;
+            bool cont_search = true;
+            int i = 0;
+            while (cont_search && i < manualFrames[framei].tracks.size()){
+                if (manualFrames[framei].tracks[i].centroid_x != NULL){
+                    yOffset = manualFrames[framei].tracks[i].centroid_y - nRows2;
+                    xOffset = manualFrames[framei].tracks[i].centroid_x - nCols2;
+                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                    manual_centered_offsets.push_back({framei,xOffset,yOffset});
+                    cont_search = false;
+                }
+                else{
+                    i+=1;
+                } 
+            }
+            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));                  
+        }
+    }
     return frames_out;
-
 }

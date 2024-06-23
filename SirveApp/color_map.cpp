@@ -13,7 +13,6 @@ void ColorMapDisplay::set_color_map(QVector<QRgb> new_color_map, double minV, do
 {
 	minVal = minV;
 	maxVal = maxV;
-
 	color_map = new_color_map;
 	repaint();
 }
@@ -21,13 +20,13 @@ void ColorMapDisplay::set_color_map(QVector<QRgb> new_color_map, double minV, do
 void ColorMapDisplay::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 
-
 	int NUM_BUCKETS = 256;
 	int blockWidth = initWidth / (NUM_BUCKETS - 1);
 	QPainter painter(this);
 	for (int i = 0; i < NUM_BUCKETS; i++) {
 		painter.fillRect(i * blockWidth, 0, blockWidth, height(), QColor(color_map[i]));
 	}
+
 }
 
 ColorMap::ColorMap()
