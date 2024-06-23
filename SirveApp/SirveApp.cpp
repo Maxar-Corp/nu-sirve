@@ -321,42 +321,16 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 6);
 	lbl_min_count_val = new QLabel("Low");
 	lbl_max_count_val = new QLabel("High");
-	QLabel* lbl_colormap = new QLabel("Set Colormap:");
-	cmb_color_maps = new QComboBox();
-	int number_maps = video_colors.maps.size();
-	for (int i = 0; i < number_maps; i++)
-		cmb_color_maps->addItem(video_colors.maps[i].name);
-	grid_grpbox_image_controls->addWidget(lbl_colormap, 2, 0);
-	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1,1,1);
-	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 0);
-	color_map_display->setMinimumHeight(20);
-	color_map_display->setMaximumWidth(500);
-	color_map_display->setMinimumWidth(500);
-	grid_grpbox_image_controls->addWidget(color_map_display, 3, 0, 1, 6);
-	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 4);
-
-	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 0);
-	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 1);
-	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 4, 1, 1);
-
+	
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
 	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
-	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
 	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
-	QLabel* lbl_auto_lift = new QLabel("Lift adjustment (sigma below mean)");
-	txt_lift_sigma = new QLineEdit("3");
 	QLabel* lbl_auto_lift = new QLabel("Lift adjustment (sigma below mean)");
 	txt_lift_sigma = new QLineEdit("3");
 	txt_lift_sigma->setValidator(ensure_double);
 	QLabel* lbl_auto_gain = new QLabel("Gain adjustment (sigma above mean)");
 	txt_gain_sigma = new QLineEdit("3");
-	QLabel* lbl_auto_gain = new QLabel("Gain adjustment (sigma above mean)");
-	txt_gain_sigma = new QLineEdit("3");
 	txt_gain_sigma->setValidator(ensure_double);
-	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,2);
-	grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,4,1,1);
-	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,2);
-	grid_grpbox_lift_controls->addWidget(txt_gain_sigma,1,4,1,1);
 	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,2);
 	grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,4,1,1);
 	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,2);
@@ -469,9 +443,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 6, 2, 1, 1);
 
-	grid_bad_pixels->addWidget(QtHelpers::HorizontalLine(), 8, 0, 1, 3);
-
-	vlayout_tab_processing->addLayout(grid_bad_pixels);
+	vlayout_tab_processing->addWidget(grpbox_bad_pixels_correction);
 
 	// ------------------------------------------------------------------------
 	grpbox_image_processing = new QGroupBox("Image Processing");
@@ -553,7 +525,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QLabel* lbl_Manual_track_ID = new QLabel("Manual\n Track ID:");
 	cmb_manual_track_IDs = new QComboBox();
 	cmb_manual_track_IDs->setCurrentIndex(0);
-	cmb_manual_track_IDs->setEnabled(false);
 	grid_Image_Shift->addWidget(lbl_Manual_track_ID,0,4,1,1);
 	grid_Image_Shift->addWidget(btn_center_on_manual,0,5,1,1);
 	grid_Image_Shift->addWidget(cmb_manual_track_IDs,0,6,1,1);
@@ -966,8 +937,6 @@ void SirveApp::setupConnections() {
 	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
 	connect(btn_center_on_manual, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnManual);
 
-	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
-
 	//---------------------------------------------------------------------------
 
     connect(btn_change_workspace_directory, &QPushButton::clicked, this, &SirveApp::ChangeWorkspaceDirectory);
@@ -1043,6 +1012,7 @@ void SirveApp::ImportTracks()
 		}
         video_display->AddManualTrackIdToShowLater(track_id);
         tm_widget->AddTrackControl(track_id);
+		cmb_manual_track_IDs->addItem(QString::number(track_id));
 	}
 
 	track_info->AddManualTracks(result.frames);
@@ -1145,7 +1115,6 @@ void SirveApp::HandleFinishCreateTrackClick()
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
         UpdatePlots();
 		cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
-		cmb_manual_track_IDs->setEnabled(true);
 	}
 
     ExitTrackCreationMode();
@@ -2707,9 +2676,7 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
 }
 
 void SirveApp::ExecuteCenterOnManual()
-{
-	if (cmb_manual_track_IDs->isEnabled()){
-	
+{	
 	int track_id;
 	if (cmb_manual_track_IDs->currentIndex()==0){
 		track_id = -1;
@@ -2719,13 +2686,12 @@ void SirveApp::ExecuteCenterOnManual()
 	}
 		std::vector<std::vector<int>> manual_centered_offsets;
 		CenterOnManual(track_id, manual_centered_offsets);
-	}
 }
 
 void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets)
 {
 	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end() || track_id<0){
+	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end() || (track_id<0 && previous_manual_track_ids.size()>0)){
 		processingState original = video_display->container.CopyCurrentState();
 		processingState manual_centered_state = original;
 		manual_centered_state.details.frames_16bit.clear();
