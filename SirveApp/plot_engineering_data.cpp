@@ -473,8 +473,22 @@ void EngineeringPlots::PlotCurrentStep(int counter)
 			max_y = axis_y->max() * 0.99;
 		}
 
-		current_frame_marker->replace(0, current_x, min_y);
-		current_frame_marker->replace(1, current_x, max_y);
+        bool current_frame_marker_exists = false;
+
+        for (QAbstractSeries *series : chart->series()) {
+            QLineSeries *lineSeries = qobject_cast<QLineSeries *>(series);
+            if (lineSeries && lineSeries->count() == 2) {
+                current_frame_marker_exists = true;
+            }
+        }
+
+        if (!current_frame_marker_exists) {
+            CreateCurrentMarker();
+            EstablishPlotLimits();
+        }
+
+        current_frame_marker->replace(0, current_x, 0);
+        current_frame_marker->replace(1, current_x, max_y);
 	}
 }
 
@@ -550,10 +564,28 @@ NewChartView::NewChartView(QChart* chart)
 void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
 	if (e->button() == Qt::RightButton)
-	{
+    {
 		newchart->zoomReset();
 		return;
 	}
+
+    if (e->button() == Qt::LeftButton)
+    {
+        QList<QLineSeries *> lineSeriesToRemove;
+        for (QAbstractSeries *series : newchart->series()) {
+            QLineSeries *lineSeries = qobject_cast<QLineSeries *>(series);
+            if (lineSeries && lineSeries->count() == 2) {
+                lineSeriesToRemove.append(lineSeries);
+            }
+        }
+
+        for (QLineSeries *lineSeries : lineSeriesToRemove) {
+            newchart->removeSeries(lineSeries);
+            delete lineSeries; // Optional: delete the series if no longer needed
+        }
+
+        return;
+    }
 	
 	QChartView::mouseReleaseEvent(e);
 }
