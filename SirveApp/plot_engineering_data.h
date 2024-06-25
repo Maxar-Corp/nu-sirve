@@ -35,6 +35,12 @@ class NewChartView : public QChartView {
 		void apply_nice_numbers();
 
 		QChart *newchart;
+
+    private:
+        bool is_moving;
+
+    public slots:
+        void UpdateChart(bool status);
 };
 
 
@@ -104,11 +110,17 @@ class EngineeringPlots : public QtPlotting
         void set_xaxis_units(XAxisPlotVariables unit_choice);
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
+    signals:
+        void changeStatus(bool status);
+
 	public slots:
 
         void ToggleSubplot();
         void PlotCurrentStep(int counter);
         void SetPlotTitle(QString input_title);
+
+        void ChangeMotionStatus();
+        bool FetchMotionStatus();
 
     private:
 
@@ -120,6 +132,8 @@ class EngineeringPlots : public QtPlotting
 
 		unsigned int num_frames;
         XAxisPlotVariables x_axis_units;
+
+        bool is_moving;
 
         void EstablishPlotLimits();
         void CreateCurrentMarker();
