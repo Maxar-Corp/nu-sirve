@@ -30,10 +30,15 @@ class NewChartView : public QChartView {
 	Q_OBJECT
 	public:
 		NewChartView(QChart *chart);
+        void clearSeriesByName(const QString &seriesName);
 		void mouseReleaseEvent(QMouseEvent *e);
 		void apply_nice_numbers();
+        void saveZoomLevel();
+        void applyZoomLevel();
 
 		QChart *newchart;
+    private:
+        int xMin,yMin,xMax,yMax;
 };
 
 
@@ -110,6 +115,7 @@ class EngineeringPlots : public QtPlotting
         void SetPlotTitle(QString input_title);
 
 	private:
+        int lastIndex;
 		int number_of_tracks;
 		std::vector<PlottingTrackFrame> track_frames;
 		std::set<int> manual_track_ids;

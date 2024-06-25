@@ -3,6 +3,7 @@
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
 {
+    lastIndex = 0;
 	num_frames = static_cast<unsigned int>(osm_frames.size());
 
 	for (size_t i = 0; i < num_frames; i++)
@@ -426,6 +427,7 @@ double EngineeringPlots::get_max_x_axis_value()
 void EngineeringPlots::CreateCurrentMarker()
 {
 	current_frame_marker = new QLineSeries();
+    current_frame_marker->setName("Red Line");
 
 	QPen pen;
 	pen.setColor(colors.get_color(2));
@@ -473,22 +475,9 @@ void EngineeringPlots::PlotCurrentStep(int counter)
 			max_y = axis_y->max() * 0.99;
 		}
 
-        bool current_frame_marker_exists = false;
-
-        for (QAbstractSeries *series : chart->series()) {
-            QLineSeries *lineSeries = qobject_cast<QLineSeries *>(series);
-            if (lineSeries && lineSeries->count() == 2) {
-                current_frame_marker_exists = true;
-            }
-        }
-
-        if (!current_frame_marker_exists) {
-            CreateCurrentMarker();
-            EstablishPlotLimits();
-        }
-
-        current_frame_marker->replace(0, current_x, 0);
-        current_frame_marker->replace(1, current_x, max_y);
+        current_frame_marker->clear();
+        current_frame_marker->append(current_x, 0);
+        current_frame_marker->append(current_x, max_y);
 	}
 }
 
@@ -556,36 +545,31 @@ NewChartView::NewChartView(QChart* chart)
 	setRubberBand(RectangleRubberBand);
 }
 
+void NewChartView::clearSeriesByName(const QString &seriesName) {
+    for (QAbstractSeries *abstractSeries : chart()->series()) {
+        if (QLineSeries *lineSeries = qobject_cast<QLineSeries *>(abstractSeries)) {
+            if (lineSeries->name() == seriesName) {
+                lineSeries->clear();
+                return;
+            }
+        }
+    }
+}
+
 void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
 	if (e->button() == Qt::RightButton)
     {
 		newchart->zoomReset();
 		return;
-	}
-
-    if (e->button() == Qt::LeftButton)
+    } else
     {
-        QList<QLineSeries *> lineSeriesToRemove;
-        for (QAbstractSeries *series : newchart->series()) {
-            QLineSeries *lineSeries = qobject_cast<QLineSeries *>(series);
-            if (lineSeries && lineSeries->count() == 2) {
-                lineSeriesToRemove.append(lineSeries);
-            }
-        }
-
-        for (QLineSeries *lineSeries : lineSeriesToRemove) {
-            newchart->removeSeries(lineSeries);
-            delete lineSeries; // Optional: delete the series if no longer needed
-        }
-
-        return;
+        clearSeriesByName("Red Line");
+        newchart->update();
     }
-	
-	QChartView::mouseReleaseEvent(e);
+
+    QChartView::mouseReleaseEvent(e);
 }
-
-
 
 void NewChartView::apply_nice_numbers()
 {
