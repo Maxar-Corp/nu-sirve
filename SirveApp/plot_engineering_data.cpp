@@ -3,7 +3,6 @@
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
 {
-    lastIndex = 0;
 	num_frames = static_cast<unsigned int>(osm_frames.size());
 
 	for (size_t i = 0; i < num_frames; i++)
@@ -467,12 +466,12 @@ void EngineeringPlots::PlotCurrentStep(int counter)
 		if (yaxis_is_log)
 		{
 			min_y = axis_ylog->min() * 1.01;
-			max_y = axis_ylog->max() * 0.99;
+            max_y = axis_ylog->max();
 		}
 		else
 		{
 			min_y = axis_y->min() * 1.01;
-			max_y = axis_y->max() * 0.99;
+            max_y = axis_y->max();
 		}
 
         current_frame_marker->clear();
