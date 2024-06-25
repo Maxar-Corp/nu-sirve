@@ -900,8 +900,8 @@ void SirveApp::setupConnections() {
 	// Link playback to play controls
 	connect(btn_play, &QPushButton::clicked, playback_controller, &FramePlayer::StartTimer);
 	connect(btn_pause, &QPushButton::clicked, playback_controller, &FramePlayer::StopTimer);
-    connect(btn_reverse, &QPushButton::clicked, playback_controller, &FramePlayer::ReverseTimer);
 
+    connect(btn_reverse, &QPushButton::clicked, playback_controller, &FramePlayer::ReverseTimer);
 
 	connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &FramePlayer::IncreaseTimerInterval);
 	connect(btn_slow_back, &QPushButton::clicked, playback_controller, &FramePlayer::DecreaseTimerInterval);
@@ -1357,6 +1357,8 @@ void SirveApp::LoadOsmData()
 	eng_data = new EngineeringData(osm_frames);
 	track_info = new TrackInformation(osm_frames);
 	data_plots = new EngineeringPlots(osm_frames);
+
+    connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::ChangeMotionStatus);
 
     size_t num_tracks = track_info->get_track_count();
 	if (num_tracks == 0)

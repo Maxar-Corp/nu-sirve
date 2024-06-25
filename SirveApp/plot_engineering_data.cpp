@@ -26,6 +26,8 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
 
 	index_sub_plot_xmin = 0;
 	index_sub_plot_xmax = num_frames - 1;
+
+    connect(this, &EngineeringPlots::changeStatus, this->chart_view, &NewChartView::UpdateChart);
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -537,6 +539,16 @@ void EngineeringPlots::Recolor_manual_track(int track_id, QColor new_color)
 	manual_track_colors[track_id] = new_color;
 }
 
+void EngineeringPlots::ChangeMotionStatus() {
+
+    is_moving = false;
+    emit changeStatus(is_moving);
+}
+
+bool EngineeringPlots::FetchMotionStatus() {
+    return is_moving;
+}
+
 // Generic plotting functions
 
 NewChartView::NewChartView(QChart* chart)
@@ -547,6 +559,12 @@ NewChartView::NewChartView(QChart* chart)
 	setMouseTracking(true);
 	setInteractive(true);
 	setRubberBand(RectangleRubberBand);
+
+}
+
+void NewChartView::UpdateChart(bool status)
+{
+    is_moving = false;
 }
 
 void NewChartView::clearSeriesByName(const QString &seriesName) {
@@ -568,8 +586,10 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 		return;
     } else
     {
-        clearSeriesByName("Red Line");
-        newchart->update();
+        if (this->is_moving) {
+            clearSeriesByName("Red Line");
+            newchart->update();
+        }
     }
 
     QChartView::mouseReleaseEvent(e);
