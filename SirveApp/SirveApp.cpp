@@ -2623,8 +2623,8 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	progress.setMaximum(number_frames - 1);
 	progress.setLabelText(QString("Cross correlation..."));
 	progress.setMinimumWidth(300);
-
-	deinterlace_state.details.frames_16bit = Deinterlacing::CrossCorrelation(original.details, progress);
+	ImageProcessing DI;
+	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details, progress);
 
 	if (progress.wasCanceled())
 	{
@@ -2672,7 +2672,8 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
 	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
 	OSM_centered_state.track_id = track_id;
 	OSM_centered_state.method = ProcessingMethod::center_on_OSM;
-	OSM_centered_state.details.frames_16bit = CenterOnTracks::CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets, progress);
+	ImageProcessing COSM;
+	OSM_centered_state.details.frames_16bit = COSM.CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets, progress);
 	OSM_centered_state.offsets = OSM_centered_offsets;
     video_display->container.AddProcessingState(OSM_centered_state);
 }
@@ -2712,7 +2713,8 @@ void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manu
 		std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
 		manual_centered_state.track_id = track_id;
 		manual_centered_state.method = ProcessingMethod::center_on_manual;
-		manual_centered_state.details.frames_16bit = CenterOnTracks::CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets, progress);
+		ImageProcessing COM;
+		manual_centered_state.details.frames_16bit = COM.CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets, progress);
 		manual_centered_state.offsets = manual_centered_offsets;
 		video_display->container.AddProcessingState(manual_centered_state);
 	}
