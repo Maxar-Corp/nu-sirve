@@ -10,21 +10,17 @@
 #include <armadillo>
 #include <QProgressDialog>
 
-namespace MedianFilter
-{
-    std::vector<std::vector<uint16_t>> MedianFilterStandard(VideoDetails & original, int window_size, QProgressDialog & progress);
-};
 
-namespace Deinterlacing
+class ImageProcessing
 {
-    std::vector<std::vector<uint16_t>> CrossCorrelation(VideoDetails & original, QProgressDialog & progress);
-    static arma::cx_mat xcorr2(arma::mat inFrame1, arma::mat inFrame2);
-};
+private:
+	static arma::cx_mat xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols, int framei);	
 
-namespace CenterOnTracks
-{
+public:
+	std::vector<std::vector<uint16_t>> DeinterlaceCrossCorrelation(VideoDetails & original, QProgressDialog & progress);
     std::vector<std::vector<uint16_t>> CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets, QProgressDialog & progress);
     std::vector<std::vector<uint16_t>> CenterOnManual(VideoDetails & original, int track_id, std::vector<TrackFrame> manualFrames, std::vector<std::vector<int>> & manual_centered_offsets, QProgressDialog & progress);
+    std::vector<std::vector<uint16_t>> MedianFilterStandard(VideoDetails & original, int window_size, QProgressDialog & progress);
 };
 
 
