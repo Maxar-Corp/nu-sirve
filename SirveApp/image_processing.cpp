@@ -52,8 +52,6 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     arma::mat frame0(nRows, nCols);
    	arma::uvec odd_rows = arma::regspace<arma::uvec>(0, 2, nRows - 1);
     arma::uvec even_rows = arma::regspace<arma::uvec>(1, 2, nRows);
-
-	arma::mat offsets(1,6);
     arma::mat odd_frame(nRows2,nCols);
     arma::mat even_frame(nRows2,nCols);
     arma::mat even_frame0(nRows2,nCols);
@@ -61,13 +59,11 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     arma::uword i_max;
     arma::uvec peak_index;
     int yOffset, xOffset;
-    arma::rowvec V(6);
+
     progress.setWindowTitle("Deinterlacing... ");
 
     int n_rows_new = pow(2, ceil(log(nRows2)/log(2))), n_rows_new2 = round(n_rows_new/2);  
     int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
-    // int n_rows_new = 2*nRows2 - 1, n_rows_new2 = round(n_rows_new/2);  
-    // int n_cols_new = 2*nCols - 1, n_cols_new2 = round(n_cols_new/2);
     for (int framei = 0; framei < num_video_frames; framei++){
         progress.setValue(framei);
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
@@ -79,107 +75,31 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
         cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new, framei);
         i_max = cc_mat.index_max();
 		peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
-        int yp = peak_index(0);
-        int xp = peak_index(1);
-        yOffset = (yp < n_rows_new2)*(yp + 1) - (yp > n_rows_new2)*(n_rows_new - yp - 1);
-        xOffset = (xp < n_cols_new2)*xp - (xp > n_cols_new2)*(n_cols_new - xp - 1);
+        yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
+        xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
         output = frame0;
         double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        V[0] = framei;
-        V[1] = xp;
-        V[2] = yp;
-        V[3] = xOffset;
-        V[4] = yOffset;
-        V[5] = d;
-        offsets.insert_rows(offsets.n_rows,V);
-        if(d < 20 && d >1.5) {
-                output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
-            }
+        if(d < 20 && d >1.5){
+            output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
+        }
         output = output - arma::min(output.as_col());
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
-        if (framei == 151){
-            frame0.save("frame0_152.bin",arma::arma_binary);
-            frame.save("frame_152.bin",arma::arma_binary);
-            odd_frame.save("odd_frame_152.bin",arma::arma_binary);
-            even_frame.save("even_frame_152.bin",arma::arma_binary);
-            cc_mat.save("cc_mat_152.bin",arma::arma_binary);
-        }
-        if (framei == 449){
-            frame0.save("frame0_449.bin",arma::arma_binary);
-            frame.save("frame_449.bin",arma::arma_binary);
-            odd_frame.save("odd_frame_449.bin",arma::arma_binary);
-            even_frame.save("even_frame_449.bin",arma::arma_binary);
-            cc_mat.save("cc_mat_449.bin",arma::arma_binary);
-        }
-        if (framei == 427){
-            frame0.save("frame0_427.bin",arma::arma_binary);
-            frame.save("frame_427.bin",arma::arma_binary);
-            odd_frame.save("odd_frame_427.bin",arma::arma_binary);
-            even_frame.save("even_frame_427.bin",arma::arma_binary);
-            cc_mat.save("cc_mat_427.bin",arma::arma_binary);
-        }
     }
-    offsets.shed_row(0);
-    offsets.save("offsets.bin",arma::arma_binary);
     return frames_out;
 }
 
  arma::cx_mat ImageProcessing::xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols, int framei)
 {
-    inFrame1.elem( arma::find(arma::abs(inFrame1) < (3.0*arma::stddev(inFrame1.as_col()))) ).zeros();
-    inFrame2.elem( arma::find(arma::abs(inFrame2) < (3.0*arma::stddev(inFrame2.as_col()))) ).zeros();
+    inFrame1.elem( arma::find(arma::abs(inFrame1) < (4.0*arma::stddev(inFrame1.as_col()))) ).zeros();
+    inFrame2.elem( arma::find(arma::abs(inFrame2) < (4.0*arma::stddev(inFrame2.as_col()))) ).zeros();
     arma::mat inFrame1_pad(nRows,nCols);
     arma::mat inFrame2_pad(nRows,nCols);
     inFrame1_pad.zeros();
     inFrame2_pad.zeros();
     inFrame1_pad(0,0,arma::size(inFrame1)) = inFrame1;
-    inFrame2_pad(0,0,arma::size(inFrame2)) = inFrame2;
-    arma::cx_mat F = arma::fft2(inFrame1_pad);
-    arma::mat G0 = arma::flipud(arma::fliplr(inFrame2_pad));
-    arma::cx_mat G = arma::fft2(G0);
-    arma::cx_mat FG = F % G;
+    inFrame2_pad(0,0,arma::size(inFrame2)) = inFrame2;;
+    arma::cx_mat FG = arma::fft2(inFrame1_pad) % arma::fft2(arma::flipud(arma::fliplr(inFrame2_pad)));
     arma::cx_mat cc_mat = arma::ifft2(FG);
-    // if (framei == 151){
-    //     inFrame1.save("inFrame1_152.bin",arma::arma_binary);
-    //     inFrame2.save("inFrame2_152.bin",arma::arma_binary);
-    //     // inFrame1_pad.save("inFrame1_pad_152.bin",arma::arma_binary);
-    //     // inFrame2_pad.save("inFrame2_pad_152.bin",arma::arma_binary);
-    //     F.save("F_152.bin",arma::arma_binary);
-    //     G0.save("G0_152.bin",arma::arma_binary);
-    //     G.save("G_152.bin",arma::arma_binary);
-    //     FG.save("FG_152.bin",arma::arma_binary);
-    //     cc_mat.save("cc_mat_152.bin",arma::arma_binary);
-    // }
-    // if (framei == 449){
-    //     inFrame1.save("inFrame1_449.bin",arma::arma_binary);
-    //     inFrame2.save("inFrame2_449.bin",arma::arma_binary);
-    //     // inFrame1_pad.save("inFrame1_pad_449.bin",arma::arma_binary);
-    //     // inFrame2_pad.save("inFrame2_pad_449.bin",arma::arma_binary);
-    //     F.save("F_449.bin",arma::arma_binary);
-    //     F.save("F_ascii_449.txt",arma::arma_ascii);
-    //     G0.save("G0_449.bin",arma::arma_binary);
-    //     G.save("G_449.bin",arma::arma_binary);
-    //     FG.save("FG_449.bin",arma::arma_binary);
-    //     cc_mat.save("cc_mat_449.bin",arma::arma_binary);
-    // }
-    // if (framei == 427){
-    //     inFrame1.save("inFrame1_427.bin",arma::arma_binary);
-    //     inFrame2.save("inFrame2_427.bin",arma::arma_binary);
-    //     inFrame1_pad.save("inFrame1_pad_427.bin",arma::arma_binary);
-    //     inFrame2_pad.save("inFrame2_pad_427.bin",arma::arma_binary);
-    //     arma::mat Fr = arma::real(F);
-    //     arma::mat Fc = arma::imag(F);
-    //     Fr.save("Fr_427.bin",arma::arma_binary);
-    //     Fc.save("Fc_427.bin",arma::arma_binary);
-    //     // F.save("F_ascii_427.txt",arma::arma_ascii);
-    //     G0.save("G0_427.bin",arma::arma_binary);
-    //     arma::mat Gr = arma::real(G);
-    //     arma::mat Gc = arma::imag(G);
-    //     // G.save("G_427.bin",arma::arma_binary);
-    //     // FG.save("FG_427.bin",arma::arma_binary);
-    //     cc_mat.save("cc_mat_427.bin",arma::arma_binary);
-    //     cc_mat.save("cc_mat_427.txt",arma::arma_ascii);
-    // }
 	return cc_mat;
 }
 

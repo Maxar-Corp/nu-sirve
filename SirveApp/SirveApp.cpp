@@ -2621,7 +2621,7 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	progress.setValue(0);
 	progress.setWindowTitle(QString("Deinterlacing Frames"));
 	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Cross correlation..."));
+	progress.setLabelText(QString("Working..."));
 	progress.setMinimumWidth(300);
 	ImageProcessing DI;
 	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details, progress);

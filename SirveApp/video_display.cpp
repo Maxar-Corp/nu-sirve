@@ -114,7 +114,6 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setIcon(pinpoint_icon);
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
-	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
     connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
