@@ -60,6 +60,7 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <QStringList>
+#include <QToolBox>
 #include "directory_picker.h"
 
 class SirveApp : public QMainWindow

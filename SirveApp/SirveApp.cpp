@@ -431,7 +431,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 6, 2, 1, 1);
 
 	vlayout_tab_processing->addWidget(grpbox_bad_pixels_correction);
-
 	// ------------------------------------------------------------------------
 	grpbox_image_processing = new QGroupBox("Image Processing");
 	grpbox_image_processing->setStyleSheet(bold_large_styleSheet);
@@ -527,7 +526,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_tab_processing_extra->addWidget(btn_undo_step, 1, 3, 1, 1);
 
 	vlayout_tab_processing->addLayout(grid_tab_processing_extra);
-
+	QToolBox *test = new QToolBox();
+	test->addItem(btn_deinterlace,QString("test"));
+	test->addItem(btn_center_on_osm,QString("test1"));
+	test->addItem(btn_center_on_manual,QString("test3"));
+	vlayout_tab_processing->addWidget(test);
 	// // ------------------------------------------------------------------------
 
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
