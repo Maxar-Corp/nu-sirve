@@ -1358,7 +1358,7 @@ void SirveApp::LoadOsmData()
 	track_info = new TrackInformation(osm_frames);
 	data_plots = new EngineeringPlots(osm_frames);
 
-    connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::ChangeMotionStatus);
+    connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
 
     size_t num_tracks = track_info->get_track_count();
 	if (num_tracks == 0)

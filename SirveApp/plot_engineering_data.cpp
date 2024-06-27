@@ -1,5 +1,7 @@
 #include "plot_engineering_data.h"
 
+#include <QPushButton>
+
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
 {
@@ -534,18 +536,30 @@ void EngineeringPlots::Recolor_manual_track(int track_id, QColor new_color)
 	manual_track_colors[track_id] = new_color;
 }
 
-void EngineeringPlots::ChangeMotionStatus() {
+void EngineeringPlots::HandlePlayerButtonClick()
+{
+   // Determine which button was clicked
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (button) {
+        QString player_button_command = button->text();
 
-    is_moving = false;
+        if (QString::compare(player_button_command,"Pause"))
+        {
+            emit changeStatus(false);
+        }
+        else
+        {
+            emit changeStatus(true);
+        }
+    }
+}
+
+void EngineeringPlots::ChangeMotionStatus(bool is_moving)
+{
     emit changeStatus(is_moving);
 }
 
-bool EngineeringPlots::FetchMotionStatus() {
-    return is_moving;
-}
-
 // Generic plotting functions
-
 NewChartView::NewChartView(QChart* chart)
 	:QChartView(chart)
 {
@@ -559,7 +573,7 @@ NewChartView::NewChartView(QChart* chart)
 
 void NewChartView::UpdateChart(bool status)
 {
-    is_moving = false;
+    is_moving = status;
 }
 
 void NewChartView::clearSeriesByName(const QString &seriesName) {
