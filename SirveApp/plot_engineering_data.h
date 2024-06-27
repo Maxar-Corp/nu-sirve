@@ -37,10 +37,10 @@ class NewChartView : public QChartView {
 		QChart *newchart;
 
     private:
-        bool is_moving;
+        bool is_frameline_moving;
 
     public slots:
-        void UpdateChart(bool status);
+        void UpdateChartFramelineStatus(bool status);
 };
 
 
@@ -111,7 +111,7 @@ class EngineeringPlots : public QtPlotting
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
     signals:
-        void changeStatus(bool status);
+        void changeMotionStatus(bool status);
 
 	public slots:
 
@@ -119,7 +119,7 @@ class EngineeringPlots : public QtPlotting
         void PlotCurrentStep(int counter);
         void SetPlotTitle(QString input_title);
 
-        void ChangeMotionStatus(bool status);
+        //void ChangeMotionStatus(bool status);
         void HandlePlayerButtonClick();
 
     private:
