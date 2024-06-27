@@ -266,7 +266,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	slider_lift->setTickPosition(QSlider::TicksAbove);
 	slider_lift->setTickInterval(100);
 	slider_lift->setEnabled(false);
-	slider_lift->setEnabled(false);
 
 	slider_gain = new QSlider();
 	slider_gain->setOrientation(Qt::Horizontal);
@@ -309,18 +308,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 4, 1, 1);
 
 	slider_gain->setEnabled(false);
-	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain");
-	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset Set Points");
-
-	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 6);
-	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 6);
-	lbl_min_count_val = new QLabel("Low");
-	lbl_max_count_val = new QLabel("High");
 	
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
 	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);

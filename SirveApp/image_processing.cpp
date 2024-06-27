@@ -79,7 +79,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
         xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
         output = frame0;
         double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        if(d < 20 && d >1.5){
+        if(d < 35 && d >1.5){
             output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
         }
         output = output - arma::min(output.as_col());
@@ -90,8 +90,22 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
 
  arma::cx_mat ImageProcessing::xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols, int framei)
 {
-    inFrame1.elem( arma::find(arma::abs(inFrame1) < (4.0*arma::stddev(inFrame1.as_col()))) ).zeros();
-    inFrame2.elem( arma::find(arma::abs(inFrame2) < (4.0*arma::stddev(inFrame2.as_col()))) ).zeros();
+    int N = 12;
+    double ds = .25;
+    int kk = 0;
+    arma::umat test1 = (arma::abs(inFrame1) > ((N-kk*ds)*arma::stddev(inFrame1.as_col()))).as_col();
+    arma::umat test2 = (arma::abs(inFrame2) > ((N-kk*ds)*arma::stddev(inFrame2.as_col()))).as_col();
+    int test1a = arma::sum(test1.as_col());
+    int test2a = arma::sum(test2.as_col());
+    while(kk <46 && ((test1a >= 0 & test1a < 10) && (test2a >= 0 & test2a < 10)) ){
+        kk +=1;
+        test1 = (arma::abs(inFrame1) > ((N-kk*ds)*arma::stddev(inFrame1.as_col())));
+        test2 = (arma::abs(inFrame2) > ((N-kk*ds)*arma::stddev(inFrame2.as_col())));
+        test1a = arma::sum(test1.as_col());
+        test2a = arma::sum(test2.as_col());
+    }
+    inFrame1.elem(arma::find(test1==0)).zeros();
+    inFrame2.elem(arma::find(test2==0)).zeros();
     arma::mat inFrame1_pad(nRows,nCols);
     arma::mat inFrame2_pad(nRows,nCols);
     inFrame1_pad.zeros();
