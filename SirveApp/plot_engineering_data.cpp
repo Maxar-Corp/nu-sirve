@@ -29,7 +29,7 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
 	index_sub_plot_xmin = 0;
 	index_sub_plot_xmax = num_frames - 1;
 
-    connect(this, &EngineeringPlots::changeStatus, this->chart_view, &NewChartView::UpdateChart);
+    connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -469,12 +469,12 @@ void EngineeringPlots::PlotCurrentStep(int counter)
 
 		if (yaxis_is_log)
 		{
-			min_y = axis_ylog->min() * 1.01;
+            min_y = axis_ylog->min();
             max_y = axis_ylog->max();
 		}
 		else
 		{
-			min_y = axis_y->min() * 1.01;
+            min_y = axis_y->min();
             max_y = axis_y->max();
 		}
 
@@ -543,25 +543,21 @@ void EngineeringPlots::Recolor_manual_track(int track_id, QColor new_color)
 
 void EngineeringPlots::HandlePlayerButtonClick()
 {
-   // Determine which button was clicked
     QPushButton *button = qobject_cast<QPushButton*>(sender());
     if (button) {
-        QString player_button_command = button->text();
+        QString player_button_tooltip = button->toolTip();
 
-        if (QString::compare(player_button_command,"Pause"))
+        if (player_button_tooltip == "Pause Video" ||
+            player_button_tooltip == "Previous Frame" ||
+            player_button_tooltip == "Next Frame")
         {
-            emit changeStatus(false);
+            emit changeMotionStatus(false);
         }
         else
         {
-            emit changeStatus(true);
+            emit changeMotionStatus(true);
         }
     }
-}
-
-void EngineeringPlots::ChangeMotionStatus(bool is_moving)
-{
-    emit changeStatus(is_moving);
 }
 
 // Generic plotting functions
@@ -573,12 +569,11 @@ NewChartView::NewChartView(QChart* chart)
 	setMouseTracking(true);
 	setInteractive(true);
 	setRubberBand(RectangleRubberBand);
-
 }
 
-void NewChartView::UpdateChart(bool status)
+void NewChartView::UpdateChartFramelineStatus(bool status)
 {
-    is_moving = status;
+    is_frameline_moving = status;
 }
 
 void NewChartView::clearSeriesByName(const QString &seriesName) {
@@ -600,7 +595,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 		return;
     } else
     {
-        if (this->is_moving) {
+        if (this->is_frameline_moving) {
             clearSeriesByName("Red Line");
             newchart->update();
         }

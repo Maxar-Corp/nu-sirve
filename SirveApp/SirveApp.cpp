@@ -626,21 +626,21 @@ void SirveApp::SetupVideoFrame(){
 	//Add icons to video playback buttons
 	QPixmap play_image("icons/play.png");
 	QIcon play_icon(play_image);
-	btn_play = new QPushButton();
+    btn_play = new QPushButton();
 	btn_play->resize(button_video_width, button_video_height);
 	btn_play->setIcon(play_icon);
 	btn_play->setToolTip("Play Video");
 
 	QPixmap pause_image("icons/pause.png");
 	QIcon pause_icon(pause_image);
-	btn_pause = new QPushButton();
+    btn_pause = new QPushButton();
 	btn_pause->resize(button_video_width, button_video_height);
 	btn_pause->setIcon(pause_icon);
 	btn_pause->setToolTip("Pause Video");
 
 	QPixmap reverse_image("icons/reverse.png");
 	QIcon reverse_icon(reverse_image);
-	btn_reverse = new QPushButton();
+    btn_reverse = new QPushButton();
 	btn_reverse->resize(button_video_width, button_video_height);
 	btn_reverse->setIcon(reverse_icon);
 	btn_reverse->setToolTip("Reverse Video");
@@ -654,7 +654,7 @@ void SirveApp::SetupVideoFrame(){
 
 	QPixmap next_frame_image("icons/skip-next.png");
 	QIcon next_frame_icon(next_frame_image);
-	btn_next_frame = new QPushButton();
+    btn_next_frame = new QPushButton();
 	btn_next_frame->resize(button_video_width, button_video_height);
 	btn_next_frame->setIcon(next_frame_icon);
 	btn_next_frame->setToolTip("Next Frame");
@@ -668,7 +668,7 @@ void SirveApp::SetupVideoFrame(){
 
 	QPixmap prev_frame_image("icons/skip-previous.png");
 	QIcon prev_frame_icon(prev_frame_image);
-	btn_prev_frame = new QPushButton();
+    btn_prev_frame = new QPushButton();
 	btn_prev_frame->resize(button_video_width, button_video_height);
 	btn_prev_frame->setIcon(prev_frame_icon);
 	btn_prev_frame->setToolTip("Previous Frame");
@@ -1359,6 +1359,10 @@ void SirveApp::LoadOsmData()
 	data_plots = new EngineeringPlots(osm_frames);
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_play, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_reverse, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_next_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_prev_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
 
     size_t num_tracks = track_info->get_track_count();
 	if (num_tracks == 0)
