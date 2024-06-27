@@ -61,6 +61,7 @@
 #include <qmenubar.h>
 #include <QStringList>
 #include <QToolBox>
+#include <QProgressBar>
 #include "directory_picker.h"
 
 class SirveApp : public QMainWindow
@@ -111,6 +112,7 @@ public:
 
 	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message, * lbl_bad_pixel_type,  * lbl_bad_pixel_sensitivity,  * lbl_bad_pixel_method, *lbl_moving_median_window_length;
 	QLabel *lbl_bad_pixel_start_frame, *lbl_bad_pixel_stop_frame, *lbl_ANS_number_frames, *lbl_ANS_offset_frames, *lbl_FNS_start_frame, * lbl_FNS_stop_frame, * lbl_ANS_shadow_threshold, *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
+    QLabel *lbl_progress_status;
 
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
 	QSlider* slider_lift, * slider_gain, * slider_video;
@@ -125,6 +127,7 @@ public:
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_image_processing, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
+    QProgressBar * progress_bar_main;
 
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs;
@@ -150,7 +153,7 @@ public:
     void SetupUi();
     QWidget* SetupFileImportTab();
     QWidget* SetupColorCorrectionTab();
-    QWidget* SetupWorkspaceTab();
+    QWidget* SetupTracksTab();
     QWidget* SetupProcessingTab();
     void SetupVideoFrame();
     void SetupPlotFrame();

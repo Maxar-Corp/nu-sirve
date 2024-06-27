@@ -24,7 +24,7 @@ AdaptiveNoiseSuppression::~AdaptiveNoiseSuppression()
 {
 }
 
-std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original)
 {
 	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -44,7 +44,6 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 				return frames_out;
 			}
 		 number_avg_frames = abir_result.video_frames_16bit.size();
-		 progress.setWindowTitle("External Fixed Noise Suppression");
 	}
 	else{
 		abir_result.video_frames_16bit = original.frames_16bit;
@@ -74,10 +73,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 	arma::vec frame_vector(num_pixels, 1);
 	//Loop through frames to subtract mean
 	for (int i = 0; i < num_video_frames; i++){
-		if (progress.wasCanceled()){
-			return std::vector<std::vector<uint16_t>>();
-		}
-		progress.setValue(i);
+		UpdateProgressBar(i);
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		M = frame_vector.max();
 		frame_vector -= mean_frame;
@@ -89,7 +85,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 }
 
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice)
 {
 
 	int num_video_frames = original.frames_16bit.size();
@@ -108,16 +104,12 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 	arma::vec frame_vector_out(num_pixels,1);
 
 	for (int j = 0; j < num_of_averaging_frames - 1; j++) { 
+		UpdateProgressBar(j);
 		index_frame = std::max(start_frame + j,0);
 		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[index_frame]);
 	}
     for (int i = 0; i < num_video_frames; i++) {
-		if (progress.wasCanceled())
-		{
-			return std::vector<std::vector<uint16_t>>();
-		}
-		progress.setValue(i);
-
+	 	UpdateProgressBar(i);
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 
 		index_first_frame = std::max(i + start_frame,0);
@@ -196,4 +188,14 @@ void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & f
 	}
 
 	frame_vector -= frame_vector.min();
+}
+
+void AdaptiveNoiseSuppression::UpdateProgressBar(unsigned int val) {
+
+    emit SignalProgress(val);
+}
+
+void FixedNoiseSuppression::UpdateProgressBar(unsigned int val) {
+
+    emit SignalProgress(val);
 }

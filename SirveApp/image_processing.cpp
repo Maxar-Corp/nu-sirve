@@ -1,8 +1,13 @@
 #include "image_processing.h"
-#include <iostream>
-#include <fstream>
+ImageProcessing::ImageProcessing()
+{
+    frameval = 0;
+}
 
-std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDetails & original, int window_size, QProgressDialog & progress)
+ImageProcessing::~ImageProcessing() {
+}
+
+std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDetails & original, int window_size)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -15,7 +20,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDe
     arma::mat frame(nCols, nRows);
     arma::mat paddedInput(nCols + window_size - 1, nRows + window_size - 1);
     for (int framei = 0; framei < num_video_frames; framei++){
-        progress.setValue(framei);
+        UpdateProgressBar(framei);
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows);
         paddedInput.zeros();
         paddedInput.submat(window_size / 2, window_size / 2, nCols - 1 + window_size / 2, nRows - 1 + window_size / 2) = frame;
@@ -38,7 +43,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDe
     return frames_out;
 }
 
-std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(VideoDetails & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(VideoDetails & original)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -60,12 +65,11 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     arma::uvec peak_index;
     int yOffset, xOffset;
 
-    progress.setWindowTitle("Deinterlacing... ");
 
     int n_rows_new = pow(2, ceil(log(nRows2)/log(2))), n_rows_new2 = round(n_rows_new/2);  
     int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
     for (int framei = 0; framei < num_video_frames; framei++){
-        progress.setValue(framei);
+        UpdateProgressBar(framei);
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
         frame0 = frame;
         frame = frame - arma::mean(frame.as_col());
@@ -117,7 +121,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
 	return cc_mat;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -130,10 +134,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & o
     arma::mat frame(nRows, nCols);
     int yOffset, xOffset;
 
-    progress.setWindowTitle("Centering... ");
     if (track_id>0){
         for (int framei = 0; framei < num_video_frames; framei++){
-            progress.setValue(framei);
+            UpdateProgressBar(framei);
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             if (osmFrames[framei].tracks.find(track_id) != osmFrames[framei].tracks.end()) {      
                 yOffset = osmFrames[framei].tracks[track_id].centroid_y;
@@ -150,7 +153,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & o
     }
     else{
          for (int framei = 0; framei < num_video_frames; framei++){
-            progress.setValue(framei);
+            UpdateProgressBar(framei);
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             output = frame;
             bool cont_search = true;
@@ -175,7 +178,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & o
 
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails & original, int track_id, std::vector<TrackFrame> manualFrames, std::vector<std::vector<int>> & manual_centered_offsets, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails & original, int track_id, std::vector<TrackFrame> manualFrames, std::vector<std::vector<int>> & manual_centered_offsets)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -190,7 +193,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails 
 
     if (track_id>0){
         for (int framei = 0; framei < num_video_frames; framei++){
-            progress.setValue(framei);
+            UpdateProgressBar(framei);
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             if (manualFrames[framei].tracks.find(track_id) != manualFrames[framei].tracks.end()) {      
                 yOffset = manualFrames[framei].tracks[track_id].centroid_y - nRows2;
@@ -202,12 +205,11 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails 
             else {
                 frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
             }
-
         }
     }
     else{
-         for (int framei = 0; framei < num_video_frames; framei++){
-            progress.setValue(framei);
+         for (int framei = 0; framei < num_video_frames; framei++){ 
+            UpdateProgressBar(framei);
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             output = frame;
             bool cont_search = true;
@@ -228,4 +230,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails 
         }
     }
     return frames_out;
+}
+
+void ImageProcessing::UpdateProgressBar(unsigned int val) {
+
+    emit SignalProgress(val);
 }
