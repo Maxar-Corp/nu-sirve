@@ -119,8 +119,8 @@ class EngineeringPlots : public QtPlotting
         void PlotCurrentStep(int counter);
         void SetPlotTitle(QString input_title);
 
-        void ChangeMotionStatus();
-        bool FetchMotionStatus();
+        void ChangeMotionStatus(bool status);
+        void HandlePlayerButtonClick();
 
     private:
 
