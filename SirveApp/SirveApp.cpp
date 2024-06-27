@@ -124,7 +124,7 @@ void SirveApp::SetupUi() {
 	btn_undo_step = new QPushButton("Undo One Step");
 	grid_status_area->addWidget(cmb_processing_states,0,0,1,6);
 	grid_status_area->addWidget(btn_undo_step,0,7,1,1);
-	grid_status_area->addWidget(lbl_progress_status,1,0,-1,7);
+	grid_status_area->addWidget(lbl_progress_status,1,0,1,7);
 	
 	grid_status_area->addWidget(progress_bar_main,4,0,1,7);
 
@@ -2564,9 +2564,11 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
 	FixedNoiseSuppression FNS;
 	progress_bar_main->setRange(0,number_video_frames - 1);
+	lbl_progress_status->setText(QString("Fixed Noise Suppression..."));
 	connect(&FNS, &FixedNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	noise_suppresion_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
 	progress_bar_main->setValue(0);
+	lbl_progress_status->setText(QString(""));
 	noise_suppresion_state.method = ProcessingMethod::fixed_noise_suppression;
 	noise_suppresion_state.FNS_file_path = file_path;
 	noise_suppresion_state.FNS_start_frame = start_frame;
@@ -2607,10 +2609,11 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 
 	ImageProcessing DI;
 	progress_bar_main->setRange(0,number_video_frames-1);
+	lbl_progress_status->setText(QString("Deinterlacing..."));
 	connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details);
 	progress_bar_main->setValue(0);
-
+	lbl_progress_status->setText(QString(""));
 	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
     video_display->container.AddProcessingState(deinterlace_state);
@@ -2646,9 +2649,11 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
 	OSM_centered_state.method = ProcessingMethod::center_on_OSM;
 	ImageProcessing COSM;
 	progress_bar_main->setRange(0,number_frames - 1);
+	lbl_progress_status->setText(QString("Center on OSM..."));
 	connect(&COSM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	OSM_centered_state.details.frames_16bit = COSM.CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets);
 	progress_bar_main->setValue(0);
+	lbl_progress_status->setText(QString(""));
 	OSM_centered_state.offsets = OSM_centered_offsets;
     video_display->container.AddProcessingState(OSM_centered_state);
 }
@@ -2681,10 +2686,12 @@ void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manu
 		manual_centered_state.track_id = track_id;
 		manual_centered_state.method = ProcessingMethod::center_on_manual;
 		progress_bar_main->setRange(0,number_video_frames);
+		lbl_progress_status->setText(QString("Center on Manual Tracks..."));
 		ImageProcessing COM;
 		connect(&COM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 		manual_centered_state.details.frames_16bit = COM.CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets);
 		progress_bar_main->setValue(0);
+		lbl_progress_status->setText(QString(""));
 		manual_centered_state.offsets = manual_centered_offsets;
 		video_display->container.AddProcessingState(manual_centered_state);
 	}
@@ -2765,10 +2772,12 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	noise_suppresion_state.details.frames_16bit.clear();
 	
 	AdaptiveNoiseSuppression ANS;
+	lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
 	progress_bar_main->setRange(0,number_video_frames - 1);
 	connect(&ANS, &AdaptiveNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	noise_suppresion_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
 	progress_bar_main->setValue(0);
+	lbl_progress_status->setText(QString(""));
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)
 		description += "+";

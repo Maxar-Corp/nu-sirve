@@ -2,6 +2,8 @@
 #include <vector>
 #include <random>
 #include <fstream>
+#include <Qt>
+
 AdaptiveNoiseSuppression::AdaptiveNoiseSuppression()
 {
 	kernel = {
@@ -74,6 +76,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 	//Loop through frames to subtract mean
 	for (int i = 0; i < num_video_frames; i++){
 		UpdateProgressBar(i);
+		QCoreApplication::processEvents();
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		M = frame_vector.max();
 		frame_vector -= mean_frame;
@@ -104,12 +107,12 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 	arma::vec frame_vector_out(num_pixels,1);
 
 	for (int j = 0; j < num_of_averaging_frames - 1; j++) { 
-		UpdateProgressBar(j);
 		index_frame = std::max(start_frame + j,0);
 		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[index_frame]);
 	}
     for (int i = 0; i < num_video_frames; i++) {
 	 	UpdateProgressBar(i);
+		QCoreApplication::processEvents();
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 
 		index_first_frame = std::max(i + start_frame,0);

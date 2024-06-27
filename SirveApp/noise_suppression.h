@@ -11,7 +11,7 @@
 #include "video_details.h"
 #include <QWidget>
 #include <QtWidgets>
-
+#include <QtCore>
 class AdaptiveNoiseSuppression : public QObject
 {
 	Q_OBJECT
@@ -38,7 +38,7 @@ class FixedNoiseSuppression: public QObject
 private:
 
 	ABIRData abir_data;
-	
+
 signals:
      void SignalProgress(unsigned int frameval);
 

@@ -21,6 +21,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDe
     arma::mat paddedInput(nCols + window_size - 1, nRows + window_size - 1);
     for (int framei = 0; framei < num_video_frames; framei++){
         UpdateProgressBar(framei);
+        QCoreApplication::processEvents();
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows);
         paddedInput.zeros();
         paddedInput.submat(window_size / 2, window_size / 2, nCols - 1 + window_size / 2, nRows - 1 + window_size / 2) = frame;
@@ -70,6 +71,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
     for (int framei = 0; framei < num_video_frames; framei++){
         UpdateProgressBar(framei);
+        QCoreApplication::processEvents();
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
         frame0 = frame;
         frame = frame - arma::mean(frame.as_col());
@@ -137,6 +139,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & o
     if (track_id>0){
         for (int framei = 0; framei < num_video_frames; framei++){
             UpdateProgressBar(framei);
+            QCoreApplication::processEvents();
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             if (osmFrames[framei].tracks.find(track_id) != osmFrames[framei].tracks.end()) {      
                 yOffset = osmFrames[framei].tracks[track_id].centroid_y;
@@ -194,6 +197,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails 
     if (track_id>0){
         for (int framei = 0; framei < num_video_frames; framei++){
             UpdateProgressBar(framei);
+            QCoreApplication::processEvents();
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             if (manualFrames[framei].tracks.find(track_id) != manualFrames[framei].tracks.end()) {      
                 yOffset = manualFrames[framei].tracks[track_id].centroid_y - nRows2;
