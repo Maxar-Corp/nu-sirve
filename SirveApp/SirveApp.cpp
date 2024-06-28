@@ -528,6 +528,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
+	QSizePolicy grpbox_size_policy;
+	grpbox_size_policy.setHorizontalPolicy(QSizePolicy::Preferred);
+	grpbox_size_policy.setVerticalPolicy(QSizePolicy::Fixed);
+	grpbox_Image_Shift->setSizePolicy(grpbox_size_policy);
+	grpbox_Image_Shift->setFixedHeight(150);
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	grid_Image_Shift->addWidget(btn_deinterlace,0,0,1,1);
@@ -536,16 +541,17 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_Image_Shift->addWidget(btn_center_on_osm,0,1,1,1);
 	cmb_OSM_track_IDs = new QComboBox();
 	cmb_OSM_track_IDs->setCurrentIndex(0);
-	grid_Image_Shift->addWidget(lbl_OSM_track_ID,0,2,1,1);
-	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,0,3,1,1);
+	grid_Image_Shift->addWidget(lbl_OSM_track_ID,1,1,1,1);
+	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,2,1,1,1);
 	btn_center_on_manual = new QPushButton("Center on\n Manual");
 	QLabel* lbl_Manual_track_ID = new QLabel("Manual\n Track ID:");
 	cmb_manual_track_IDs = new QComboBox();
 	cmb_manual_track_IDs->setCurrentIndex(0);
-	grid_Image_Shift->addWidget(lbl_Manual_track_ID,0,4,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_manual,0,5,1,1);
-	grid_Image_Shift->addWidget(cmb_manual_track_IDs,0,6,1,1);
-
+	grid_Image_Shift->addWidget(btn_center_on_manual,0,2,1,1);
+	grid_Image_Shift->addWidget(lbl_Manual_track_ID,1,2,1,1);
+	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,2,1,1);
+	btn_center_on_brightest = new QPushButton("Center on\n Brightest");
+	grid_Image_Shift->addWidget(btn_center_on_brightest,0,3,1,1);
 	QToolBox *toolbox_image_processing = new QToolBox();
 	toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
@@ -929,6 +935,7 @@ void SirveApp::setupConnections() {
     connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlace);
 	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
 	connect(btn_center_on_manual, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnManual);
+	connect(btn_center_on_brightest, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnBrightest);
 
 	//---------------------------------------------------------------------------
 
@@ -1234,6 +1241,10 @@ void SirveApp::LoadWorkspace()
 
 			case ProcessingMethod::center_on_manual:
                 CenterOnManual(current_state.track_id, current_state.offsets,cmb_processing_states->currentIndex());
+				break;
+
+			case ProcessingMethod::center_on_brightest:
+                CenterOnBrightest(current_state.offsets,cmb_processing_states->currentIndex());
 				break;
 
 			default:
@@ -2697,6 +2708,32 @@ void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manu
 	}
 }
 
+void SirveApp::ExecuteCenterOnBrightest()
+{		
+	std::vector<std::vector<int>> brightest_centered_offsets;
+	int processing_state_idx = cmb_processing_states->currentIndex();
+	CenterOnBrightest(brightest_centered_offsets,processing_state_idx);
+}
+
+void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx)
+{
+	processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
+	processingState brightest_centered_state = original;
+	brightest_centered_state.details.frames_16bit.clear();
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+	int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
+	brightest_centered_state.method = ProcessingMethod::center_on_brightest;
+	progress_bar_main->setRange(0,number_video_frames-1);
+	lbl_progress_status->setText(QString("Center on Brightest Object..."));
+	ImageProcessing COB;
+	connect(&COB, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightest(original.details, brightest_centered_offsets);
+	progress_bar_main->setValue(0);
+	lbl_progress_status->setText(QString(""));
+	brightest_centered_state.offsets = brightest_centered_offsets;
+	video_display->container.AddProcessingState(brightest_centered_state);
+}
 
 void SirveApp::HandleOsmTracksToggle()
 {

@@ -52,7 +52,8 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     int num_video_frames = original.frames_16bit.size();
     int nRows = original.y_pixels, nRows2 = nRows/2;
     int nCols = original.x_pixels;
-
+    int n_rows_new = pow(2, ceil(log(nRows2)/log(2))), n_rows_new2 = round(n_rows_new/2);  
+    int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
     arma::mat frame0(nRows, nCols);
@@ -61,14 +62,11 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     arma::mat odd_frame(nRows2,nCols);
     arma::mat even_frame(nRows2,nCols);
     arma::mat even_frame0(nRows2,nCols);
-    arma::cx_mat cc_mat(nRows2,nCols);
+    arma::cx_mat cc_mat(n_rows_new,n_cols_new);
     arma::uword i_max;
     arma::uvec peak_index;
     int yOffset, xOffset;
 
-
-    int n_rows_new = pow(2, ceil(log(nRows2)/log(2))), n_rows_new2 = round(n_rows_new/2);  
-    int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
     for (int framei = 0; framei < num_video_frames; framei++){
         UpdateProgressBar(framei);
         QCoreApplication::processEvents();
@@ -94,34 +92,6 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     return frames_out;
 }
 
- arma::cx_mat ImageProcessing::xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols, int framei)
-{
-    int N = 12;
-    double ds = .25;
-    int kk = 0;
-    arma::umat test1 = (arma::abs(inFrame1) > ((N-kk*ds)*arma::stddev(inFrame1.as_col()))).as_col();
-    arma::umat test2 = (arma::abs(inFrame2) > ((N-kk*ds)*arma::stddev(inFrame2.as_col()))).as_col();
-    int test1a = arma::sum(test1.as_col());
-    int test2a = arma::sum(test2.as_col());
-    while(kk <46 && ((test1a >= 0 & test1a < 10) && (test2a >= 0 & test2a < 10)) ){
-        kk +=1;
-        test1 = (arma::abs(inFrame1) > ((N-kk*ds)*arma::stddev(inFrame1.as_col())));
-        test2 = (arma::abs(inFrame2) > ((N-kk*ds)*arma::stddev(inFrame2.as_col())));
-        test1a = arma::sum(test1.as_col());
-        test2a = arma::sum(test2.as_col());
-    }
-    inFrame1.elem(arma::find(test1==0)).zeros();
-    inFrame2.elem(arma::find(test2==0)).zeros();
-    arma::mat inFrame1_pad(nRows,nCols);
-    arma::mat inFrame2_pad(nRows,nCols);
-    inFrame1_pad.zeros();
-    inFrame2_pad.zeros();
-    inFrame1_pad(0,0,arma::size(inFrame1)) = inFrame1;
-    inFrame2_pad(0,0,arma::size(inFrame2)) = inFrame2;;
-    arma::cx_mat FG = arma::fft2(inFrame1_pad) % arma::fft2(arma::flipud(arma::fliplr(inFrame2_pad)));
-    arma::cx_mat cc_mat = arma::ifft2(FG);
-	return cc_mat;
-}
 
 std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnOSM(VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<std::vector<int>> & OSM_centered_offsets)
 {
@@ -234,6 +204,108 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnManual(VideoDetails 
         }
     }
     return frames_out;
+}
+
+
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets)
+{
+    std::vector<std::vector<uint16_t>> frames_out;
+
+    int num_video_frames = original.frames_16bit.size();
+    int nRows = original.y_pixels, nRows2 = nRows/2;
+    int nCols = original.x_pixels, nCols2 = nCols/2;
+    int yOffset0, xOffset0, yOffset, xOffset, i_max, test1a, test2a;
+    int n_rows_new = pow(2, ceil(log(nRows)/log(2))), n_rows_new2 = round(n_rows_new/2);  
+    int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
+    double ds = .5;
+    int N = 12;
+    arma::uvec peak_index; 
+    arma::mat output(nRows, nCols);
+    arma::mat frame1(nRows, nCols);
+    arma::mat frame2(nRows, nCols);
+    arma::mat frame1_00(nRows, nCols);
+    arma::mat frame2_00(nRows, nCols);
+    arma::cx_mat cc_mat(n_rows_new,n_cols_new);
+    frame1 = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[0]),nCols,nRows).t(); 
+    frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame1.t().as_col()));
+    for (int framei = 1; framei < num_video_frames; framei++){
+        UpdateProgressBar(framei);
+        QCoreApplication::processEvents();
+        frame1 = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei-1]),nCols,nRows).t();  
+        frame1_00 = frame1;
+        frame1 = frame1 - arma::mean(frame1.as_col());
+        i_max = frame1.index_max();
+		peak_index = arma::ind2sub(arma::size(frame1), i_max);
+        yOffset0 = nRows2 - peak_index(0);
+        xOffset0 = nCols2 - peak_index(1);
+        double d = sqrt(pow(yOffset0,2) + pow(xOffset0,2));
+        if (d >1.5){
+            frame1 = arma::shift(arma::shift(frame1,yOffset0,0),xOffset0,1);
+        }
+        frame2 = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
+        frame2_00 = frame2;
+        frame2 = frame2 - arma::mean(frame2.as_col());
+        int ii = 0;
+        arma::umat test1 = (arma::abs(frame1) > (N*arma::stddev(frame1.as_col())));
+        arma::umat test2 = (arma::abs(frame2) > (N*arma::stddev(frame2.as_col())));
+        int test1a = arma::sum(test1.as_col());
+        int test2a = arma::sum(test2.as_col());
+        while (ii<20 && (test1a < 10 && test2a < 10)) {
+            test1 = arma::abs(frame1) > (N - (ds*ii))*arma::stddev(frame1.as_col());
+            test2 = arma::abs(frame2) > (N - (ds*ii))*arma::stddev(frame2.as_col());
+            test1a = arma::sum(test1.as_col());
+            test2a = arma::sum(test2.as_col());
+            ii += 1;
+        }
+        frame1.elem(arma::find(test1==0)).zeros();
+        frame2.elem(arma::find(test2==0)).zeros();
+        cc_mat = ImageProcessing::xcorr2(frame1,frame2,n_rows_new,n_cols_new, framei);
+        i_max = cc_mat.index_max();
+		peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
+        yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
+        xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
+        output = frame2_00;
+        if (framei == 0){
+            output = frame1_00;
+        }
+        d = sqrt(pow(xOffset,2) + pow(yOffset,2));
+        if(d < 35 && d >1.5){
+            output = arma::shift(arma::shift(frame2_00,yOffset,0),xOffset,1);
+        }
+        brightest_centered_offsets.push_back({framei,-xOffset,-yOffset});
+        output = output - arma::min(output.as_col());
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+    }
+    return frames_out;     
+}
+
+ arma::cx_mat ImageProcessing::xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols, int framei)
+{
+    int N = 12;
+    double ds = .25;
+    int kk = 0;
+    arma::umat test1 = (arma::abs(inFrame1) > (N*arma::stddev(inFrame1.as_col())));
+    arma::umat test2 = (arma::abs(inFrame2) > (N*arma::stddev(inFrame2.as_col())));
+    int test1a = arma::sum(test1.as_col());
+    int test2a = arma::sum(test2.as_col());
+    while(kk <46 && (test1a < 10 && test2a < 10) ){
+        kk +=1;
+        test1 = (arma::abs(inFrame1) > ((N-kk*ds)*arma::stddev(inFrame1.as_col())));
+        test2 = (arma::abs(inFrame2) > ((N-kk*ds)*arma::stddev(inFrame2.as_col())));
+        test1a = arma::sum(test1.as_col());
+        test2a = arma::sum(test2.as_col());
+    }
+    inFrame1.elem(arma::find(test1==0)).zeros();
+    inFrame2.elem(arma::find(test2==0)).zeros();
+    arma::mat inFrame1_pad(nRows,nCols);
+    arma::mat inFrame2_pad(nRows,nCols);
+    inFrame1_pad.zeros();
+    inFrame2_pad.zeros();
+    inFrame1_pad(0,0,arma::size(inFrame1)) = inFrame1;
+    inFrame2_pad(0,0,arma::size(inFrame2)) = inFrame2;;
+    arma::cx_mat FG = arma::fft2(inFrame1_pad) % arma::fft2(arma::flipud(arma::fliplr(inFrame2_pad)));
+    arma::cx_mat cc_mat = arma::ifft2(FG);
+	return cc_mat;
 }
 
 void ImageProcessing::UpdateProgressBar(unsigned int val) {

@@ -122,8 +122,8 @@ public:
 		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
-
-        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_osm, *btn_center_on_manual;
+        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_osm, *btn_center_on_manual,
+        * btn_center_on_brightest;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_image_processing, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
@@ -192,6 +192,7 @@ public:
         void ExecuteDeinterlace();
         void ExecuteCenterOnOSM();
         void ExecuteCenterOnManual();
+        void ExecuteCenterOnBrightest();
         void ExecuteNonUniformityCorrectionSelectionOption();
 
         void StartStopVideoRecording();
@@ -292,6 +293,7 @@ private:
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
     void CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets, int processing_state_idx);
     void CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets, int processing_state_idx);
+    void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
     void EnableEngineeringPlotOptions();
