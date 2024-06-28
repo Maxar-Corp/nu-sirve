@@ -545,11 +545,11 @@ void EngineeringPlots::HandlePlayerButtonClick()
 {
     QPushButton *button = qobject_cast<QPushButton*>(sender());
     if (button) {
-        QString player_button_tooltip = button->toolTip();
+        QString player_button_id = button->property("id").toString();
 
-        if (player_button_tooltip == "Pause Video" ||
-            player_button_tooltip == "Previous Frame" ||
-            player_button_tooltip == "Next Frame")
+        if (player_button_id == "pause" ||
+            player_button_id == "previous" ||
+            player_button_id == "next")
         {
             emit changeMotionStatus(false);
         }

@@ -629,6 +629,7 @@ void SirveApp::SetupVideoFrame(){
     btn_play = new QPushButton();
 	btn_play->resize(button_video_width, button_video_height);
 	btn_play->setIcon(play_icon);
+    btn_play->setProperty("id", "play");
 	btn_play->setToolTip("Play Video");
 
 	QPixmap pause_image("icons/pause.png");
@@ -636,6 +637,7 @@ void SirveApp::SetupVideoFrame(){
     btn_pause = new QPushButton();
 	btn_pause->resize(button_video_width, button_video_height);
 	btn_pause->setIcon(pause_icon);
+    btn_pause->setProperty("id", "pause");
 	btn_pause->setToolTip("Pause Video");
 
 	QPixmap reverse_image("icons/reverse.png");
@@ -643,6 +645,7 @@ void SirveApp::SetupVideoFrame(){
     btn_reverse = new QPushButton();
 	btn_reverse->resize(button_video_width, button_video_height);
 	btn_reverse->setIcon(reverse_icon);
+    btn_reverse->setProperty("id", "reverse");
 	btn_reverse->setToolTip("Reverse Video");
 
 	QPixmap speed_up_image("icons/chevron-double-up.png");
@@ -657,6 +660,7 @@ void SirveApp::SetupVideoFrame(){
     btn_next_frame = new QPushButton();
 	btn_next_frame->resize(button_video_width, button_video_height);
 	btn_next_frame->setIcon(next_frame_icon);
+    btn_next_frame->setProperty("id", "next");
 	btn_next_frame->setToolTip("Next Frame");
 
 	QPixmap slow_down_image("icons/chevron-double-down.png");
@@ -664,6 +668,7 @@ void SirveApp::SetupVideoFrame(){
 	btn_slow_back = new QPushButton();
 	btn_slow_back->resize(button_video_width, button_video_height);
 	btn_slow_back->setIcon(slow_down_icon);
+
 	btn_slow_back->setToolTip("Decrease FPS");
 
 	QPixmap prev_frame_image("icons/skip-previous.png");
@@ -671,6 +676,7 @@ void SirveApp::SetupVideoFrame(){
     btn_prev_frame = new QPushButton();
 	btn_prev_frame->resize(button_video_width, button_video_height);
 	btn_prev_frame->setIcon(prev_frame_icon);
+    btn_prev_frame->setProperty("id", "previous");
 	btn_prev_frame->setToolTip("Previous Frame");
 
 	QPixmap record_frame("icons/record.png");
