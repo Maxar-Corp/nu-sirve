@@ -269,9 +269,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
             output = frame1_00;
         }
         d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        if(d < 35 && d >1.5){
+        // if(d < 35 && d >1.5){
             output = arma::shift(arma::shift(frame2_00,yOffset,0),xOffset,1);
-        }
+        // }
         brightest_centered_offsets.push_back({framei,-xOffset,-yOffset});
         output = output - arma::min(output.as_col());
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
