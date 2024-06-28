@@ -8,6 +8,7 @@ opencv*/
 backedup/*
 tests/
 build/*
+SirveApp/build/*
 
 ## Ignore Qt Creator Files
 *.idx
