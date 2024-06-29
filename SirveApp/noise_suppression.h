@@ -11,7 +11,7 @@
 #include "video_details.h"
 #include <QWidget>
 #include <QtWidgets>
-#include <QtCore>
+
 class AdaptiveNoiseSuppression : public QObject
 {
 	Q_OBJECT
@@ -19,6 +19,7 @@ private:
 	arma::mat kernel;
 	std::ofstream outfile;
 	void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames, int i);	
+	static arma::cx_mat conv2fft(arma::mat X, arma::mat k, int nRows, int nCols);	
 
 signals:
      void SignalProgress(unsigned int frameval);

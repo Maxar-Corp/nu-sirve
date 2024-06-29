@@ -80,7 +80,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
         i_max_odd = odd_frame.index_max(); 
         peak_index_even = arma::ind2sub(arma::size(even_frame),i_max_even); 
         peak_index_odd = arma::ind2sub(arma::size(even_frame),i_max_odd);
-        if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>2.5){
+        if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>=4){
             even_frame0 = frame0.rows(even_rows);
             cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new, framei);
             i_max = cc_mat.index_max();
@@ -342,7 +342,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightestFast(VideoD
     inFrame1_pad.zeros();
     inFrame2_pad.zeros();
     inFrame1_pad(0,0,arma::size(inFrame1)) = inFrame1;
-    inFrame2_pad(0,0,arma::size(inFrame2)) = inFrame2;;
+    inFrame2_pad(0,0,arma::size(inFrame2)) = inFrame2;
     arma::cx_mat FG = arma::fft2(inFrame1_pad) % arma::fft2(arma::flipud(arma::fliplr(inFrame2_pad)));
     arma::cx_mat cc_mat = arma::ifft2(FG);
 	return cc_mat;
