@@ -2575,10 +2575,12 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
 	FixedNoiseSuppression FNS;
 	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Fixed Noise Suppression..."));
 	connect(&FNS, &FixedNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	noise_suppresion_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
 	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	noise_suppresion_state.method = ProcessingMethod::fixed_noise_suppression;
 	noise_suppresion_state.FNS_file_path = file_path;
@@ -2619,11 +2621,13 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	ImageProcessing DI;
-	progress_bar_main->setRange(0,number_video_frames-1);
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Deinterlacing..."));
 	connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details);
 	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
@@ -2664,6 +2668,7 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
 	connect(&COSM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	OSM_centered_state.details.frames_16bit = COSM.CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets);
 	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	OSM_centered_state.offsets = OSM_centered_offsets;
     video_display->container.AddProcessingState(OSM_centered_state);
@@ -2696,12 +2701,14 @@ void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manu
 		std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
 		manual_centered_state.track_id = track_id;
 		manual_centered_state.method = ProcessingMethod::center_on_manual;
-		progress_bar_main->setRange(0,number_video_frames);
+		progress_bar_main->setRange(0,number_video_frames - 1);
+		progress_bar_main->setTextVisible(true);
 		lbl_progress_status->setText(QString("Center on Manual Tracks..."));
 		ImageProcessing COM;
 		connect(&COM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 		manual_centered_state.details.frames_16bit = COM.CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets);
 		progress_bar_main->setValue(0);
+		progress_bar_main->setTextVisible(false);
 		lbl_progress_status->setText(QString(""));
 		manual_centered_state.offsets = manual_centered_offsets;
 		video_display->container.AddProcessingState(manual_centered_state);
@@ -2724,12 +2731,14 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
 	int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
 	brightest_centered_state.method = ProcessingMethod::center_on_brightest;
-	progress_bar_main->setRange(0,number_video_frames-1);
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Center on Brightest Object..."));
 	ImageProcessing COB;
 	connect(&COB, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightest(original.details, brightest_centered_offsets);
+	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightestFast(original.details, brightest_centered_offsets);
 	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	brightest_centered_state.offsets = brightest_centered_offsets;
 	video_display->container.AddProcessingState(brightest_centered_state);
@@ -2811,9 +2820,11 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	AdaptiveNoiseSuppression ANS;
 	lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
 	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
 	connect(&ANS, &AdaptiveNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
 	noise_suppresion_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
 	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)

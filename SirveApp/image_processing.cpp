@@ -63,8 +63,8 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
     arma::mat even_frame(nRows2,nCols);
     arma::mat even_frame0(nRows2,nCols);
     arma::cx_mat cc_mat(n_rows_new,n_cols_new);
-    arma::uword i_max;
-    arma::uvec peak_index;
+    arma::uword i_max, i_max_even, i_max_odd;
+    arma::uvec peak_index,peak_index_even,peak_index_odd;
     int yOffset, xOffset;
 
     for (int framei = 0; framei < num_video_frames; framei++){
@@ -72,21 +72,27 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
         QCoreApplication::processEvents();
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
         frame0 = frame;
+        output = frame0;
         frame = frame - arma::mean(frame.as_col());
         odd_frame = frame.rows(odd_rows);
-	    even_frame = frame.rows(even_rows);    
-        even_frame0 = frame0.rows(even_rows);
-        cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new, framei);
-        i_max = cc_mat.index_max();
-		peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
-        yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
-        xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
-        output = frame0;
-        double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        if(d < 35 && d >1.5){
-            output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
+	    even_frame = frame.rows(even_rows);
+        i_max_even = even_frame.index_max();  
+        i_max_odd = odd_frame.index_max(); 
+        peak_index_even = arma::ind2sub(arma::size(even_frame),i_max_even); 
+        peak_index_odd = arma::ind2sub(arma::size(even_frame),i_max_odd);
+        if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>2.5){
+            even_frame0 = frame0.rows(even_rows);
+            cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new, framei);
+            i_max = cc_mat.index_max();
+            peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
+            yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
+            xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
+            double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
+            if(d < 35 && d >1.5){
+                output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
+            }
+            output = output - arma::min(output.as_col());
         }
-        output = output - arma::min(output.as_col());
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
     }
     return frames_out;
@@ -269,11 +275,45 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
             output = frame1_00;
         }
         d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        // if(d < 35 && d >1.5){
-            output = arma::shift(arma::shift(frame2_00,yOffset,0),xOffset,1);
-        // }
+        output = arma::shift(arma::shift(frame2_00,yOffset,0),xOffset,1);
         brightest_centered_offsets.push_back({framei,-xOffset,-yOffset});
         output = output - arma::min(output.as_col());
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+    }
+    return frames_out;     
+}
+
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightestFast(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets)
+{
+    std::vector<std::vector<uint16_t>> frames_out;
+
+    int num_video_frames = original.frames_16bit.size();
+    int nRows = original.y_pixels, nRows2 = nRows/2;
+    int nCols = original.x_pixels, nCols2 = nCols/2;
+    int yOffset0, xOffset0, i_max;
+    int n_rows_new = pow(2, ceil(log(nRows)/log(2))), n_rows_new2 = round(n_rows_new/2);  
+    int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
+    double ds = .5;
+    int N = 12;
+    arma::uvec peak_index; 
+    arma::mat output(nRows, nCols);
+    arma::mat frame1(nRows, nCols);
+    arma::cx_mat cc_mat(n_rows_new,n_cols_new);
+    for (int framei = 0; framei < num_video_frames; framei++){
+        UpdateProgressBar(framei);
+        QCoreApplication::processEvents();
+        frame1 = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+        frame1 = frame1 - arma::mean(frame1.as_col());
+        i_max = frame1.index_max();
+		peak_index = arma::ind2sub(arma::size(frame1), i_max);
+        yOffset0 = nRows2 - peak_index(0);
+        xOffset0 = nCols2 - peak_index(1);
+        double d = sqrt(pow(yOffset0,2) + pow(xOffset0,2));
+        if (d >1.5){
+            frame1 = arma::shift(arma::shift(frame1,yOffset0,0),xOffset0,1);
+        } 
+        brightest_centered_offsets.push_back({framei,-xOffset0,-yOffset0});
+        output = frame1 - arma::min(frame1.as_col());
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
     }
     return frames_out;     
