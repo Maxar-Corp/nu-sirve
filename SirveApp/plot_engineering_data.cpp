@@ -1,5 +1,7 @@
 #include "plot_engineering_data.h"
 
+#include <QPushButton>
+
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
 {
@@ -26,6 +28,8 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
 
 	index_sub_plot_xmin = 0;
 	index_sub_plot_xmax = num_frames - 1;
+
+    connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -426,6 +430,7 @@ double EngineeringPlots::get_max_x_axis_value()
 void EngineeringPlots::CreateCurrentMarker()
 {
 	current_frame_marker = new QLineSeries();
+    current_frame_marker->setName("Red Line");
 
 	QPen pen;
 	pen.setColor(colors.get_color(2));
@@ -464,17 +469,18 @@ void EngineeringPlots::PlotCurrentStep(int counter)
 
 		if (yaxis_is_log)
 		{
-			min_y = axis_ylog->min() * 1.01;
-			max_y = axis_ylog->max() * 0.99;
+            min_y = axis_ylog->min();
+            max_y = axis_ylog->max();
 		}
 		else
 		{
-			min_y = axis_y->min() * 1.01;
-			max_y = axis_y->max() * 0.99;
+            min_y = axis_y->min();
+            max_y = axis_y->max();
 		}
 
-		current_frame_marker->replace(0, current_x, min_y);
-		current_frame_marker->replace(1, current_x, max_y);
+        current_frame_marker->clear();
+        current_frame_marker->append(current_x, 0);
+        current_frame_marker->append(current_x, max_y);
 	}
 }
 
@@ -535,8 +541,26 @@ void EngineeringPlots::Recolor_manual_track(int track_id, QColor new_color)
 	manual_track_colors[track_id] = new_color;
 }
 
-// Generic plotting functions
+void EngineeringPlots::HandlePlayerButtonClick()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (button) {
+        QString player_button_id = button->property("id").toString();
 
+        if (player_button_id == "pause" ||
+            player_button_id == "previous" ||
+            player_button_id == "next")
+        {
+            emit changeMotionStatus(false);
+        }
+        else
+        {
+            emit changeMotionStatus(true);
+        }
+    }
+}
+
+// Generic plotting functions
 NewChartView::NewChartView(QChart* chart)
 	:QChartView(chart)
 {
@@ -547,18 +571,38 @@ NewChartView::NewChartView(QChart* chart)
 	setRubberBand(RectangleRubberBand);
 }
 
+void NewChartView::UpdateChartFramelineStatus(bool status)
+{
+    is_frameline_moving = status;
+}
+
+void NewChartView::clearSeriesByName(const QString &seriesName) {
+    for (QAbstractSeries *abstractSeries : chart()->series()) {
+        if (QLineSeries *lineSeries = qobject_cast<QLineSeries *>(abstractSeries)) {
+            if (lineSeries->name() == seriesName) {
+                lineSeries->clear();
+                return;
+            }
+        }
+    }
+}
+
 void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
 	if (e->button() == Qt::RightButton)
-	{
+    {
 		newchart->zoomReset();
 		return;
-	}
-	
-	QChartView::mouseReleaseEvent(e);
+    } else
+    {
+        if (this->is_frameline_moving) {
+            clearSeriesByName("Red Line");
+            newchart->update();
+        }
+    }
+
+    QChartView::mouseReleaseEvent(e);
 }
-
-
 
 void NewChartView::apply_nice_numbers()
 {

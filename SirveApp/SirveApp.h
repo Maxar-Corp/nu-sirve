@@ -228,8 +228,6 @@ public:
         void SirveApp::HandleProcessingStatesCleared();
         void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
 
-     
-
 private:
 	ColorMap video_colors;
 	ColorMapDisplay *color_map_display;

@@ -626,23 +626,26 @@ void SirveApp::SetupVideoFrame(){
 	//Add icons to video playback buttons
 	QPixmap play_image("icons/play.png");
 	QIcon play_icon(play_image);
-	btn_play = new QPushButton();
+    btn_play = new QPushButton();
 	btn_play->resize(button_video_width, button_video_height);
 	btn_play->setIcon(play_icon);
+    btn_play->setProperty("id", "play");
 	btn_play->setToolTip("Play Video");
 
 	QPixmap pause_image("icons/pause.png");
 	QIcon pause_icon(pause_image);
-	btn_pause = new QPushButton();
+    btn_pause = new QPushButton();
 	btn_pause->resize(button_video_width, button_video_height);
 	btn_pause->setIcon(pause_icon);
+    btn_pause->setProperty("id", "pause");
 	btn_pause->setToolTip("Pause Video");
 
 	QPixmap reverse_image("icons/reverse.png");
 	QIcon reverse_icon(reverse_image);
-	btn_reverse = new QPushButton();
+    btn_reverse = new QPushButton();
 	btn_reverse->resize(button_video_width, button_video_height);
 	btn_reverse->setIcon(reverse_icon);
+    btn_reverse->setProperty("id", "reverse");
 	btn_reverse->setToolTip("Reverse Video");
 
 	QPixmap speed_up_image("icons/chevron-double-up.png");
@@ -654,9 +657,10 @@ void SirveApp::SetupVideoFrame(){
 
 	QPixmap next_frame_image("icons/skip-next.png");
 	QIcon next_frame_icon(next_frame_image);
-	btn_next_frame = new QPushButton();
+    btn_next_frame = new QPushButton();
 	btn_next_frame->resize(button_video_width, button_video_height);
 	btn_next_frame->setIcon(next_frame_icon);
+    btn_next_frame->setProperty("id", "next");
 	btn_next_frame->setToolTip("Next Frame");
 
 	QPixmap slow_down_image("icons/chevron-double-down.png");
@@ -664,13 +668,15 @@ void SirveApp::SetupVideoFrame(){
 	btn_slow_back = new QPushButton();
 	btn_slow_back->resize(button_video_width, button_video_height);
 	btn_slow_back->setIcon(slow_down_icon);
+
 	btn_slow_back->setToolTip("Decrease FPS");
 
 	QPixmap prev_frame_image("icons/skip-previous.png");
 	QIcon prev_frame_icon(prev_frame_image);
-	btn_prev_frame = new QPushButton();
+    btn_prev_frame = new QPushButton();
 	btn_prev_frame->resize(button_video_width, button_video_height);
 	btn_prev_frame->setIcon(prev_frame_icon);
+    btn_prev_frame->setProperty("id", "previous");
 	btn_prev_frame->setToolTip("Previous Frame");
 
 	QPixmap record_frame("icons/record.png");
@@ -900,8 +906,8 @@ void SirveApp::setupConnections() {
 	// Link playback to play controls
 	connect(btn_play, &QPushButton::clicked, playback_controller, &FramePlayer::StartTimer);
 	connect(btn_pause, &QPushButton::clicked, playback_controller, &FramePlayer::StopTimer);
-    connect(btn_reverse, &QPushButton::clicked, playback_controller, &FramePlayer::ReverseTimer);
 
+    connect(btn_reverse, &QPushButton::clicked, playback_controller, &FramePlayer::ReverseTimer);
 
 	connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &FramePlayer::IncreaseTimerInterval);
 	connect(btn_slow_back, &QPushButton::clicked, playback_controller, &FramePlayer::DecreaseTimerInterval);
@@ -1357,6 +1363,12 @@ void SirveApp::LoadOsmData()
 	eng_data = new EngineeringData(osm_frames);
 	track_info = new TrackInformation(osm_frames);
 	data_plots = new EngineeringPlots(osm_frames);
+
+    connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_play, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_reverse, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_next_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+    connect(btn_prev_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
 
     size_t num_tracks = track_info->get_track_count();
 	if (num_tracks == 0)

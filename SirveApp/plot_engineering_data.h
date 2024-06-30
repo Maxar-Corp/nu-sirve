@@ -30,10 +30,17 @@ class NewChartView : public QChartView {
 	Q_OBJECT
 	public:
 		NewChartView(QChart *chart);
+        void clearSeriesByName(const QString &seriesName);
 		void mouseReleaseEvent(QMouseEvent *e);
 		void apply_nice_numbers();
 
 		QChart *newchart;
+
+    private:
+        bool is_frameline_moving;
+
+    public slots:
+        void UpdateChartFramelineStatus(bool status);
 };
 
 
@@ -103,13 +110,20 @@ class EngineeringPlots : public QtPlotting
         void set_xaxis_units(XAxisPlotVariables unit_choice);
 		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
+    signals:
+        void changeMotionStatus(bool status);
+
 	public slots:
 
         void ToggleSubplot();
         void PlotCurrentStep(int counter);
         void SetPlotTitle(QString input_title);
 
-	private:
+        //void ChangeMotionStatus(bool status);
+        void HandlePlayerButtonClick();
+
+    private:
+
 		int number_of_tracks;
 		std::vector<PlottingTrackFrame> track_frames;
 		std::set<int> manual_track_ids;
@@ -118,6 +132,8 @@ class EngineeringPlots : public QtPlotting
 
 		unsigned int num_frames;
         XAxisPlotVariables x_axis_units;
+
+        bool is_moving;
 
         void EstablishPlotLimits();
         void CreateCurrentMarker();
