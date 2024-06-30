@@ -73,7 +73,7 @@ SirveApp::~SirveApp() {
 
 void SirveApp::SetupUi() {
 
-	QHBoxLayout* main_layout = new QHBoxLayout();
+	QGridLayout* main_layout = new QGridLayout();
 
 	// Define main widgets in UI
 	tab_menu = new QTabWidget();
@@ -91,15 +91,15 @@ void SirveApp::SetupUi() {
     tab_menu->addTab(SetupFileImportTab(), "Import");
 	tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
-    tab_menu->addTab(SetupWorkspaceTab(), "Workspace");
+    tab_menu->addTab(SetupTracksTab(), "Tracks");
 
 	QSizePolicy fixed_width;
 	fixed_width.setHorizontalPolicy(QSizePolicy::Minimum);
 	fixed_width.setVerticalPolicy(QSizePolicy::Preferred);
 	tab_menu->setSizePolicy(fixed_width);
 
-  SetupVideoFrame();
-  SetupPlotFrame();
+	SetupVideoFrame();
+	SetupPlotFrame();
 
 	// set size policy for video controls
 	QSizePolicy fixed_width_video;
@@ -110,9 +110,49 @@ void SirveApp::SetupUi() {
 	// ------------------------------------------------------------------------
 	// Adds all elements to main UI
 
-	main_layout->addWidget(tab_menu);
-	main_layout->addWidget(frame_video_player);
-	main_layout->addWidget(tab_plots);
+	main_layout->addWidget(tab_menu,0,0,1,1);
+	main_layout->addWidget(frame_video_player,0,1,1,1);
+	main_layout->addWidget(tab_plots,0,2,1,1);
+
+	QGroupBox *grpbox_status_area = new QGroupBox();
+	QGridLayout *grid_status_area = new QGridLayout();
+	grpbox_status_area->setLayout(grid_status_area);
+
+	progress_bar_main = new QProgressBar();
+	lbl_progress_status = new QLabel("");
+	cmb_processing_states = new QComboBox();
+	btn_undo_step = new QPushButton("Undo One Step");
+	grid_status_area->addWidget(cmb_processing_states,0,0,1,6);
+	grid_status_area->addWidget(btn_undo_step,0,7,1,1);
+	grid_status_area->addWidget(lbl_progress_status,1,0,1,7);
+	
+	grid_status_area->addWidget(progress_bar_main,4,0,1,7);
+
+	main_layout->addWidget(grpbox_status_area,1,0,1,1);
+
+	QGroupBox *grpbox_workspace_area = new QGroupBox();
+	QGridLayout *grid_workspace_area = new QGridLayout();
+	grpbox_workspace_area->setLayout(grid_workspace_area);
+
+	lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
+    lbl_current_workspace_folder->setWordWrap(true);
+
+	cmb_workspace_name = new QComboBox();
+    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
+
+    btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
+
+	btn_workspace_load = new QPushButton("Load Workspace");
+	
+	btn_workspace_save = new QPushButton("Save Workspace");
+
+    grid_workspace_area->addWidget(lbl_current_workspace_folder, 0, 0, 1, 1);
+    grid_workspace_area->addWidget(cmb_workspace_name, 1, 0, 1, 1);
+    grid_workspace_area->addWidget(btn_change_workspace_directory, 1, 1, 1, 1);
+    grid_workspace_area->addWidget(btn_workspace_load, 2, 0, 1, 1);
+    grid_workspace_area->addWidget(btn_workspace_save, 2, 1, 1, 1);
+
+	main_layout->addWidget(grpbox_workspace_area,1,1,2,2);
 
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
@@ -168,9 +208,6 @@ QWidget* SirveApp::SetupFileImportTab() {
 	btn_copy_directory = new QPushButton("Copy File Path");
 
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
-
-	//btn_load_osm->setMinimumWidth(30);
-	//btn_copy_directory->setMinimumWidth(30);
 
 	QGridLayout* grid_import_file = new QGridLayout();
 	grid_import_file->addWidget(lbl_file_name, 0, 0, 1, 2);
@@ -266,7 +303,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	slider_lift->setTickPosition(QSlider::TicksAbove);
 	slider_lift->setTickInterval(100);
 	slider_lift->setEnabled(false);
-	slider_lift->setEnabled(false);
 
 	slider_gain = new QSlider();
 	slider_gain->setOrientation(Qt::Horizontal);
@@ -309,18 +345,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 4, 1, 1);
 
 	slider_gain->setEnabled(false);
-	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain");
-	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset Set Points");
-
-	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 6);
-	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 6);
-	lbl_min_count_val = new QLabel("Low");
-	lbl_max_count_val = new QLabel("High");
 	
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
 	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
@@ -381,7 +405,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	QStringList colors = ColorScheme::get_track_colors();
 	// ------------------------------------------------------------------------
-	grpbox_bad_pixels_correction = new QGroupBox("Bad Pixels");
+	grpbox_bad_pixels_correction = new QGroupBox();
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
 
@@ -443,13 +467,8 @@ QWidget* SirveApp::SetupProcessingTab() {
     connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 6, 2, 1, 1);
 
-	vlayout_tab_processing->addWidget(grpbox_bad_pixels_correction);
 
 	// ------------------------------------------------------------------------
-	grpbox_image_processing = new QGroupBox("Image Processing");
-	grpbox_image_processing->setStyleSheet(bold_large_styleSheet);
-
-	QVBoxLayout* vlayout_image_processing = new QVBoxLayout(grpbox_image_processing);
 
 	grpbox_FNS_processing = new QGroupBox();
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
@@ -475,7 +494,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
 	grid_FNS_processing->addWidget(btn_FNS,2,3,1,1);
 
-	vlayout_image_processing->addWidget(grpbox_FNS_processing);
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox();
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
@@ -508,9 +526,13 @@ QWidget* SirveApp::SetupProcessingTab() {
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
 	grid_ANS_processing->addWidget(btn_ANS, 3, 2, 1, 2);
 
-	vlayout_image_processing->addWidget(grpbox_ANS_processing);
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
+	QSizePolicy grpbox_size_policy;
+	grpbox_size_policy.setHorizontalPolicy(QSizePolicy::Preferred);
+	grpbox_size_policy.setVerticalPolicy(QSizePolicy::Fixed);
+	grpbox_Image_Shift->setSizePolicy(grpbox_size_policy);
+	grpbox_Image_Shift->setFixedHeight(150);
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	grid_Image_Shift->addWidget(btn_deinterlace,0,0,1,1);
@@ -519,28 +541,24 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_Image_Shift->addWidget(btn_center_on_osm,0,1,1,1);
 	cmb_OSM_track_IDs = new QComboBox();
 	cmb_OSM_track_IDs->setCurrentIndex(0);
-	grid_Image_Shift->addWidget(lbl_OSM_track_ID,0,2,1,1);
-	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,0,3,1,1);
+	grid_Image_Shift->addWidget(lbl_OSM_track_ID,1,1,1,1);
+	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,2,1,1,1);
 	btn_center_on_manual = new QPushButton("Center on\n Manual");
 	QLabel* lbl_Manual_track_ID = new QLabel("Manual\n Track ID:");
 	cmb_manual_track_IDs = new QComboBox();
 	cmb_manual_track_IDs->setCurrentIndex(0);
-	grid_Image_Shift->addWidget(lbl_Manual_track_ID,0,4,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_manual,0,5,1,1);
-	grid_Image_Shift->addWidget(cmb_manual_track_IDs,0,6,1,1);
-	
-	vlayout_image_processing->addWidget(grpbox_Image_Shift);
-
-	vlayout_tab_processing->addWidget(grpbox_image_processing);
-	// // ------------------------------------------------------------------------
-	QGridLayout* grid_tab_processing_extra = new QGridLayout();
-	cmb_processing_states = new QComboBox();
-	btn_undo_step = new QPushButton("Undo One Step");
-	grid_tab_processing_extra->addWidget(cmb_processing_states, 0, 0, 1, 4);
-	grid_tab_processing_extra->addWidget(btn_undo_step, 1, 3, 1, 1);
-
-	vlayout_tab_processing->addLayout(grid_tab_processing_extra);
-
+	grid_Image_Shift->addWidget(btn_center_on_manual,0,2,1,1);
+	grid_Image_Shift->addWidget(lbl_Manual_track_ID,1,2,1,1);
+	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,2,1,1);
+	btn_center_on_brightest = new QPushButton("Center on\n Brightest");
+	grid_Image_Shift->addWidget(btn_center_on_brightest,0,3,1,1);
+	QToolBox *toolbox_image_processing = new QToolBox();
+	toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
+	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
+	toolbox_image_processing->addItem(grpbox_FNS_processing,QString("Fixed Noise Suppression"));
+	toolbox_image_processing->addItem(grpbox_ANS_processing,QString("Adaptive Noise Suppression"));
+	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
+	vlayout_tab_processing->addWidget(toolbox_image_processing);
 	// // ------------------------------------------------------------------------
 
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
@@ -548,23 +566,10 @@ QWidget* SirveApp::SetupProcessingTab() {
 	return widget_tab_processing;
 }
 
-QWidget* SirveApp::SetupWorkspaceTab(){
+QWidget* SirveApp::SetupTracksTab(){
 
-	QWidget* widget_tab_workspace = new QWidget(tab_menu);
-	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_workspace);
-
-    lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
-    lbl_current_workspace_folder->setWordWrap(true);
-
-	cmb_workspace_name = new QComboBox();
-    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
-
-    btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
-
-	btn_workspace_load = new QPushButton("Load Workspace");
-	
-	btn_workspace_save = new QPushButton("Save Workspace");
-
+	QWidget* widget_tab_tracks = new QWidget(tab_menu);
+	QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_tracks);
 	QLabel *lbl_track = new QLabel("Manual Track Management");
 	lbl_create_track_message = new QLabel("");
 	btn_create_track = new QPushButton("Create Track");
@@ -573,29 +578,23 @@ QWidget* SirveApp::SetupWorkspaceTab(){
 	btn_import_tracks = new QPushButton("Import Tracks");
 
 	QGridLayout* grid_workspace = new QGridLayout();
-    grid_workspace->addWidget(lbl_current_workspace_folder, 0, 0, 1, 1);
-    grid_workspace->addWidget(cmb_workspace_name, 1, 0, 1, 1);
-    grid_workspace->addWidget(btn_change_workspace_directory, 1, 1, 1, 1);
-    grid_workspace->addWidget(btn_workspace_load, 2, 0, 1, 1);
-    grid_workspace->addWidget(btn_workspace_save, 2, 1, 1, 1);
-    grid_workspace->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, -1);
-    grid_workspace->addWidget(QtHelpers::HorizontalLine(), 5, 0, 1, -1);
-    grid_workspace->addWidget(lbl_track, 6, 0, 1, -1, Qt::AlignCenter);
-    grid_workspace->addWidget(lbl_create_track_message, 7, 0, 1, 1);
-    grid_workspace->addWidget(btn_create_track, 7, 1, 1, 1);
-    grid_workspace->addWidget(btn_finish_create_track, 7, 1, 1, 1);
-    grid_workspace->addWidget(btn_import_tracks, 8, 0, 1, -1);
 
-	tm_widget = new TrackManagementWidget(widget_tab_workspace);
+    grid_workspace->addWidget(lbl_track, 0, 0, 1, -1, Qt::AlignCenter);
+    grid_workspace->addWidget(lbl_create_track_message, 1, 1, 1, 1);
+    grid_workspace->addWidget(btn_create_track, 1, 0, 1, 1);
+    grid_workspace->addWidget(btn_finish_create_track, 1, 0, 1, 1);
+    grid_workspace->addWidget(btn_import_tracks, 2, 0, 1, 1);
+
+	tm_widget = new TrackManagementWidget(widget_tab_tracks);
 	QScrollArea *track_management_scroll_area = new QScrollArea();
     track_management_scroll_area->setWidgetResizable( true );
 	track_management_scroll_area->setWidget(tm_widget);
 	track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    grid_workspace->addWidget(track_management_scroll_area, 9, 0, 1, -1);
+    grid_workspace->addWidget(track_management_scroll_area, 3, 0, -1, -1);
 
 	vlayout_tab_workspace->addLayout(grid_workspace);
 	vlayout_tab_workspace->insertStretch(-1, 0);
-	return widget_tab_workspace;
+	return widget_tab_tracks;
 }
 
 void SirveApp::SetupVideoFrame(){
@@ -942,6 +941,7 @@ void SirveApp::setupConnections() {
     connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlace);
 	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
 	connect(btn_center_on_manual, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnManual);
+	connect(btn_center_on_brightest, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnBrightest);
 
 	//---------------------------------------------------------------------------
 
@@ -1247,6 +1247,10 @@ void SirveApp::LoadWorkspace()
 
 			case ProcessingMethod::center_on_manual:
                 CenterOnManual(current_state.track_id, current_state.offsets,cmb_processing_states->currentIndex());
+				break;
+
+			case ProcessingMethod::center_on_brightest:
+                CenterOnBrightest(current_state.offsets,cmb_processing_states->currentIndex());
 				break;
 
 			default:
@@ -2579,17 +2583,17 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
 
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-
-	QProgressDialog progress_dialog("Memory safe fixed noise suppression", "Cancel", 0, number_frames);
-	progress_dialog.setWindowTitle("Fixed Noise Suppression");
-	progress_dialog.setWindowModality(Qt::ApplicationModal);
-	progress_dialog.setMinimumDuration(0);
-	progress_dialog.setValue(1);
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	FixedNoiseSuppression FNS;
-	noise_suppresion_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details, progress_dialog);
-
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
+	lbl_progress_status->setText(QString("Fixed Noise Suppression..."));
+	connect(&FNS, &FixedNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	noise_suppresion_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
 	noise_suppresion_state.method = ProcessingMethod::fixed_noise_suppression;
 	noise_suppresion_state.FNS_file_path = file_path;
 	noise_suppresion_state.FNS_start_frame = start_frame;
@@ -2626,23 +2630,17 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 
 	// Apply de-interlace to the frames
 
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	QProgressDialog progress("", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setWindowTitle(QString("Deinterlacing Frames"));
-	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Cross correlation..."));
-	progress.setMinimumWidth(300);
 	ImageProcessing DI;
-	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details, progress);
-
-	if (progress.wasCanceled())
-	{
-		return;
-	}
-
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
+	lbl_progress_status->setText(QString("Deinterlacing..."));
+	connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
 	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
     video_display->container.AddProcessingState(deinterlace_state);
@@ -2671,21 +2669,19 @@ void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_cen
 	OSM_centered_state.details.frames_16bit.clear();
 
 	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-
-	QProgressDialog progress("", "Cancel", 0, 100);
-	progress.setWindowModality(Qt::WindowModal);
-	progress.setValue(0);
-	progress.setWindowTitle(QString("Centering on OSM"));
-	progress.setMaximum(number_frames - 1);
-	progress.setLabelText(QString("Working..."));
-	progress.setMinimumWidth(300);
   	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
 	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
 	OSM_centered_state.track_id = track_id;
 	OSM_centered_state.method = ProcessingMethod::center_on_OSM;
 	ImageProcessing COSM;
-	OSM_centered_state.details.frames_16bit = COSM.CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets, progress);
+	progress_bar_main->setRange(0,number_frames - 1);
+	lbl_progress_status->setText(QString("Center on OSM..."));
+	connect(&COSM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	OSM_centered_state.details.frames_16bit = COSM.CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
 	OSM_centered_state.offsets = OSM_centered_offsets;
     video_display->container.AddProcessingState(OSM_centered_state);
 }
@@ -2711,27 +2707,54 @@ void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manu
 		processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
 		processingState manual_centered_state = original;
 		manual_centered_state.details.frames_16bit.clear();
-		int number_frames = static_cast<int>(original.details.frames_16bit.size());
-		QProgressDialog progress("", "Cancel", 0, 100);
-		progress.setWindowModality(Qt::WindowModal);
-		progress.setValue(0);
-		// progress.setWindowTitle(QString("Centering on Manual track ") + QString::number(track_id));
-		progress.setWindowTitle(QString("Centering on Manual track "));
-		progress.setMaximum(number_frames - 1);
-		progress.setLabelText(QString("Working..."));
-		progress.setMinimumWidth(300);
+		int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 		int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
 		int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
 		std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
 		manual_centered_state.track_id = track_id;
 		manual_centered_state.method = ProcessingMethod::center_on_manual;
+		progress_bar_main->setRange(0,number_video_frames - 1);
+		progress_bar_main->setTextVisible(true);
+		lbl_progress_status->setText(QString("Center on Manual Tracks..."));
 		ImageProcessing COM;
-		manual_centered_state.details.frames_16bit = COM.CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets, progress);
+		connect(&COM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+		manual_centered_state.details.frames_16bit = COM.CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets);
+		progress_bar_main->setValue(0);
+		progress_bar_main->setTextVisible(false);
+		lbl_progress_status->setText(QString(""));
 		manual_centered_state.offsets = manual_centered_offsets;
 		video_display->container.AddProcessingState(manual_centered_state);
 	}
 }
 
+void SirveApp::ExecuteCenterOnBrightest()
+{		
+	std::vector<std::vector<int>> brightest_centered_offsets;
+	int processing_state_idx = cmb_processing_states->currentIndex();
+	CenterOnBrightest(brightest_centered_offsets,processing_state_idx);
+}
+
+void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx)
+{
+	processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
+	processingState brightest_centered_state = original;
+	brightest_centered_state.details.frames_16bit.clear();
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+	int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
+	brightest_centered_state.method = ProcessingMethod::center_on_brightest;
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
+	lbl_progress_status->setText(QString("Center on Brightest Object..."));
+	ImageProcessing COB;
+	connect(&COB, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightestFast(original.details, brightest_centered_offsets);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
+	brightest_centered_state.offsets = brightest_centered_offsets;
+	video_display->container.AddProcessingState(brightest_centered_state);
+}
 
 void SirveApp::HandleOsmTracksToggle()
 {
@@ -2806,14 +2829,15 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
 	
-	QProgressDialog progress_dialog("Memory safe adaptive noise suppression", "Cancel", 0, number_video_frames);
-	progress_dialog.setWindowTitle("Adaptive Noise Suppression");
-	progress_dialog.setWindowModality(Qt::ApplicationModal);
-	progress_dialog.setMinimumDuration(0);
-	progress_dialog.setValue(1);
 	AdaptiveNoiseSuppression ANS;
-	noise_suppresion_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice, progress_dialog);
-	
+	lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
+	connect(&ANS, &AdaptiveNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	noise_suppresion_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
 	QString description = "Filter starts at ";
 	if (relative_start_frame > 0)
 		description += "+";

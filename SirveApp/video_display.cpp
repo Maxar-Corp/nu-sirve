@@ -114,7 +114,6 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setIcon(pinpoint_icon);
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
-	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
     connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
@@ -135,7 +134,6 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_clear_pinpoints->setMaximumSize(40, 40);
     btn_clear_pinpoints->setIcon(clear_icon);
     btn_clear_pinpoints->setToolTip("Clear");
-	btn_clear_pinpoints->setStyleSheet(dark_orange_button_styleSheet);
     connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::ClearPinpoints);
 
     pinpoint_layout->addWidget(btn_pinpoint);
