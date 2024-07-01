@@ -80,7 +80,6 @@ void SirveApp::SetupUi() {
 	frame_video_player = new QFrame();
 	tab_plots = new QTabWidget();
 
-	//tab_menu->setMinimumWidth(200);
 	tab_menu->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
 	// ------------------------------------------------------------------------
@@ -88,7 +87,7 @@ void SirveApp::SetupUi() {
 	// ------------------------------------------------------------------------
 
 	// Add all to tab widget
-    tab_menu->addTab(SetupFileImportTab(), "Import");
+    // tab_menu->addTab(SetupFileImportTab(), "Import");
 	tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
     tab_menu->addTab(SetupTracksTab(), "Tracks");
@@ -98,10 +97,6 @@ void SirveApp::SetupUi() {
 	fixed_width.setVerticalPolicy(QSizePolicy::Preferred);
 	tab_menu->setSizePolicy(fixed_width);
 
-	SetupVideoFrame();
-	SetupPlotFrame();
-
-	// set size policy for video controls
 	QSizePolicy fixed_width_video;
 	fixed_width_video.setHorizontalPolicy(QSizePolicy::Fixed);
 	fixed_width_video.setVerticalPolicy(QSizePolicy::Minimum);
@@ -114,45 +109,105 @@ void SirveApp::SetupUi() {
 	main_layout->addWidget(frame_video_player,0,1,1,1);
 	main_layout->addWidget(tab_plots,0,2,1,1);
 
+	SetupVideoFrame();
+	SetupPlotFrame();
+
+	QGroupBox *grpbox_bottom_gui = new QGroupBox();
+	grpbox_bottom_gui->setFlat(true);
+	QGridLayout *grid_bottom_gui = new QGridLayout();
+	grpbox_bottom_gui->setLayout(grid_bottom_gui);
+	main_layout->addWidget(grpbox_bottom_gui,1,0,1,3);
+
+	QGroupBox *grpbox_import_area = new QGroupBox();
+	QGridLayout *grid_import_area = new QGridLayout();
+	grpbox_import_area->setLayout(grid_import_area);
+	grpbox_import_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+	grpbox_import_area->setFixedWidth(350);
+	btn_load_osm = new QPushButton("Load OSM File");
+	lbl_file_name = new QLabel("File Name:");
+	btn_copy_directory = new QPushButton("Copy File Path");
+	btn_calibration_dialog = new QPushButton("Setup Calibration");
+	grid_import_area->addWidget(btn_load_osm, 0, 0, 1, 1);
+	grid_import_area->addWidget(lbl_file_name, 0, 1, 1, 4);
+	grid_import_area->addWidget(btn_copy_directory, 1, 0,1,1);
+	grid_import_area->addWidget(btn_calibration_dialog, 2, 0, 1, 1);
+	grid_bottom_gui->addWidget(grpbox_import_area,0,0,1,1);
+	
+	QGroupBox *grpbox_epoch_area = new QGroupBox();
+	QGridLayout *grid_epoch_area = new QGridLayout();
+	grpbox_epoch_area->setLayout(grid_epoch_area);
+	grpbox_epoch_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+	grpbox_epoch_area->setFixedWidth(300);
+	QLabel* label_epoch = new QLabel("Epoch");
+	QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
+	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
+	dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
+	dt_epoch->setAlignment(Qt::AlignHCenter);
+	lbl_current_epoch = new QLabel("Applied Epoch: ");
+	btn_apply_epoch = new QPushButton("Apply Epoch");
+	grid_epoch_area->addWidget(label_epoch, 0, 0, 1, 1);
+	grid_epoch_area->addWidget(dt_epoch, 0, 1, 1, 1);
+	grid_epoch_area->addWidget(label_date_format, 1,0,1,2);
+	grid_epoch_area->addWidget(lbl_current_epoch, 2,0,1,2);
+	grid_epoch_area->addWidget(btn_apply_epoch, 3, 0,1,1);
+	grid_bottom_gui->addWidget(grpbox_epoch_area,0,1,1,1);
+
+	QGroupBox *grpbox_load_area = new QGroupBox();
+	QGridLayout *grid_load_area = new QGridLayout();
+	grpbox_load_area->setLayout(grid_load_area);
+	grpbox_load_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+	grpbox_load_area->setFixedWidth(200);
+	lbl_max_frames = new QLabel("Max Frames: ");
+	QLabel* label_start_frame = new QLabel("Start Frame");
+	QLabel* label_stop_frame = new QLabel("Stop Frame");
+	txt_start_frame = new QLineEdit("0");
+	txt_start_frame->setAlignment(Qt::AlignHCenter);
+	txt_end_frame = new QLineEdit();
+	txt_end_frame->setAlignment(Qt::AlignHCenter);
+	btn_get_frames = new QPushButton("Load Frames");
+	grid_load_area->addWidget(lbl_max_frames, 0, 0, 1, 1);
+	grid_load_area->addWidget(label_start_frame, 1, 0, 1, 1);
+	grid_load_area->addWidget(txt_start_frame, 1,1,1,1);
+	grid_load_area->addWidget(label_stop_frame, 2,0,1,1);
+	grid_load_area->addWidget(txt_end_frame, 2, 1,1,1);
+	grid_load_area->addWidget(btn_get_frames, 3, 0, 1, 1);
+	grid_bottom_gui->addWidget(grpbox_load_area,0,2,1,1);
+
+	QGroupBox *grpbox_workspace_area = new QGroupBox();
+	QGridLayout *grid_workspace_area = new QGridLayout();
+	grpbox_workspace_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+	grpbox_workspace_area->setFixedWidth(500);
+	grpbox_workspace_area->setLayout(grid_workspace_area);
+	lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
+    lbl_current_workspace_folder->setWordWrap(true);
+	cmb_workspace_name = new QComboBox();
+    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
+    btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
+	btn_workspace_load = new QPushButton("Load Workspace");
+	btn_workspace_save = new QPushButton("Save Workspace");
+    grid_workspace_area->addWidget(lbl_current_workspace_folder, 0, 0, 1, 2);
+	grid_workspace_area->addWidget(btn_change_workspace_directory, 1, 0, 1, 1);
+	grid_workspace_area->addWidget(btn_workspace_load, 2, 0, 1, 1);
+    grid_workspace_area->addWidget(cmb_workspace_name, 2, 1, 1, 1);
+    grid_workspace_area->addWidget(btn_workspace_save, 3, 0, 1, 1);
+	grid_bottom_gui->addWidget(grpbox_workspace_area,0,3,1,3);
+	
 	QGroupBox *grpbox_status_area = new QGroupBox();
 	QGridLayout *grid_status_area = new QGridLayout();
 	grpbox_status_area->setLayout(grid_status_area);
-
 	progress_bar_main = new QProgressBar();
 	lbl_progress_status = new QLabel("");
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
-	grid_status_area->addWidget(cmb_processing_states,0,0,1,6);
-	grid_status_area->addWidget(btn_undo_step,0,7,1,1);
-	grid_status_area->addWidget(lbl_progress_status,1,0,1,7);
-	
-	grid_status_area->addWidget(progress_bar_main,4,0,1,7);
-
-	main_layout->addWidget(grpbox_status_area,1,0,1,1);
-
-	QGroupBox *grpbox_workspace_area = new QGroupBox();
-	QGridLayout *grid_workspace_area = new QGridLayout();
-	grpbox_workspace_area->setLayout(grid_workspace_area);
-
-	lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
-    lbl_current_workspace_folder->setWordWrap(true);
-
-	cmb_workspace_name = new QComboBox();
-    cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
-
-    btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
-
-	btn_workspace_load = new QPushButton("Load Workspace");
-	
-	btn_workspace_save = new QPushButton("Save Workspace");
-
-    grid_workspace_area->addWidget(lbl_current_workspace_folder, 0, 0, 1, 1);
-    grid_workspace_area->addWidget(cmb_workspace_name, 1, 0, 1, 1);
-    grid_workspace_area->addWidget(btn_change_workspace_directory, 1, 1, 1, 1);
-    grid_workspace_area->addWidget(btn_workspace_load, 2, 0, 1, 1);
-    grid_workspace_area->addWidget(btn_workspace_save, 2, 1, 1, 1);
-
-	main_layout->addWidget(grpbox_workspace_area,1,1,2,2);
+	QLabel *lbl_processing_state = new QLabel("Processing State:");
+	grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
+	grid_status_area->addWidget(cmb_processing_states,0,1,1,5);
+	grid_status_area->addWidget(btn_undo_step,0,6,1,1);
+	grid_status_area->addWidget(lbl_progress_status,1,0,3,7);
+	grid_status_area->addWidget(progress_bar_main,5,0,1,-1);
+	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	grpbox_status_area->setFixedWidth(500);
+	grid_bottom_gui->addWidget(grpbox_status_area,0,6,1,1);
 
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
@@ -195,84 +250,11 @@ void SirveApp::SetupUi() {
     this->show();
 }
 
-QWidget* SirveApp::SetupFileImportTab() {
+// QWidget* SirveApp::SetupFileImportTab() {
 
-	QWidget* widget_tab_import = new QWidget(tab_menu);
-	QVBoxLayout* vlayout_tab_import = new QVBoxLayout(widget_tab_import);
-
-	// ------------------------------------------------------------------------
-
-	lbl_file_name = new QLabel("File Name:");
-	btn_load_osm = new QPushButton("Load Image File");
-
-	btn_copy_directory = new QPushButton("Copy File Path");
-
-	btn_calibration_dialog = new QPushButton("Setup Calibration");
-
-	QGridLayout* grid_import_file = new QGridLayout();
-	grid_import_file->addWidget(lbl_file_name, 0, 0, 1, 2);
-	grid_import_file->addWidget(btn_load_osm, 1, 0);
-	grid_import_file->addWidget(btn_copy_directory, 1, 1);
-	grid_import_file->addWidget(btn_calibration_dialog, 2, 0, 1, 2);
-	grid_import_file->addWidget(QtHelpers::HorizontalLine(), 3, 0, 1, 2);
-
-	vlayout_tab_import->addLayout(grid_import_file);
-
-	// ------------------------------------------------------------------------
-
-	QLabel* label_start_frame = new QLabel("Start Frame");
-	QLabel* label_stop_frame = new QLabel("Stop Frame");
-	lbl_max_frames = new QLabel("Max Frames: ");
-
-	txt_start_frame = new QLineEdit("0");
-	txt_start_frame->setAlignment(Qt::AlignHCenter);
-	txt_end_frame = new QLineEdit();
-	txt_end_frame->setAlignment(Qt::AlignHCenter);
-	btn_get_frames = new QPushButton("Load Frames");
-
-	QGridLayout* grid_tab_import_frames = new QGridLayout();
-	grid_tab_import_frames->addWidget(label_start_frame, 0, 0);
-	grid_tab_import_frames->addWidget(label_stop_frame, 0, 1);
-	grid_tab_import_frames->addWidget(txt_start_frame, 1, 0);
-	grid_tab_import_frames->addWidget(txt_end_frame, 1, 1);
-	grid_tab_import_frames->addWidget(lbl_max_frames, 2, 0, 1, 2);
-	grid_tab_import_frames->addWidget(btn_get_frames, 3, 0, 1, 2);
-	grid_tab_import_frames->addWidget(QtHelpers::HorizontalLine(), 4, 0, 1, 2);
-
-	grid_tab_import_frames->setColumnMinimumWidth(0, 30);
-	grid_tab_import_frames->setColumnMinimumWidth(1, 30);
-
-	vlayout_tab_import->addLayout(grid_tab_import_frames);
-
-	// ------------------------------------------------------------------------
-
-	QLabel* label_epoch = new QLabel("Epoch");
-	QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
-
-	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
-	dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
-	dt_epoch->setAlignment(Qt::AlignHCenter);
-
-	lbl_current_epoch = new QLabel("Applied Epoch: ");
-	btn_apply_epoch = new QPushButton("Apply Epoch");
-	//btn_apply_epoch->setMinimumWidth(30);
-
-	QVBoxLayout* vlayout_tab_import_epoch = new QVBoxLayout();
-	vlayout_tab_import_epoch->addWidget(label_epoch);
-	vlayout_tab_import_epoch->addWidget(dt_epoch);
-	vlayout_tab_import_epoch->addWidget(label_date_format);
-	vlayout_tab_import_epoch->addWidget(lbl_current_epoch);
-	vlayout_tab_import_epoch->addWidget(btn_apply_epoch);
-	vlayout_tab_import_epoch->addWidget(QtHelpers::HorizontalLine());
-
-	vlayout_tab_import->addLayout(vlayout_tab_import_epoch);
-
-	// ------------------------------------------------------------------------
-
-	vlayout_tab_import->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-
-	return widget_tab_import;
-}
+	
+// 	return widget_tab_import;
+// }
 
 QWidget* SirveApp::SetupColorCorrectionTab()
 {
@@ -1065,7 +1047,7 @@ void SirveApp::PrepareForTrackCreation(int track_id)
 	btn_finish_create_track->setHidden(false);
 	lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
 	tab_menu->setTabEnabled(0, false);
-	tab_menu->setTabEnabled(2, false);
+	// tab_menu->setTabEnabled(2, false);
 	btn_workspace_load->setDisabled(true);
 	btn_workspace_save->setDisabled(true);
 
@@ -1323,7 +1305,7 @@ void SirveApp::LoadOsmData()
 		return;
 	}
 
-	lbl_file_name->setText("File: " + abp_file_metadata.file_name);
+	lbl_file_name->setText(abp_file_metadata.file_name);
 	lbl_file_name->setToolTip(abp_file_metadata.directory_path);
 
 	txt_start_frame->setEnabled(true);

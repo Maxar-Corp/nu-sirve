@@ -151,7 +151,7 @@ public:
 	bool record_video;
 
     void SetupUi();
-    QWidget* SetupFileImportTab();
+    // QWidget* SetupFileImportTab();
     QWidget* SetupColorCorrectionTab();
     QWidget* SetupTracksTab();
     QWidget* SetupProcessingTab();
