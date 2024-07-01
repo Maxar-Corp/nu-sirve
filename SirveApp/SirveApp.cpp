@@ -435,39 +435,58 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 
-	grpbox_FNS_processing = new QGroupBox();
-	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
-	QLabel* label_FNS = new QLabel("Fixed Noise Suppression:");
-	label_FNS->setStyleSheet("background-color: rgb(200,200,200);");
-	grid_FNS_processing->addWidget(label_FNS, 0, 0, 1, 2);
-	lbl_fixed_suppression = new QLabel("No Frames Selected");
-	lbl_fixed_suppression->setStyleSheet("background-color: rgb(200,200,200);");
-	grid_FNS_processing->addWidget(lbl_fixed_suppression, 0, 2, 1, 2);
-
-	chk_FNS_external_file = new QCheckBox("External File");
-	grid_FNS_processing->addWidget(chk_FNS_external_file, 2, 0, 1, 1);
-
-	lbl_FNS_start_frame = new QLabel("Start:");
-	grid_FNS_processing->addWidget(lbl_FNS_start_frame, 1, 1, 1, 1);
-	txt_FNS_start_frame = new QLineEdit("1");
-	grid_FNS_processing->addWidget(txt_FNS_start_frame, 2, 1, 1, 1);
-	lbl_FNS_stop_frame = new QLabel("Stop:");
-	grid_FNS_processing->addWidget(lbl_FNS_stop_frame, 1, 2, 1, 1);
-	txt_FNS_end_frame = new QLineEdit("50");
-	grid_FNS_processing->addWidget(txt_FNS_end_frame, 2, 2, 1, 1);
+	QGroupBox *grpbox_image_processing = new QGroupBox();
+	QStackedWidget *qstack_noise_suppression_methods = new QStackedWidget();
+	QComboBox *cmb_noise_suppression_choice = new QComboBox();
+    cmb_noise_suppression_choice->addItem(tr("Fixed"));
+    cmb_noise_suppression_choice->addItem(tr("Adaptive"));
+    cmb_noise_suppression_choice->addItem(tr("Robust Principal Component Pursuit"));
+	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
+	QLabel *lbl_noise_suppression = new QLabel("Method");
+	grid_image_processing->addWidget(lbl_noise_suppression,0,0,1,1);
+	grid_image_processing->addWidget(cmb_noise_suppression_choice,0,1,1,1);
+	grid_image_processing->addWidget(qstack_noise_suppression_methods,1,0,1,6);
+    connect(cmb_noise_suppression_choice, qOverload<int>(&QComboBox::currentIndexChanged),qstack_noise_suppression_methods, &QStackedWidget::setCurrentIndex);
 	
+	grpbox_FNS_processing = new QGroupBox("");
+	grpbox_FNS_processing->setFixedHeight(200);
+	grpbox_FNS_processing->setFlat(true);
+	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
+	lbl_fixed_suppression = new QLabel("No Frames Selected");
+	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+	lbl_fixed_suppression->setStyleSheet("background-color: rgb(200,200,200);");
+	chk_FNS_external_file = new QCheckBox("External File");
+	lbl_FNS_start_frame = new QLabel("Start:");
+	txt_FNS_start_frame = new QLineEdit("1");
+	lbl_FNS_stop_frame = new QLabel("Stop:");
+	txt_FNS_end_frame = new QLineEdit("50");
 	btn_FNS = new QPushButton("Fixed Noise Suppression");
-	grid_FNS_processing->addWidget(btn_FNS,2,3,1,1);
+	QSpacerItem *spacerItem1 = new QSpacerItem(100,-1);
+	
+	grid_FNS_processing->addWidget(lbl_fixed_suppression, 0, 0, 1, -1);
+	grid_FNS_processing->addWidget(chk_FNS_external_file, 1, 1, 1, 1);
+	grid_FNS_processing->addWidget(lbl_FNS_start_frame, 2, 0, 1, 1);
+	grid_FNS_processing->addWidget(txt_FNS_start_frame, 2, 1, 1, 1);
+	grid_FNS_processing->addWidget(lbl_FNS_stop_frame, 3, 0, 1, 1);	
+	grid_FNS_processing->addWidget(txt_FNS_end_frame, 3, 1, 1, 1);	
+	grid_FNS_processing->addItem(spacerItem,3,2);
+	grid_FNS_processing->addItem(spacerItem,3,3);
+	grid_FNS_processing->addItem(spacerItem,3,4);
+	grid_FNS_processing->addWidget(btn_FNS,4,0,1,1);
 
 	// ------------------------------------------------------------------------
-	grpbox_ANS_processing = new QGroupBox();
+	grpbox_ANS_processing = new QGroupBox("");
+	grpbox_ANS_processing->setFlat(true);
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 
 	QLabel* label_adaptive_noise_suppression = new QLabel("Adaptive Noise Suppression:");
+	
 	label_adaptive_noise_suppression->setStyleSheet("background-color: rgb(200,200,200);");
+	label_adaptive_noise_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 	grid_ANS_processing->addWidget(label_adaptive_noise_suppression, 0, 0, 1, 1);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(200,200,200);");
+	lbl_adaptive_noise_suppression_status->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 	grid_ANS_processing->addWidget(lbl_adaptive_noise_suppression_status, 0, 1, 1, 3);
 	
 	lbl_ANS_offset_frames = new QLabel("Offset:");
@@ -490,6 +509,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_ANS_processing->addWidget(cmb_shadow_threshold, 2, 2, 1, 1);
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
 	grid_ANS_processing->addWidget(btn_ANS, 3, 2, 1, 2);
+
+
+	QGroupBox *grpbox_RPCP_processing = new QGroupBox("");
+	grpbox_RPCP_processing->setFlat(true);
+	QGridLayout* grid_RPCP_processing = new QGridLayout(grpbox_RPCP_processing);
 
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
@@ -522,10 +546,15 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QToolBox *toolbox_image_processing = new QToolBox();
 	toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
-	toolbox_image_processing->addItem(grpbox_FNS_processing,QString("Fixed Noise Suppression"));
-	toolbox_image_processing->addItem(grpbox_ANS_processing,QString("Adaptive Noise Suppression"));
+	toolbox_image_processing->addItem(grpbox_image_processing,QString("Noise Suppression"));
+	// toolbox_image_processing->addItem(grpbox_FNS_processing,QString("Fixed Noise Suppression"));
+	// toolbox_image_processing->addItem(grpbox_ANS_processing,QString("Adaptive Noise Suppression"));
+	qstack_noise_suppression_methods->addWidget(grpbox_FNS_processing);
+	qstack_noise_suppression_methods->addWidget(grpbox_ANS_processing);
+	qstack_noise_suppression_methods->addWidget(grpbox_RPCP_processing);
 	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
 	vlayout_tab_processing->addWidget(toolbox_image_processing);
+	// vlayout_tab_processing->addWidget(teststacked);
 	// // ------------------------------------------------------------------------
 
 	vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
