@@ -60,15 +60,11 @@ SirveApp::SirveApp(QWidget *parent)
 
 SirveApp::~SirveApp() {
 	delete video_display;
-
 	delete playback_controller;
-
 	delete eng_data;
 	delete data_plots;
-
 	thread_video.terminate();
 	thread_timer.terminate();
-
 }
 
 void SirveApp::SetupUi() {
@@ -85,9 +81,6 @@ void SirveApp::SetupUi() {
 	// ------------------------------------------------------------------------
 	// Define complete tab widget
 	// ------------------------------------------------------------------------
-
-	// Add all to tab widget
-    // tab_menu->addTab(SetupFileImportTab(), "Import");
 	tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
     tab_menu->addTab(SetupTracksTab(), "Tracks");
@@ -99,24 +92,26 @@ void SirveApp::SetupUi() {
 
 	QSizePolicy fixed_width_video;
 	fixed_width_video.setHorizontalPolicy(QSizePolicy::Fixed);
-	fixed_width_video.setVerticalPolicy(QSizePolicy::Minimum);
+	fixed_width_video.setVerticalPolicy(QSizePolicy::Fixed);
 	frame_video_player->setSizePolicy(fixed_width_video);
+	frame_video_player->setFixedHeight(750);
+	frame_video_player->setFixedWidth(800);
 
 	// ------------------------------------------------------------------------
 	// Adds all elements to main UI
 
-	main_layout->addWidget(tab_menu,0,0,1,1);
-	main_layout->addWidget(frame_video_player,0,1,1,1);
-	main_layout->addWidget(tab_plots,0,2,1,1);
+	main_layout->addWidget(tab_menu,1,0,1,1);
+	main_layout->addWidget(frame_video_player,1,1,1,1);
+	main_layout->addWidget(tab_plots,1,2,1,1);
 
 	SetupVideoFrame();
 	SetupPlotFrame();
 
-	QGroupBox *grpbox_bottom_gui = new QGroupBox();
-	grpbox_bottom_gui->setFlat(true);
+	QGroupBox *grpbox_top_gui = new QGroupBox();
+	grpbox_top_gui->setFlat(true);
 	QGridLayout *grid_bottom_gui = new QGridLayout();
-	grpbox_bottom_gui->setLayout(grid_bottom_gui);
-	main_layout->addWidget(grpbox_bottom_gui,1,0,1,3);
+	grpbox_top_gui->setLayout(grid_bottom_gui);
+	main_layout->addWidget(grpbox_top_gui,0,0,1,3);
 
 	QGroupBox *grpbox_import_area = new QGroupBox();
 	QGridLayout *grid_import_area = new QGridLayout();
@@ -127,10 +122,10 @@ void SirveApp::SetupUi() {
 	lbl_file_name = new QLabel("File Name:");
 	btn_copy_directory = new QPushButton("Copy File Path");
 	btn_calibration_dialog = new QPushButton("Setup Calibration");
-	grid_import_area->addWidget(btn_load_osm, 0, 0, 1, 1);
-	grid_import_area->addWidget(lbl_file_name, 0, 1, 1, 4);
-	grid_import_area->addWidget(btn_copy_directory, 1, 0,1,1);
-	grid_import_area->addWidget(btn_calibration_dialog, 2, 0, 1, 1);
+	grid_import_area->addWidget(lbl_file_name, 0, 0, 1, 4);
+	grid_import_area->addWidget(btn_load_osm, 1, 0, 1, 1);
+	grid_import_area->addWidget(btn_copy_directory, 2, 0,1,1);
+	grid_import_area->addWidget(btn_calibration_dialog, 3, 0, 1, 1);
 	grid_bottom_gui->addWidget(grpbox_import_area,0,0,1,1);
 	
 	QGroupBox *grpbox_epoch_area = new QGroupBox();
@@ -249,12 +244,6 @@ void SirveApp::SetupUi() {
 	this->setCentralWidget(frame_main);
     this->show();
 }
-
-// QWidget* SirveApp::SetupFileImportTab() {
-
-	
-// 	return widget_tab_import;
-// }
 
 QWidget* SirveApp::SetupColorCorrectionTab()
 {
@@ -390,65 +379,59 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_bad_pixels_correction = new QGroupBox();
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
-
-	lbl_bad_pixel_count = new QLabel("");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 0, 0, 1, 3);
-
-	lbl_bad_pixel_type = new QLabel("Replace Pixels ");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 1, 0, 1, 1);
+	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
+	lbl_bad_pixel_count->setStyleSheet("background-color: rgb(200,200,200);");
+	lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
 	cmb_bad_pixels_type = new QComboBox();
 	cmb_bad_pixels_type->addItem("All Bad Pixels");
 	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
 	cmb_bad_pixels_type->addItem("Outlier Only");
-	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 2, 0, 1, 1);
-
 	lbl_bad_pixel_method = new QLabel("Method:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_method, 1, 1, 1, 1);
 	cmb_outlier_processing_type = new QComboBox();
 	cmb_outlier_processing_type->addItem("Median");
 	cmb_outlier_processing_type->addItem("Moving Median");
-	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 2, 1, 1, 1);
 	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
-
-	lbl_bad_pixel_start_frame = new QLabel("Start:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 3, 0, 1, 1);
+	lbl_bad_pixel_start_frame = new QLabel("Sample Start:");
 	txt_bad_pixel_start_frame = new QLineEdit("1");
-	grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 4, 0, 1, 1);
-	lbl_bad_pixel_stop_frame = new QLabel("Stop:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 3, 1, 1, 1);
+	lbl_bad_pixel_stop_frame = new QLabel("Sample Stop:");
 	txt_bad_pixel_end_frame = new QLineEdit("500");
-	grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 4, 1, 1, 1);
-
 	lbl_moving_median_window_length = new QLabel("Window Length:");
-	grid_bad_pixels->addWidget(lbl_moving_median_window_length, 5, 0, 1, 1);
 	txt_moving_median_N = new QLineEdit("30");
-	grid_bad_pixels->addWidget(txt_moving_median_N, 6, 0, 1, 1);
 	txt_moving_median_N->setEnabled(false);
-	
 	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 5, 1, 1, 1);
 	cmb_outlier_processing_sensitivity = new QComboBox();
 	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
 	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
 	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
 	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
-	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 6, 1, 1, 1);
-
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 2, 2, 1, 1);
-
 	lbl_bad_pixel_color = new QLabel("Color:");
-	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 3, 2, 1, 1);
 	cmb_bad_pixel_color = new QComboBox();
 	cmb_bad_pixel_color->addItems(colors);
-	grid_bad_pixels->addWidget(cmb_bad_pixel_color,4, 2, 1,1);
 	cmb_bad_pixel_color->setCurrentIndex(2);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
-
 	btn_bad_pixel_identification = new QPushButton("Replace Bad Pixels");
     connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
-	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 6, 2, 1, 1);
-
+	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 0, 0, 1, -1);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 1, 0, 1, 1);
+	grid_bad_pixels->addWidget(cmb_bad_pixels_type, 1, 1, 1, 2);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_method, 2, 0, 1, 1);
+	grid_bad_pixels->addWidget(cmb_outlier_processing_type, 2, 1, 1, 1);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 3, 0, 1, 1);
+	grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 3, 1, 1, 1);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 4, 0, 1, 1);
+	grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 4, 1, 1, 1);
+	grid_bad_pixels->addWidget(lbl_moving_median_window_length, 5, 0, 1, 1);
+	grid_bad_pixels->addWidget(txt_moving_median_N, 5, 1, 1, 1);
+	QSpacerItem *spacerItem = new QSpacerItem(100,-1);
+	grid_bad_pixels->addItem(spacerItem,5,2);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 2, 3, 1, 1);
+	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 2, 4, 1, 1);
+	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 4, 4, 1, 1);
+	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 3, 3, 1, 1);
+	grid_bad_pixels->addWidget(cmb_bad_pixel_color,3, 4, 1,1);
+	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 5, 4, 1, 1);
 
 	// ------------------------------------------------------------------------
 
@@ -534,6 +517,8 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,2,1,1);
 	btn_center_on_brightest = new QPushButton("Center on\n Brightest");
 	grid_Image_Shift->addWidget(btn_center_on_brightest,0,3,1,1);
+	
+	// // ------------------------------------------------------------------------
 	QToolBox *toolbox_image_processing = new QToolBox();
 	toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
@@ -1047,7 +1032,6 @@ void SirveApp::PrepareForTrackCreation(int track_id)
 	btn_finish_create_track->setHidden(false);
 	lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
 	tab_menu->setTabEnabled(0, false);
-	// tab_menu->setTabEnabled(2, false);
 	btn_workspace_load->setDisabled(true);
 	btn_workspace_save->setDisabled(true);
 
@@ -1275,7 +1259,7 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 			txt_start_frame->setEnabled(true);
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);
-			btn_calibration_dialog->setEnabled(true);
+			// btn_calibration_dialog->setEnabled(true);
 			txt_start_frame->setStyleSheet(orange_styleSheet);
 			txt_end_frame->setStyleSheet(orange_styleSheet);		
 		}

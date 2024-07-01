@@ -70,11 +70,14 @@ void VideoDisplay::SetupCreateTrackControls()
 {
     grp_create_track = new QGroupBox("Track Editing");
     grp_create_track->setMaximumHeight(150);
-
+    grp_create_track->setStyleSheet(bold_large_styleSheet);
     track_details_min_frame = 0;
     track_details_max_frame = 0;
 
     lbl_create_track = new QLabel("");
+    lbl_create_track->setWordWrap(true);
+    // lbl_create_track->setFixedWidth(300);
+    // lbl_create_track->setFixedHeight(100);
     btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
@@ -100,7 +103,8 @@ void VideoDisplay::SetupCreateTrackControls()
 void VideoDisplay::SetupPinpointDisplay()
 {
     grp_pinpoint = new QGroupBox("Selected Pixels");
-    grp_pinpoint->setMaximumHeight(200);
+    // grp_pinpoint->setMaximumHeight(200);
+    // grp_pinpoint->setFixedWidth(700);
     grp_pinpoint->setStyleSheet(bold_large_styleSheet);
 
     QHBoxLayout *pinpoint_layout = new QHBoxLayout(grp_pinpoint);
@@ -170,8 +174,7 @@ void VideoDisplay::SetupLabels()
     hlayout_video_labels->addWidget(lbl_frame_number);
     hlayout_video_labels->addWidget(lbl_video_time_midnight);
     hlayout_video_labels->addWidget(lbl_zulu_time);
-
-    video_display_layout->insertLayout(1, hlayout_video_labels);
+    video_display_layout->insertLayout(2, hlayout_video_labels);
 
     lbl_pinpoint->setText("");
 }
