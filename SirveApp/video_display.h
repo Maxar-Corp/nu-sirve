@@ -158,6 +158,7 @@ private:
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
     QCheckBox  *chk_auto_advance_frame;
     QGroupBox *grp_create_track;
+    QVBoxLayout* vlayout_create_track;
     std::vector<std::optional<TrackDetails>> track_details;
     int track_details_min_frame, track_details_max_frame;
 
