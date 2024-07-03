@@ -74,26 +74,32 @@ void VideoDisplay::SetupCreateTrackControls()
     track_details_min_frame = 0;
     track_details_max_frame = 0;
 
+    QVBoxLayout* vlayout_create_track = new QVBoxLayout(grp_create_track);
+
     lbl_create_track = new QLabel("");
+
     btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
+
     chk_auto_advance_frame = new QCheckBox("Auto Advance to Next Frame");
+
     btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
+
     QPushButton *btn_finish_create_track = new QPushButton("Finish Track Editing");
     connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
 
-    QHBoxLayout *layout_create_track = new QHBoxLayout(grp_create_track);
-    layout_create_track->addWidget(lbl_create_track);
-    layout_create_track->addStretch(1);
-    layout_create_track->addWidget(btn_select_track_centroid);
-    layout_create_track->addWidget(chk_auto_advance_frame);
-    layout_create_track->addStretch(1);
-    layout_create_track->addWidget(btn_clear_track_centroid);
-    layout_create_track->addWidget(btn_finish_create_track);
+    QGridLayout* grid_create_track = new QGridLayout();
+    grid_create_track->addWidget(lbl_create_track, 0, 0, 1, 4, Qt::AlignCenter);
+    grid_create_track->addWidget(btn_select_track_centroid, 1, 0, 1, 1);
+    grid_create_track->addWidget(chk_auto_advance_frame, 1, 1, 1, 1);
+    grid_create_track->addWidget(btn_clear_track_centroid, 1, 2, 1, 1);
+    grid_create_track->addWidget(btn_finish_create_track, 1, 3, 1, 1);
 
     grp_create_track->setHidden(true);
+
+    vlayout_create_track->addLayout(grid_create_track);
     video_display_layout->addWidget(grp_create_track);
 }
 
@@ -512,11 +518,11 @@ void VideoDisplay::UpdateCreateTrackLabel()
 {
     if (track_details_min_frame == 0)
     {
-        lbl_create_track->setText("Currently editing a track.\nThe track has no frames.");
+        lbl_create_track->setText("Currently editing a track.  The track has no frames.");
     }
     else
     {
-        lbl_create_track->setText("Currently editing a track.\nThe track spans from frame " + QString::number(track_details_min_frame) + " to frame " + QString::number(track_details_max_frame) + ".");
+        lbl_create_track->setText("Currently editing a track.  The track spans from frame " + QString::number(track_details_min_frame) + " to frame " + QString::number(track_details_max_frame) + ".");
     }
 }
 
