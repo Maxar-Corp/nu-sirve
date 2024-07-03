@@ -48,7 +48,6 @@ void EngineeringPlots::PlotChart()
 	colors.ResetColors();
     StartNewChart();
     CreateCurrentMarker();
-
     EstablishPlotLimits();
 
 	size_t plot_number_tracks = number_of_tracks;
@@ -90,6 +89,16 @@ void EngineeringPlots::PlotChart()
 	}
 
     DrawTitle();
+
+    if (this->chart_view->is_zoomed)
+    {
+        ZoomState zs = this->chart_view->get_zoom_state();
+        QPoint *topLeft = new QPoint(zs.xMin, zs.yMin);
+        QPoint *bottomRight = new QPoint(zs.xMax, zs.yMax);
+        QRect *zoomStateRect = new QRect(*topLeft, *bottomRight);
+        this->chart->zoomIn(*zoomStateRect);
+    }
+
 }
 
 void EngineeringPlots::PlotBoresightAzimuth()
@@ -591,7 +600,14 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
 	if (e->button() == Qt::RightButton)
     {
+<<<<<<< HEAD
 		newchart->zoomReset();
+=======
+        newchart->zoomReset();
+        chart()->zoomReset();
+
+        is_zoomed = false;
+>>>>>>> bc5fc55e (Success! Can now right-click restore any plot we've switched over to.)
 		return;
     } else
     {
