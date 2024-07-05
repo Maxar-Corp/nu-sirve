@@ -34,6 +34,8 @@ public:
 
     std::vector<std::vector<uint16_t>> CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets);
 
+    std::vector<std::vector<uint16_t>> FrameStacking(int number_of_frames, VideoDetails & original);
+
     std::vector<std::vector<uint16_t>> MedianFilterStandard(VideoDetails & original, int window_size);
 
 signals:

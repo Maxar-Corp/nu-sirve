@@ -344,6 +344,44 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
     return frames_out;     
 }
 
+
+ std::vector<std::vector<uint16_t>> ImageProcessing::FrameStacking(int num_of_averaging_frames, VideoDetails & original)
+ {
+    int num_video_frames = original.frames_16bit.size();
+	int num_pixels = original.frames_16bit[0].size();
+	int nRows = original.y_pixels;
+    int nCols = original.x_pixels;
+	int index_first_frame, index_last_frame;
+	double R;
+	std::vector<std::vector<uint16_t>> frames_out;
+  	arma::mat window_data(num_pixels,num_of_averaging_frames);
+    window_data.fill(0.0);
+	arma::vec moving_mean(num_pixels, 1);
+	arma::vec frame_vector(num_pixels,1);
+	arma::vec frame_vector_out(num_pixels,1);
+
+	for (int j = 0; j < num_of_averaging_frames - 1; j++) { 
+		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
+	}
+    for (int i = 0; i < num_video_frames; i++) {
+	 	UpdateProgressBar(i);
+		QCoreApplication::processEvents();
+		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+        index_last_frame = std::min(i + num_of_averaging_frames - 1,num_video_frames - 1);
+        if(i >num_of_averaging_frames){
+		    window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
+		    window_data.shed_col(0);
+        }
+		moving_mean = arma::mean(window_data,1);
+        R = arma::range(frame_vector);
+		frame_vector -= moving_mean;
+        frame_vector -= frame_vector.min();
+        frame_vector_out = R * frame_vector / frame_vector.max();
+		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
+    }
+	return frames_out;
+ }
+
  arma::cx_mat ImageProcessing::xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols)
 {
     int N = 12;

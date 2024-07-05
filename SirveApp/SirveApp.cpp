@@ -153,7 +153,7 @@ void SirveApp::SetupUi() {
 	QGroupBox *grpbox_workspace_area = new QGroupBox();
 	QGridLayout *grid_workspace_area = new QGridLayout();
 	grpbox_workspace_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	grpbox_workspace_area->setFixedWidth(550);
+	grpbox_workspace_area->setFixedWidth(600);
 	grpbox_workspace_area->setLayout(grid_workspace_area);
 	lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
     lbl_current_workspace_folder->setWordWrap(true);
@@ -161,33 +161,39 @@ void SirveApp::SetupUi() {
     cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
     btn_change_workspace_directory = new QPushButton("Change Workspace Directory");
 	btn_workspace_load = new QPushButton("Load Workspace");
+	btn_workspace_load->setFixedWidth(150);
 	btn_workspace_save = new QPushButton("Save Workspace");
     grid_workspace_area->addWidget(lbl_current_workspace_folder, 0, 0, 1, 2);
 	grid_workspace_area->addWidget(btn_change_workspace_directory, 1, 0, 1, 1);
 	grid_workspace_area->addWidget(btn_workspace_load, 2, 0, 1, 1);
     grid_workspace_area->addWidget(cmb_workspace_name, 2, 1, 1, 1);
     grid_workspace_area->addWidget(btn_workspace_save, 3, 0, 1, 1);
-	grid_top_gui->addWidget(grpbox_workspace_area,0,3,1,3);
+	grid_top_gui->addWidget(grpbox_workspace_area,0,3,1,1);
 	
 	QGroupBox *grpbox_status_area = new QGroupBox();
 	QGridLayout *grid_status_area = new QGridLayout();
 	grpbox_status_area->setLayout(grid_status_area);
+	cmb_processing_states = new QComboBox();
+	btn_undo_step = new QPushButton("Undo One Step");
+	btn_undo_step->setFixedWidth(150);
+	QLabel *lbl_processing_state = new QLabel("Processing State:");
+	lbl_processing_state->setFixedWidth(130);
+	grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
+	grid_status_area->addWidget(cmb_processing_states,0,1,1,1);
+	grid_status_area->addWidget(btn_undo_step,0,6,1,1);
+	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	grid_top_gui->addWidget(grpbox_status_area,0,5,1,-1);
+
 	progress_bar_main = new QProgressBar();
 	lbl_progress_status = new QLabel("");
 	lbl_progress_status->setFixedHeight(50);
-	cmb_processing_states = new QComboBox();
-	btn_undo_step = new QPushButton("Undo One Step");
-	QLabel *lbl_processing_state = new QLabel("Processing State:");
-	grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
-	grid_status_area->addWidget(cmb_processing_states,0,1,1,5);
-	grid_status_area->addWidget(btn_undo_step,0,6,1,1);
-	// grid_status_area->addWidget(lbl_progress_status,1,0,3,7);
-	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	// grpbox_status_area->setFixedWidth(500);
-	grid_top_gui->addWidget(grpbox_status_area,0,5,1,2);
-
-	main_layout->addWidget(lbl_progress_status,2,0,2,-1);
-	main_layout->addWidget(progress_bar_main,4,0,1,-1);
+	btn_exit = new QPushButton("Exit");
+	btn_exit->setFixedWidth(75);
+	btn_exit->setStyleSheet(orange_button_styleSheet);
+	connect(btn_exit, &QPushButton::clicked, this, &SirveApp::HandleExitClicked);
+	main_layout->addWidget(lbl_progress_status,2,0,1,-1);
+	main_layout->addWidget(progress_bar_main,4,0,1,9);
+	main_layout->addWidget(btn_exit,4,10,1,1);
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
 
@@ -353,8 +359,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	QGroupBox *grpbox_epoch_area = new QGroupBox();
 	QGridLayout *grid_epoch_area = new QGridLayout();
 	grpbox_epoch_area->setLayout(grid_epoch_area);
-	// grpbox_epoch_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	// grpbox_epoch_area->setFixedWidth(300);
 	QLabel* label_epoch = new QLabel("Epoch");
 	QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
 	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
@@ -538,10 +542,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
 	QSizePolicy grpbox_size_policy;
-	// grpbox_size_policy.setHorizontalPolicy(QSizePolicy::Preferred);
-	// grpbox_size_policy.setVerticalPolicy(QSizePolicy::Fixed);
-	// grpbox_Image_Shift->setSizePolicy(grpbox_size_policy);
-	// grpbox_Image_Shift->setFixedHeight(150);
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	
 	QLabel* lbl_OSM_track_ID = new QLabel("Track ID:");
@@ -565,6 +565,8 @@ QWidget* SirveApp::SetupProcessingTab() {
 	btn_center_on_brightest = new QPushButton("Center on Brightest");	
 	connect(btn_center_on_brightest, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnBrightest);
 	btn_frame_stack = new QPushButton("Frame Stack");
+	btn_frame_stack->setFixedWidth(150);
+	connect(btn_frame_stack, &QPushButton::clicked, this, &SirveApp::ExecuteFrameStacking);
 
 	grid_Image_Shift->addWidget(lbl_track_centering_priority,0,0,1,1);
 	grid_Image_Shift->addWidget(cmb_track_centering_priority,0,1,1,1);
@@ -1380,6 +1382,8 @@ void SirveApp::LoadOsmData()
 		tab_menu->setTabEnabled(1, false);
 		tab_menu->setTabEnabled(2, false);
 		cmb_processing_states->setEnabled(false);
+		txt_start_frame->setStyleSheet(orange_styleSheet);
+		txt_end_frame->setStyleSheet(orange_styleSheet);
 	}
 
 	eng_data = new EngineeringData(osm_frames);
@@ -1990,6 +1994,10 @@ void SirveApp::ChangeWorkspaceDirectory()
         cmb_workspace_name->clear();
         cmb_workspace_name->addItems(workspace->get_workspace_names(config_values.workspace_folder));
     }
+}
+
+void SirveApp::HandleExitClicked(){
+	close();
 }
 
 void SirveApp::CloseWindow()
@@ -2799,6 +2807,38 @@ void SirveApp::HandleProcessingStatesCleared()
 	lbl_adaptive_noise_suppression_status->setText("No Frames Setup");
 	lbl_fixed_suppression->setText("No Frames Selected");
 }
+
+void SirveApp::ExecuteFrameStacking()
+{
+	int number_of_frames = txt_frame_stack_Nframes->text().toInt();
+	int processing_state_idx = cmb_processing_states->currentIndex();
+	FrameStacking(number_of_frames,processing_state_idx);
+}
+
+void SirveApp::FrameStacking(int number_of_frames, int processing_state_idx)
+{
+	//Pause the video if it's running
+	playback_controller->StopTimer();
+
+	processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	processingState frame_stacking_state = original;
+	frame_stacking_state.details.frames_16bit.clear();
+	
+	ImageProcessing FS;
+	lbl_progress_status->setText(QString("Frame Stacking..."));
+	progress_bar_main->setRange(0,number_video_frames - 1);
+	progress_bar_main->setTextVisible(true);
+	connect(&FS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	frame_stacking_state.details.frames_16bit = FS.FrameStacking(number_of_frames, original.details);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	frame_stacking_state.method = ProcessingMethod::adaptive_noise_suppression;
+	frame_stacking_state.ANS_num_frames = number_of_frames;
+    video_display->container.AddProcessingState(frame_stacking_state);
+}
+
 
 void SirveApp::ExecuteNoiseSuppression()
 {

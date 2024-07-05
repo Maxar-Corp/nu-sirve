@@ -104,6 +104,7 @@ public:
                                         background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,\
                                         stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));}";
 
+    QString orange_button_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
@@ -122,7 +123,7 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
         * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_tracks, 
-        * btn_center_on_brightest, *btn_frame_stack;
+        * btn_center_on_brightest, *btn_frame_stack, *btn_exit;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
@@ -191,6 +192,7 @@ public:
         void ExecuteDeinterlace();
         void ExecuteCenterOnTracks();
         void ExecuteCenterOnBrightest();
+        void ExecuteFrameStacking();
         void ExecuteNonUniformityCorrectionSelectionOption();
 
         void StartStopVideoRecording();
@@ -204,6 +206,7 @@ public:
         void HandlePlotFullDataToggle();
         void HandlePlotPrimaryOnlyToggle();
         void HandlePlotCurrentFrameMarkerToggle();
+        void HandleExitClicked();
    
         void ShowCalibrationDialog();
 
@@ -289,6 +292,7 @@ private:
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
+    void FrameStacking(int num_frames, int processing_state_idx);
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
     void EnableEngineeringPlotOptions();
