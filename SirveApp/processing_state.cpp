@@ -22,7 +22,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.ANS_relative_start_frame = json_obj.value("ANS_relative_start_frame").toInt();
         temp.ANS_num_frames = json_obj.value("ANS_num_frames").toInt();
         temp.ANS_shadow_threshold = json_obj.value("ANS_shadow_threshold").toInt();
-		    temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
+        temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
         return temp;
     }
     if (method == "Deinterlace")
@@ -45,11 +45,9 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.track_id = json_obj.value("Track_ID").toInt();
         std::vector<int> offsets0;
         std::vector<std::vector<int>> offsets;
-
         for (auto json_item : json_obj.value("offsets").toArray()){          
             offsets0.push_back(json_item.toInt());
         }
-
         arma::vec tmpvec = arma::conv_to<arma::vec>::from(offsets0);
         int numRows = tmpvec.n_elem/3;
         arma::mat tmpmat = arma::reshape(tmpvec,3,numRows).t();
@@ -57,6 +55,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             offsets.push_back(arma::conv_to<std::vector<int>>::from(tmpmat.row(i)));
         }
         temp.offsets = offsets;
+        temp.find_any_tracks = json_obj.value("find_any_tracks").toBool();
         return temp;
     }
 
@@ -78,6 +77,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             offsets.push_back(arma::conv_to<std::vector<int>>::from(tmpmat.row(i)));
         }
         temp.offsets = offsets;
+        temp.find_any_tracks = json_obj.value("find_any_tracks").toBool();
         return temp;
     }
 

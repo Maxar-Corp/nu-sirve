@@ -40,6 +40,7 @@ struct processingState {
     DeinterlaceType deint_type;
     int track_id;
 	std::vector<std::vector<int>> offsets;
+    bool find_any_tracks;
 
 	bool ANS_hide_shadow;
 
@@ -124,6 +125,7 @@ struct processingState {
                         }
                     }
                 state_object.insert("offsets", offsetsixy);
+                state_object.insert("Find_Any_Tracks",find_any_tracks);
                 break;
             }
             case ProcessingMethod::center_on_manual:
@@ -137,6 +139,7 @@ struct processingState {
                         }
                     }
                 state_object.insert("offsets", offsetsixy);
+                state_object.insert("Find_Any_Tracks",find_any_tracks);
                 break;
             }
             case ProcessingMethod::center_on_brightest:

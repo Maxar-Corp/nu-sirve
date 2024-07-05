@@ -324,6 +324,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	QGridLayout* grid_overlay_controls = new QGridLayout(grpbox_overlay_controls);
 
 	chk_show_tracks = new QCheckBox("Show OSM Tracks");
+	chk_show_tracks->setChecked(true);
 	chk_sensor_track_data = new QCheckBox("Show Sensor Info");
 	chk_show_time = new QCheckBox("Show Zulu Time");
 	btn_change_banner_text = new QPushButton("Change Banner Text");
@@ -442,25 +443,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 
 	QGroupBox *grpbox_image_processing = new QGroupBox();
-	// grpbox_image_processing->setFixedHeight(300);
-	// QStackedWidget *qstack_image_enhancement_methods = new QStackedWidget();
 	QToolBox *toolbox_image_enhancement_methods = new QToolBox();
-	// toolbox_image_enhancement_methods->setStyleSheet(bold_large_styleSheet);
 	toolbox_image_enhancement_methods->setStyleSheet(sub_toolbox_StyleSheet);
-	// QComboBox *cmb_image_enhancement_choice = new QComboBox();
-    // cmb_image_enhancement_choice->addItem(tr("Fixed Background"));
-    // cmb_image_enhancement_choice->addItem(tr("Adaptive Background"));
-    // cmb_image_enhancement_choice->addItem(tr("Robust Principal Component Pursuit"));
-	// cmb_image_enhancement_choice->addItem(tr("Deinterlace"));
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
-	// QLabel *lbl_image_enhancement_methods = new QLabel("Method");
-	// grid_image_processing->addWidget(lbl_image_enhancement_methods,0,0,1,1);
-	// grid_image_processing->addWidget(cmb_image_enhancement_choice,0,1,1,1);
 	grid_image_processing->addWidget(toolbox_image_enhancement_methods,1,0,1,6);
-    // connect(cmb_image_enhancement_choice, qOverload<int>(&QComboBox::currentIndexChanged),qstack_image_enhancement_methods, &QStackedWidget::setCurrentIndex);
-	
 	grpbox_FNS_processing = new QGroupBox("");
-	// grpbox_FNS_processing->setFlat(true);
 	grpbox_FNS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
@@ -488,8 +475,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox("");
-	// grpbox_ANS_processing->setFlat(true);
-	// grpbox_ANS_processing->setStyleSheet("border-width: 0px;");
 	grpbox_ANS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
@@ -530,8 +515,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
-	// grpbox_deinterlacing->setFlat(true);
-	// grpbox_deinterlacing->setStyleSheet("border-width: 0px;");
 	grpbox_deinterlacing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_deinterlacing = new QGridLayout(grpbox_deinterlacing);
 	btn_deinterlace = new QPushButton("Deinterlace");
@@ -546,7 +529,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_deinterlacing->addWidget(btn_deinterlace,0,1,1,1);
 
 	QToolBox *toolbox_image_processing = new QToolBox();
-	// toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
 	toolbox_image_processing->addItem(grpbox_image_processing,QString("Image Enhancement"));
 	toolbox_image_enhancement_methods->addItem(grpbox_FNS_processing,QString("Fixed Background Noise Suppresssion"));
@@ -556,29 +538,45 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
 	QSizePolicy grpbox_size_policy;
-	grpbox_size_policy.setHorizontalPolicy(QSizePolicy::Preferred);
-	grpbox_size_policy.setVerticalPolicy(QSizePolicy::Fixed);
-	grpbox_Image_Shift->setSizePolicy(grpbox_size_policy);
-	grpbox_Image_Shift->setFixedHeight(150);
+	// grpbox_size_policy.setHorizontalPolicy(QSizePolicy::Preferred);
+	// grpbox_size_policy.setVerticalPolicy(QSizePolicy::Fixed);
+	// grpbox_Image_Shift->setSizePolicy(grpbox_size_policy);
+	// grpbox_Image_Shift->setFixedHeight(150);
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	
 	QLabel* lbl_OSM_track_ID = new QLabel("Track ID:");
-	btn_center_on_osm = new QPushButton("Center on\n OSM");
-	grid_Image_Shift->addWidget(btn_center_on_osm,0,1,1,1);
+	QLabel* lbl_manual_track_ID = new QLabel("Manual Track ID:");
+	QLabel* lbl_track_centering_priority = new QLabel("Centering Priority:");
+	QLabel* lbl_frame_stack_Nframes = new QLabel("Number of Frames");
+	txt_frame_stack_Nframes = new QLineEdit("5");
+	txt_frame_stack_Nframes->setFixedWidth(100);
 	cmb_OSM_track_IDs = new QComboBox();
 	cmb_OSM_track_IDs->setCurrentIndex(0);
-	grid_Image_Shift->addWidget(lbl_OSM_track_ID,1,1,1,1);
-	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,2,1,1,1);
-	btn_center_on_manual = new QPushButton("Center on\n Manual");
-	QLabel* lbl_Manual_track_ID = new QLabel("Manual\n Track ID:");
 	cmb_manual_track_IDs = new QComboBox();
 	cmb_manual_track_IDs->setCurrentIndex(0);
-	grid_Image_Shift->addWidget(btn_center_on_manual,0,2,1,1);
-	grid_Image_Shift->addWidget(lbl_Manual_track_ID,1,2,1,1);
-	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,2,1,1);
-	btn_center_on_brightest = new QPushButton("Center on\n Brightest");
-	grid_Image_Shift->addWidget(btn_center_on_brightest,0,3,1,1);
-	
+	cmb_track_centering_priority = new QComboBox();
+	cmb_track_centering_priority->addItem(QString("OSM"));
+	cmb_track_centering_priority->addItem(QString("Manual"));
+	cmb_track_centering_priority->addItem(QString("OSM then Manual"));
+	cmb_track_centering_priority->addItem(QString("Manual then OSM"));
+	btn_center_on_tracks = new QPushButton("Center on Tracks");
+	btn_center_on_tracks->setFixedWidth(150);
+	connect(btn_center_on_tracks, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnTracks);
+	btn_center_on_brightest = new QPushButton("Center on Brightest");	
+	connect(btn_center_on_brightest, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnBrightest);
+	btn_frame_stack = new QPushButton("Frame Stack");
+
+	grid_Image_Shift->addWidget(lbl_track_centering_priority,0,0,1,1);
+	grid_Image_Shift->addWidget(cmb_track_centering_priority,0,1,1,1);
+	grid_Image_Shift->addWidget(lbl_OSM_track_ID,1,0,1,1);
+	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,1,1,1,1);
+	grid_Image_Shift->addWidget(lbl_manual_track_ID,2,0,1,1);
+	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,1,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_tracks,3,0,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_brightest,3,1,1,1);
+	grid_Image_Shift->addWidget(lbl_frame_stack_Nframes,4,0,1,1);
+	grid_Image_Shift->addWidget(txt_frame_stack_Nframes,4,1,1,1);
+	grid_Image_Shift->addWidget(btn_frame_stack,4,2,1,1);
 	// // ------------------------------------------------------------------------
 	
 	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
@@ -962,10 +960,6 @@ void SirveApp::setupConnections() {
 
     connect(btn_ANS, &QPushButton::clicked, this, &SirveApp::ExecuteNoiseSuppression);
 
-	connect(btn_center_on_osm, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnOSM);
-	connect(btn_center_on_manual, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnManual);
-	connect(btn_center_on_brightest, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnBrightest);
-
 	//---------------------------------------------------------------------------
 
     connect(btn_change_workspace_directory, &QPushButton::clicked, this, &SirveApp::ChangeWorkspaceDirectory);
@@ -1265,12 +1259,12 @@ void SirveApp::LoadWorkspace()
 
 			case ProcessingMethod::center_on_OSM:{
 				QString trackTypePriority = "OSM";
-                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets, cmb_processing_states->currentIndex());
+                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, cmb_processing_states->currentIndex());
 				break;
 			}
 			case ProcessingMethod::center_on_manual:{
 				QString trackTypePriority = "manual";
-                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,cmb_processing_states->currentIndex());
+                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, cmb_processing_states->currentIndex());
 				break;
 			}
 			case ProcessingMethod::center_on_brightest:
@@ -2669,37 +2663,40 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 }
 
 
-void SirveApp::ExecuteCenterOnOSM()
+void SirveApp::ExecuteCenterOnTracks()
 {
 	int track_id;
-	if (cmb_OSM_track_IDs->currentIndex()==0){
-		track_id = -1;
+	boolean findAnyTrack = false;
+	QString trackTypePriority;
+	if(cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
+		if (cmb_OSM_track_IDs->currentIndex()==0){
+			track_id = -1;
+		}
+		else{
+			track_id = cmb_OSM_track_IDs->currentText().toInt();
+		}
+		trackTypePriority = "OSM";
 	}
-	else{
-		track_id = cmb_OSM_track_IDs->currentText().toInt();
+	else if(cmb_track_centering_priority->currentIndex()==1 || cmb_track_centering_priority->currentIndex()==3){
+		if (cmb_manual_track_IDs->currentIndex()==0){
+			track_id = -1;
+		}
+		else{
+			track_id = cmb_manual_track_IDs->currentText().toInt();
+		}
+		trackTypePriority = "Manual";
 	}
+	if(cmb_track_centering_priority->currentIndex()==2 || cmb_track_centering_priority->currentIndex()==3){
+		findAnyTrack = true;
+	}
+
 	std::vector<std::vector<int>> track_centered_offsets;
 	int processing_state_idx = cmb_processing_states->currentIndex();
-	QString trackTypePriority = "OSM";
-    CenterOnTracks(trackTypePriority,track_id, track_centered_offsets, processing_state_idx);
+	
+    CenterOnTracks(trackTypePriority, track_id, track_centered_offsets, findAnyTrack, processing_state_idx);
 }
 
-void SirveApp::ExecuteCenterOnManual()
-{	
-	int track_id;
-	if (cmb_manual_track_IDs->currentIndex()==0){
-		track_id = -1;
-	}
-	else{
-		track_id = cmb_manual_track_IDs->currentText().toInt();
-	}
-	std::vector<std::vector<int>> track_centered_offsets;
-	int processing_state_idx = cmb_processing_states->currentIndex();
-	QString trackTypePriority = "Manual";
-	CenterOnTracks(trackTypePriority,track_id, track_centered_offsets, processing_state_idx);
-}
-
-void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, int processing_state_idx)
+void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int processing_state_idx)
 {
 	int OSMPriority = QString::compare(trackTypePriority,"OSM",Qt::CaseInsensitive);
     processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
@@ -2720,11 +2717,12 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
 
 		track_centered_state.method = ProcessingMethod::center_on_manual;
 	}
+	track_centered_state.find_any_tracks = find_any_tracks;
 	ImageProcessing COSM;
 	progress_bar_main->setRange(0,number_frames - 1);
 	lbl_progress_status->setText(QString("Center on OSM..."));
 	connect(&COSM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	track_centered_state.details.frames_16bit = COSM.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, track_centered_offsets);
+	track_centered_state.details.frames_16bit = COSM.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));

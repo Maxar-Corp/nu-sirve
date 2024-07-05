@@ -198,7 +198,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(V
 }
 
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, std::vector<std::vector<int>> & track_centered_offsets)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -258,7 +258,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                         }
                     }
                 }
-                if(cont_search && manualFrames[framei].tracks.size()>0){
+                if(cont_search && manualFrames[framei].tracks.size()>0 && findAnyTrack){
                     i = 0;
                     while (cont_search && i < manualFrames[framei].tracks.size()){
                         if (manualFrames[framei].tracks[i].centroid_x != NULL){
@@ -289,7 +289,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                         }
                     }
                 }
-                if(cont_search && osmFrames[framei].tracks.size()>0){
+                if(cont_search && osmFrames[framei].tracks.size()>0 && findAnyTrack){
                     i = 0;
                     while (cont_search && i < osmFrames[framei].tracks.size()){
                         if (osmFrames[framei].tracks[i].centroid_x != NULL){
