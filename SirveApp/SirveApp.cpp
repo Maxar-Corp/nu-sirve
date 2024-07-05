@@ -110,15 +110,15 @@ void SirveApp::SetupUi() {
 	QGroupBox *grpbox_top_gui = new QGroupBox();
 	grpbox_top_gui->setFlat(true);
 	// grpbox_top_gui->setStyleSheet("border-width: 0px;");
-	QGridLayout *grid_bottom_gui = new QGridLayout();
-	grpbox_top_gui->setLayout(grid_bottom_gui);
+	QGridLayout *grid_top_gui = new QGridLayout();
+	grpbox_top_gui->setLayout(grid_top_gui);
 	main_layout->addWidget(grpbox_top_gui,0,0,1,3);
 
 	QGroupBox *grpbox_import_area = new QGroupBox();
 	QGridLayout *grid_import_area = new QGridLayout();
 	grpbox_import_area->setLayout(grid_import_area);
 	grpbox_import_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	grpbox_import_area->setFixedWidth(350);
+	grpbox_import_area->setFixedWidth(400);
 	btn_load_osm = new QPushButton("Load OSM File");
 	lbl_file_name = new QLabel("File Name:");
 	btn_copy_directory = new QPushButton("Copy File Path");
@@ -127,27 +127,8 @@ void SirveApp::SetupUi() {
 	grid_import_area->addWidget(btn_load_osm, 1, 0, 1, 1);
 	grid_import_area->addWidget(btn_copy_directory, 2, 0,1,1);
 	grid_import_area->addWidget(btn_calibration_dialog, 3, 0, 1, 1);
-	grid_bottom_gui->addWidget(grpbox_import_area,0,0,1,1);
+	grid_top_gui->addWidget(grpbox_import_area,0,0,1,1);
 	
-	QGroupBox *grpbox_epoch_area = new QGroupBox();
-	QGridLayout *grid_epoch_area = new QGridLayout();
-	grpbox_epoch_area->setLayout(grid_epoch_area);
-	grpbox_epoch_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	grpbox_epoch_area->setFixedWidth(300);
-	QLabel* label_epoch = new QLabel("Epoch");
-	QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
-	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
-	dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
-	dt_epoch->setAlignment(Qt::AlignHCenter);
-	lbl_current_epoch = new QLabel("Applied Epoch: ");
-	btn_apply_epoch = new QPushButton("Apply Epoch");
-	grid_epoch_area->addWidget(label_epoch, 0, 0, 1, 1);
-	grid_epoch_area->addWidget(dt_epoch, 0, 1, 1, 1);
-	grid_epoch_area->addWidget(label_date_format, 1,0,1,2);
-	grid_epoch_area->addWidget(lbl_current_epoch, 2,0,1,2);
-	grid_epoch_area->addWidget(btn_apply_epoch, 3, 0,1,1);
-	grid_bottom_gui->addWidget(grpbox_epoch_area,0,1,1,1);
-
 	QGroupBox *grpbox_load_area = new QGroupBox();
 	QGridLayout *grid_load_area = new QGridLayout();
 	grpbox_load_area->setLayout(grid_load_area);
@@ -167,12 +148,12 @@ void SirveApp::SetupUi() {
 	grid_load_area->addWidget(label_stop_frame, 2,0,1,1);
 	grid_load_area->addWidget(txt_end_frame, 2, 1,1,1);
 	grid_load_area->addWidget(btn_get_frames, 3, 0, 1, 1);
-	grid_bottom_gui->addWidget(grpbox_load_area,0,2,1,1);
+	grid_top_gui->addWidget(grpbox_load_area,0,2,1,1);
 
 	QGroupBox *grpbox_workspace_area = new QGroupBox();
 	QGridLayout *grid_workspace_area = new QGridLayout();
 	grpbox_workspace_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-	grpbox_workspace_area->setFixedWidth(500);
+	grpbox_workspace_area->setFixedWidth(550);
 	grpbox_workspace_area->setLayout(grid_workspace_area);
 	lbl_current_workspace_folder = new QLabel("Current Workspace Folder: " + config_values.workspace_folder);
     lbl_current_workspace_folder->setWordWrap(true);
@@ -186,25 +167,27 @@ void SirveApp::SetupUi() {
 	grid_workspace_area->addWidget(btn_workspace_load, 2, 0, 1, 1);
     grid_workspace_area->addWidget(cmb_workspace_name, 2, 1, 1, 1);
     grid_workspace_area->addWidget(btn_workspace_save, 3, 0, 1, 1);
-	grid_bottom_gui->addWidget(grpbox_workspace_area,0,3,1,3);
+	grid_top_gui->addWidget(grpbox_workspace_area,0,3,1,3);
 	
 	QGroupBox *grpbox_status_area = new QGroupBox();
 	QGridLayout *grid_status_area = new QGridLayout();
 	grpbox_status_area->setLayout(grid_status_area);
 	progress_bar_main = new QProgressBar();
 	lbl_progress_status = new QLabel("");
+	lbl_progress_status->setFixedHeight(50);
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
 	QLabel *lbl_processing_state = new QLabel("Processing State:");
 	grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
 	grid_status_area->addWidget(cmb_processing_states,0,1,1,5);
 	grid_status_area->addWidget(btn_undo_step,0,6,1,1);
-	grid_status_area->addWidget(lbl_progress_status,1,0,3,7);
+	// grid_status_area->addWidget(lbl_progress_status,1,0,3,7);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	grpbox_status_area->setFixedWidth(500);
-	grid_bottom_gui->addWidget(grpbox_status_area,0,6,1,1);
+	// grpbox_status_area->setFixedWidth(500);
+	grid_top_gui->addWidget(grpbox_status_area,0,5,1,2);
 
-	main_layout->addWidget(progress_bar_main,2,0,1,-1);
+	main_layout->addWidget(lbl_progress_status,2,0,2,-1);
+	main_layout->addWidget(progress_bar_main,4,0,1,-1);
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
 
@@ -365,6 +348,26 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_overlay_controls->addWidget(btn_add_annotations,1,3);
 
 	vlayout_tab_color->addWidget(grpbox_overlay_controls);
+
+	QGroupBox *grpbox_epoch_area = new QGroupBox();
+	QGridLayout *grid_epoch_area = new QGridLayout();
+	grpbox_epoch_area->setLayout(grid_epoch_area);
+	// grpbox_epoch_area->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+	// grpbox_epoch_area->setFixedWidth(300);
+	QLabel* label_epoch = new QLabel("Epoch");
+	QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
+	dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
+	dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
+	dt_epoch->setAlignment(Qt::AlignHCenter);
+	lbl_current_epoch = new QLabel("Applied Epoch: ");
+	btn_apply_epoch = new QPushButton("Apply Epoch");
+	grid_epoch_area->addWidget(label_epoch, 0, 0, 1, 1);
+	grid_epoch_area->addWidget(dt_epoch, 0, 1, 1, 1);
+	grid_epoch_area->addWidget(label_date_format, 1,0,1,2);
+	grid_epoch_area->addWidget(lbl_current_epoch, 2,0,1,2);
+	grid_epoch_area->addWidget(btn_apply_epoch, 3, 0,1,1);
+	vlayout_tab_color->addWidget(grpbox_epoch_area);
+
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
 	return widget_tab_color;
@@ -1260,14 +1263,16 @@ void SirveApp::LoadWorkspace()
                 ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
-			case ProcessingMethod::center_on_OSM:
-                CenterOnOSM(current_state.track_id, current_state.offsets, cmb_processing_states->currentIndex());
+			case ProcessingMethod::center_on_OSM:{
+				QString trackTypePriority = "OSM";
+                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets, cmb_processing_states->currentIndex());
 				break;
-
-			case ProcessingMethod::center_on_manual:
-                CenterOnManual(current_state.track_id, current_state.offsets,cmb_processing_states->currentIndex());
+			}
+			case ProcessingMethod::center_on_manual:{
+				QString trackTypePriority = "manual";
+                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,cmb_processing_states->currentIndex());
 				break;
-
+			}
 			case ProcessingMethod::center_on_brightest:
                 CenterOnBrightest(current_state.offsets,cmb_processing_states->currentIndex());
 				break;
@@ -2554,9 +2559,7 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 		msgBox.setStandardButtons(QMessageBox::Ok);
 		msgBox.setDefaultButton(QMessageBox::Ok);
 		msgBox.exec();
-
 	}
-
 }
 
 void SirveApp::ExecuteNonUniformityCorrectionSelectionOption()
@@ -2604,12 +2607,12 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-	FixedNoiseSuppression FNS;
+	ImageProcessing FNS;
 	progress_bar_main->setRange(0,number_video_frames - 1);
 	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Fixed Noise Suppression..."));
-	connect(&FNS, &FixedNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	noise_suppresion_state.details.frames_16bit = FNS.ProcessFrames(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
+	connect(&FNS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	noise_suppresion_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
@@ -2675,34 +2678,10 @@ void SirveApp::ExecuteCenterOnOSM()
 	else{
 		track_id = cmb_OSM_track_IDs->currentText().toInt();
 	}
-	std::vector<std::vector<int>> OSM_centered_offsets;
+	std::vector<std::vector<int>> track_centered_offsets;
 	int processing_state_idx = cmb_processing_states->currentIndex();
-    CenterOnOSM(track_id, OSM_centered_offsets, processing_state_idx);
-}
-
-void SirveApp::CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets, int processing_state_idx)
-{
-    processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
-
-	processingState OSM_centered_state = original;
-	OSM_centered_state.details.frames_16bit.clear();
-
-	int number_frames = static_cast<int>(original.details.frames_16bit.size());
-  	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
-    int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
-	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
-	OSM_centered_state.track_id = track_id;
-	OSM_centered_state.method = ProcessingMethod::center_on_OSM;
-	ImageProcessing COSM;
-	progress_bar_main->setRange(0,number_frames - 1);
-	lbl_progress_status->setText(QString("Center on OSM..."));
-	connect(&COSM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	OSM_centered_state.details.frames_16bit = COSM.CenterOnOSM(original.details, track_id, osmFrames, OSM_centered_offsets);
-	progress_bar_main->setValue(0);
-	progress_bar_main->setTextVisible(false);
-	lbl_progress_status->setText(QString(""));
-	OSM_centered_state.offsets = OSM_centered_offsets;
-    video_display->container.AddProcessingState(OSM_centered_state);
+	QString trackTypePriority = "OSM";
+    CenterOnTracks(trackTypePriority,track_id, track_centered_offsets, processing_state_idx);
 }
 
 void SirveApp::ExecuteCenterOnManual()
@@ -2714,36 +2693,43 @@ void SirveApp::ExecuteCenterOnManual()
 	else{
 		track_id = cmb_manual_track_IDs->currentText().toInt();
 	}
-		std::vector<std::vector<int>> manual_centered_offsets;
-		int processing_state_idx = cmb_processing_states->currentIndex();
-		CenterOnManual(track_id, manual_centered_offsets,processing_state_idx);
+	std::vector<std::vector<int>> track_centered_offsets;
+	int processing_state_idx = cmb_processing_states->currentIndex();
+	QString trackTypePriority = "Manual";
+	CenterOnTracks(trackTypePriority,track_id, track_centered_offsets, processing_state_idx);
 }
 
-void SirveApp::CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets, int processing_state_idx)
+void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, int processing_state_idx)
 {
-	std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-	if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end() || (track_id<0 && previous_manual_track_ids.size()>0)){
-		processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
-		processingState manual_centered_state = original;
-		manual_centered_state.details.frames_16bit.clear();
-		int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-		int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
-		int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
-		std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
-		manual_centered_state.track_id = track_id;
-		manual_centered_state.method = ProcessingMethod::center_on_manual;
-		progress_bar_main->setRange(0,number_video_frames - 1);
-		progress_bar_main->setTextVisible(true);
-		lbl_progress_status->setText(QString("Center on Manual Tracks..."));
-		ImageProcessing COM;
-		connect(&COM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-		manual_centered_state.details.frames_16bit = COM.CenterOnManual(original.details, track_id, manualFrames, manual_centered_offsets);
-		progress_bar_main->setValue(0);
-		progress_bar_main->setTextVisible(false);
-		lbl_progress_status->setText(QString(""));
-		manual_centered_state.offsets = manual_centered_offsets;
-		video_display->container.AddProcessingState(manual_centered_state);
+	int OSMPriority = QString::compare(trackTypePriority,"OSM",Qt::CaseInsensitive);
+    processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
+
+	processingState track_centered_state = original;
+	track_centered_state.details.frames_16bit.clear();
+
+	int number_frames = static_cast<int>(original.details.frames_16bit.size());
+  	int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+    int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
+	std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
+	std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
+	track_centered_state.track_id = track_id;
+	if (OSMPriority==0){
+		track_centered_state.method = ProcessingMethod::center_on_OSM;
 	}
+	else{
+
+		track_centered_state.method = ProcessingMethod::center_on_manual;
+	}
+	ImageProcessing COSM;
+	progress_bar_main->setRange(0,number_frames - 1);
+	lbl_progress_status->setText(QString("Center on OSM..."));
+	connect(&COSM, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	track_centered_state.details.frames_16bit = COSM.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, track_centered_offsets);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
+	track_centered_state.offsets = track_centered_offsets;
+    video_display->container.AddProcessingState(track_centered_state);
 }
 
 void SirveApp::ExecuteCenterOnBrightest()
@@ -2767,7 +2753,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 	lbl_progress_status->setText(QString("Center on Brightest Object..."));
 	ImageProcessing COB;
 	connect(&COB, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightestFast(original.details, brightest_centered_offsets);
+	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightest(original.details, brightest_centered_offsets);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
@@ -2848,12 +2834,12 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
 	
-	AdaptiveNoiseSuppression ANS;
+	ImageProcessing ANS;
 	lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
 	progress_bar_main->setRange(0,number_video_frames - 1);
 	progress_bar_main->setTextVisible(true);
-	connect(&ANS, &AdaptiveNoiseSuppression::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	noise_suppresion_state.details.frames_16bit = ANS.ProcessFramesConserveMemory(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+	connect(&ANS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	noise_suppresion_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
