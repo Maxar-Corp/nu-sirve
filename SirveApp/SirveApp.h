@@ -94,16 +94,15 @@ public:
 	/* --------------------------------------------------------------------------------------------
 	Qt Elements for user interface
 	----------------------------------------------------------------------------------------------- */
-	// QString dark_green_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
-	// QString olive_green_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
-	// QString dark_blue_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
-	// QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
-	// QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
-	// QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
 
 	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
+
+    QString sub_toolbox_StyleSheet = "QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover,\
+                                        QToolBox::tab:selected {margin-left: 0px;margin-right: 1px; \
+                                        background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,\
+                                        stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));}";
 
 
 	QTabWidget* tab_menu, * tab_plots;

@@ -109,6 +109,7 @@ void SirveApp::SetupUi() {
 
 	QGroupBox *grpbox_top_gui = new QGroupBox();
 	grpbox_top_gui->setFlat(true);
+	// grpbox_top_gui->setStyleSheet("border-width: 0px;");
 	QGridLayout *grid_bottom_gui = new QGridLayout();
 	grpbox_top_gui->setLayout(grid_bottom_gui);
 	main_layout->addWidget(grpbox_top_gui,0,0,1,3);
@@ -438,23 +439,26 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 
 	QGroupBox *grpbox_image_processing = new QGroupBox();
-	grpbox_image_processing->setFixedHeight(250);
-	QStackedWidget *qstack_image_enhancement_methods = new QStackedWidget();
-	// qstack_image_enhancement_methods->setFixedHeight(200);
-	QComboBox *cmb_image_enhancement_choice = new QComboBox();
-    cmb_image_enhancement_choice->addItem(tr("Fixed Background"));
-    cmb_image_enhancement_choice->addItem(tr("Adaptive Background"));
-    cmb_image_enhancement_choice->addItem(tr("Robust Principal Component Pursuit"));
-	cmb_image_enhancement_choice->addItem(tr("Deinterlace"));
+	// grpbox_image_processing->setFixedHeight(300);
+	// QStackedWidget *qstack_image_enhancement_methods = new QStackedWidget();
+	QToolBox *toolbox_image_enhancement_methods = new QToolBox();
+	// toolbox_image_enhancement_methods->setStyleSheet(bold_large_styleSheet);
+	toolbox_image_enhancement_methods->setStyleSheet(sub_toolbox_StyleSheet);
+	// QComboBox *cmb_image_enhancement_choice = new QComboBox();
+    // cmb_image_enhancement_choice->addItem(tr("Fixed Background"));
+    // cmb_image_enhancement_choice->addItem(tr("Adaptive Background"));
+    // cmb_image_enhancement_choice->addItem(tr("Robust Principal Component Pursuit"));
+	// cmb_image_enhancement_choice->addItem(tr("Deinterlace"));
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
-	QLabel *lbl_image_enhancement_methods = new QLabel("Method");
-	grid_image_processing->addWidget(lbl_image_enhancement_methods,0,0,1,1);
-	grid_image_processing->addWidget(cmb_image_enhancement_choice,0,1,1,1);
-	grid_image_processing->addWidget(qstack_image_enhancement_methods,1,0,1,6);
-    connect(cmb_image_enhancement_choice, qOverload<int>(&QComboBox::currentIndexChanged),qstack_image_enhancement_methods, &QStackedWidget::setCurrentIndex);
+	// QLabel *lbl_image_enhancement_methods = new QLabel("Method");
+	// grid_image_processing->addWidget(lbl_image_enhancement_methods,0,0,1,1);
+	// grid_image_processing->addWidget(cmb_image_enhancement_choice,0,1,1,1);
+	grid_image_processing->addWidget(toolbox_image_enhancement_methods,1,0,1,6);
+    // connect(cmb_image_enhancement_choice, qOverload<int>(&QComboBox::currentIndexChanged),qstack_image_enhancement_methods, &QStackedWidget::setCurrentIndex);
 	
 	grpbox_FNS_processing = new QGroupBox("");
-	grpbox_FNS_processing->setFlat(true);
+	// grpbox_FNS_processing->setFlat(true);
+	grpbox_FNS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
@@ -481,7 +485,9 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox("");
-	grpbox_ANS_processing->setFlat(true);
+	// grpbox_ANS_processing->setFlat(true);
+	// grpbox_ANS_processing->setStyleSheet("border-width: 0px;");
+	grpbox_ANS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(200,200,200);");
@@ -516,11 +522,14 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_ANS_processing->addWidget(btn_ANS, 3, 4, 1, 2);
 	QGroupBox *grpbox_RPCP_processing = new QGroupBox("");
 	grpbox_RPCP_processing->setFlat(true);
+	grpbox_RPCP_processing->setStyleSheet("border-width: 0px;");
 	QGridLayout* grid_RPCP_processing = new QGridLayout(grpbox_RPCP_processing);
 
 	// ------------------------------------------------------------------------
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
-	grpbox_deinterlacing->setFlat(true);
+	// grpbox_deinterlacing->setFlat(true);
+	// grpbox_deinterlacing->setStyleSheet("border-width: 0px;");
+	grpbox_deinterlacing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_deinterlacing = new QGridLayout(grpbox_deinterlacing);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	btn_deinterlace->setFixedWidth(150);
@@ -534,13 +543,13 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_deinterlacing->addWidget(btn_deinterlace,0,1,1,1);
 
 	QToolBox *toolbox_image_processing = new QToolBox();
-	toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
+	// toolbox_image_processing->setStyleSheet(bold_large_styleSheet);
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
 	toolbox_image_processing->addItem(grpbox_image_processing,QString("Image Enhancement"));
-	qstack_image_enhancement_methods->addWidget(grpbox_FNS_processing);
-	qstack_image_enhancement_methods->addWidget(grpbox_ANS_processing);
-	qstack_image_enhancement_methods->addWidget(grpbox_RPCP_processing);
-	qstack_image_enhancement_methods->addWidget(grpbox_deinterlacing);
+	toolbox_image_enhancement_methods->addItem(grpbox_FNS_processing,QString("Fixed Background Noise Suppresssion"));
+	toolbox_image_enhancement_methods->addItem(grpbox_ANS_processing,QString("Adaptive Background Noise Suppresssion"));
+	toolbox_image_enhancement_methods->addItem(grpbox_RPCP_processing,QString("RPCP Noise Suppresssion"));
+	toolbox_image_enhancement_methods->addItem(grpbox_deinterlacing,QString("Deinterlacing"));
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
 	QSizePolicy grpbox_size_policy;
