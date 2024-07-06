@@ -192,8 +192,8 @@ void SirveApp::SetupUi() {
 	btn_exit->setStyleSheet(orange_button_styleSheet);
 	connect(btn_exit, &QPushButton::clicked, this, &SirveApp::HandleExitClicked);
 	main_layout->addWidget(lbl_progress_status,2,0,1,-1);
-	main_layout->addWidget(progress_bar_main,4,0,1,9);
-	main_layout->addWidget(btn_exit,4,10,1,1);
+	main_layout->addWidget(progress_bar_main,4,0,1,8);
+	main_layout->addWidget(btn_exit,4,9,1,1);
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
 
@@ -1250,12 +1250,14 @@ void SirveApp::LoadWorkspace()
                 ApplyAdaptiveNoiseCorrection(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str, current_state.ANS_shadow_threshold);
 				break;
 
-			case ProcessingMethod::deinterlace:
-                ApplyDeinterlacing(current_state.deint_type);
+			case ProcessingMethod::deinterlace:{
+				int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+    			int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
+				std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
+			    ApplyDeinterlacing(current_state.deint_type);
 				break;
-
+			}
 			case ProcessingMethod::fixed_noise_suppression:
-
                 ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
 				break;
 
@@ -1271,6 +1273,9 @@ void SirveApp::LoadWorkspace()
 			}
 			case ProcessingMethod::center_on_brightest:
                 CenterOnBrightest(current_state.offsets,cmb_processing_states->currentIndex());
+				break;
+			case ProcessingMethod::frame_stacking:
+                FrameStacking(current_state.frame_stack_num_frames);
 				break;
 
 			default:
@@ -1314,8 +1319,8 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);
 			// btn_calibration_dialog->setEnabled(true);
-			txt_start_frame->setStyleSheet(orange_styleSheet);
-			txt_end_frame->setStyleSheet(orange_styleSheet);		
+			// txt_start_frame->setStyleSheet(orange_styleSheet);
+			// txt_end_frame->setStyleSheet(orange_styleSheet);		
 		}
 		else{
 			txt_start_frame->setEnabled(false);
@@ -2647,8 +2652,6 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 {
     processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
 
-	//Deinterlace deinterlace_method(deinterlace_method_type, original.details.x_pixels, original.details.y_pixels);
-
 	processingState deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
 
@@ -2661,7 +2664,7 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Deinterlacing..."));
 	connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(original.details);
+	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(osm_frames, original.details);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
@@ -2811,11 +2814,10 @@ void SirveApp::HandleProcessingStatesCleared()
 void SirveApp::ExecuteFrameStacking()
 {
 	int number_of_frames = txt_frame_stack_Nframes->text().toInt();
-	int processing_state_idx = cmb_processing_states->currentIndex();
-	FrameStacking(number_of_frames,processing_state_idx);
+	FrameStacking(number_of_frames);
 }
 
-void SirveApp::FrameStacking(int number_of_frames, int processing_state_idx)
+void SirveApp::FrameStacking(int number_of_frames)
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();

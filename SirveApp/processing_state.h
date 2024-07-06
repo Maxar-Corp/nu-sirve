@@ -17,7 +17,8 @@ enum struct ProcessingMethod
     deinterlace,
     center_on_OSM,
     center_on_manual,
-    center_on_brightest
+    center_on_brightest,
+    frame_stacking
 };
 
 struct processingState {
@@ -31,6 +32,7 @@ struct processingState {
 
     int ANS_relative_start_frame;
     int ANS_num_frames;
+    int frame_stack_num_frames;
     int ANS_shadow_threshold;
 
     QString FNS_file_path;
@@ -75,6 +77,9 @@ struct processingState {
                 break;
             case ProcessingMethod::center_on_brightest:
                 return "Centered on Brightest - " + QString::number(track_id);
+                break;
+            case ProcessingMethod::frame_stacking:
+                return "Frame Stack - averaging " + QString::number(frame_stack_num_frames);
                 break;
             default:
                 return "Unknown";
@@ -155,6 +160,10 @@ struct processingState {
                 state_object.insert("offsets", offsetsixy);
                 break;
             }
+            case ProcessingMethod::frame_stacking:
+                state_object.insert("method", "Frame Stacking");
+                state_object.insert("frame_stack_num_frames", frame_stack_num_frames);
+                break;
             default:
                 state_object.insert("method", "error");
         }

@@ -292,7 +292,7 @@ private:
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
-    void FrameStacking(int num_frames, int processing_state_idx);
+    void FrameStacking(int num_frames);
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
 
     void EnableEngineeringPlotOptions();

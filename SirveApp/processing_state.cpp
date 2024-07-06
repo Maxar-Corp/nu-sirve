@@ -101,5 +101,12 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.offsets = offsets;
         return temp;
     }
+
+     if (method == "Frame Stack")
+    {
+        processingState temp = { ProcessingMethod::frame_stacking };
+        temp.frame_stack_num_frames = json_obj.value("frame_stack_num_frames").toInt();
+        return temp;
+    }
     throw "Unexpected";
 }
