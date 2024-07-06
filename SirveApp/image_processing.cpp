@@ -88,7 +88,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	int num_pixels = original.frames_16bit[0].size();
 	int nRows = original.y_pixels;
     int nCols = original.x_pixels;
-	int index_first_frame, index_last_frame, index_frame, abs_start_frame;
+	int index_first_frame, index_last_frame, abs_start_frame;
 	double R;
 	abs_start_frame = std::abs(start_frame);
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -140,7 +140,7 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
 
 	arma::mat frame_matrix = arma::reshape(frame_vector,nCols,nRows).t();
 	
-	arma::uvec index_negative = arma::find(frame_vector < 2);
+	arma::uvec index_negative = arma::find(frame_vector < NThresh);
 
 	arma::vec old_frame_vector_mean;
 	double MEAN, SIGMA;
@@ -150,7 +150,7 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
     old_frame_vector_mean = old_frame_vector_mean/arma::stddev(old_frame_vector_mean);
     arma::mat old_frame_mean_mat = arma::reshape(old_frame_vector_mean,nCols,nRows).t();
     arma::mat old_frame_mean_mat_blurred = arma::conv2(old_frame_mean_mat,disk_avg_kernel,"same");
-    arma::uvec index_change = arma::find(old_frame_mean_mat_blurred.t() - frame_matrix.t() >2);
+    arma::uvec index_change = arma::find(old_frame_mean_mat_blurred.t() - frame_matrix.t() > NThresh);
     if(index_change.n_elem>0){
         arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 3);
         if(index_other.n_elem>0){
@@ -194,8 +194,8 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
     double deldtMAD = c*median(del_dt_diff_from_median.as_col());
     arma::vec daz_dt_diff_from_median = arma::abs(daz_dt - median(daz_dt.as_col()));
     double dazdtMAD = c*median(daz_dt_diff_from_median.as_col());
-    arma::uvec deinterlace_el_i = arma::find(del_dt_diff_from_median>2*deldtMAD);
-    arma::uvec deinterlace_az_i = arma::find(daz_dt_diff_from_median>2*dazdtMAD);
+    arma::uvec deinterlace_el_i = arma::find(del_dt_diff_from_median>1.*deldtMAD);
+    arma::uvec deinterlace_az_i = arma::find(daz_dt_diff_from_median>1.*dazdtMAD);
     arma::uvec deinterlace_i = arma::unique(arma::join_cols(deinterlace_el_i,deinterlace_az_i));
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
@@ -332,6 +332,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
     else{
          for (int framei = 0; framei < num_video_frames; framei++){
             UpdateProgressBar(framei);
+            QCoreApplication::processEvents();
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             output = frame;
             bool cont_search = true;
@@ -439,9 +440,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
  {
     int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
-	int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
-	int index_first_frame, index_last_frame;
+	int index_last_frame;
 	double R;
 	std::vector<std::vector<uint16_t>> frames_out;
   	arma::mat window_data(num_pixels,num_of_averaging_frames);

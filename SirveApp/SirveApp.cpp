@@ -547,22 +547,26 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	
 	QLabel* lbl_OSM_track_ID = new QLabel("OSM Track ID:");
+	lbl_OSM_track_ID->setFixedWidth(125);
 	QLabel* lbl_manual_track_ID = new QLabel("Manual Track ID:");
 	QLabel* lbl_track_centering_priority = new QLabel("Centering Priority:");
-	QLabel* lbl_frame_stack_Nframes = new QLabel("Number of Frames");
+	QLabel* lbl_frame_stack_Nframes = new QLabel("Number of Frames:");
 	txt_frame_stack_Nframes = new QLineEdit("5");
-	txt_frame_stack_Nframes->setFixedWidth(100);
+	txt_frame_stack_Nframes->setFixedWidth(50);
 	cmb_OSM_track_IDs = new QComboBox();
+	cmb_OSM_track_IDs->setFixedWidth(75);
 	cmb_OSM_track_IDs->setCurrentIndex(0);
 	cmb_manual_track_IDs = new QComboBox();
 	cmb_manual_track_IDs->setCurrentIndex(0);
+	cmb_manual_track_IDs->setFixedWidth(75);
 	cmb_track_centering_priority = new QComboBox();
+	cmb_track_centering_priority->setFixedWidth(150);
 	cmb_track_centering_priority->addItem(QString("OSM"));
 	cmb_track_centering_priority->addItem(QString("Manual"));
 	cmb_track_centering_priority->addItem(QString("OSM then Manual"));
 	cmb_track_centering_priority->addItem(QString("Manual then OSM"));
 	btn_center_on_tracks = new QPushButton("Center on Tracks");
-	btn_center_on_tracks->setFixedWidth(150);
+	btn_center_on_tracks->setFixedWidth(130);
 	connect(btn_center_on_tracks, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnTracks);
 	btn_center_on_brightest = new QPushButton("Center on Brightest");	
 	connect(btn_center_on_brightest, &QPushButton::clicked, this, &SirveApp::ExecuteCenterOnBrightest);
@@ -571,16 +575,19 @@ QWidget* SirveApp::SetupProcessingTab() {
 	connect(btn_frame_stack, &QPushButton::clicked, this, &SirveApp::ExecuteFrameStacking);
 
 	grid_Image_Shift->addWidget(lbl_track_centering_priority,0,0,1,1);
-	grid_Image_Shift->addWidget(cmb_track_centering_priority,0,1,1,1);
+	grid_Image_Shift->addWidget(cmb_track_centering_priority,0,1,1,2);
 	grid_Image_Shift->addWidget(lbl_OSM_track_ID,1,0,1,1);
 	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,1,1,1,1);
+	grid_Image_Shift->addItem(spacerItem,1,2);
 	grid_Image_Shift->addWidget(lbl_manual_track_ID,2,0,1,1);
 	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,1,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_tracks,3,1,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_brightest,3,2,1,1);
-	grid_Image_Shift->addWidget(lbl_frame_stack_Nframes,4,0,1,1);
-	grid_Image_Shift->addWidget(txt_frame_stack_Nframes,4,1,1,1);
-	grid_Image_Shift->addWidget(btn_frame_stack,4,2,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_tracks,1,3,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_brightest,2,3,1,1);
+	grid_Image_Shift->addWidget(lbl_frame_stack_Nframes,3,0,1,1);
+	grid_Image_Shift->addWidget(txt_frame_stack_Nframes,3,1,1,1);
+	grid_Image_Shift->addWidget(btn_frame_stack,3,3,1,1);
+	grid_Image_Shift->addItem(spacerItem,3,3);
+	grid_Image_Shift->addItem(spacerItem,3,4);
 	// // ------------------------------------------------------------------------
 	
 	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
