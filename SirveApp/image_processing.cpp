@@ -169,8 +169,6 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
 	frame_vector -= frame_vector.min();
 }
 
-
-
 std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(std::vector<Frame> osm_frames,VideoDetails & original)
 {
     // Initialize output
@@ -248,6 +246,51 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
     return frames_out;
 }
 
+std::vector<uint16_t> ImageProcessing::DeinterlaceCrossCorrelationCurrent(int framei, int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit)
+{
+    int nRows2 = nRows/2;
+    int n_rows_new = pow(2, ceil(log(nRows2)/log(2))), n_rows_new2 = round(n_rows_new/2);  
+    int n_cols_new = pow(2, ceil(log(nCols)/log(2))), n_cols_new2 = round(n_cols_new/2);
+    int yOffset, xOffset;  
+    arma::mat output(nRows, nCols);
+    arma::mat frame(nRows, nCols);
+    arma::mat frame0(nRows, nCols);
+   	arma::uvec odd_rows = arma::regspace<arma::uvec>(0, 2, nRows - 1);
+    arma::uvec even_rows = arma::regspace<arma::uvec>(1, 2, nRows);
+    arma::mat odd_frame(nRows2,nCols);
+    arma::mat even_frame(nRows2,nCols);
+    arma::mat even_frame0(nRows2,nCols);
+    arma::cx_mat cc_mat(n_rows_new,n_cols_new);
+    arma::uword i_max, i_max_even, i_max_odd;
+    arma::uvec peak_index,peak_index_even,peak_index_odd;
+    frame = arma::reshape(arma::conv_to<arma::vec>::from(current_frame_16bit),nCols,nRows).t();
+    frame0 = frame;
+    output = frame0;
+    frame = frame - arma::mean(frame.as_col());
+    odd_frame = frame.rows(odd_rows);
+    even_frame = frame.rows(even_rows);
+    i_max_even = even_frame.index_max();  
+    i_max_odd = odd_frame.index_max(); 
+    peak_index_even = arma::ind2sub(arma::size(even_frame),i_max_even); 
+    peak_index_odd = arma::ind2sub(arma::size(even_frame),i_max_odd);
+    if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>=4)
+    {
+        even_frame0 = frame0.rows(even_rows);
+        cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new);
+        i_max = cc_mat.index_max();
+        peak_index = arma::ind2sub(arma::size(cc_mat), i_max);
+        yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
+        xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
+        double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
+        if(d < 35 && d >1.5){
+            output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
+        }
+        output = output - arma::min(output.as_col());
+    }
+    current_frame_16bit = arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col());
+    return current_frame_16bit;
+
+}
 
 std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
 {

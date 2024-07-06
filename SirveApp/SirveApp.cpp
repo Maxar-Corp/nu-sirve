@@ -192,8 +192,8 @@ void SirveApp::SetupUi() {
 	btn_exit->setStyleSheet(orange_button_styleSheet);
 	connect(btn_exit, &QPushButton::clicked, this, &SirveApp::HandleExitClicked);
 	main_layout->addWidget(lbl_progress_status,2,0,1,-1);
-	main_layout->addWidget(progress_bar_main,4,0,1,8);
-	main_layout->addWidget(btn_exit,4,9,1,1);
+	main_layout->addWidget(progress_bar_main,4,0,1,7);
+	main_layout->addWidget(btn_exit,4,8,1,1);
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
 
@@ -523,15 +523,17 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_deinterlacing = new QGridLayout(grpbox_deinterlacing);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	btn_deinterlace->setFixedWidth(150);
-	cmb_deinterlace_choice = new QComboBox();
-	cmb_deinterlace_choice->setFixedWidth(200);
-	cmb_deinterlace_choice->addItem("Deinterlace All");
-	cmb_deinterlace_choice->addItem("Deinterlace Fast");
-	cmb_deinterlace_choice->addItem("Deinterlace Current Frame");
 	connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlace);
-	grid_deinterlacing->addWidget(cmb_deinterlace_choice,0,0,1,1);
-	grid_deinterlacing->addWidget(btn_deinterlace,0,1,1,1);
+	btn_deinterlace_current_frame = new QPushButton("Deinterlace Current Frame");
+	btn_deinterlace_current_frame->setFixedWidth(175);
+	connect(btn_deinterlace_current_frame, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlaceCurrent);
+	chk_deinterlace_confirmation = new QCheckBox("Require Confirmation");
+	chk_deinterlace_confirmation->setChecked(true);
 
+	grid_deinterlacing->addWidget(btn_deinterlace,0,0,1,1);
+	grid_deinterlacing->addWidget(btn_deinterlace_current_frame,0,1,1,1);
+	grid_deinterlacing->addWidget(chk_deinterlace_confirmation,1,1,1,1);
+	
 	QToolBox *toolbox_image_processing = new QToolBox();
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
 	toolbox_image_processing->addItem(grpbox_image_processing,QString("Image Enhancement"));
@@ -544,7 +546,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QSizePolicy grpbox_size_policy;
 	QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
 	
-	QLabel* lbl_OSM_track_ID = new QLabel("Track ID:");
+	QLabel* lbl_OSM_track_ID = new QLabel("OSM Track ID:");
 	QLabel* lbl_manual_track_ID = new QLabel("Manual Track ID:");
 	QLabel* lbl_track_centering_priority = new QLabel("Centering Priority:");
 	QLabel* lbl_frame_stack_Nframes = new QLabel("Number of Frames");
@@ -574,8 +576,8 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,1,1,1,1);
 	grid_Image_Shift->addWidget(lbl_manual_track_ID,2,0,1,1);
 	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,1,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_tracks,3,0,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_brightest,3,1,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_tracks,3,1,1,1);
+	grid_Image_Shift->addWidget(btn_center_on_brightest,3,2,1,1);
 	grid_Image_Shift->addWidget(lbl_frame_stack_Nframes,4,0,1,1);
 	grid_Image_Shift->addWidget(txt_frame_stack_Nframes,4,1,1,1);
 	grid_Image_Shift->addWidget(btn_frame_stack,4,2,1,1);
@@ -2648,6 +2650,12 @@ void SirveApp::ExecuteDeinterlace()
     ApplyDeinterlacing(deinterlace_method_type);
 }
 
+void SirveApp::ExecuteDeinterlaceCurrent()
+{
+	DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(0);
+    ApplyDeinterlacingCurrent(deinterlace_method_type);
+}
+
 void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 {
     processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
@@ -2671,6 +2679,28 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
     video_display->container.AddProcessingState(deinterlace_state);
+}
+
+void SirveApp::ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type)
+{
+    processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
+	ImageProcessing DI;
+	lbl_progress_status->setText(QString("Deinterlacing..."));
+	int framei = video_display->counter;
+	std::vector<uint16_t> current_frame_16bit = original.details.frames_16bit[framei];
+	std::vector<uint16_t> current_frame_16bit_0 = current_frame_16bit;
+	int nRows = original.details.y_pixels;
+	int nCols = original.details.x_pixels;
+	video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = DI.DeinterlaceCrossCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
+	lbl_progress_status->setText(QString(""));
+	UpdateGlobalFrameVector();
+	if(chk_deinterlace_confirmation->isChecked()){
+		auto response = QtHelpers::LaunchYesNoMessageBox("Deinterlace Frame Confirmation", "Keep result? (can not be undone after accepted)");
+		if (response != QMessageBox::Yes) {
+			video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = current_frame_16bit_0;
+			UpdateGlobalFrameVector();
+		}
+	}
 }
 
 
