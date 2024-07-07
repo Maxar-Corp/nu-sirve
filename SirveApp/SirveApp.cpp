@@ -516,7 +516,10 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_RPCP_processing->setFlat(true);
 	grpbox_RPCP_processing->setStyleSheet("border-width: 0px;");
 	QGridLayout* grid_RPCP_processing = new QGridLayout(grpbox_RPCP_processing);
-
+	btn_RPCP = new QPushButton("RPCP Noise Suppression");
+	btn_RPCP->setFixedWidth(200);
+	connect(btn_RPCP, &QPushButton::clicked, this, &SirveApp::ExecuteRPCPNoiseSuppression);
+	grid_RPCP_processing->addWidget(btn_RPCP, 0, 0, 1, 1);
 	// ------------------------------------------------------------------------
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
 	grpbox_deinterlacing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
@@ -967,9 +970,9 @@ void SirveApp::setupConnections() {
 
     connect(chk_highlight_bad_pixels, &QPushButton::clicked, video_display, &VideoDisplay::HighlightBadPixels);
 
-    connect(btn_FNS, &QPushButton::clicked, this, &SirveApp::ExecuteNonUniformityCorrectionSelectionOption);
+    connect(btn_FNS, &QPushButton::clicked, this, &SirveApp::ExecuteFixedNoiseSuppression);
 
-    connect(btn_ANS, &QPushButton::clicked, this, &SirveApp::ExecuteNoiseSuppression);
+    connect(btn_ANS, &QPushButton::clicked, this, &SirveApp::ExecuteAdaptiveNoiseSuppression);
 
 	//---------------------------------------------------------------------------
 
@@ -1256,7 +1259,7 @@ void SirveApp::LoadWorkspace()
 		switch (current_state.method)
 		{
 			case ProcessingMethod::adaptive_noise_suppression:
-                ApplyAdaptiveNoiseCorrection(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str, current_state.ANS_shadow_threshold);
+                ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str, current_state.ANS_shadow_threshold);
 				break;
 
 			case ProcessingMethod::deinterlace:{
@@ -2578,7 +2581,7 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 	}
 }
 
-void SirveApp::ExecuteNonUniformityCorrectionSelectionOption()
+void SirveApp::ExecuteFixedNoiseSuppression()
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
@@ -2709,7 +2712,6 @@ void SirveApp::ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type
 		}
 	}
 }
-
 
 void SirveApp::ExecuteCenterOnTracks()
 {
@@ -2879,7 +2881,7 @@ void SirveApp::FrameStacking(int number_of_frames)
 }
 
 
-void SirveApp::ExecuteNoiseSuppression()
+void SirveApp::ExecuteAdaptiveNoiseSuppression()
 {
 	//-----------------------------------------------------------------------------------------------
 	// get user selected frames for suppression
@@ -2897,10 +2899,10 @@ void SirveApp::ExecuteNoiseSuppression()
 		hide_shadow_choice = "Show Shadow";
 	}
 	int shadow_sigma_thresh = 3 - cmb_shadow_threshold->currentIndex();
-	ApplyAdaptiveNoiseCorrection(relative_start_frame, number_of_frames, hide_shadow_choice, shadow_sigma_thresh);
+	ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, hide_shadow_choice, shadow_sigma_thresh);
 }
 
-void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number_of_frames, QString hide_shadow_choice, int shadow_sigma_thresh)
+void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, QString hide_shadow_choice, int shadow_sigma_thresh)
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
@@ -2938,6 +2940,40 @@ void SirveApp::ApplyAdaptiveNoiseCorrection(int relative_start_frame, int number
 	noise_suppresion_state.ANS_shadow_threshold = shadow_sigma_thresh;
     video_display->container.AddProcessingState(noise_suppresion_state);
 }
+
+
+void SirveApp::ExecuteRPCPNoiseSuppression()
+{
+	//-----------------------------------------------------------------------------------------------
+	ApplyRCPCNoiseSuppression();
+}
+
+void SirveApp::ApplyRCPCNoiseSuppression()
+{
+	//Pause the video if it's running
+	playback_controller->StopTimer();
+
+	processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
+	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+
+	processingState noise_suppresion_state = original;
+	noise_suppresion_state.details.frames_16bit.clear();
+	
+	ImageProcessing RPCP;
+	lbl_progress_status->setText(QString("RPCP Noise Suppression..."));
+	progress_bar_main->setRange(0,100);
+	progress_bar_main->setTextVisible(true);
+	connect(&RPCP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	noise_suppresion_state.details.frames_16bit = RPCP.RPCPNoiseSuppression(original.details);
+	progress_bar_main->setValue(0);
+	progress_bar_main->setTextVisible(false);
+	lbl_progress_status->setText(QString(""));
+	noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
+    video_display->container.AddProcessingState(noise_suppresion_state);
+}
+
+
+
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)
 {

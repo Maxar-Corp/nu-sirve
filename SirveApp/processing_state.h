@@ -14,6 +14,7 @@ enum struct ProcessingMethod
 	original,
 	adaptive_noise_suppression,
 	fixed_noise_suppression,
+    RPCP_noise_suppression,
     deinterlace,
     center_on_OSM,
     center_on_manual,
@@ -65,6 +66,9 @@ struct processingState {
             case ProcessingMethod::fixed_noise_suppression:
                 //may potentially want to leave fns_file_path empty if it isn't an external file?
                 return "FNS - " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
+                break;
+            case ProcessingMethod::RPCP_noise_suppression:
+                return "RPCP - ";
                 break;
             case ProcessingMethod::deinterlace:
                 return "Deinterlace - " + QString::number(deint_type);

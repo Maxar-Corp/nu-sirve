@@ -123,7 +123,7 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
         * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_tracks, 
-        * btn_center_on_brightest, *btn_frame_stack, *btn_exit;
+        * btn_center_on_brightest, *btn_frame_stack, *btn_exit, *btn_RPCP;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
@@ -188,13 +188,14 @@ public:
         void HandleAbpFileSelected();
         bool ValidateAbpFiles(QString path_to_image_file);
         void UiLoadAbirData();
-        void ExecuteNoiseSuppression();
+        void ExecuteAdaptiveNoiseSuppression();
         void ExecuteDeinterlace();
         void ExecuteDeinterlaceCurrent();
         void ExecuteCenterOnTracks();
         void ExecuteCenterOnBrightest();
         void ExecuteFrameStacking();
-        void ExecuteNonUniformityCorrectionSelectionOption();
+        void ExecuteFixedNoiseSuppression();
+        void ExecuteRPCPNoiseSuppression();
 
         void StartStopVideoRecording();
         void HandleZoomOnVideoToggle();
@@ -287,16 +288,16 @@ private:
 
     void HandleBadPixelReplacement();
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace);
-
-    void ApplyFixedNoiseCorrection(int start_frame, int num_frames, QString hide_shadow_choice);
-    void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
+    
+    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
+    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
+    void ApplyRCPCNoiseSuppression();
     void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
     void ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type);
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames);
-    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
-
+ 
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
     void HandleCreateTrackClick();

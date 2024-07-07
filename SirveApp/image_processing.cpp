@@ -165,8 +165,82 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
             frame_vector.elem(index_change) = arma::randn<arma::vec>(index_change.size(),arma::distr_param(MEAN,SIGMA));
         }
     }
-
 	frame_vector -= frame_vector.min();
+}
+
+
+std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDetails & original)
+{
+    std::vector<std::vector<uint16_t>> frames_out;
+	int num_video_frames = original.frames_16bit.size();
+	int num_pixels = original.frames_16bit[0].size();
+	int nRows = original.y_pixels;
+    int nCols = original.x_pixels;
+    double lambda = 1/sqrt(std::max(num_pixels,num_video_frames));
+    double R;
+    arma::mat M(num_pixels,num_video_frames);
+    arma::vec frame_vector(num_pixels,1);
+    M.zeros();
+    for (int j = 0; j < num_video_frames; j++) { 
+       M.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
+	}
+    double mu = num_pixels*num_video_frames/(4*arma::norm(M,1));
+    double muinv = 1/mu;
+    double tol = 1e-7;
+    double M_Frob_Norm = norm(M,"fro");
+    double convg_val = M_Frob_Norm * tol;
+    bool converged = false;
+    double lambda_mu = lambda*mu;
+    int k = 0, kMax = 100;
+    arma::mat L(M);
+    L.zeros();
+    arma::mat S(M);
+    S.zeros();
+    arma::mat Y(M);
+    Y.zeros();
+    double minimization_quantity;
+    while (!converged && k<kMax){
+        UpdateProgressBar(k);
+        QCoreApplication::processEvents();
+        L = thresholding(M - S - muinv*Y, mu);
+        S = shrink(M - L + muinv*Y, lambda_mu);
+        Y = Y + mu*(M - L - S);
+        minimization_quantity = arma::norm(M - L - S,"fro");
+        if(minimization_quantity <= convg_val){
+            converged = true;
+        }
+        k +=1;
+    }
+
+    for(int k = 0; k < num_video_frames; k++) {
+        frame_vector = S.col(k);
+        R = arma::range(M.col(k));
+        frame_vector = frame_vector - frame_vector.min();
+        frame_vector = R * frame_vector/frame_vector.max();
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+    }
+	return frames_out;
+
+}
+
+arma::mat ImageProcessing::thresholding(arma::mat X, double tau)
+{
+    arma::mat U;
+    arma::vec s;
+    arma::mat V;
+    arma::svd_econ(U,s,V,X);
+    arma::mat S = arma::diagmat(s);
+    arma::mat ST = shrink(S,tau);
+    arma:: mat D = U * ST * V.t();
+    return D;
+}
+
+arma::mat ImageProcessing::shrink(arma::mat s, double tau)
+{
+    arma::mat z(s);
+    z.zeros();
+    arma::mat st = arma::sign(s) % arma::max(arma::abs(s)-tau,z);
+    return st;
 }
 
 std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(std::vector<Frame> osm_frames,VideoDetails & original)
