@@ -157,6 +157,8 @@ private:
     QLabel *lbl_create_track;
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
     QCheckBox  *chk_auto_advance_frame;
+    QLabel *lbl_frame_advance_amt;
+    QLineEdit *txt_frame_advance_amt;
     QGroupBox *grp_create_track;
     QVBoxLayout* vlayout_create_track;
     std::vector<std::optional<TrackDetails>> track_details;

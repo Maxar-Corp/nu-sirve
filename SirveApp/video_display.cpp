@@ -78,12 +78,14 @@ void VideoDisplay::SetupCreateTrackControls()
 
     lbl_create_track = new QLabel("");
 
-    btn_select_track_centroid = new QPushButton("Select Track Centroid");
+    btn_select_track_centroid = new QPushButton("Select Tesack Centroid");
     btn_select_track_centroid->setCheckable(true);
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
 
-    chk_auto_advance_frame = new QCheckBox("Auto Advance to Next Frame");
-
+    chk_auto_advance_frame = new QCheckBox("Auto Advance");
+    lbl_frame_advance_amt = new QLabel("# Frames");
+    txt_frame_advance_amt = new QLineEdit("1");
+    txt_frame_advance_amt->setFixedWidth(30);
     btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
 
@@ -94,8 +96,10 @@ void VideoDisplay::SetupCreateTrackControls()
     grid_create_track->addWidget(lbl_create_track, 0, 0, 1, 4, Qt::AlignCenter);
     grid_create_track->addWidget(btn_select_track_centroid, 1, 0, 1, 1);
     grid_create_track->addWidget(chk_auto_advance_frame, 1, 1, 1, 1);
-    grid_create_track->addWidget(btn_clear_track_centroid, 1, 2, 1, 1);
-    grid_create_track->addWidget(btn_finish_create_track, 1, 3, 1, 1);
+    grid_create_track->addWidget(lbl_frame_advance_amt, 1, 2, 1, 1);
+    grid_create_track->addWidget(txt_frame_advance_amt, 1, 3, 1, 1);
+    grid_create_track->addWidget(btn_clear_track_centroid, 1, 4, 1, 1);
+    grid_create_track->addWidget(btn_finish_create_track, 1, 5, 1, 1);
 
     grp_create_track->setHidden(true);
 
