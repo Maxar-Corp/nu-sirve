@@ -78,7 +78,7 @@ void VideoDisplay::SetupCreateTrackControls()
 
     lbl_create_track = new QLabel("");
 
-    btn_select_track_centroid = new QPushButton("Select Tesack Centroid");
+    btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
 
@@ -482,7 +482,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     if (chk_auto_advance_frame->isChecked())
     {
-        emit advanceFrame();
+        emit advanceFrame(this->txt_frame_advance_amt->text().toInt());
     }
     else
     {

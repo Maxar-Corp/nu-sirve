@@ -42,7 +42,7 @@ public slots:
     void ReverseTimer();
 
     void GotoPrevFrame();
-    void GotoNextFrame();
+    void GotoNextFrame(int frame_amt);
 
 private:
 	unsigned int current_frame_number;

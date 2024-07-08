@@ -16534,7 +16534,14 @@ debug\frame_player.obj: ..\..\frame_player.cpp ..\..\frame_player.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTimer \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtimer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h \
+		..\..\support\qthelpers.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QString \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h
 
 debug\histogram_plotter.obj: ..\..\histogram_plotter.cpp ..\..\histogram_plotter.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QChartView \

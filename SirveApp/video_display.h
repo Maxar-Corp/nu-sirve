@@ -120,7 +120,7 @@ signals:
     void clearMouseButtons();
     void addNewBadPixels(std::vector<unsigned int> new_pixels);
     void removeBadPixels(std::vector<unsigned int> pixels);
-    void advanceFrame();
+    void advanceFrame(int frame_amt);
     void finishTrackCreation();
 
 public slots:
