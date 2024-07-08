@@ -22,6 +22,14 @@ public:
     int frameval;
     void UpdateProgressBar(unsigned int value);
 
+    arma::uvec IdentifyBadPixelsMedian(double N, std::vector<std::vector<uint16_t>> & input_pixels);
+
+    arma::uvec IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>> & input_pixels);
+
+    arma::uvec FindDeadBadscalePixels(std::vector<std::vector<uint16_t>>& input_pixels);
+
+    void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels);
+
     std::vector<std::vector<uint16_t>> FixedNoiseSuppression(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original);
 
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, int NThresh, VideoDetails & original, QString & hide_shadow_choice);
@@ -59,7 +67,6 @@ private:
     static arma::mat thresholding(arma::mat X, double tau);	
 
     static arma::mat shrink(arma::mat s, double tau);
-
 };
 
 #endif

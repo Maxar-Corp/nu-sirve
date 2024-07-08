@@ -112,7 +112,7 @@ public:
 
 	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message, * lbl_bad_pixel_type,  * lbl_bad_pixel_sensitivity,  * lbl_bad_pixel_method, *lbl_moving_median_window_length;
 	QLabel *lbl_bad_pixel_start_frame, *lbl_bad_pixel_stop_frame, *lbl_ANS_number_frames, *lbl_ANS_offset_frames, *lbl_FNS_start_frame, * lbl_FNS_stop_frame, * lbl_ANS_shadow_threshold, *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
-    QLabel *lbl_progress_status;
+    QLabel *lbl_progress_status, *lbl_processing_description;
 
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes;
 	QSlider* slider_lift, * slider_gain, * slider_video;
@@ -200,6 +200,7 @@ public:
         void StartStopVideoRecording();
         void HandleZoomOnVideoToggle();
         void HandleCalculationOnVideoToggle();
+        void HandleProcessingNewStateSelected();
         void ClearZoomAndCalculationButtons();
 
         void UpdateFps();

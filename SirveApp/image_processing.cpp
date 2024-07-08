@@ -21,6 +21,214 @@ ImageProcessing::ImageProcessing()
 ImageProcessing::~ImageProcessing() {
 }
 
+void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indices, int width_pixels)
+{
+    //For each frame, replaces any bad pixels with the mean of the value of 2 pixels above, below, left, and right
+    //Other bad pixels are exempted from the calculation
+
+    //Creating a set (for faster lookup) of bad pixel indices simplifies/speeds up some of this code
+    std::set<int> bad_pixel_indices_set(bad_pixel_indices.begin(), bad_pixel_indices.end());
+
+    for (auto frame = 0; frame < original_pixels.size(); frame++)
+    {
+        UpdateProgressBar(frame);
+        QCoreApplication::processEvents();
+        for (auto i = 0; i < bad_pixel_indices.size(); i++)
+        {
+            int bad_pixel_index = bad_pixel_indices[i];
+            std::vector<int> neighbor_pixels;
+
+            //Grab up to two pixels from the left, if possible
+            int x_loc = bad_pixel_index % width_pixels;
+            if (x_loc > 0)
+            {
+                neighbor_pixels.push_back(bad_pixel_index - 1);
+                if (x_loc > 1)
+                {
+                    neighbor_pixels.push_back(bad_pixel_index - 2);
+                }
+            }
+
+            //Grab up to two pixels from the right, if possible
+            if (x_loc < width_pixels - 1)
+            {
+                neighbor_pixels.push_back(bad_pixel_index + 1);
+                if (x_loc < width_pixels - 2)
+                {
+                    neighbor_pixels.push_back(bad_pixel_index + 2);
+                }
+            }
+
+            //Grab up to two pixels from above, if possible
+            if (bad_pixel_index - width_pixels >= 0)
+            {
+                neighbor_pixels.push_back(bad_pixel_index - width_pixels);
+                if (bad_pixel_index - 2*width_pixels >= 0)
+                {
+                    neighbor_pixels.push_back(bad_pixel_index - 2*width_pixels);
+                }
+            }
+
+            //Grab up to two pixels from below, if possible
+            if (bad_pixel_index + width_pixels < original_pixels[frame].size())
+            {
+                neighbor_pixels.push_back(bad_pixel_index + width_pixels);
+                if (bad_pixel_index + 2*width_pixels < original_pixels[frame].size())
+                {
+                    neighbor_pixels.push_back(bad_pixel_index + 2*width_pixels);
+                }
+            }
+
+            //Determine the neighboring pixels' mean value to replace the pixel with
+            int running_sum = 0;
+            int other_bad_pixels_to_skip = 0;
+
+            for (auto j = 0; j < neighbor_pixels.size(); j++)
+            {
+                if (bad_pixel_indices_set.count(neighbor_pixels[j]))
+                {
+                    other_bad_pixels_to_skip += 1;
+                }
+                else
+                {
+                    running_sum += original_pixels[frame][neighbor_pixels[j]];
+                }
+            }
+
+            //The mean neighboring value is {sum of neighbor values}/{count of neighbors}
+            //We have to remember that we skipped any neighbors that are also bad pixels
+            double mean_value = 1.0 * running_sum / (neighbor_pixels.size() - other_bad_pixels_to_skip);
+            int mean = static_cast<int>(std::round(mean_value));
+
+            //Replace the bad pixel
+            original_pixels[frame][bad_pixel_index] = mean;
+        }
+    }
+}
+
+arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::vector<uint16_t>>& input_pixels)
+{    
+    double c = 1.4826;
+
+    int num_video_frames = input_pixels.size();
+
+	int num_pixels = input_pixels[0].size();
+    num_video_frames = std::min(num_video_frames,500);  
+    
+    // Create an Armadillo matrix
+    arma::mat frame_data(num_pixels, num_video_frames);
+
+    // Fill the Armadillo matrix from the std::vector
+    for (int i = 0; i < num_video_frames; i++) {
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
+    }
+    UpdateProgressBar(round(num_video_frames/4));
+    arma::vec med_frame = arma::median(frame_data,1);
+    arma::mat med_frame_M = arma::repmat(med_frame,1,frame_data.n_cols);
+
+    UpdateProgressBar(round(num_video_frames/2));
+
+    arma::mat diff_from_med = arma::abs(frame_data - med_frame_M);
+    arma::vec MAD = c*arma::median(diff_from_med,1);
+    arma::mat MADM = arma::repmat(MAD,1,frame_data.n_cols);
+    arma::umat OUTL = diff_from_med > 3*MADM;
+    arma::uvec SUMB = arma::sum(OUTL,1);
+
+    UpdateProgressBar(round(3*num_video_frames/4));
+
+    arma::vec P = arma::conv_to<arma::vec>::from(SUMB);
+    arma::uvec index_outlier = arma::find(arma::abs(P - arma::mean(P)) > N*arma::stddev(P));
+    
+    UpdateProgressBar(num_video_frames);
+
+    return index_outlier;
+}
+
+arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels)
+{
+    int index_first_frame, index_last_frame;
+
+    int num_video_frames = input_pixels.size();
+
+	int num_pixels = input_pixels[0].size();
+
+    // Create an Armadillo matrix
+    arma::mat frame_data(num_pixels, num_video_frames);
+
+    // Fill the Armadillo matrix from the std::vector
+    for (int i = 0; i < num_video_frames; i++) {
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
+    }
+
+    arma::mat frame_data_t = frame_data.t();
+    arma::mat MAD(num_pixels, num_video_frames);
+
+    arma::mat moving_median(num_pixels, num_video_frames);
+    
+    arma::umat OUTL(num_pixels, num_video_frames);
+
+    double c = 1.4826;
+    arma::uvec index_outlier;
+    index_outlier.reset();
+	for (int i = 0; i < num_video_frames; i++)
+	{
+        UpdateProgressBar(i);
+		QCoreApplication::processEvents();
+        index_first_frame = std::max(i - (half_window_length),0);
+        index_last_frame = std::min(i + (half_window_length),num_video_frames - 1);  
+        moving_median.col(i) = arma::median(frame_data.cols(index_first_frame,index_last_frame),1);
+        MAD.col(i) = c*arma::median(arma::abs(frame_data.cols(index_first_frame,index_last_frame).each_col() - moving_median.col(i)),1);
+    }
+
+    OUTL = arma::abs(frame_data - moving_median) > 3*MAD;
+    arma::uvec SUMB = arma::sum(OUTL,1);
+
+    arma::vec P = arma::conv_to<arma::vec>::from(SUMB);
+    index_outlier = arma::find(arma::abs(P - arma::mean(P)) > N*arma::stddev(P)); 
+
+    return index_outlier;
+}
+
+arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint16_t>>& input_pixels)
+{
+    int num_video_frames = input_pixels.size();
+
+	int num_pixels = input_pixels[0].size();
+
+    // Create an Armadillo matrix
+    arma::mat frame_data(num_pixels, num_video_frames);
+
+    // Fill the Armadillo matrix from the std::vector
+    for (int i = 0; i < num_video_frames; i++) {
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
+    }
+    UpdateProgressBar(round(num_video_frames/4));
+    arma::vec std_frame = arma::stddev(frame_data,0,1);
+    arma::vec var_frame = arma::var(frame_data,0,1);
+    double jj = 0;
+    arma::uvec index_dead = arma::find(var_frame <= arma::mean(var_frame) - jj*arma::stddev(var_frame));
+    while (index_dead.size() > 0.0005 * num_pixels){
+        jj += .1;
+        index_dead = arma::find(var_frame <= arma::mean(var_frame) - jj*arma::stddev(var_frame));
+    }
+    UpdateProgressBar(round(num_video_frames/2));
+    arma::vec mean_frame = arma::mean(frame_data,1);
+    double mean_mean_frame = arma::mean(mean_frame);
+    double std_mean_frame = arma::stddev(mean_frame);
+
+    double kk = 1;
+    arma::uvec index_bad_scale = arma::find(arma::abs(mean_frame - mean_mean_frame) > kk*std_mean_frame);
+    UpdateProgressBar(round(3*num_video_frames/4));
+    while (index_bad_scale.size() > 0.0005 * num_pixels){
+        kk += .1;
+        index_bad_scale = arma::find(arma::abs(mean_frame - mean_mean_frame) > kk*std_mean_frame);
+    }
+    index_dead = arma::unique(arma::join_vert(index_bad_scale,index_dead));
+    UpdateProgressBar(num_video_frames);
+    return index_dead;
+}
+
+
 std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original)
 {
 	// Initialize output
@@ -233,7 +441,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
     arma::vec frame_vector(num_pixels,1);
     M.zeros();
     for (int j = 0; j < num_video_frames; j++) { 
-       M.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
+        UpdateProgressBar(round(j/4));
+        QCoreApplication::processEvents();
+        M.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}
     double mu = num_pixels*num_video_frames/(4*arma::norm(M,1));
     double muinv = 1/mu;
@@ -250,8 +460,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
     arma::mat Y(M);
     Y.zeros();
     double minimization_quantity;
+    UpdateProgressBar(round(num_video_frames/2));
+    int k0 = round(num_video_frames/2);
     while (!converged && k<kMax){
-        UpdateProgressBar(k);
+        UpdateProgressBar(k0 + k);
         QCoreApplication::processEvents();
         L = thresholding(M - S - muinv*Y, mu);
         S = shrink(M - L + muinv*Y, lambda_mu);
@@ -262,13 +474,18 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
         }
         k +=1;
     }
-    for(int k = 0; k < num_video_frames; k++) {
-        frame_vector = S.col(k);
-        R = arma::range(M.col(k));
+    int L0 = round(3*num_video_frames/4);
+    UpdateProgressBar(L0);
+    for(int l = 0; l < num_video_frames; l++) {
+        UpdateProgressBar(L0 + l);
+        QCoreApplication::processEvents();
+        frame_vector = S.col(l);
+        R = arma::range(M.col(l));
         frame_vector = frame_vector - frame_vector.min();
         frame_vector = R * frame_vector/frame_vector.max();
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
+    UpdateProgressBar(num_video_frames);
 	return frames_out;
 }
 
@@ -311,14 +528,14 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
 	}
     arma::vec el = arma::conv_to<arma::vec>::from(boresight_el);
     arma::vec az = arma::conv_to<arma::vec>::from(boresight_az);
-    arma::vec del_dt = arma::diff(el);
-    arma::vec daz_dt = arma::diff(az);
+    arma::vec del_dt = arma::diff(el,2);
+    arma::vec daz_dt = arma::diff(az,2);
     arma::vec del_dt_diff_from_median = arma::abs(del_dt - median(del_dt.as_col()));
     double deldtMAD = c*median(del_dt_diff_from_median.as_col());
     arma::vec daz_dt_diff_from_median = arma::abs(daz_dt - median(daz_dt.as_col()));
     double dazdtMAD = c*median(daz_dt_diff_from_median.as_col());
-    arma::uvec deinterlace_el_i = arma::find(del_dt_diff_from_median>1.*deldtMAD);
-    arma::uvec deinterlace_az_i = arma::find(daz_dt_diff_from_median>1.*dazdtMAD);
+    arma::uvec deinterlace_el_i = arma::find(del_dt_diff_from_median >= .5*deldtMAD);
+    arma::uvec deinterlace_az_i = arma::find(daz_dt_diff_from_median >= .5*dazdtMAD);
     arma::uvec deinterlace_i = arma::unique(arma::join_cols(deinterlace_el_i,deinterlace_az_i));
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
@@ -345,9 +562,9 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
             even_frame = frame.rows(even_rows);
             i_max_even = even_frame.index_max();  
             i_max_odd = odd_frame.index_max(); 
-            peak_index_even = arma::ind2sub(arma::size(even_frame),i_max_even); 
-            peak_index_odd = arma::ind2sub(arma::size(even_frame),i_max_odd);
-            if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>=4){
+            // peak_index_even = arma::ind2sub(arma::size(even_frame),i_max_even); 
+            // peak_index_odd = arma::ind2sub(arma::size(even_frame),i_max_odd);
+            // if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>=4){
                 even_frame0 = frame0.rows(even_rows);
                 cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new);
                 i_max = cc_mat.index_max();
@@ -355,11 +572,11 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
                 yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
                 xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
                 double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-                if(d < 35 && d >1.5){
+                if(d < 40 && d >1.5){
                     output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
                 }
                 output = output - arma::min(output.as_col());
-            }
+            // }
             frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
         }
         else{
@@ -396,8 +613,8 @@ std::vector<uint16_t> ImageProcessing::DeinterlaceCrossCorrelationCurrent(int fr
     i_max_odd = odd_frame.index_max(); 
     peak_index_even = arma::ind2sub(arma::size(even_frame),i_max_even); 
     peak_index_odd = arma::ind2sub(arma::size(even_frame),i_max_odd);
-    if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>=4)
-    {
+    // if(sqrt(pow(peak_index_even(0)-peak_index_odd(0),2)+pow(peak_index_even(1)-peak_index_odd(1),2))>=4)
+    // {
         even_frame0 = frame0.rows(even_rows);
         cc_mat = ImageProcessing::xcorr2(odd_frame,even_frame,n_rows_new,n_cols_new);
         i_max = cc_mat.index_max();
@@ -405,11 +622,11 @@ std::vector<uint16_t> ImageProcessing::DeinterlaceCrossCorrelationCurrent(int fr
         yOffset = (peak_index(0) < n_rows_new2)*(peak_index(0) + 1) - (peak_index(0) > n_rows_new2)*(n_rows_new - peak_index(0) - 1);
         xOffset = (peak_index(1) < n_cols_new2)*peak_index(1) - (peak_index(1) > n_cols_new2)*(n_cols_new - peak_index(1) - 1);
         double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        if(d < 35 && d >1.5){
+        if(d < 40 && d >1.5){
             output.rows(even_rows) = arma::shift(arma::shift(even_frame0,yOffset,0),xOffset,1);
         }
         output = output - arma::min(output.as_col());
-    }
+    // }
     current_frame_16bit = arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col());
     return current_frame_16bit;
 
