@@ -163,7 +163,7 @@ QWidget* SirveApp::SetupFileImportTab() {
 	// ------------------------------------------------------------------------
 
 	lbl_file_name = new QLabel("File Name:");
-	btn_load_osm = new QPushButton("Load Image File");
+    btn_load_osm = new QPushButton("Load OSM Image File");
 
 	btn_copy_directory = new QPushButton("Copy File Path");
 
