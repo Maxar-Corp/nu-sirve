@@ -26,7 +26,7 @@ public:
 
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, int NThresh, VideoDetails & original, QString & hide_shadow_choice);
 
-    // std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int number_of_frames, VideoDetails & original,  QString & hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice);
 
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
 
@@ -34,7 +34,8 @@ public:
 
     std::vector<uint16_t> DeinterlaceCrossCorrelationCurrent(int current_frame,  int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit);
 
-    std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);
+    std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames,\
+        std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);
 
     std::vector<std::vector<uint16_t>> CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets);
 

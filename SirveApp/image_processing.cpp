@@ -107,7 +107,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 		QCoreApplication::processEvents();
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		index_first_frame = std::max(i + start_frame,0);
-        index_last_frame = std::min(index_first_frame + num_of_averaging_frames - 1,num_video_frames - 1);
+        index_last_frame = std::min(index_first_frame + num_of_averaging_frames - 1, num_video_frames - 1);
         if (i>abs_start_frame){
             window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
             window_data.shed_col(0);
@@ -134,18 +134,69 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	return frames_out;
 }
 
-void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice)
+{
+	int num_video_frames = original.frames_16bit.size();
+	int num_pixels = original.frames_16bit[0].size();
+    int nRows = original.y_pixels;
+    int nCols = original.x_pixels;
+	arma::mat adjusted_window_data(num_pixels,num_of_averaging_frames);
+    arma::mat frame_data(num_pixels,num_video_frames);
+    for (int i = 0; i < num_video_frames; i++) {
+        UpdateProgressBar(std::round(i/3));
+		QCoreApplication::processEvents();
+        frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+    }
+    int j0 = round(num_video_frames/3);
+    arma::rowvec range_values = arma::range(frame_data,0);
+	int index_last_frame;
+	arma::mat moving_mean(num_pixels, num_video_frames);
+	for (int j = 0; j < num_video_frames; j++)
+	{
+        UpdateProgressBar(std::round(j0 + j/3));
+		QCoreApplication::processEvents();
+        index_last_frame = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
+        moving_mean.col(j) = arma::mean(frame_data.cols(j,index_last_frame), 1);
+    }
+	frame_data -= arma::shift(moving_mean,-start_frame,1);
+	arma::vec frame_vector(num_pixels,1) ;
+    int k0 = round(2*num_video_frames/3);
+	std::vector<std::vector<uint16_t>> frames_out;
+	if (hide_shadow_choice == "Hide Shadow"){
+		for (int k = 0; k < num_video_frames; k++){
+            UpdateProgressBar(std::round(k0 + k/3));
+		    QCoreApplication::processEvents();
+			frame_vector = frame_data.col(k);
+            int start_index = std::max(k + start_frame,0);
+            int stop_index = std::min(start_index + num_of_averaging_frames - 1,num_video_frames - 1);
+            adjusted_window_data = frame_data.cols(start_index,stop_index);
+			ImageProcessing::remove_shadow(nRows, nCols, frame_vector, adjusted_window_data, NThresh, num_of_averaging_frames);
+			frame_vector = range_values(k) * frame_vector / frame_vector.max();
+			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+			}
+		}
+	else
+	{
+		for (int k = 0; k < num_video_frames; k++){	
+            UpdateProgressBar(std::round(k0 + k/3));
+		    QCoreApplication::processEvents();
+			frame_vector = frame_data.col(k);
+			frame_vector -= frame_vector.min();
+            frame_vector = range_values(k) * frame_vector / frame_vector.max();
+			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+		}
+	}
+	return frames_out;
+}
+
+void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
 {	
 	frame_vector = frame_vector/arma::stddev(frame_vector.as_col());
-
 	arma::mat frame_matrix = arma::reshape(frame_vector,nCols,nRows).t();
-	
 	arma::uvec index_negative = arma::find(frame_vector < NThresh);
-
 	arma::vec old_frame_vector_mean;
 	double MEAN, SIGMA;
-
-    old_frame_vector_mean = arma::mean(window_data.cols(0,num_of_averaging_frames),1); 
+    old_frame_vector_mean = arma::mean(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
     old_frame_vector_mean -= arma::mean(old_frame_vector_mean);
     old_frame_vector_mean = old_frame_vector_mean/arma::stddev(old_frame_vector_mean);
     arma::mat old_frame_mean_mat = arma::reshape(old_frame_vector_mean,nCols,nRows).t();
@@ -211,7 +262,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
         }
         k +=1;
     }
-
     for(int k = 0; k < num_video_frames; k++) {
         frame_vector = S.col(k);
         R = arma::range(M.col(k));
@@ -220,7 +270,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
 	return frames_out;
-
 }
 
 arma::mat ImageProcessing::thresholding(arma::mat X, double tau)

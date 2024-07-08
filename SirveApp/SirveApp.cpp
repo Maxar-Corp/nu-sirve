@@ -2880,7 +2880,6 @@ void SirveApp::FrameStacking(int number_of_frames)
     video_display->container.AddProcessingState(frame_stacking_state);
 }
 
-
 void SirveApp::ExecuteAdaptiveNoiseSuppression()
 {
 	//-----------------------------------------------------------------------------------------------
@@ -2913,12 +2912,23 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
 	
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
+	double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+
 	ImageProcessing ANS;
 	lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
 	progress_bar_main->setRange(0,number_video_frames - 1);
 	progress_bar_main->setTextVisible(true);
 	connect(&ANS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	noise_suppresion_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+	if(available_memory_ratio >=1.5){
+		noise_suppresion_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+	}
+	else{
+		noise_suppresion_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+	}
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
@@ -2941,7 +2951,6 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     video_display->container.AddProcessingState(noise_suppresion_state);
 }
 
-
 void SirveApp::ExecuteRPCPNoiseSuppression()
 {
 	//-----------------------------------------------------------------------------------------------
@@ -2952,28 +2961,33 @@ void SirveApp::ApplyRCPCNoiseSuppression()
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
-
 	processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	DWORDLONG availPhysMem = memInfo.ullAvailPhys;
+	double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
-	
-	ImageProcessing RPCP;
-	lbl_progress_status->setText(QString("RPCP Noise Suppression..."));
-	progress_bar_main->setRange(0,100);
-	progress_bar_main->setTextVisible(true);
-	connect(&RPCP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-	noise_suppresion_state.details.frames_16bit = RPCP.RPCPNoiseSuppression(original.details);
-	progress_bar_main->setValue(0);
-	progress_bar_main->setTextVisible(false);
-	lbl_progress_status->setText(QString(""));
-	noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
-    video_display->container.AddProcessingState(noise_suppresion_state);
+	if(available_memory_ratio >=1.5){
+		ImageProcessing RPCP;
+		lbl_progress_status->setText(QString("RPCP Noise Suppression..."));
+		progress_bar_main->setRange(0,100);
+		progress_bar_main->setTextVisible(true);
+		connect(&RPCP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+		noise_suppresion_state.details.frames_16bit = RPCP.RPCPNoiseSuppression(original.details);
+		progress_bar_main->setValue(0);
+		progress_bar_main->setTextVisible(false);
+		lbl_progress_status->setText(QString(""));
+		noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
+		video_display->container.AddProcessingState(noise_suppresion_state);
+	}
+	else
+	{
+		QtHelpers::LaunchMessageBox(QString("Low memory"), "Insufficient memory for this operation. Please select fewer frames.");
+	}
 }
-
-
-
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)
 {
