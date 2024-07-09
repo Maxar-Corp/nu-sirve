@@ -175,16 +175,16 @@ void SirveApp::SetupUi() {
 	grpbox_status_area->setLayout(grid_status_area);
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
-	btn_undo_step->setFixedWidth(150);
+	btn_undo_step->setFixedWidth(110);
 	QLabel *lbl_processing_state = new QLabel("Processing State:");
-	lbl_processing_state->setFixedWidth(130);
+	lbl_processing_state->setFixedWidth(110);
 	lbl_processing_description = new QLabel("");
 	lbl_processing_description->setFixedHeight(50);
 	lbl_processing_description->setWordWrap(true);
 	lbl_processing_description->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
-	grid_status_area->addWidget(cmb_processing_states,0,1,1,4);
-	grid_status_area->addWidget(btn_undo_step,0,6,1,1);
+	grid_status_area->addWidget(cmb_processing_states,0,1,1,7);
+	grid_status_area->addWidget(btn_undo_step,0,8,1,1);
 	grid_status_area->addWidget(lbl_processing_description,1,0,1,-1);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	grid_top_gui->addWidget(grpbox_status_area,0,5,1,-1);
@@ -212,6 +212,7 @@ void SirveApp::SetupUi() {
 	// initialize ui elements
 
 	tab_menu->setCurrentIndex(0);
+	tab_menu->setTabEnabled(0, false);
 	tab_menu->setTabEnabled(1, false);
 	tab_menu->setTabEnabled(2, false);
 
@@ -458,10 +459,10 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 
 	QGroupBox *grpbox_image_processing = new QGroupBox();
-	QToolBox *toolbox_image_enhancement_methods = new QToolBox();
-	toolbox_image_enhancement_methods->setStyleSheet(sub_toolbox_StyleSheet);
+	QToolBox *toolbox_noise_suppresssion_methods = new QToolBox();
+	toolbox_noise_suppresssion_methods->setStyleSheet(sub_toolbox_StyleSheet);
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
-	grid_image_processing->addWidget(toolbox_image_enhancement_methods,1,0,1,6);
+	grid_image_processing->addWidget(toolbox_noise_suppresssion_methods,1,0,1,6);
 	grpbox_FNS_processing = new QGroupBox("");
 	grpbox_FNS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
@@ -533,7 +534,8 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_RPCP_processing->addWidget(btn_RPCP, 0, 0, 1, 1);
 	// ------------------------------------------------------------------------
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
-	grpbox_deinterlacing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
+	grpbox_deinterlacing->setFixedHeight(100);
+	// grpbox_deinterlacing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_deinterlacing = new QGridLayout(grpbox_deinterlacing);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	btn_deinterlace->setFixedWidth(150);
@@ -550,11 +552,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 	
 	QToolBox *toolbox_image_processing = new QToolBox();
 	toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
-	toolbox_image_processing->addItem(grpbox_image_processing,QString("Image Enhancement"));
-	toolbox_image_enhancement_methods->addItem(grpbox_FNS_processing,QString("Fixed Background Noise Suppresssion"));
-	toolbox_image_enhancement_methods->addItem(grpbox_ANS_processing,QString("Adaptive Background Noise Suppresssion"));
-	toolbox_image_enhancement_methods->addItem(grpbox_RPCP_processing,QString("RPCP Noise Suppresssion"));
-	toolbox_image_enhancement_methods->addItem(grpbox_deinterlacing,QString("Deinterlacing"));
+	toolbox_image_processing->addItem(grpbox_image_processing,QString("Noise Suppression"));
+	toolbox_image_processing->addItem(grpbox_deinterlacing,QString("Deinterlacing"));
+	toolbox_noise_suppresssion_methods->addItem(grpbox_FNS_processing,QString("Fixed Background Noise Suppresssion"));
+	toolbox_noise_suppresssion_methods->addItem(grpbox_ANS_processing,QString("Adaptive Background Noise Suppresssion"));
+	toolbox_noise_suppresssion_methods->addItem(grpbox_RPCP_processing,QString("RPCP Noise Suppresssion"));
 	// ------------------------------------------------------------------------
 	grpbox_Image_Shift = new QGroupBox();
 	QSizePolicy grpbox_size_policy;
@@ -1262,46 +1264,59 @@ void SirveApp::LoadWorkspace()
 
 	for (auto i = 1; i < workspace_vals.all_states.size(); i++)
 	{
-		processingState current_state = workspace_vals.all_states[i];
-		QString ANS_hide_shadow_str = "Hide Shadow";
-		if (!current_state.ANS_hide_shadow){
-			ANS_hide_shadow_str = "Show Shadow";
-		}
+		processingState current_state = workspace_vals.all_states[i];	
 
 		switch (current_state.method)
 		{
-			case ProcessingMethod::adaptive_noise_suppression:
-                ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, ANS_hide_shadow_str, current_state.ANS_shadow_threshold);
+			case ProcessingMethod::RPCP_noise_suppression:
+			{
+				int source_state_ID = current_state.source_state_ID ;
+                ApplyRPCPNoiseSuppression(source_state_ID);
 				break;
+			}
 
+			case ProcessingMethod::adaptive_noise_suppression:
+			{
+				bool hide_shadow_choice = current_state.ANS_hide_shadow;
+				int source_state_ID = current_state.source_state_ID ;
+                ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, hide_shadow_choice, current_state.ANS_shadow_threshold, source_state_ID);
+				break;
+			}
 			case ProcessingMethod::deinterlace:{
 				int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     			int max_frame = ConvertFrameNumberTextToInt(txt_end_frame->text());
 				std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
-			    ApplyDeinterlacing(current_state.deint_type);
+				int source_state_ID = current_state.source_state_ID ;
+			    ApplyDeinterlacing(current_state.deint_type, source_state_ID);
 				break;
 			}
-			case ProcessingMethod::fixed_noise_suppression:
-                ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame);
+			case ProcessingMethod::fixed_noise_suppression:{
+				int source_state_ID = current_state.source_state_ID ;
+                ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame, source_state_ID);
 				break;
-
+			}
 			case ProcessingMethod::center_on_OSM:{
 				QString trackTypePriority = "OSM";
-                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, cmb_processing_states->currentIndex());
+				int source_state_ID = current_state.source_state_ID ;
+                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, source_state_ID);
 				break;
 			}
 			case ProcessingMethod::center_on_manual:{
 				QString trackTypePriority = "manual";
-                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, cmb_processing_states->currentIndex());
+				int source_state_ID = current_state.source_state_ID ;
+                CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, source_state_ID);
 				break;
 			}
-			case ProcessingMethod::center_on_brightest:
-                CenterOnBrightest(current_state.offsets,cmb_processing_states->currentIndex());
+			case ProcessingMethod::center_on_brightest:{
+				int source_state_ID = current_state.source_state_ID ;
+                CenterOnBrightest(current_state.offsets,source_state_ID);
 				break;
-			case ProcessingMethod::frame_stacking:
-                FrameStacking(current_state.frame_stack_num_frames);
+			}
+			case ProcessingMethod::frame_stacking:{
+				int source_state_ID = current_state.source_state_ID ;
+                FrameStacking(current_state.frame_stack_num_frames, source_state_ID);
 				break;
-
+			}
 			default:
 				QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
 		}
@@ -1408,6 +1423,7 @@ void SirveApp::LoadOsmData()
         video_display->RemoveFrame();
 		histogram_plot->RemoveHistogramPlots();
 
+		tab_menu->setTabEnabled(0, false);
 		tab_menu->setTabEnabled(1, false);
 		tab_menu->setTabEnabled(2, false);
 		cmb_processing_states->setEnabled(false);
@@ -1599,8 +1615,10 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 	btn_get_frames->setEnabled(true);
 	btn_calibration_dialog->setEnabled(true);
 
+	tab_menu->setTabEnabled(0, true);
 	tab_menu->setTabEnabled(1, true);
 	tab_menu->setTabEnabled(2, true);
+	tab_menu->setCurrentIndex(0);
 
 	lbl_bad_pixel_count->setText("");
 
@@ -2564,7 +2582,8 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 	try
 	{
 		// assumes file version is same as base file opened
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, start_frame, end_frame);
+		int source_state_ind = cmb_processing_states->currentIndex();
+        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, start_frame, end_frame, source_state_ind);
 	}
 	catch (const std::exception& e)
 	{
@@ -2593,8 +2612,8 @@ void SirveApp::ExecuteFixedNoiseSuppression()
 		int start_frame = txt_FNS_start_frame->text().toInt();
 
 		int end_frame = txt_FNS_end_frame->text().toInt();
-
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame);
+		int source_state_ind = cmb_processing_states->currentIndex();
+        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame, source_state_ind);
 	}
 	else
 	{
@@ -2603,7 +2622,7 @@ void SirveApp::ExecuteFixedNoiseSuppression()
 
 }
 
-void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int start_frame, unsigned int end_frame)
+void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int start_frame, unsigned int end_frame, int source_state_ind)
 {
 	int compare = QString::compare(file_path, image_path, Qt::CaseInsensitive);
 	if (compare!=0){
@@ -2614,8 +2633,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 		}
 	}
 
-	int source_state_int = cmb_processing_states->currentIndex();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_int);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 
 	processingState noise_suppresion_state = original;
 	noise_suppresion_state.details.frames_16bit.clear();
@@ -2635,8 +2653,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 	noise_suppresion_state.FNS_file_path = file_path;
 	noise_suppresion_state.FNS_start_frame = start_frame;
 	noise_suppresion_state.FNS_stop_frame = end_frame;
-	noise_suppresion_state.source_state_ID = QString::number(source_state_int);
-	noise_suppresion_state.state_ID = QString::number(video_display->container.processing_states.size() + 1);
+	noise_suppresion_state.source_state_ID = source_state_ind;
+	noise_suppresion_state.state_ID = video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(noise_suppresion_state);
 
 	QFileInfo fi(file_path);
@@ -2655,7 +2673,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 void SirveApp::ExecuteDeinterlace()
 {
 	DeinterlaceType deinterlace_method_type = static_cast<DeinterlaceType>(0);
-    ApplyDeinterlacing(deinterlace_method_type);
+	int source_state_ind = cmb_processing_states->currentIndex();
+    ApplyDeinterlacing(deinterlace_method_type, source_state_ind);
 }
 
 void SirveApp::ExecuteDeinterlaceCurrent()
@@ -2664,10 +2683,9 @@ void SirveApp::ExecuteDeinterlaceCurrent()
     ApplyDeinterlacingCurrent(deinterlace_method_type);
 }
 
-void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
+void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int source_state_ind)
 {
-	int source_state_int = cmb_processing_states->currentIndex();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_int);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 
 	processingState deinterlace_state = original;
 	deinterlace_state.details.frames_16bit.clear();
@@ -2687,8 +2705,8 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type)
 	lbl_progress_status->setText(QString(""));
 	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
-	deinterlace_state.source_state_ID = QString::number(source_state_int);
-	deinterlace_state.state_ID =  QString::number(video_display->container.processing_states.size() + 1);
+	deinterlace_state.source_state_ID = source_state_ind;
+	deinterlace_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(deinterlace_state);
 }
 
@@ -2742,15 +2760,14 @@ void SirveApp::ExecuteCenterOnTracks()
 	}
 
 	std::vector<std::vector<int>> track_centered_offsets;
-	int processing_state_idx = cmb_processing_states->currentIndex();
-	
-    CenterOnTracks(trackTypePriority, track_id, track_centered_offsets, findAnyTrack, processing_state_idx);
+	int source_state_ind = cmb_processing_states->currentIndex();	
+    CenterOnTracks(trackTypePriority, track_id, track_centered_offsets, findAnyTrack, source_state_ind);
 }
 
-void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int processing_state_idx)
+void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_ind)
 {
 	int OSMPriority = QString::compare(trackTypePriority,"OSM",Qt::CaseInsensitive);
-    processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 
 	processingState track_centered_state = original;
 	track_centered_state.details.frames_16bit.clear();
@@ -2778,21 +2795,21 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	track_centered_state.offsets = track_centered_offsets;
-	track_centered_state.source_state_ID = QString::number(processing_state_idx);
-	track_centered_state.state_ID =  QString::number(video_display->container.processing_states.size() + 1);
+	track_centered_state.source_state_ID = source_state_ind;
+	track_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(track_centered_state);
 }
 
 void SirveApp::ExecuteCenterOnBrightest()
 {		
 	std::vector<std::vector<int>> brightest_centered_offsets;
-	int processing_state_idx = cmb_processing_states->currentIndex();
-	CenterOnBrightest(brightest_centered_offsets,processing_state_idx);
+	int source_state_ind = cmb_processing_states->currentIndex();
+	CenterOnBrightest(brightest_centered_offsets,source_state_ind);
 }
 
-void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx)
+void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int source_state_ind)
 {
-	processingState original = video_display->container.CopyCurrentStateIdx(processing_state_idx);
+	processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 	processingState brightest_centered_state = original;
 	brightest_centered_state.details.frames_16bit.clear();
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
@@ -2809,8 +2826,8 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
 	brightest_centered_state.offsets = brightest_centered_offsets;
-	brightest_centered_state.source_state_ID = QString::number(processing_state_idx);
-	brightest_centered_state.state_ID =  QString::number(video_display->container.processing_states.size() + 1);
+	brightest_centered_state.source_state_ID = source_state_ind;
+	brightest_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
 	video_display->container.AddProcessingState(brightest_centered_state);
 }
 
@@ -2852,6 +2869,7 @@ void SirveApp::HandleProcessingNewStateSelected()
 {
 	lbl_processing_description->setText(cmb_processing_states->currentText());
 }
+
 void SirveApp::HandleProcessingStatesCleared()
 {
 	cmb_processing_states->clear();
@@ -2862,16 +2880,16 @@ void SirveApp::HandleProcessingStatesCleared()
 void SirveApp::ExecuteFrameStacking()
 {
 	int number_of_frames = txt_frame_stack_Nframes->text().toInt();
-	FrameStacking(number_of_frames);
+	int source_state_ind = cmb_processing_states->currentIndex();
+	FrameStacking(number_of_frames, source_state_ind);
 }
 
-void SirveApp::FrameStacking(int number_of_frames)
+void SirveApp::FrameStacking(int number_of_frames, int source_state_ind)
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-	int source_state_int = cmb_processing_states->currentIndex();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_int);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	processingState frame_stacking_state = original;
@@ -2887,8 +2905,8 @@ void SirveApp::FrameStacking(int number_of_frames)
 	progress_bar_main->setTextVisible(false);
 	frame_stacking_state.method = ProcessingMethod::adaptive_noise_suppression;
 	frame_stacking_state.frame_stack_num_frames = number_of_frames;
-	frame_stacking_state.source_state_ID = QString::number(source_state_int);
-	frame_stacking_state.state_ID =  QString::number(video_display->container.processing_states.size() + 1);
+	frame_stacking_state.source_state_ID = source_state_ind;
+	frame_stacking_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(frame_stacking_state);
 }
 
@@ -2901,25 +2919,18 @@ void SirveApp::ExecuteAdaptiveNoiseSuppression()
 
 	int relative_start_frame = txt_ANS_offset_frames->text().toInt();
 	int number_of_frames = txt_ANS_number_frames->text().toInt();
-	QString hide_shadow_choice = "Hide Shadow";
-	if(chk_hide_shadow->isChecked()){
-		hide_shadow_choice = "Hide Shadow";
-	}
-	else
-	{
-		hide_shadow_choice = "Show Shadow";
-	}
+	bool hide_shadow_choice = chk_hide_shadow->isChecked();
 	int shadow_sigma_thresh = 3 - cmb_shadow_threshold->currentIndex();
-	ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, hide_shadow_choice, shadow_sigma_thresh);
+	int source_state_ind = cmb_processing_states->currentIndex();
+	ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, hide_shadow_choice, shadow_sigma_thresh, source_state_ind);
 }
 
-void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, QString hide_shadow_choice, int shadow_sigma_thresh)
+void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_ind)
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
 
-	int source_state_int = cmb_processing_states->currentIndex();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_int);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
 	processingState noise_suppresion_state = original;
@@ -2954,30 +2965,27 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 
 	lbl_adaptive_noise_suppression_status->setText(description);
 
-	bool hide_shadow_bool = hide_shadow_choice == "Hide Shadow";
-
 	noise_suppresion_state.method = ProcessingMethod::adaptive_noise_suppression;
 	noise_suppresion_state.ANS_relative_start_frame = relative_start_frame;
 	noise_suppresion_state.ANS_num_frames = number_of_frames;
-	noise_suppresion_state.ANS_hide_shadow = hide_shadow_bool;
+	noise_suppresion_state.ANS_hide_shadow = hide_shadow_choice;
 	noise_suppresion_state.ANS_shadow_threshold = shadow_sigma_thresh;
-	noise_suppresion_state.source_state_ID = QString::number(source_state_int);
-	noise_suppresion_state.state_ID =  QString::number(video_display->container.processing_states.size() + 1);
+	noise_suppresion_state.source_state_ID = source_state_ind;
+	noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(noise_suppresion_state);
 }
 
 void SirveApp::ExecuteRPCPNoiseSuppression()
 {
-	//-----------------------------------------------------------------------------------------------
-	ApplyRCPCNoiseSuppression();
+	int source_state_ind = cmb_processing_states->currentIndex();
+	ApplyRPCPNoiseSuppression(source_state_ind);
 }
 
-void SirveApp::ApplyRCPCNoiseSuppression()
+void SirveApp::ApplyRPCPNoiseSuppression(int source_state_ind)
 {
 	//Pause the video if it's running
 	playback_controller->StopTimer();
-	int source_state_int = cmb_processing_states->currentIndex();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_int);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_ind);
 	int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
@@ -2997,8 +3005,8 @@ void SirveApp::ApplyRCPCNoiseSuppression()
 		progress_bar_main->setTextVisible(false);
 		lbl_progress_status->setText(QString(""));
 		noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
-		noise_suppresion_state.source_state_ID = QString::number(source_state_int);
-		noise_suppresion_state.state_ID =  QString::number(video_display->container.processing_states.size() + 1);
+		noise_suppresion_state.source_state_ID = source_state_ind;
+		noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
 		video_display->container.AddProcessingState(noise_suppresion_state);
 	}
 	else

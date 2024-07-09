@@ -616,9 +616,21 @@ void VideoDisplay::UpdateDisplayFrame()
 
             int pixel_x = pixel_index % image_x;
             int pixel_y = pixel_index / image_x;
-
-			// QRgb bp_color = QColorConstants::Yellow.rgb();
-			frame.setPixelColor(pixel_x - xCorrection, pixel_y - yCorrection, bad_pixel_color);
+            int new_pixel_x = pixel_x - xCorrection;
+            int new_pixel_y = pixel_y - yCorrection;
+            if (pixel_x - xCorrection < 0){
+                new_pixel_x = pixel_x + image_x - xCorrection;
+            }
+             if (pixel_y - yCorrection < 0){
+                new_pixel_y = pixel_y + image_y - yCorrection;
+            }
+            if (pixel_x - xCorrection > image_x){
+                new_pixel_x = pixel_x - image_x - xCorrection;
+            }
+             if (pixel_y - yCorrection > image_y){
+                new_pixel_y = pixel_y - image_y - yCorrection;
+            }
+			frame.setPixelColor(new_pixel_x, new_pixel_y, bad_pixel_color);
 		}
 	}
 
@@ -632,7 +644,21 @@ void VideoDisplay::UpdateDisplayFrame()
             int irradiance_value = original_frame_vector[pinpoint_idx];
             int pinpoint_x = pinpoint_idx % image_x;
             int pinpoint_y = pinpoint_idx / image_x;
-            pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
+            int new_pinpoint_x = pinpoint_x - xCorrection;
+            int new_pinpoint_y = pinpoint_y - yCorrection;
+            if (pinpoint_x - xCorrection < 0){
+                new_pinpoint_x = pinpoint_x + 640 - xCorrection;
+            }
+             if (pinpoint_y - yCorrection < 0){
+                new_pinpoint_y =  pinpoint_y + image_y - yCorrection;
+            }
+            if (pinpoint_x - xCorrection > image_x){
+                new_pinpoint_x = pinpoint_x - image_x - xCorrection;
+            }
+             if (pinpoint_y - yCorrection > image_y){
+                new_pinpoint_y =  pinpoint_y - image_y - yCorrection;
+            }
+            pinpoint_text += "Pixel: " + QString::number(new_pinpoint_x + 1) + "," + QString::number(new_pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
 
             if ( std::find(container.processing_states[0].replaced_pixels.begin(), container.processing_states[0].replaced_pixels.end(), pinpoint_idx) != container.processing_states[0].replaced_pixels.end() )
             {
@@ -642,7 +668,7 @@ void VideoDisplay::UpdateDisplayFrame()
             if (btn_pinpoint->isChecked())
             {
                 QRgb rgb_red = QColorConstants::Red.rgb();
-                frame.setPixel(pinpoint_x - xCorrection, pinpoint_y - yCorrection, rgb_red);
+                frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);
             }
         }
         else

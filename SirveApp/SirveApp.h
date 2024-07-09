@@ -290,14 +290,14 @@ private:
     void HandleBadPixelReplacement();
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace);
     
-    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
-    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
-    void ApplyRCPCNoiseSuppression();
-    void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
+    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
+    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
+    void ApplyRPCPNoiseSuppression(int processing_state_idx);
+    void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int processing_state_idx);
     void ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type);
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
-    void FrameStacking(int num_frames);
+    void FrameStacking(int num_frames, int processing_state_idx);
  
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();

@@ -290,7 +290,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -326,7 +326,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 		R = arma::range(frame_vector);
 		frame_vector -= moving_mean;
 
-		if (hide_shadow_choice == "Hide Shadow"){
+		if (hide_shadow_choice){
             adjusted_window_data.insert_cols(adjusted_window_data.n_cols,frame_vector);
             adjusted_window_data.shed_col(0);	
 			ImageProcessing::remove_shadow(nRows, nCols, frame_vector, adjusted_window_data, NThresh, num_of_averaging_frames);
@@ -342,7 +342,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -370,7 +370,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	arma::vec frame_vector(num_pixels,1) ;
     int k0 = round(2*num_video_frames/3);
 	std::vector<std::vector<uint16_t>> frames_out;
-	if (hide_shadow_choice == "Hide Shadow"){
+	if (hide_shadow_choice){
 		for (int k = 0; k < num_video_frames; k++){
             UpdateProgressBar(std::round(k0 + k/3));
 		    QCoreApplication::processEvents();
@@ -534,8 +534,8 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
     double deldtMAD = c*median(del_dt_diff_from_median.as_col());
     arma::vec daz_dt_diff_from_median = arma::abs(daz_dt - median(daz_dt.as_col()));
     double dazdtMAD = c*median(daz_dt_diff_from_median.as_col());
-    arma::uvec deinterlace_el_i = arma::find(del_dt_diff_from_median >= .5*deldtMAD);
-    arma::uvec deinterlace_az_i = arma::find(daz_dt_diff_from_median >= .5*dazdtMAD);
+    arma::uvec deinterlace_el_i = arma::find(del_dt_diff_from_median >= 1*deldtMAD);
+    arma::uvec deinterlace_az_i = arma::find(daz_dt_diff_from_median >= 1*dazdtMAD);
     arma::uvec deinterlace_i = arma::unique(arma::join_cols(deinterlace_el_i,deinterlace_az_i));
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
@@ -810,7 +810,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
     }
 	return frames_out;
  }
-
+ 
  arma::cx_mat ImageProcessing::xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols)
 {
     int N = 12;
