@@ -786,7 +786,7 @@ void SirveApp::SetupVideoFrame(){
 
 void SirveApp::SetupPlotFrame() {
 
-	tab_plots->setTabPosition(QTabWidget::South);
+	tab_plots->setTabPosition(QTabWidget::North);
 
 	// ------------------------------------------------------------------------
 
@@ -1244,6 +1244,7 @@ void SirveApp::LoadWorkspace()
     bool validated = ValidateAbpFiles(workspace_vals.image_path);
 	if (validated) {
         LoadOsmData();
+		cmb_text_color->setCurrentIndex(2);
 	}
 
 	if (workspace_vals.start_frame == 0 || workspace_vals.end_frame == 0)
@@ -3189,9 +3190,8 @@ void SirveApp::UpdateGlobalFrameVector()
 	int image_max_value = image_vector.max();
 	int image_min_value = image_vector.min();
 
-	image_vector = image_vector - image_vector.min();
+	image_vector = image_vector - image_min_value;
 	image_vector = image_vector / arma::range(image_vector);
-
 
 	if (chk_auto_lift_gain->isChecked())
 	{
