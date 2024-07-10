@@ -1,11 +1,15 @@
 #include "annotation_list_dialog.h"
+#include "annotation_edit_dialog.h"
 
-AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget * parent) : data(input_vector)
+AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent)
+    : QDialog(parent, Qt::Window), data(input_vector), base_data(details)
 {
     initialize_gui();
 
     base_data = details;
     repopulate_list();
+
+    resize(400, 300);
 
     connect(btn_ok, &QPushButton::pressed, this, &AnnotationListDialog::ok);
     connect(btn_new, &QPushButton::pressed, this, &AnnotationListDialog::add);
@@ -142,7 +146,7 @@ void AnnotationListDialog::add()
         return;
     }
 
-    emit updateAnnodationStencilText(new_data.text);
+    emit updateAnnotationStencilText(new_data.text);
 
     repopulate_list();
     lst_annotations->setCurrentRow(data.size() - 1);

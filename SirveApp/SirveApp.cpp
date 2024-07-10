@@ -2249,13 +2249,15 @@ void SirveApp::AnnotateVideo()
 	standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
-	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
+    annotate_gui = new AnnotationListDialog(video_display->annotation_list, standard_info);
 
-    connect(&annotate_gui, &AnnotationListDialog::annotationListUpdated, video_display, &VideoDisplay::HandleAnnotationChanges);
-    connect(&annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
-    connect(&annotate_gui, &AnnotationListDialog::updateAnnodationStencilText, video_display, &VideoDisplay::UpdateStencilText);
+    connect(annotate_gui, &AnnotationListDialog::annotationListUpdated, video_display, &VideoDisplay::HandleAnnotationChanges);
+    connect(annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
+    connect(annotate_gui, &AnnotationListDialog::updateAnnotationStencilText, video_display, &VideoDisplay::UpdateStencilText);
 
-	annotate_gui.exec();
+    annotate_gui->show();
+    annotate_gui->raise();
+    annotate_gui->activateWindow();
 }
 
 int SirveApp::ConvertFrameNumberTextToInt(QString input)

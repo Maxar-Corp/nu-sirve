@@ -136,6 +136,8 @@ public:
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
+    AnnotationListDialog *annotate_gui;
+
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
 
