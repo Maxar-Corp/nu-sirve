@@ -37,11 +37,14 @@ void AnnotationStencil::mouseMoveEvent(QMouseEvent *event)
     {
         move(event->globalPos() - _drag_position);
         event->accept();
+
+        emit mouseMoved(event->pos());
     }
 }
 
 void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
 {
+
     if (event->button() == Qt::LeftButton)
     {
         _drag_active = false;
@@ -73,6 +76,7 @@ void AnnotationStencil::UpdateText(QString text)
 {
     current_data->text = text;
 }
+
 
 void AnnotationStencil::AnnotationPositioned()
 {

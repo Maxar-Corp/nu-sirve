@@ -106,8 +106,6 @@ void AnnotationListDialog::initialize_gui()
 void AnnotationListDialog::ok()
 {
     done(1);
-
-    emit showAnnotationStencil();
 }
 
 void AnnotationListDialog::add()
@@ -146,10 +144,12 @@ void AnnotationListDialog::add()
         return;
     }
 
-    emit updateAnnotationStencilText(new_data.text);
-
     repopulate_list();
     lst_annotations->setCurrentRow(data.size() - 1);
+
+
+    emit updateAnnotationStencilText(lst_annotations->currentItem()->text());
+    emit showAnnotationStencil();
 }
 
 void AnnotationListDialog::edit()
@@ -204,4 +204,23 @@ void AnnotationListDialog::delete_object()
         }
     }
 
+}
+
+void AnnotationListDialog::UpdateStencilPosition(QPoint location)
+{
+    QString output;
+
+    int index = lst_annotations->currentRow();
+
+    if (index >= 0) {
+
+        AnnotationInfo d = data[index];
+
+        output = "Annotation: " + d.text + "\n\n";
+        output += "X Pixel: " + QString::number(location.x()) + "\t Y Pixel: " + QString::number(location.y()) + " \n\n";
+        output += "Font Size: " + QString::number(12) + "\t Color: " + "red" + "\n\n";
+        output += "Frame Start: " + QString::number(1) + "\t \n\nNum Frames: " + QString::number(624) + " \n";
+
+        lbl_description->setText(output);
+    }
 }

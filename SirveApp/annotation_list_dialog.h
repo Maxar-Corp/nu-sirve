@@ -24,6 +24,10 @@ signals:
     void showAnnotationStencil();
     void updateAnnotationStencilText(QString text);
 
+public slots:
+
+    void UpdateStencilPosition(QPoint location);
+
 private:
     std::vector<AnnotationInfo> &data;
     VideoInfo base_data;

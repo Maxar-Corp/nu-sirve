@@ -579,7 +579,8 @@ release\moc_annotation_edit_dialog.cpp: ..\..\annotation_edit_dialog.h \
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64-debug/release/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\cppwinrt" ..\..\annotation_edit_dialog.h -o release\moc_annotation_edit_dialog.cpp
 
 release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
@@ -605,7 +606,6 @@ release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
@@ -683,9 +683,10 @@ release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
@@ -697,25 +698,16 @@ release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\annotation_edit_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
 		..\..\annotation_info.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QJsonObject \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
@@ -729,13 +721,18 @@ release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTimer \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtimer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QColor \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpainter.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qfiledialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QVBoxLayout \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGroupBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgroupbox.h \
@@ -1462,6 +1459,10 @@ release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\annotation_stencil.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\color_scheme.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QStringList \
 		..\..\abir_reader.h \
@@ -1526,6 +1527,7 @@ release\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -8369,7 +8371,9 @@ release\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\deinterlace.h \
 		..\..\..\fftw-3.3.5-dll64\fftw3.h \
 		..\..\annotation_list_dialog.h \
-		..\..\annotation_edit_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\custom_input_dialog.h \
 		..\..\non_uniformity_correction_external_file.h \
 		..\..\config.h \
@@ -8378,12 +8382,10 @@ release\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QDir \
 		..\..\workspace.h \
 		..\..\popout_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGridLayout \
 		..\..\bad_pixels.h \
 		..\..\track_management_widget.h \
 		..\..\support\qt_elements_with_ids.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QComboBox \
 		..\..\data_export.h \
 		..\..\color_correction.h \
@@ -10207,7 +10209,8 @@ release\annotation_info.obj: ..\..\annotation_info.cpp ..\..\annotation_info.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\quuid.h
 
 release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annotation_list_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
@@ -10233,7 +10236,6 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qwindowdefs.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
@@ -10311,9 +10313,10 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvector2d.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtouchdevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qframe.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlistview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractitemview.h \
@@ -10325,25 +10328,16 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractspinbox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qvalidator.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregularexpression.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qslider.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractslider.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qstyle.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabbar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtabwidget.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qrubberband.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
-		..\..\annotation_edit_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qpushbutton.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qabstractbutton.h \
 		..\..\annotation_info.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QJsonObject \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qjsonobject.h \
@@ -10357,13 +10351,18 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTimer \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qtimer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbasictimer.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLabel \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\QColor \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpainter.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextoption.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpen.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qfiledialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QVBoxLayout \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qboxlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayout.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlayoutitem.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgridlayout.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QHBoxLayout \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGroupBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qgroupbox.h \
@@ -11090,6 +11089,10 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\annotation_stencil.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextformat.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\color_scheme.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QStringList \
 		..\..\abir_reader.h \
@@ -11154,6 +11157,7 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QMessageBox \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QFrame \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qcombobox.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qradiobutton.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qbuttongroup.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCharts\QValueAxis \
@@ -11166,7 +11170,8 @@ release\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annot
 		..\..\video_display_zoom.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QRect \
 		..\..\tracks.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
+		..\..\annotation_edit_dialog.h
 
 release\annotation_stencil.obj: ..\..\annotation_stencil.cpp ..\..\annotation_stencil.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlabel.h \
@@ -20068,7 +20073,9 @@ release\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\deinterlace.h \
 		..\..\..\fftw-3.3.5-dll64\fftw3.h \
 		..\..\annotation_list_dialog.h \
-		..\..\annotation_edit_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\custom_input_dialog.h \
 		..\..\non_uniformity_correction_external_file.h \
 		..\..\config.h \
@@ -20077,12 +20084,10 @@ release\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QDir \
 		..\..\workspace.h \
 		..\..\popout_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGridLayout \
 		..\..\bad_pixels.h \
 		..\..\track_management_widget.h \
 		..\..\support\qt_elements_with_ids.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QComboBox \
 		..\..\data_export.h \
 		..\..\color_correction.h \
@@ -26090,7 +26095,9 @@ release\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\deinterlace.h \
 		..\..\..\fftw-3.3.5-dll64\fftw3.h \
 		..\..\annotation_list_dialog.h \
-		..\..\annotation_edit_dialog.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QListWidget \
+		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\custom_input_dialog.h \
 		..\..\non_uniformity_correction_external_file.h \
 		..\..\config.h \
@@ -26099,12 +26106,10 @@ release\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QDir \
 		..\..\workspace.h \
 		..\..\popout_dialog.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QDialog \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QGridLayout \
 		..\..\bad_pixels.h \
 		..\..\track_management_widget.h \
 		..\..\support\qt_elements_with_ids.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QPushButton \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QComboBox \
 		..\..\data_export.h \
 		..\..\color_correction.h \

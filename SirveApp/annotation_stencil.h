@@ -42,6 +42,10 @@ private:
 	QComboBox *cmb_colors, *cmb_size;
 	QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_num_frames;
 
+signals:
+
+    void mouseMoved(const QPoint &location);
+
 public slots:
 
     void AnnotationPositioned();
