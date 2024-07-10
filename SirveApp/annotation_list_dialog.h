@@ -28,6 +28,8 @@ public:
 
 signals:
     void annotationListUpdated();
+    void showAnnotationStencil();
+    void updateAnnodationStencilText(QString text);
 
 private:
 
@@ -38,6 +40,8 @@ private:
 	QListWidget *lst_annotations;
 	QPushButton *btn_ok, *btn_edit, *btn_new, *btn_delete;
 	VideoDisplay *current_video;
+
+    QString *myText;
 
 	void initialize_gui();
 	void ok();

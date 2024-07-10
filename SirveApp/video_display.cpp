@@ -32,6 +32,10 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
     xCorrection = 0;
     yCorrection = 0;
+
+    annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
+    annotation_stencil->hide();
+    annotation_stencil->move(50, 50);
 }
 
 VideoDisplay::~VideoDisplay()
@@ -326,6 +330,7 @@ void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails
 
     ResetCreateTrackMinAndMaxFrames();
     grp_create_track->setHidden(false);
+
 }
 
 const std::vector<std::optional<TrackDetails>> & VideoDisplay::GetCreatedTrackDetails()
@@ -1130,4 +1135,14 @@ void VideoDisplay::RemoveFrame()
 void VideoDisplay::ViewFrame(unsigned int frame_number)
 {
     counter = frame_number;
+}
+
+void VideoDisplay::ShowStencil()
+{
+    annotation_stencil->show();
+}
+
+void VideoDisplay::UpdateStencilText(QString text)
+{
+    annotation_stencil->UpdateText(text);
 }

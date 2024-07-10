@@ -97,7 +97,6 @@ void AnnotationListDialog::initialize_gui()
 
 	setLayout(mainLayout);
 	setWindowTitle(tr("AnnotationListDialog"));
-
 }
 
 void AnnotationListDialog::ok()
@@ -144,6 +143,7 @@ void AnnotationListDialog::add()
 	repopulate_list();
 	lst_annotations->setCurrentRow(data.size() - 1);
 
+    emit showAnnotationStencil();
 }
 
 void AnnotationListDialog::edit()

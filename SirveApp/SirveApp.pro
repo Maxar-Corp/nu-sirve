@@ -14,6 +14,7 @@ HEADERS += abir_reader.h \
             abpnuc_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
+            annotation_stencil.h \
             bad_pixels.h \
             binary_file_reader.h \
             calibration_data.h \
@@ -65,6 +66,7 @@ SOURCES += abir_reader.cpp \
             annotation_edit_dialog.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \
+            annotation_stencil.cpp \
             bad_pixels.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \

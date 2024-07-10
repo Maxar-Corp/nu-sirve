@@ -2251,6 +2251,8 @@ void SirveApp::AnnotateVideo()
 
 	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
     connect(&annotate_gui, &AnnotationListDialog::annotationListUpdated, video_display, &VideoDisplay::HandleAnnotationChanges);
+    //connect(&annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
+    video_display->ShowStencil();
 	annotate_gui.exec();
 }
 
