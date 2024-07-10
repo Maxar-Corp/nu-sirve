@@ -2530,6 +2530,11 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace)
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
     video_display->container.ClearProcessingStates();
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : base_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	base_state.details.max_value = maxVal;
     video_display->container.AddProcessingState(base_state);
 	lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
 	chk_highlight_bad_pixels->setEnabled(true);
@@ -2661,6 +2666,11 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 	noise_suppresion_state.FNS_start_frame = start_frame;
 	noise_suppresion_state.FNS_stop_frame = end_frame;
 	noise_suppresion_state.source_state_ID = source_state_ind;
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : noise_suppresion_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	noise_suppresion_state.details.max_value = maxVal;
 	noise_suppresion_state.state_ID = video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(noise_suppresion_state);
 
@@ -2713,6 +2723,11 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int s
 	deinterlace_state.method = ProcessingMethod::deinterlace;
 	deinterlace_state.deint_type = deinterlace_method_type;
 	deinterlace_state.source_state_ID = source_state_ind;
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : deinterlace_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	deinterlace_state.details.max_value = maxVal;
 	deinterlace_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(deinterlace_state);
 }
@@ -2803,6 +2818,11 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
 	lbl_progress_status->setText(QString(""));
 	track_centered_state.offsets = track_centered_offsets;
 	track_centered_state.source_state_ID = source_state_ind;
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : track_centered_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	track_centered_state.details.max_value = maxVal;
 	track_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(track_centered_state);
 }
@@ -2834,6 +2854,11 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 	lbl_progress_status->setText(QString(""));
 	brightest_centered_state.offsets = brightest_centered_offsets;
 	brightest_centered_state.source_state_ID = source_state_ind;
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : brightest_centered_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	brightest_centered_state.details.max_value = maxVal;
 	brightest_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
 	video_display->container.AddProcessingState(brightest_centered_state);
 }
@@ -2913,6 +2938,11 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_ind)
 	frame_stacking_state.method = ProcessingMethod::adaptive_noise_suppression;
 	frame_stacking_state.frame_stack_num_frames = number_of_frames;
 	frame_stacking_state.source_state_ID = source_state_ind;
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : frame_stacking_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	frame_stacking_state.details.max_value = maxVal;
 	frame_stacking_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(frame_stacking_state);
 }
@@ -2978,6 +3008,11 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 	noise_suppresion_state.ANS_hide_shadow = hide_shadow_choice;
 	noise_suppresion_state.ANS_shadow_threshold = shadow_sigma_thresh;
 	noise_suppresion_state.source_state_ID = source_state_ind;
+	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : noise_suppresion_state.details.frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+	noise_suppresion_state.details.max_value = maxVal;
 	noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
     video_display->container.AddProcessingState(noise_suppresion_state);
 }
@@ -3013,6 +3048,11 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_ind)
 		lbl_progress_status->setText(QString(""));
 		noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
 		noise_suppresion_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : noise_suppresion_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		noise_suppresion_state.details.max_value = maxVal;
 		noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
 		video_display->container.AddProcessingState(noise_suppresion_state);
 	}
@@ -3190,14 +3230,15 @@ void SirveApp::UpdateGlobalFrameVector()
 	std::vector<double> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].begin(),
 		video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].end()};
 
- 	processingState original = video_display->container.CopyCurrentStateIdx(video_display->container.current_idx);
+ 	// processingState original = video_display->container.processing_states[video_display->container.current_idx];
 
 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
 
 	int image_max_value = image_vector.max();
 	if (!chk_scale_by_frame->isChecked()){
-		image_max_value = original.details.max_value;
+		// image_max_value = original.details.max_value;
+		image_max_value = video_display->container.processing_states[video_display->container.current_idx].details.max_value;
 	}
 
 	int image_min_value = image_vector.min();
