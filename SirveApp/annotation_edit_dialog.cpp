@@ -57,8 +57,6 @@ AnnotationEditDialog::~AnnotationEditDialog()
 	delete lbl_num_frames;
 	delete lbl_color;
 	delete lbl_size; 
-	delete lbl_x; 
-	delete lbl_y;
 
 	delete mainLayout;
 }
@@ -263,8 +261,6 @@ void AnnotationEditDialog::InitializeGui()
 	lbl_num_frames = new QLabel(tr("# of Frames"));
 	lbl_color = new QLabel(tr("Color"));
 	lbl_size = new QLabel(tr("Font Size (pt)"));
-	lbl_x = new QLabel(tr("X Position (1 - 640)"));
-	lbl_y = new QLabel(tr("Y Position (1 - 480)"));
 
 	btn_add = new QPushButton(tr("Add"));
 	btn_cancel = new QPushButton(tr("Cancel"));
@@ -284,19 +280,14 @@ void AnnotationEditDialog::InitializeGui()
 	mainLayout->addWidget(btn_add, 0, 2);
 	mainLayout->addWidget(btn_cancel, 1, 2);
 
-	mainLayout->addWidget(lbl_x, 1, 0);
-	mainLayout->addWidget(lbl_y, 1, 1);
-	mainLayout->addWidget(txt_x_loc, 2, 0);
-	mainLayout->addWidget(txt_y_loc, 2, 1);
-
-	mainLayout->addWidget(lbl_size, 3, 0);
-	mainLayout->addWidget(lbl_color, 3, 1);
-	mainLayout->addWidget(cmb_size, 4, 0);
-	mainLayout->addWidget(cmb_colors, 4, 1);
-	mainLayout->addWidget(lbl_frame_start, 5, 0);
-	mainLayout->addWidget(lbl_num_frames, 5, 1);
-	mainLayout->addWidget(txt_frame_start, 6, 0);
-	mainLayout->addWidget(txt_num_frames, 6, 1);
+    mainLayout->addWidget(lbl_size,1, 0);
+    mainLayout->addWidget(lbl_color, 1, 1);
+    mainLayout->addWidget(cmb_size, 2, 0);
+    mainLayout->addWidget(cmb_colors, 2, 1);
+    mainLayout->addWidget(lbl_frame_start, 3, 0);
+    mainLayout->addWidget(lbl_num_frames, 3, 1);
+    mainLayout->addWidget(txt_frame_start, 4, 0);
+    mainLayout->addWidget(txt_num_frames, 4, 1);
 
 	
 	// set grid characterestics

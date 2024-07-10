@@ -2250,9 +2250,11 @@ void SirveApp::AnnotateVideo()
 	standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
 	AnnotationListDialog annotate_gui(video_display->annotation_list, standard_info);
+
     connect(&annotate_gui, &AnnotationListDialog::annotationListUpdated, video_display, &VideoDisplay::HandleAnnotationChanges);
-    //connect(&annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
-    video_display->ShowStencil();
+    connect(&annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
+    connect(&annotate_gui, &AnnotationListDialog::updateAnnodationStencilText, video_display, &VideoDisplay::UpdateStencilText);
+
 	annotate_gui.exec();
 }
 
