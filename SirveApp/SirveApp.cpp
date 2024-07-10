@@ -3230,14 +3230,11 @@ void SirveApp::UpdateGlobalFrameVector()
 	std::vector<double> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].begin(),
 		video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].end()};
 
- 	// processingState original = video_display->container.processing_states[video_display->container.current_idx];
-
-	//Convert current frame to armadillo matrix
+ 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
 
 	int image_max_value = image_vector.max();
 	if (!chk_scale_by_frame->isChecked()){
-		// image_max_value = original.details.max_value;
 		image_max_value = video_display->container.processing_states[video_display->container.current_idx].details.max_value;
 	}
 
