@@ -244,6 +244,12 @@ ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame
             data_result.x_pixels = ir_data[0].header.image_x_size;
             data_result.y_pixels = ir_data[0].header.image_y_size;
             data_result.video_frames_16bit = video_frames_16bit;
+            uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+	        // std::vector<std::vector<uint16_t>> vec = original.details.frames_16bit;
+            for (const auto& row : video_frames_16bit) {
+                maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+            }
+            data_result.max_value = maxVal;
             return data_result;
         }
 
@@ -271,6 +277,12 @@ ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame
     data_result.x_pixels = ir_data[0].header.image_x_size;
     data_result.y_pixels = ir_data[0].header.image_y_size;
     data_result.video_frames_16bit = video_frames_16bit;
+    uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        // std::vector<std::vector<uint16_t>> vec = original.details.frames_16bit;
+        for (const auto& row : video_frames_16bit) {
+            maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+        }
+    data_result.max_value = maxVal;
     return data_result;
 }
 

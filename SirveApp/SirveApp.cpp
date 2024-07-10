@@ -249,6 +249,10 @@ void SirveApp::SetupUi() {
 
 QWidget* SirveApp::SetupColorCorrectionTab()
 {
+
+	color_map_display->setMinimumHeight(20);
+	color_map_display->setMaximumWidth(500);
+	color_map_display->setMinimumWidth(500);
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 
@@ -265,7 +269,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	lbl_gain_value = new QLabel("1.0");
 	lbl_gain_value->setFixedWidth(50);
 	lbl_gain_value->setFixedWidth(50);
-
 	slider_lift = new QSlider();
 	slider_lift->setOrientation(Qt::Horizontal);
 	slider_lift->setMinimum(0);
@@ -289,35 +292,39 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	slider_gain->setEnabled(false);
 	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain");
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset Set Points");
-
-	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 6);
-	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 6);
-	lbl_min_count_val = new QLabel("Low");
-	lbl_max_count_val = new QLabel("High");
+	btn_reset_color_correction = new QPushButton("Reset Set\nPoints");
+	lbl_min_count_val = new QLabel("Dark Set Pt:\n");
+	lbl_max_count_val = new QLabel("Light Set Pt:\n");
+	lbl_min_scale_value = new QLabel("Low");
+	lbl_min_scale_value->setFixedWidth(125);
+	lbl_min_scale_value->setStyleSheet("color:rgb(81,72,65);");
+	lbl_max_scale_value = new QLabel("High");
+	lbl_max_scale_value->setStyleSheet("color:rgb(81,72,65);");
 	QLabel* lbl_colormap = new QLabel("Set Colormap:");
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(video_colors.maps[i].name);
+	chk_scale_by_frame = new QCheckBox("Scale by Frame");
+	chk_scale_by_frame->setChecked(true);
+	connect(chk_scale_by_frame, &QCheckBox::toggled, this, &SirveApp::UpdateGlobalFrameVector);
+	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 5);
+	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 5);
 	grid_grpbox_image_controls->addWidget(lbl_colormap, 2, 0);
 	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1,1,1);
-	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 0);
-	color_map_display->setMinimumHeight(20);
-	color_map_display->setMaximumWidth(500);
-	color_map_display->setMinimumWidth(500);
-	grid_grpbox_image_controls->addWidget(color_map_display, 3, 0, 1, 6);
+	grid_grpbox_image_controls->addWidget(chk_scale_by_frame,2,2,1,1);	
+	grid_grpbox_image_controls->addWidget(lbl_min_scale_value,3, 0);
+	grid_grpbox_image_controls->addWidget(color_map_display, 3, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_max_scale_value, 3, 5);
+	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 4, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 1);
 	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 4);
-
-	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 0);
-	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 1);
-	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 4, 1, 1);
-
-	slider_gain->setEnabled(false);
+	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 1);
+	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 2);
 	
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
 	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
@@ -333,7 +340,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,2);
 	grid_grpbox_lift_controls->addWidget(txt_gain_sigma,1,4,1,1);
 
-	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 6, 0, 1, 3);
+	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 6, 1, 1, 3);
 
 	vlayout_tab_color->addWidget(grpbox_image_controls);
 
@@ -360,7 +367,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_overlay_controls->addWidget(cmb_tracker_color,0,1);
 	grid_overlay_controls->addWidget(lbl_text_color,1,0);
 	grid_overlay_controls->addWidget(cmb_text_color,1,1);
-
 	grid_overlay_controls->addWidget(chk_sensor_track_data,0,2);
 	grid_overlay_controls->addWidget(chk_show_time,1,2);
 	grid_overlay_controls->addWidget(btn_change_banner_text,0,3);
@@ -1497,7 +1503,7 @@ void SirveApp::LoadOsmData()
 	calibration_model = temp;
 
 	// Reset settings on video playback to defaults
-	chk_show_tracks->setChecked(false);
+	chk_show_tracks->setChecked(true);
 	chk_show_time->setChecked(false);
 	chk_sensor_track_data->setChecked(false);
 	cmb_text_color->setCurrentIndex(0);
@@ -1554,8 +1560,8 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
 	int x_pixels = abir_data_result.x_pixels;
 	int y_pixels = abir_data_result.y_pixels;
-
-	VideoDetails vid_details = {x_pixels, y_pixels, video_frames};
+	int max_value = abir_data_result.max_value;
+	VideoDetails vid_details = {x_pixels, y_pixels, max_value, video_frames};
 
 	processingState primary = { ProcessingMethod::original, vid_details };
     video_display->container.ClearProcessingStates();
@@ -3184,14 +3190,22 @@ void SirveApp::UpdateGlobalFrameVector()
 	std::vector<double> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].begin(),
 		video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter].end()};
 
+ 	processingState original = video_display->container.CopyCurrentStateIdx(video_display->container.current_idx);
+
 	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
 
 	int image_max_value = image_vector.max();
+	if (!chk_scale_by_frame->isChecked()){
+		image_max_value = original.details.max_value;
+	}
+
 	int image_min_value = image_vector.min();
 
+	lbl_min_scale_value->setText("Low: " + QString::number(image_min_value));
+	lbl_max_scale_value->setText("High: " + QString::number(image_max_value));
 	image_vector = image_vector - image_min_value;
-	image_vector = image_vector / arma::range(image_vector);
+	image_vector = image_vector / image_max_value;
 
 	if (chk_auto_lift_gain->isChecked())
 	{
@@ -3211,11 +3225,11 @@ void SirveApp::UpdateGlobalFrameVector()
 	double gain = lbl_gain_value->text().toDouble();
 
 	int max_val = std::round(image_max_value* gain);
-	QString max_val_info = "High: " + QString::number(max_val);
+	QString max_val_info = "Dark Set Pt:\n " + QString::number(max_val);
 	lbl_max_count_val->setText(max_val_info);
 
 	int min_val = std::round(image_max_value * lift);
-	QString min_val_info = "Low: " + QString::number(min_val);
+	QString min_val_info = "Dark Set Pt:\n" + QString::number(min_val);
 	lbl_min_count_val->setText(min_val_info);
 
 	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);
