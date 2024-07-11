@@ -9,8 +9,6 @@ AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_ve
     base_data = details;
     repopulate_list();
 
-    resize(400, 300);
-
     connect(btn_ok, &QPushButton::pressed, this, &AnnotationListDialog::ok);
     connect(btn_new, &QPushButton::pressed, this, &AnnotationListDialog::add);
     connect(btn_edit, &QPushButton::pressed, this, &AnnotationListDialog::edit);
@@ -133,6 +131,7 @@ void AnnotationListDialog::add()
     // display new annotation screen
     AnnotationEditDialog annotation_edit_dialog(data.back());
     connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
+    connect(this, &AnnotationListDialog::locationChanged, &annotation_edit_dialog, &AnnotationEditDialog::LocationChanged);
 
     auto response = annotation_edit_dialog.exec();
 
@@ -147,8 +146,7 @@ void AnnotationListDialog::add()
     repopulate_list();
     lst_annotations->setCurrentRow(data.size() - 1);
 
-
-    emit updateAnnotationStencilText(lst_annotations->currentItem()->text());
+    emit updateAnnotationStencil(new_data);
     emit showAnnotationStencil();
 }
 
@@ -183,7 +181,6 @@ void AnnotationListDialog::edit()
             lst_annotations->setCurrentRow(index);
         }
     }
-
 }
 
 void AnnotationListDialog::delete_object()
@@ -201,11 +198,15 @@ void AnnotationListDialog::delete_object()
             repopulate_list();
             lst_annotations->setCurrentRow(-1);
             emit annotationListUpdated();
+            emit hideAnnotationStencil();
         }
     }
 
 }
 
+// At this point, the new annotation has been put on the list, with all parameters specified, except for the position.
+// This function responds to mouse movement and reflects the current mouse position in the annotation gui (in real time)
+// after receiving it from the stencil.  It also passes the updated location to the Edit dialog for storage via emit.
 void AnnotationListDialog::UpdateStencilPosition(QPoint location)
 {
     QString output;
@@ -218,9 +219,11 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint location)
 
         output = "Annotation: " + d.text + "\n\n";
         output += "X Pixel: " + QString::number(location.x()) + "\t Y Pixel: " + QString::number(location.y()) + " \n\n";
-        output += "Font Size: " + QString::number(12) + "\t Color: " + "red" + "\n\n";
-        output += "Frame Start: " + QString::number(1) + "\t \n\nNum Frames: " + QString::number(624) + " \n";
+        output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n\n";
+        output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nNum Frames: " + QString::number(d.num_frames) + " \n";
 
         lbl_description->setText(output);
+
+        emit locationChanged(location);
     }
 }

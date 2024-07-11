@@ -37,6 +37,7 @@ public slots:
     void NumberOfFramesChanged();
     void XLocationChanged();
     void YLocationChanged();
+    void LocationChanged(QPoint location);
     void ColorChanged(const QString &text);
     void FontSizeChanged(const QString &text);
 

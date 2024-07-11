@@ -22,7 +22,7 @@ class AnnotationStencil : public QWidget
 public:
     explicit AnnotationStencil(QWidget *parent = nullptr);
     ~AnnotationStencil();
-    void UpdateText(QString text);
+    void InitializeData(AnnotationInfo data);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -45,6 +45,7 @@ private:
 signals:
 
     void mouseMoved(const QPoint &location);
+    void mouseReleased(const QPoint &location);
 
 public slots:
 

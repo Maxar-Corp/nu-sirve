@@ -22,7 +22,9 @@ public:
 signals:
     void annotationListUpdated();
     void showAnnotationStencil();
-    void updateAnnotationStencilText(QString text);
+    void hideAnnotationStencil();
+    void updateAnnotationStencil(AnnotationInfo data);
+    void locationChanged(QPoint location);
 
 public slots:
 

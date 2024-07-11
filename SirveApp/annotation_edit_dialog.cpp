@@ -29,8 +29,8 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * paren
 	connect(txt_annotation, &QLineEdit::editingFinished, this, &AnnotationEditDialog::TextChanged);
 	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartChanged);
 	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::NumberOfFramesChanged);
-	connect(txt_x_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::XLocationChanged);
-	connect(txt_y_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::YLocationChanged);
+    //connect(txt_x_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::XLocationChanged);
+    //connect(txt_y_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::YLocationChanged);
 
     connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::ColorChanged);
 	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::FontSizeChanged);
@@ -147,6 +147,13 @@ void AnnotationEditDialog::NumberOfFramesChanged()
 		QString msg("Input for number of frames is non-numeric");
         DisplayError(msg);
 	}
+}
+
+void AnnotationEditDialog::LocationChanged(QPoint location)
+{
+    current_data->x_pixel = location.x();
+    current_data->y_pixel = location.y();
+    emit annotationChanged();
 }
 
 void AnnotationEditDialog::XLocationChanged()

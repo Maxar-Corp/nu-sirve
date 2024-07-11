@@ -7,7 +7,6 @@
 AnnotationStencil::AnnotationStencil(QWidget *parent)
     : QWidget(parent), _drag_active(true)
 {
-    setFixedSize(100,20);
     setAttribute(Qt::WA_TransparentForMouseEvents, false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setAttribute(Qt::WA_TranslucentBackground, true);
@@ -37,8 +36,7 @@ void AnnotationStencil::mouseMoveEvent(QMouseEvent *event)
     {
         move(event->globalPos() - _drag_position);
         event->accept();
-
-        emit mouseMoved(event->pos());
+        emit mouseMoved(event->globalPos() - _drag_position);
     }
 }
 
@@ -50,31 +48,24 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
         _drag_active = false;
         event->accept();
     }
-
-    if (event->button() == Qt::RightButton)
-    {
-        // TO DO: show dialog to confirm annotation positioning in the video display.
-
-        // If YES:
-        // 1. Update the X,Y position in current_data.
-        // 2. Hide the annotation stencil.
-        //
-        // If NO:
-        // 1. Hide the annotation stencil.
-    }
 }
 
 void AnnotationStencil::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setPen(QPen(Qt::blue, 2));
+    painter.setPen(QPen(Qt::yellow, 2));
     painter.drawRect(0, 0, width() - 1, height() - 1);
     painter.drawText(rect(), Qt::AlignCenter, current_data->text);
 }
 
-void AnnotationStencil::UpdateText(QString text)
+void AnnotationStencil::InitializeData(AnnotationInfo data)
 {
-    current_data->text = text;
+    const int data_height = 20;
+    current_data->color = data.color;
+    current_data->font_size = data.font_size;
+    current_data->text = data.text;
+    int total_width = data.text.length() * data.font_size;
+    setFixedSize(total_width, data_height);
 }
 
 

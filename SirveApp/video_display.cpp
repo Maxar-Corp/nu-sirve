@@ -1142,7 +1142,12 @@ void VideoDisplay::ShowStencil()
     annotation_stencil->show();
 }
 
-void VideoDisplay::UpdateStencilText(QString text)
+void VideoDisplay::HideStencil()
 {
-    annotation_stencil->UpdateText(text);
+    annotation_stencil->hide();
+}
+
+void VideoDisplay::UpdateStencilData(AnnotationInfo data)
+{
+    annotation_stencil->InitializeData(data);
 }

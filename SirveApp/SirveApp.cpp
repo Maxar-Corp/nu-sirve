@@ -2251,17 +2251,14 @@ void SirveApp::AnnotateVideo()
 
     annotate_gui = new AnnotationListDialog(video_display->annotation_list, standard_info);
 
-    // TO DO: re-connect this after annotation position has been confirmed.
-    //connect(annotate_gui, &AnnotationListDialog::annotationListUpdated, video_display, &VideoDisplay::HandleAnnotationChanges);
-
     connect(annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
-    connect(annotate_gui, &AnnotationListDialog::updateAnnotationStencilText, video_display, &VideoDisplay::UpdateStencilText);
+    connect(annotate_gui, &AnnotationListDialog::hideAnnotationStencil, video_display, &VideoDisplay::HideStencil);
+    connect(annotate_gui, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::UpdateStencilData);
+
     connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::UpdateStencilPosition);
 
     annotate_gui->show();
-    // NOTE: The next two lines *may* be unnecessary!
-    annotate_gui->raise();
-    annotate_gui->activateWindow();
 }
 
 int SirveApp::ConvertFrameNumberTextToInt(QString input)
