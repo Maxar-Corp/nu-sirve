@@ -123,7 +123,7 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
         * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_tracks, 
-        * btn_center_on_brightest, *btn_frame_stack, *btn_exit, *btn_RPCP;
+        * btn_center_on_brightest, *btn_frame_stack, *btn_exit, *btn_RPCP, *btn_cancel_operation;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
@@ -133,10 +133,10 @@ public:
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
-	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
+	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
-	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation, *chk_scale_by_frame;
+	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 

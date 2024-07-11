@@ -201,7 +201,10 @@ void SirveApp::SetupUi() {
 	btn_exit->setFixedWidth(75);
 	btn_exit->setStyleSheet(orange_button_styleSheet);
 	connect(btn_exit, &QPushButton::clicked, this, &SirveApp::HandleExitClicked);
-	grid_commands_area->addWidget(btn_exit,0,1,1,1);
+	btn_cancel_operation = new QPushButton("Cancel");
+	btn_cancel_operation->setFixedWidth(75);
+	grid_commands_area->addWidget(btn_cancel_operation,0,0,1,1);
+	grid_commands_area->addWidget(btn_exit,0,2,1,1);
 	main_layout->addWidget(lbl_progress_status,2,0,2,1);
 	main_layout->addWidget(progress_bar_main,3,1,1,1);
 	main_layout->addWidget(grpbox_commands_area,3,2,1,1);
@@ -258,6 +261,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
 	grpbox_image_controls = new QGroupBox("Image Controls");
 	grpbox_image_controls->setStyleSheet(bold_large_styleSheet);
+	grpbox_image_controls->setFixedWidth(700);
 	QGridLayout* grid_grpbox_image_controls = new QGridLayout(grpbox_image_controls);
 
 	label_lift = new QLabel("Dark \nSet Point");
@@ -293,8 +297,13 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain");
 	chk_relative_histogram = new QCheckBox("Relative Histogram");
 	btn_reset_color_correction = new QPushButton("Reset Set\nPoints");
-	lbl_min_count_val = new QLabel("Dark Set Pt:\n");
-	lbl_max_count_val = new QLabel("Light Set Pt:\n");
+	lbl_min_count_val = new QLabel("Dark Set Pt:");
+	lbl_min_count_val->setStyleSheet("color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;");
+	lbl_min_count_val->setFixedWidth(130);
+	lbl_min_count_val->setFixedHeight(30);
+	lbl_max_count_val = new QLabel("Light Set Pt:");
+	lbl_max_count_val->setStyleSheet("color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;");
+	lbl_max_count_val->setFixedHeight(30);
 	lbl_min_scale_value = new QLabel("Low");
 	lbl_min_scale_value->setFixedWidth(125);
 	lbl_min_scale_value->setStyleSheet("color:rgb(81,72,65);");
@@ -305,42 +314,55 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
 		cmb_color_maps->addItem(video_colors.maps[i].name);
-	chk_scale_by_frame = new QCheckBox("Scale by Frame");
-	chk_scale_by_frame->setChecked(true);
-	connect(chk_scale_by_frame, &QCheckBox::toggled, this, &SirveApp::UpdateGlobalFrameVector);
-	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 5);
-	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 5);
-	grid_grpbox_image_controls->addWidget(lbl_colormap, 2, 0);
-	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1,1,1);
-	grid_grpbox_image_controls->addWidget(chk_scale_by_frame,2,2,1,1);	
-	grid_grpbox_image_controls->addWidget(lbl_min_scale_value,3, 0);
-	grid_grpbox_image_controls->addWidget(color_map_display, 3, 1, 1, 4);
-	grid_grpbox_image_controls->addWidget(lbl_max_scale_value, 3, 5);
-	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 4, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 1);
-	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 4);
-	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 1);
-	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 2);
-	
+	QGroupBox *grpbox_scale_options = new QGroupBox();
+	QGridLayout *grid_grpbox_scale_options = new QGridLayout();
+	grpbox_scale_options->setLayout(grid_grpbox_scale_options);
+	grpbox_scale_options->setStyleSheet("border: 0px solid gray; border-width: 0px;");
+	rad_scale_by_frame = new QRadioButton("Scale by frame maximum");
+	rad_scale_by_frame->setAutoExclusive(true);
+	rad_scale_by_frame->setChecked(true);
+	rad_scale_by_cube = new QRadioButton("Scale by cube maximum");
+	rad_scale_by_cube->setAutoExclusive(true);
+	rad_scale_by_cube->setChecked(false);
+	connect(rad_scale_by_frame, &QCheckBox::toggled, this, &SirveApp::UpdateGlobalFrameVector);
+	connect(rad_scale_by_cube, &QCheckBox::toggled, this, &SirveApp::UpdateGlobalFrameVector);
+	grid_grpbox_scale_options->addWidget(rad_scale_by_frame,0,0,1,1);
+	grid_grpbox_scale_options->addWidget(rad_scale_by_cube,0,1,1,1);
+
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
 	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
 	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
 	QLabel* lbl_auto_lift = new QLabel("Lift adjustment (sigma below mean)");
 	txt_lift_sigma = new QLineEdit("3");
 	txt_lift_sigma->setValidator(ensure_double);
+	txt_lift_sigma->setFixedWidth(50);
 	QLabel* lbl_auto_gain = new QLabel("Gain adjustment (sigma above mean)");
 	txt_gain_sigma = new QLineEdit("3");
 	txt_gain_sigma->setValidator(ensure_double);
-	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,2);
+	txt_gain_sigma->setFixedWidth(50);
+	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,4);
 	grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,4,1,1);
-	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,2);
+	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,4);
 	grid_grpbox_lift_controls->addWidget(txt_gain_sigma,1,4,1,1);
 
-	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 6, 1, 1, 3);
+	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 3);
+	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 4, 1, 1);
+	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 3);
+	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 4, 1, 1);
+	grid_grpbox_image_controls->addWidget(lbl_colormap, 2, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1, 1, 1);
+	grid_grpbox_image_controls->addWidget(grpbox_scale_options,2,2,1,3);	
+	grid_grpbox_image_controls->addWidget(lbl_min_scale_value, 3, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(color_map_display, 3, 1, 1, 2);
+	grid_grpbox_image_controls->addWidget(lbl_max_scale_value, 3, 4, 1 ,1);
+	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 4, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 1, 1 ,1);
+	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 3, 1, 1);
+	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 1, 1, 1);
+	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 2, 1, 1);
+	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 6, 1, 1, 2);
 
 	vlayout_tab_color->addWidget(grpbox_image_controls);
 
@@ -405,6 +427,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 	grpbox_bad_pixels_correction = new QGroupBox();
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
+	grpbox_bad_pixels_correction->setFixedWidth(700);
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
 
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
@@ -412,20 +435,25 @@ QWidget* SirveApp::SetupProcessingTab() {
 	lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
 	cmb_bad_pixels_type = new QComboBox();
+	cmb_bad_pixels_type->setFixedWidth(150);
 	cmb_bad_pixels_type->addItem("All Bad Pixels");
 	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
 	cmb_bad_pixels_type->addItem("Outlier Only");
 	lbl_bad_pixel_method = new QLabel("Method:");
 	cmb_outlier_processing_type = new QComboBox();
+	cmb_outlier_processing_type->setFixedWidth(150);
 	cmb_outlier_processing_type->addItem("Median");
 	cmb_outlier_processing_type->addItem("Moving Median");
 	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
 	lbl_bad_pixel_start_frame = new QLabel("Sample Start:");
 	txt_bad_pixel_start_frame = new QLineEdit("1");
+	txt_bad_pixel_start_frame->setFixedWidth(60);
 	lbl_bad_pixel_stop_frame = new QLabel("Sample Stop:");
 	txt_bad_pixel_end_frame = new QLineEdit("500");
+	txt_bad_pixel_end_frame->setFixedWidth(60);
 	lbl_moving_median_window_length = new QLabel("Window Length:");
 	txt_moving_median_N = new QLineEdit("30");
+	txt_moving_median_N->setFixedWidth(60);
 	txt_moving_median_N->setEnabled(false);
 	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
 	cmb_outlier_processing_sensitivity = new QComboBox();
@@ -436,12 +464,13 @@ QWidget* SirveApp::SetupProcessingTab() {
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
 	lbl_bad_pixel_color = new QLabel("Color:");
 	cmb_bad_pixel_color = new QComboBox();
+	cmb_bad_pixel_color->setFixedWidth(100);
 	cmb_bad_pixel_color->addItems(colors);
 	cmb_bad_pixel_color->setCurrentIndex(2);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
 	btn_bad_pixel_identification = new QPushButton("Replace Bad Pixels");
     connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
-	QSpacerItem *spacerItem = new QSpacerItem(100,-1);
+	QSpacerItem *spacerItem = new QSpacerItem(50,1);
 	
 	grid_bad_pixels->addWidget(lbl_bad_pixel_count, 0, 0, 1, -1);
 	grid_bad_pixels->addWidget(lbl_bad_pixel_type, 1, 0, 1, 1);
@@ -454,13 +483,14 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 4, 1, 1, 1);
 	grid_bad_pixels->addWidget(lbl_moving_median_window_length, 5, 0, 1, 1);
 	grid_bad_pixels->addWidget(txt_moving_median_N, 5, 1, 1, 1);
-	grid_bad_pixels->addItem(spacerItem,5,2);
+	// grid_bad_pixels->addItem(spacerItem,5,2);
 	grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 2, 3, 1, 1);
 	grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 2, 4, 1, 1);
 	grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 4, 4, 1, 1);
 	grid_bad_pixels->addWidget(lbl_bad_pixel_color, 3, 3, 1, 1);
 	grid_bad_pixels->addWidget(cmb_bad_pixel_color,3, 4, 1,1);
 	grid_bad_pixels->addWidget(btn_bad_pixel_identification, 5, 4, 1, 1);
+	grid_bad_pixels->addItem(spacerItem,5,5);
 
 	// ------------------------------------------------------------------------
 
@@ -470,7 +500,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
 	grid_image_processing->addWidget(toolbox_noise_suppresssion_methods,1,0,1,6);
 	grpbox_FNS_processing = new QGroupBox("");
-	grpbox_FNS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
+	// grpbox_FNS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
@@ -497,7 +527,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox("");
-	grpbox_ANS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
+	// grpbox_ANS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(200,200,200);");
@@ -1542,6 +1572,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 {
 	lbl_progress_status->setText(QString("Loading frames..."));
 	progress_bar_main->setRange(0,4);
+	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(true);
 	// Load the ABIR data
 	playback_controller->StopTimer();
@@ -2440,8 +2471,10 @@ void SirveApp::HandleBadPixelReplacement()
 		lbl_progress_status->setText(QString("Finding bad pixels..."));
 		progress_bar_main->setRange(0,number_video_frames - 1);
 		progress_bar_main->setTextVisible(true);
+		std::vector<unsigned int> dead_pixels;
 		ImageProcessing BP;
 		connect(&BP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+		connect(btn_cancel_operation, &QPushButton::clicked, &BP, &ImageProcessing::CancelOperation);
 		if(type_choice == 0){ 
 			lbl_progress_status->setText(QString("Finding dead pixels..."));
 			arma::uvec index_dead0 = BP.FindDeadBadscalePixels(test_frames.video_frames_16bit);
@@ -2449,38 +2482,36 @@ void SirveApp::HandleBadPixelReplacement()
 			if (outlier_method == 0){		
 				arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit);	
 				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
-				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
-				ReplaceBadPixels(dead_pixels);		
+				dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);		
 			}
 			else{	
 				u_int window_length = txt_moving_median_N->text().toUInt();
 				arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit);
 				index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
-				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);	
-				ReplaceBadPixels(dead_pixels);
+				dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);	
 			}
 		} else if (type_choice == 1){
 			lbl_progress_status->setText(QString("Finding outlier pixels..."));
 			arma::uvec index_dead1 = BP.FindDeadBadscalePixels(test_frames.video_frames_16bit);
-			std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
+			dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
 		} else {
 			lbl_progress_status->setText(QString("Finding outlier pixels..."));
 			if (outlier_method == 0){		
 				arma::uvec index_outlier2 = BP.IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit);	
-				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
-				ReplaceBadPixels(dead_pixels);		
+				dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);		
 			}
 			else{	
 				u_int window_length = txt_moving_median_N->text().toUInt();
 				arma::uvec index_outlier2 = BP.IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit);
-				std::vector<unsigned int> dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);	
-				ReplaceBadPixels(dead_pixels);
+				dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);	
 			}
+		}
+		if(dead_pixels.size()>0){
+			ReplaceBadPixels(dead_pixels);		
 		}	
 		progress_bar_main->setValue(0);
 		progress_bar_main->setTextVisible(false);
 		lbl_progress_status->setText(QString(""));	
-
 	}
 }
 
@@ -2525,19 +2556,22 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace)
 	progress_bar_main->setTextVisible(true);
 	ImageProcessing BP;
 	connect(&BP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &BP, &ImageProcessing::CancelOperation);
 	BP.ReplacePixelsWithNeighbors(base_state.details.frames_16bit, pixels_to_replace, base_state.details.x_pixels);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
-    video_display->container.ClearProcessingStates();
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : base_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	base_state.details.max_value = maxVal;
-    video_display->container.AddProcessingState(base_state);
-	lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
-	chk_highlight_bad_pixels->setEnabled(true);
+	if(pixels_to_replace.size()>0){
+		video_display->container.ClearProcessingStates();
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : base_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+			base_state.details.max_value = maxVal;
+			video_display->container.AddProcessingState(base_state);
+			lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
+			chk_highlight_bad_pixels->setEnabled(true);
+	}
 }
 
 void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
@@ -2582,7 +2616,6 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 	auto response = external_nuc_dialog.exec();
 
 	if (response == 0) {
-
 		return;
 	}
 
@@ -2620,9 +2653,7 @@ void SirveApp::ExecuteFixedNoiseSuppression()
 	if (!chk_FNS_external_file->isChecked())
 	{
 		int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
-
 		int start_frame = txt_FNS_start_frame->text().toInt();
-
 		int end_frame = txt_FNS_end_frame->text().toInt();
 		int source_state_ind = cmb_processing_states->currentIndex();
         ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame, source_state_ind);
@@ -2657,34 +2688,37 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Fixed Noise Suppression..."));
 	connect(&FNS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &FNS, &ImageProcessing::CancelOperation);
 	noise_suppresion_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
-	noise_suppresion_state.method = ProcessingMethod::fixed_noise_suppression;
-	noise_suppresion_state.FNS_file_path = file_path;
-	noise_suppresion_state.FNS_start_frame = start_frame;
-	noise_suppresion_state.FNS_stop_frame = end_frame;
-	noise_suppresion_state.source_state_ID = source_state_ind;
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : noise_suppresion_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	noise_suppresion_state.details.max_value = maxVal;
-	noise_suppresion_state.state_ID = video_display->container.processing_states.size() + 1;
-    video_display->container.AddProcessingState(noise_suppresion_state);
+	if(noise_suppresion_state.details.frames_16bit.size()>0){
+		noise_suppresion_state.method = ProcessingMethod::fixed_noise_suppression;
+		noise_suppresion_state.FNS_file_path = file_path;
+		noise_suppresion_state.FNS_start_frame = start_frame;
+		noise_suppresion_state.FNS_stop_frame = end_frame;
+		noise_suppresion_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : noise_suppresion_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		noise_suppresion_state.details.max_value = maxVal;
+		noise_suppresion_state.state_ID = video_display->container.processing_states.size() + 1;
+		video_display->container.AddProcessingState(noise_suppresion_state);
 
-	QFileInfo fi(file_path);
-	QString fileName = fi.fileName().toLower();
-	QString current_filename = abp_file_metadata.file_name.toLower() + ".abpimage";
+		QFileInfo fi(file_path);
+		QString fileName = fi.fileName().toLower();
+		QString current_filename = abp_file_metadata.file_name.toLower() + ".abpimage";
 
-	if (fileName == current_filename)
-		fileName = "Current File";
+		if (fileName == current_filename)
+			fileName = "Current File";
 
-	QString description = "File: " + fileName + "\n";
-	description += "From frame " + QString::number(start_frame) + " to " + QString::number(end_frame);
+		QString description = "File: " + fileName + "\n";
+		description += "From frame " + QString::number(start_frame) + " to " + QString::number(end_frame);
 
-	lbl_fixed_suppression->setText(description);
+		lbl_fixed_suppression->setText(description);
+	}
 }
 
 void SirveApp::ExecuteDeinterlace()
@@ -2716,20 +2750,23 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int s
 	progress_bar_main->setTextVisible(true);
 	lbl_progress_status->setText(QString("Deinterlacing..."));
 	connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &DI, &ImageProcessing::CancelOperation);
 	deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(osm_frames, original.details);
 	progress_bar_main->setValue(0);
-	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
-	deinterlace_state.method = ProcessingMethod::deinterlace;
-	deinterlace_state.deint_type = deinterlace_method_type;
-	deinterlace_state.source_state_ID = source_state_ind;
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : deinterlace_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	deinterlace_state.details.max_value = maxVal;
-	deinterlace_state.state_ID =  video_display->container.processing_states.size() + 1;
-    video_display->container.AddProcessingState(deinterlace_state);
+	if(deinterlace_state.details.frames_16bit.size()>0){
+		progress_bar_main->setTextVisible(false);
+		deinterlace_state.method = ProcessingMethod::deinterlace;
+		deinterlace_state.deint_type = deinterlace_method_type;
+		deinterlace_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : deinterlace_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		deinterlace_state.details.max_value = maxVal;
+		deinterlace_state.state_ID =  video_display->container.processing_states.size() + 1;
+		video_display->container.AddProcessingState(deinterlace_state);
+	}
 }
 
 void SirveApp::ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type)
@@ -2812,19 +2849,22 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
 	progress_bar_main->setRange(0,number_frames - 1);
 	lbl_progress_status->setText(QString("Center on OSM..."));
 	connect(&COST, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &COST, &ImageProcessing::CancelOperation);
 	track_centered_state.details.frames_16bit = COST.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
-	track_centered_state.offsets = track_centered_offsets;
-	track_centered_state.source_state_ID = source_state_ind;
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : track_centered_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	track_centered_state.details.max_value = maxVal;
-	track_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
-    video_display->container.AddProcessingState(track_centered_state);
+	if(track_centered_state.details.frames_16bit.size()>0){
+		track_centered_state.offsets = track_centered_offsets;
+		track_centered_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : track_centered_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		track_centered_state.details.max_value = maxVal;
+		track_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
+		video_display->container.AddProcessingState(track_centered_state);
+	}
 }
 
 void SirveApp::ExecuteCenterOnBrightest()
@@ -2848,19 +2888,22 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 	lbl_progress_status->setText(QString("Center on Brightest Object..."));
 	ImageProcessing COB;
 	connect(&COB, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &COB, &ImageProcessing::CancelOperation);
 	brightest_centered_state.details.frames_16bit = COB.CenterOnBrightest(original.details, brightest_centered_offsets);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
-	brightest_centered_state.offsets = brightest_centered_offsets;
-	brightest_centered_state.source_state_ID = source_state_ind;
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : brightest_centered_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	brightest_centered_state.details.max_value = maxVal;
-	brightest_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
-	video_display->container.AddProcessingState(brightest_centered_state);
+	if(brightest_centered_state.details.frames_16bit.size()>0){
+		brightest_centered_state.offsets = brightest_centered_offsets;
+		brightest_centered_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : brightest_centered_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		brightest_centered_state.details.max_value = maxVal;
+		brightest_centered_state.state_ID =  video_display->container.processing_states.size() + 1;
+		video_display->container.AddProcessingState(brightest_centered_state);
+	}
 }
 
 void SirveApp::HandleOsmTracksToggle()
@@ -2932,19 +2975,23 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_ind)
 	progress_bar_main->setRange(0,number_video_frames - 1);
 	progress_bar_main->setTextVisible(true);
 	connect(&FS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &FS, &ImageProcessing::CancelOperation);
 	frame_stacking_state.details.frames_16bit = FS.FrameStacking(number_of_frames, original.details);
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
-	frame_stacking_state.method = ProcessingMethod::adaptive_noise_suppression;
-	frame_stacking_state.frame_stack_num_frames = number_of_frames;
-	frame_stacking_state.source_state_ID = source_state_ind;
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : frame_stacking_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	frame_stacking_state.details.max_value = maxVal;
-	frame_stacking_state.state_ID =  video_display->container.processing_states.size() + 1;
-    video_display->container.AddProcessingState(frame_stacking_state);
+	lbl_progress_status->setText(QString(""));
+	if(frame_stacking_state.details.frames_16bit.size()>0){
+		frame_stacking_state.method = ProcessingMethod::frame_stacking;
+		frame_stacking_state.frame_stack_num_frames = number_of_frames;
+		frame_stacking_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : frame_stacking_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		frame_stacking_state.details.max_value = maxVal;
+		frame_stacking_state.state_ID =  video_display->container.processing_states.size() + 1;
+		video_display->container.AddProcessingState(frame_stacking_state);
+	}
 }
 
 void SirveApp::ExecuteAdaptiveNoiseSuppression()
@@ -2984,6 +3031,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 	progress_bar_main->setRange(0,number_video_frames - 1);
 	progress_bar_main->setTextVisible(true);
 	connect(&ANS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+	connect(btn_cancel_operation, &QPushButton::clicked, &ANS, &ImageProcessing::CancelOperation);
 	if(available_memory_ratio >=1.5){
 		noise_suppresion_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
 	}
@@ -2993,28 +3041,27 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 	progress_bar_main->setValue(0);
 	progress_bar_main->setTextVisible(false);
 	lbl_progress_status->setText(QString(""));
-	QString description = "Filter starts at ";
-	if (relative_start_frame > 0)
-		description += "+";
-
-	lbl_adaptive_noise_suppression_status->setWordWrap(true);
-	description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
-
-	lbl_adaptive_noise_suppression_status->setText(description);
-
-	noise_suppresion_state.method = ProcessingMethod::adaptive_noise_suppression;
-	noise_suppresion_state.ANS_relative_start_frame = relative_start_frame;
-	noise_suppresion_state.ANS_num_frames = number_of_frames;
-	noise_suppresion_state.ANS_hide_shadow = hide_shadow_choice;
-	noise_suppresion_state.ANS_shadow_threshold = shadow_sigma_thresh;
-	noise_suppresion_state.source_state_ID = source_state_ind;
-	uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-    for (const auto& row : noise_suppresion_state.details.frames_16bit) {
-        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-    }
-	noise_suppresion_state.details.max_value = maxVal;
-	noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
-    video_display->container.AddProcessingState(noise_suppresion_state);
+	if(noise_suppresion_state.details.frames_16bit.size()>0){
+		QString description = "Filter starts at ";
+		if (relative_start_frame > 0)
+			description += "+";
+		lbl_adaptive_noise_suppression_status->setWordWrap(true);
+		description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
+		lbl_adaptive_noise_suppression_status->setText(description);
+		noise_suppresion_state.method = ProcessingMethod::adaptive_noise_suppression;
+		noise_suppresion_state.ANS_relative_start_frame = relative_start_frame;
+		noise_suppresion_state.ANS_num_frames = number_of_frames;
+		noise_suppresion_state.ANS_hide_shadow = hide_shadow_choice;
+		noise_suppresion_state.ANS_shadow_threshold = shadow_sigma_thresh;
+		noise_suppresion_state.source_state_ID = source_state_ind;
+		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+		for (const auto& row : noise_suppresion_state.details.frames_16bit) {
+			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		}
+		noise_suppresion_state.details.max_value = maxVal;
+		noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
+		video_display->container.AddProcessingState(noise_suppresion_state);
+	}
 }
 
 void SirveApp::ExecuteRPCPNoiseSuppression()
@@ -3042,19 +3089,22 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_ind)
 		progress_bar_main->setRange(0,number_video_frames);
 		progress_bar_main->setTextVisible(true);
 		connect(&RPCP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+		connect(btn_cancel_operation, &QPushButton::clicked, &RPCP, &ImageProcessing::CancelOperation);
 		noise_suppresion_state.details.frames_16bit = RPCP.RPCPNoiseSuppression(original.details);
+		lbl_progress_status->setText(QString(""));
 		progress_bar_main->setValue(0);
 		progress_bar_main->setTextVisible(false);
-		lbl_progress_status->setText(QString(""));
-		noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
-		noise_suppresion_state.source_state_ID = source_state_ind;
-		uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-		for (const auto& row : noise_suppresion_state.details.frames_16bit) {
-			maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+		if(noise_suppresion_state.details.frames_16bit.size()>0){
+			noise_suppresion_state.method = ProcessingMethod::RPCP_noise_suppression;
+			noise_suppresion_state.source_state_ID = source_state_ind;
+			uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+			for (const auto& row : noise_suppresion_state.details.frames_16bit) {
+				maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+			}
+			noise_suppresion_state.details.max_value = maxVal;
+			noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
+			video_display->container.AddProcessingState(noise_suppresion_state);
 		}
-		noise_suppresion_state.details.max_value = maxVal;
-		noise_suppresion_state.state_ID =  video_display->container.processing_states.size() + 1;
-		video_display->container.AddProcessingState(noise_suppresion_state);
 	}
 	else
 	{
@@ -3232,9 +3282,9 @@ void SirveApp::UpdateGlobalFrameVector()
 
  	//Convert current frame to armadillo matrix
 	arma::vec image_vector(original_frame_vector);
-
+	
 	int image_max_value = image_vector.max();
-	if (!chk_scale_by_frame->isChecked()){
+	if (!rad_scale_by_frame->isChecked()){
 		image_max_value = video_display->container.processing_states[video_display->container.current_idx].details.max_value;
 	}
 
@@ -3263,11 +3313,11 @@ void SirveApp::UpdateGlobalFrameVector()
 	double gain = lbl_gain_value->text().toDouble();
 
 	int max_val = std::round(image_max_value* gain);
-	QString max_val_info = "Dark Set Pt:\n " + QString::number(max_val);
+	QString max_val_info = "Dark Set Pt: " + QString::number(max_val);
 	lbl_max_count_val->setText(max_val_info);
 
 	int min_val = std::round(image_max_value * lift);
-	QString min_val_info = "Dark Set Pt:\n" + QString::number(min_val);
+	QString min_val_info = "Dark Set Pt:" + QString::number(min_val);
 	lbl_min_count_val->setText(min_val_info);
 
 	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);

@@ -16,6 +16,7 @@ ImageProcessing::ImageProcessing()
             {0.0, 0.0000, 0.0062, 0.0124, 0.0127, 0.0127, 0.0127, 0.0124, 0.0062, 0.0000, 0.0},
             {0.0, 0.0, 0.0, 0.0012, 0.0050, 0.0063, 0.0050, 0.0012, 0.0, 0.0, 0.0}
         };
+    cancel_operation = false;
 }
 
 ImageProcessing::~ImageProcessing() {
@@ -33,6 +34,10 @@ void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_
     {
         UpdateProgressBar(frame);
         QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return;
+		}
         for (auto i = 0; i < bad_pixel_indices.size(); i++)
         {
             int bad_pixel_index = bad_pixel_indices[i];
@@ -117,9 +122,14 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::v
     
     // Create an Armadillo matrix
     arma::mat frame_data(num_pixels, num_video_frames);
-
+    arma::uvec index_outlier;
+    index_outlier.reset();
     // Fill the Armadillo matrix from the std::vector
     for (int i = 0; i < num_video_frames; i++) {
+        if (cancel_operation)
+		{
+			return index_outlier;
+		}
         frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
     }
     UpdateProgressBar(round(num_video_frames/4));
@@ -137,7 +147,7 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::v
     UpdateProgressBar(round(3*num_video_frames/4));
 
     arma::vec P = arma::conv_to<arma::vec>::from(SUMB);
-    arma::uvec index_outlier = arma::find(arma::abs(P - arma::mean(P)) > N*arma::stddev(P));
+    index_outlier = arma::find(arma::abs(P - arma::mean(P)) > N*arma::stddev(P));
     
     UpdateProgressBar(num_video_frames);
 
@@ -147,10 +157,9 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::v
 arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels)
 {
     int index_first_frame, index_last_frame;
-
     int num_video_frames = input_pixels.size();
-
 	int num_pixels = input_pixels[0].size();
+    double c = 1.4826;
 
     // Create an Armadillo matrix
     arma::mat frame_data(num_pixels, num_video_frames);
@@ -162,18 +171,19 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length
 
     arma::mat frame_data_t = frame_data.t();
     arma::mat MAD(num_pixels, num_video_frames);
-
-    arma::mat moving_median(num_pixels, num_video_frames);
-    
+    arma::mat moving_median(num_pixels, num_video_frames); 
     arma::umat OUTL(num_pixels, num_video_frames);
 
-    double c = 1.4826;
     arma::uvec index_outlier;
     index_outlier.reset();
 	for (int i = 0; i < num_video_frames; i++)
 	{
         UpdateProgressBar(i);
 		QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return index_outlier;
+		}
         index_first_frame = std::max(i - (half_window_length),0);
         index_last_frame = std::min(i + (half_window_length),num_video_frames - 1);  
         moving_median.col(i) = arma::median(frame_data.cols(index_first_frame,index_last_frame),1);
@@ -280,6 +290,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 	for (int i = 0; i < num_video_frames; i++){
 		UpdateProgressBar(i);
 		QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		R = frame_vector.max();
 		frame_vector -= mean_frame;
@@ -313,6 +327,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
     for (int i = 0; i < num_video_frames; i++) {
 	 	UpdateProgressBar(i);
 		QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         // R = arma::range(frame_vector);
         R = arma::max(frame_vector);
@@ -351,6 +369,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
         UpdateProgressBar(std::round(i/3));
 		QCoreApplication::processEvents();
         frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
     }
     int j0 = round(num_video_frames/3);
     // arma::rowvec range_values = arma::range(frame_data,0);
@@ -361,6 +383,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	{
         UpdateProgressBar(std::round(j0 + j/3));
 		QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
         index_last_frame = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
         moving_mean.col(j) = arma::mean(frame_data.cols(j,index_last_frame), 1);
     }
@@ -372,6 +398,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		for (int k = 0; k < num_video_frames; k++){
             UpdateProgressBar(std::round(k0 + k/3));
 		    QCoreApplication::processEvents();
+            if (cancel_operation)
+            {
+                return std::vector<std::vector<uint16_t>>();
+            }
 			frame_vector = frame_data.col(k);
             int start_index = std::max(k + start_frame,0);
             int stop_index = std::min(start_index + num_of_averaging_frames - 1,num_video_frames - 1);
@@ -386,6 +416,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		for (int k = 0; k < num_video_frames; k++){	
             UpdateProgressBar(std::round(k0 + k/3));
 		    QCoreApplication::processEvents();
+            if (cancel_operation)
+            {
+                return std::vector<std::vector<uint16_t>>();
+            }
 			frame_vector = frame_data.col(k);
 			frame_vector -= frame_vector.min();
             frame_vector = R(k) * frame_vector / frame_vector.max();
@@ -440,6 +474,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
     for (int j = 0; j < num_video_frames; j++) { 
         UpdateProgressBar(round(j/4));
         QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
         M.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}
     // arma::rowvec range_values = arma::range(M,0);
@@ -464,6 +502,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
     while (!converged && k<kMax){
         UpdateProgressBar(k0 + k);
         QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
         L = thresholding(M - S - muinv*Y, mu);
         S = shrink(M - L + muinv*Y, lambda_mu);
         Y = Y + mu*(M - L - S);
@@ -478,6 +520,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
     for(int l = 0; l < num_video_frames; l++) {
         UpdateProgressBar(L0 + l);
         QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
         frame_vector = S.col(l);
         frame_vector = frame_vector - frame_vector.min();
         frame_vector = R(l) * frame_vector/frame_vector.max();
@@ -550,6 +596,10 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceCrossCorrelation(s
     for (int framei = 0; framei < num_video_frames; framei++){
         UpdateProgressBar(framei);
         QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
         skip_frame = arma::find(framei == deinterlace_i).is_empty();
         if (!skip_frame){
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
@@ -648,6 +698,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
         for (int framei = 0; framei < num_video_frames; framei++){
             UpdateProgressBar(framei);
             QCoreApplication::processEvents();
+            if (cancel_operation)
+            {
+                return std::vector<std::vector<uint16_t>>();
+            }
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             if (OSMPriority==0){
                 trackFrames = osmFrames;
@@ -671,6 +725,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
          for (int framei = 0; framei < num_video_frames; framei++){
             UpdateProgressBar(framei);
             QCoreApplication::processEvents();
+            if (cancel_operation)
+            {
+                return std::vector<std::vector<uint16_t>>();
+            }
             frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
             output = frame;
             bool cont_search = true;
@@ -756,6 +814,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
     for (int framei = 0; framei < num_video_frames; framei++){
         UpdateProgressBar(framei);
         QCoreApplication::processEvents();
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
         frame1 = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
         frame1 = frame1 - arma::mean(frame1.as_col());
         i_max = frame1.index_max();
@@ -786,26 +848,29 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
 	arma::vec moving_mean(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec frame_vector_out(num_pixels,1);
-
-	for (int j = 0; j < num_of_averaging_frames - 1; j++) { 
-		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
-	}
+    for (int j = 0; j < num_of_averaging_frames - 1; j++) { 
+        window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
+    }
     for (int i = 0; i < num_video_frames; i++) {
-	 	UpdateProgressBar(i);
-		QCoreApplication::processEvents();
-		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+        if (cancel_operation)
+		{
+			return std::vector<std::vector<uint16_t>>();
+		}
+        UpdateProgressBar(i);
+        QCoreApplication::processEvents();
+        frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         index_last_frame = std::min(i + num_of_averaging_frames - 1,num_video_frames - 1);
         if(i >num_of_averaging_frames){
-		    window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
-		    window_data.shed_col(0);
+            window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
+            window_data.shed_col(0);
         }
-		moving_mean = arma::mean(window_data,1);
+        moving_mean = arma::mean(window_data,1);
         // R = arma::range(frame_vector);
         R = arma::max(frame_vector);
-		frame_vector -= moving_mean;
+        frame_vector -= moving_mean;
         frame_vector -= frame_vector.min();
         frame_vector_out = R * frame_vector / frame_vector.max();
-		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
     }
 	return frames_out;
  }
@@ -844,6 +909,12 @@ void ImageProcessing::UpdateProgressBar(unsigned int val) {
 
     emit SignalProgress(val);
 }
+
+void ImageProcessing::CancelOperation()
+{
+    cancel_operation = true;
+}
+
 
 std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDetails & original, int window_size)
 {

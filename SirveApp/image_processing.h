@@ -20,6 +20,7 @@ public:
     ImageProcessing();
     ~ImageProcessing();
     int frameval;
+    bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
 
     arma::uvec IdentifyBadPixelsMedian(double N, std::vector<std::vector<uint16_t>> & input_pixels);
@@ -54,6 +55,9 @@ public:
 
 signals:
      void SignalProgress(unsigned int frameval);
+
+public slots:
+    void CancelOperation();
 
 private:
     arma::mat disk_avg_kernel;
