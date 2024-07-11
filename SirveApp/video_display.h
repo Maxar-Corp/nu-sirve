@@ -143,7 +143,7 @@ public slots:
     void HandleImageAreaSelection(QRect area);
     void ShowStencil();
     void HideStencil();
-    void UpdateStencilData(AnnotationInfo data);
+    void InitializeStencilData(AnnotationInfo data);
     void UndoZoom();
 
 

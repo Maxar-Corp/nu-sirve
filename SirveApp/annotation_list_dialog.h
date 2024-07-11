@@ -24,11 +24,12 @@ signals:
     void showAnnotationStencil();
     void hideAnnotationStencil();
     void updateAnnotationStencil(AnnotationInfo data);
-    void locationChanged(QPoint location);
+    void positionChanged(QPoint location);
 
 public slots:
 
-    void UpdateStencilPosition(QPoint location);
+    void UpdateStencilPosition(QPoint position);
+    void SetStencilLocation(QPoint location);
 
 private:
     std::vector<AnnotationInfo> &data;

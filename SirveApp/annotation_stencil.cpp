@@ -46,6 +46,7 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
         _drag_active = false;
+        emit mouseReleased(event->globalPos() - _drag_position);
         event->accept();
     }
 }
@@ -66,10 +67,4 @@ void AnnotationStencil::InitializeData(AnnotationInfo data)
     current_data->text = data.text;
     int total_width = data.text.length() * data.font_size;
     setFixedSize(total_width, data_height);
-}
-
-
-void AnnotationStencil::AnnotationPositioned()
-{
-
 }

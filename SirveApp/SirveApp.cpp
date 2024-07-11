@@ -2253,10 +2253,10 @@ void SirveApp::AnnotateVideo()
 
     connect(annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
     connect(annotate_gui, &AnnotationListDialog::hideAnnotationStencil, video_display, &VideoDisplay::HideStencil);
-    connect(annotate_gui, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::UpdateStencilData);
+    connect(annotate_gui, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::InitializeStencilData);
 
     connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition);
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::UpdateStencilPosition);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::SetStencilLocation);
 
     annotate_gui->show();
 }

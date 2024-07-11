@@ -47,10 +47,6 @@ signals:
     void mouseMoved(const QPoint &location);
     void mouseReleased(const QPoint &location);
 
-public slots:
-
-    void AnnotationPositioned();
-
 };
 
 

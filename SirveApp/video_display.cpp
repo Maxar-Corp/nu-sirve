@@ -1147,7 +1147,7 @@ void VideoDisplay::HideStencil()
     annotation_stencil->hide();
 }
 
-void VideoDisplay::UpdateStencilData(AnnotationInfo data)
+void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 {
     annotation_stencil->InitializeData(data);
 }
