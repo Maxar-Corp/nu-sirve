@@ -114,22 +114,23 @@ public:
 	QLabel *lbl_bad_pixel_start_frame, *lbl_bad_pixel_stop_frame, *lbl_ANS_number_frames, *lbl_ANS_offset_frames, *lbl_FNS_start_frame, * lbl_FNS_stop_frame, * lbl_ANS_shadow_threshold, *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
     QLabel *lbl_progress_status, *lbl_processing_description, *lbl_min_scale_value, *lbl_max_scale_value;
 
-	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes;
+	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_current_workspace_folder;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, * txt_end_frame, * txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame;
+	QLineEdit* txt_start_frame, * txt_end_frame, * txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame, *txt_workspace_name,\
+             *txt_file_name, *txt_max_frames;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
-        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_tracks, 
-        * btn_center_on_brightest, *btn_frame_stack, *btn_exit, *btn_RPCP, *btn_cancel_operation;
+        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks, 
+        * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
     QProgressBar * progress_bar_main;
 
-	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
+	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
@@ -209,17 +210,13 @@ public:
         void HandlePlotFullDataToggle();
         void HandlePlotPrimaryOnlyToggle();
         void HandlePlotCurrentFrameMarkerToggle();
-        void HandleExitClicked();
    
-        void ShowCalibrationDialog();
-
         void SetDataTimingOffset();
         void ChangeWorkspaceDirectory();
         void CloseWindow();
 
         void SavePlot();
         void SaveFrame();
-        void CopyOsmDirectory();
         void HandleRelativeHistogramToggle(bool input);
         void ApplyEpochTime();
         void ApplyFixedNoiseSuppressionFromExternalFile();
@@ -278,7 +275,7 @@ private:
     void ResizeUi();
 
 	QMenu *menu_file, *menu_settings;
-    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory;
+    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames, *action_load_workspace, *action_save_workspace;
 
     int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
     int ConvertFrameNumberTextToInt(QString input);
