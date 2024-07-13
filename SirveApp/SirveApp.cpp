@@ -101,7 +101,7 @@ void SirveApp::SetupUi() {
 	SetupPlotFrame();
 
 	QGroupBox *grpbox_status_area = new QGroupBox();
-	grpbox_status_area->setStyleSheet("background-color: rgba(245, 200, 125, 100);");
+	// grpbox_status_area->setStyleSheet("background-color: rgba(245, 200, 125, 100);");
 	QGridLayout *grid_status_area = new QGridLayout();
 	grpbox_status_area->setLayout(grid_status_area);
 	cmb_processing_states = new QComboBox();
@@ -134,13 +134,13 @@ void SirveApp::SetupUi() {
 	QLabel *lbl_workspace_name = new QLabel("Workspace:");
 	txt_workspace_name = new QLineEdit("");
 	txt_workspace_name->setReadOnly(true);
-	grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
-	grid_status_area->addWidget(cmb_processing_states,0,1,1,7);
-	grid_status_area->addWidget(btn_undo_step,0,8,1,1);
+	// grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
+	// grid_status_area->addWidget(cmb_processing_states,0,1,1,7);
+	// grid_status_area->addWidget(btn_undo_step,0,8,1,1);
 	grid_status_area->addWidget(lbl_processing_description,1,0,1,-1);
 	grid_status_area->addWidget(lbl_file_name,2,0,1,1);
 	grid_status_area->addWidget(txt_file_name,2,1,1,-1);
-	grid_status_area->addWidget(lbl_current_workspace_folder,3,0,1,-1);
+	grid_status_area->addWidget(lbl_current_workspace_folder,3,0,1,1);
 	grid_status_area->addWidget(txt_current_workspace_folder,3,1,1,-1);
 	grid_status_area->addWidget(lbl_workspace_name,4,0,1,-1);
 	grid_status_area->addWidget(txt_workspace_name,4,1,1,-1);
@@ -152,10 +152,21 @@ void SirveApp::SetupUi() {
 	grid_status_area->addWidget(txt_end_frame,5,6,1,1);
 	grid_status_area->addWidget(btn_get_frames,5,8,1,1);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	// grpbox_status_area->setStyleSheet("background-color:rgb(247,246,246); border-width: 2px; border-color: rgb(0, 0, 125); border-radius: 6px;");
+	// grpbox_status_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
 	
+	QGroupBox *grpbox_state_control_area = new QGroupBox();
+	grpbox_state_control_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
+	QGridLayout *grid_state_control_area = new QGridLayout();
+	grpbox_state_control_area->setLayout(grid_state_control_area);
+	grid_state_control_area->addWidget(lbl_processing_state,0,0,1,1);
+	grid_state_control_area->addWidget(cmb_processing_states,0,1,1,7);
+	grid_state_control_area->addWidget(btn_undo_step,0,8,1,1);
+
 	QGroupBox *grpbox_progressbar_area = new QGroupBox();
 	QGridLayout *grid_progressbar_area = new QGridLayout();
 	grpbox_progressbar_area->setLayout(grid_progressbar_area);
+	grpbox_progressbar_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
 	lbl_progress_status = new QLabel(" ");
 	// lbl_progress_status->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	progress_bar_main = new QProgressBar();
@@ -168,7 +179,8 @@ void SirveApp::SetupUi() {
 	main_layout->addWidget(tab_menu,0,0,1,1);
 	main_layout->addWidget(frame_video_player,0,1,2,1);
 	main_layout->addWidget(tab_plots,0,2,2,1);
-	main_layout->addWidget(grpbox_progressbar_area,2,0,1,3);
+	main_layout->addWidget(grpbox_progressbar_area,2,1,1,2);
+	main_layout->addWidget(grpbox_state_control_area,2,0,1,1);
 	main_layout->addWidget(grpbox_status_area,1,0,1,1);	
 	QFrame* frame_main = new QFrame();
 	frame_main->setLayout(main_layout);
@@ -210,8 +222,8 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 {
 
 	color_map_display->setMinimumHeight(20);
-	color_map_display->setMaximumWidth(500);
-	color_map_display->setMinimumWidth(500);
+	// color_map_display->setMaximumWidth(500);
+	// color_map_display->setMinimumWidth(500);
 	QWidget* widget_tab_color = new QWidget(tab_menu);
 	QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 
@@ -247,13 +259,16 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	slider_gain->setSingleStep(1);
 	slider_gain->setPageStep(10);
 	slider_gain->setValue(1000);
+	lbl_max_scale_value = new QLabel("High");
+	lbl_max_scale_value->setStyleSheet("color:rgb(81,72,65);");
+	QLabel* lbl_colormap = new QLabel("Set Colormap:");
 	slider_gain->setTickPosition(QSlider::TicksAbove);
 	slider_gain->setTickInterval(100);
 	slider_gain->setEnabled(false);
-	chk_auto_lift_gain = new QCheckBox("Enable Auto Lift/Gain");
-	chk_relative_histogram = new QCheckBox("Relative Histogram");
-	btn_reset_color_correction = new QPushButton("Reset Set\nPoints");
-	lbl_min_count_val = new QLabel("Dark Set Pt:");
+	chk_auto_lift_gain = new QCheckBox("Auto\nLift/Gain");
+	// chk_relative_histogram = new QCheckBox("Relative Histogram");
+	btn_reset_color_correction = new QPushButton("Reset Set Points");
+	lbl_min_count_val = new QLabel("Light Set Pt:");
 	lbl_min_count_val->setStyleSheet("color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;");
 	lbl_min_count_val->setFixedWidth(130);
 	lbl_min_count_val->setFixedHeight(30);
@@ -262,10 +277,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	lbl_max_count_val->setFixedHeight(30);
 	lbl_min_scale_value = new QLabel("Low");
 	lbl_min_scale_value->setFixedWidth(125);
-	lbl_min_scale_value->setStyleSheet("color:rgb(81,72,65);");
-	lbl_max_scale_value = new QLabel("High");
-	lbl_max_scale_value->setStyleSheet("color:rgb(81,72,65);");
-	QLabel* lbl_colormap = new QLabel("Set Colormap:");
+	lbl_min_scale_value->setStyleSheet("color:rgb(81,72,65);");;
 	cmb_color_maps = new QComboBox();
 	int number_maps = video_colors.maps.size();
 	for (int i = 0; i < number_maps; i++)
@@ -286,40 +298,39 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_grpbox_scale_options->addWidget(rad_scale_by_cube,0,1,1,1);
 
 	grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
-	grpbox_auto_lift_gain->setFixedWidth(350);
 	QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
 	QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
-	QLabel* lbl_auto_lift = new QLabel("Lift adjustment (sigma below mean)");
+	QLabel* lbl_auto_lift = new QLabel("Lift (sigma below mean)");
 	txt_lift_sigma = new QLineEdit("3");
 	txt_lift_sigma->setValidator(ensure_double);
 	txt_lift_sigma->setFixedWidth(50);
-	QLabel* lbl_auto_gain = new QLabel("Gain adjustment (sigma above mean)");
+	QLabel* lbl_auto_gain = new QLabel("Gain (sigma above mean)");
 	txt_gain_sigma = new QLineEdit("3");
 	txt_gain_sigma->setValidator(ensure_double);
 	txt_gain_sigma->setFixedWidth(50);
-	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,4);
-	grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,4,1,1);
-	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,1,0,1,4);
-	grid_grpbox_lift_controls->addWidget(txt_gain_sigma,1,4,1,1);
+	grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,1);
+	grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,1,1,1);
+	grid_grpbox_lift_controls->addWidget(lbl_auto_gain,0,2,1,1);
+	grid_grpbox_lift_controls->addWidget(txt_gain_sigma,0,3,1,1);
 
-	grid_grpbox_image_controls->addWidget(label_lift, 0, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_lift, 0, 1, 1, 3);
-	grid_grpbox_image_controls->addWidget(lbl_lift_value, 0, 4, 1, 1);
-	grid_grpbox_image_controls->addWidget(label_gain, 1, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(slider_gain, 1, 1, 1, 3);
-	grid_grpbox_image_controls->addWidget(lbl_gain_value, 1, 4, 1, 1);
-	grid_grpbox_image_controls->addWidget(lbl_colormap, 2, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(cmb_color_maps, 2, 1, 1, 1);
-	grid_grpbox_image_controls->addWidget(grpbox_scale_options,2,2,1,3);	
-	grid_grpbox_image_controls->addWidget(lbl_min_scale_value, 3, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(color_map_display, 3, 1, 1, 2);
-	grid_grpbox_image_controls->addWidget(lbl_max_scale_value, 3, 5, 1 ,1);
-	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 4, 0, 1, 1);
-	grid_grpbox_image_controls->addWidget(lbl_min_count_val,4, 1, 1 ,1);
-	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 4, 3, 1, 1);
-	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain, 5, 1, 1, 2);
-	grid_grpbox_image_controls->addWidget(chk_relative_histogram, 5, 3, 1, 2);
-	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 6, 1, 1, 2);
+	grid_grpbox_image_controls->addWidget(chk_auto_lift_gain,0,0, 1, 2);
+	grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 0, 1, 1, -1);
+	grid_grpbox_image_controls->addWidget(label_lift, 1, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_lift, 1, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_lift_value, 1, 5, 1, 1);
+	grid_grpbox_image_controls->addWidget(label_gain, 2, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(slider_gain, 2, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_gain_value, 2, 5, 1, 1);
+	grid_grpbox_image_controls->addWidget(lbl_colormap, 3, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(cmb_color_maps, 3, 1, 1, 1);
+	grid_grpbox_image_controls->addWidget(grpbox_scale_options,3,2,1,4);	
+	grid_grpbox_image_controls->addWidget(lbl_min_scale_value, 4, 0, 1, 1);
+	grid_grpbox_image_controls->addWidget(color_map_display, 4, 1, 1, 4);
+	grid_grpbox_image_controls->addWidget(lbl_max_scale_value, 4, 5, 1 ,1);
+	grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 2, 1, 1);
+	grid_grpbox_image_controls->addWidget(lbl_min_count_val,5, 1, 1 ,1);
+	grid_grpbox_image_controls->addWidget(lbl_max_count_val, 5, 4, 1, 1);
+
 
 	vlayout_tab_color->addWidget(grpbox_image_controls);
 
@@ -368,7 +379,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 	grid_epoch_area->addWidget(dt_epoch, 0, 1, 1, 1);
 	grid_epoch_area->addWidget(label_date_format, 1,0,1,2);
 	grid_epoch_area->addWidget(lbl_current_epoch, 2,0,1,2);
-	grid_epoch_area->addWidget(btn_apply_epoch, 3, 0,1,1);
+	grid_epoch_area->addWidget(btn_apply_epoch, 2, 1,1,1);
 	vlayout_tab_color->addWidget(grpbox_epoch_area);
 
 	vlayout_tab_color->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
@@ -798,9 +809,10 @@ void SirveApp::SetupPlotFrame() {
 	btn_popout_histogram->resize(40, 40);
 	btn_popout_histogram->setCheckable(true);
 	vlayout_tab_histogram->addWidget(btn_popout_histogram);
-	
+	chk_relative_histogram = new QCheckBox("Relative Histogram");
 	vlayout_tab_histogram->addWidget(frame_histogram_abs);
 	vlayout_tab_histogram->addWidget(frame_histogram_rel);
+	vlayout_tab_histogram->addWidget(chk_relative_histogram);
 
 	// ------------------------------------------------------------------------
 
@@ -3254,7 +3266,7 @@ void SirveApp::UpdateGlobalFrameVector()
 	lbl_max_count_val->setText(max_val_info);
 
 	int min_val = std::round(image_max_value * lift);
-	QString min_val_info = "Dark Set Pt:" + QString::number(min_val);
+	QString min_val_info = "Light Set Pt:" + QString::number(min_val);
 	lbl_min_count_val->setText(min_val_info);
 
 	color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);
