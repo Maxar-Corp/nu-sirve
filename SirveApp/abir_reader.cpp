@@ -21,9 +21,6 @@ ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame
 
     std::vector<unsigned int> valid_frames { min_frame, max_frame };
 
-	QProgressDialog progress("", QString(), 0, 10);
-	progress.setWindowModality(Qt::WindowModal);
-
 	std::vector<std::vector<uint16_t>>video_frames_16bit;
 
 	fopen_s(&fp, full_file_path, "rb");
@@ -57,17 +54,8 @@ ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame
 
     ir_data.reserve(valid_frames[1] - valid_frames[0] + 1);
 
-	progress.setMinimum(valid_frames[0]);
-	progress.setMaximum(valid_frames[1]);
-	progress.setMinimumDuration(1);
-	progress.setWindowTitle(QString("Import Video"));
-	progress.setLabelText(QString("Reading in frames..."));
-
-	progress.setMinimumWidth(300);
-
     for (unsigned int frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
-		progress.setValue(frame_index);
         ABIR_Header header_data;
 
 		size_t seek_rtn = _fseeki64(fp, (frame_index - 1) * frame_size, SEEK_SET);
@@ -256,6 +244,12 @@ ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame
             data_result.x_pixels = ir_data[0].header.image_x_size;
             data_result.y_pixels = ir_data[0].header.image_y_size;
             data_result.video_frames_16bit = video_frames_16bit;
+            uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+	        // std::vector<std::vector<uint16_t>> vec = original.details.frames_16bit;
+            for (const auto& row : video_frames_16bit) {
+                maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+            }
+            data_result.max_value = maxVal;
             return data_result;
         }
 
@@ -283,6 +277,11 @@ ABIRDataResult ABIRData::GetFrames(const char* file_path, unsigned int min_frame
     data_result.x_pixels = ir_data[0].header.image_x_size;
     data_result.y_pixels = ir_data[0].header.image_y_size;
     data_result.video_frames_16bit = video_frames_16bit;
+    uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+    for (const auto& row : video_frames_16bit) {
+        maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+    }
+    data_result.max_value = maxVal;
     return data_result;
 }
 

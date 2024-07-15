@@ -70,13 +70,14 @@ void VideoDisplay::SetupCreateTrackControls()
 {
     grp_create_track = new QGroupBox("Track Editing");
     grp_create_track->setMaximumHeight(150);
-
+    grp_create_track->setStyleSheet(bold_large_styleSheet);
     track_details_min_frame = 0;
     track_details_max_frame = 0;
 
     QVBoxLayout* vlayout_create_track = new QVBoxLayout(grp_create_track);
 
     lbl_create_track = new QLabel("");
+    lbl_create_track->setWordWrap(true);
 
     btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
@@ -106,7 +107,8 @@ void VideoDisplay::SetupCreateTrackControls()
 void VideoDisplay::SetupPinpointDisplay()
 {
     grp_pinpoint = new QGroupBox("Selected Pixels");
-    grp_pinpoint->setMaximumHeight(200);
+    // grp_pinpoint->setMaximumHeight(200);
+    // grp_pinpoint->setFixedWidth(700);
     grp_pinpoint->setStyleSheet(bold_large_styleSheet);
 
     QHBoxLayout *pinpoint_layout = new QHBoxLayout(grp_pinpoint);
@@ -120,7 +122,6 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setIcon(pinpoint_icon);
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
-	btn_pinpoint->setStyleSheet(bright_green_styleSheet);
     connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
@@ -141,7 +142,6 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_clear_pinpoints->setMaximumSize(40, 40);
     btn_clear_pinpoints->setIcon(clear_icon);
     btn_clear_pinpoints->setToolTip("Clear");
-	btn_clear_pinpoints->setStyleSheet(dark_orange_button_styleSheet);
     connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::ClearPinpoints);
 
     pinpoint_layout->addWidget(btn_pinpoint);
@@ -178,8 +178,7 @@ void VideoDisplay::SetupLabels()
     hlayout_video_labels->addWidget(lbl_frame_number);
     hlayout_video_labels->addWidget(lbl_video_time_midnight);
     hlayout_video_labels->addWidget(lbl_zulu_time);
-
-    video_display_layout->insertLayout(1, hlayout_video_labels);
+    video_display_layout->insertLayout(2, hlayout_video_labels);
 
     lbl_pinpoint->setText("");
 }
@@ -596,8 +595,6 @@ void VideoDisplay::UpdateDisplayFrame()
     // Convert image back to RGB to facilitate use of the colors
     frame = frame.convertToFormat(QImage::Format_RGB888);
 
-    // int xCorrection = 0;
-    // int yCorrection = 0;
     arma::mat offset_matrix(1,3);
     offset_matrix.zeros();
     if ( offsets.size() > 0 ){
@@ -618,12 +615,23 @@ void VideoDisplay::UpdateDisplayFrame()
         for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
         {
             unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
-
             int pixel_x = pixel_index % image_x;
             int pixel_y = pixel_index / image_x;
-
-			// QRgb bp_color = QColorConstants::Yellow.rgb();
-			frame.setPixelColor(pixel_x - xCorrection, pixel_y - yCorrection, bad_pixel_color);
+            int new_pixel_x = pixel_x - xCorrection;
+            int new_pixel_y = pixel_y - yCorrection;
+            if (new_pixel_x < 0){
+                new_pixel_x = new_pixel_x + image_x;
+            }
+             if (new_pixel_y < 0){
+                new_pixel_y = new_pixel_y + image_y;
+            }
+            if (new_pixel_x > image_x){
+                new_pixel_x = new_pixel_x - image_x;
+            }
+             if (new_pixel_y > image_y){
+                new_pixel_y = new_pixel_y - image_y ;
+            }
+			frame.setPixelColor(new_pixel_x, new_pixel_y, bad_pixel_color);
 		}
 	}
 
@@ -638,7 +646,6 @@ void VideoDisplay::UpdateDisplayFrame()
             int pinpoint_x = pinpoint_idx % image_x;
             int pinpoint_y = pinpoint_idx / image_x;
             pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
-
             if ( std::find(container.processing_states[0].replaced_pixels.begin(), container.processing_states[0].replaced_pixels.end(), pinpoint_idx) != container.processing_states[0].replaced_pixels.end() )
             {
                 pinpoint_text += " * (adjusted, bad pixel)";
@@ -647,7 +654,7 @@ void VideoDisplay::UpdateDisplayFrame()
             if (btn_pinpoint->isChecked())
             {
                 QRgb rgb_red = QColorConstants::Red.rgb();
-                frame.setPixel(pinpoint_x - xCorrection, pinpoint_y - yCorrection, rgb_red);
+                frame.setPixel(pinpoint_x, pinpoint_y, rgb_red);
             }
         }
         else
@@ -732,9 +739,23 @@ void VideoDisplay::UpdateDisplayFrame()
         for ( const auto &trackData : osm_track_frames[counter].tracks )
         {
             //The OSM tracks are stored offset from the center instead of the top left
-            int x_center = image_x / 2 + trackData.second.centroid_x - xCorrection;
-            int y_center = image_y / 2 + trackData.second.centroid_y - yCorrection;
-            QRectF rectangle = GetRectangleAroundPixel(x_center, y_center, box_size, box_width, box_height);
+            int x_center = image_x / 2 + trackData.second.centroid_x;
+            int y_center = image_y / 2 + trackData.second.centroid_y;
+            int new_x_center = x_center - xCorrection;
+            int new_y_center = y_center - yCorrection;
+            if (new_x_center < 0){
+                new_x_center = new_x_center + image_x;
+            }
+             if (new_y_center < 0){
+                new_y_center = new_y_center + image_y;
+            }
+            if (new_x_center > image_x){
+                new_x_center = new_x_center - image_x;
+            }
+             if (new_y_center > image_y){
+                new_y_center = new_y_center - image_y;
+            }
+            QRectF rectangle = GetRectangleAroundPixel(new_x_center, new_y_center, box_size, box_width, box_height);
             if (rectangle.isNull())
                 continue;
             rectangle_painter.drawRect(rectangle);
@@ -760,7 +781,23 @@ void VideoDisplay::UpdateDisplayFrame()
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
-                QRectF rectangle = GetRectangleAroundPixel(trackData.second.centroid_x - xCorrection, trackData.second.centroid_y - yCorrection, box_size, box_width, box_height);
+                int track_x = trackData.second.centroid_x;
+                int track_y =  trackData.second.centroid_y;
+                int new_track_x = track_x - xCorrection;
+                int new_track_y = track_y - yCorrection;
+                if (new_track_x < 0){
+                    new_track_x = new_track_x + image_x;
+                }
+                if (new_track_y < 0){
+                    new_track_y = new_track_y + image_y;
+                }
+                if (new_track_x > image_x){
+                    new_track_x = new_track_x - image_x;
+                }
+                if (new_track_y > image_y){
+                    new_track_y = new_track_y - image_y ;
+                }
+                QRectF rectangle = GetRectangleAroundPixel( new_track_x, new_track_y, box_size, box_width, box_height);
                 if (rectangle.isNull())
                     continue;
                 QColor color = manual_track_colors[track_id];

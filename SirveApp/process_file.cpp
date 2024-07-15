@@ -48,8 +48,8 @@ AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
 
 	QString directory_path = candidate_osm_path.left(index_file_start);
 
-	QString file_name = QString("File: ");
-	file_name.append(candidate_osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1));
+	// QString file_name = QString("File: ");
+	QString file_name = candidate_osm_path.mid(index_file_start + 1, index_file_end - index_file_start - 1);
 
 	abp_data.image_path = candidate_image_path;
 	abp_data.osm_path = candidate_osm_path;
