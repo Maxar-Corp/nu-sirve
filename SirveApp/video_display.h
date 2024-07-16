@@ -29,6 +29,7 @@
 
 #include <armadillo>
 
+#include "annotation_stencil.h"
 #include "color_scheme.h"
 #include "abir_reader.h"
 #include "video_container.h"
@@ -75,6 +76,7 @@ public:
 
     QImage frame;
     EnhancedLabel  *lbl_image_canvas;
+    AnnotationStencil *annotation_stencil;
     VideoContainer container;
 
     QString banner_text, boresight_text;
@@ -139,6 +141,9 @@ public slots:
     void HandleAnnotationChanges();
 
     void HandleImageAreaSelection(QRect area);
+    void ShowStencil();
+    void HideStencil();
+    void InitializeStencilData(AnnotationInfo data);
     void UndoZoom();
 
 
