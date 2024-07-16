@@ -60,6 +60,8 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include <QStringList>
+#include <QToolBox>
+#include <QProgressBar>
 #include "directory_picker.h"
 
 class SirveApp : public QMainWindow
@@ -92,17 +94,17 @@ public:
 	/* --------------------------------------------------------------------------------------------
 	Qt Elements for user interface
 	----------------------------------------------------------------------------------------------- */
-	// QString dark_green_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
-	// QString olive_green_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
-	// QString dark_blue_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
-	// QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
-	// QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
-	// QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
 
 	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
+    QString sub_toolbox_StyleSheet = "QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover,\
+                                        QToolBox::tab:selected {margin-left: 0px;margin-right: 1px; \
+                                        background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,\
+                                        stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));}";
+
+    QString orange_button_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
 	QTabWidget* tab_menu, * tab_plots;
 	QDateTimeEdit* dt_epoch;
@@ -110,29 +112,32 @@ public:
 
 	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message, * lbl_bad_pixel_type,  * lbl_bad_pixel_sensitivity,  * lbl_bad_pixel_method, *lbl_moving_median_window_length;
 	QLabel *lbl_bad_pixel_start_frame, *lbl_bad_pixel_stop_frame, *lbl_ANS_number_frames, *lbl_ANS_offset_frames, *lbl_FNS_start_frame, * lbl_FNS_stop_frame, * lbl_ANS_shadow_threshold, *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
+    QLabel *lbl_progress_status, *lbl_processing_description, *lbl_min_scale_value, *lbl_max_scale_value;
 
-	QLineEdit* txt_lift_sigma, * txt_gain_sigma;
+	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_current_workspace_folder;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, * txt_end_frame, * txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame;
+	QLineEdit* txt_start_frame, * txt_end_frame, * txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame, *txt_workspace_name,\
+             *txt_file_name, *txt_max_frames;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
-		* btn_calibration_dialog, * btn_deinterlace, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
+		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
-
-        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_change_workspace_directory, *btn_center_on_osm, *btn_center_on_manual;
+        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks, 
+        * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
-	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_image_processing, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
+	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
+    QProgressBar * progress_bar_main;
 
-	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_workspace_name, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
-    QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs;
+	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
+    QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
-	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log;
+	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
-	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels;
+	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
@@ -149,9 +154,9 @@ public:
 	bool record_video;
 
     void SetupUi();
-    QWidget* SetupFileImportTab();
+    // QWidget* SetupFileImportTab();
     QWidget* SetupColorCorrectionTab();
-    QWidget* SetupWorkspaceTab();
+    QWidget* SetupTracksTab();
     QWidget* SetupProcessingTab();
     void SetupVideoFrame();
     void SetupPlotFrame();
@@ -186,15 +191,19 @@ public:
         void HandleAbpFileSelected();
         bool ValidateAbpFiles(QString path_to_image_file);
         void UiLoadAbirData();
-        void ExecuteNoiseSuppression();
+        void ExecuteAdaptiveNoiseSuppression();
         void ExecuteDeinterlace();
-        void ExecuteCenterOnOSM();
-        void ExecuteCenterOnManual();
-        void ExecuteNonUniformityCorrectionSelectionOption();
+        void ExecuteDeinterlaceCurrent();
+        void ExecuteCenterOnTracks();
+        void ExecuteCenterOnBrightest();
+        void ExecuteFrameStacking();
+        void ExecuteFixedNoiseSuppression();
+        void ExecuteRPCPNoiseSuppression();
 
         void StartStopVideoRecording();
         void HandleZoomOnVideoToggle();
         void HandleCalculationOnVideoToggle();
+        void HandleProcessingNewStateSelected();
         void ClearZoomAndCalculationButtons();
 
         void UpdateFps();
@@ -204,15 +213,12 @@ public:
         void HandlePlotPrimaryOnlyToggle();
         void HandlePlotCurrentFrameMarkerToggle();
    
-        void ShowCalibrationDialog();
-
         void SetDataTimingOffset();
         void ChangeWorkspaceDirectory();
         void CloseWindow();
 
         void SavePlot();
         void SaveFrame();
-        void CopyOsmDirectory();
         void HandleRelativeHistogramToggle(bool input);
         void ApplyEpochTime();
         void ApplyFixedNoiseSuppressionFromExternalFile();
@@ -271,7 +277,7 @@ private:
     void ResizeUi();
 
 	QMenu *menu_file, *menu_settings;
-    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory;
+    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames, *action_load_workspace, *action_save_workspace;
 
     int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
     int ConvertFrameNumberTextToInt(QString input);
@@ -282,14 +288,16 @@ private:
 
     void HandleBadPixelReplacement();
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace);
-
-    void ApplyFixedNoiseCorrection(int start_frame, int num_frames, QString hide_shadow_choice);
-    void ApplyAdaptiveNoiseCorrection(int relative_start_frame, int num_frames, QString hide_shadow_choice, int shadow_sigma_thresh);
-    void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type);
-    void CenterOnOSM(int track_id, std::vector<std::vector<int>> & OSM_centered_offsets, int processing_state_idx);
-    void CenterOnManual(int track_id, std::vector<std::vector<int>> & manual_centered_offsets, int processing_state_idx);
-    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame);
-
+    
+    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
+    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
+    void ApplyRPCPNoiseSuppression(int processing_state_idx);
+    void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int processing_state_idx);
+    void ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type);
+    void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
+    void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
+    void FrameStacking(int num_frames, int processing_state_idx);
+ 
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
     void HandleCreateTrackClick();
