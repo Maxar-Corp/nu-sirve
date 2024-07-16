@@ -488,13 +488,13 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 }
 QTabWidget {
 	color:rgb(0,0,0);
-	background-color:rgb(247,246,246);
+	background-color:rgb(240,240,240);
 	font-size: 12px;
 	font-weight: bold;
 }
 QTabWidget::pane {
 	border-color: rgb(180,180,180);
-	background-color:rgb(247,246,246);
+	background-color:rgb(240,240,240);
 	border-style: solid;
 	border-width: 1px;
   	border-radius: 6px;
@@ -518,11 +518,15 @@ QTabBar::tab, QToolBox::tab{
 	border-bottom-color: transparent;
 	color:rgb(0,0,0);
 }
-QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover, QToolBox::tab:selected {
+QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover{
+  	margin-left: 0px;
+  	margin-right: 1px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(175,175,175, 255), stop:1 rgba(195,195,195, 255));
+}
+QToolBox::tab:selected {
   	margin-left: 0px;
   	margin-right: 1px;
 	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(120, 193, 218, 255), stop:1 rgba(140, 213, 238, 255));
-
 }
 QTabBar::tab:!selected, QToolBox::tab:!selected {
 	margin-top: 1px;
@@ -540,4 +544,20 @@ QTextEdit {
 QTimeEdit{
 	color:rgb(81,72,65);
 	background-color: #ffffff;
+}
+QGroupBox{
+	color: black;
+	font-weight: bold;
+	font-size: 12px;
+	border: 1px solid gray;
+	border-width: 1px;
+}
+#grpbox_status_area {
+	background-color: rgba(200, 200, 200);
+	color: black;
+	font-weight: bold;
+	font-size: 12px;
+	border: 2px solid gray;
+	border-color: rgb(200, 200, 250);
+	border-width: 2px;
 }

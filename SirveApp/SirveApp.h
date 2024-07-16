@@ -95,7 +95,7 @@ public:
 	Qt Elements for user interface
 	----------------------------------------------------------------------------------------------- */
 
-	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
+	QString orange_styleSheet = "color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;";
 
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
@@ -124,10 +124,10 @@ public:
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
         * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks, 
-        * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation;
+        * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation, *btn_select_target_template;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
-	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift;
+	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift, *grpbox_status_area;
     QProgressBar * progress_bar_main;
 
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
@@ -274,7 +274,7 @@ private:
 
     void ResizeUi();
 
-	QMenu *menu_file, *menu_settings;
+	QMenu *menu_main, *menu_workspace, *menu_settings;
     QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames, *action_load_workspace, *action_save_workspace;
 
     int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);

@@ -91,7 +91,7 @@ void SirveApp::SetupUi() {
 	fixed_width_video.setHorizontalPolicy(QSizePolicy::Fixed);
 	fixed_width_video.setVerticalPolicy(QSizePolicy::Fixed);
 	frame_video_player->setSizePolicy(fixed_width_video);
-	frame_video_player->setFixedHeight(750);
+	frame_video_player->setFixedHeight(800);
 	frame_video_player->setFixedWidth(800);
 
 	// ------------------------------------------------------------------------
@@ -100,8 +100,9 @@ void SirveApp::SetupUi() {
 	SetupVideoFrame();
 	SetupPlotFrame();
 
-	QGroupBox *grpbox_status_area = new QGroupBox();
-	// grpbox_status_area->setStyleSheet("background-color: rgba(245, 200, 125, 100);");
+	grpbox_status_area = new QGroupBox("Status");
+	grpbox_status_area->setObjectName("grpbox_status_area");
+	// grpbox_status_area->setStyleSheet("background-color: rgba(200, 200, 200); color: black; font-weight: bold; font-size: 12px; border: 2px solid gray; border-color: rgb(200, 200, 250); border-width: 2px;");
 	QGridLayout *grid_status_area = new QGridLayout();
 	grpbox_status_area->setLayout(grid_status_area);
 	cmb_processing_states = new QComboBox();
@@ -134,9 +135,6 @@ void SirveApp::SetupUi() {
 	QLabel *lbl_workspace_name = new QLabel("Workspace:");
 	txt_workspace_name = new QLineEdit("");
 	txt_workspace_name->setReadOnly(true);
-	// grid_status_area->addWidget(lbl_processing_state,0,0,1,1);
-	// grid_status_area->addWidget(cmb_processing_states,0,1,1,7);
-	// grid_status_area->addWidget(btn_undo_step,0,8,1,1);
 	grid_status_area->addWidget(lbl_processing_description,1,0,1,-1);
 	grid_status_area->addWidget(lbl_file_name,2,0,1,1);
 	grid_status_area->addWidget(txt_file_name,2,1,1,-1);
@@ -152,11 +150,12 @@ void SirveApp::SetupUi() {
 	grid_status_area->addWidget(txt_end_frame,5,6,1,1);
 	grid_status_area->addWidget(btn_get_frames,5,8,1,1);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	// grpbox_status_area->setStyleSheet("QGroupBox#grpbox_status_area {background-color: rgba(200, 200, 200); color: black; font-weight: bold; font-size: 12px; border: 2px solid gray; border-color: rgb(200, 200, 250); border-width: 2px;}");
 	// grpbox_status_area->setStyleSheet("background-color:rgb(247,246,246); border-width: 2px; border-color: rgb(0, 0, 125); border-radius: 6px;");
 	// grpbox_status_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
 	
 	QGroupBox *grpbox_state_control_area = new QGroupBox();
-	grpbox_state_control_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
+	// grpbox_state_control_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
 	QGridLayout *grid_state_control_area = new QGridLayout();
 	grpbox_state_control_area->setLayout(grid_state_control_area);
 	grid_state_control_area->addWidget(lbl_processing_state,0,0,1,1);
@@ -170,6 +169,7 @@ void SirveApp::SetupUi() {
 	lbl_progress_status = new QLabel(" ");
 	// lbl_progress_status->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	progress_bar_main = new QProgressBar();
+	progress_bar_main->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	btn_cancel_operation = new QPushButton("Cancel");
 	btn_cancel_operation->setFixedWidth(75);
 	grid_progressbar_area->addWidget(lbl_progress_status,0,0,1,3);
@@ -397,11 +397,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_bad_pixels_correction = new QGroupBox();
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
 	grpbox_bad_pixels_correction->setFixedWidth(700);
-	grpbox_bad_pixels_correction->setFixedHeight(200);
+	// grpbox_bad_pixels_correction->setFixedHeight(300);
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
 
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
-	lbl_bad_pixel_count->setStyleSheet("background-color: rgb(200,200,200);");
+	lbl_bad_pixel_count->setStyleSheet("background-color: rgb(210,210,210);");
 	lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
 	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
 	cmb_bad_pixels_type = new QComboBox();
@@ -474,7 +474,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-	lbl_fixed_suppression->setStyleSheet("background-color: rgb(200,200,200);");
+	lbl_fixed_suppression->setStyleSheet("background-color: rgb(210,210,210);");
 	chk_FNS_external_file = new QCheckBox("External File");
 	chk_FNS_external_file->setFixedWidth(150);
 	lbl_FNS_start_frame = new QLabel("Start:");
@@ -500,7 +500,8 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// grpbox_ANS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(200,200,200);");
+	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(210,210,210);");
+	lbl_adaptive_noise_suppression_status->setFixedHeight(100);
 	lbl_ANS_offset_frames = new QLabel("Offset:");
 	lbl_ANS_offset_frames->setFixedWidth(60);
 	txt_ANS_offset_frames = new QLineEdit("-30");
@@ -613,6 +614,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// // ------------------------------------------------------------------------
 	
 	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
+	toolbox_image_processing->setFixedHeight(500);
 	vlayout_tab_processing->addWidget(toolbox_image_processing);
 	// // ------------------------------------------------------------------------
 
@@ -1341,9 +1343,7 @@ void SirveApp::HandleAbpFileSelected()
 
     bool validated = ValidateAbpFiles(file_selection);
 	if (validated) {
-        LoadOsmData();
-		txt_start_frame->setStyleSheet(orange_styleSheet);
-		txt_end_frame->setStyleSheet(orange_styleSheet);				
+        LoadOsmData();			
 	}
 };
 
@@ -1358,6 +1358,8 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 			txt_start_frame->setEnabled(true);
 			txt_end_frame->setEnabled(true);
 			btn_get_frames->setEnabled(true);	
+			txt_start_frame->setStyleSheet(orange_styleSheet);
+			txt_end_frame->setStyleSheet(orange_styleSheet);
 		}
 		else{
 			txt_start_frame->setEnabled(false);
@@ -1398,7 +1400,8 @@ void SirveApp::LoadOsmData()
 	txt_max_frames->setText(osm_max_frames);
 
     SetLiftAndGain(0, 1);
-
+	txt_start_frame->setStyleSheet(orange_styleSheet);
+	txt_end_frame->setStyleSheet(orange_styleSheet);
 	if (eng_data != NULL)
 	{
 		slider_video->setValue(0);
@@ -2068,14 +2071,13 @@ void SirveApp::CreateMenuActions()
     action_change_workspace_directory->setStatusTip("Customize workspace directory so it points to your own folder.");
     connect(action_change_workspace_directory, &QAction::triggered, this, &SirveApp::ChangeWorkspaceDirectory);
 
-	menu_file = menuBar()->addMenu(tr("&File"));
-	menu_file->addAction(action_load_OSM);
-	// menu_file->addAction(action_load_frames);
-	menu_file->addAction(action_load_workspace);
-	menu_file->addAction(action_save_workspace);
-	menu_file->addAction(action_change_workspace_directory);
-	menu_file->addAction(action_close);
-
+	menu_main = menuBar()->addMenu(tr("&Main"));
+	menu_main->addAction(action_load_OSM);
+	menu_main->addAction(action_close);
+	menu_workspace = menuBar()->addMenu(tr("&Workspace"));
+	menu_workspace->addAction(action_load_workspace);
+	menu_workspace->addAction(action_save_workspace);
+	menu_workspace->addAction(action_change_workspace_directory);
 	menu_settings = menuBar()->addMenu(tr("&Settings"));
 	menu_settings->addAction(action_set_timing_offset);
     
