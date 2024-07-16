@@ -104,6 +104,7 @@ void AnnotationListDialog::initialize_gui()
 void AnnotationListDialog::ok()
 {
     done(1);
+    this->deleteLater();
 }
 
 void AnnotationListDialog::add()
@@ -177,7 +178,6 @@ void AnnotationListDialog::edit()
         repopulate_list();
 
         if (data.size() > 0) {
-            //show_annotation(index);
             lst_annotations->setCurrentRow(index);
         }
 

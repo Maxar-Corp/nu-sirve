@@ -55,16 +55,16 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setPen(QPen(Qt::yellow, 2));
-    painter.drawRect(0, 0, width() - 1, height() - 1);
     painter.drawText(rect(), Qt::AlignCenter, current_data->text);
 }
 
 void AnnotationStencil::InitializeData(AnnotationInfo data)
 {
+    const qreal padding = 1.67;
     const int data_height = 20;
     current_data->color = data.color;
     current_data->font_size = data.font_size;
     current_data->text = data.text;
-    int total_width = data.text.length() * data.font_size;
-    setFixedSize(total_width, data_height);
+    qreal total_width = data.text.length() * (data.font_size + padding);
+    setFixedSize((int)total_width, data_height);
 }
