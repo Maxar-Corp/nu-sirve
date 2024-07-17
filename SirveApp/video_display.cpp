@@ -1,4 +1,5 @@
 #include "video_display.h"
+#include "frame_player.h"
 
 VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 {
@@ -87,10 +88,13 @@ void VideoDisplay::SetupCreateTrackControls()
     btn_select_track_centroid->setCheckable(true);
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
 
-    chk_auto_advance_frame = new QCheckBox("Auto Advance to Next Frame");
-
+    chk_auto_advance_frame = new QCheckBox("Auto Advance");
+    lbl_frame_advance_amt = new QLabel("# Frames");
+    txt_frame_advance_amt = new QLineEdit("1");
+    txt_frame_advance_amt->setFixedWidth(30);
     btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
+    connect(txt_frame_advance_amt, &QLineEdit::textChanged, this, &VideoDisplay::HandleFrameAdvanceAmtEntry);
 
     QPushButton *btn_finish_create_track = new QPushButton("Finish Track Editing");
     connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
@@ -99,8 +103,10 @@ void VideoDisplay::SetupCreateTrackControls()
     grid_create_track->addWidget(lbl_create_track, 0, 0, 1, 4, Qt::AlignCenter);
     grid_create_track->addWidget(btn_select_track_centroid, 1, 0, 1, 1);
     grid_create_track->addWidget(chk_auto_advance_frame, 1, 1, 1, 1);
-    grid_create_track->addWidget(btn_clear_track_centroid, 1, 2, 1, 1);
-    grid_create_track->addWidget(btn_finish_create_track, 1, 3, 1, 1);
+    grid_create_track->addWidget(lbl_frame_advance_amt, 1, 2, 1, 1);
+    grid_create_track->addWidget(txt_frame_advance_amt, 1, 3, 1, 1);
+    grid_create_track->addWidget(btn_clear_track_centroid, 1, 4, 1, 1);
+    grid_create_track->addWidget(btn_finish_create_track, 1, 5, 1, 1);
 
     grp_create_track->setHidden(true);
 
@@ -482,7 +488,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     if (chk_auto_advance_frame->isChecked())
     {
-        emit advanceFrame();
+        emit advanceFrame(this->txt_frame_advance_amt->text().toInt());
     }
     else
     {
@@ -498,6 +504,31 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     ResetCreateTrackMinAndMaxFrames();
 
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::HandleFrameAdvanceAmtEntry(const QString &text)
+{
+    bool is_valid_int = false;
+    int value = text.toInt(&is_valid_int);
+
+    if (is_valid_int)
+    {
+        if (value > frame_advance_limit)
+        {
+            QString message = QString("Frame advance amount must be less than or equal to the limit of %1.").arg(frame_advance_limit);
+            QMessageBox::information(0, "Error", message);
+        }
+
+        if (value <= frame_advance_limit && value > osm_track_frames.size()-2)
+        {
+            // Here we specify 'minus two', since 'minus one' would cycle through to the same point in the frame sequence after each "advance!"
+            QMessageBox::information(0, "Error", "Frame advance amount must be less the the total number of frames in the loaded video clip minus two.");
+        }
+    }
+    else
+    {
+        QMessageBox::information(0, "error", "Please enter a valid integer.");
+    }
 }
 
 void VideoDisplay::ResetCreateTrackMinAndMaxFrames()

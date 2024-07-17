@@ -122,7 +122,7 @@ signals:
     void clearMouseButtons();
     void addNewBadPixels(std::vector<unsigned int> new_pixels);
     void removeBadPixels(std::vector<unsigned int> pixels);
-    void advanceFrame();
+    void advanceFrame(int frame_amt);
     void finishTrackCreation();
 
 public slots:
@@ -162,6 +162,8 @@ private:
     QLabel *lbl_create_track;
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
     QCheckBox  *chk_auto_advance_frame;
+    QLabel *lbl_frame_advance_amt;
+    QLineEdit *txt_frame_advance_amt;
     QGroupBox *grp_create_track;
     QVBoxLayout* vlayout_create_track;
     std::vector<std::optional<TrackDetails>> track_details;
@@ -206,6 +208,7 @@ private:
     void HandleBtnPinpoint(bool checked);
     void HandleBtnSelectTrackCentroid(bool checked);
     void HandleClearTrackCentroidClick();
+    void HandleFrameAdvanceAmtEntry(const QString &text);
     void ResetCreateTrackMinAndMaxFrames();
     void UpdateCreateTrackLabel();
     void UpdateDisplayFrame();
