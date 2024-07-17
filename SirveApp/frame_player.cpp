@@ -1,4 +1,5 @@
 #include "frame_player.h"
+#include "support/qthelpers.h"
 
 FramePlayer::FramePlayer(unsigned int number_frames)
 {
@@ -9,7 +10,7 @@ FramePlayer::FramePlayer(unsigned int number_frames)
 	timer->stop();
 
 	current_frame_number = 0;
-	max_frame_number = number_frames - 1;
+    max_frame_number = number_frames - 1;
 	is_reverse = false;
 
 	// Speeds in frames per second
@@ -129,17 +130,25 @@ void FramePlayer::GotoPrevFrame()
     emit frameSelected(current_frame_number);
 }
 
-void FramePlayer::GotoNextFrame()
+void FramePlayer::GotoNextFrame(int frame_amt)
 {
-	
-	timer->stop();
-	
-	if (current_frame_number == max_frame_number)
-		current_frame_number = 0;
-	else
-		current_frame_number++;
+    if (frame_amt > 0 && frame_amt <= max_frame_number)
+    {
+        timer->stop();
 
-    emit frameSelected(current_frame_number);
+        int new_frame_number = current_frame_number + frame_amt;
+
+        if (new_frame_number > max_frame_number)
+        {
+            new_frame_number -= max_frame_number;
+        }
+
+        emit frameSelected(new_frame_number);
+    }
+    else
+    {
+        QtHelpers::LaunchMessageBox("Error", "The number of frames to advance is out of range.  Please adjust accordingly to a value between zero and the number of frames selected minus one.");
+    }
 }
 
 void FramePlayer::StopTimer() {

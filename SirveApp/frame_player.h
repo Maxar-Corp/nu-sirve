@@ -9,6 +9,8 @@
 #include <QWidget>
 #include <QTimer>
 
+const int frame_advance_limit = 500;
+
 class FramePlayer : public QWidget
 {
 	Q_OBJECT
@@ -42,7 +44,7 @@ public slots:
     void ReverseTimer();
 
     void GotoPrevFrame();
-    void GotoNextFrame();
+    void GotoNextFrame(int frame_amt);
 
 private:
 	unsigned int current_frame_number;
