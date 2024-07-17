@@ -1,4 +1,5 @@
 #include "video_display.h"
+#include "frame_player.h"
 
 VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 {
@@ -88,6 +89,7 @@ void VideoDisplay::SetupCreateTrackControls()
     txt_frame_advance_amt->setFixedWidth(30);
     btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
+    connect(txt_frame_advance_amt, &QLineEdit::textChanged, this, &VideoDisplay::HandleFrameAdvanceAmtEntry);
 
     QPushButton *btn_finish_create_track = new QPushButton("Finish Track Editing");
     connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
@@ -498,6 +500,31 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     ResetCreateTrackMinAndMaxFrames();
 
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::HandleFrameAdvanceAmtEntry(const QString &text)
+{
+    bool is_valid_int = false;
+    int value = text.toInt(&is_valid_int);
+
+    if (is_valid_int)
+    {
+        if (value > frame_advance_limit)
+        {
+            QString message = QString("Frame advance amount must be less than or equal to the limit of %1.").arg(frame_advance_limit);
+            QMessageBox::information(0, "Error", message);
+        }
+
+        if (value <= frame_advance_limit && value > osm_track_frames.size()-2)
+        {
+            // Here we specify 'minus two', since 'minus one' would cycle through to the same point in the frame sequence after each "advance!"
+            QMessageBox::information(0, "Error", "Frame advance amount must be less the the total number of frames in the loaded video clip minus two.");
+        }
+    }
+    else
+    {
+        QMessageBox::information(0, "error", "Please enter a valid integer.");
+    }
 }
 
 void VideoDisplay::ResetCreateTrackMinAndMaxFrames()

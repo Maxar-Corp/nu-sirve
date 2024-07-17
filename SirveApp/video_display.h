@@ -203,6 +203,7 @@ private:
     void HandleBtnPinpoint(bool checked);
     void HandleBtnSelectTrackCentroid(bool checked);
     void HandleClearTrackCentroidClick();
+    void HandleFrameAdvanceAmtEntry(const QString &text);
     void ResetCreateTrackMinAndMaxFrames();
     void UpdateCreateTrackLabel();
     void UpdateDisplayFrame();

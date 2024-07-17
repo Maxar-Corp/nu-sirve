@@ -9,6 +9,8 @@
 #include <QWidget>
 #include <QTimer>
 
+const int frame_advance_limit = 500;
+
 class FramePlayer : public QWidget
 {
 	Q_OBJECT
