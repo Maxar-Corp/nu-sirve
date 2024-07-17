@@ -111,6 +111,7 @@ void VideoDisplay::SetupCreateTrackControls()
     grp_create_track->setHidden(true);
 
     vlayout_create_track->addLayout(grid_create_track);
+    video_display_layout->insertStretch(0, -1);
     video_display_layout->addWidget(grp_create_track);
 }
 
