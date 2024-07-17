@@ -130,13 +130,25 @@ void FramePlayer::GotoPrevFrame()
     emit frameSelected(current_frame_number);
 }
 
-void FramePlayer::GotoNextFrame(unsigned int frame_amt)
+void FramePlayer::GotoNextFrame()
+{
+    timer->stop();
+
+    if (current_frame_number == max_frame_number)
+        current_frame_number = 0;
+    else
+        current_frame_number++;
+
+    emit frameSelected(current_frame_number);
+}
+
+void FramePlayer::CustomAdvanceFrame(unsigned int frame_amt)
 {
     if (frame_amt > 0 && frame_amt <= max_frame_number)
     {
         timer->stop();
 
-        int new_frame_number = current_frame_number + frame_amt;
+        unsigned int new_frame_number = current_frame_number + frame_amt;
 
         if (new_frame_number > max_frame_number)
         {
@@ -144,10 +156,6 @@ void FramePlayer::GotoNextFrame(unsigned int frame_amt)
         }
 
         emit frameSelected(new_frame_number);
-    }
-    else
-    {
-        QtHelpers::LaunchMessageBox("Error", "The number of frames to advance is out of range.  Please adjust accordingly to a value between zero and the number of frames selected minus one.");
     }
 }
 

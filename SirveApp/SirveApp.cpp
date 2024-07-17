@@ -970,7 +970,7 @@ void SirveApp::setupConnections() {
     connect(btn_fast_forward, &QPushButton::clicked, playback_controller, &FramePlayer::IncreaseTimerInterval);
     connect(btn_slow_back, &QPushButton::clicked, playback_controller, &FramePlayer::DecreaseTimerInterval);
     connect(btn_next_frame, &QPushButton::clicked, playback_controller, &FramePlayer::GotoNextFrame);
-    connect(video_display, &VideoDisplay::advanceFrame, playback_controller, &FramePlayer::GotoNextFrame);
+    connect(video_display, &VideoDisplay::advanceFrame, playback_controller, &FramePlayer::CustomAdvanceFrame);
     connect(btn_prev_frame, &QPushButton::clicked, playback_controller, &FramePlayer::GotoPrevFrame);
     connect(btn_frame_record, &QPushButton::clicked, this, &SirveApp::StartStopVideoRecording);
 
