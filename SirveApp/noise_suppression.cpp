@@ -2,6 +2,8 @@
 #include <vector>
 #include <random>
 #include <fstream>
+#include <Qt>
+
 AdaptiveNoiseSuppression::AdaptiveNoiseSuppression()
 {
 	kernel = {
@@ -24,7 +26,7 @@ AdaptiveNoiseSuppression::~AdaptiveNoiseSuppression()
 {
 }
 
-std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original)
 {
 	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -44,7 +46,6 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 				return frames_out;
 			}
 		 number_avg_frames = abir_result.video_frames_16bit.size();
-		 progress.setWindowTitle("External Fixed Noise Suppression");
 	}
 	else{
 		abir_result.video_frames_16bit = original.frames_16bit;
@@ -74,10 +75,8 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 	arma::vec frame_vector(num_pixels, 1);
 	//Loop through frames to subtract mean
 	for (int i = 0; i < num_video_frames; i++){
-		if (progress.wasCanceled()){
-			return std::vector<std::vector<uint16_t>>();
-		}
-		progress.setValue(i);
+		UpdateProgressBar(i);
+		QCoreApplication::processEvents();
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 		M = frame_vector.max();
 		frame_vector -= mean_frame;
@@ -89,7 +88,7 @@ std::vector<std::vector<uint16_t>> FixedNoiseSuppression::ProcessFrames(QString 
 }
 
 
-std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice, QProgressDialog & progress)
+std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConserveMemory(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  QString & hide_shadow_choice)
 {
 
 	int num_video_frames = original.frames_16bit.size();
@@ -112,12 +111,8 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 		window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[index_frame]);
 	}
     for (int i = 0; i < num_video_frames; i++) {
-		if (progress.wasCanceled())
-		{
-			return std::vector<std::vector<uint16_t>>();
-		}
-		progress.setValue(i);
-
+	 	UpdateProgressBar(i);
+		QCoreApplication::processEvents();
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
 
 		index_first_frame = std::max(i + start_frame,0);
@@ -156,11 +151,15 @@ std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppression::ProcessFramesConser
 
 void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames, int i)
 {	
+	int n_rows_new = pow(2, ceil(log(nRows)/log(2)));  
+    int n_cols_new = pow(2, ceil(log(nCols)/log(2)));
 	arma::mat frame_matrix = arma::reshape(frame_vector,nCols,nRows).t();
-	arma::mat frame_matrix_blurred = arma::conv2(frame_matrix,kernel,"same");
+	// arma::mat frame_matrix_blurred = arma::conv2(frame_matrix,kernel,"same");
+	// arma::cx_mat frame_matrix_blurred = AdaptiveNoiseSuppression::conv2fft(frame_matrix,kernel,n_rows_new,n_cols_new);
+	arma::mat frame_matrix_blurred = frame_matrix;
 	frame_matrix_blurred -= arma::mean(frame_matrix_blurred.as_col());
-	arma::vec frame_vector_blurred = frame_matrix_blurred.t().as_col();
-	arma::uvec index_negative = arma::find(frame_vector_blurred < -NThresh*arma::stddev(frame_vector_blurred));
+	arma::uvec index_negative = arma::find(frame_matrix_blurred.t() < -NThresh*arma::stddev(frame_matrix_blurred.as_col()));
+	// arma::uvec index_negative = arma::find(arma::real(frame_matrix_blurred.t()) < -NThresh*arma::stddev(frame_matrix_blurred.as_col()));
 	arma::uvec index_change;
 	arma::vec old_frame_sum;
 	int numCols = window_data.n_cols;
@@ -175,9 +174,11 @@ void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & f
 		}
 		arma::mat old_frame_sum_mat = arma::reshape(old_frame_sum,nCols,nRows).t();
 		arma::mat old_frame_sum_mat_blurred = arma::conv2(old_frame_sum_mat,kernel,"same");
+		// arma::cx_mat old_frame_sum_mat_blurred = AdaptiveNoiseSuppression::conv2fft(old_frame_sum_mat,kernel,n_rows_new,n_cols_new);
+		// arma::mat old_frame_sum_mat_blurred = old_frame_sum_mat;
 		old_frame_sum_mat_blurred -= arma::mean(old_frame_sum_mat_blurred.as_col());
-		arma::vec old_frame_sum_vec_blurred = old_frame_sum_mat_blurred.t().as_col();
-		arma::uvec index_positive = arma::find(old_frame_sum_vec_blurred > NThresh*arma::stddev(old_frame_sum_vec_blurred));
+		arma::uvec index_positive = arma::find(old_frame_sum_mat_blurred.t() > NThresh*arma::stddev(old_frame_sum_mat_blurred.as_col()));
+		// arma::uvec index_positive = arma::find(arma::real(old_frame_sum_mat_blurred.t()) > NThresh*arma::stddev(old_frame_sum_mat_blurred.as_col()));
 		index_change = arma::intersect(index_negative,index_positive);
 		if(index_change.n_elem>0){
 			arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 3.*arma::stddev(frame_vector));
@@ -196,4 +197,29 @@ void AdaptiveNoiseSuppression::remove_shadow(int nRows, int nCols, arma::vec & f
 	}
 
 	frame_vector -= frame_vector.min();
+}
+
+void AdaptiveNoiseSuppression::UpdateProgressBar(unsigned int val) {
+
+    emit SignalProgress(val);
+}
+
+void FixedNoiseSuppression::UpdateProgressBar(unsigned int val) {
+
+    emit SignalProgress(val);
+}
+
+arma::cx_mat AdaptiveNoiseSuppression::conv2fft(arma::mat X, arma::mat k, int nRows, int nCols)
+{
+    arma::mat X_pad(nRows,nCols);
+    arma::mat k_pad(nRows,nCols);
+    X_pad.zeros();
+    k_pad.zeros();
+    X_pad(0,0,arma::size(X)) = X;
+    k_pad(0,0,arma::size(k)) = k;
+    arma::cx_mat FG = arma::fft2(X_pad) % arma::fft2(k_pad);
+    arma::cx_mat convmat = arma::ifft2(FG);
+	int kn = ceil(k.n_rows/2);
+	arma::cx_mat output = convmat(kn,kn,arma::size(X));
+	return output;
 }

@@ -1,51 +1,52 @@
-#pragma once
+#ifndef ANNOTATIONLISTDIALOG_H
+#define ANNOTATIONLISTDIALOG_H
 
-#ifndef ANNOTATIONS_H
-#define ANNOTATIONS_H
-
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qobject.h>
-#include <qlistwidget.h>
-#include <qgridlayout.h>
-
-#include "annotation_edit_dialog.h"
+#include <QDialog>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
 #include "annotation_info.h"
 #include "video_display.h"
-#include "support/qthelpers.h"
-
 
 class AnnotationListDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent = nullptr);
-	~AnnotationListDialog();
+    AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent = nullptr);
+    ~AnnotationListDialog();
 
-	void ShowAnnotation(int index);
-	void repopulate_list();
+    void ShowAnnotation(int index);
+    void repopulate_list();
 
 signals:
     void annotationListUpdated();
+    void showAnnotationStencil();
+    void hideAnnotationStencil();
+    void updateAnnotationStencil(AnnotationInfo data);
+    void positionChanged(QPoint location);
+
+public slots:
+
+    void UpdateStencilPosition(QPoint position);
+    void SetStencilLocation(QPoint location);
 
 private:
+    std::vector<AnnotationInfo> &data;
+    VideoInfo base_data;
 
-	std::vector<AnnotationInfo> &data;
-	VideoInfo base_data;
+    QLabel *lbl_annotations, *lbl_description;
+    QListWidget *lst_annotations;
+    QPushButton *btn_ok, *btn_edit, *btn_new, *btn_delete;
+    VideoDisplay *current_video;
 
-	QLabel *lbl_annotations, *lbl_description;
-	QListWidget *lst_annotations;
-	QPushButton *btn_ok, *btn_edit, *btn_new, *btn_delete;
-	VideoDisplay *current_video;
+    QString *myText;
 
-	void initialize_gui();
-	void ok();
-	void add();
-	void edit();
-	void delete_object();
-
+    void initialize_gui();
+    void ok();
+    void add();
+    void edit();
+    void delete_object();
 };
 
-
-#endif
+#endif // ANNOTATIONLISTDIALOG_H

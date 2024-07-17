@@ -37,6 +37,7 @@ public slots:
     void NumberOfFramesChanged();
     void XLocationChanged();
     void YLocationChanged();
+    void LocationChanged(QPoint location);
     void ColorChanged(const QString &text);
     void FontSizeChanged(const QString &text);
 
@@ -51,7 +52,7 @@ private:
 	QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_num_frames;
 	QPushButton *btn_add, *btn_cancel;
 
-	QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size, *lbl_x, *lbl_y;
+    QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size;
 
 	QGridLayout *mainLayout;	
 

@@ -14,9 +14,12 @@ enum struct ProcessingMethod
 	original,
 	adaptive_noise_suppression,
 	fixed_noise_suppression,
+    RPCP_noise_suppression,
     deinterlace,
     center_on_OSM,
-    center_on_manual
+    center_on_manual,
+    center_on_brightest,
+    frame_stacking
 };
 
 struct processingState {
@@ -30,8 +33,11 @@ struct processingState {
 
     int ANS_relative_start_frame;
     int ANS_num_frames;
+    int frame_stack_num_frames;
     int ANS_shadow_threshold;
 
+    int source_state_ID;
+    int state_ID;
     QString FNS_file_path;
     int FNS_start_frame;
     int FNS_stop_frame;
@@ -39,6 +45,7 @@ struct processingState {
     DeinterlaceType deint_type;
     int track_id;
 	std::vector<std::vector<int>> offsets;
+    bool find_any_tracks;
 
 	bool ANS_hide_shadow;
 
@@ -48,7 +55,7 @@ struct processingState {
             case ProcessingMethod::original:
                 if (replaced_pixels.size() > 0)
                 {
-                    return "Original (with replaced pixels)";
+                    return "Original with replaced pixels";
                 }
                 else
                 {
@@ -56,20 +63,29 @@ struct processingState {
                 }
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
-                return "ANS - from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
+                return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 //may potentially want to leave fns_file_path empty if it isn't an external file?
-                return "FNS - " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
+                return "<Source State " + QString::number(source_state_ID) + "> FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
+                break;
+            case ProcessingMethod::RPCP_noise_suppression:
+                return "<Source State " + QString::number(source_state_ID) + "> RPCP";
                 break;
             case ProcessingMethod::deinterlace:
-                return "Deinterlace - " + QString::number(deint_type);
+                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace: " + QString::number(deint_type);
                 break;
             case ProcessingMethod::center_on_OSM:
-                return "Centered on OSM - " + QString::number(track_id);
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM: " + QString::number(track_id);
                 break;
             case ProcessingMethod::center_on_manual:
-                return "Centered on Manual - " + QString::number(track_id);
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual: " + QString::number(track_id);
+                break;
+            case ProcessingMethod::center_on_brightest:
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Brightest: " + QString::number(track_id);
+                break;
+            case ProcessingMethod::frame_stacking:
+                return "<Source State " + QString::number(source_state_ID) + "> Frame Stack: Averaging " + QString::number(frame_stack_num_frames);
                 break;
             default:
                 return "Unknown";
@@ -79,6 +95,8 @@ struct processingState {
 
     QJsonObject to_json() {
         QJsonObject state_object;
+        state_object.insert("state_ID", state_ID);
+        state_object.insert("source_state_ID", source_state_ID);
         switch (method)
         {
             case ProcessingMethod::original:
@@ -92,6 +110,9 @@ struct processingState {
                     state_object.insert("replaced_pixels", pixels);
                     break;
                 }
+            case ProcessingMethod::RPCP_noise_suppression:
+                state_object.insert("method", "RPCP");
+                break;
             case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");
                 state_object.insert("ANS_relative_start_frame", ANS_relative_start_frame);
@@ -120,6 +141,7 @@ struct processingState {
                         }
                     }
                 state_object.insert("offsets", offsetsixy);
+                state_object.insert("Find_Any_Tracks",find_any_tracks);
                 break;
             }
             case ProcessingMethod::center_on_manual:
@@ -133,8 +155,26 @@ struct processingState {
                         }
                     }
                 state_object.insert("offsets", offsetsixy);
+                state_object.insert("Find_Any_Tracks",find_any_tracks);
                 break;
             }
+            case ProcessingMethod::center_on_brightest:
+            {
+                state_object.insert("method", "Center on Brightest");
+                state_object.insert("Track_ID", track_id);
+                QJsonArray offsetsixy;
+                for (auto i = 0; i < offsets.size(); i++){
+                    for (auto j = 0; j < 3; j++){
+                            offsetsixy.push_back(offsets[i][j]);
+                        }
+                    }
+                state_object.insert("offsets", offsetsixy);
+                break;
+            }
+            case ProcessingMethod::frame_stacking:
+                state_object.insert("method", "Frame Stacking");
+                state_object.insert("frame_stack_num_frames", frame_stack_num_frames);
+                break;
             default:
                 state_object.insert("method", "error");
         }
