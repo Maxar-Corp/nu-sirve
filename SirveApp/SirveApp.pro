@@ -18,6 +18,7 @@ HEADERS += abir_reader.h \
             bad_pixels.h \
             binary_file_reader.h \
             calibration_data.h \
+            chart_metadata.h \
             clickable_chartview.h \
             color_correction.h \
             color_map.h \
