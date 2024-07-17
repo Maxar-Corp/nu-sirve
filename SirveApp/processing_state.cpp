@@ -24,6 +24,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.ANS_relative_start_frame = json_obj.value("ANS_relative_start_frame").toInt();
         temp.ANS_num_frames = json_obj.value("ANS_num_frames").toInt();
         temp.ANS_shadow_threshold = json_obj.value("ANS_shadow_threshold").toInt();
+        temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
         return temp;
@@ -115,7 +116,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         return temp;
     }
 
-    if (method == "Frame Stack")
+    if (method == "Frame Stacking")
     {
         processingState temp = { ProcessingMethod::frame_stacking };
         temp.frame_stack_num_frames = json_obj.value("frame_stack_num_frames").toInt();

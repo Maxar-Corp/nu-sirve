@@ -1210,7 +1210,7 @@ void SirveApp::SaveWorkspace()
     else {
         bool ok;
         QString current_workspace_name = txt_workspace_name->text();
-        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace Name"), current_workspace_name, tr("Workspace Files *.json"));
+        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace Name"), config_values.workspace_folder + current_workspace_name, tr("Workspace Files *.json"));
         if (!workspace_name.endsWith(".json")){
             workspace_name.append(".json");
         }
@@ -1227,7 +1227,7 @@ void SirveApp::SaveWorkspace()
 
 void SirveApp::LoadWorkspace()
 {
-     QString current_workspace_name = QFileDialog::getOpenFileName(this, tr("Select Workspace"), config_values.workspace_folder,  tr("Images (*.json)"));
+    QString current_workspace_name = QFileDialog::getOpenFileName(this, tr("Select Workspace"), config_values.workspace_folder,  tr("Images (*.json)"));
     int compare = QString::compare(current_workspace_name, "", Qt::CaseInsensitive);
     if (compare != 0){
         WorkspaceValues workspace_vals = workspace->LoadState(current_workspace_name);
@@ -1279,9 +1279,8 @@ void SirveApp::LoadWorkspace()
 
                 case ProcessingMethod::adaptive_noise_suppression:
                 {
-                    bool hide_shadow_choice = current_state.ANS_hide_shadow;
                     int source_state_ID = current_state.source_state_ID ;
-                    ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, hide_shadow_choice, current_state.ANS_shadow_threshold, source_state_ID);
+                    ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, current_state.ANS_hide_shadow, current_state.ANS_shadow_threshold, source_state_ID);
                     break;
                 }
                 case ProcessingMethod::deinterlace:{
