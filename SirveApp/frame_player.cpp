@@ -130,7 +130,7 @@ void FramePlayer::GotoPrevFrame()
     emit frameSelected(current_frame_number);
 }
 
-void FramePlayer::GotoNextFrame(int frame_amt)
+void FramePlayer::GotoNextFrame(unsigned int frame_amt)
 {
     if (frame_amt > 0 && frame_amt <= max_frame_number)
     {

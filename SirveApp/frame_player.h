@@ -44,7 +44,7 @@ public slots:
     void ReverseTimer();
 
     void GotoPrevFrame();
-    void GotoNextFrame(int frame_amt);
+    void GotoNextFrame(unsigned int frame_amt);
 
 private:
 	unsigned int current_frame_number;
