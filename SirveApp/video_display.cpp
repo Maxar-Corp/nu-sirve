@@ -82,7 +82,7 @@ void VideoDisplay::SetupCreateTrackControls()
     QVBoxLayout* vlayout_create_track = new QVBoxLayout(grp_create_track);
 
     lbl_create_track = new QLabel("");
-    lbl_create_track->setWordWrap(true);
+    lbl_create_track->setWordWrap(false);
 
     btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
@@ -100,7 +100,7 @@ void VideoDisplay::SetupCreateTrackControls()
     connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
 
     QGridLayout* grid_create_track = new QGridLayout();
-    grid_create_track->addWidget(lbl_create_track, 0, 0, 1, 4, Qt::AlignCenter);
+    grid_create_track->addWidget(lbl_create_track, 0, 0, 1, -1, Qt::AlignCenter);
     grid_create_track->addWidget(btn_select_track_centroid, 1, 0, 1, 1);
     grid_create_track->addWidget(chk_auto_advance_frame, 1, 1, 1, 1);
     grid_create_track->addWidget(lbl_frame_advance_amt, 1, 2, 1, 1);
