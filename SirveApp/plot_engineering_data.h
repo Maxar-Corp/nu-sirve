@@ -24,136 +24,155 @@
 
 QT_CHARTS_USE_NAMESPACE
 
+    struct ZoomState
+{
+    qreal xMin;
+    qreal xMax;
+    qreal yMin;
+    qreal yMax;
+};
 
 class NewChartView : public QChartView {
 
-	Q_OBJECT
-	public:
-		NewChartView(QChart *chart);
-        void clearSeriesByName(const QString &seriesName);
-		void mouseReleaseEvent(QMouseEvent *e);
-		void apply_nice_numbers();
+    Q_OBJECT
+private:
+    bool is_frameline_moving;
+    ZoomState savedZoomState;
 
-		QChart *newchart;
+public:
+    NewChartView(QChart *chart);
+    void clearSeriesByName(const QString &seriesName);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void apply_nice_numbers();
 
-    private:
-        bool is_frameline_moving;
+    QChart *newchart;
+    bool is_zoomed;
+    ZoomState get_zoom_state();
 
-    public slots:
-        void UpdateChartFramelineStatus(bool status);
+signals:
+    void rubberBandChanged(const QRect &rect);
+
+public slots:
+    void UpdateChartFramelineStatus(bool status);
+
+private:
+    QRubberBand *rubberBand;
+    QPoint origin;
 };
 
 
 class QtPlotting : public QWidget
 {
-	public:
-		QChart *chart;
-		NewChartView *chart_view;
-		ColorScheme colors;
-		
-		QtPlotting();
-		~QtPlotting();
+public:
+    QChart *chart;
+    NewChartView *chart_view;
+    ColorScheme colors;
 
-		QValueAxis *axis_x, *axis_y;
-		QLogValueAxis *axis_ylog;
-		QString x_title, y_title, title;
+    QtPlotting();
+    ~QtPlotting();
 
-        bool yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
+    QValueAxis *axis_x, *axis_y;
+    QLogValueAxis *axis_ylog;
+    QString x_title, y_title, title;
 
-        void StartNewChart();
-        void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
-        void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, QColor color);
-        void RemoveSeriesLegend();
-        void DefineChartProperties(double min_x, double max_x, double min_y, double max_y);
-        void SavePlot();
+    bool yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
 
-        double FindTickSpacing(double value, int min_number_ticks, int max_number_ticks);
-        double FindMaxForAxis(std::vector<double> data);
+    void StartNewChart();
+    void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
+    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, QColor color);
+    void RemoveSeriesLegend();
+    void DefineChartProperties(double min_x, double max_x, double min_y, double max_y);
+    void SavePlot();
 
-		void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
-		void set_xaxis_limits(double min_x, double max_x);
-		void set_yaxis_limits(double min_y, double max_y);
+    double FindTickSpacing(double value, int min_number_ticks, int max_number_ticks);
+    double FindMaxForAxis(std::vector<double> data);
+
+    void set_axis_limits(QAbstractAxis *axis, double min_x, double max_x);
+    void set_xaxis_limits(double min_x, double max_x);
+    void set_yaxis_limits(double min_y, double max_y);
 };
 
 enum XAxisPlotVariables{frames , seconds_past_midnight, seconds_from_epoch};
 
 class EngineeringPlots : public QtPlotting
 {
-	Q_OBJECT 
-	public:
-        EngineeringPlots(std::vector<Frame> const &osm_frames);
-        ~EngineeringPlots();
+    Q_OBJECT
+public:
+    EngineeringPlots(std::vector<Frame> const &osm_frames);
+    ~EngineeringPlots();
 
-		// Parameters to display subplot
-		bool plot_all_data, plot_primary_only, plot_current_marker;
-		double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-		unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
-		
-		std::vector<double> past_midnight, past_epoch;
-		std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
-		std::vector<double> boresight_az, boresight_el;
+    // Parameters to display subplot
+    bool plot_all_data, plot_primary_only, plot_current_marker;
+    double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
+    unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
 
-		// plot axes titles
-		QXYSeries *current_frame_marker;
+    std::vector<double> past_midnight, past_epoch;
+    std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
+    std::vector<double> boresight_az, boresight_el;
 
-		std::vector<PlottingFrameData> engineering_data;
+    // plot axes titles
+    QXYSeries *current_frame_marker;
 
-        void SetYAxisChartId(int yaxis_chart_id);
-        void PlotChart();
-        void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
-        void Recolor_manual_track(int track_id, QColor new_color);
+    std::vector<PlottingFrameData> engineering_data;
 
-		void toggle_yaxis_log(bool input);
-		void toggle_yaxis_scientific(bool input);
-        void toggle_xaxis_fixed_pt(bool input);
+    void SetYAxisChartId(int yaxis_chart_id);
+    void PlotChart();
+    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
+    void Recolor_manual_track(int track_id, QColor new_color);
 
-        void set_xaxis_units(XAxisPlotVariables unit_choice);
-		void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+    void toggle_yaxis_log(bool input);
+    void toggle_yaxis_scientific(bool input);
+    void toggle_xaxis_fixed_pt(bool input);
 
-    signals:
-        void changeMotionStatus(bool status);
+    void set_xaxis_units(XAxisPlotVariables unit_choice);
+    void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
-	public slots:
+signals:
+    void changeMotionStatus(bool status);
 
-        void ToggleSubplot();
-        void PlotCurrentStep(int counter);
-        void SetPlotTitle(QString input_title);
+public slots:
 
-        //void ChangeMotionStatus(bool status);
-        void HandlePlayerButtonClick();
+    void ToggleSubplot();
+    void PlotCurrentStep(int counter);
+    void SetPlotTitle(QString input_title);
 
-    private:
+    //void ChangeMotionStatus(bool status);
+    void HandlePlayerButtonClick();
 
-		int number_of_tracks;
-		std::vector<PlottingTrackFrame> track_frames;
-		std::set<int> manual_track_ids;
-		std::vector<ManualPlottingTrackFrame> manual_track_frames;
-		std::map<int, QColor> manual_track_colors;
+private:
 
-		unsigned int num_frames;
-        XAxisPlotVariables x_axis_units;
+    int number_of_tracks;
+    std::vector<PlottingTrackFrame> track_frames;
+    std::set<int> manual_track_ids;
+    std::vector<ManualPlottingTrackFrame> manual_track_frames;
+    std::map<int, QColor> manual_track_colors;
 
-        bool is_moving;
+    unsigned int num_frames;
+    XAxisPlotVariables x_axis_units;
 
-        void EstablishPlotLimits();
-        void CreateCurrentMarker();
-        void DrawTitle();
+    bool is_moving;
 
-        void PlotAzimuth(size_t plot_number_tracks);
-        void PlotElevation(size_t plot_number_tracks);
-        void PlotIrradiance(size_t plot_number_tracks);
-        void PlotFovX();
-        void PlotFovY();
-        void PlotBoresightAzimuth();
-        void PlotBoresightElevation();
+    void EstablishPlotLimits();
+    void CreateCurrentMarker();
+    void DrawTitle();
 
-		std::vector<double> get_individual_x_track(size_t i);
-		std::vector<double> get_individual_y_track_irradiance(size_t i);
-		std::vector<double> get_individual_y_track_azimuth(size_t i);
-		std::vector<double> get_individual_y_track_elevation(size_t i);
-		std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
-		double get_single_x_axis_value(int x_index);
-		double get_max_x_axis_value();
+    void PlotAzimuth(size_t plot_number_tracks);
+    void PlotElevation(size_t plot_number_tracks);
+    void PlotIrradiance(size_t plot_number_tracks);
+    void PlotFovX();
+    void PlotFovY();
+    void PlotBoresightAzimuth();
+    void PlotBoresightElevation();
+
+    std::vector<double> get_individual_x_track(size_t i);
+    std::vector<double> get_individual_y_track_irradiance(size_t i);
+    std::vector<double> get_individual_y_track_azimuth(size_t i);
+    std::vector<double> get_individual_y_track_elevation(size_t i);
+    std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+    double get_single_x_axis_value(int x_index);
+    double get_max_x_axis_value();
 };
 
 #endif
