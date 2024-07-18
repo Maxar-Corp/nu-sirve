@@ -1,4 +1,5 @@
 #include "plot_engineering_data.h"
+#include "qdebug.h"
 #include "qrubberband.h"
 
 #include <QPushButton>
@@ -31,6 +32,7 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     index_sub_plot_xmax = num_frames - 1;
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
+    connect(this->chart_view, &NewChartView::resetCharts, this, &EngineeringPlots::PlotChart);
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -39,7 +41,13 @@ EngineeringPlots::~EngineeringPlots()
 
 void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 {
+    float current_scale_factor = chart_y_maxes[yaxis_chart_id] / chart_y_maxes[current_chart_id];
+
     current_chart_id = yaxis_chart_id;
+
+    ChartState cs = this->chart_view->get_chart_state();
+    cs.scale_factor = current_scale_factor;
+    this->chart_view->set_chart_state(cs);
 }
 
 void EngineeringPlots::PlotChart()
@@ -66,7 +74,6 @@ void EngineeringPlots::PlotChart()
         PlotAzimuth(plot_number_tracks);
         break;
     case 2:
-
         y_title = QString("Elevation (deg)");
         PlotElevation(plot_number_tracks);
         break;
@@ -93,17 +100,17 @@ void EngineeringPlots::PlotChart()
 
     if (this->chart_view->is_zoomed)
     {
-        ZoomState zs = this->chart_view->get_zoom_state();
+        ChartState chartState = this->chart_view->get_chart_state();
 
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
         QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
 
         if (axisX) {
-            axisX->setRange(zs.xMin, zs.xMax);
+            axisX->setRange(chartState.xMin, chartState.xMax);
         }
 
         if (axisY) {
-            axisY->setRange(zs.yMin, zs.yMax);
+            axisY->setRange(chartState.yMin * chartState.scale_factor, chartState.yMax * chartState.scale_factor);
         }
     }
 }
@@ -293,6 +300,8 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
     }
+
+    chart_y_maxes[0] = FindMaxForAxis(y_points);
 
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, FindMaxForAxis(y_points));
@@ -622,10 +631,13 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::RightButton)
     {
-        newchart->zoomReset();
-        chart()->zoomReset();
+        // newchart->zoomReset();
+        // chart()->PlotChart();
 
         is_zoomed = false;
+
+        emit resetCharts();
+
         return;
     } else
     {
@@ -645,13 +657,13 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
             QValueAxis *axisY = qobject_cast<QValueAxis*>(chart()->axisY());
 
             if (axisX) {
-                savedZoomState.xMin = axisX->min();
-                savedZoomState.xMax = axisX->max();
+                savedChartState.xMin = axisX->min();
+                savedChartState.xMax = axisX->max();
             }
 
             if (axisY) {
-                savedZoomState.yMin = axisY->min();
-                savedZoomState.yMax = axisY->max();
+                savedChartState.yMin = axisY->min();
+                savedChartState.yMax = axisY->max();
             }
         }
         is_zoomed = true;
@@ -673,9 +685,14 @@ void NewChartView::apply_nice_numbers()
     }
 }
 
-ZoomState NewChartView::get_zoom_state()
+ChartState NewChartView::get_chart_state()
 {
-    return this->savedZoomState;
+    return this->savedChartState;
+}
+
+void NewChartView::set_chart_state(ChartState chartState)
+{
+    this->savedChartState = chartState;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -859,13 +876,6 @@ void QtPlotting::RemoveSeriesLegend()
 
 void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y, double max_y)
 {
-    // if (chart_view->is_zoomed)
-    // {
-    //     ZoomState zoomState = chart_view->get_zoom_state();
-    //     min_x = zoomState.xMin;
-    //     max_x = chart_view->get_zoom_state().xMax;
-    // }
-
     axis_x->setRange(min_x, max_x);
     axis_x->setTitleText(x_title);
 

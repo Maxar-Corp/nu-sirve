@@ -24,12 +24,14 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-    struct ZoomState
+struct ChartState
 {
     qreal xMin;
     qreal xMax;
     qreal yMin;
     qreal yMax;
+
+    float scale_factor;
 };
 
 class NewChartView : public QChartView {
@@ -37,7 +39,7 @@ class NewChartView : public QChartView {
     Q_OBJECT
 private:
     bool is_frameline_moving;
-    ZoomState savedZoomState;
+    ChartState savedChartState;
 
 public:
     NewChartView(QChart *chart);
@@ -49,10 +51,12 @@ public:
 
     QChart *newchart;
     bool is_zoomed;
-    ZoomState get_zoom_state();
+    ChartState get_chart_state();
+    void set_chart_state(ChartState chartState);
 
 signals:
     void rubberBandChanged(const QRect &rect);
+    void resetCharts();
 
 public slots:
     void UpdateChartFramelineStatus(bool status);
@@ -118,6 +122,7 @@ public:
     std::vector<PlottingFrameData> engineering_data;
 
     void SetYAxisChartId(int yaxis_chart_id);
+;
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void Recolor_manual_track(int track_id, QColor new_color);
@@ -128,6 +133,8 @@ public:
 
     void set_xaxis_units(XAxisPlotVariables unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+
+    float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
 
 signals:
     void changeMotionStatus(bool status);
