@@ -94,12 +94,18 @@ void EngineeringPlots::PlotChart()
     if (this->chart_view->is_zoomed)
     {
         ZoomState zs = this->chart_view->get_zoom_state();
-        QPoint *topLeft = new QPoint(zs.xMin, zs.yMin);
-        QPoint *bottomRight = new QPoint(zs.xMax, zs.yMax);
-        QRect *zoomStateRect = new QRect(*topLeft, *bottomRight);
-        this->chart->zoomIn(*zoomStateRect);
-    }
 
+        QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
+        QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
+
+        if (axisX) {
+            axisX->setRange(zs.xMin, zs.xMax);
+        }
+
+        if (axisY) {
+            axisY->setRange(zs.yMin, zs.yMax);
+        }
+    }
 }
 
 void EngineeringPlots::PlotBoresightAzimuth()
@@ -635,10 +641,18 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         if (!selectedRect.isEmpty()) {
             chart()->zoomIn(selectedRect);
 
-            savedZoomState.xMin = selectedRect.topLeft().x();
-            savedZoomState.xMax = selectedRect.bottomRight().x();
-            savedZoomState.yMin = selectedRect.topLeft().y();
-            savedZoomState.yMax = selectedRect.bottomRight().y();
+            QValueAxis *axisX = qobject_cast<QValueAxis*>(chart()->axisX());
+            QValueAxis *axisY = qobject_cast<QValueAxis*>(chart()->axisY());
+
+            if (axisX) {
+                savedZoomState.xMin = axisX->min();
+                savedZoomState.xMax = axisX->max();
+            }
+
+            if (axisY) {
+                savedZoomState.yMin = axisY->min();
+                savedZoomState.yMax = axisY->max();
+            }
         }
         is_zoomed = true;
     }
