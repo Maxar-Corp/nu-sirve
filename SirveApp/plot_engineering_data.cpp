@@ -1,6 +1,7 @@
 #include "plot_engineering_data.h"
 #include "qdebug.h"
 #include "qrubberband.h"
+#include "SirveApp.h"
 
 #include <QPushButton>
 
@@ -32,7 +33,6 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     index_sub_plot_xmax = num_frames - 1;
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
-    connect(this->chart_view, &NewChartView::resetCharts, this, &EngineeringPlots::PlotChart);
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -636,7 +636,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
         is_zoomed = false;
 
-        emit resetCharts();
+        emit updatePlots();
 
         return;
     } else

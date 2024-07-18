@@ -56,7 +56,7 @@ public:
 
 signals:
     void rubberBandChanged(const QRect &rect);
-    void resetCharts();
+    void updatePlots();
 
 public slots:
     void UpdateChartFramelineStatus(bool status);
