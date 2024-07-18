@@ -72,7 +72,7 @@ void SirveApp::SetupUi() {
     tab_menu = new QTabWidget();
     frame_video_player = new QFrame();
     tab_plots = new QTabWidget();
-
+ 
     tab_menu->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
     // ------------------------------------------------------------------------
@@ -93,6 +93,7 @@ void SirveApp::SetupUi() {
 	frame_video_player->setSizePolicy(fixed_width_video);
 	frame_video_player->setFixedHeight(800);
 	frame_video_player->setFixedWidth(800);
+    frame_video_player->setObjectName("frame_video_player");
 
     // ------------------------------------------------------------------------
     // Adds all elements to main UI
@@ -102,7 +103,6 @@ void SirveApp::SetupUi() {
 
 	grpbox_status_area = new QGroupBox("Status");
 	grpbox_status_area->setObjectName("grpbox_status_area");
-	// grpbox_status_area->setStyleSheet("background-color: rgba(200, 200, 200); color: black; font-weight: bold; font-size: 12px; border: 2px solid gray; border-color: rgb(200, 200, 250); border-width: 2px;");
 	QGridLayout *grid_status_area = new QGridLayout();
 	grpbox_status_area->setLayout(grid_status_area);
 	cmb_processing_states = new QComboBox();
@@ -150,12 +150,10 @@ void SirveApp::SetupUi() {
 	grid_status_area->addWidget(txt_end_frame,5,6,1,1);
 	grid_status_area->addWidget(btn_get_frames,5,8,1,1);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	// grpbox_status_area->setStyleSheet("QGroupBox#grpbox_status_area {background-color: rgba(200, 200, 200); color: black; font-weight: bold; font-size: 12px; border: 2px solid gray; border-color: rgb(200, 200, 250); border-width: 2px;}");
-	// grpbox_status_area->setStyleSheet("background-color:rgb(247,246,246); border-width: 2px; border-color: rgb(0, 0, 125); border-radius: 6px;");
-	// grpbox_status_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
 	
 	QGroupBox *grpbox_state_control_area = new QGroupBox();
-	// grpbox_state_control_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
+    grpbox_state_control_area->setFixedHeight(50);
+    grpbox_state_control_area->setObjectName("grpbox_state_control_area");
 	QGridLayout *grid_state_control_area = new QGridLayout();
 	grpbox_state_control_area->setLayout(grid_state_control_area);
 	grid_state_control_area->addWidget(lbl_processing_state,0,0,1,1);
@@ -163,25 +161,41 @@ void SirveApp::SetupUi() {
 	grid_state_control_area->addWidget(btn_undo_step,0,8,1,1);
 
 	QGroupBox *grpbox_progressbar_area = new QGroupBox();
+    grpbox_progressbar_area->setObjectName("grpbox_progressbar_area");
 	QGridLayout *grid_progressbar_area = new QGridLayout();
 	grpbox_progressbar_area->setLayout(grid_progressbar_area);
-	grpbox_progressbar_area->setStyleSheet("border: 0px solid gray; border-color: rgb(245, 200, 125); border-width: 0px;");
 	lbl_progress_status = new QLabel(" ");
-	// lbl_progress_status->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	progress_bar_main = new QProgressBar();
-	progress_bar_main->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	btn_cancel_operation = new QPushButton("Cancel");
 	btn_cancel_operation->setFixedWidth(75);
 	grid_progressbar_area->addWidget(lbl_progress_status,0,0,1,3);
 	grid_progressbar_area->addWidget(progress_bar_main,0,3,1,8);
 	grid_progressbar_area->addWidget(btn_cancel_operation,0,11,1,1);
 
-    main_layout->addWidget(tab_menu,0,0,1,1);
-    main_layout->addWidget(frame_video_player,0,1,2,1);
-    main_layout->addWidget(tab_plots,0,2,2,1);
-    main_layout->addWidget(grpbox_progressbar_area,2,1,1,2);
-    main_layout->addWidget(grpbox_state_control_area,2,0,1,1);
-    main_layout->addWidget(grpbox_status_area,1,0,1,1);
+    // main_layout->addWidget(grpbox_state_control_area,0,1,1,1);
+    // main_layout->addWidget(tab_menu,0,0,2,1);
+    // main_layout->addWidget(frame_video_player,1,1,3,1);
+    // main_layout->addWidget(tab_plots,0,3,4,1);
+    // QSpacerItem *vspacerItem0 = new QSpacerItem(1,20);
+    // main_layout->addItem(vspacerItem0,1,0,1,1);
+    // main_layout->addWidget(grpbox_status_area,3,0,1,1);
+    // main_layout->addWidget(grpbox_progressbar_area,4,0,1,3);
+    
+    main_layout->addWidget(tab_menu,0,0,3,1);
+    main_layout->addWidget(frame_video_player,0,1,5,1);
+    main_layout->addWidget(tab_plots,0,2,5,1);
+    QSpacerItem *hspacerItem0 = new QSpacerItem(10,1);
+    main_layout->addItem(hspacerItem0,0,3,1,1);
+    main_layout->addWidget(grpbox_status_area,3,0,1,1);
+    main_layout->addWidget(grpbox_state_control_area,4,0,1,1);
+    main_layout->addWidget(grpbox_progressbar_area,5,0,1,3);
+
+    // main_layout->addWidget(tab_menu,0,0,1,1);
+    // main_layout->addWidget(frame_video_player,0,1,2,1);
+    // main_layout->addWidget(tab_plots,0,2,2,1);
+    // main_layout->addWidget(grpbox_progressbar_area,2,1,1,2);
+    // main_layout->addWidget(grpbox_state_control_area,2,0,1,1);
+    // main_layout->addWidget(grpbox_status_area,1,0,1,1);
     QFrame* frame_main = new QFrame();
     frame_main->setLayout(main_layout);
 
@@ -222,8 +236,6 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 {
 
     color_map_display->setMinimumHeight(20);
-    // color_map_display->setMaximumWidth(500);
-    // color_map_display->setMinimumWidth(500);
     QWidget* widget_tab_color = new QWidget(tab_menu);
     QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 
@@ -397,7 +409,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_bad_pixels_correction = new QGroupBox();
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
 	grpbox_bad_pixels_correction->setFixedWidth(700);
-	// grpbox_bad_pixels_correction->setFixedHeight(300);
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
 
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
@@ -453,7 +464,6 @@ QWidget* SirveApp::SetupProcessingTab() {
     grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 4, 1, 1, 1);
     grid_bad_pixels->addWidget(lbl_moving_median_window_length, 5, 0, 1, 1);
     grid_bad_pixels->addWidget(txt_moving_median_N, 5, 1, 1, 1);
-    // grid_bad_pixels->addItem(spacerItem,5,2);
     grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 2, 3, 1, 1);
     grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 2, 4, 1, 1);
     grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 4, 4, 1, 1);
@@ -464,13 +474,13 @@ QWidget* SirveApp::SetupProcessingTab() {
 
     // ------------------------------------------------------------------------
 
-	QGroupBox *grpbox_image_processing = new QGroupBox();
-	QToolBox *toolbox_noise_suppresssion_methods = new QToolBox();
-	toolbox_noise_suppresssion_methods->setStyleSheet(sub_toolbox_StyleSheet);
+	grpbox_image_processing = new QGroupBox();
+    grpbox_image_processing->setObjectName("grpbox_image_processing");
+	toolbox_noise_suppresssion_methods = new QToolBox();
+    toolbox_noise_suppresssion_methods->setObjectName("toolbox_noise_suppresssion_methods");
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
 	grid_image_processing->addWidget(toolbox_noise_suppresssion_methods,1,0,1,6);
 	grpbox_FNS_processing = new QGroupBox("");
-	// grpbox_FNS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
@@ -497,7 +507,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox("");
-	// grpbox_ANS_processing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(210,210,210);");
@@ -542,7 +551,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
 	grpbox_deinterlacing->setFixedHeight(100);
-	// grpbox_deinterlacing->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
 	QGridLayout* grid_deinterlacing = new QGridLayout(grpbox_deinterlacing);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	btn_deinterlace->setFixedWidth(150);
@@ -614,11 +622,11 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// // ------------------------------------------------------------------------
 	
 	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
-	toolbox_image_processing->setFixedHeight(500);
+	// toolbox_image_processing->setFixedHeight(750);
 	vlayout_tab_processing->addWidget(toolbox_image_processing);
 	// // ------------------------------------------------------------------------
 
-    vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+    // vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
     return widget_tab_processing;
 }
@@ -3100,6 +3108,7 @@ void SirveApp::EnableEngineeringPlotOptions()
     rad_linear->setChecked(true);
 
     cmb_plot_xaxis->clear();
+    cmb_plot_xaxis->setFixedWidth(150);
     cmb_plot_xaxis->setEnabled(true);
     cmb_plot_xaxis->addItem(QString("Frames"));
     cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
@@ -3108,6 +3117,7 @@ void SirveApp::EnableEngineeringPlotOptions()
 
     cmb_plot_yaxis->clear();
     cmb_plot_yaxis->setEnabled(true);
+    cmb_plot_yaxis->setFixedWidth(150);
     cmb_plot_yaxis->addItem(QString("Irradiance"));
     cmb_plot_yaxis->addItem(QString("Azimuth"));
     cmb_plot_yaxis->addItem(QString("Elevation"));

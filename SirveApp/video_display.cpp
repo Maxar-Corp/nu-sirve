@@ -118,8 +118,6 @@ void VideoDisplay::SetupCreateTrackControls()
 void VideoDisplay::SetupPinpointDisplay()
 {
     grp_pinpoint = new QGroupBox("Selected Pixels");
-    // grp_pinpoint->setMaximumHeight(200);
-    // grp_pinpoint->setFixedWidth(700);
     grp_pinpoint->setStyleSheet(bold_large_styleSheet);
 
     QHBoxLayout *pinpoint_layout = new QHBoxLayout(grp_pinpoint);

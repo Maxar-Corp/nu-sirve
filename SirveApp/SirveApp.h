@@ -99,11 +99,6 @@ public:
 
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
-    QString sub_toolbox_StyleSheet = "QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover,\
-                                        QToolBox::tab:selected {margin-left: 0px;margin-right: 1px; \
-                                        background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,\
-                                        stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));}";
-
     QString orange_button_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
 	QTabWidget* tab_menu, * tab_plots;
@@ -127,7 +122,7 @@ public:
         * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation, *btn_select_target_template;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
-	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift, *grpbox_status_area;
+	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift, *grpbox_status_area, *grpbox_image_processing;
     QProgressBar * progress_bar_main;
 
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
@@ -140,6 +135,8 @@ public:
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
+
+    QToolBox *toolbox_noise_suppresssion_methods;
 
     AnnotationListDialog *annotate_gui;
 
