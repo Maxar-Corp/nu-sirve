@@ -168,6 +168,8 @@ public:
     void DisplayOriginalEpoch(QString new_epoch_string);
     QString CreateEpochString(std::vector<double> new_epoch);
 
+    void UpdatePlots();
+
 	signals:
         void changeBanner(QString banner_text);
         void changeBannerColor(QString color);
@@ -232,6 +234,7 @@ public:
         void HandlePopoutVideoClosed();
         void HandlePopoutHistogramClosed();
         void HandlePopoutEngineeringClosed();
+        void HandleZoomAfterSlider();
 
         void SirveApp::HandleProcessingStatesCleared();
         void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
@@ -262,7 +265,7 @@ private:
     void EditTrackerColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
-    void UpdatePlots();
+
     void AnnotateVideo();
 
     void HandlePopoutVideoClick(bool checked);

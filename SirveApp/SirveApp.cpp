@@ -1600,6 +1600,9 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
     //Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots, &EngineeringPlots::PlotCurrentStep);
+    connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
+
+    connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);
     UpdateFps();
@@ -1705,6 +1708,11 @@ void SirveApp::HandlePopoutVideoClosed()
     video_display->lbl_image_canvas->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     btn_popout_video->setChecked(false);
     video_display->ReclaimLabel();
+}
+
+void SirveApp::HandleZoomAfterSlider()
+{
+    data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
 }
 
 void SirveApp::StartStopVideoRecording()
