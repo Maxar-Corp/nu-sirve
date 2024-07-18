@@ -631,9 +631,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::RightButton)
     {
-        // newchart->zoomReset();
-        // chart()->PlotChart();
-
+        newchart->zoomReset();
         is_zoomed = false;
 
         emit updatePlots();
@@ -667,6 +665,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
             }
         }
         is_zoomed = true;
+        emit updateFrameLine();
     }
 
     QChartView::mouseReleaseEvent(e);

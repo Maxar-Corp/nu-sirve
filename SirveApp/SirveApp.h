@@ -234,6 +234,7 @@ public:
         void HandlePopoutVideoClosed();
         void HandlePopoutHistogramClosed();
         void HandlePopoutEngineeringClosed();
+        void HandleZoomAfterSlider();
 
         void SirveApp::HandleProcessingStatesCleared();
         void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
