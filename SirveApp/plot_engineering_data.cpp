@@ -497,13 +497,19 @@ void EngineeringPlots::PlotCurrentStep(int counter)
         }
         else
         {
-            min_y = axis_y->min();
+            min_y = 0;
             max_y = axis_y->max();
         }
 
         current_frame_marker->clear();
-        current_frame_marker->append(current_x, 0);
-        current_frame_marker->append(current_x, max_y);
+        current_frame_marker->append(current_x, min_y);
+
+        if(! this->chart_view->is_zoomed)
+        {
+            fixed_max_y = max_y;
+        }
+
+        current_frame_marker->append(current_x, fixed_max_y);
     }
 }
 
