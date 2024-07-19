@@ -310,4 +310,6 @@ private:
     void HandleFrameNumberChange(unsigned int new_frame_number);
 
     void UpdateGlobalFrameVector();
+
+    QString abpimage_file_base_name;
 };

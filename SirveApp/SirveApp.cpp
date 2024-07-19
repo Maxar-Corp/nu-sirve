@@ -1206,16 +1206,18 @@ void SirveApp::SaveWorkspace()
         QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "No frames are loaded, unable to save workspace.");
     }
     else {
-        bool ok;
         QString current_workspace_name = txt_workspace_name->text();
-        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace Name"), current_workspace_name, tr("Workspace Files *.json"));
-        if (!workspace_name.endsWith(".json")){
-            workspace_name.append(".json");
-        }
-        if (!workspace_name.endsWith(".json")) {
-            QtHelpers::LaunchMessageBox(QString("Issue Saving Workspace"), "Please provide a file name ending with .json.");
-            return;
-        }
+
+        QDate today = QDate::currentDate();
+        QTime currentTime = QTime::currentTime();;
+        QString formattedDate = today.toString("MM-dd-yyyy") + "_" + currentTime.toString("HHmm");
+        QString start_frame = QString::number(data_plots->index_sub_plot_xmin + 1);
+        QString stop_frame = QString::number(data_plots->index_sub_plot_xmax + 1);
+        QString initial_name = abpimage_file_base_name + "_" + start_frame + "-"+ stop_frame + "_" + formattedDate;
+
+        QString suggested_name = current_workspace_name.length() > 0 ? current_workspace_name : initial_name;
+        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace Name"), suggested_name, tr("Workspace Files *.json"));
+
         QFileInfo fileInfo(workspace_name);
         txt_current_workspace_folder->setText(fileInfo.path());
         workspace->SaveState(fileInfo.fileName(), config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
@@ -1344,6 +1346,8 @@ void SirveApp::HandleAbpFileSelected()
         LoadOsmData();
         txt_start_frame->setStyleSheet(orange_styleSheet);
         txt_end_frame->setStyleSheet(orange_styleSheet);
+        QFileInfo fileInfo(file_selection);
+        abpimage_file_base_name = fileInfo.baseName();
     }
 };
 
