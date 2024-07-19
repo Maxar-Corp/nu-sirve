@@ -43,11 +43,20 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 {
     float current_scale_factor = chart_y_maxes[yaxis_chart_id] / chart_y_maxes[current_chart_id];
 
-    current_chart_id = yaxis_chart_id;
+    // If the chart type has changed,
+    if (current_chart_id != yaxis_chart_id)
+    {
+        // Get the chart state object for updating
+        ChartState cs = this->chart_view->get_chart_state();
 
-    ChartState cs = this->chart_view->get_chart_state();
-    cs.scale_factor = current_scale_factor;
-    this->chart_view->set_chart_state(cs);
+        // Record the state of the chart we are leaving behind:
+        QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
+        cs.scale_factor_max = axisY->max() / chart_y_maxes[current_chart_id];
+        cs.scale_factor_min = axisY->min() / chart_y_maxes[current_chart_id];
+        this->chart_view->set_chart_state(cs);
+    }
+
+    current_chart_id = yaxis_chart_id;
 }
 
 void EngineeringPlots::PlotChart()
@@ -100,6 +109,7 @@ void EngineeringPlots::PlotChart()
 
     if (this->chart_view->is_zoomed)
     {
+        // We're on a new chart. Apply the target ranges to the axes:
         ChartState chartState = this->chart_view->get_chart_state();
 
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
@@ -110,7 +120,7 @@ void EngineeringPlots::PlotChart()
         }
 
         if (axisY) {
-            axisY->setRange(chartState.yMin * chartState.scale_factor, chartState.yMax * chartState.scale_factor);
+            axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_min, chart_y_maxes[current_chart_id] * chartState.scale_factor_max);
         }
     }
 }
@@ -302,6 +312,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
     }
 
     chart_y_maxes[0] = FindMaxForAxis(y_points);
+    fixed_max_y = chart_y_maxes[0];
 
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, FindMaxForAxis(y_points));
@@ -492,23 +503,17 @@ void EngineeringPlots::PlotCurrentStep(int counter)
 
         if (yaxis_is_log)
         {
-            min_y = axis_ylog->min();
+            min_y = 0.000000001;
             max_y = axis_ylog->max();
         }
         else
         {
-            min_y = 0;
+            min_y = axis_y->min();
             max_y = axis_y->max();
         }
 
         current_frame_marker->clear();
-        current_frame_marker->append(current_x, min_y);
-
-        if(! this->chart_view->is_zoomed)
-        {
-            fixed_max_y = max_y;
-        }
-
+        current_frame_marker->append(current_x, min_y);  
         current_frame_marker->append(current_x, fixed_max_y);
     }
 }
