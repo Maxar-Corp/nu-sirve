@@ -4545,10 +4545,8 @@ release\moc_histogram_plotter.cpp: ..\..\histogram_plotter.h \
 release\moc_image_processing.cpp: ..\..\image_processing.h \
 		..\..\video_details.h \
 		..\..\tracks.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -4570,31 +4568,38 @@ release\moc_image_processing.cpp: ..\..\image_processing.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpoint.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearraylist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgba64.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
@@ -5220,8 +5225,6 @@ release\moc_image_processing.cpp: ..\..\image_processing.h \
 		..\..\abir_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qprogressdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
@@ -5232,9 +5235,6 @@ release\moc_image_processing.cpp: ..\..\image_processing.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgba64.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qbrush.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qmatrix.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
@@ -16090,10 +16090,8 @@ release\custom_input_dialog.obj: ..\..\custom_input_dialog.cpp ..\..\custom_inpu
 release\data_export.obj: ..\..\data_export.cpp ..\..\data_export.h \
 		..\..\Data_Structures.h \
 		..\..\tracks.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -16115,31 +16113,38 @@ release\data_export.obj: ..\..\data_export.cpp ..\..\data_export.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpoint.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearraylist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgba64.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
@@ -19121,10 +19126,8 @@ release\histogram_plotter.obj: ..\..\histogram_plotter.cpp ..\..\histogram_plott
 release\image_processing.obj: ..\..\image_processing.cpp ..\..\image_processing.h \
 		..\..\video_details.h \
 		..\..\tracks.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -19146,31 +19149,38 @@ release\image_processing.obj: ..\..\image_processing.cpp ..\..\image_processing.
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpoint.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearraylist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgba64.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \
@@ -19796,8 +19806,6 @@ release\image_processing.obj: ..\..\image_processing.cpp ..\..\image_processing.
 		..\..\abir_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qprogressdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgetsglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qtwidgets-config.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qdialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qwidget.h \
@@ -19808,9 +19816,6 @@ release\image_processing.obj: ..\..\image_processing.cpp ..\..\image_processing.
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrect.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qsize.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpalette.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgba64.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qbrush.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qmatrix.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qpolygon.h \
@@ -28047,10 +28052,8 @@ release\track_management_widget.obj: ..\..\track_management_widget.cpp ..\..\tra
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qabstractitemmodel.h
 
 release\tracks.obj: ..\..\tracks.cpp ..\..\tracks.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qcolor.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtguiglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qglobal.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig-bootstrapped.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qconfig.h \
@@ -28072,31 +28075,38 @@ release\tracks.obj: ..\..\tracks.cpp ..\..\tracks.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmutex.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnumeric.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qversiontagging.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtgui-config.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgb.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qnamespace.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstring.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qchar.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearray.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qrefcount.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qarraydata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringliteral.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringalgorithms.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qalgorithms.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiterator.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qhashfunctions.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpair.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvector.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcontainertools_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qpoint.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qbytearraylist.h \
-		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringlist.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qregexp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringmatcher.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtGui\qrgba64.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\QFile \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfile.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfiledevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qiodevice.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobject.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs.h \
+		..\..\..\5.15.2\msvc2019_64\include\QtCore\qobjectdefs_impl.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreevent.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qscopedpointer.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qmetatype.h \

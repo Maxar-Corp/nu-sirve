@@ -53,6 +53,8 @@ SirveApp::SirveApp(QWidget *parent)
     CreateMenuActions();
 
     this->resize(0, 0);
+
+    osmDataLoaded = false;
 }
 
 SirveApp::~SirveApp() {
@@ -1145,7 +1147,7 @@ void SirveApp::HandleFinishCreateTrackClick()
 
     if (response == QMessageBox::Yes)
     {
-        QString base_track_folder = config_values.workspace_folder;;
+        QString base_track_folder = config_values.workspace_folder;
         QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", base_track_folder, "CSV (*.csv)");
         if (new_track_file_name.isEmpty())
         {
@@ -1197,6 +1199,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots->Recolor_manual_track(track_id, new_color);
+    //data_plots->Recolor_manual_track_legend_entry(track_id, new_color);
     UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
@@ -1433,6 +1436,8 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
     data_plots = new EngineeringPlots(osm_frames);
+
+    osmDataLoaded = true;
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
     connect(btn_play, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
@@ -2315,6 +2320,35 @@ void SirveApp::UpdatePlots()
         data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
     }
 
+    if (osmDataLoaded == true)
+    {
+        for (int id : this->track_info->get_manual_track_ids())
+        {
+            QLineSeries *trackSeries = new QLineSeries();
+            trackSeries->setName("Track #" + QString::number(id));
+
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+            if (existing_track_control != nullptr)
+            {
+                QComboBoxWithId *cmb_box = existing_track_control->findChild<QComboBoxWithId*>();
+
+                QPen pen;
+                QStringList color_options = ColorScheme::get_track_colors();
+                int index = cmb_box->currentIndex();
+                QColor trackColor = color_options[index];
+                pen.setColor(trackColor);
+                pen.setStyle(Qt::SolidLine);
+                pen.setWidth(3);
+
+                trackSeries->setPen(pen);
+
+                trackSeries->append(0, 0);
+                trackSeries->append(0, 0);
+
+                data_plots->chart->addSeries(trackSeries);
+            }
+        }
+    }
 }
 
 void SirveApp::AnnotateVideo()
