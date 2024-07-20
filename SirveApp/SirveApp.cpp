@@ -114,7 +114,7 @@ void SirveApp::SetupUi() {
 	lbl_processing_description->setFixedHeight(50);
 	lbl_processing_description->setWordWrap(true);
 	lbl_processing_description->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px;");
-	lbl_file_name = new QLabel("File Name:");
+	lbl_file_name = new QLabel("OSM File Name:");
 	txt_file_name = new QLineEdit("");
 	txt_file_name->setReadOnly(true);
 	lbl_max_frames = new QLabel("Max Frames: ");
@@ -132,7 +132,7 @@ void SirveApp::SetupUi() {
 	txt_current_workspace_folder = new QLineEdit();
 	txt_current_workspace_folder->setReadOnly(true);
 	txt_current_workspace_folder->setText(config_values.workspace_folder);
-	QLabel *lbl_workspace_name = new QLabel("Workspace:");
+	QLabel *lbl_workspace_name = new QLabel("Workspace File:");
 	txt_workspace_name = new QLineEdit("");
 	txt_workspace_name->setReadOnly(true);
 	grid_status_area->addWidget(lbl_processing_description,1,0,1,-1);
@@ -165,6 +165,7 @@ void SirveApp::SetupUi() {
 	QGridLayout *grid_progressbar_area = new QGridLayout();
 	grpbox_progressbar_area->setLayout(grid_progressbar_area);
 	lbl_progress_status = new QLabel(" ");
+    lbl_progress_status->setStyleSheet({"background-color: rgb(255,255,255);"});
 	progress_bar_main = new QProgressBar();
 	btn_cancel_operation = new QPushButton("Cancel");
 	btn_cancel_operation->setFixedWidth(75);
@@ -1220,18 +1221,20 @@ void SirveApp::SaveWorkspace()
 
         QDate today = QDate::currentDate();
         QTime currentTime = QTime::currentTime();;
-        QString formattedDate = today.toString("MM-dd-yyyy") + "_" + currentTime.toString("HHmm");
+        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
         QString start_frame = QString::number(data_plots->index_sub_plot_xmin + 1);
         QString stop_frame = QString::number(data_plots->index_sub_plot_xmax + 1);
         QString initial_name = abpimage_file_base_name + "_" + start_frame + "-"+ stop_frame + "_" + formattedDate;
 
         QString suggested_name = current_workspace_name.length() > 0 ? current_workspace_name : initial_name;
-        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace Name"), suggested_name, tr("Workspace Files *.json"));
+        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace Name"), config_values.workspace_folder + "/" + suggested_name, tr("Workspace Files *.json"));
 
-        QFileInfo fileInfo(workspace_name);
-        txt_current_workspace_folder->setText(fileInfo.path());
-        workspace->SaveState(fileInfo.fileName(), config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
-        txt_workspace_name->setText(workspace_name);
+        if (workspace_name.length()>0){
+            QFileInfo fileInfo(workspace_name);
+            txt_current_workspace_folder->setText(fileInfo.path());
+            workspace->SaveState(fileInfo.fileName(), config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+            txt_workspace_name->setText(fileInfo.fileName());
+        }
     }
 }
 
@@ -1251,10 +1254,12 @@ void SirveApp::LoadWorkspace()
         QString filePath = fileInfo.path();
 
         txt_current_workspace_folder->setText(filePath);
-        txt_workspace_name->setText(current_workspace_name);
+        txt_workspace_name->setText(fileInfo.fileName());
         bool validated = ValidateAbpFiles(workspace_vals.image_path);
         if (validated) {
             LoadOsmData();
+            QFileInfo fileInfo0(workspace_vals.image_path);
+            abpimage_file_base_name = fileInfo0.baseName();
             cmb_text_color->setCurrentIndex(2);
         }
 
@@ -1538,6 +1543,7 @@ void SirveApp::UiLoadAbirData()
     }
 
     LoadAbirData(min_frame, max_frame);
+    txt_workspace_name->setText("");
 }
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)

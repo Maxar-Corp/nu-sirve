@@ -713,7 +713,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                 xOffset = trackFrames[framei].tracks[track_id].centroid_x - xOffset_correction;
                 output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                 frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
-                track_centered_offsets.push_back({framei,xOffset,yOffset});
+                track_centered_offsets.push_back({framei+1,xOffset,yOffset});
             }
             else {
                 frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
@@ -740,7 +740,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                             yOffset = osmFrames[framei].tracks[i].centroid_y;
                             xOffset = osmFrames[framei].tracks[i].centroid_x;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei,xOffset,yOffset});
+                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
                         else{
@@ -755,7 +755,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                             yOffset = manualFrames[framei].tracks[i].centroid_y - yOffset_correction;
                             xOffset = manualFrames[framei].tracks[i].centroid_x - xOffset_correction;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei,xOffset,yOffset});
+                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
                         else{
@@ -771,7 +771,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                             yOffset = manualFrames[framei].tracks[i].centroid_y - yOffset_correction;
                             xOffset = manualFrames[framei].tracks[i].centroid_x - xOffset_correction;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei,xOffset,yOffset});
+                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
                         else{
@@ -786,7 +786,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                             yOffset = osmFrames[framei].tracks[i].centroid_y;
                             xOffset = osmFrames[framei].tracks[i].centroid_x;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei,xOffset,yOffset});
+                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
                         else{

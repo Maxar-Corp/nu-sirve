@@ -59,9 +59,9 @@ void VideoDisplay::InitializeToggles()
 	bad_pixel_color = new_color;
 }
 
-void VideoDisplay::SetupCrosshairsCursor()
+void VideoDisplay::SetupCrosshairsCursor(QString icon_Name)
 {
-    QPixmap crosshairs_icon("icons/crosshair-golden.png");
+    QPixmap crosshairs_icon(icon_Name);
 
     if (crosshairs_icon.isNull()) {
         qWarning("Failed to load cursor icon.");
@@ -200,7 +200,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairsCursor();
+        SetupCrosshairsCursor("icons/crosshair-golden.png");
     } else
     {
         lbl_image_canvas->unsetCursor();
@@ -220,7 +220,10 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         emit clearMouseButtons();
         ExitSelectTrackCentroidMode();
         is_zoom_active = false;
-        is_calculate_active = false;
+        is_calculate_active = false; SetupCrosshairsCursor("icons/crosshair-golden_pinpoint.png");
+    } else
+    {
+        lbl_image_canvas->unsetCursor();
     }
     UpdateDisplayFrame();
 }
