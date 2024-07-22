@@ -112,8 +112,8 @@ public:
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_current_workspace_folder;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, * txt_end_frame, * txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame, *txt_workspace_name,\
-             *txt_file_name, *txt_max_frames;
+	QLineEdit* txt_start_frame, * txt_stop_frame, * txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame, *txt_workspace_name,\
+             *txt_file_name, *txt_max_frames, *txt_end_frame, *txt_status_start_frame, *txt_status_stop_frame, *txt_loaded_frames;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
@@ -123,6 +123,7 @@ public:
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
 	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift, *grpbox_status_area, *grpbox_image_processing;
+    QGroupBox *grpbox_load_frames_area;
     QProgressBar * progress_bar_main;
 
 	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
@@ -137,7 +138,9 @@ public:
 	QPushButton* btn_change_banner_text, * btn_add_annotations;
 
     QToolBox *toolbox_noise_suppresssion_methods;
-
+    QStackedWidget *stck_noise_suppresssion_methods;
+    QListWidget *lst_noise_suppresion;
+ 
     AnnotationListDialog *annotate_gui;
 
 	/* --------------------------------------------------------------------------------------------
@@ -276,8 +279,9 @@ private:
 
     void ResizeUi();
 
-	QMenu *menu_main, *menu_workspace, *menu_settings;
-    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames, *action_load_workspace, *action_save_workspace;
+	QMenu *file_menu, *menu_workspace, *menu_export, *menu_settings;
+    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames, *action_load_workspace, *action_save_workspace, *action_export_current_frame, *action_export_frame_range;
+    QAction * action_export_all_frames;
 
     int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
     int ConvertFrameNumberTextToInt(QString input);
@@ -297,6 +301,9 @@ private:
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
+    void ExportFrame();
+    void ExportFrameRange();
+    void ExportAllFrames();
  
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();

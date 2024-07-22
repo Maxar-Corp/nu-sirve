@@ -591,4 +591,12 @@ QGroupBox{
 	border: 0px solid gray;
 	border-width: 0px;
 }
+#cmb_noise_suppresion{
+	font-weight: bold;
+	font-size: 13px;
+}
+#cmb_noise_suppresion:editable {
+	selection-color:rgb(0,0,0);
+	selection-background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));
+}
 
