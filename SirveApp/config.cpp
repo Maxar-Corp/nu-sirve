@@ -58,7 +58,14 @@ ConfigValues ExtractWorkspaceConfigValues() {
         max_used_bits = data_object.value("max number of bits").toInt();
     }
     if (data_object.contains("workspace folder")) {
-        workspace_folder = (QString)data_object.value("workspace folder").toString();
+        QFileInfo fileInfo_0(data_object.value("workspace folder").toString());
+        if(fileInfo_0.isRelative()){
+            QString currentPath = QDir::currentPath();
+            workspace_folder = currentPath + "/" + fileInfo_0.baseName();
+        }
+        else{
+            workspace_folder = fileInfo_0.absolutePath();
+        }
     }
 
     return ConfigValues { version, max_used_bits, workspace_folder };

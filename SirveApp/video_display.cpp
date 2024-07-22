@@ -59,9 +59,9 @@ void VideoDisplay::InitializeToggles()
 	bad_pixel_color = new_color;
 }
 
-void VideoDisplay::SetupCrosshairsCursor()
+void VideoDisplay::SetupCrosshairsCursor(QString icon_Name)
 {
-    QPixmap crosshairs_icon("icons/crosshair-golden.png");
+    QPixmap crosshairs_icon(icon_Name);
 
     if (crosshairs_icon.isNull()) {
         qWarning("Failed to load cursor icon.");
@@ -82,7 +82,7 @@ void VideoDisplay::SetupCreateTrackControls()
     QVBoxLayout* vlayout_create_track = new QVBoxLayout(grp_create_track);
 
     lbl_create_track = new QLabel("");
-    lbl_create_track->setWordWrap(true);
+    lbl_create_track->setWordWrap(false);
 
     btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
@@ -100,7 +100,7 @@ void VideoDisplay::SetupCreateTrackControls()
     connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
 
     QGridLayout* grid_create_track = new QGridLayout();
-    grid_create_track->addWidget(lbl_create_track, 0, 0, 1, 4, Qt::AlignCenter);
+    grid_create_track->addWidget(lbl_create_track, 0, 0, 1, -1, Qt::AlignCenter);
     grid_create_track->addWidget(btn_select_track_centroid, 1, 0, 1, 1);
     grid_create_track->addWidget(chk_auto_advance_frame, 1, 1, 1, 1);
     grid_create_track->addWidget(lbl_frame_advance_amt, 1, 2, 1, 1);
@@ -111,14 +111,13 @@ void VideoDisplay::SetupCreateTrackControls()
     grp_create_track->setHidden(true);
 
     vlayout_create_track->addLayout(grid_create_track);
+    video_display_layout->insertStretch(0, -1);
     video_display_layout->addWidget(grp_create_track);
 }
 
 void VideoDisplay::SetupPinpointDisplay()
 {
     grp_pinpoint = new QGroupBox("Selected Pixels");
-    // grp_pinpoint->setMaximumHeight(200);
-    // grp_pinpoint->setFixedWidth(700);
     grp_pinpoint->setStyleSheet(bold_large_styleSheet);
 
     QHBoxLayout *pinpoint_layout = new QHBoxLayout(grp_pinpoint);
@@ -201,7 +200,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairsCursor();
+        SetupCrosshairsCursor("icons/crosshair-golden.png");
     } else
     {
         lbl_image_canvas->unsetCursor();
@@ -221,7 +220,10 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         emit clearMouseButtons();
         ExitSelectTrackCentroidMode();
         is_zoom_active = false;
-        is_calculate_active = false;
+        is_calculate_active = false; SetupCrosshairsCursor("icons/crosshair-golden_pinpoint.png");
+    } else
+    {
+        lbl_image_canvas->unsetCursor();
     }
     UpdateDisplayFrame();
 }

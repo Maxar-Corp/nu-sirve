@@ -132,7 +132,6 @@ QProgressBar {
 	color: rgb(0, 0, 0);
 	border: 1px inset rgb(150,150,150); 
 	border-radius: 10px;
-	background-color:rgb(221,221,219);
 	font-size: 12px;
 	font-weight: bold;
 }
@@ -488,15 +487,15 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 }
 QTabWidget {
 	color:rgb(0,0,0);
-	background-color:rgb(247,246,246);
+	background-color:rgb(240,240,240);
 	font-size: 12px;
 	font-weight: bold;
 }
 QTabWidget::pane {
 	border-color: rgb(180,180,180);
-	background-color:rgb(247,246,246);
+	background-color:rgb(240,240,240);
 	border-style: solid;
-	border-width: 1px;
+	border-width: 3px;
   	border-radius: 6px;
 }
 QTabBar::tab, QToolBox::tab{
@@ -518,11 +517,15 @@ QTabBar::tab, QToolBox::tab{
 	border-bottom-color: transparent;
 	color:rgb(0,0,0);
 }
-QTabBar::tab:selected, QTabBar::tab:last:selected, QTabBar::tab:hover, QToolBox::tab:selected {
+QTabBar::tab:selected, QTabBar::tab:hover, QTabBar::tab:last:selected{
   	margin-left: 0px;
   	margin-right: 1px;
 	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(120, 193, 218, 255), stop:1 rgba(140, 213, 238, 255));
-
+}
+QToolBox::tab:selected {
+  	margin-left: 0px;
+  	margin-right: 1px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0, stop:0 rgba(120, 193, 218, 255), stop:1 rgba(140, 213, 238, 255));
 }
 QTabBar::tab:!selected, QToolBox::tab:!selected {
 	margin-top: 1px;
@@ -541,3 +544,59 @@ QTimeEdit{
 	color:rgb(81,72,65);
 	background-color: #ffffff;
 }
+QGroupBox{
+	color: black;
+	font-weight: bold;
+	font-size: 12px;
+	border: 1px solid gray;
+	border-width: 1px;
+}
+#grpbox_status_area {
+	color: black;
+	font-weight: bold;
+	font-size: 12px;
+	border: 3px solid gray;
+	border-color:rgb(180,180,180);
+	border-width: 3px;
+	border-radius: 6px;
+}
+#grpbox_progressbar_area {
+	color:black;
+	font-weight: bold;
+	font-size: 12px;
+	border: 0px solid gray;
+	border-width: 0px;
+}
+#grpbox_state_control_area{
+	color:black;
+	font-weight: bold;
+	font-size: 12px;
+	border: 0px solid gray;
+	border-width: 0px;
+}
+#toolbox_noise_suppresssion_methods::tab:selected, #toolbox_noise_suppresssion_methods::tab:last:selected, #toolbox_noise_suppresssion_methods::tab:hover,#toolbox_noise_suppresssion_methods::tab:selected {
+	color:rgb(0,0,0);
+	margin-left: 0px;margin-right: 1px;
+	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));
+}
+#toolbox_noise_suppresssion_methods::tab:!selected {
+	color:rgb(90,40,0);
+}
+#frame_video_player {
+	border: 3px solid gray;
+	border-color:rgb(180,180,180);
+	border-radius: 6px;
+}
+#grpbox_image_processing{
+	border: 0px solid gray;
+	border-width: 0px;
+}
+#cmb_noise_suppresion{
+	font-weight: bold;
+	font-size: 13px;
+}
+#cmb_noise_suppresion:editable {
+	selection-color:rgb(0,0,0);
+	selection-background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));
+}
+
