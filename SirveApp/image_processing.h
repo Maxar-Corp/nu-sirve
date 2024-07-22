@@ -10,6 +10,12 @@
 #include <QWidget>
 #include <QtWidgets>
 #include <QTimer>
+#include <opencv2/core/utility.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/video/tracking.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/opencv.hpp> 
 
 class  ImageProcessing : public QObject
 {
@@ -39,9 +45,9 @@ public:
 
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
 
-	std::vector<std::vector<uint16_t>> DeinterlaceCrossCorrelation(std::vector<Frame> osm_frames,VideoDetails & original);
+	std::vector<std::vector<uint16_t>> DeinterlaceOpenCVPhaseCorrelation(std::vector<Frame> osm_frames,VideoDetails & original);
 
-    std::vector<uint16_t> DeinterlaceCrossCorrelationCurrent(int current_frame,  int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit);
+    std::vector<uint16_t> DeinterlacePhaseCorrelationCurrent(int current_frame,  int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit);
 
     std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames,\
         std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);

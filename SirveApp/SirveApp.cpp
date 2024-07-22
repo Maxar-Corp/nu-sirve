@@ -2164,11 +2164,6 @@ void SirveApp::ExportFrameRange()
 
     // Show the dialog as modal
     if (dialog.exec() == QDialog::Accepted) {
-        // If the user didn't dismiss the dialog, do something with the fields
-        // foreach(QLineEdit * lineEdit, fields) {
-        //     qDebug() << lineEdit->text();
-        // }
-
         int nRows = video_display->container.processing_states[0].details.y_pixels;
         int nCols = video_display->container.processing_states[0].details.x_pixels;
         QString start_frame = fields.at(0)->text();
@@ -2902,7 +2897,7 @@ void SirveApp::ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int s
     lbl_progress_status->setText(QString("Deinterlacing..."));
     connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &DI, &ImageProcessing::CancelOperation);
-    deinterlace_state.details.frames_16bit = DI.DeinterlaceCrossCorrelation(osm_frames, original.details);
+    deinterlace_state.details.frames_16bit = DI.DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString(""));
     if(deinterlace_state.details.frames_16bit.size()>0){
@@ -2930,7 +2925,7 @@ void SirveApp::ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type
     std::vector<uint16_t> current_frame_16bit_0 = current_frame_16bit;
     int nRows = original.details.y_pixels;
     int nCols = original.details.x_pixels;
-    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = DI.DeinterlaceCrossCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
+    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = DI.DeinterlacePhaseCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
     lbl_progress_status->setText(QString(""));
     UpdateGlobalFrameVector();
     if(chk_deinterlace_confirmation->isChecked()){
