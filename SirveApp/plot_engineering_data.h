@@ -31,7 +31,8 @@ struct ChartState
     qreal yMin;
     qreal yMax;
 
-    float scale_factor;
+    float scale_factor_max;
+    float scale_factor_min;
 };
 
 class NewChartView : public QChartView {
@@ -136,6 +137,7 @@ public:
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
     float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
+    ChartState chart_states[7];
 
 signals:
     void changeMotionStatus(bool status);
