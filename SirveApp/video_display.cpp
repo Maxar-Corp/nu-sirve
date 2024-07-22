@@ -640,7 +640,7 @@ void VideoDisplay::UpdateDisplayFrame()
             offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
         }
         offset_matrix.shed_row(0);
-        arma::uvec ind = arma::find(offset_matrix.col(0) == counter);
+        arma::uvec ind = arma::find(offset_matrix.col(0) - 1 == counter);
         if (ind.n_elem>0){
             int ri = ind(0);
             xCorrection = offsets[ri][1];
