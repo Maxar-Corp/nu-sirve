@@ -31,11 +31,22 @@ void VideoContainer::ClearProcessingStates()
 
 void VideoContainer::AddProcessingState(processingState new_state)
 {
+	// processing_states.push_back(new_state);
+	// current_idx = processing_states.size() - 1;
+	// QString state_name = QString::number(current_idx) + ": " + new_state.get_friendly_description();
+	// processing_states[current_idx].state_description = state_name;
+	// QString combobox_state_name = QString::number(current_idx) + ": " + new_state.get_combobox_description();
+	// emit stateAdded(state_name, combobox_state_name, current_idx);
+	// emit updateDisplayVideo();
+	if (current_idx<0){
+		current_idx = 0;
+	}
 	processing_states.push_back(new_state);
 	current_idx = processing_states.size() - 1;
-
 	QString state_name = QString::number(current_idx) + ": " + new_state.get_friendly_description();
-	emit stateAdded(state_name, current_idx);
+	QString combobox_state_name = QString::number(current_idx) + ": " + new_state.get_combobox_description();
+	processing_states[current_idx].state_description = state_name;
+	emit stateAdded(state_name, combobox_state_name, current_idx);
 	emit updateDisplayVideo();
 }
 

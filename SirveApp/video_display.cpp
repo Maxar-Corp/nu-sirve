@@ -33,11 +33,13 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
     xCorrection = 0;
     yCorrection = 0;
+    current_idx = -1;
 
     annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
     annotation_stencil->hide();
     annotation_stencil->move(50, 50);
 }
+
 
 VideoDisplay::~VideoDisplay()
 {
@@ -48,6 +50,15 @@ VideoDisplay::~VideoDisplay()
     delete lbl_zulu_time;
 
     delete zoom_manager;
+}
+
+void VideoDisplay::GetCurrentIdx(int current_idx_new)
+{
+    if (current_idx_new == -1)
+	{
+		return;
+	}
+	current_idx = current_idx_new;
 }
 
 void VideoDisplay::InitializeToggles()
@@ -648,11 +659,11 @@ void VideoDisplay::UpdateDisplayFrame()
         }
     }
 
-    if (should_show_bad_pixels)
+    if (should_show_bad_pixels && current_idx!=-1)
     {
-        for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
+        for (auto i = 0; i < container.processing_states[current_idx].replaced_pixels.size(); i++)
         {
-            unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
+            unsigned int pixel_index = container.processing_states[current_idx].replaced_pixels[i];
             int pixel_x = pixel_index % image_x;
             int pixel_y = pixel_index / image_x;
             int new_pixel_x = pixel_x - xCorrection;
@@ -898,6 +909,20 @@ void VideoDisplay::UpdateDisplayFrame()
                 std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
                 int x = loc[0];
                 int y = loc[1];
+                int new_x = x - xCorrection;
+                int new_y = y - yCorrection;
+                if (new_x < 0){
+                    new_x = new_x + image_x;
+                }
+                if (new_y < 0){
+                    new_y = new_y + image_y;
+                }
+                if (new_x > image_x){
+                    new_x = new_x - image_x;
+                }
+                if (new_y > image_y){
+                    new_y = new_y - image_y ;
+                }
 
                 if (loc[0] >= 0)
                 {
@@ -905,7 +930,7 @@ void VideoDisplay::UpdateDisplayFrame()
                     QPainter p_a(&frame);
                     p_a.setPen(QPen(annotation_color));
                     p_a.setFont(QFont("Times", font_size));
-                    p_a.drawText(x, y, annotation_text);
+                    p_a.drawText(new_x, new_y, annotation_text);
                 }
             }
         }

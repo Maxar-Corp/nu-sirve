@@ -46,14 +46,6 @@ class VideoDisplay : public QWidget
     Q_OBJECT
 public:
    
-	QString dark_green_button_styleSheet = "color: white; background-color: #1a3533; font-weight: bold;";
-	QString olive_green_button_styleSheet = "color: white; background-color: #555121; font-weight: bold;";
-	QString dark_blue_button_styleSheet = "color: white; background-color: #0b2139; font-weight: bold;";
-	QString dark_orange_button_styleSheet = "color: white; background-color: #743203; font-weight: bold;";
-	QString track_button_styleSheet = "color: white; background-color: #002147; font-weight: bold;";
-	QString dark_red_stop_styleSheet = "color: white; background-color: #331a1a; font-weight: bold;";
-	QString orange_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
-	QString bright_green_styleSheet = "color: black; background-color: #73ee53; font-weight: bold;";
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
     VideoDisplay(QVector<QRgb> starting_color_table);
@@ -65,7 +57,7 @@ public:
 	std::vector<std::vector<int>> offsets;
 	int xCorrection = 0;
     int yCorrection = 0;
-
+    int current_idx = -1;
     int counter_record, video_frame_number;
     bool record_frame;
     cv::VideoWriter video;
@@ -97,6 +89,7 @@ public:
     void ShowManualTrackId(int id);
     void RecolorManualTrack(int id, QColor color);
     void DeleteManualTrack(int id);
+
 
     void SetCalibrationModel(CalibrationData input);
     void AddNewFrame(QImage &img, int format);
@@ -131,6 +124,7 @@ public slots:
 	void UpdateBannerColor(QString input_color);
     void HandleTrackerColorUpdate(QString input_color);
     void HandleColorMapUpdate(QVector<QRgb> color_table);
+    void GetCurrentIdx(int current_idx_new);
 
     void HandleSensorBoresightDataCheck();
     void HandleFrameTimeToggle(bool checked);

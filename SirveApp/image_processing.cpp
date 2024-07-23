@@ -375,7 +375,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		}
     }
     int j0 = round(num_video_frames/3);
-    // arma::rowvec range_values = arma::range(frame_data,0);
     arma::rowvec R = arma::max(frame_data,0);
 	int index_last_frame;
 	arma::mat moving_mean(num_pixels, num_video_frames);
@@ -465,8 +464,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
     std::vector<std::vector<uint16_t>> frames_out;
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
-	int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
     double lambda = 1/sqrt(std::max(num_pixels,num_video_frames));
     arma::mat M(num_pixels,num_video_frames);
     arma::vec frame_vector(num_pixels,1);
@@ -480,7 +477,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
 		}
         M.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}
-    // arma::rowvec range_values = arma::range(M,0);
     arma::rowvec R = arma::max(M,0);
     double mu = num_pixels*num_video_frames/(4*arma::norm(M,1));
     double muinv = 1/mu;
@@ -799,7 +795,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
         if (d >1.5){
             frame1 = arma::shift(arma::shift(frame1,yOffset0,0),xOffset0,1);
         } 
-        brightest_centered_offsets.push_back({framei,-xOffset0,-yOffset0});
+        brightest_centered_offsets.push_back({framei + 1,-xOffset0,-yOffset0});
         output = frame1 - arma::min(frame1.as_col());
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
     }

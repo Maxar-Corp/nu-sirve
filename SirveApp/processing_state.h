@@ -19,7 +19,8 @@ enum struct ProcessingMethod
     center_on_OSM,
     center_on_manual,
     center_on_brightest,
-    frame_stacking
+    frame_stacking,
+    state_description
 };
 
 struct processingState {
@@ -51,6 +52,8 @@ struct processingState {
     int track_id;
     bool find_any_tracks;
 
+    QString state_description;
+
     QString get_friendly_description() {
        switch (method)
         {
@@ -66,11 +69,11 @@ struct processingState {
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
             if (ANS_hide_shadow){
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
                 }
                 else
                 {
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow);
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + QString::number(ANS_hide_shadow);
                 }
                 break;
             case ProcessingMethod::fixed_noise_suppression:
@@ -101,6 +104,56 @@ struct processingState {
         }
     };
 
+    QString get_combobox_description() {
+       switch (method)
+        {
+            case ProcessingMethod::original:
+                if (replaced_pixels.size() > 0)
+                {
+                    return "Original with replaced pixels";
+                }
+                else
+                {
+                    return "Original";
+                }
+                break;
+            case ProcessingMethod::adaptive_noise_suppression:
+            if (ANS_hide_shadow){
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS Hide Shadow";
+                }
+                else
+                {
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS";
+                }
+                break;
+            case ProcessingMethod::fixed_noise_suppression:
+                //may potentially want to leave fns_file_path empty if it isn't an external file?
+                return "<Source State " + QString::number(source_state_ID) + "> FNS " ;
+                break;
+            case ProcessingMethod::RPCP_noise_suppression:
+                return "<Source State " + QString::number(source_state_ID) + "> RPCP";
+                break;
+            case ProcessingMethod::deinterlace:
+                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace" ;
+                break;
+            case ProcessingMethod::center_on_OSM:
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM";
+                break;
+            case ProcessingMethod::center_on_manual:
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual";
+                break;
+            case ProcessingMethod::center_on_brightest:
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Brightest";
+                break;
+            case ProcessingMethod::frame_stacking:
+                return "<Source State " + QString::number(source_state_ID) + "> Frame Stack Averaging";
+                break;
+            default:
+                return "Unknown";
+                break;
+        }
+    };
+
     QJsonObject to_json() {
         QJsonObject state_object;
         state_object.insert("state_ID", state_ID);
@@ -116,10 +169,12 @@ struct processingState {
                         pixels.push_back(static_cast<int>(replaced_pixels[i]));
                     }
                     state_object.insert("replaced_pixels", pixels);
+                    state_object.insert("state description",state_description);
                     break;
                 }
             case ProcessingMethod::RPCP_noise_suppression:
                 state_object.insert("method", "RPCP");
+                state_object.insert("state description",state_description);
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");
@@ -127,6 +182,7 @@ struct processingState {
                 state_object.insert("ANS_num_frames", ANS_num_frames);
 				state_object.insert("ANS_hide_shadow", ANS_hide_shadow);
                 state_object.insert("ANS_shadow_threshold", ANS_shadow_threshold);
+                state_object.insert("state description",state_description);
                 break;
             case ProcessingMethod::deinterlace:
                 state_object.insert("method", "Deinterlace");
@@ -137,6 +193,7 @@ struct processingState {
                 state_object.insert("FNS_start_frame", FNS_start_frame);
                 state_object.insert("FNS_stop_frame", FNS_stop_frame);
                 state_object.insert("FNS_file_path", FNS_file_path);
+                state_object.insert("state description",state_description);
                 break;
             case ProcessingMethod::center_on_OSM:
             {
@@ -150,6 +207,7 @@ struct processingState {
                     }
                 state_object.insert("offsets", offsetsixy);
                 state_object.insert("Find_Any_Tracks",find_any_tracks);
+                state_object.insert("state description",state_description);
                 break;
             }
             case ProcessingMethod::center_on_manual:
@@ -164,6 +222,7 @@ struct processingState {
                     }
                 state_object.insert("offsets", offsetsixy);
                 state_object.insert("Find_Any_Tracks",find_any_tracks);
+                state_object.insert("state description",state_description);
                 break;
             }
             case ProcessingMethod::center_on_brightest:
@@ -177,11 +236,13 @@ struct processingState {
                         }
                     }
                 state_object.insert("offsets", offsetsixy);
+                state_object.insert("state description",state_description);
                 break;
             }
             case ProcessingMethod::frame_stacking:
                 state_object.insert("method", "Frame Stacking");
                 state_object.insert("frame_stack_num_frames", frame_stack_num_frames);
+                state_object.insert("state description",state_description);
                 break;
             default:
                 state_object.insert("method", "error");
