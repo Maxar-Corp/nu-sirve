@@ -15,7 +15,6 @@ HEADERS += abir_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
             annotation_stencil.h \
-            bad_pixels.h \
             binary_file_reader.h \
             calibration_data.h \
             chart_metadata.h \
@@ -27,8 +26,6 @@ HEADERS += abir_reader.h \
             custom_input_dialog.h \
             Data_Structures.h \
             data_export.h \
-            deinterlace.h \
-            deinterlace_type.h \
             engineeringdata.h \
             enhanced_label.h \
             frame_player.h \
@@ -36,7 +33,6 @@ HEADERS += abir_reader.h \
             image_processing.h \
             location_input.h \
             new_location.h \
-            noise_suppression.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
             osm_reader.h \
@@ -68,7 +64,6 @@ SOURCES += abir_reader.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \
             annotation_stencil.cpp \
-            bad_pixels.cpp \
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
@@ -78,7 +73,6 @@ SOURCES += abir_reader.cpp \
             config.cpp \
             custom_input_dialog.cpp \
             data_export.cpp \
-            deinterlace.cpp \
             engineeringdata.cpp \
             enhanced_label.cpp \
             frame_player.cpp \
@@ -87,7 +81,6 @@ SOURCES += abir_reader.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
-            noise_suppression.cpp \
             non_uniformity_correction_external_file.cpp \
             non_uniformity_correction.cpp \
             osm_reader.cpp \

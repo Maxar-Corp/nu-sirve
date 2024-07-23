@@ -57,7 +57,7 @@ public:
 	std::vector<std::vector<int>> offsets;
 	int xCorrection = 0;
     int yCorrection = 0;
-    int current_idx = -1;
+    int current_idx;
     int counter_record, video_frame_number;
     bool record_frame;
     cv::VideoWriter video;

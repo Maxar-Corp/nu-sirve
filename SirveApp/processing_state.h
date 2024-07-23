@@ -3,7 +3,6 @@
 #define PROCESSING_STATE_H
 
 #include "video_details.h"
-#include "deinterlace_type.h"
 
 #include <QString>
 #include <QJsonObject>
@@ -20,7 +19,9 @@ enum struct ProcessingMethod
     center_on_manual,
     center_on_brightest,
     frame_stacking,
-    state_description
+    state_description,
+    descendants,
+    ancestors
 };
 
 struct processingState {
@@ -34,6 +35,8 @@ struct processingState {
     int state_ID;
     
     std::vector<unsigned int> replaced_pixels;
+    std::vector<unsigned int> ancestors;
+    std::vector<unsigned int> descendants;
 
     int ANS_relative_start_frame;
     int ANS_num_frames;
@@ -45,8 +48,6 @@ struct processingState {
     int FNS_stop_frame;
 
     int frame_stack_num_frames;
-
-    DeinterlaceType deint_type;
 
 	std::vector<std::vector<int>> offsets;
     int track_id;
@@ -67,31 +68,50 @@ struct processingState {
                     return "Original";
                 }
                 break;
-            case ProcessingMethod::adaptive_noise_suppression:
-            if (ANS_hide_shadow){
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
+            case ProcessingMethod::adaptive_noise_suppression:{
+                QString boolString = ANS_hide_shadow ? "true" : "false";
+                if (ANS_hide_shadow){
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + boolString + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold) +".";
                 }
                 else
                 {
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + QString::number(ANS_hide_shadow);
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + boolString +".";
                 }
                 break;
+            }
             case ProcessingMethod::fixed_noise_suppression:
-                //may potentially want to leave fns_file_path empty if it isn't an external file?
                 return "<Source State " + QString::number(source_state_ID) + "> FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
                 break;
             case ProcessingMethod::RPCP_noise_suppression:
                 return "<Source State " + QString::number(source_state_ID) + "> RPCP";
                 break;
             case ProcessingMethod::deinterlace:
-                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace: " + QString::number(deint_type);
+                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace";
                 break;
-            case ProcessingMethod::center_on_OSM:
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM: " + QString::number(track_id);
+            case ProcessingMethod::center_on_OSM:{
+                QString trackid;
+                if (track_id <0){
+                    trackid = "Primary Track";
+                }
+                else{
+                    trackid = QString::number(track_id);
+                }
+                QString boolString = find_any_tracks ? "true" : "false";
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM: " + trackid + " Find any tracks set to " + boolString +".";
                 break;
-            case ProcessingMethod::center_on_manual:
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual: " + QString::number(track_id);
+            }
+            case ProcessingMethod::center_on_manual:{
+                QString trackid;
+                if (track_id <0){
+                    trackid = "Primary Track";
+                }
+                else{
+                    trackid = QString::number(track_id);
+                }
+                QString boolString = find_any_tracks ? "true" : "false";
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual: " + trackid + " Find any tracks set to " + boolString +".";
                 break;
+            }
             case ProcessingMethod::center_on_brightest:
                 return "<Source State " + QString::number(source_state_ID) + "> Centered on Brightest: " + QString::number(track_id);
                 break;
@@ -158,6 +178,18 @@ struct processingState {
         QJsonObject state_object;
         state_object.insert("state_ID", state_ID);
         state_object.insert("source_state_ID", source_state_ID);
+        QJsonArray jancestors;
+        for (auto i = 0; i < ancestors.size(); i++)
+        {
+            jancestors.push_back(static_cast<int>(ancestors[i]));
+        }
+        state_object.insert("ancestors",jancestors);
+        QJsonArray jdescendants;
+        for (auto i = 0; i < descendants.size(); i++)
+        {
+            jdescendants.push_back(static_cast<int>(descendants[i]));
+        }
+        state_object.insert("descendants",jdescendants);
         switch (method)
         {
             case ProcessingMethod::original:
@@ -186,7 +218,6 @@ struct processingState {
                 break;
             case ProcessingMethod::deinterlace:
                 state_object.insert("method", "Deinterlace");
-                state_object.insert("deint_type", QString::number(static_cast<int>(deint_type)));
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 state_object.insert("method", "FNS");

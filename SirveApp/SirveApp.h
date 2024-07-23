@@ -13,9 +13,6 @@
 #include "video_details.h"
 #include "process_file.h"
 #include "non_uniformity_correction.h"
-#include "noise_suppression.h"
-#include "deinterlace.h"
-#include "deinterlace_type.h"
 #include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
@@ -27,7 +24,6 @@
 #include "workspace.h"
 #include "Data_Structures.h"
 #include "popout_dialog.h"
-#include "bad_pixels.h"
 #include "tracks.h"
 #include "track_management_widget.h"
 #include "data_export.h"
@@ -296,8 +292,8 @@ private:
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
-    void ApplyDeinterlacing(DeinterlaceType deinterlace_method_type, int processing_state_idx);
-    void ApplyDeinterlacingCurrent(DeinterlaceType deinterlace_method_type);
+    void ApplyDeinterlacing(int processing_state_idx);
+    void ApplyDeinterlacingCurrent();
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
@@ -314,6 +310,8 @@ private:
     void HandleFrameNumberChange(unsigned int new_frame_number);
 
     void UpdateGlobalFrameVector();
+
+    void DeleteState();
 
     QString abpimage_file_base_name;
 };

@@ -6,7 +6,6 @@
 #include <QString>
 
 #include "processing_state.h"
-#include "deinterlace_type.h"
 
 class VideoContainer : public QObject
 {
