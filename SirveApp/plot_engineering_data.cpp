@@ -1,7 +1,5 @@
 #include "plot_engineering_data.h"
-#include "qdebug.h"
 #include "qrubberband.h"
-#include "SirveApp.h"
 
 #include <QPushButton>
 #include <QLegendMarker>
@@ -231,8 +229,6 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
         AddSeries(series, x_values, y_values, true);
-
-        //colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -271,8 +267,6 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
         AddSeries(series, x_values, y_values, true);
-
-        //colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -312,9 +306,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-        AddSeries(series, x_values, y_values, true);
-
-       // colors.get_next_color();
+        AddSeries(series, x_values, y_values, true);;
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
     }
@@ -472,7 +464,7 @@ double EngineeringPlots::get_max_x_axis_value()
 void EngineeringPlots::CreateCurrentMarker()
 {
     current_frame_marker = new QLineSeries();
-    current_frame_marker->setName("Frame Line");
+    current_frame_marker->setName("Red Line");
 
     QPen pen;
     pen.setColor(colors.get_color(2));
@@ -581,11 +573,6 @@ void EngineeringPlots::UpdateManualPlottingTrackFrames(std::vector<ManualPlottin
 void EngineeringPlots::Recolor_manual_track(int track_id, QColor new_color)
 {
     manual_track_colors[track_id] = new_color;
-}
-
-void EngineeringPlots::Recolor_manual_track_legend_entry(int track_id, QColor new_color)
-{
-
 }
 
 void EngineeringPlots::HandlePlayerButtonClick()
@@ -952,16 +939,14 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
     markerPen.setWidthF(3);
     osmMarker->setPen(markerPen);
 
-    qDebug() << markers.size();
-
     QPen pen;
-    pen.setWidth(2); // Set the desired thickness
+    pen.setWidth(3);
 
     for (QLegendMarker *marker : chart->legend()->markers()) {
         marker->setPen(pen);
     }
 
-    // Hide all but the first marker
+    // Hide all but the OSM marker at index 1:
     markers[0]->setVisible(false);
 
     for (int i = 2; i < markers.size(); i++) {

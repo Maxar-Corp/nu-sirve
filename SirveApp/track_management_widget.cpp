@@ -88,5 +88,4 @@ void TrackManagementWidget::HandleTrackColorSelection(int id, int index)
 {
     QStringList color_options = ColorScheme::get_track_colors();
     emit recolorTrack(id, color_options[index]);
-    //emit recolorLegend(id, color_options[index]);
 }

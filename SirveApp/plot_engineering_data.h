@@ -128,7 +128,6 @@ public:
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void Recolor_manual_track(int track_id, QColor new_color);
-    void Recolor_manual_track_legend_entry(int track_id, QColor new_color);
 
     void toggle_yaxis_log(bool input);
     void toggle_yaxis_scientific(bool input);
@@ -148,8 +147,6 @@ public slots:
     void ToggleSubplot();
     void PlotCurrentStep(int counter);
     void SetPlotTitle(QString input_title);
-
-    //void ChangeMotionStatus(bool status);
     void HandlePlayerButtonClick();
 
 private:
