@@ -299,9 +299,9 @@ void VideoDisplay::ToggleOsmTracks(bool input)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleSensorBoresightDataCheck()
+void VideoDisplay::HandleSensorBoresightDataCheck(bool checked)
 {
-    display_boresight_txt = !display_boresight_txt;
+    display_boresight_txt = checked;
 
     UpdateDisplayFrame();
 }

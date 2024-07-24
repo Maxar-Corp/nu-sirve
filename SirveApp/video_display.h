@@ -126,7 +126,7 @@ public slots:
     void HandleColorMapUpdate(QVector<QRgb> color_table);
     void GetCurrentIdx(int current_idx_new);
 
-    void HandleSensorBoresightDataCheck();
+    void HandleSensorBoresightDataCheck(bool checked);
     void HandleFrameTimeToggle(bool checked);
 
     void HandlePixelSelection(QPoint origin);
