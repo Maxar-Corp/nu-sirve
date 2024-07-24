@@ -151,15 +151,16 @@ void SirveApp::SetupUi() {
     vlayout_processing_description->addWidget(lbl_processing_description);
     QSpacerItem * d_bottom_vertical_spacer = new QSpacerItem(100, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     vlayout_processing_description->addItem(d_bottom_vertical_spacer);
-    grid_status_area->addWidget(grpbox_load_frames_area,0,0,1,-1);
-    grid_status_area->addWidget(scrollarea_processing_description,1,0,1,-1);
-    grid_status_area->addWidget(lbl_processing_state,2,0,1,1);
-	grid_status_area->addWidget(cmb_processing_states,2,1,1,6);
-	grid_status_area->addWidget(btn_undo_step,2,7,1,1);
-    grid_status_area->addWidget(btn_delete_state,2,8,1,1);
+    // grid_status_area->addWidget(grpbox_load_frames_area,0,0,1,-1);
+    grid_status_area->addWidget(scrollarea_processing_description,0,0,1,-1);
+    grid_status_area->addWidget(lbl_processing_state,1,0,1,1);
+	grid_status_area->addWidget(cmb_processing_states,1,1,1,6);
+	grid_status_area->addWidget(btn_undo_step,1,7,1,1);
+    grid_status_area->addWidget(btn_delete_state,1,8,1,1);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    main_layout->addWidget(tab_menu,0,0,4,1);
+    main_layout->addWidget(grpbox_load_frames_area,0,0,1,1);
+    main_layout->addWidget(tab_menu,1,0,3,1);
     main_layout->addWidget(frame_video_player,0,1,6,1);
     main_layout->addWidget(tab_plots,0,2,6,1);
     main_layout->addWidget(grpbox_status_area,4,0,1,1);
