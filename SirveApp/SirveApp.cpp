@@ -2857,6 +2857,13 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
         video_display->container.AddProcessingState(new_state);
 
         QFileInfo fi(file_path);
@@ -2922,6 +2929,13 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3027,6 +3041,13 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3069,9 +3090,16 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         }
         new_state.details.max_value = maxVal;
         new_state.state_ID = video_display->container.processing_states.size();
-       video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
+        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3169,9 +3197,16 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
         }
         new_state.details.max_value = maxVal;
         new_state.state_ID = video_display->container.processing_states.size();
-       video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
+        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3248,9 +3283,16 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         }
         new_state.details.max_value = maxVal;
         new_state.state_ID =  video_display->container.processing_states.size();
-       video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
+        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3302,6 +3344,13 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
             new_state.state_ID =  video_display->container.processing_states.size() ;
             new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
             new_state.ancestors.push_back(source_state_ind);
+            std::string result;
+            for (auto num : new_state.ancestors) {
+                result += std::to_string(num) + " -> ";
+            }
+            result += std::to_string(new_state.state_ID);
+            QString state_steps = QString::fromStdString(result);
+            new_state.state_steps = state_steps;
             video_display->container.AddProcessingState(new_state);
         }
     }
@@ -3524,16 +3573,30 @@ void SirveApp::DeleteState()
         QString tmp0 = "<Source State " + QString::number(all_states[i].source_state_ID) + ">";
         desc2.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
 
+        std::string result;
+        for (auto num : all_states[i].ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(i);
+        QString state_steps = QString::fromStdString(result);
+
+        QString desc2b = desc2;
+        int index = desc2b.lastIndexOf("State steps:");
+        if (index !=-1){
+            int nchars = desc2b.length() - (index+13);
+            desc2b.replace(index + 13,nchars,state_steps);
+        }
         QString desc3 = cmb_processing_states->currentText();
         desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
         QString desc4 = desc3;
         desc4.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
-
         new_labels.append(desc4);
+
         all_states[i].state_ID = i;
         all_states[i].source_state_ID = id_map[all_states[i].source_state_ID];
-        all_states[i].state_description = desc2;
+        all_states[i].state_description = desc2b;
+        all_states[i].state_steps = state_steps;
     } 
 
     cmb_processing_states->clear();

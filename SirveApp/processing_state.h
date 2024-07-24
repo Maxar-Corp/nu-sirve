@@ -21,7 +21,8 @@ enum struct ProcessingMethod
     frame_stacking,
     state_description,
     descendants,
-    ancestors
+    ancestors,
+    state_steps
 };
 
 struct processingState {
@@ -55,6 +56,8 @@ struct processingState {
 
     QString state_description;
 
+    QString state_steps;
+
     QString get_friendly_description() {
        switch (method)
         {
@@ -71,23 +74,27 @@ struct processingState {
             case ProcessingMethod::adaptive_noise_suppression:{
                 QString boolString = ANS_hide_shadow ? "true" : "false";
                 if (ANS_hide_shadow){
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + boolString + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold) +".";
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)\
+                     + " frames. Hide Shadow option set to " + boolString + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold) +". State steps: " + state_steps;
                 }
                 else
                 {
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + boolString +".";
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + boolString +". State steps: " + state_steps;
                 }
                 break;
             }
-            case ProcessingMethod::fixed_noise_suppression:
-                return "<Source State " + QString::number(source_state_ID) + "> FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame);
+            case ProcessingMethod::fixed_noise_suppression:{
+                return "<Source State " + QString::number(source_state_ID) + "> FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame) +". State steps: " + state_steps;
                 break;
-            case ProcessingMethod::RPCP_noise_suppression:
-                return "<Source State " + QString::number(source_state_ID) + "> RPCP";
+            }
+            case ProcessingMethod::RPCP_noise_suppression:{
+                return "<Source State " + QString::number(source_state_ID) + "> RPCP" +". State steps: " + state_steps;
                 break;
-            case ProcessingMethod::deinterlace:
-                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace";
+            }
+            case ProcessingMethod::deinterlace:{
+                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace" +". State steps: " + state_steps;
                 break;
+            }
             case ProcessingMethod::center_on_OSM:{
                 QString trackid;
                 if (track_id <0){
@@ -97,7 +104,7 @@ struct processingState {
                     trackid = QString::number(track_id);
                 }
                 QString boolString = find_any_tracks ? "true" : "false";
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM: " + trackid + " Find any tracks set to " + boolString +".";
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM: " + trackid + " Find any tracks set to " + boolString +". State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::center_on_manual:{
@@ -109,15 +116,17 @@ struct processingState {
                     trackid = QString::number(track_id);
                 }
                 QString boolString = find_any_tracks ? "true" : "false";
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual: " + trackid + " Find any tracks set to " + boolString +".";
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual: " + trackid + " Find any tracks set to " + boolString + ". State steps: " + state_steps;
                 break;
             }
-            case ProcessingMethod::center_on_brightest:
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on Brightest: " + QString::number(track_id);
+            case ProcessingMethod::center_on_brightest:{
+                return "<Source State " + QString::number(source_state_ID) + "> Centered on Brightest" +". State steps: " + state_steps;
                 break;
-            case ProcessingMethod::frame_stacking:
-                return "<Source State " + QString::number(source_state_ID) + "> Frame Stack: Averaging " + QString::number(frame_stack_num_frames);
+            }
+            case ProcessingMethod::frame_stacking:{
+                return "<Source State " + QString::number(source_state_ID) + "> Frame Stack: Averaging " + QString::number(frame_stack_num_frames) +". State steps: " + state_steps;
                 break;
+            }   
             default:
                 return "Unknown";
                 break;
@@ -202,11 +211,13 @@ struct processingState {
                     }
                     state_object.insert("replaced_pixels", pixels);
                     state_object.insert("state description",state_description);
+                    state_object.insert("state steps",state_steps);
                     break;
                 }
             case ProcessingMethod::RPCP_noise_suppression:
                 state_object.insert("method", "RPCP");
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");
@@ -215,9 +226,12 @@ struct processingState {
 				state_object.insert("ANS_hide_shadow", ANS_hide_shadow);
                 state_object.insert("ANS_shadow_threshold", ANS_shadow_threshold);
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             case ProcessingMethod::deinterlace:
                 state_object.insert("method", "Deinterlace");
+                state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 state_object.insert("method", "FNS");
@@ -225,6 +239,7 @@ struct processingState {
                 state_object.insert("FNS_stop_frame", FNS_stop_frame);
                 state_object.insert("FNS_file_path", FNS_file_path);
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             case ProcessingMethod::center_on_OSM:
             {
@@ -239,6 +254,7 @@ struct processingState {
                 state_object.insert("offsets", offsetsixy);
                 state_object.insert("Find_Any_Tracks",find_any_tracks);
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             }
             case ProcessingMethod::center_on_manual:
@@ -254,6 +270,7 @@ struct processingState {
                 state_object.insert("offsets", offsetsixy);
                 state_object.insert("Find_Any_Tracks",find_any_tracks);
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             }
             case ProcessingMethod::center_on_brightest:
@@ -268,12 +285,14 @@ struct processingState {
                     }
                 state_object.insert("offsets", offsetsixy);
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             }
             case ProcessingMethod::frame_stacking:
                 state_object.insert("method", "Frame Stacking");
                 state_object.insert("frame_stack_num_frames", frame_stack_num_frames);
                 state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
                 break;
             default:
                 state_object.insert("method", "error");
