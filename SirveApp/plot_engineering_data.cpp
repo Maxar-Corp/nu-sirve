@@ -645,6 +645,9 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         newchart->zoomReset();
         is_zoomed = false;
 
+        clearSeriesByName("Red Line");
+        newchart->update();
+
         emit updatePlots();
 
         return;
@@ -841,6 +844,13 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
         }
     }
 
+    QPen pen;
+    QColor trackColor = colors.get_current_color();
+    pen.setColor(trackColor);
+    pen.setStyle(Qt::SolidLine);
+    pen.setWidth(3);
+    series->setPen(pen);
+
     chart->addSeries(series);
     if ((num_breaks > 0) & broken_data)
         RemoveSeriesLegend();
@@ -927,24 +937,11 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
 
     // Legend properties
     chart->legend()->setVisible(true);
-    chart->legend()->setAlignment(Qt::AlignRight);
+    chart->legend()->setAlignment(Qt::AlignTop);
     chart->legend()->setMarkerShape(QLegend::MarkerShapeDefault);
 
     // Get all legend markers
     QList<QLegendMarker *> markers = chart->legend()->markers();
-
-    QLegendMarker *osmMarker = markers[1];
-
-    QPen markerPen = osmMarker->pen();
-    markerPen.setWidthF(3);
-    osmMarker->setPen(markerPen);
-
-    QPen pen;
-    pen.setWidth(3);
-
-    for (QLegendMarker *marker : chart->legend()->markers()) {
-        marker->setPen(pen);
-    }
 
     // Hide all but the OSM marker at index 1:
     markers[0]->setVisible(false);
