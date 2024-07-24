@@ -11,6 +11,7 @@
 enum struct ProcessingMethod
 {
 	original,
+    replace_bad_pixels,
 	adaptive_noise_suppression,
 	fixed_noise_suppression,
     RPCP_noise_suppression,
@@ -57,42 +58,55 @@ struct processingState {
     QString state_description;
 
     QString state_steps;
+    QString process_steps;
 
     QString get_friendly_description() {
        switch (method)
         {
             case ProcessingMethod::original:
-                if (replaced_pixels.size() > 0)
-                {
-                    return "Original with replaced pixels";
-                }
-                else
-                {
-                    return "Original";
-                }
+                return "Original Data";
+                break;
+            case ProcessingMethod::replace_bad_pixels:
+                return "Replaced Bad Pixels\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +QString::number(replaced_pixels.size()) + " bad pixels replaced.\n"+\
+                    "State steps: " + state_steps;
                 break;
             case ProcessingMethod::adaptive_noise_suppression:{
                 QString boolString = ANS_hide_shadow ? "true" : "false";
                 if (ANS_hide_shadow){
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)\
-                     + " frames. Hide Shadow option set to " + boolString + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold) +". State steps: " + state_steps;
+                    return "Adaptive Noise Suppression with Hidden Shadow\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                        +"Process steps: " + process_steps +"\n"\
+                        +"ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)+" frames. Hide Shadow option set to " +\
+                         boolString +". Shadow threshold set to " + QString::number(ANS_shadow_threshold)+".\n"\
+                        +"State steps: " + state_steps;
                 }
                 else
                 {
-                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames. Hide Shadow option set to " + boolString +". State steps: " + state_steps;
+                    return "Adaptive Noise Suppression\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                        +"Process steps: " + process_steps +"\n"\
+                        +"ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)+" frames. Hide Shadow option set to " + boolString +".\n"\
+                        +"State steps: " + state_steps;
                 }
                 break;
             }
             case ProcessingMethod::fixed_noise_suppression:{
-                return "<Source State " + QString::number(source_state_ID) + "> FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame) +". State steps: " + state_steps;
+                return "Fixed Noise Suppression\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame)+".\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::RPCP_noise_suppression:{
-                return "<Source State " + QString::number(source_state_ID) + "> RPCP" +". State steps: " + state_steps;
+                return "RPCP Noise Suppression\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::deinterlace:{
-                return "<Source State " + QString::number(source_state_ID) + "> Deinterlace" +". State steps: " + state_steps;
+                return "Deinterlacing\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::center_on_OSM:{
@@ -104,7 +118,10 @@ struct processingState {
                     trackid = QString::number(track_id);
                 }
                 QString boolString = find_any_tracks ? "true" : "false";
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on OSM: " + trackid + " Find any tracks set to " + boolString +". State steps: " + state_steps;
+                return "Centered on OSM\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"Centered on OSM: " + trackid + ". Find any tracks set to " + boolString +".\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::center_on_manual:{
@@ -116,15 +133,23 @@ struct processingState {
                     trackid = QString::number(track_id);
                 }
                 QString boolString = find_any_tracks ? "true" : "false";
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on Manual: " + trackid + " Find any tracks set to " + boolString + ". State steps: " + state_steps;
+                return "Centered on Manual\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"Centered on OSM: " + trackid + ". Find any tracks set to " + boolString +".\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::center_on_brightest:{
-                return "<Source State " + QString::number(source_state_ID) + "> Centered on Brightest" +". State steps: " + state_steps;
+                return "Centered on Brightest\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::frame_stacking:{
-                return "<Source State " + QString::number(source_state_ID) + "> Frame Stack: Averaging " + QString::number(frame_stack_num_frames) +". State steps: " + state_steps;
+                return "Frame Stacking\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"Frame Stack: Averaging " + QString::number(frame_stack_num_frames)+".\n"\
+                    +"State steps: " + state_steps;
                 break;
             }   
             default:
@@ -137,14 +162,10 @@ struct processingState {
        switch (method)
         {
             case ProcessingMethod::original:
-                if (replaced_pixels.size() > 0)
-                {
-                    return "Original with replaced pixels";
-                }
-                else
-                {
-                    return "Original";
-                }
+                return "Original";
+                break;
+            case ProcessingMethod::replace_bad_pixels:
+                return "<Source State " + QString::number(source_state_ID) + "> Replace Bad Pixels";;
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
             if (ANS_hide_shadow){
@@ -199,11 +220,19 @@ struct processingState {
             jdescendants.push_back(static_cast<int>(descendants[i]));
         }
         state_object.insert("descendants",jdescendants);
+        state_object.insert("process_steps",process_steps);
         switch (method)
         {
             case ProcessingMethod::original:
                 {
                     state_object.insert("method", "Original");
+                    state_object.insert("state description",state_description);
+                    state_object.insert("state steps",state_steps);
+                    break;
+                }
+            case ProcessingMethod::replace_bad_pixels:
+                {
+                    state_object.insert("method", "Replace Bad Pixels");
                     QJsonArray pixels;
                     for (auto i = 0; i < replaced_pixels.size(); i++)
                     {

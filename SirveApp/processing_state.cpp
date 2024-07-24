@@ -8,6 +8,13 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
     if (method == "Original")
     {
         processingState temp = { ProcessingMethod::original };
+        temp.state_ID = json_obj.value("state_ID").toInt();
+        temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        return temp;
+    }
+    if (method == "Replace Bad Pixels")
+    {
+        processingState temp = { ProcessingMethod::replace_bad_pixels };
         std::vector<unsigned int> replaced_pixels;
         for (auto json_item : json_obj.value("replaced_pixels").toArray())
         {

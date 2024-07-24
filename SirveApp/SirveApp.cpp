@@ -140,17 +140,23 @@ void SirveApp::SetupUi() {
     connect(btn_delete_state, &QPushButton::clicked, this, &SirveApp::DeleteState);
 	QLabel *lbl_processing_state = new QLabel("Processing State:");
 	lbl_processing_state->setFixedWidth(110);
-	lbl_processing_description = new QLabel("");
-	lbl_processing_description->setFixedHeight(60);
+    lbl_processing_description = new QLabel("");
 	lbl_processing_description->setWordWrap(true);
-	lbl_processing_description->setStyleSheet("border: 1px solid gray; border-color: rgb(245, 200, 125); border-width: 1px; margin: 5px 5px;");
+    scrollarea_processing_description = new QScrollArea(); 
+    scrollarea_processing_description->setWidgetResizable(true);
+    scrollarea_processing_description->setWidget(lbl_processing_description);
+    scrollarea_processing_description->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollarea_processing_description->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    QVBoxLayout *vlayout_processing_description = new QVBoxLayout(scrollarea_processing_description);
+    vlayout_processing_description->addWidget(lbl_processing_description);
+    QSpacerItem * d_bottom_vertical_spacer = new QSpacerItem(100, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    vlayout_processing_description->addItem(d_bottom_vertical_spacer);
     grid_status_area->addWidget(grpbox_load_frames_area,0,0,1,-1);
-    grid_status_area->addWidget(lbl_processing_description,1,0,1,-1);
+    grid_status_area->addWidget(scrollarea_processing_description,1,0,1,-1);
     grid_status_area->addWidget(lbl_processing_state,2,0,1,1);
 	grid_status_area->addWidget(cmb_processing_states,2,1,1,6);
 	grid_status_area->addWidget(btn_undo_step,2,7,1,1);
     grid_status_area->addWidget(btn_delete_state,2,8,1,1);
-    // grid_status_area->addWidget(grpbox_progressbar_area,3,0,1,7);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     main_layout->addWidget(tab_menu,0,0,4,1);
@@ -312,7 +318,8 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     QGroupBox *grpbox_scale_options = new QGroupBox();
     QGridLayout *grid_grpbox_scale_options = new QGridLayout();
     grpbox_scale_options->setLayout(grid_grpbox_scale_options);
-    grpbox_scale_options->setStyleSheet("border: 0px solid gray; border-width: 0px;");
+    grpbox_scale_options->setObjectName("grpbox_scale_options");
+    grpbox_scale_options->setStyleSheet("#grpbox_scale_options {border: 0px solid gray; border-width: 0px;}");
     rad_scale_by_frame = new QRadioButton("Scale by frame maximum");
     rad_scale_by_frame->setAutoExclusive(true);
     rad_scale_by_frame->setChecked(true);
@@ -426,8 +433,10 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
 
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
-	lbl_bad_pixel_count->setStyleSheet("background-color: rgb(210,210,210);");
+	// lbl_bad_pixel_count->setStyleSheet("background-color: rgb(210,210,210);");
 	lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+    chk_bad_pixels_from_original = new QCheckBox("Use Original Data");
+    chk_bad_pixels_from_original->setChecked(true);
 	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
 	cmb_bad_pixels_type = new QComboBox();
 	cmb_bad_pixels_type->setFixedWidth(150);
@@ -468,23 +477,24 @@ QWidget* SirveApp::SetupProcessingTab() {
     QSpacerItem *spacerItem = new QSpacerItem(50,1);
 
     grid_bad_pixels->addWidget(lbl_bad_pixel_count, 0, 0, 1, -1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_type, 1, 0, 1, 1);
-    grid_bad_pixels->addWidget(cmb_bad_pixels_type, 1, 1, 1, 2);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_method, 2, 0, 1, 1);
-    grid_bad_pixels->addWidget(cmb_outlier_processing_type, 2, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 3, 0, 1, 1);
-    grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 3, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 4, 0, 1, 1);
-    grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 4, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_moving_median_window_length, 5, 0, 1, 1);
-    grid_bad_pixels->addWidget(txt_moving_median_N, 5, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 2, 3, 1, 1);
-    grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 2, 4, 1, 1);
-    grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 4, 4, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_color, 3, 3, 1, 1);
-    grid_bad_pixels->addWidget(cmb_bad_pixel_color,3, 4, 1,1);
-    grid_bad_pixels->addWidget(btn_bad_pixel_identification, 5, 4, 1, 1);
-    grid_bad_pixels->addItem(spacerItem,5,5);
+    grid_bad_pixels->addWidget(chk_bad_pixels_from_original,1,0,1,1);
+    grid_bad_pixels->addWidget(lbl_bad_pixel_type, 2, 0, 1, 1);
+    grid_bad_pixels->addWidget(cmb_bad_pixels_type, 2, 1, 1, 2);
+    grid_bad_pixels->addWidget(lbl_bad_pixel_method, 3, 0, 1, 1);
+    grid_bad_pixels->addWidget(cmb_outlier_processing_type, 3, 1, 1, 1);
+    grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 4, 0, 1, 1);
+    grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 4, 1, 1, 1);
+    grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 5, 0, 1, 1);
+    grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 5, 1, 1, 1);
+    grid_bad_pixels->addWidget(lbl_moving_median_window_length, 6, 0, 1, 1);
+    grid_bad_pixels->addWidget(txt_moving_median_N, 6, 1, 1, 1);
+    grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 3, 3, 1, 1);
+    grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 3, 4, 1, 1);
+    grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 5, 4, 1, 1);
+    grid_bad_pixels->addWidget(lbl_bad_pixel_color, 4, 3, 1, 1);
+    grid_bad_pixels->addWidget(cmb_bad_pixel_color, 4, 4, 1,1);
+    grid_bad_pixels->addWidget(btn_bad_pixel_identification, 6, 4, 1, 1);
+    grid_bad_pixels->addItem(spacerItem,7,5);
 
     // ------------------------------------------------------------------------
 
@@ -507,7 +517,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-	lbl_fixed_suppression->setStyleSheet("background-color: rgb(210,210,210);");
+	// lbl_fixed_suppression->setStyleSheet("background-color: rgb(210,210,210);");
 	chk_FNS_external_file = new QCheckBox("External File");
 	chk_FNS_external_file->setFixedWidth(150);
 	lbl_FNS_start_frame = new QLabel("Start:");
@@ -532,7 +542,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_ANS_processing = new QGroupBox("");
 	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-	lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(210,210,210);");
+	// lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(210,210,210);");
 	lbl_adaptive_noise_suppression_status->setFixedHeight(100);
 	lbl_ANS_offset_frames = new QLabel("Offset:");
 	lbl_ANS_offset_frames->setFixedWidth(60);
@@ -564,8 +574,9 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grid_ANS_processing->addWidget(cmb_shadow_threshold, 3, 2, 1, 1);
 	grid_ANS_processing->addWidget(btn_ANS, 3, 4, 1, 2);
 	QGroupBox *grpbox_RPCP_processing = new QGroupBox("");
+    grpbox_RPCP_processing->setObjectName("grpbox_RPCP_processing");
 	grpbox_RPCP_processing->setFlat(true);
-	grpbox_RPCP_processing->setStyleSheet("border-width: 0px;");
+	grpbox_RPCP_processing->setStyleSheet("#grpbox_RPCP_processing {border-width: 0px;}");
 	QGridLayout* grid_RPCP_processing = new QGridLayout(grpbox_RPCP_processing);
 	btn_RPCP = new QPushButton("RPCP Noise Suppression");
 	btn_RPCP->setFixedWidth(200);
@@ -1298,11 +1309,6 @@ void SirveApp::LoadWorkspace()
         for (auto i = 1; i < workspace_vals.all_states.size(); i++)
         {
             processingState current_state = workspace_vals.all_states[i];
-            if (current_state.replaced_pixels.size() > 0)
-                {
-                    std::vector<unsigned int> bad_pixels = current_state.replaced_pixels;
-                    ReplaceBadPixels(bad_pixels,current_state.source_state_ID);
-                }
 
             switch (current_state.method)
             {
@@ -1310,49 +1316,46 @@ void SirveApp::LoadWorkspace()
                 {
                     break;
                 }
+                case ProcessingMethod::replace_bad_pixels:
+                {
+                    ReplaceBadPixels(current_state.replaced_pixels,current_state.source_state_ID);
+                    break;
+                }
                 case ProcessingMethod::RPCP_noise_suppression:
                 {
-                    int source_state_ID = current_state.source_state_ID ;
-                    ApplyRPCPNoiseSuppression(source_state_ID);
+                    ApplyRPCPNoiseSuppression(current_state.source_state_ID);
                     break;
                 }
 
                 case ProcessingMethod::adaptive_noise_suppression:
                 {
-                    int source_state_ID = current_state.source_state_ID ;
-                    ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, current_state.ANS_hide_shadow, current_state.ANS_shadow_threshold, source_state_ID);
+                    ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, current_state.ANS_hide_shadow, current_state.ANS_shadow_threshold,current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::deinterlace:{
-                    int source_state_ID = current_state.source_state_ID ;
-                    ApplyDeinterlacing(source_state_ID);
+                    ApplyDeinterlacing(current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::fixed_noise_suppression:{
-                    int source_state_ID = current_state.source_state_ID ;
-                    ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame, source_state_ID);
+                    ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_OSM:{
                     QString trackTypePriority = "OSM";
-                    int source_state_ID = current_state.source_state_ID ;
-                    CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, source_state_ID);
+                    CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_manual:{
                     QString trackTypePriority = "manual";
-                    int source_state_ID = current_state.source_state_ID ;
-                    CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, source_state_ID);
+                    CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_brightest:{
-                    int source_state_ID = current_state.source_state_ID ;
-                    CenterOnBrightest(current_state.offsets,source_state_ID);
+                    CenterOnBrightest(current_state.offsets,current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::frame_stacking:{
-                    int source_state_ID = current_state.source_state_ID ;
-                    FrameStacking(current_state.frame_stack_num_frames, source_state_ID);
+                    FrameStacking(current_state.frame_stack_num_frames, current_state.source_state_ID);
                     break;
                 }
                 default:
@@ -2570,86 +2573,90 @@ void SirveApp::ApplyEpochTime()
 
 void SirveApp::HandleBadPixelReplacement()
 {
-    // auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue?");
-    processingState new_state = video_display->container.processing_states[0];
+    processingState new_state = video_display->container.processing_states[cmb_processing_states->currentIndex()];
     int number_video_frames = static_cast<int>(new_state.details.frames_16bit.size());
-    // if (response == QMessageBox::Yes) {
 
-        bool ok;
+    bool ok;
 
-        int type_choice = cmb_bad_pixels_type->currentIndex();
+    int type_choice = cmb_bad_pixels_type->currentIndex();
 
-        int outlier_method = cmb_outlier_processing_type->currentIndex();
+    int outlier_method = cmb_outlier_processing_type->currentIndex();
 
-        int outlier_sensitivity = cmb_outlier_processing_sensitivity->currentIndex();
+    int outlier_sensitivity = cmb_outlier_processing_sensitivity->currentIndex();
 
-        double N = 6.0;
-        if (type_choice != 1){
+    double N = 6.0;
+    if (type_choice != 1){
 
-            if (outlier_sensitivity == 0){
-                N = 6.0;
-            }
-            else if (outlier_sensitivity == 1){
-                N = 5.0;
-            }
-            else if (outlier_sensitivity == 2){
-                N = 4.0;
-            }
-            else{
-                N = 3.0;
-            }
+        if (outlier_sensitivity == 0){
+            N = 6.0;
         }
+        else if (outlier_sensitivity == 1){
+            N = 5.0;
+        }
+        else if (outlier_sensitivity == 2){
+            N = 4.0;
+        }
+        else{
+            N = 3.0;
+        }
+    }
 
-        int start_frame = txt_bad_pixel_start_frame->text().toInt();
-        int end_frame = txt_bad_pixel_end_frame->text().toInt();
+    int start_frame = std::max(txt_bad_pixel_start_frame->text().toInt(),0);
+    int end_frame = std::min(txt_bad_pixel_end_frame->text().toInt(),std::max(start_frame+500,number_video_frames));
+    std::vector<std::vector<uint16_t>> test_data;
+    if (chk_bad_pixels_from_original->isChecked()){
         ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
-        lbl_progress_status->setText(QString("Finding bad pixels..."));
-        grpbox_progressbar_area->setEnabled(true);
-        progress_bar_main->setRange(0,number_video_frames - 1);
-        progress_bar_main->setTextVisible(true);
-        std::vector<unsigned int> dead_pixels;
-        ImageProcessing BP;
-        connect(&BP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-        connect(btn_cancel_operation, &QPushButton::clicked, &BP, &ImageProcessing::CancelOperation);
-        if(type_choice == 0){
-            lbl_progress_status->setText(QString("Finding dead pixels..."));
-            arma::uvec index_dead0 = BP.FindDeadBadscalePixels(test_frames.video_frames_16bit);
-            lbl_progress_status->setText(QString("Finding outlier pixels..."));
-            if (outlier_method == 0){
-                arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit);
-                index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
-                dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
-            }
-            else{
-                u_int window_length = txt_moving_median_N->text().toUInt();
-                arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit);
-                index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
-                dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
-            }
-        } else if (type_choice == 1){
-            lbl_progress_status->setText(QString("Finding outlier pixels..."));
-            arma::uvec index_dead1 = BP.FindDeadBadscalePixels(test_frames.video_frames_16bit);
-            dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
-        } else {
-            lbl_progress_status->setText(QString("Finding outlier pixels..."));
-            if (outlier_method == 0){
-                arma::uvec index_outlier2 = BP.IdentifyBadPixelsMedian(N,test_frames.video_frames_16bit);
-                dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
-            }
-            else{
-                u_int window_length = txt_moving_median_N->text().toUInt();
-                arma::uvec index_outlier2 = BP.IdentifyBadPixelsMovingMedian(window_length,N,test_frames.video_frames_16bit);
-                dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
-            }
+        test_data = test_frames.video_frames_16bit;
+    }
+    else{
+        test_data = new_state.details.frames_16bit;
+    }
+    lbl_progress_status->setText(QString("Finding bad pixels..."));
+    grpbox_progressbar_area->setEnabled(true);
+    progress_bar_main->setRange(0,number_video_frames - 1);
+    progress_bar_main->setTextVisible(true);
+    std::vector<unsigned int> dead_pixels;
+    ImageProcessing BP;
+    connect(&BP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, &BP, &ImageProcessing::CancelOperation);
+    if(type_choice == 0){
+        lbl_progress_status->setText(QString("Finding dead pixels..."));
+        arma::uvec index_dead0 = BP.FindDeadBadscalePixels(test_data);
+        lbl_progress_status->setText(QString("Finding outlier pixels..."));
+        if (outlier_method == 0){
+            arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMedian(N,test_data);
+            index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
+            dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
         }
-        if(dead_pixels.size()>0){
-            ReplaceBadPixels(dead_pixels,cmb_processing_states->currentIndex());
+        else{
+            u_int window_length = txt_moving_median_N->text().toUInt();
+            arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMovingMedian(window_length,N,test_data);
+            index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
+            dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
         }
-        progress_bar_main->setValue(0);
-        progress_bar_main->setTextVisible(false);
-        lbl_progress_status->setText(QString(""));
-        grpbox_progressbar_area->setEnabled(false);
-    // }
+    } else if (type_choice == 1){
+        lbl_progress_status->setText(QString("Finding outlier pixels..."));
+        arma::uvec index_dead1 = BP.FindDeadBadscalePixels(test_data);
+        dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
+    } else {
+        lbl_progress_status->setText(QString("Finding outlier pixels..."));
+        if (outlier_method == 0){
+            arma::uvec index_outlier2 = BP.IdentifyBadPixelsMedian(N,test_data);
+            dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
+        }
+        else{
+            u_int window_length = txt_moving_median_N->text().toUInt();
+            arma::uvec index_outlier2 = BP.IdentifyBadPixelsMovingMedian(window_length,N,test_data);
+            dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
+        }
+    }
+    if(dead_pixels.size()>0){
+        ReplaceBadPixels(dead_pixels,cmb_processing_states->currentIndex());
+    }
+    progress_bar_main->setValue(0);
+    progress_bar_main->setTextVisible(false);
+    lbl_progress_status->setText(QString(""));
+    grpbox_progressbar_area->setEnabled(false);
 }
 
 
@@ -2688,7 +2695,9 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
     processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
     int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
     processingState new_state = original;
-    
+    new_state.ancestors.clear();
+    new_state.descendants.clear();
+    new_state.method = ProcessingMethod::replace_bad_pixels;
     int number_video_frames = static_cast<int>(new_state.details.frames_16bit.size());
     new_state.replaced_pixels = pixels_to_replace;
     lbl_progress_status->setText(QString("Replacing bad pixels..."));
@@ -2703,6 +2712,7 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
     if(pixels_to_replace.size()>0){
+        new_state.source_state_ID = source_state_ind;
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
@@ -2712,6 +2722,14 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Replace Bad Pixels] ");
         video_display->container.AddProcessingState(new_state);
         lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
         chk_highlight_bad_pixels->setEnabled(true);
@@ -2864,6 +2882,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Fixed Noise Suppression] ");
         video_display->container.AddProcessingState(new_state);
 
         QFileInfo fi(file_path);
@@ -2936,6 +2955,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Deinterlace] ");
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3048,6 +3068,7 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Center on Tracks] ");
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3100,6 +3121,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
+                new_state.process_steps.push_back(" [Center on Brightest] ");
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3207,6 +3229,7 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Frame Stacking] ");
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3293,6 +3316,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Adaptive Noise Suppression] ");
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3351,6 +3375,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
             result += std::to_string(new_state.state_ID);
             QString state_steps = QString::fromStdString(result);
             new_state.state_steps = state_steps;
+            new_state.process_steps.push_back(" [RPCP Noise Suppression] ");
             video_display->container.AddProcessingState(new_state);
         }
     }
@@ -3523,16 +3548,16 @@ void SirveApp::DeleteState()
     std::vector<processingState> all_states = video_display->container.processing_states;
     std::vector<u_int> delete_states_i;
     int current_state_id0 = original.state_ID;
-
+    bool ischanged = false;
+    
     if (descendants.size()>0){
-        auto response = QtHelpers::LaunchYesNoMessageBox("Deletion Confirmation", "Deleting this state will delete all children states. Are you sure you want to continue?");
+        auto response = QtHelpers::LaunchYesNoMessageBox("Deletion Confirmation", "Deleting this state will delete all derived states. Are you sure you want to continue?");
         if (response == QMessageBox::Yes){
             delete_states_i.push_back(current_state_idx0);
             for (int i = 0; i < all_states.size(); i++){
                 std::vector<unsigned int> ancestors = video_display->container.processing_states[i].ancestors;
                 auto it = std::find(ancestors.begin(), ancestors.end(), current_state_id0); 
                 if (it != ancestors.end()){
-                    int current_state_id = all_states[i].state_ID;
                     delete_states_i.push_back(i);
                 }
             }
@@ -3540,68 +3565,72 @@ void SirveApp::DeleteState()
             for (auto i = 0; i <  delete_states_i.size() ;i++){
                 cmb_processing_states->removeItem(delete_states_i[i]);
                 all_states.erase(all_states.begin() + delete_states_i[i]);  
-            }      
+            }   
+            ischanged = true;   
         }       
     }
     else {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Deletion Confirmation", "This cannot be undone. Are you sure you want to continue?");
-        if (response == QMessageBox::Yes){
-            int delete_idx = cmb_processing_states->currentIndex();
-            all_states.erase(all_states.begin() + delete_idx);
-        }
+        int delete_idx = cmb_processing_states->currentIndex();
+        cmb_processing_states->removeItem(delete_idx);
+        all_states.erase(all_states.begin() + delete_idx);
+        ischanged = true; 
     }
 
-    std::map<int,int> id_map;
+    if (ischanged){
+        std::map<int,int> id_map;
+        for (auto i = 0; i <  all_states.size() ;i++){
+            id_map[all_states[i].state_ID] = i;
+        }   
+        QList<QString> tmp_state_desc;
+        for (auto i = 0; i < cmb_processing_states->count() ;i++){
+            tmp_state_desc.append(cmb_processing_states->itemText(i));
+        } 
+        QList<QString> new_labels;
+        for (auto i = 0; i <  all_states.size() ;i++){
+            for (auto j = 0; j <  all_states[i].ancestors.size() ;j++){
+                all_states[i].ancestors[j] = id_map[all_states[i].ancestors[j]];
+            }
+            for (auto k = 0; k < all_states[i].descendants.size(); k++){
+                all_states[i].descendants[k] = id_map[all_states[i].descendants[k]];
+            }
+            QString desc = all_states[i].state_description;
+            desc.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
-    for (auto i = 0; i <  all_states.size() ;i++){
-        id_map[all_states[i].state_ID] = i;
-    }   
+            QString desc2 = desc;
+            QString tmp0 = "<Source State " + QString::number(all_states[i].source_state_ID) + ">";
+            desc2.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
 
-    QList<QString> new_labels;
-    for (auto i = 0; i <  all_states.size() ;i++){
-        cmb_processing_states->setCurrentIndex(i);
-        for (auto j = 0; j <  all_states[i].ancestors.size() ;j++){
-            all_states[i].ancestors[j] = id_map[all_states[i].ancestors[j]];
-        }
-        for (auto k = 0; k < all_states[i].descendants.size(); k++){
-            all_states[i].descendants[k] = id_map[all_states[i].descendants[k]];
-        }
-        QString desc = all_states[i].state_description;
-        desc.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
+            std::string result;
+            for (auto num : all_states[i].ancestors) {
+                result += std::to_string(num) + " -> ";
+            }
+            result += std::to_string(i);
+            QString state_steps = QString::fromStdString(result);
 
-        QString desc2 = desc;
-        QString tmp0 = "<Source State " + QString::number(all_states[i].source_state_ID) + ">";
-        desc2.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            QString desc2b = desc2;
+            int index = desc2b.lastIndexOf("State steps:");
+            if (index !=-1){
+                int nchars = desc2b.length() - (index+13);
+                desc2b.replace(index + 13,nchars,state_steps);
+            }
+            QString desc3 = tmp_state_desc[id_map[all_states[i].state_ID]];
+            desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
-        std::string result;
-        for (auto num : all_states[i].ancestors) {
-            result += std::to_string(num) + " -> ";
-        }
-        result += std::to_string(i);
-        QString state_steps = QString::fromStdString(result);
+            QString desc4 = desc3;
+            desc4.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            new_labels.append(desc4);
 
-        QString desc2b = desc2;
-        int index = desc2b.lastIndexOf("State steps:");
-        if (index !=-1){
-            int nchars = desc2b.length() - (index+13);
-            desc2b.replace(index + 13,nchars,state_steps);
-        }
-        QString desc3 = cmb_processing_states->currentText();
-        desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
+            all_states[i].state_ID = i;
+            all_states[i].source_state_ID = id_map[all_states[i].source_state_ID];
+            all_states[i].state_description = desc2b;
+            all_states[i].state_steps = state_steps;
+        } 
 
-        QString desc4 = desc3;
-        desc4.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
-        new_labels.append(desc4);
-
-        all_states[i].state_ID = i;
-        all_states[i].source_state_ID = id_map[all_states[i].source_state_ID];
-        all_states[i].state_description = desc2b;
-        all_states[i].state_steps = state_steps;
-    } 
-
-    cmb_processing_states->clear();
-    for (auto i = 0; i <  new_labels.size() ;i++){
-        cmb_processing_states->addItem(new_labels[i]);
+        cmb_processing_states->clear();
+        for (auto i = 0; i <  new_labels.size() ;i++){
+            cmb_processing_states->addItem(new_labels[i]);
+        }     
+        cmb_processing_states->setCurrentIndex(cmb_processing_states->count());
     }
     video_display->container.processing_states = all_states;
 }
