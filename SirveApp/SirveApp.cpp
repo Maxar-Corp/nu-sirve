@@ -3477,7 +3477,6 @@ void SirveApp::DeleteState()
 
     if (descendants.size()>0){
         auto response = QtHelpers::LaunchYesNoMessageBox("Deletion Confirmation", "Deleting this state will delete all children states. Are you sure you want to continue?");
-
         if (response == QMessageBox::Yes){
             delete_states_i.push_back(current_state_idx0);
             for (int i = 0; i < all_states.size(); i++){
@@ -3500,8 +3499,46 @@ void SirveApp::DeleteState()
         if (response == QMessageBox::Yes){
             int delete_idx = cmb_processing_states->currentIndex();
             all_states.erase(all_states.begin() + delete_idx);
-            cmb_processing_states->removeItem(delete_idx);
         }
+    }
+
+    std::map<int,int> id_map;
+
+    for (auto i = 0; i <  all_states.size() ;i++){
+        id_map[all_states[i].state_ID] = i;
+    }   
+
+    QList<QString> new_labels;
+    for (auto i = 0; i <  all_states.size() ;i++){
+        cmb_processing_states->setCurrentIndex(i);
+        for (auto j = 0; j <  all_states[i].ancestors.size() ;j++){
+            all_states[i].ancestors[j] = id_map[all_states[i].ancestors[j]];
+        }
+        for (auto k = 0; k < all_states[i].descendants.size(); k++){
+            all_states[i].descendants[k] = id_map[all_states[i].descendants[k]];
+        }
+        QString desc = all_states[i].state_description;
+        desc.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
+
+        QString desc2 = desc;
+        QString tmp0 = "<Source State " + QString::number(all_states[i].source_state_ID) + ">";
+        desc2.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+
+        QString desc3 = cmb_processing_states->currentText();
+        desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
+
+        QString desc4 = desc3;
+        desc4.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+
+        new_labels.append(desc4);
+        all_states[i].state_ID = i;
+        all_states[i].source_state_ID = id_map[all_states[i].source_state_ID];
+        all_states[i].state_description = desc2;
+    } 
+
+    cmb_processing_states->clear();
+    for (auto i = 0; i <  new_labels.size() ;i++){
+        cmb_processing_states->addItem(new_labels[i]);
     }
     video_display->container.processing_states = all_states;
 }
