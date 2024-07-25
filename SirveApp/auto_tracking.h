@@ -33,7 +33,7 @@ public:
 
     // TrackDetails SingleTracker(int start_frame, int stop_frame, VideoDetails & original);
 
-    void SingleTracker(int frame0, int start_frame, int stop_frame, VideoDetails original);
+    arma::u32_mat SingleTracker(u_int track_id, int frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
 
 signals:
      void SignalProgress(unsigned int frameval);

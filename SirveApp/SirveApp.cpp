@@ -388,6 +388,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     cmb_tracker_color->addItems(colors);
     cmb_text_color->addItems(colors);
     cmb_tracker_color->setEnabled(true);
+    cmb_tracker_color->setCurrentIndex(4);
 
     grid_overlay_controls->addWidget(chk_show_tracks,0,0);
     grid_overlay_controls->addWidget(cmb_tracker_color,0,1);
@@ -1541,8 +1542,8 @@ void SirveApp::LoadOsmData()
 
     // Reset settings on video playback to defaults
     chk_show_tracks->setChecked(true);
-    chk_show_time->setChecked(true);
-    chk_sensor_track_data->setChecked(true);
+    chk_show_time->setChecked(false);
+    chk_sensor_track_data->setChecked(false);
     cmb_text_color->setCurrentIndex(0);
     video_display->InitializeToggles();
 
@@ -3405,13 +3406,45 @@ void SirveApp::ExecuteAutoTracking()
     connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
     int frame0 = data_plots->index_sub_plot_xmin + 1;
-    int start_frame = video_display->counter;
-    int stop_frame = start_frame + 100;
-    progress_bar_main->setRange(0,stop_frame - start_frame +1);
-    TrackDetails ATD;
-    AT.SingleTracker(frame0, start_frame, stop_frame, original.details);
+    int start_frame = video_display->counter + 1;
+    int stop_frame = number_video_frames - start_frame + 1;
+    progress_bar_main->setRange(0,stop_frame - start_frame + 1);
 
-    TrackFileReadResult result = track_info->ReadTracksFromFile("auto_track99.csv");
+    bool ok;
+    u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
+    if (!ok || track_id < 0)
+    {
+        return;
+    }
+
+    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
+        if (response == QMessageBox::Yes)
+        {
+            std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
+            PrepareForTrackCreation(track_id);
+            video_display->EnterTrackCreationMode(existing_track_details);
+        }
+    }
+    else
+    {
+    // std::vector<std::optional<TrackDetails>> empty_track_details = track_info->GetEmptyTrack();
+
+    QString base_track_folder = config_values.workspace_folder;
+    QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id);
+    QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
+    if (new_track_file_name.isEmpty())
+    {
+        QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+        return;
+    }
+    arma::u32_mat autotrack = AT.SingleTracker(track_id, frame0, start_frame, stop_frame, original.details, new_track_file_name);
+
+    autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
+
+    TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
 
     if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
     {
@@ -3448,6 +3481,7 @@ void SirveApp::ExecuteAutoTracking()
     progress_bar_main->setTextVisible(false);
     grpbox_progressbar_area->setEnabled(false);
     UpdatePlots();
+    }
 }
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)

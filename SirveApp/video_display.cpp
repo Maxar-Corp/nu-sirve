@@ -65,7 +65,7 @@ void VideoDisplay::InitializeToggles()
 {
 	banner_color = QString("red");
 	banner_text = QString("EDIT CLASSIFICATION");
-	tracker_color = QString("red");
+	tracker_color = QString("blue");
 	QColor new_color(QString("Yellow"));
 	bad_pixel_color = new_color;
 }
