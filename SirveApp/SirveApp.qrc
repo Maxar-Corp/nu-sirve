@@ -3,7 +3,31 @@
         <file>stylesheets/Aqua.qss</file>
         <file>stylesheets/MacOS.qss</file>
         <file>stylesheets/Ubuntu.qss</file>
-	<file>stylesheets/AMOLED.qss</file>
-	<file>stylesheets/Modified_Ubuntu.qss</file>
+        <file>stylesheets/AMOLED.qss</file>
+        <file>stylesheets/Modified_Ubuntu.qss</file>
+        <file>icons/cancel.png</file>
+        <file>icons/check.png</file>
+        <file>icons/chevron-double-down.png</file>
+        <file>icons/chevron-double-up.png</file>
+        <file>icons/content-save.png</file>
+        <file>icons/crosshair.png</file>
+        <file>icons/crosshair-golden.png</file>
+        <file>icons/crosshair-golden_pinpoint.png</file>
+        <file>icons/crosshair-golden_pinpointb.png</file>
+        <file>icons/expand.png</file>
+        <file>icons/magnify.png</file>
+        <file>icons/menu.png</file>
+        <file>icons/pause.png</file>
+        <file>icons/play.png</file>
+        <file>icons/play-pause.png</file>
+        <file>icons/record.png</file>
+        <file>icons/record-rec.png</file>
+        <file>icons/reverse.png</file>
+        <file>icons/signal.png</file>
+        <file>icons/skip-backward.png</file>
+        <file>icons/skip-forward.png</file>
+        <file>icons/skip-next.png</file>
+        <file>icons/skip-previous.png</file>
+        <file>icons/stop.png</file>
     </qresource>
 </RCC>
