@@ -163,7 +163,8 @@ void SirveApp::SetupUi() {
     main_layout->addWidget(tab_menu,1,0,3,1);
     main_layout->addWidget(frame_video_player,0,1,6,1);
     main_layout->addWidget(tab_plots,0,2,6,1);
-    main_layout->addWidget(grpbox_status_area,4,0,1,1);
+    main_layout->addWidget(grpbox_status_area,4
+    ,0,1,1);
     main_layout->addWidget(grpbox_progressbar_area,5,0,1,1);
 
     QFrame* frame_main = new QFrame();
@@ -691,7 +692,10 @@ QWidget* SirveApp::SetupTracksTab(){
     track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     grid_workspace->addWidget(track_management_scroll_area, 3, 0, -1, -1);
 
+    btn_auto_track_target = new QPushButton("Auto Tracker");
     vlayout_tab_workspace->addLayout(grid_workspace);
+    vlayout_tab_workspace->addWidget(btn_auto_track_target);
+    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     vlayout_tab_workspace->insertStretch(-1, 0);
     return widget_tab_tracks;
 }
@@ -1190,7 +1194,7 @@ void SirveApp::HandleFinishCreateTrackClick()
 
     if (response == QMessageBox::Yes)
     {
-        QString base_track_folder = config_values.workspace_folder;;
+        QString base_track_folder = config_values.workspace_folder;
         QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", base_track_folder, "CSV (*.csv)");
         if (new_track_file_name.isEmpty())
         {
@@ -2115,7 +2119,7 @@ void SirveApp::ExportFrame()
     QDate today = QDate::currentDate();
     QTime currentTime = QTime::currentTime();;
     QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-    QString current_frame = QString::number(video_display->counter + 1);
+    QString current_frame = QString::number(video_display->counter + data_plots->index_sub_plot_xmin + 1);
     QString initial_name = abpimage_file_base_name + "_Frame_" + current_frame + "_" + formattedDate;
 
     QString savefile_name = QFileDialog::getSaveFileName(this, tr("Save File Name"), config_values.workspace_folder + "/" + initial_name, tr("Data files *.bin"));
@@ -2165,9 +2169,11 @@ void SirveApp::ExportFrameRange()
         int startframe = start_frame.toInt() - 1;
         int endframe = end_frame.toInt() - 1;
         int num_video_frames = endframe - startframe + 1;
+        int start_framei = startframe - data_plots->index_sub_plot_xmin;
+        int end_framei = start_framei + num_video_frames - 1;
         arma::u32_cube frame_cube(nRows,nCols,num_video_frames);
         int k = 0;
-        for (int framei = startframe; framei < endframe; framei++){
+        for (int framei = start_framei; framei < end_framei; framei++){
             std::vector<uint16_t> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[framei].begin(),
                     video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[framei].end()};
             frame_cube.slice(k) = arma::reshape(arma::conv_to<arma::u32_vec>::from(original_frame_vector),nCols,nRows).t();
@@ -3384,6 +3390,64 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
     {
         QtHelpers::LaunchMessageBox(QString("Low memory"), "Insufficient memory for this operation. Please select fewer frames.");
     }
+}
+
+void SirveApp::ExecuteAutoTracking()
+{
+    playback_controller->StopTimer();
+    processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
+    int source_state_ind = video_display->container.processing_states[cmb_processing_states->currentIndex()].state_ID;
+    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+    AutoTracking AT;
+
+    progress_bar_main->setTextVisible(true);
+    grpbox_progressbar_area->setEnabled(true);
+    connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
+    int frame0 = data_plots->index_sub_plot_xmin + 1;
+    int start_frame = video_display->counter;
+    int stop_frame = start_frame + 100;
+    progress_bar_main->setRange(0,stop_frame - start_frame +1);
+    TrackDetails ATD;
+    AT.SingleTracker(frame0, start_frame, stop_frame, original.details);
+
+    TrackFileReadResult result = track_info->ReadTracksFromFile("auto_track99.csv");
+
+    if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
+    {
+        QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
+        return;
+    }
+
+    if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
+    {
+        QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
+        return;
+    }
+
+    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    for ( int track_id : result.track_ids )
+    {
+        if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+        {
+            QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
+        }
+        video_display->AddManualTrackIdToShowLater(track_id);
+        tm_widget->AddTrackControl(track_id);
+        cmb_manual_track_IDs->addItem(QString::number(track_id));
+    }
+
+    track_info->AddManualTracks(result.frames);
+
+    int index0 = data_plots->index_sub_plot_xmin;
+    int index1 = data_plots->index_sub_plot_xmax + 1;
+    video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+    data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+    lbl_progress_status->setText(QString(""));
+    progress_bar_main->setValue(0);
+    progress_bar_main->setTextVisible(false);
+    grpbox_progressbar_area->setEnabled(false);
+    UpdatePlots();
 }
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)

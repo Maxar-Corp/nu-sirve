@@ -15,6 +15,7 @@ HEADERS += abir_reader.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
             annotation_stencil.h \
+            auto_tracking.h\
             binary_file_reader.h \
             calibration_data.h \
             chart_metadata.h \
@@ -64,6 +65,7 @@ SOURCES += abir_reader.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \
             annotation_stencil.cpp \
+            auto_tracking.cpp\
             binary_file_reader.cpp \
             calibration_data.cpp \
             clickable_chartview.cpp \
