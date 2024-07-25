@@ -28,7 +28,7 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     yaxis_is_scientific = false;
     SetPlotTitle("EDIT CLASSIFICATION");
     current_chart_id = 0;
-
+    new_color = "blue";
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
@@ -140,14 +140,14 @@ void EngineeringPlots::PlotBoresightAzimuth()
     {
         std::vector<double> y_values = boresight_az;
 
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, base_color, true);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
     }
     else
     {
         std::vector<double> y_values(boresight_az.begin() + index_sub_plot_xmin, boresight_az.begin() + index_sub_plot_xmax + 1);
 
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, base_color, true);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
     }
 }
@@ -162,14 +162,14 @@ void EngineeringPlots::PlotBoresightElevation()
     {
         std::vector<double> y_values = boresight_el;
 
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, base_color, true);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 90);
     }
     else
     {
         std::vector<double> y_values(boresight_el.begin() + index_sub_plot_xmin, boresight_el.begin() + index_sub_plot_xmax + 1);
 
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, base_color, true);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 90);
     }
 }
@@ -184,14 +184,14 @@ void EngineeringPlots::PlotFovX()
     {
         std::vector<double> y_values = sensor_i_fov_x;
 
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, base_color, true);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 750);
     }
     else
     {
         std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
 
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, base_color, true);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 750);
     }
 }
@@ -206,14 +206,14 @@ void EngineeringPlots::PlotFovY()
     {
         std::vector<double> y_values = sensor_i_fov_y;
 
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, base_color, true);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 750);
     }
     else
     {
         std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
 
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, base_color, true);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 750);
     }
 }
@@ -223,15 +223,16 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries* series = new QLineSeries();
-        QColor base_color(colors.get_current_color());
-        series->setColor(base_color);
+        // QColor base_color(colors.get_current_color());
+        // QColor base_color = new_color;
+        series->setColor(new_color);
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
-        AddSeries(series, x_values, y_values, true);
+        AddSeries(series, x_values, y_values, new_color, true);
 
-        colors.get_next_color();
+        // colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -262,15 +263,16 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
-        QColor base_color(colors.get_current_color());
-        series->setColor(base_color);
+        // QColor base_color(colors.get_current_color());
+        // QColor base_color = new_color;
+        series->setColor(new_color);
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
-        AddSeries(series, x_values, y_values, true);
+        AddSeries(series, x_values, y_values, new_color, true);
 
-        colors.get_next_color();
+        // colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -303,15 +305,16 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
-        QColor base_color(colors.get_current_color());
-        series->setColor(base_color);
+        // QColor base_color(colors.get_current_color());
+        // QColor base_color = new_color;
+        series->setColor(new_color);
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-        AddSeries(series, x_values, y_values, true);
+        AddSeries(series, x_values, y_values, new_color, true);
 
-        colors.get_next_color();
+        // colors.get_next_color();
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
     }
@@ -580,6 +583,12 @@ void EngineeringPlots::Recolor_manual_track(int track_id, QColor new_color)
     manual_track_colors[track_id] = new_color;
 }
 
+void EngineeringPlots::Recolor_OSM_track(QString new_color0)
+{
+    new_color = QColor(new_color0);
+    PlotChart();
+}
+
 void EngineeringPlots::HandlePlayerButtonClick()
 {
     QPushButton *button = qobject_cast<QPushButton*>(sender());
@@ -721,6 +730,7 @@ QtPlotting::QtPlotting()
     axis_x = new QValueAxis;
     axis_y = new QValueAxis;
     axis_ylog = new QLogValueAxis;
+    // new_color = "blue";
 }
 
 QtPlotting::~QtPlotting()
@@ -807,10 +817,12 @@ void QtPlotting::AddSeriesWithColor(std::vector<double> x, std::vector<double> y
     chart->addSeries(series);
 }
 
-void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data)
+void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, QColor new_color, bool broken_data)
 {
     size_t num_data_pts = x.size();
     int num_breaks = 0;
+    QPen pen;
+    pen.setColor(new_color);
 
     double base_x_distance = 1;
     if (num_data_pts > 1)
@@ -820,9 +832,9 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
         arma::vec diff = arma::diff(x_vector);
         base_x_distance = 1.5; //arma::median(diff);
     }
-
+  
     for (size_t i = 0; i < num_data_pts; i++)
-    {
+    {          
         if (i == 0)
         { //If first pt in series then continue...
             series->append(x[i], y[i]);
@@ -837,7 +849,7 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
             num_breaks++;
 
             series = new QLineSeries();
-            series->setColor(colors.get_current_color());
+            series->setPen(pen);
             series->append(x[i], y[i]);
         }
         else
@@ -847,7 +859,7 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
         }
     }
 
-    chart->addSeries(series);
+    // chart->addSeries(series);
     if ((num_breaks > 0) & broken_data)
         RemoveSeriesLegend();
 }

@@ -82,8 +82,10 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
         cv::Mat imCrop = dsti(ROI);
         // cv::cvtColor(imCrop,dsti2,cv::COLOR_BGR2GRAY);
         cv::Mat thr;
-        cv::threshold(imCrop, thr, 100,255,cv::THRESH_BINARY);
-        cv::Moments m = cv::moments(thr,true);
+        // cv::threshold(imCrop, thr, 100,255,cv::THRESH_BINARY);
+        cv::threshold(imCrop, thr, 100,255,cv::THRESH_OTSU);
+        cv::Moments m = cv::moments(thr,false);
+        // cv::Moments m = cv::moments(imCrop,false);
         cv::Point p(m.m10/m.m00, m.m01/m.m00);
         u_int centerX, centerY;
         if (p.x > 0 && p.y > 0){

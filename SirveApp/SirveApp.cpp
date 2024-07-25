@@ -2425,6 +2425,8 @@ void SirveApp::EditTrackerColor()
 {
     QString tracker_color = cmb_tracker_color->currentText();
     video_display->HandleTrackerColorUpdate(tracker_color);
+    data_plots->Recolor_OSM_track(tracker_color);
+    // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
 void SirveApp::handle_outlier_processing_change()
@@ -3397,7 +3399,6 @@ void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
     processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
-    int source_state_ind = video_display->container.processing_states[cmb_processing_states->currentIndex()].state_ID;
     int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
     AutoTracking AT;
 
@@ -3407,7 +3408,7 @@ void SirveApp::ExecuteAutoTracking()
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
     int frame0 = data_plots->index_sub_plot_xmin + 1;
     int start_frame = video_display->counter + 1;
-    int stop_frame = number_video_frames - start_frame + 1;
+    int stop_frame = number_video_frames;
     progress_bar_main->setRange(0,stop_frame - start_frame + 1);
 
     bool ok;
@@ -3729,8 +3730,8 @@ void SirveApp::DeleteState()
         for (auto i = 0; i <  new_labels.size() ;i++){
             cmb_processing_states->addItem(new_labels[i]);
         }     
-        cmb_processing_states->setCurrentIndex(cmb_processing_states->count());
     }
+    cmb_processing_states->setCurrentIndex(cmb_processing_states->count()-1);
     video_display->container.processing_states = all_states;
 }
 
