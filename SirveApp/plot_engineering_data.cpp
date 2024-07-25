@@ -254,9 +254,9 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
     else
+
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
 }
-
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 {
     for (size_t i = 0; i < plot_number_tracks; i++)
@@ -802,6 +802,7 @@ void QtPlotting::AddSeriesWithColor(std::vector<double> x, std::vector<double> y
         }
 
         series->append(x[i], y[i]);
+        base_x_distance = 1.5 * x[i] - x[i-1];
     }
 
     chart->addSeries(series);
