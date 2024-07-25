@@ -39,7 +39,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
     cv::Mat frame_matrix_8bit, frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color;
     cv::Mat imCrop, imCrop_gray;
     frame_matrix.convertTo(frame_matrix_8bit, CV_8UC1);
-    cv::fastNlMeansDenoising(frame_matrix_8bit, frame_matrix_filtered_8bit, 10,7,21);
+    // cv::fastNlMeansDenoising(frame_matrix_8bit, frame_matrix_filtered_8bit, 10,7,21);
+    cv::GaussianBlur(frame_matrix_8bit, frame_matrix_filtered_8bit, cv::Size(5,5), 0);
     cv::cvtColor(frame_matrix_filtered_8bit,frame_matrix_filtered_8bit_color,cv::COLOR_GRAY2RGB);
 
     Ptr<Tracker> tracker = TrackerMIL::create();
@@ -62,7 +63,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
         cv::Mat frame_matrix_i = cv::Mat(nrows,ncols,CV_64FC1,image_vector_i.memptr());
         cv::Mat frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, frame_matrix_i_filtered_8bit_color, frame_matrix_i_filtered_color;
         frame_matrix_i.convertTo(frame_matrix_i_8bit, CV_8UC1);
-        cv::fastNlMeansDenoising(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, 10,7,21);
+        // cv::fastNlMeansDenoising(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, 10,7,21);
+        cv::GaussianBlur(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, cv::Size(5,5), 0);
         frame_matrix_i_filtered_8bit.convertTo(frame_matrix_i_filtered_color,CV_32FC1);
         cv::cvtColor(frame_matrix_i_filtered_8bit,frame_matrix_i_filtered_8bit_color,cv::COLOR_GRAY2RGB);
         

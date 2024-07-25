@@ -121,7 +121,7 @@ void SirveApp::SetupUi() {
 	QGridLayout *grid_progressbar_area = new QGridLayout();
 	grpbox_progressbar_area->setLayout(grid_progressbar_area);
     grpbox_progressbar_area->setEnabled(false);
-    grpbox_progressbar_area->setFixedHeight(50);
+    // grpbox_progressbar_area->setFixedHeight(50);
 	progress_bar_main = new QProgressBar();
 	btn_cancel_operation = new QPushButton("Cancel");
 	btn_cancel_operation->setFixedWidth(75);
@@ -160,12 +160,11 @@ void SirveApp::SetupUi() {
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     main_layout->addWidget(grpbox_load_frames_area,0,0,1,1);
-    main_layout->addWidget(tab_menu,1,0,3,1);
+    main_layout->addWidget(tab_menu,1,0,4,1);
     main_layout->addWidget(frame_video_player,0,1,6,1);
     main_layout->addWidget(tab_plots,0,2,6,1);
-    main_layout->addWidget(grpbox_status_area,4
-    ,0,1,1);
-    main_layout->addWidget(grpbox_progressbar_area,5,0,1,1);
+    main_layout->addWidget(grpbox_status_area,5,0,1,1);
+    // main_layout->addWidget(grpbox_progressbar_area,5,0,1,1);
 
     QFrame* frame_main = new QFrame();
     frame_main->setLayout(main_layout);
@@ -219,7 +218,7 @@ void SirveApp::SetupUi() {
     QGroupBox *grpbox_status_lbl = new QGroupBox();
     QGridLayout * grid_status_lbl = new QGridLayout();
     grpbox_status_lbl->setLayout(grid_status_lbl);
-    QSpacerItem *hspacer_item30 = new QSpacerItem(30,1);
+    QSpacerItem *hspacer_item20 = new QSpacerItem(20,1);
     
     // grpbox_progressbar_area = new QGroupBox();
     // grpbox_progressbar_area->setObjectName("grpbox_progressbar_area");
@@ -232,26 +231,27 @@ void SirveApp::SetupUi() {
 	// grid_progressbar_area->addWidget(btn_cancel_operation,0,11,1,1);
 
     grid_status_bar->addWidget(lbl_file_name,0,0,1,1);
-    grid_status_bar->addItem(hspacer_item30,0,1,1,1);
+    grid_status_bar->addItem(hspacer_item20,0,1,1,1);
     grid_status_bar->addWidget(lbl_loaded_frames,0,2,1,1);
-    grid_status_bar->addItem(hspacer_item30,0,3,1,1);
+    grid_status_bar->addItem(hspacer_item20,0,3,1,1);
     grid_status_bar->addWidget(lbl_status_start_frame,0,4,1,1);
-    grid_status_bar->addItem(hspacer_item30,0,5,1,1);
+    grid_status_bar->addItem(hspacer_item20,0,5,1,1);
     grid_status_bar->addWidget(lbl_status_stop_frame,0,6,1,1);
-    grid_status_bar->addItem(hspacer_item30,0,7,1,1);
+    grid_status_bar->addItem(hspacer_item20,0,7,1,1);
     grid_status_bar->addWidget(lbl_current_workspace_folder,0,8,1,1);
     grid_status_bar->addWidget(lbl_current_workspace_folder_field,0,9,1,1);
-    grid_status_bar->addItem(hspacer_item30,0,10,1,1);
+    grid_status_bar->addItem(hspacer_item20,0,10,1,1);
     grid_status_bar->addWidget(lbl_workspace_name,0,11,1,1);
     grid_status_bar->addWidget(lbl_workspace_name_field,0,12,1,1);
-    grid_status_bar->addItem(hspacer_item30,0,13,1,1);
+    grid_status_bar->addItem(hspacer_item20,0,13,1,1);
     // grid_status_bar->addWidget(grpbox_progressbar_area,1,0,1,-1);
     grpbox_status_bar->setLayout(grid_status_bar);
     status_bar->addWidget(grpbox_status_bar);
-    grid_status_lbl->addItem(hspacer_item30,0,0,1,1);
-    grid_status_lbl->addWidget(lbl_progress_status,0,1,1,3);
-    grid_status_lbl->addItem(hspacer_item30,0,4,1,1);
-    status_bar->addPermanentWidget(grpbox_status_lbl);
+    // grid_status_lbl->addItem(hspacer_item20,0,0,1,1);
+    grid_status_lbl->addWidget(lbl_progress_status,0,0,1,1);
+    grid_status_lbl->addWidget(grpbox_progressbar_area,0,1,1,6);
+    // grid_status_lbl->addItem(hspacer_item20,0,9,1,1);
+    status_bar->addPermanentWidget(grpbox_status_lbl,1);
     // grpbox_progressbar_area->setEnabled(false);
     this->show();
 }
