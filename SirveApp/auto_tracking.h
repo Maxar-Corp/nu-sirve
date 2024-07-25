@@ -14,6 +14,7 @@
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/photo.hpp>
 
 using namespace std;
 using namespace cv;

@@ -34,9 +34,10 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
     int num_video_frames = original.frames_16bit.size();
     cv::Mat frame_matrix = cv::Mat(nrows,ncols,CV_64FC1,image_vector.memptr());
     cv::Mat frame_matrix_blurred;
-    cv:: Mat dst00;
-    frame_matrix.convertTo(dst00, CV_32FC1);
-    cv::bilateralFilter (dst00, frame_matrix_blurred, 9, 75, 75 );
+    // cv:: Mat dst00;
+    // frame_matrix.convertTo(dst00, CV_32FC1);
+    // cv::bilateralFilter (dst00, frame_matrix_blurred, 9, 75, 75 );
+    cv::GaussianBlur(frame_matrix, frame_matrix_blurred, cv::Size(5,5), 0);
     cv::Mat dst;
     frame_matrix_blurred.convertTo(dst, CV_8UC1);
     Ptr<Tracker> tracker = TrackerMIL::create();
@@ -57,11 +58,13 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
         cv::Mat frame_matrix_i = cv::Mat(nrows,ncols,CV_64FC1,image_vector_i.memptr());
         cv::Mat frame_matrix_i_blurred;
         cv::GaussianBlur(frame_matrix_i, frame_matrix_i_blurred, cv::Size(5,5), 0);
-        cv:: Mat dst00i;
-        frame_matrix_i.convertTo(dst00i, CV_32FC1);
+        // cv::fastNlMeansDenoising(frame_matrix_i, frame_matrix_i_blurred, 10,7,21);
+        // cv:: Mat dst00i;
+        // frame_matrix_i.convertTo(dst00i, CV_32FC1);
         // cv::bilateralFilter (dst00i, frame_matrix_i_blurred, 9, 75, 75);
-        cv::Mat dsti;
+        cv::Mat dsti, dsti2;
         frame_matrix_i_blurred.convertTo(dsti, CV_8UC1);
+
         // cv::bilateralFilter (frame_matrix_i, frame_matrix_i_blurred, 11, 11*2, 11/2 );
         cv:: Mat frame_matrix_ii;
         cv::cvtColor(dsti,frame_matrix_ii,cv::COLOR_GRAY2RGB);
@@ -75,8 +78,23 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
             tracker->init(frame_matrix_ii,ROI);  
         }
         waitKey(1);
-        u_int centerX = round(ROI.x + 0.5 * ROI.width);
-        u_int centerY = round(ROI.y + 0.5 * ROI.height);
+
+        cv::Mat imCrop = dsti(ROI);
+        // cv::cvtColor(imCrop,dsti2,cv::COLOR_BGR2GRAY);
+        cv::Mat thr;
+        cv::threshold(imCrop, thr, 100,255,cv::THRESH_BINARY);
+        cv::Moments m = cv::moments(thr,true);
+        cv::Point p(m.m10/m.m00, m.m01/m.m00);
+        u_int centerX, centerY;
+        if (p.x > 0 && p.y > 0){
+            centerX = round(p.x + ROI.x + 1);
+            centerY = round(p.y + ROI.y + 1);
+        }
+        else
+        {
+            centerX = round(ROI.x + 0.5 * ROI.width + 1);
+            centerY = round(ROI.y + 0.5 * ROI.height + 1);
+        }
         output.row(i) = {track_id, frame0 + indx, centerX ,centerY };
     }
     cv::destroyAllWindows();
