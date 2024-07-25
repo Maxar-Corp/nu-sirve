@@ -15,6 +15,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
     is_calculate_active = false;
     should_show_bad_pixels = false;
     in_track_creation_mode = false;
+    display_boresight = false;
 
     counter = 0;
     starting_frame_number = 0;
@@ -24,7 +25,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
     InitializeToggles();
 
-    plot_tracks = false;
+    plot_tracks = true;
     display_time = false;
 
     colorTable = starting_color_table;
@@ -301,7 +302,7 @@ void VideoDisplay::ToggleOsmTracks(bool input)
 
 void VideoDisplay::HandleSensorBoresightDataCheck(bool checked)
 {
-    display_boresight_txt = checked;
+    display_boresight = checked;
 
     UpdateDisplayFrame();
 }
@@ -856,7 +857,7 @@ void VideoDisplay::UpdateDisplayFrame()
         }
     }
 
-    if (display_boresight_txt) {
+    if (display_boresight) {
         QPainter p2(&frame);
         p2.setPen(QPen(banner_color));
         p2.setFont(QFont("Times", 8, QFont::Bold));

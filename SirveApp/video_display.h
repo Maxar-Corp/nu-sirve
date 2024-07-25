@@ -175,7 +175,7 @@ private:
     std::vector<unsigned int> bad_pixels;
 
     QColor banner_color;
-    bool display_boresight_txt, display_time;
+    bool display_boresight, display_time;
 
     CalibrationData model;
     std::vector<PlottingFrameData> display_data;
