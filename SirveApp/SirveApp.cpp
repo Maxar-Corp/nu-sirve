@@ -803,12 +803,12 @@ void SirveApp::SetupVideoFrame(){
     btn_zoom->setIcon(zoom_icon);
     btn_zoom->setCheckable(true);
 
-    QPixmap signal_image("icons/signal.png");
-    QIcon signal_icon(signal_image);
-    btn_calculate_radiance = new QPushButton();
-    btn_calculate_radiance->resize(button_video_width, button_video_height);
-    btn_calculate_radiance->setIcon(signal_icon);
-    btn_calculate_radiance->setCheckable(true);
+    // QPixmap signal_image("icons/signal.png");
+    // QIcon signal_icon(signal_image);
+    // btn_calculate_radiance = new QPushButton();
+    // btn_calculate_radiance->resize(button_video_width, button_video_height);
+    // btn_calculate_radiance->setIcon(signal_icon);
+    // btn_calculate_radiance->setCheckable(true);
 
     QPixmap expand_image("icons/expand.png");
     QIcon expand_icon(expand_image);
@@ -816,14 +816,19 @@ void SirveApp::SetupVideoFrame(){
     btn_popout_video->resize(button_video_width, button_video_height);
     btn_popout_video->setIcon(expand_icon);
     btn_popout_video->setCheckable(true);
+    txt_goto_frame = new QLineEdit("");
+    txt_goto_frame->setFixedWidth(50);
+    connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
+    QFormLayout *formLayout = new QFormLayout;   
+    formLayout->addRow(tr("&Frame # "),txt_goto_frame);
 
     QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
-
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
-    hlayout_video_buttons->addWidget(btn_calculate_radiance);
+    // hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
+    hlayout_video_buttons->addItem(formLayout);
     hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
@@ -1026,7 +1031,7 @@ void SirveApp::setupConnections() {
     connect(btn_slow_back, &QPushButton::clicked, this, &SirveApp::UpdateFps);
 
     connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::HandleZoomOnVideoToggle);
-    connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::HandleCalculationOnVideoToggle);
+    // connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::HandleCalculationOnVideoToggle);
     connect(video_display, &VideoDisplay::clearMouseButtons, this, &SirveApp::ClearZoomAndCalculationButtons);
 
     connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::HandlePopoutVideoClick);
@@ -1529,8 +1534,8 @@ void SirveApp::LoadOsmData()
     engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 
-    btn_calculate_radiance->setChecked(false);
-    btn_calculate_radiance->setEnabled(false);
+    // btn_calculate_radiance->setChecked(false);
+    // btn_calculate_radiance->setEnabled(false);
     chk_highlight_bad_pixels->setChecked(false);
     chk_highlight_bad_pixels->setEnabled(false);
 
@@ -1822,7 +1827,7 @@ void SirveApp::HandleZoomOnVideoToggle() {
     if (status_zoom_btn)
     {
         video_display->ToggleActionZoom(true);
-        btn_calculate_radiance->setChecked(false);
+        // btn_calculate_radiance->setChecked(false);
     }
     else {
         video_display->ToggleActionZoom(false);
@@ -1831,25 +1836,25 @@ void SirveApp::HandleZoomOnVideoToggle() {
 }
 
 
-void SirveApp::HandleCalculationOnVideoToggle()
-{
+// void SirveApp::HandleCalculationOnVideoToggle()
+// {
 
-    bool status_calculation_btn = btn_calculate_radiance->isChecked();
+//     bool status_calculation_btn = btn_calculate_radiance->isChecked();
 
-    if (status_calculation_btn) {
+//     if (status_calculation_btn) {
 
-        video_display->ToggleActionCalculateRadiance(true);
-        btn_zoom->setChecked(false);
-    }
-    else {
-        video_display->ToggleActionCalculateRadiance(false);
-    }
-}
+//         video_display->ToggleActionCalculateRadiance(true);
+//         btn_zoom->setChecked(false);
+//     }
+//     else {
+//         video_display->ToggleActionCalculateRadiance(false);
+//     }
+// }
 
 void SirveApp::ClearZoomAndCalculationButtons()
 {
     btn_zoom->setChecked(false);
-    btn_calculate_radiance->setChecked(false);
+    // btn_calculate_radiance->setChecked(false);
 }
 
 void SirveApp::UpdateFps()
@@ -3738,6 +3743,17 @@ void SirveApp::DeleteState()
 void SirveApp::HandleFrameChange()
 {
     UpdateGlobalFrameVector();
+}
+
+void SirveApp::HandleFrameNumberChangeInput()
+{
+    unsigned int new_frame_number = txt_goto_frame->text().toUInt();
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[cmb_processing_states->currentIndex()].details.frames_16bit.size());
+    if (new_frame_number > 0 && new_frame_number <= number_video_frames){
+        video_display->ViewFrame(new_frame_number-1);
+        slider_video->setValue(new_frame_number-1);
+        UpdateGlobalFrameVector();
+    }
 }
 
 void SirveApp::HandleFrameNumberChange(unsigned int new_frame_number)

@@ -140,6 +140,7 @@ public:
     QStatusBar *status_bar;
     QLabel *lbl_status_start_frame, *lbl_status_stop_frame, *lbl_loaded_frames, *lbl_workspace_name, *lbl_workspace_name_field, *lbl_current_workspace_folder_field;
     QCheckBox *chk_bad_pixels_from_original;
+    QLineEdit *txt_goto_frame;
 
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
@@ -200,10 +201,11 @@ public:
         void ExecuteFixedNoiseSuppression();
         void ExecuteRPCPNoiseSuppression();
         void ExecuteAutoTracking();
+        void HandleFrameNumberChangeInput();
 
         void StartStopVideoRecording();
         void HandleZoomOnVideoToggle();
-        void HandleCalculationOnVideoToggle();
+        // void HandleCalculationOnVideoToggle();
         void HandleProcessingNewStateSelected();
         void ClearZoomAndCalculationButtons();
 
