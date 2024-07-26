@@ -176,9 +176,9 @@ void SirveApp::SetupUi() {
 
     tab_menu->setCurrentIndex(0);
 
-    // tab_menu->setTabEnabled(0, false);
-    // tab_menu->setTabEnabled(1, false);
-    // tab_menu->setTabEnabled(2, false);
+    tab_menu->setTabEnabled(0, false);
+    tab_menu->setTabEnabled(1, false);
+    tab_menu->setTabEnabled(2, false);
 
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
@@ -247,20 +247,13 @@ void SirveApp::SetupUi() {
 
 QWidget* SirveApp::SetupColorCorrectionTab()
 {
-
     color_map_display->setMinimumHeight(20);
     QWidget* widget_tab_color = new QWidget(tab_menu);
     QVBoxLayout* vlayout_tab_color = new QVBoxLayout(widget_tab_color);
 
     grpbox_image_controls = new QGroupBox("Image Controls");
     grpbox_image_controls->setStyleSheet(bold_large_styleSheet);
-    grpbox_image_controls->setFixedWidth(700);
-    QGridLayout* grid_grpbox_image_controls = new QGridLayout(grpbox_image_controls);
 
-    label_lift = new QLabel("Dark \nSet Point");
-    label_lift->setToolTip("Dark Set Point pushes the image darker");
-    label_gain = new QLabel("Light \nSet Point");
-    label_gain->setToolTip("Light Set Point pushes the image lighter");
     lbl_lift_value = new QLabel("0.0");
     lbl_lift_value->setFixedWidth(50);
     lbl_gain_value = new QLabel("1.0");
@@ -286,13 +279,12 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     slider_gain->setValue(1000);
     lbl_max_scale_value = new QLabel("High");
     lbl_max_scale_value->setStyleSheet("color:rgb(81,72,65);");
-    QLabel* lbl_colormap = new QLabel("Set Colormap:");
     slider_gain->setTickPosition(QSlider::TicksAbove);
     slider_gain->setTickInterval(100);
     slider_gain->setEnabled(false);
     chk_auto_lift_gain = new QCheckBox("Auto\nLift/Gain");
     btn_reset_color_correction = new QPushButton("Reset Set Points");
-    lbl_min_count_val = new QLabel("Light Set Pt:");
+    lbl_min_count_val = new QLabel("Dark Set Pt:");
     lbl_min_count_val->setStyleSheet("color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;");
     lbl_min_count_val->setFixedWidth(130);
     lbl_min_count_val->setFixedHeight(30);
@@ -306,56 +298,87 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     int number_maps = video_colors.maps.size();
     for (int i = 0; i < number_maps; i++)
         cmb_color_maps->addItem(video_colors.maps[i].name);
+    cmb_color_maps->setFixedWidth(150);
     QGroupBox *grpbox_scale_options = new QGroupBox();
-    QGridLayout *grid_grpbox_scale_options = new QGridLayout();
-    grpbox_scale_options->setLayout(grid_grpbox_scale_options);
+    QHBoxLayout *hlayout_grpbox_scale_options = new QHBoxLayout(grpbox_scale_options);
     grpbox_scale_options->setObjectName("grpbox_scale_options");
     grpbox_scale_options->setStyleSheet("#grpbox_scale_options {border: 0px solid gray; border-width: 0px;}");
-    rad_scale_by_frame = new QRadioButton("Scale by frame maximum");
+    rad_scale_by_frame = new QRadioButton("Scale by\nframe maximum");
     rad_scale_by_frame->setAutoExclusive(true);
     rad_scale_by_frame->setChecked(true);
-    rad_scale_by_cube = new QRadioButton("Scale by cube maximum");
+    rad_scale_by_cube = new QRadioButton("Scale by\ncube maximum");
     rad_scale_by_cube->setAutoExclusive(true);
     rad_scale_by_cube->setChecked(false);
     connect(rad_scale_by_frame, &QCheckBox::toggled, this, &SirveApp::UpdateGlobalFrameVector);
     connect(rad_scale_by_cube, &QCheckBox::toggled, this, &SirveApp::UpdateGlobalFrameVector);
-    grid_grpbox_scale_options->addWidget(rad_scale_by_frame,0,0,1,1);
-    grid_grpbox_scale_options->addWidget(rad_scale_by_cube,0,1,1,1);
-
-    grpbox_auto_lift_gain = new QGroupBox("Auto Lift/Gain Options");
-    QGridLayout* grid_grpbox_lift_controls = new QGridLayout(grpbox_auto_lift_gain);
+    hlayout_grpbox_scale_options->addWidget(rad_scale_by_frame);
+    hlayout_grpbox_scale_options->addWidget(rad_scale_by_cube);
+    hlayout_grpbox_scale_options->insertStretch(-1,0);
+    grpbox_auto_lift_gain = new QGroupBox();
+    grpbox_auto_lift_gain->setObjectName("grpbox_auto_lift_gain");
+    grpbox_auto_lift_gain->setStyleSheet("#grpbox_auto_lift_gain {border: 0px solid gray; border-width: 0px;}");
     QDoubleValidator* ensure_double = new QDoubleValidator(widget_tab_color);
-    QLabel* lbl_auto_lift = new QLabel("Lift (sigma below mean)");
     txt_lift_sigma = new QLineEdit("3");
     txt_lift_sigma->setValidator(ensure_double);
     txt_lift_sigma->setFixedWidth(50);
-    QLabel* lbl_auto_gain = new QLabel("Gain (sigma above mean)");
     txt_gain_sigma = new QLineEdit("3");
     txt_gain_sigma->setValidator(ensure_double);
     txt_gain_sigma->setFixedWidth(50);
-    grid_grpbox_lift_controls->addWidget(lbl_auto_lift,0,0,1,1);
-    grid_grpbox_lift_controls->addWidget(txt_lift_sigma,0,1,1,1);
-    grid_grpbox_lift_controls->addWidget(lbl_auto_gain,0,2,1,1);
-    grid_grpbox_lift_controls->addWidget(txt_gain_sigma,0,3,1,1);
 
-    grid_grpbox_image_controls->addWidget(chk_auto_lift_gain,0,0, 1, 2);
-    grid_grpbox_image_controls->addWidget(grpbox_auto_lift_gain, 0, 1, 1, -1);
-    grid_grpbox_image_controls->addWidget(label_lift, 1, 0, 1, 1);
-    grid_grpbox_image_controls->addWidget(slider_lift, 1, 1, 1, 4);
-    grid_grpbox_image_controls->addWidget(lbl_lift_value, 1, 5, 1, 1);
-    grid_grpbox_image_controls->addWidget(label_gain, 2, 0, 1, 1);
-    grid_grpbox_image_controls->addWidget(slider_gain, 2, 1, 1, 4);
-    grid_grpbox_image_controls->addWidget(lbl_gain_value, 2, 5, 1, 1);
-    grid_grpbox_image_controls->addWidget(lbl_colormap, 3, 0, 1, 1);
-    grid_grpbox_image_controls->addWidget(cmb_color_maps, 3, 1, 1, 1);
-    grid_grpbox_image_controls->addWidget(grpbox_scale_options,3,2,1,4);
-    grid_grpbox_image_controls->addWidget(lbl_min_scale_value, 4, 0, 1, 1);
-    grid_grpbox_image_controls->addWidget(color_map_display, 4, 1, 1, 4);
-    grid_grpbox_image_controls->addWidget(lbl_max_scale_value, 4, 5, 1 ,1);
-    grid_grpbox_image_controls->addWidget(btn_reset_color_correction, 5, 2, 1, 1);
-    grid_grpbox_image_controls->addWidget(lbl_min_count_val,5, 1, 1 ,1);
-    grid_grpbox_image_controls->addWidget(lbl_max_count_val, 5, 4, 1, 1);
+    QFormLayout *form_auto_lift_gain = new QFormLayout;
+    form_auto_lift_gain->addRow(tr("&Min (sigma below mean)"),txt_lift_sigma);
+    form_auto_lift_gain->addRow(tr("&Max (sigma below mean)"),txt_gain_sigma);
+    QHBoxLayout *hlayout_auto_lift_gain = new QHBoxLayout(grpbox_auto_lift_gain);
+    hlayout_auto_lift_gain->addLayout(form_auto_lift_gain);
 
+    QFormLayout *form_slider_lift_control = new QFormLayout;
+    form_slider_lift_control->addRow(tr("&Dark\nSet Point"),slider_lift);
+    QFormLayout *form_slider_gain_control = new QFormLayout;
+    form_slider_gain_control->addRow(tr("&Light\nSet Point"),slider_gain);
+    QVBoxLayout *vlayout_scale_sliders = new QVBoxLayout;
+    QHBoxLayout *hlayout_lift_slider = new QHBoxLayout;
+    QHBoxLayout *hlayout_gain_slider = new QHBoxLayout;
+    hlayout_lift_slider->addLayout(form_slider_lift_control);
+    hlayout_lift_slider->addWidget(lbl_lift_value);
+    // hlayout_lift_slider->insertStretch(-1,0);
+    vlayout_scale_sliders->addLayout(hlayout_lift_slider);
+    hlayout_gain_slider->addLayout(form_slider_gain_control);
+    hlayout_gain_slider->addWidget(lbl_gain_value);
+    // hlayout_gain_slider->insertStretch(-1,0);
+    vlayout_scale_sliders->addLayout(hlayout_gain_slider);
+    
+    QFormLayout *form_colormap_control = new QFormLayout;
+    form_colormap_control->addRow(tr("&Set Colormap"),cmb_color_maps);
+
+    QVBoxLayout *vlayout_image_controls = new QVBoxLayout(grpbox_image_controls);
+    QHBoxLayout *hlayout_auto_gain_group = new QHBoxLayout;
+    hlayout_auto_gain_group->addWidget(chk_auto_lift_gain);
+    hlayout_auto_gain_group->addWidget(grpbox_auto_lift_gain);
+    hlayout_auto_gain_group->insertStretch(-1,0);
+    vlayout_image_controls->addLayout(hlayout_auto_gain_group);
+    QHBoxLayout *hlayout_slider_controls = new QHBoxLayout;
+    hlayout_slider_controls->addLayout(vlayout_scale_sliders);
+    // hlayout_slider_controls->insertStretch(-1,0);
+    vlayout_image_controls->addLayout(hlayout_slider_controls);
+    QHBoxLayout *hlayout_colormap_controls = new QHBoxLayout;
+    hlayout_colormap_controls->addLayout(form_colormap_control);
+    // hlayout_colormap_controls->addWidget(grpbox_scale_options);
+    // hlayout_colormap_controls->insertStretch(-1,0);
+    vlayout_image_controls->addWidget(grpbox_scale_options);
+    vlayout_image_controls->addLayout(hlayout_colormap_controls);
+    QHBoxLayout *hlayout_colormap_bar = new QHBoxLayout;
+    hlayout_colormap_bar->addWidget(lbl_min_scale_value);
+    hlayout_colormap_bar->addWidget(color_map_display);
+    hlayout_colormap_bar->addWidget(lbl_max_scale_value);
+    // hlayout_colormap_bar->insertStretch(1,0);
+    vlayout_image_controls->addLayout(hlayout_colormap_bar);
+    QHBoxLayout *hlayout_colormap_bar_row2 = new QHBoxLayout;
+    hlayout_colormap_bar_row2->addWidget(lbl_min_count_val);
+    hlayout_colormap_bar_row2->addWidget(btn_reset_color_correction);
+    hlayout_colormap_bar_row2->addWidget(lbl_max_count_val);
+    // hlayout_colormap_bar_row2->insertStretch(-1,0);
+    vlayout_image_controls->addLayout(hlayout_colormap_bar_row2);
+    vlayout_image_controls->insertStretch(-1,0);
     vlayout_tab_color->addWidget(grpbox_image_controls);
 
     grpbox_overlay_controls = new QGroupBox("Overlay Controls");
@@ -470,24 +493,28 @@ QWidget* SirveApp::SetupProcessingTab() {
     form_replace_which_pixels_col2->addRow(tr("&Window Length:"),txt_moving_median_N);
     form_replace_which_pixels_col2->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
 
-//>>>>>>>>>>>>>>>>>>>>>>
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
-	lbl_bad_pixel_color = new QLabel("Color:");
 	cmb_bad_pixel_color = new QComboBox();
 	cmb_bad_pixel_color->setFixedWidth(100);
 	cmb_bad_pixel_color->addItems(colors);
 	cmb_bad_pixel_color->setCurrentIndex(2);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
-//>>>>>>>>>>>>>>>>>>>>>>
 
-    QSpacerItem *spacerItem = new QSpacerItem(50,1);
+    QFormLayout *form_highlight_bad_pixesl = new QFormLayout;
+    form_highlight_bad_pixesl->addRow(tr(""),chk_highlight_bad_pixels);
+    form_highlight_bad_pixesl->addRow(tr("&Color"),cmb_bad_pixel_color);
+    QHBoxLayout *hlayout_bad_pixels_display = new QHBoxLayout;
+    hlayout_bad_pixels_display->addWidget(btn_replace_bad_pixels);
+    hlayout_bad_pixels_display->addLayout(form_highlight_bad_pixesl);
+    hlayout_bad_pixels_display->insertStretch(1,0);
 
     vlayout_bad_pixels->addWidget(lbl_bad_pixel_count);
     vlayout_bad_pixels->addWidget(chk_bad_pixels_from_original);
     vlayout_bad_pixels->addLayout(hlayout_bad_pixels);
     hlayout_bad_pixels->addLayout(form_replace_which_pixels_col1);
     hlayout_bad_pixels->addLayout(form_replace_which_pixels_col2);
-    vlayout_bad_pixels->addWidget(btn_replace_bad_pixels);
+    vlayout_bad_pixels->addLayout(hlayout_bad_pixels_display);
+    // vlayout_bad_pixels->addWidget(btn_replace_bad_pixels);
     // hlayout_bad_pixels->insertStretch(1, 0);
     hlayout_bad_pixels->insertStretch(-1, 0);
     vlayout_bad_pixels->insertStretch(-1, 0);
@@ -537,7 +564,6 @@ QWidget* SirveApp::SetupProcessingTab() {
     vlayout_fns->addWidget(btn_FNS);
     hlayout_fns->insertStretch(-1,0);
     vlayout_fns->insertStretch(-1,0);
-
 
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox("");
