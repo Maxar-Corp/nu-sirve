@@ -147,8 +147,6 @@ public slots:
     void ToggleSubplot();
     void PlotCurrentStep(int counter);
     void SetPlotTitle(QString input_title);
-
-    //void ChangeMotionStatus(bool status);
     void HandlePlayerButtonClick();
 
 private:

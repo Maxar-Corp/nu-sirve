@@ -1,5 +1,6 @@
 #pragma once
 
+#include "qcolor.h"
 #ifndef TRACKS_H
 #define TRACKS_H
 

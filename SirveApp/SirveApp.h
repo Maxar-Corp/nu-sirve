@@ -168,6 +168,7 @@ public:
     void DisplayOriginalEpoch(QString new_epoch_string);
     QString CreateEpochString(std::vector<double> new_epoch);
 
+    bool osmDataLoaded;
     void UpdatePlots();
 
 	signals:

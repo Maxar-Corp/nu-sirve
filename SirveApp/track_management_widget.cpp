@@ -1,4 +1,5 @@
 #include "track_management_widget.h"
+#include "qdebug.h"
 
 TrackManagementWidget::TrackManagementWidget(QWidget *parent)
     : QWidget(parent)

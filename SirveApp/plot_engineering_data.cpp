@@ -1,9 +1,8 @@
 #include "plot_engineering_data.h"
-#include "qdebug.h"
 #include "qrubberband.h"
-#include "SirveApp.h"
 
 #include <QPushButton>
+#include <QLegendMarker>
 
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
@@ -135,6 +134,7 @@ void EngineeringPlots::PlotBoresightAzimuth()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -157,6 +157,7 @@ void EngineeringPlots::PlotBoresightElevation()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -179,6 +180,7 @@ void EngineeringPlots::PlotFovX()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -201,6 +203,7 @@ void EngineeringPlots::PlotFovY()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -225,13 +228,12 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         QLineSeries* series = new QLineSeries();
         QColor base_color(colors.get_current_color());
         series->setColor(base_color);
+        series->setName("OSM Data");
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
         AddSeries(series, x_values, y_values, true);
-
-        colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -264,13 +266,12 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         QLineSeries *series = new QLineSeries();
         QColor base_color(colors.get_current_color());
         series->setColor(base_color);
+        series->setName("OSM Data");
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
         AddSeries(series, x_values, y_values, true);
-
-        colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -305,13 +306,12 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         QLineSeries *series = new QLineSeries();
         QColor base_color(colors.get_current_color());
         series->setColor(base_color);
+        series->setName("OSM Data");
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-        AddSeries(series, x_values, y_values, true);
-
-        colors.get_next_color();
+        AddSeries(series, x_values, y_values, true);;
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
     }
@@ -651,6 +651,9 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         newchart->zoomReset();
         is_zoomed = false;
 
+        clearSeriesByName("Red Line");
+        newchart->update();
+
         emit updatePlots();
 
         clearSeriesByName("Red Line");
@@ -851,6 +854,13 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
         }
     }
 
+    QPen pen;
+    QColor trackColor = colors.get_current_color();
+    pen.setColor(trackColor);
+    pen.setStyle(Qt::SolidLine);
+    pen.setWidth(3);
+    series->setPen(pen);
+
     chart->addSeries(series);
     if ((num_breaks > 0) & broken_data)
         RemoveSeriesLegend();
@@ -938,10 +948,20 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
     chart->setMargins(QMargins(0, 0, 0, 0));
 
     // Legend properties
-    chart->legend()->setVisible(false);
-    //chart->legend()->setAlignment(Qt::AlignRight);
-    //chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignTop);
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeDefault);
 
+    // Get all legend markers
+    QList<QLegendMarker *> markers = chart->legend()->markers();
+
+    // Hide all but the OSM marker at index 1:
+    markers[0]->setVisible(false);
+
+    for (int i = 2; i < markers.size(); i++) {
+
+        markers[i]->setVisible(false);
+    }
 }
 
 void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x)
