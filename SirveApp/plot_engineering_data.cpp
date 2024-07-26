@@ -651,13 +651,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         newchart->zoomReset();
         is_zoomed = false;
 
-        clearSeriesByName("Red Line");
-        newchart->update();
-
         emit updatePlots();
-
-        clearSeriesByName("Red Line");
-        newchart->update();
 
         return;
     } else
@@ -916,7 +910,6 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
         if (max_y <= 0.001)
             max_y = 0.01;
 
-        qDebug() << "MAX_Y" << max_y;
         axis_ylog->setRange(min_y, max_y);
         axis_ylog->setTitleText(y_title);
     }

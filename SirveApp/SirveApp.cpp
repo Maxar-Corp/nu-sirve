@@ -2467,7 +2467,7 @@ void SirveApp::UpdatePlots()
         for (int id : this->track_info->get_manual_track_ids())
         {
             QLineSeries *trackSeries = new QLineSeries();
-            trackSeries->setName("Track #" + QString::number(id));
+            trackSeries->setName("Track " + QString::number(id));
 
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
             if (existing_track_control != nullptr)
