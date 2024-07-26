@@ -97,7 +97,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
             centerX = round(ROI.x + 0.5 * ROI.width + 1);
             centerY = round(ROI.y + 0.5 * ROI.height + 1);
         }
-        output.row(i) = {track_id, frame0 + indx, centerX ,centerY };
+        output.row(i) = {track_id, frame0 + i, centerX ,centerY };
     }
     cv::destroyAllWindows();
     return output;

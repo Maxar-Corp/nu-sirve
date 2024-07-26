@@ -3469,7 +3469,7 @@ void SirveApp::ExecuteAutoTracking()
     grpbox_progressbar_area->setEnabled(true);
     connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
-    int frame0 = data_plots->index_sub_plot_xmin + 1;
+    int frame0 = data_plots->index_sub_plot_xmin;
     
     // int start_frame = video_display->counter + 1;
     // int stop_frame = number_video_frames;
@@ -3477,11 +3477,11 @@ void SirveApp::ExecuteAutoTracking()
 
     int start_frame = txt_auto_track_start_frame->text().toInt();
     int stop_frame = txt_auto_track_stop_frame->text().toInt();
- 
-
-    if (start_frame > 0 && stop_frame <= number_video_frames && stop_frame>start_frame){
-        progress_bar_main->setRange(0,stop_frame - start_frame + 1);
-
+    int num_frames_to_track = stop_frame - start_frame + 1;
+    if (start_frame > 0 && stop_frame <= number_video_frames + start_frame && stop_frame>start_frame){
+        progress_bar_main->setRange(0,num_frames_to_track);
+        int start_frame_i = start_frame - frame0;
+        int stop_frame_i = start_frame_i + num_frames_to_track -1;
         bool ok;
         u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
         if (!ok || track_id < 0)
@@ -3514,7 +3514,7 @@ void SirveApp::ExecuteAutoTracking()
             QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
             return;
         }
-        arma::u32_mat autotrack = AT.SingleTracker(track_id, frame0, start_frame, stop_frame, original.details, new_track_file_name);
+        arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
 
         autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
 
