@@ -579,7 +579,7 @@ void EngineeringPlots::RecolorOsmTrack(QString new_color_str)
 {
     osm_track_color = new_color_str == "white" || new_color_str == "blue" ? colors.get_current_color() : QColor(new_color_str);
 
-    PlotChart();
+    emit updatePlots();
 }
 void EngineeringPlots::HandlePlayerButtonClick()
 {
