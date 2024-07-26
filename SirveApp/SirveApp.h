@@ -102,23 +102,23 @@ public:
 	QDateTimeEdit* dt_epoch;
 	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *lbl_bad_pixel_color, *lbl_current_workspace_folder;
 
-	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message, * lbl_bad_pixel_type,  * lbl_bad_pixel_sensitivity,  * lbl_bad_pixel_method, *lbl_moving_median_window_length;
-	QLabel *lbl_bad_pixel_start_frame, *lbl_bad_pixel_stop_frame, *lbl_ANS_number_frames, *lbl_ANS_offset_frames, *lbl_FNS_start_frame, * lbl_FNS_stop_frame, * lbl_ANS_shadow_threshold, *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
+	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+	QLabel *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
     QLabel *lbl_progress_status, *lbl_processing_description, *lbl_min_scale_value, *lbl_max_scale_value;
     QScrollArea *scrollarea_processing_description;
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_end_frame;
+	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
-		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_bad_pixel_identification,
+		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_replace_bad_pixels,
         * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks, 
         * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation, *btn_auto_track_target;
 
 	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
-	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_Image_Shift, *grpbox_status_area, *grpbox_image_processing;
+	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_image_shift, *grpbox_status_area, *grpbox_image_processing;
     QGroupBox *grpbox_load_frames_area, *grpbox_progressbar_area;
     QProgressBar * progress_bar_main;
 

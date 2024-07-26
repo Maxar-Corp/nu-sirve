@@ -97,23 +97,28 @@ void SirveApp::SetupUi() {
     SetupPlotFrame();
 
 	lbl_max_frames = new QLabel("Max Frames: ");
-	QLabel* label_start_frame = new QLabel("Start Frame:");
-	QLabel* label_stop_frame = new QLabel("Stop Frame:");
+	QFormLayout *form_start_frame = new QFormLayout;
+	QFormLayout *form_stop_frame = new QFormLayout;
 	txt_start_frame = new QLineEdit();
-	txt_start_frame->setAlignment(Qt::AlignHCenter);
+	txt_start_frame->setAlignment(Qt::AlignVCenter);
+    txt_start_frame->setFixedWidth(60);
 	txt_stop_frame = new QLineEdit();
-	txt_stop_frame->setAlignment(Qt::AlignHCenter);
+	txt_stop_frame->setAlignment(Qt::AlignVCenter);
+    txt_stop_frame->setFixedWidth(60);
+    form_start_frame->addRow(tr("&Start Frame:"),txt_start_frame);
+    form_start_frame->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+    form_stop_frame->addRow(tr("&Stop Frame:"),txt_stop_frame);
+    form_stop_frame->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+
 	btn_get_frames = new QPushButton("Load Frames");
     grpbox_load_frames_area = new QGroupBox();
 	grpbox_load_frames_area->setObjectName("grpbox_load_frames_area");
-	QGridLayout *grid_load_frames_area = new QGridLayout();
-	grpbox_load_frames_area->setLayout(grid_load_frames_area);
-	grid_load_frames_area->addWidget(lbl_max_frames,0,0,1,1);
-	grid_load_frames_area->addWidget(label_start_frame,0,2,1,1);
-	grid_load_frames_area->addWidget(txt_start_frame,0,4,1,1);
-	grid_load_frames_area->addWidget(label_stop_frame,0,5,1,1);
-	grid_load_frames_area->addWidget(txt_stop_frame,0,6,1,1);
-	grid_load_frames_area->addWidget(btn_get_frames,0,8,1,1);
+	QHBoxLayout *hlayout_load_frames_area = new QHBoxLayout(grpbox_load_frames_area);
+	hlayout_load_frames_area->addWidget(lbl_max_frames);
+	hlayout_load_frames_area->addLayout(form_start_frame);
+	hlayout_load_frames_area->addLayout(form_stop_frame);
+	hlayout_load_frames_area->addWidget(btn_get_frames);
+    hlayout_load_frames_area->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
     grpbox_load_frames_area->setFixedHeight(50);
 
     grpbox_progressbar_area = new QGroupBox();
@@ -121,7 +126,6 @@ void SirveApp::SetupUi() {
 	QGridLayout *grid_progressbar_area = new QGridLayout();
 	grpbox_progressbar_area->setLayout(grid_progressbar_area);
     grpbox_progressbar_area->setEnabled(false);
-    // grpbox_progressbar_area->setFixedHeight(50);
 	progress_bar_main = new QProgressBar();
 	btn_cancel_operation = new QPushButton("Cancel");
 	btn_cancel_operation->setFixedWidth(75);
@@ -151,12 +155,11 @@ void SirveApp::SetupUi() {
     vlayout_processing_description->addWidget(lbl_processing_description);
     QSpacerItem * d_bottom_vertical_spacer = new QSpacerItem(100, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     vlayout_processing_description->addItem(d_bottom_vertical_spacer);
-    // grid_status_area->addWidget(grpbox_load_frames_area,0,0,1,-1);
     grid_status_area->addWidget(scrollarea_processing_description,0,0,1,-1);
     grid_status_area->addWidget(lbl_processing_state,1,0,1,1);
 	grid_status_area->addWidget(cmb_processing_states,1,1,1,6);
-	grid_status_area->addWidget(btn_undo_step,1,7,1,1);
-    grid_status_area->addWidget(btn_delete_state,1,8,1,1);
+    grid_status_area->addWidget(btn_delete_state,1,7,1,1);
+	grid_status_area->addWidget(btn_undo_step,1,8,1,1);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     main_layout->addWidget(grpbox_load_frames_area,0,0,1,1);
@@ -164,7 +167,6 @@ void SirveApp::SetupUi() {
     main_layout->addWidget(frame_video_player,0,1,6,1);
     main_layout->addWidget(tab_plots,0,2,6,1);
     main_layout->addWidget(grpbox_status_area,5,0,1,1);
-    // main_layout->addWidget(grpbox_progressbar_area,5,0,1,1);
 
     QFrame* frame_main = new QFrame();
     frame_main->setLayout(main_layout);
@@ -174,9 +176,9 @@ void SirveApp::SetupUi() {
 
     tab_menu->setCurrentIndex(0);
 
-    tab_menu->setTabEnabled(0, false);
-    tab_menu->setTabEnabled(1, false);
-    tab_menu->setTabEnabled(2, false);
+    // tab_menu->setTabEnabled(0, false);
+    // tab_menu->setTabEnabled(1, false);
+    // tab_menu->setTabEnabled(2, false);
 
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
@@ -220,16 +222,6 @@ void SirveApp::SetupUi() {
     grpbox_status_lbl->setLayout(grid_status_lbl);
     QSpacerItem *hspacer_item20 = new QSpacerItem(20,1);
     
-    // grpbox_progressbar_area = new QGroupBox();
-    // grpbox_progressbar_area->setObjectName("grpbox_progressbar_area");
-	// QGridLayout *grid_progressbar_area = new QGridLayout();
-	// grpbox_progressbar_area->setLayout(grid_progressbar_area);
-	// progress_bar_main = new QProgressBar();
-	// btn_cancel_operation = new QPushButton("Cancel");
-	// btn_cancel_operation->setFixedWidth(75);
-	// grid_progressbar_area->addWidget(progress_bar_main,0,0,1,8);
-	// grid_progressbar_area->addWidget(btn_cancel_operation,0,11,1,1);
-
     grid_status_bar->addWidget(lbl_file_name,0,0,1,1);
     grid_status_bar->addItem(hspacer_item20,0,1,1,1);
     grid_status_bar->addWidget(lbl_loaded_frames,0,2,1,1);
@@ -244,15 +236,12 @@ void SirveApp::SetupUi() {
     grid_status_bar->addWidget(lbl_workspace_name,0,11,1,1);
     grid_status_bar->addWidget(lbl_workspace_name_field,0,12,1,1);
     grid_status_bar->addItem(hspacer_item20,0,13,1,1);
-    // grid_status_bar->addWidget(grpbox_progressbar_area,1,0,1,-1);
     grpbox_status_bar->setLayout(grid_status_bar);
     status_bar->addWidget(grpbox_status_bar);
-    // grid_status_lbl->addItem(hspacer_item20,0,0,1,1);
     grid_status_lbl->addWidget(lbl_progress_status,0,0,1,1);
     grid_status_lbl->addWidget(grpbox_progressbar_area,0,1,1,6);
-    // grid_status_lbl->addItem(hspacer_item20,0,9,1,1);
     status_bar->addPermanentWidget(grpbox_status_lbl,1);
-    // grpbox_progressbar_area->setEnabled(false);
+
     this->show();
 }
 
@@ -432,42 +421,56 @@ QWidget* SirveApp::SetupProcessingTab() {
 	// ------------------------------------------------------------------------
 	grpbox_bad_pixels_correction = new QGroupBox();
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
-	grpbox_bad_pixels_correction->setFixedWidth(700);
-	QGridLayout* grid_bad_pixels = new QGridLayout(grpbox_bad_pixels_correction);
-
+    grpbox_bad_pixels_correction->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
+    QVBoxLayout *vlayout_bad_pixels = new QVBoxLayout(grpbox_bad_pixels_correction);
+	QHBoxLayout *hlayout_bad_pixels = new QHBoxLayout();
+    vlayout_bad_pixels->setAlignment(Qt::AlignCenter|Qt::AlignTop);
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
-	// lbl_bad_pixel_count->setStyleSheet("background-color: rgb(210,210,210);");
-	lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+	// lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
     chk_bad_pixels_from_original = new QCheckBox("Use Original Data");
     chk_bad_pixels_from_original->setChecked(true);
-	lbl_bad_pixel_type = new QLabel("Replace Pixels:");
 	cmb_bad_pixels_type = new QComboBox();
-	cmb_bad_pixels_type->setFixedWidth(150);
 	cmb_bad_pixels_type->addItem("All Bad Pixels");
 	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
 	cmb_bad_pixels_type->addItem("Outlier Only");
-	lbl_bad_pixel_method = new QLabel("Method:");
+
 	cmb_outlier_processing_type = new QComboBox();
-	cmb_outlier_processing_type->setFixedWidth(150);
 	cmb_outlier_processing_type->addItem("Median");
 	cmb_outlier_processing_type->addItem("Moving Median");
 	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
-	lbl_bad_pixel_start_frame = new QLabel("Sample Start:");
-	txt_bad_pixel_start_frame = new QLineEdit("1");
-	txt_bad_pixel_start_frame->setFixedWidth(60);
-	lbl_bad_pixel_stop_frame = new QLabel("Sample Stop:");
-	txt_bad_pixel_end_frame = new QLineEdit("500");
-	txt_bad_pixel_end_frame->setFixedWidth(60);
-	lbl_moving_median_window_length = new QLabel("Window Length:");
-	txt_moving_median_N = new QLineEdit("30");
-	txt_moving_median_N->setFixedWidth(60);
-	txt_moving_median_N->setEnabled(false);
-	lbl_bad_pixel_sensitivity = new QLabel("Sensitivity:");
-	cmb_outlier_processing_sensitivity = new QComboBox();
+	
+    cmb_outlier_processing_sensitivity = new QComboBox();
 	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
 	cmb_outlier_processing_sensitivity->addItem("Medium 5 sigma");
 	cmb_outlier_processing_sensitivity->addItem("High 4 sigma");
 	cmb_outlier_processing_sensitivity->addItem("Max 3 sigma");
+
+    btn_replace_bad_pixels = new QPushButton("Replace Bad Pixels");
+    btn_replace_bad_pixels->setFixedWidth(200);
+    connect(btn_replace_bad_pixels, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
+
+    QFormLayout *form_replace_which_pixels_col1 = new QFormLayout;
+    form_replace_which_pixels_col1->addRow(tr("&Replace Pixels:"),cmb_bad_pixels_type);
+    form_replace_which_pixels_col1->addRow(tr("&Method:"),cmb_outlier_processing_type);
+    form_replace_which_pixels_col1->addRow(tr("&Sensitivity:"),cmb_outlier_processing_sensitivity);
+    // form_replace_which_pixels_col1->addRow(tr(""),btn_replace_bad_pixels);
+    form_replace_which_pixels_col1->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+
+	txt_bad_pixel_start_frame = new QLineEdit("1");
+	txt_bad_pixel_start_frame->setFixedWidth(60);
+	txt_bad_pixel_end_frame = new QLineEdit("500");
+	txt_bad_pixel_end_frame->setFixedWidth(60);
+	txt_moving_median_N = new QLineEdit("30");
+	txt_moving_median_N->setFixedWidth(60);
+	txt_moving_median_N->setEnabled(false);
+
+    QFormLayout *form_replace_which_pixels_col2 = new QFormLayout;
+    form_replace_which_pixels_col2->addRow(tr("&Sample Start:"),txt_bad_pixel_start_frame);
+    form_replace_which_pixels_col2->addRow(tr("&Sample Stop:"),txt_bad_pixel_end_frame);
+    form_replace_which_pixels_col2->addRow(tr("&Window Length:"),txt_moving_median_N);
+    form_replace_which_pixels_col2->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+
+//>>>>>>>>>>>>>>>>>>>>>>
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
 	lbl_bad_pixel_color = new QLabel("Color:");
 	cmb_bad_pixel_color = new QComboBox();
@@ -475,30 +478,19 @@ QWidget* SirveApp::SetupProcessingTab() {
 	cmb_bad_pixel_color->addItems(colors);
 	cmb_bad_pixel_color->setCurrentIndex(2);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
-	btn_bad_pixel_identification = new QPushButton("Replace Bad Pixels");
-    connect(btn_bad_pixel_identification, &QPushButton::clicked, this, &SirveApp::HandleBadPixelReplacement);
+//>>>>>>>>>>>>>>>>>>>>>>
+
     QSpacerItem *spacerItem = new QSpacerItem(50,1);
 
-    grid_bad_pixels->addWidget(lbl_bad_pixel_count, 0, 0, 1, -1);
-    grid_bad_pixels->addWidget(chk_bad_pixels_from_original,1,0,1,1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_type, 2, 0, 1, 1);
-    grid_bad_pixels->addWidget(cmb_bad_pixels_type, 2, 1, 1, 2);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_method, 3, 0, 1, 1);
-    grid_bad_pixels->addWidget(cmb_outlier_processing_type, 3, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_start_frame, 4, 0, 1, 1);
-    grid_bad_pixels->addWidget(txt_bad_pixel_start_frame, 4, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_stop_frame, 5, 0, 1, 1);
-    grid_bad_pixels->addWidget(txt_bad_pixel_end_frame, 5, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_moving_median_window_length, 6, 0, 1, 1);
-    grid_bad_pixels->addWidget(txt_moving_median_N, 6, 1, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_sensitivity, 3, 3, 1, 1);
-    grid_bad_pixels->addWidget(cmb_outlier_processing_sensitivity, 3, 4, 1, 1);
-    grid_bad_pixels->addWidget(chk_highlight_bad_pixels, 5, 4, 1, 1);
-    grid_bad_pixels->addWidget(lbl_bad_pixel_color, 4, 3, 1, 1);
-    grid_bad_pixels->addWidget(cmb_bad_pixel_color, 4, 4, 1,1);
-    grid_bad_pixels->addWidget(btn_bad_pixel_identification, 6, 4, 1, 1);
-    grid_bad_pixels->addItem(spacerItem,7,5);
-
+    vlayout_bad_pixels->addWidget(lbl_bad_pixel_count);
+    vlayout_bad_pixels->addWidget(chk_bad_pixels_from_original);
+    vlayout_bad_pixels->addLayout(hlayout_bad_pixels);
+    hlayout_bad_pixels->addLayout(form_replace_which_pixels_col1);
+    hlayout_bad_pixels->addLayout(form_replace_which_pixels_col2);
+    vlayout_bad_pixels->addWidget(btn_replace_bad_pixels);
+    // hlayout_bad_pixels->insertStretch(1, 0);
+    hlayout_bad_pixels->insertStretch(-1, 0);
+    vlayout_bad_pixels->insertStretch(-1, 0);
     // ------------------------------------------------------------------------
 
 	grpbox_image_processing = new QGroupBox();
@@ -511,71 +503,81 @@ QWidget* SirveApp::SetupProcessingTab() {
     cmb_noise_suppresion->addItem("Adaptive Background Noise Suppression");
     cmb_noise_suppresion->addItem("RPCP Background Noise Suppression");
     connect(cmb_noise_suppresion, qOverload<int>(&QComboBox::currentIndexChanged), stck_noise_suppresssion_methods, &QStackedWidget::setCurrentIndex);
+
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
 
     grid_image_processing->addWidget(cmb_noise_suppresion,0,0,1,6);
     grid_image_processing->addWidget(stck_noise_suppresssion_methods,1,0,1,6);
 	
     grpbox_FNS_processing = new QGroupBox("");
-	QGridLayout* grid_FNS_processing = new QGridLayout(grpbox_FNS_processing);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
-	lbl_fixed_suppression->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-	// lbl_fixed_suppression->setStyleSheet("background-color: rgb(210,210,210);");
+
+    QHBoxLayout *hlayout_fns = new QHBoxLayout(grpbox_FNS_processing);
+    QVBoxLayout *vlayout_fns = new QVBoxLayout;
+    vlayout_fns->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
+
 	chk_FNS_external_file = new QCheckBox("External File");
 	chk_FNS_external_file->setFixedWidth(150);
-	lbl_FNS_start_frame = new QLabel("Start:");
-	lbl_FNS_start_frame->setFixedWidth(50);
 	txt_FNS_start_frame = new QLineEdit("1");
 	txt_FNS_start_frame->setFixedWidth(60);
-	lbl_FNS_stop_frame = new QLabel("Stop:");
-	lbl_FNS_stop_frame->setFixedWidth(50);
-	txt_FNS_end_frame = new QLineEdit("50");
-	txt_FNS_end_frame->setFixedWidth(60);
+	txt_FNS_stop_frame = new QLineEdit("50");
+	txt_FNS_stop_frame->setFixedWidth(60);
 	btn_FNS = new QPushButton("Fixed Background Noise Suppression");
 	btn_FNS->setFixedWidth(275);
-	grid_FNS_processing->addWidget(lbl_fixed_suppression, 0, 0, 1, -1);
-	grid_FNS_processing->addWidget(chk_FNS_external_file, 1, 0, 1, 2);
-	grid_FNS_processing->addWidget(lbl_FNS_start_frame, 2, 0, 1, 1);
-	grid_FNS_processing->addWidget(txt_FNS_start_frame, 2, 1, 1, 1);
-	grid_FNS_processing->addWidget(lbl_FNS_stop_frame, 3, 0, 1, 1);	
-	grid_FNS_processing->addWidget(txt_FNS_end_frame, 3, 1, 1, 1);	
-	grid_FNS_processing->addWidget(btn_FNS,3,2,1,2);
+
+    QFormLayout *form_fns = new QFormLayout;
+    form_fns->addRow(tr("&Start:"),txt_FNS_start_frame);
+    form_fns->addRow(tr("&Stop:"),txt_FNS_stop_frame);
+    form_fns->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+    hlayout_fns->addLayout(vlayout_fns);
+    vlayout_fns->addWidget(lbl_fixed_suppression);
+    vlayout_fns->addWidget(chk_FNS_external_file);
+    vlayout_fns->addLayout(hlayout_fns);
+    vlayout_fns->addLayout(form_fns);
+    vlayout_fns->addWidget(btn_FNS);
+    hlayout_fns->insertStretch(-1,0);
+    vlayout_fns->insertStretch(-1,0);
+
 
 	// ------------------------------------------------------------------------
 	grpbox_ANS_processing = new QGroupBox("");
-	QGridLayout* grid_ANS_processing = new QGridLayout(grpbox_ANS_processing);
+
+    QHBoxLayout *hlayout_ans = new QHBoxLayout(grpbox_ANS_processing);
+    QVBoxLayout *vlayout_ans = new QVBoxLayout;
+    vlayout_ans->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
+
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-	// lbl_adaptive_noise_suppression_status->setStyleSheet("background-color:rgb(210,210,210);");
-	lbl_adaptive_noise_suppression_status->setFixedHeight(100);
-	lbl_ANS_offset_frames = new QLabel("Offset:");
-	lbl_ANS_offset_frames->setFixedWidth(60);
 	txt_ANS_offset_frames = new QLineEdit("-30");
 	txt_ANS_offset_frames->setFixedWidth(60);
-	lbl_ANS_number_frames = new QLabel("Number:");
-	lbl_ANS_number_frames->setFixedWidth(60);
 	txt_ANS_number_frames = new QLineEdit("5");
 	txt_ANS_number_frames->setFixedWidth(60);
 	chk_hide_shadow = new QCheckBox("Hide Shadow");
 	chk_hide_shadow->setFixedWidth(110);
 	chk_hide_shadow->setChecked(true);
-	lbl_ANS_shadow_threshold = new QLabel("Shadow Threshold:");
-	lbl_ANS_shadow_threshold->setFixedWidth(130);
 	cmb_shadow_threshold = new QComboBox();
 	cmb_shadow_threshold->setFixedWidth(100);
 	cmb_shadow_threshold->addItem("3 sigma");
 	cmb_shadow_threshold->addItem("2 sigma");
 	cmb_shadow_threshold->addItem("1 sigma");
+    cmb_shadow_threshold->setCurrentIndex(1);
 	btn_ANS = new QPushButton("Adaptive Noise Suppression");
 	btn_ANS->setFixedWidth(200);
-	grid_ANS_processing->addWidget(lbl_adaptive_noise_suppression_status, 0, 0, 1, -1);
-	grid_ANS_processing->addWidget(lbl_ANS_offset_frames, 1, 0, 1, 1);
-	grid_ANS_processing->addWidget(txt_ANS_offset_frames, 1, 1, 1, 1);
-	grid_ANS_processing->addWidget(lbl_ANS_number_frames, 2, 0, 1, 1);
-	grid_ANS_processing->addWidget(txt_ANS_number_frames, 2, 1, 1, 1);
-	grid_ANS_processing->addWidget(chk_hide_shadow, 3, 0, 1, 1);
-	grid_ANS_processing->addWidget(lbl_ANS_shadow_threshold, 3, 1, 1, 1);
-	grid_ANS_processing->addWidget(cmb_shadow_threshold, 3, 2, 1, 1);
-	grid_ANS_processing->addWidget(btn_ANS, 3, 4, 1, 2);
+
+    QFormLayout *form_ans = new QFormLayout;
+    form_ans->addRow(tr("&Offset:"),txt_ANS_offset_frames);
+    form_ans->addRow(tr("&Number:"),txt_ANS_number_frames);
+    form_ans->addRow(tr(""),chk_hide_shadow);
+    form_ans->addRow(tr("&Shadow Threshold:"),cmb_shadow_threshold);
+    form_ans->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+
+    hlayout_ans->addLayout(vlayout_ans);
+    vlayout_ans->addWidget(lbl_adaptive_noise_suppression_status);
+    vlayout_ans->addLayout(hlayout_ans);
+    vlayout_ans->addLayout(form_ans);
+    vlayout_ans->addWidget(btn_ANS);
+    hlayout_ans->insertStretch(-1,0);
+    vlayout_ans->insertStretch(-1,0);
+
 	QGroupBox *grpbox_RPCP_processing = new QGroupBox("");
     grpbox_RPCP_processing->setObjectName("grpbox_RPCP_processing");
 	grpbox_RPCP_processing->setFlat(true);
@@ -586,8 +588,9 @@ QWidget* SirveApp::SetupProcessingTab() {
 	connect(btn_RPCP, &QPushButton::clicked, this, &SirveApp::ExecuteRPCPNoiseSuppression);
 	grid_RPCP_processing->addWidget(btn_RPCP, 0, 0, 1, 1);
 	// ------------------------------------------------------------------------
+
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
-	grpbox_deinterlacing->setFixedHeight(100);
+	// grpbox_deinterlacing->setFixedHeight(100);
 	QGridLayout* grid_deinterlacing = new QGridLayout(grpbox_deinterlacing);
 	btn_deinterlace = new QPushButton("Deinterlace");
 	btn_deinterlace->setFixedWidth(150);
@@ -610,15 +613,11 @@ QWidget* SirveApp::SetupProcessingTab() {
     stck_noise_suppresssion_methods->addWidget(grpbox_ANS_processing);
     stck_noise_suppresssion_methods->addWidget(grpbox_RPCP_processing);
     // ------------------------------------------------------------------------
-    grpbox_Image_Shift = new QGroupBox();
-    QSizePolicy grpbox_size_policy;
-    QGridLayout* grid_Image_Shift = new QGridLayout(grpbox_Image_Shift);
+    grpbox_image_shift = new QGroupBox();
+    QHBoxLayout *hlayout_image_shift = new QHBoxLayout(grpbox_image_shift);
+    QVBoxLayout *vlayout_image_shift = new QVBoxLayout;
+    vlayout_image_shift->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
 
-    QLabel* lbl_OSM_track_ID = new QLabel("OSM Track ID:");
-    lbl_OSM_track_ID->setFixedWidth(125);
-    QLabel* lbl_manual_track_ID = new QLabel("Manual Track ID:");
-    QLabel* lbl_track_centering_priority = new QLabel("Centering Priority:");
-    QLabel* lbl_frame_stack_Nframes = new QLabel("Number of Frames:");
     txt_frame_stack_Nframes = new QLineEdit("5");
     txt_frame_stack_Nframes->setFixedWidth(50);
     cmb_OSM_track_IDs = new QComboBox();
@@ -641,28 +640,42 @@ QWidget* SirveApp::SetupProcessingTab() {
     btn_frame_stack = new QPushButton("Frame Stack");
     btn_frame_stack->setFixedWidth(150);
     connect(btn_frame_stack, &QPushButton::clicked, this, &SirveApp::ExecuteFrameStacking);
+    
+    QHBoxLayout *hlayout_centering_btns = new QHBoxLayout;
+    hlayout_centering_btns->addWidget(btn_center_on_tracks);
+    hlayout_centering_btns->addWidget(btn_center_on_brightest);
 
-	grid_Image_Shift->addWidget(lbl_track_centering_priority,0,0,1,1);
-	grid_Image_Shift->addWidget(cmb_track_centering_priority,0,1,1,2);
-	grid_Image_Shift->addWidget(lbl_OSM_track_ID,1,0,1,1);
-	grid_Image_Shift->addWidget(cmb_OSM_track_IDs,1,1,1,1);
-	grid_Image_Shift->addItem(spacerItem,1,2);
-	grid_Image_Shift->addWidget(lbl_manual_track_ID,2,0,1,1);
-	grid_Image_Shift->addWidget(cmb_manual_track_IDs,2,1,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_tracks,1,3,1,1);
-	grid_Image_Shift->addWidget(btn_center_on_brightest,2,3,1,1);
-	grid_Image_Shift->addWidget(lbl_frame_stack_Nframes,3,0,1,1);
-	grid_Image_Shift->addWidget(txt_frame_stack_Nframes,3,1,1,1);
-	grid_Image_Shift->addWidget(btn_frame_stack,3,3,1,1);
-	grid_Image_Shift->addItem(spacerItem,3,3);
-	grid_Image_Shift->addItem(spacerItem,3,4);
+    QFormLayout *form_image_shift = new QFormLayout;
+    form_image_shift->addRow(tr("&Centering Priority:"),cmb_track_centering_priority);
+    form_image_shift->addRow(tr("&OSM Track ID:"),cmb_OSM_track_IDs);
+    form_image_shift->addRow(tr("&Manual Track ID:"),cmb_manual_track_IDs);
+    form_image_shift->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+    hlayout_image_shift->addLayout(vlayout_image_shift);
+    vlayout_image_shift->addLayout(form_image_shift);
+    vlayout_image_shift->addLayout(hlayout_centering_btns);
+    hlayout_centering_btns->insertStretch(-1,0);
+
+    QVBoxLayout *vlayout_frame_stacking = new QVBoxLayout;
+    vlayout_frame_stacking->setAlignment(Qt::AlignRight);
+    QFormLayout *form_frame_stack = new QFormLayout;
+    form_frame_stack->addRow(tr("&Number of Frames:"), txt_frame_stack_Nframes);
+    form_frame_stack->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+    vlayout_frame_stacking->addLayout(form_frame_stack);
+    vlayout_frame_stacking->addWidget(btn_frame_stack);
+    vlayout_frame_stacking->insertStretch(-1,0);
+
+    hlayout_image_shift->insertStretch(1,0);
+    hlayout_image_shift->addLayout(vlayout_frame_stacking);
+    hlayout_image_shift->insertStretch(-1,0);
+    vlayout_image_shift->insertStretch(-1,0);
+
 	// // ------------------------------------------------------------------------
 	
-	toolbox_image_processing->addItem(grpbox_Image_Shift,QString("Image Stabilization"));
+	toolbox_image_processing->addItem(grpbox_image_shift,QString("Image Stabilization"));
 	vlayout_tab_processing->addWidget(toolbox_image_processing);
 	// // ------------------------------------------------------------------------
 
-    // vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+    vlayout_tab_processing->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
     return widget_tab_processing;
 }
@@ -2151,12 +2164,12 @@ void SirveApp::ExportFrameRange()
     QList<QLineEdit *> fields;
 
     QLineEdit *lineEdit0 = new QLineEdit(&dialog);
-    QString label0 = QString("Start").arg(1);
+    QString label0 = QString("Start: ").arg(1);
     form.addRow(label0, lineEdit0);
     fields << lineEdit0;
 
     QLineEdit *lineEdit1 = new QLineEdit(&dialog);
-    QString label1 = QString("Stop").arg(2);
+    QString label1 = QString("Stop: ").arg(2);
     form.addRow(label1, lineEdit1);
     fields << lineEdit1;
 
@@ -2801,7 +2814,7 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
     unsigned int start_frame = external_nuc_dialog.start_frame;
     unsigned int end_frame = external_nuc_dialog.stop_frame;
     txt_FNS_start_frame->setText(QString::number(start_frame));
-    txt_FNS_end_frame->setText(QString::number(end_frame));
+    txt_FNS_stop_frame->setText(QString::number(end_frame));
     try
     {
         // assumes file version is same as base file opened
@@ -2832,7 +2845,7 @@ void SirveApp::ExecuteFixedNoiseSuppression()
     {
         int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
         int start_frame = txt_FNS_start_frame->text().toInt();
-        int end_frame = txt_FNS_end_frame->text().toInt();
+        int end_frame = txt_FNS_stop_frame->text().toInt();
         int source_state_idx = cmb_processing_states->currentIndex();
         ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame, source_state_idx);
     }
