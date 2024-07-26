@@ -518,8 +518,8 @@ void EngineeringPlots::PlotCurrentStep(int counter)
         }
 
         current_frame_marker->clear();
-        current_frame_marker->append(current_x, min_y);  
-        current_frame_marker->append(current_x, fixed_max_y);
+        current_frame_marker->append(current_x, min_y);
+        current_frame_marker->append(current_x, max_y);
     }
 }
 
@@ -653,6 +653,9 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
         emit updatePlots();
 
+        clearSeriesByName("Red Line");
+        newchart->update();
+
         return;
     } else
     {
@@ -678,7 +681,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
             if (axisY) {
                 savedChartState.yMin = axisY->min();
-                savedChartState.yMax = axisY->max();
+                savedChartState.yMax = 1000000000000;
             }
         }
         is_zoomed = true;

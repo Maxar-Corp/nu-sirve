@@ -1546,7 +1546,7 @@ debug\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -1557,7 +1557,7 @@ debug\moc_annotation_list_dialog.cpp: ..\..\annotation_list_dialog.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
@@ -2508,7 +2508,7 @@ debug\moc_calibration_data.cpp: ..\..\calibration_data.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -2547,7 +2547,7 @@ debug\moc_calibration_data.cpp: ..\..\calibration_data.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\support\earth.h \
@@ -3562,7 +3562,7 @@ debug\moc_engineeringdata.cpp: ..\..\engineeringdata.h \
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -3606,7 +3606,7 @@ debug\moc_engineeringdata.cpp: ..\..\engineeringdata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -5480,7 +5480,7 @@ debug\moc_image_processing.cpp: ..\..\image_processing.h \
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64-debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\cppwinrt" ..\..\image_processing.h -o debug\moc_image_processing.cpp
 
 debug\moc_location_input.cpp: ..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
@@ -5626,7 +5626,7 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -6262,7 +6262,7 @@ debug\moc_location_input.cpp: ..\..\location_input.h \
 	C:\Users\da032083\SIRVE\5.15.2\msvc2019_64\bin\moc.exe $(DEFINES) --compiler-flavor=msvc --include C:/Users/da032083/SIRVE/SirveApp/build/Qt_5_15_2_msvc2019_64-debug/debug/moc_predefs.h -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/mkspecs/win32-msvc -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/SirveApp -IC:/Users/da032083/SIRVE/armadillo-12.2.0/include -IC:/Users/da032083/SIRVE/opencv/build/include -IC:/Users/da032083/SIRVE/fftw-3.3.5-dll64 -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCharts -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtWidgets -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtGui -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtANGLE -IC:/Users/da032083/SIRVE/5.15.2/msvc2019_64/include/QtCore -I. -I"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\include" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt" -I"C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\cppwinrt" ..\..\location_input.h -o debug\moc_location_input.cpp
 
 debug\moc_new_location.cpp: ..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
@@ -7907,7 +7907,7 @@ debug\moc_non_uniformity_correction_external_file.cpp: ..\..\non_uniformity_corr
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -7924,7 +7924,7 @@ debug\moc_non_uniformity_correction_external_file.cpp: ..\..\non_uniformity_corr
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
@@ -9855,7 +9855,7 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -9897,7 +9897,7 @@ debug\moc_SirveApp.cpp: ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -11334,7 +11334,7 @@ debug\moc_video_display.cpp: ..\..\video_display.h \
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -11348,7 +11348,7 @@ debug\moc_video_display.cpp: ..\..\video_display.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
@@ -12920,7 +12920,7 @@ debug\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annotat
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -12931,7 +12931,7 @@ debug\annotation_list_dialog.obj: ..\..\annotation_list_dialog.cpp ..\..\annotat
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
@@ -14599,7 +14599,7 @@ debug\calibration_data.obj: ..\..\calibration_data.cpp ..\..\calibration_data.h 
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -14638,7 +14638,7 @@ debug\calibration_data.obj: ..\..\calibration_data.cpp ..\..\calibration_data.h 
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qmessagebox.h \
 		..\..\support\earth.h \
@@ -18402,7 +18402,7 @@ debug\engineeringdata.obj: ..\..\engineeringdata.cpp ..\..\engineeringdata.h \
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -18446,7 +18446,7 @@ debug\engineeringdata.obj: ..\..\engineeringdata.cpp ..\..\engineeringdata.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -20312,7 +20312,7 @@ debug\image_processing.obj: ..\..\image_processing.cpp ..\..\image_processing.h 
 		..\..\..\opencv\build\include\opencv2\video\background_segm.hpp
 
 debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
@@ -20458,7 +20458,7 @@ debug\location_input.obj: ..\..\location_input.cpp ..\..\location_input.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -21809,7 +21809,7 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -21851,7 +21851,7 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -22127,7 +22127,7 @@ debug\main.obj: ..\..\main.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QTextStream
 
 debug\new_location.obj: ..\..\new_location.cpp ..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qatomic.h \
@@ -23767,7 +23767,7 @@ debug\non_uniformity_correction_external_file.obj: ..\..\non_uniformity_correcti
 		..\..\support\jtime.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -23784,7 +23784,7 @@ debug\non_uniformity_correction_external_file.obj: ..\..\non_uniformity_correcti
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qdir.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qfileinfo.h \
@@ -25218,7 +25218,7 @@ debug\osm_reader.obj: ..\..\osm_reader.cpp ..\..\osm_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringview.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qstringbuilder.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qvariant.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qlist.h \
@@ -25333,7 +25333,7 @@ debug\osm_reader.obj: ..\..\osm_reader.cpp ..\..\osm_reader.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -26139,7 +26139,7 @@ debug\plot_engineering_data.obj: ..\..\plot_engineering_data.cpp ..\..\plot_engi
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qicon.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -26176,7 +26176,7 @@ debug\plot_engineering_data.obj: ..\..\plot_engineering_data.cpp ..\..\plot_engi
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -28167,7 +28167,7 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\newarp_UpperHessenbergQR_meat.hpp \
 		..\..\..\armadillo-12.2.0\include\armadillo_bits\compiler_setup_post.hpp \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\QVariant \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
@@ -28209,7 +28209,7 @@ debug\SirveApp.obj: ..\..\SirveApp.cpp ..\..\SirveApp.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qlineedit.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtGui\qtextcursor.h \
@@ -30311,7 +30311,7 @@ debug\video_display.obj: ..\..\video_display.cpp ..\..\video_display.h \
 		..\..\process_file.h \
 		..\..\osm_reader.h \
 		..\..\location_input.h \
-		ui_location_gui.h \
+		..\..\ui_location_gui.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QApplication \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\qapplication.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtCore\qcoreapplication.h \
@@ -30325,7 +30325,7 @@ debug\video_display.obj: ..\..\video_display.cpp ..\..\video_display.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QSpacerItem \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QWidget \
 		..\..\new_location.h \
-		ui_new_location.h \
+		..\..\ui_new_location.h \
 		..\..\..\5.15.2\msvc2019_64\include\QtWidgets\QLineEdit \
 		..\..\support\earth.h \
 		..\..\support\Euler.h \
