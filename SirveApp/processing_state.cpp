@@ -8,6 +8,13 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
     if (method == "Original")
     {
         processingState temp = { ProcessingMethod::original };
+        temp.state_ID = json_obj.value("state_ID").toInt();
+        temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        return temp;
+    }
+    if (method == "Replace Bad Pixels")
+    {
+        processingState temp = { ProcessingMethod::replace_bad_pixels };
         std::vector<unsigned int> replaced_pixels;
         for (auto json_item : json_obj.value("replaced_pixels").toArray())
         {
@@ -27,14 +34,37 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
     if (method == "Deinterlace")
     {
         processingState temp = { ProcessingMethod::deinterlace };
-        temp.deint_type = static_cast<DeinterlaceType>(json_obj.value("deint_type").toInt());
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
     if (method == "FNS")
@@ -45,6 +75,18 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.FNS_file_path = json_obj.value("FNS_file_path").toString();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
      if (method == "Center on OSM")
@@ -66,6 +108,18 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.find_any_tracks = json_obj.value("find_any_tracks").toBool();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
 
@@ -90,6 +144,18 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.find_any_tracks = json_obj.value("find_any_tracks").toBool();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
 
@@ -113,6 +179,18 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.offsets = offsets;
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
 
@@ -122,6 +200,18 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.frame_stack_num_frames = json_obj.value("frame_stack_num_frames").toInt();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
     if (method == "RPCP")
@@ -129,6 +219,18 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         processingState temp = { ProcessingMethod::RPCP_noise_suppression };
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
         return temp;
     }
     throw "Unexpected";

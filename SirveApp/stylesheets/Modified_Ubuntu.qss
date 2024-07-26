@@ -567,21 +567,6 @@ QGroupBox{
 	border: 0px solid gray;
 	border-width: 0px;
 }
-#grpbox_state_control_area{
-	color:black;
-	font-weight: bold;
-	font-size: 12px;
-	border: 0px solid gray;
-	border-width: 0px;
-}
-#toolbox_noise_suppresssion_methods::tab:selected, #toolbox_noise_suppresssion_methods::tab:last:selected, #toolbox_noise_suppresssion_methods::tab:hover,#toolbox_noise_suppresssion_methods::tab:selected {
-	color:rgb(0,0,0);
-	margin-left: 0px;margin-right: 1px;
-	background-color: qlineargradient(spread:pad, x1:0.5, y1:1, x2:0.5, y2:0,stop:0 rgba(245, 200, 125, 255), stop:1 rgba(255, 220, 145, 255));
-}
-#toolbox_noise_suppresssion_methods::tab:!selected {
-	color:rgb(90,40,0);
-}
 #frame_video_player {
 	border: 3px solid gray;
 	border-color:rgb(180,180,180);

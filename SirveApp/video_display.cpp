@@ -15,6 +15,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
     is_calculate_active = false;
     should_show_bad_pixels = false;
     in_track_creation_mode = false;
+    display_boresight = false;
 
     counter = 0;
     starting_frame_number = 0;
@@ -24,7 +25,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
     InitializeToggles();
 
-    plot_tracks = false;
+    plot_tracks = true;
     display_time = false;
 
     colorTable = starting_color_table;
@@ -33,11 +34,13 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
 
     xCorrection = 0;
     yCorrection = 0;
+    current_idx = -1;
 
     annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
     annotation_stencil->hide();
     annotation_stencil->move(50, 50);
 }
+
 
 VideoDisplay::~VideoDisplay()
 {
@@ -50,11 +53,20 @@ VideoDisplay::~VideoDisplay()
     delete zoom_manager;
 }
 
+void VideoDisplay::GetCurrentIdx(int current_idx_new)
+{
+    if (current_idx_new == -1)
+	{
+		return;
+	}
+	current_idx = current_idx_new;
+}
+
 void VideoDisplay::InitializeToggles()
 {
 	banner_color = QString("red");
 	banner_text = QString("EDIT CLASSIFICATION");
-	tracker_color = QString("red");
+	tracker_color = QString("blue");
 	QColor new_color(QString("Yellow"));
 	bad_pixel_color = new_color;
 }
@@ -285,9 +297,9 @@ void VideoDisplay::ToggleOsmTracks(bool input)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleSensorBoresightDataCheck()
+void VideoDisplay::HandleSensorBoresightDataCheck(bool checked)
 {
-    display_boresight_txt = !display_boresight_txt;
+    display_boresight = checked;
 
     UpdateDisplayFrame();
 }
@@ -637,7 +649,7 @@ void VideoDisplay::UpdateDisplayFrame()
             offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
         }
         offset_matrix.shed_row(0);
-        arma::uvec ind = arma::find(offset_matrix.col(0) == counter);
+        arma::uvec ind = arma::find(offset_matrix.col(0) - 1 == counter);
         if (ind.n_elem>0){
             int ri = ind(0);
             xCorrection = offsets[ri][1];
@@ -645,11 +657,11 @@ void VideoDisplay::UpdateDisplayFrame()
         }
     }
 
-    if (should_show_bad_pixels)
+    if (should_show_bad_pixels && current_idx!=-1)
     {
-        for (auto i = 0; i < container.processing_states[0].replaced_pixels.size(); i++)
+        for (auto i = 0; i < container.processing_states[current_idx].replaced_pixels.size(); i++)
         {
-            unsigned int pixel_index = container.processing_states[0].replaced_pixels[i];
+            unsigned int pixel_index = container.processing_states[current_idx].replaced_pixels[i];
             int pixel_x = pixel_index % image_x;
             int pixel_y = pixel_index / image_x;
             int new_pixel_x = pixel_x - xCorrection;
@@ -842,7 +854,7 @@ void VideoDisplay::UpdateDisplayFrame()
         }
     }
 
-    if (display_boresight_txt) {
+    if (display_boresight) {
         QPainter p2(&frame);
         p2.setPen(QPen(banner_color));
         p2.setFont(QFont("Times", 8, QFont::Bold));
@@ -895,6 +907,20 @@ void VideoDisplay::UpdateDisplayFrame()
                 std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
                 int x = loc[0];
                 int y = loc[1];
+                int new_x = x - xCorrection;
+                int new_y = y - yCorrection;
+                if (new_x < 0){
+                    new_x = new_x + image_x;
+                }
+                if (new_y < 0){
+                    new_y = new_y + image_y;
+                }
+                if (new_x > image_x){
+                    new_x = new_x - image_x;
+                }
+                if (new_y > image_y){
+                    new_y = new_y - image_y ;
+                }
 
                 if (loc[0] >= 0)
                 {
@@ -902,7 +928,7 @@ void VideoDisplay::UpdateDisplayFrame()
                     QPainter p_a(&frame);
                     p_a.setPen(QPen(annotation_color));
                     p_a.setFont(QFont("Times", font_size));
-                    p_a.drawText(x, y, annotation_text);
+                    p_a.drawText(new_x, new_y, annotation_text);
                 }
             }
         }

@@ -6,7 +6,6 @@
 #include <QString>
 
 #include "processing_state.h"
-#include "deinterlace_type.h"
 
 class VideoContainer : public QObject
 {
@@ -31,7 +30,7 @@ class VideoContainer : public QObject
         void updateDisplayVideo();
 
         void statesCleared();
-        void stateAdded(QString state_name, int index);
+        void stateAdded(QString state_name, QString combobox_state_name, int index);
         void stateRemoved(ProcessingMethod method, int index);
 
 	public slots:
