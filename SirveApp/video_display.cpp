@@ -71,9 +71,9 @@ void VideoDisplay::InitializeToggles()
 	bad_pixel_color = new_color;
 }
 
-void VideoDisplay::SetupCrosshairsCursor(QString icon_Name)
+void VideoDisplay::SetupCrosshairsCursor(QString icon_resource)
 {
-    QPixmap crosshairs_icon(icon_Name);
+    QPixmap crosshairs_icon(icon_resource);
 
     if (crosshairs_icon.isNull()) {
         qWarning("Failed to load cursor icon.");
@@ -136,11 +136,9 @@ void VideoDisplay::SetupPinpointDisplay()
 
     lbl_pinpoint = new QLabel();
 
-    QPixmap pinpoint_image("icons/crosshair.png");
-    QIcon pinpoint_icon(pinpoint_image);
     btn_pinpoint = new QPushButton();
     btn_pinpoint->setMaximumSize(40, 40);
-    btn_pinpoint->setIcon(pinpoint_icon);
+    btn_pinpoint->setIcon(QIcon(":icons/crosshair.png"));
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
     connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
@@ -157,11 +155,9 @@ void VideoDisplay::SetupPinpointDisplay()
     button_layout->addWidget(btn_pinpoint_bad_pixel);
     button_layout->addWidget(btn_pinpoint_good_pixel);
 
-    QPixmap clear_image("icons/cancel.png");
-    QIcon clear_icon(clear_image);
     btn_clear_pinpoints = new QPushButton();
     btn_clear_pinpoints->setMaximumSize(40, 40);
-    btn_clear_pinpoints->setIcon(clear_icon);
+    btn_clear_pinpoints->setIcon(QIcon(":icons/cancel.png"));
     btn_clear_pinpoints->setToolTip("Clear");
     connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::ClearPinpoints);
 
@@ -212,7 +208,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairsCursor("icons/crosshair-golden.png");
+        SetupCrosshairsCursor(":icons/crosshair-golden.png");
     } else
     {
         lbl_image_canvas->unsetCursor();
@@ -232,7 +228,8 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         emit clearMouseButtons();
         ExitSelectTrackCentroidMode();
         is_zoom_active = false;
-        is_calculate_active = false; SetupCrosshairsCursor("icons/crosshair-golden_pinpoint.png");
+        is_calculate_active = false;
+        SetupCrosshairsCursor(":icons/crosshair-golden_pinpoint.png");
     } else
     {
         lbl_image_canvas->unsetCursor();

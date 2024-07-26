@@ -53,6 +53,8 @@ SirveApp::SirveApp(QWidget *parent)
     CreateMenuActions();
 
     this->resize(0, 0);
+
+    osmDataLoaded = false;
 }
 
 SirveApp::~SirveApp() {
@@ -780,94 +782,69 @@ void SirveApp::SetupVideoFrame(){
     int button_video_height = 40;
 
     //Add icons to video playback buttons
-    QPixmap play_image("icons/play.png");
-    QIcon play_icon(play_image);
     btn_play = new QPushButton();
     btn_play->resize(button_video_width, button_video_height);
-    btn_play->setIcon(play_icon);
+    btn_play->setIcon(QIcon(":/icons/play.png"));
     btn_play->setProperty("id", "play");
     btn_play->setToolTip("Play Video");
 
-    QPixmap pause_image("icons/pause.png");
-    QIcon pause_icon(pause_image);
     btn_pause = new QPushButton();
     btn_pause->resize(button_video_width, button_video_height);
-    btn_pause->setIcon(pause_icon);
+    btn_pause->setIcon(QIcon(":/icons/pause.png"));
     btn_pause->setProperty("id", "pause");
     btn_pause->setToolTip("Pause Video");
 
-    QPixmap reverse_image("icons/reverse.png");
-    QIcon reverse_icon(reverse_image);
     btn_reverse = new QPushButton();
     btn_reverse->resize(button_video_width, button_video_height);
-    btn_reverse->setIcon(reverse_icon);
+    btn_reverse->setIcon(QIcon(":/icons/reverse.png"));
     btn_reverse->setProperty("id", "reverse");
     btn_reverse->setToolTip("Reverse Video");
 
-    QPixmap speed_up_image("icons/chevron-double-up.png");
-    QIcon speed_up_icon(speed_up_image);
     btn_fast_forward = new QPushButton();
     btn_fast_forward->resize(button_video_width, button_video_height);
-    btn_fast_forward->setIcon(speed_up_icon);
+    btn_fast_forward->setIcon(QIcon(":/icons/chevron-double-up.png"));
     btn_fast_forward->setToolTip("Increase FPS");
 
-    QPixmap next_frame_image("icons/skip-next.png");
-    QIcon next_frame_icon(next_frame_image);
     btn_next_frame = new QPushButton();
     btn_next_frame->resize(button_video_width, button_video_height);
-    btn_next_frame->setIcon(next_frame_icon);
+    btn_next_frame->setIcon(QIcon(":/icons/skip-next.png"));
     btn_next_frame->setProperty("id", "next");
     btn_next_frame->setToolTip("Next Frame");
 
-    QPixmap slow_down_image("icons/chevron-double-down.png");
-    QIcon slow_down_icon(slow_down_image);
     btn_slow_back = new QPushButton();
     btn_slow_back->resize(button_video_width, button_video_height);
-    btn_slow_back->setIcon(slow_down_icon);
-
+    btn_slow_back->setIcon(QIcon(":/icons/chevron-double-down.png"));
     btn_slow_back->setToolTip("Decrease FPS");
 
-    QPixmap prev_frame_image("icons/skip-previous.png");
-    QIcon prev_frame_icon(prev_frame_image);
     btn_prev_frame = new QPushButton();
     btn_prev_frame->resize(button_video_width, button_video_height);
-    btn_prev_frame->setIcon(prev_frame_icon);
+    btn_prev_frame->setIcon(QIcon(":/icons/skip-previous.png"));
     btn_prev_frame->setProperty("id", "previous");
     btn_prev_frame->setToolTip("Previous Frame");
 
-    QPixmap record_frame("icons/record.png");
-    QIcon record_frame_icon(record_frame);
     btn_frame_record = new QPushButton();
     btn_frame_record->resize(button_video_width, button_video_height);
-    btn_frame_record->setIcon(record_frame_icon);
+    btn_frame_record->setIcon(QIcon(":/icons/record.png"));
     btn_frame_record->setToolTip("Record Video");
 
-    QPixmap save_frame("icons/content-save.png");
-    QIcon save_frame_icon(save_frame);
     btn_frame_save = new QPushButton();
     btn_frame_save->resize(button_video_width, button_video_height);
-    btn_frame_save->setIcon(save_frame_icon);
+    btn_frame_save->setIcon(QIcon(":/icons/content-save.png"));
     btn_frame_save->setToolTip("Save Frame");
 
-    QPixmap zoom_image("icons/magnify.png");
-    QIcon zoom_icon(zoom_image);
     btn_zoom = new QPushButton();
     btn_zoom->resize(button_video_width, button_video_height);
-    btn_zoom->setIcon(zoom_icon);
+    btn_zoom->setIcon(QIcon(":/icons/magnify.png"));
     btn_zoom->setCheckable(true);
 
-    // QPixmap signal_image("icons/signal.png");
-    // QIcon signal_icon(signal_image);
-    // btn_calculate_radiance = new QPushButton();
-    // btn_calculate_radiance->resize(button_video_width, button_video_height);
-    // btn_calculate_radiance->setIcon(signal_icon);
-    // btn_calculate_radiance->setCheckable(true);
+    btn_calculate_radiance = new QPushButton();
+    btn_calculate_radiance->resize(button_video_width, button_video_height);
+    btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
+    btn_calculate_radiance->setCheckable(true);
 
-    QPixmap expand_image("icons/expand.png");
-    QIcon expand_icon(expand_image);
     btn_popout_video = new QPushButton();
     btn_popout_video->resize(button_video_width, button_video_height);
-    btn_popout_video->setIcon(expand_icon);
+    btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
     txt_goto_frame = new QLineEdit("");
     txt_goto_frame->setFixedWidth(50);
@@ -948,15 +925,11 @@ void SirveApp::SetupPlotFrame() {
 
     // create buttons in the plot controls
     btn_save_plot = new QPushButton();
-    QPixmap save_frame("icons/content-save.png");
-    QIcon save_frame_icon(save_frame);
-    btn_save_plot->setIcon(save_frame_icon);
+    btn_save_plot->setIcon(QIcon(":icons/content-save.png"));
     btn_save_plot->setToolTip("Save Plot");
 
     btn_plot_menu = new QPushButton();
-    QPixmap menu_image("icons/menu.png");
-    QIcon menu_icon(menu_image);
-    btn_plot_menu->setIcon(menu_icon);
+    btn_plot_menu->setIcon(QIcon(":icons/menu.png"));
 
     // establish layout of y-axis options
     QGridLayout* grid_plots_tab_color_groupbox = new QGridLayout(plot_groupbox);
@@ -1305,6 +1278,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots->Recolor_manual_track(track_id, new_color);
+    //data_plots->Recolor_manual_track_legend_entry(track_id, new_color);
     UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
@@ -1537,6 +1511,8 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
     data_plots = new EngineeringPlots(osm_frames);
+
+    osmDataLoaded = true;
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
     connect(btn_play, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
@@ -1841,12 +1817,8 @@ void SirveApp::StartStopVideoRecording()
     if (record_video)
     {
         //Stopping record video
-
         video_display->StopRecording();
-
-        QPixmap record_image("icons/record.png");
-        QIcon record_icon(record_image);
-        btn_frame_record->setIcon(record_icon);
+        btn_frame_record->setIcon(QIcon(":icons/record.png"));
         btn_frame_record->setText("");
         btn_frame_record->setToolTip("Start Record");
         btn_frame_record->setEnabled(true);
@@ -1859,9 +1831,7 @@ void SirveApp::StartStopVideoRecording()
 
         if (file_opened) {
 
-            QPixmap stop_image("icons/stop.png");
-            QIcon stop_icon(stop_image);
-            btn_frame_record->setIcon(stop_icon);
+            btn_frame_record->setIcon(QIcon(":icons/stop.png"));
             btn_frame_record->setText("");
             btn_frame_record->setToolTip("Stop Record");
             btn_frame_record->setEnabled(true);
@@ -2288,7 +2258,7 @@ void SirveApp::ExportAllFrames()
 
 void SirveApp::CreateMenuActions()
 {
-    QIcon on("icons/check.png");
+    QIcon on(":/icons/check.png");
 
     action_load_OSM = new QAction("Load OSM");
     action_load_OSM->setStatusTip("Load OSM abpimage file");
@@ -2560,6 +2530,35 @@ void SirveApp::UpdatePlots()
         data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
     }
 
+    if (osmDataLoaded == true)
+    {
+        for (int id : this->track_info->get_manual_track_ids())
+        {
+            QLineSeries *trackSeries = new QLineSeries();
+            trackSeries->setName("Track " + QString::number(id));
+
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+            if (existing_track_control != nullptr)
+            {
+                QComboBoxWithId *cmb_box = existing_track_control->findChild<QComboBoxWithId*>();
+
+                QPen pen;
+                QStringList color_options = ColorScheme::get_track_colors();
+                int index = cmb_box->currentIndex();
+                QColor trackColor = color_options[index];
+                pen.setColor(trackColor);
+                pen.setStyle(Qt::SolidLine);
+                pen.setWidth(3);
+
+                trackSeries->setPen(pen);
+
+                trackSeries->append(0, 0);
+                trackSeries->append(0, 0);
+
+                data_plots->chart->addSeries(trackSeries);
+            }
+        }
+    }
 }
 
 void SirveApp::AnnotateVideo()

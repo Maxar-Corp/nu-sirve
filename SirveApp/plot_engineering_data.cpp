@@ -1,9 +1,8 @@
 #include "plot_engineering_data.h"
-#include "qdebug.h"
 #include "qrubberband.h"
-#include "SirveApp.h"
 
 #include <QPushButton>
+#include <QLegendMarker>
 
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
@@ -135,6 +134,7 @@ void EngineeringPlots::PlotBoresightAzimuth()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -157,6 +157,7 @@ void EngineeringPlots::PlotBoresightElevation()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -179,6 +180,7 @@ void EngineeringPlots::PlotFovX()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -201,6 +203,7 @@ void EngineeringPlots::PlotFovY()
     QLineSeries* series = new QLineSeries();
     QColor base_color(colors.get_current_color());
     series->setColor(base_color);
+    series->setName("OSM Data");
 
     if (plot_all_data)
     {
@@ -223,16 +226,15 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries* series = new QLineSeries();
-        // QColor base_color(colors.get_current_color());
-        // QColor base_color = new_color;
+
         series->setColor(new_color);
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
+
         AddSeries(series, x_values, y_values, new_color, true);
 
-        // colors.get_next_color();
     }
 
     for (int track_id : manual_track_ids)
@@ -255,24 +257,22 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
     else
+
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
 }
-
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 {
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
-        // QColor base_color(colors.get_current_color());
-        // QColor base_color = new_color;
+
         series->setColor(new_color);
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
-        AddSeries(series, x_values, y_values, new_color, true);
 
-        // colors.get_next_color();
+        AddSeries(series, x_values, y_values, new_color, true);
     }
 
     for (int track_id : manual_track_ids)
@@ -305,6 +305,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
+
         // QColor base_color(colors.get_current_color());
         // QColor base_color = new_color;
         series->setColor(new_color);
@@ -313,8 +314,6 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
         AddSeries(series, x_values, y_values, new_color, true);
-
-        // colors.get_next_color();
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
     }
@@ -521,8 +520,8 @@ void EngineeringPlots::PlotCurrentStep(int counter)
         }
 
         current_frame_marker->clear();
-        current_frame_marker->append(current_x, min_y);  
-        current_frame_marker->append(current_x, fixed_max_y);
+        current_frame_marker->append(current_x, min_y);
+        current_frame_marker->append(current_x, max_y);
     }
 }
 
@@ -687,7 +686,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
             if (axisY) {
                 savedChartState.yMin = axisY->min();
-                savedChartState.yMax = axisY->max();
+                savedChartState.yMax = 1000000000000;
             }
         }
         is_zoomed = true;
@@ -812,6 +811,7 @@ void QtPlotting::AddSeriesWithColor(std::vector<double> x, std::vector<double> y
         }
 
         series->append(x[i], y[i]);
+        base_x_distance = 1.5 * x[i] - x[i-1];
     }
 
     chart->addSeries(series);
@@ -859,7 +859,14 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
         }
     }
 
-    // chart->addSeries(series);
+    QPen pen;
+    QColor trackColor = colors.get_current_color();
+    pen.setColor(trackColor);
+    pen.setStyle(Qt::SolidLine);
+    pen.setWidth(3);
+    series->setPen(pen);
+    chart->addSeries(series);
+
     if ((num_breaks > 0) & broken_data)
         RemoveSeriesLegend();
 }
@@ -914,7 +921,6 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
         if (max_y <= 0.001)
             max_y = 0.01;
 
-        qDebug() << "MAX_Y" << max_y;
         axis_ylog->setRange(min_y, max_y);
         axis_ylog->setTitleText(y_title);
     }
@@ -946,10 +952,20 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
     chart->setMargins(QMargins(0, 0, 0, 0));
 
     // Legend properties
-    chart->legend()->setVisible(false);
-    //chart->legend()->setAlignment(Qt::AlignRight);
-    //chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignTop);
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeDefault);
 
+    // Get all legend markers
+    QList<QLegendMarker *> markers = chart->legend()->markers();
+
+    // Hide all but the OSM marker at index 1:
+    markers[0]->setVisible(false);
+
+    for (int i = 2; i < markers.size(); i++) {
+
+        markers[i]->setVisible(false);
+    }
 }
 
 void QtPlotting::set_axis_limits(QAbstractAxis *axis, double min_x, double max_x)

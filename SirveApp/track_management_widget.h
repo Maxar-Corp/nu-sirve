@@ -27,6 +27,7 @@ signals:
     void hideTrack(int id);
     void deleteTrack(int id);
     void recolorTrack(int id, QColor color);
+    void recolorLegend(int id, QColor color);
 
 private:
     QWidget* CreateTrackControl(int id);
