@@ -24,7 +24,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-struct ChartState
+    struct ChartState
 {
     qreal xMin;
     qreal xMax;
@@ -75,7 +75,8 @@ public:
     QChart *chart;
     NewChartView *chart_view;
     ColorScheme colors;
-    QColor new_color;
+    QColor osm_track_color;
+
     QtPlotting();
     ~QtPlotting();
 
@@ -86,7 +87,7 @@ public:
     bool yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
 
     void StartNewChart();
-    void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, QColor color, bool broken_data = false);
+    void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
     void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, QColor color);
     void RemoveSeriesLegend();
     void DefineChartProperties(double min_x, double max_x, double min_y, double max_y);
@@ -113,7 +114,7 @@ public:
     bool plot_all_data, plot_primary_only, plot_current_marker;
     double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
     unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
-    QColor new_color;
+
     std::vector<double> past_midnight, past_epoch;
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
     std::vector<double> boresight_az, boresight_el;
@@ -124,11 +125,11 @@ public:
     std::vector<PlottingFrameData> engineering_data;
 
     void SetYAxisChartId(int yaxis_chart_id);
-;
+
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
-    void Recolor_manual_track(int track_id, QColor new_color0);
-    void Recolor_OSM_track(QString new_color0);
+    void Recolor_manual_track(int track_id, QColor new_color);
+    void Recolor_OSM_track(QString new_color);
 
     void toggle_yaxis_log(bool input);
     void toggle_yaxis_scientific(bool input);
