@@ -29,25 +29,27 @@ struct processingState {
     //NOTE: This is a poor implementation of "polymorphic" configuration but can be cleaned up in a future refactor
     //These fields will only contain a value if the Processing_Method field is set to indicate they should
     //The burden is on consumers of the processingState struct to correctly interpret the fields
+    int source_state_ID;
+    int state_ID;
+    
     std::vector<unsigned int> replaced_pixels;
 
     int ANS_relative_start_frame;
     int ANS_num_frames;
-    int frame_stack_num_frames;
     int ANS_shadow_threshold;
+    bool ANS_hide_shadow;
 
-    int source_state_ID;
-    int state_ID;
     QString FNS_file_path;
     int FNS_start_frame;
     int FNS_stop_frame;
 
-    DeinterlaceType deint_type;
-    int track_id;
-	std::vector<std::vector<int>> offsets;
-    bool find_any_tracks;
+    int frame_stack_num_frames;
 
-	bool ANS_hide_shadow;
+    DeinterlaceType deint_type;
+
+	std::vector<std::vector<int>> offsets;
+    int track_id;
+    bool find_any_tracks;
 
     QString get_friendly_description() {
        switch (method)
@@ -63,7 +65,13 @@ struct processingState {
                 }
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
-                return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
+            if (ANS_hide_shadow){
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow) + ". Shadow threshold set to " + QString::number(ANS_shadow_threshold);
+                }
+                else
+                {
+                    return "<Source State " + QString::number(source_state_ID) + "> ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames) + " frames.  Hide Shadow option set to " + QString::number(ANS_hide_shadow);
+                }
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 //may potentially want to leave fns_file_path empty if it isn't an external file?

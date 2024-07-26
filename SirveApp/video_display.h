@@ -195,7 +195,7 @@ private:
     void SetupCreateTrackControls();
     void SetupPinpointDisplay();
 
-    void SetupCrosshairsCursor();
+    void SetupCrosshairsCursor(QString icon_Name);
     void ExitSelectTrackCentroidMode();
 
     void Calibrate(QRect area);

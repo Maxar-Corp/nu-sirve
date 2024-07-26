@@ -40,19 +40,24 @@ EngineeringPlots::~EngineeringPlots()
 
 void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 {
-    float current_scale_factor = chart_y_maxes[yaxis_chart_id] / chart_y_maxes[current_chart_id];
-
     // If the chart type has changed,
     if (current_chart_id != yaxis_chart_id)
     {
         // Get the chart state object for updating
-        ChartState cs = this->chart_view->get_chart_state();
+        ChartState chartState = this->chart_view->get_chart_state();
 
         // Record the state of the chart we are leaving behind:
-        QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-        cs.scale_factor_max = axisY->max() / chart_y_maxes[current_chart_id];
-        cs.scale_factor_min = axisY->min() / chart_y_maxes[current_chart_id];
-        this->chart_view->set_chart_state(cs);
+        if (yaxis_is_log) {
+            chartState.scale_factor_max = axis_ylog->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_min = axis_ylog->min() / chart_y_maxes[current_chart_id];
+        } else
+        {
+            QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
+            chartState.scale_factor_max = axisY->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_min = axisY->min() / chart_y_maxes[current_chart_id];
+        }
+
+        this->chart_view->set_chart_state(chartState);
     }
 
     current_chart_id = yaxis_chart_id;
@@ -107,7 +112,7 @@ void EngineeringPlots::PlotChart()
     DrawTitle();
 
     if (this->chart_view->is_zoomed)
-    {
+    {       
         // We're on a new chart. Apply the target ranges to the axes:
         ChartState chartState = this->chart_view->get_chart_state();
 
@@ -251,9 +256,9 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
     else
+
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
 }
-
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 {
     for (size_t i = 0; i < plot_number_tracks; i++)
@@ -513,8 +518,8 @@ void EngineeringPlots::PlotCurrentStep(int counter)
         }
 
         current_frame_marker->clear();
-        current_frame_marker->append(current_x, min_y);  
-        current_frame_marker->append(current_x, fixed_max_y);
+        current_frame_marker->append(current_x, min_y);
+        current_frame_marker->append(current_x, max_y);
     }
 }
 
@@ -642,6 +647,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::RightButton)
     {
+        newchart->zoomOut();
         newchart->zoomReset();
         is_zoomed = false;
 
@@ -649,6 +655,9 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         newchart->update();
 
         emit updatePlots();
+
+        clearSeriesByName("Red Line");
+        newchart->update();
 
         return;
     } else
@@ -675,7 +684,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
             if (axisY) {
                 savedChartState.yMin = axisY->min();
-                savedChartState.yMax = axisY->max();
+                savedChartState.yMax = 1000000000000;
             }
         }
         is_zoomed = true;
@@ -799,6 +808,7 @@ void QtPlotting::AddSeriesWithColor(std::vector<double> x, std::vector<double> y
         }
 
         series->append(x[i], y[i]);
+        base_x_distance = 1.5 * x[i] - x[i-1];
     }
 
     chart->addSeries(series);
@@ -905,6 +915,8 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
             min_y = 0.01;
         if (max_y <= 0.001)
             max_y = 0.01;
+
+        qDebug() << "MAX_Y" << max_y;
         axis_ylog->setRange(min_y, max_y);
         axis_ylog->setTitleText(y_title);
     }

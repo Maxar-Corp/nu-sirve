@@ -161,7 +161,7 @@ private:
     XAxisPlotVariables x_axis_units;
 
     bool is_moving;
-    int fixed_max_y;
+    float fixed_max_y;
 
     void EstablishPlotLimits();
     void CreateCurrentMarker();
