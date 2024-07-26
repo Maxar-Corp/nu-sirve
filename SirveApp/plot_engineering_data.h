@@ -143,6 +143,7 @@ public:
 
 signals:
     void changeMotionStatus(bool status);
+    void updatePlots();
 
 public slots:
 
