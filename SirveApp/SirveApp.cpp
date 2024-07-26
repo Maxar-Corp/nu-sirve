@@ -1277,7 +1277,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
-    data_plots->Recolor_manual_track(track_id, new_color);
+    data_plots->RecolorManualTrack(track_id, new_color);
     //data_plots->Recolor_manual_track_legend_entry(track_id, new_color);
     UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
@@ -2458,7 +2458,7 @@ void SirveApp::EditTrackerColor()
 {
     QString tracker_color = cmb_tracker_color->currentText();
     video_display->HandleTrackerColorUpdate(tracker_color);
-    data_plots->Recolor_OSM_track(tracker_color);
+    data_plots->RecolorOsmTrack(tracker_color);
     // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
