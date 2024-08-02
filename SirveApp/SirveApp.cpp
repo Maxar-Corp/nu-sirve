@@ -1278,8 +1278,14 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots->RecolorManualTrack(track_id, new_color);
+    double xmax = data_plots->axis_x->max();
+    double xmin = data_plots->axis_x->min();
+    double ymax = data_plots->axis_y->max();
+    double ymin = data_plots->axis_y->min();
     //data_plots->Recolor_manual_track_legend_entry(track_id, new_color);
     UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
+    data_plots->set_xaxis_limits(xmin,xmax);
+    data_plots->set_yaxis_limits(ymin,ymax);
 }
 
 void SirveApp::SaveWorkspace()
@@ -2460,7 +2466,13 @@ void SirveApp::EditTrackerColor()
 {
     QString tracker_color = cmb_tracker_color->currentText();
     video_display->HandleTrackerColorUpdate(tracker_color);
+    double xmax = data_plots->axis_x->max();
+    double xmin = data_plots->axis_x->min();
+    double ymax = data_plots->axis_y->max();
+    double ymin = data_plots->axis_y->min();
     data_plots->RecolorOsmTrack(tracker_color);
+    data_plots->set_xaxis_limits(xmin,xmax);
+    data_plots->set_yaxis_limits(ymin,ymax);
     // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
