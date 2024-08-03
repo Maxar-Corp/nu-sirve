@@ -29,9 +29,11 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
     int ncols = original.x_pixels;
     u_int indx0 = start_frame - 1;
     arma::vec image_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[indx0]);
-    image_vector = image_vector - arma::mean(image_vector);
-    image_vector.elem((arma::find(image_vector<0))).zeros();
-    // image_vector = image_vector - image_vector.min();
+    double m0, s0, m, s;
+    m0 = arma::mean(image_vector);
+    s0 = arma::stddev(image_vector);
+    image_vector.clamp(m0 - 3*s0, m0 + 3*s0);
+    image_vector = image_vector - image_vector.min();
     image_vector = 255*image_vector/image_vector.max();
     int num_video_frames = original.frames_16bit.size();
 
@@ -61,17 +63,20 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
         indx = (indx0 + i);
 
         arma::vec image_vector_i = arma::conv_to<arma::vec>::from(original.frames_16bit[indx]);
-        image_vector_i = image_vector_i - arma::mean(image_vector_i);
-        image_vector_i.elem((arma::find(image_vector_i<0))).zeros();
-        // image_vector_i = image_vector_i - image_vector_i.min();
+        m = arma::mean(image_vector_i);
+        s = arma::stddev(image_vector_i);
+        image_vector_i.clamp(m - 3*s, m + 3*s);
+        image_vector_i = image_vector_i - image_vector_i.min();
         image_vector_i = 255*image_vector_i/image_vector_i.max();
 
         cv::Mat frame_matrix_i = cv::Mat(nrows,ncols,CV_64FC1,image_vector_i.memptr());
-        cv::Mat frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, frame_matrix_i_filtered_8bit_color, frame_matrix_i_filtered_color;
+
+        cv::Mat frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, frame_matrix_i_filtered_8bit_color;
+
         frame_matrix_i.convertTo(frame_matrix_i_8bit, CV_8UC1);
         // cv::fastNlMeansDenoising(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, 10,7,21);
         cv::GaussianBlur(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, cv::Size(5,5), 0);
-        frame_matrix_i_filtered_8bit.convertTo(frame_matrix_i_filtered_color,CV_32FC1);
+        // frame_matrix_i_filtered_8bit.convertTo(frame_matrix_i_filtered_color,CV_32FC1);
         cv::cvtColor(frame_matrix_i_filtered_8bit,frame_matrix_i_filtered_8bit_color,cv::COLOR_GRAY2RGB);
         
         bool ok = tracker->update(frame_matrix_i_filtered_8bit_color,ROI);

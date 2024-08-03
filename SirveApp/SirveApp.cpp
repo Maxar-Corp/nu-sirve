@@ -859,7 +859,6 @@ void SirveApp::SetupVideoFrame(){
     // hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
     hlayout_video_buttons->addItem(formLayout);
-    // hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
@@ -3521,6 +3520,8 @@ void SirveApp::ExecuteAutoTracking()
             QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
             return;
         }
+        double lift = lbl_lift_value->text().toDouble();
+        double gain = lbl_gain_value->text().toDouble();
         arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
         
         if (!autotrack.empty()){
@@ -3610,7 +3611,7 @@ void SirveApp::EnableEngineeringPlotOptions()
     cmb_plot_yaxis->clear();
     cmb_plot_yaxis->setEnabled(true);
     cmb_plot_yaxis->setFixedWidth(150);
-    cmb_plot_yaxis->addItem(QString("Irradiance"));
+    cmb_plot_yaxis->addItem(QString("ROI Counts"));
     cmb_plot_yaxis->addItem(QString("Azimuth"));
     cmb_plot_yaxis->addItem(QString("Elevation"));
     cmb_plot_yaxis->addItem(QString("IFOV - X"));
@@ -3882,7 +3883,7 @@ void SirveApp::UpdateGlobalFrameVector()
     double lift = lbl_lift_value->text().toDouble();
     double gain = lbl_gain_value->text().toDouble();
 
-    int max_val = std::round(image_max_value* gain);
+    int max_val = std::round(image_max_value * gain);
     QString max_val_info = "Dark Set Pt: " + QString::number(max_val);
     lbl_max_count_val->setText(max_val_info);
 

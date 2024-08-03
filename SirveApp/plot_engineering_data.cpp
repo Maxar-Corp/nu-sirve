@@ -81,7 +81,7 @@ void EngineeringPlots::PlotChart()
     switch (current_chart_id)
     {
     case 0:
-        y_title = QString("Irradiance Counts");
+        y_title = QString("ROI Counts");
         PlotIrradiance(plot_number_tracks);
         break;
     case 1:
@@ -531,9 +531,9 @@ void EngineeringPlots::DrawTitle()
     QColor brush_color("black");
     QBrush brush(brush_color);
 
-    QFont font;
-    font.setPointSize(10);
-    font.setBold(true);
+    QFont font("Times New Roman", 12, QFont::Bold);
+    // font.setPointSize(10);
+    // font.setBold(true);
 
     chart->setTitleBrush(brush);
     chart->setTitleFont(font);
