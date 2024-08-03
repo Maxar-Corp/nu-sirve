@@ -29,9 +29,9 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
     int ncols = original.x_pixels;
     u_int indx0 = start_frame - 1;
     arma::vec image_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[indx0]);
-    // image_vector = image_vector - arma::mean(image_vector);
-    // image_vector.elem((arma::find(image_vector<0))).zeros();
-    image_vector = image_vector - image_vector.min();
+    image_vector = image_vector - arma::mean(image_vector);
+    image_vector.elem((arma::find(image_vector<0))).zeros();
+    // image_vector = image_vector - image_vector.min();
     image_vector = 255*image_vector/image_vector.max();
     int num_video_frames = original.frames_16bit.size();
 
@@ -44,20 +44,26 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
     cv::cvtColor(frame_matrix_filtered_8bit,frame_matrix_filtered_8bit_color,cv::COLOR_GRAY2RGB);
 
     Ptr<Tracker> tracker = TrackerMIL::create();
-    Rect ROI = cv::selectROI(frame_matrix_filtered_8bit_color);
+    Rect ROI = cv::selectROI("ROI Selection",frame_matrix_filtered_8bit_color);
     tracker->init(frame_matrix_filtered_8bit_color,ROI);
 
     int num_frames = stop_frame - start_frame + 1;
     arma::u32_mat output(num_frames,4);
     u_int indx;
+    cv::destroyWindow("ROI Selection");
     for (u_int i = 0; i < num_frames; i++) {
+        if (cancel_operation)
+		{
+            cv::destroyAllWindows();
+            return arma::u32_mat ();
+		}
         UpdateProgressBar(i);
         indx = (indx0 + i);
 
         arma::vec image_vector_i = arma::conv_to<arma::vec>::from(original.frames_16bit[indx]);
-        // image_vector_i = image_vector_i - arma::mmean(image_vector_i);
-        // image_vector_i.elem((arma::find(image_vector_i<0))).zeros();
-        image_vector_i = image_vector_i - image_vector_i.min();
+        image_vector_i = image_vector_i - arma::mean(image_vector_i);
+        image_vector_i.elem((arma::find(image_vector_i<0))).zeros();
+        // image_vector_i = image_vector_i - image_vector_i.min();
         image_vector_i = 255*image_vector_i/image_vector_i.max();
 
         cv::Mat frame_matrix_i = cv::Mat(nrows,ncols,CV_64FC1,image_vector_i.memptr());
