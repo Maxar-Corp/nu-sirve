@@ -363,16 +363,19 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     // hlayout_slider_controls->insertStretch(-1,0);
     vlayout_image_controls->addLayout(hlayout_slider_controls);
     QHBoxLayout *hlayout_colormap_controls = new QHBoxLayout;
+    hlayout_colormap_controls->addWidget(lbl_min_scale_value);
     hlayout_colormap_controls->addLayout(form_colormap_control);
+    hlayout_colormap_controls->insertStretch(2,0);
+    hlayout_colormap_controls->addWidget(lbl_max_scale_value);
     // hlayout_colormap_controls->addWidget(grpbox_scale_options);
     // hlayout_colormap_controls->insertStretch(-1,0);
     vlayout_image_controls->addWidget(grpbox_scale_options);
     vlayout_image_controls->addLayout(hlayout_colormap_controls);
     QHBoxLayout *hlayout_colormap_bar = new QHBoxLayout;
-    hlayout_colormap_bar->addWidget(lbl_min_scale_value);
-    hlayout_colormap_bar->addWidget(color_map_display);
-    hlayout_colormap_bar->addWidget(lbl_max_scale_value);
+    // hlayout_colormap_bar->addWidget(lbl_min_scale_value);
+    // hlayout_colormap_bar->addWidget(lbl_max_scale_value);
     // hlayout_colormap_bar->insertStretch(1,0);
+    vlayout_image_controls->addWidget(color_map_display);
     vlayout_image_controls->addLayout(hlayout_colormap_bar);
     QHBoxLayout *hlayout_colormap_bar_row2 = new QHBoxLayout;
     hlayout_colormap_bar_row2->addWidget(lbl_min_count_val);
@@ -502,13 +505,13 @@ QWidget* SirveApp::SetupProcessingTab() {
 	cmb_bad_pixel_color->setCurrentIndex(2);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
 
-    QFormLayout *form_highlight_bad_pixesl = new QFormLayout;
-    form_highlight_bad_pixesl->addRow(tr(""),chk_highlight_bad_pixels);
-    form_highlight_bad_pixesl->addRow(tr("&Color"),cmb_bad_pixel_color);
+    QFormLayout *form_highlight_bad_pixels = new QFormLayout;
+    form_highlight_bad_pixels->addRow(tr(""),chk_highlight_bad_pixels);
+    form_highlight_bad_pixels->addRow(tr("&Color"),cmb_bad_pixel_color);
     QHBoxLayout *hlayout_bad_pixels_display = new QHBoxLayout;
     hlayout_bad_pixels_display->addWidget(btn_replace_bad_pixels);
-    hlayout_bad_pixels_display->addLayout(form_highlight_bad_pixesl);
-    hlayout_bad_pixels_display->insertStretch(1,0);
+    hlayout_bad_pixels_display->addLayout(form_highlight_bad_pixels);
+    hlayout_bad_pixels_display->insertStretch(-1,0);
 
     vlayout_bad_pixels->addWidget(lbl_bad_pixel_count);
     vlayout_bad_pixels->addWidget(chk_bad_pixels_from_original);
