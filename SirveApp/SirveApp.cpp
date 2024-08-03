@@ -342,11 +342,9 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     QHBoxLayout *hlayout_gain_slider = new QHBoxLayout;
     hlayout_lift_slider->addLayout(form_slider_lift_control);
     hlayout_lift_slider->addWidget(lbl_lift_value);
-    // hlayout_lift_slider->insertStretch(-1,0);
     vlayout_scale_sliders->addLayout(hlayout_lift_slider);
     hlayout_gain_slider->addLayout(form_slider_gain_control);
     hlayout_gain_slider->addWidget(lbl_gain_value);
-    // hlayout_gain_slider->insertStretch(-1,0);
     vlayout_scale_sliders->addLayout(hlayout_gain_slider);
     
     QFormLayout *form_colormap_control = new QFormLayout;
@@ -360,28 +358,21 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     vlayout_image_controls->addLayout(hlayout_auto_gain_group);
     QHBoxLayout *hlayout_slider_controls = new QHBoxLayout;
     hlayout_slider_controls->addLayout(vlayout_scale_sliders);
-    // hlayout_slider_controls->insertStretch(-1,0);
     vlayout_image_controls->addLayout(hlayout_slider_controls);
     QHBoxLayout *hlayout_colormap_controls = new QHBoxLayout;
     hlayout_colormap_controls->addWidget(lbl_min_scale_value);
     hlayout_colormap_controls->addLayout(form_colormap_control);
     hlayout_colormap_controls->insertStretch(2,0);
     hlayout_colormap_controls->addWidget(lbl_max_scale_value);
-    // hlayout_colormap_controls->addWidget(grpbox_scale_options);
-    // hlayout_colormap_controls->insertStretch(-1,0);
     vlayout_image_controls->addWidget(grpbox_scale_options);
     vlayout_image_controls->addLayout(hlayout_colormap_controls);
     QHBoxLayout *hlayout_colormap_bar = new QHBoxLayout;
-    // hlayout_colormap_bar->addWidget(lbl_min_scale_value);
-    // hlayout_colormap_bar->addWidget(lbl_max_scale_value);
-    // hlayout_colormap_bar->insertStretch(1,0);
     vlayout_image_controls->addWidget(color_map_display);
     vlayout_image_controls->addLayout(hlayout_colormap_bar);
     QHBoxLayout *hlayout_colormap_bar_row2 = new QHBoxLayout;
     hlayout_colormap_bar_row2->addWidget(lbl_min_count_val);
     hlayout_colormap_bar_row2->addWidget(btn_reset_color_correction);
     hlayout_colormap_bar_row2->addWidget(lbl_max_count_val);
-    // hlayout_colormap_bar_row2->insertStretch(-1,0);
     vlayout_image_controls->addLayout(hlayout_colormap_bar_row2);
     vlayout_image_controls->insertStretch(-1,0);
     vlayout_tab_color->addWidget(grpbox_image_controls);
@@ -481,7 +472,6 @@ QWidget* SirveApp::SetupProcessingTab() {
     form_replace_which_pixels_col1->addRow(tr("&Replace Pixels:"),cmb_bad_pixels_type);
     form_replace_which_pixels_col1->addRow(tr("&Method:"),cmb_outlier_processing_type);
     form_replace_which_pixels_col1->addRow(tr("&Sensitivity:"),cmb_outlier_processing_sensitivity);
-    // form_replace_which_pixels_col1->addRow(tr(""),btn_replace_bad_pixels);
     form_replace_which_pixels_col1->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
 
 	txt_bad_pixel_start_frame = new QLineEdit("1");
@@ -519,8 +509,6 @@ QWidget* SirveApp::SetupProcessingTab() {
     hlayout_bad_pixels->addLayout(form_replace_which_pixels_col1);
     hlayout_bad_pixels->addLayout(form_replace_which_pixels_col2);
     vlayout_bad_pixels->addLayout(hlayout_bad_pixels_display);
-    // vlayout_bad_pixels->addWidget(btn_replace_bad_pixels);
-    // hlayout_bad_pixels->insertStretch(1, 0);
     hlayout_bad_pixels->insertStretch(-1, 0);
     vlayout_bad_pixels->insertStretch(-1, 0);
     // ------------------------------------------------------------------------
@@ -2902,7 +2890,12 @@ void SirveApp::ExecuteFixedNoiseSuppression()
 
     if (!chk_FNS_external_file->isChecked())
     {
-        int delta_frames = data_plots->index_sub_plot_xmax - data_plots->index_sub_plot_xmin;
+        if (txt_FNS_stop_frame->text().toInt() > video_display->container.processing_states[0].details.frames_16bit.size()){
+            txt_FNS_stop_frame->setText(QString::number(video_display->container.processing_states[0].details.frames_16bit.size()));
+        }
+        if (txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){
+            txt_FNS_start_frame->setText(QString::number(std::max(txt_FNS_stop_frame->text().toInt()-1,0)));
+        }
         int start_frame = txt_FNS_start_frame->text().toInt();
         int end_frame = txt_FNS_stop_frame->text().toInt();
         int source_state_idx = cmb_processing_states->currentIndex();
