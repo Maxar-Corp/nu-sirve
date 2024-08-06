@@ -31,9 +31,6 @@ public:
 
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-
-    // TrackDetails SingleTracker(int start_frame, int stop_frame, VideoDetails & original);
-
     arma::u32_mat SingleTracker(u_int track_id, int frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
 
 signals:
@@ -43,7 +40,6 @@ public slots:
     void CancelOperation();
 
 private:
-
 
 };
 
