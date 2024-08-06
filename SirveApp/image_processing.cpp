@@ -430,32 +430,45 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 
 void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
 {	
-	frame_vector = frame_vector/arma::stddev(frame_vector.as_col());
-	arma::mat frame_matrix = arma::reshape(frame_vector,nCols,nRows).t();
-	arma::uvec index_negative = arma::find(frame_vector < NThresh);
-	arma::vec old_frame_vector_mean;
-	double MEAN, SIGMA;
-    old_frame_vector_mean = arma::mean(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
-    old_frame_vector_mean -= arma::mean(old_frame_vector_mean);
-    old_frame_vector_mean = old_frame_vector_mean/arma::stddev(old_frame_vector_mean);
-    arma::mat old_frame_mean_mat = arma::reshape(old_frame_vector_mean,nCols,nRows).t();
-    arma::mat old_frame_mean_mat_blurred = arma::conv2(old_frame_mean_mat,disk_avg_kernel,"same");
-    arma::uvec index_change = arma::find(old_frame_mean_mat_blurred.t() - frame_matrix.t() > NThresh);
+    double MEAN, SIGMA;
+    cv::Mat frame_matrix_filtered_negative, old_frame_matrix_filtered_positive;
+
+    cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
+    cv::Mat frame_matrix_filtered;
+    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, cv::Size(5,5), 0);
+    arma::mat processed_frame_matrix( reinterpret_cast<double*>(frame_matrix_filtered.data), frame_matrix_filtered.cols, frame_matrix_filtered.rows );
+    arma::uvec index_negative = arma::find(processed_frame_matrix <= arma::mean(processed_frame_matrix.as_col() - (NThresh-1)*arma::stddev(processed_frame_matrix.as_col())));
+
+    arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
+    cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
+    cv::Mat old_frame_matrix_filtered;
+    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, cv::Size(5,5), 0);
+    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_matrix_filtered.data), old_frame_matrix_filtered.cols,  old_frame_matrix_filtered.rows );
+    arma::uvec index_positive = arma::find(processed_old_frame_matrix >= arma::mean(processed_old_frame_matrix.as_col() + (NThresh)*arma::stddev(processed_old_frame_matrix.as_col())));
+
+    arma::uvec index_change = arma::intersect(index_positive,index_negative);
     if(index_change.n_elem>0){
-        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 3);
+        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+3*arma::stddev(frame_vector.as_col()));
         if(index_other.n_elem>0){
             MEAN = arma::mean(frame_vector.elem(index_other));
             SIGMA = arma::stddev(frame_vector.elem(index_other));
+            if (SIGMA!=0){
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change.size(),arma::distr_param(0,index_other.n_elem-1));
+                arma::vec v = arma::randn<arma::vec>(index_other.size(),arma::distr_param(MEAN,SIGMA));
+                frame_vector.elem(index_change) = v.elem(rindices);
+            }
         }
         else{
             MEAN = arma::mean(frame_vector);
             SIGMA = arma::stddev(frame_vector);
-        }
-        if (SIGMA!=0){	
-            frame_vector.elem(index_change) = arma::randn<arma::vec>(index_change.size(),arma::distr_param(MEAN,SIGMA));
-        }
+            if (SIGMA!=0){	
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change.size(),arma::distr_param(0,frame_vector.n_elem-1));
+                arma::vec v = arma::randn<arma::vec>(frame_vector.size(),arma::distr_param(MEAN,SIGMA));
+                frame_vector.elem(index_change) = v.elem(rindices);
+            }               
+        }   
     }
-	frame_vector -= frame_vector.min();
+    frame_vector -= frame_vector.min();
 }
 
 

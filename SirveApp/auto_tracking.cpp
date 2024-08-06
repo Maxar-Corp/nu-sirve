@@ -25,6 +25,7 @@ void AutoTracking::CancelOperation()
 
 arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
+    int num_video_frames = original.frames_16bit.size();
     int nrows = original.y_pixels;
     int ncols = original.x_pixels;
     u_int indx0 = start_frame - 1;
@@ -35,7 +36,6 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
     image_vector.clamp(m0 - 3*s0, m0 + 3*s0);
     image_vector = image_vector - image_vector.min();
     image_vector = 255*image_vector/image_vector.max();
-    int num_video_frames = original.frames_16bit.size();
 
     cv::Mat frame_matrix = cv::Mat(nrows,ncols,CV_64FC1,image_vector.memptr());
     cv::Mat frame_matrix_8bit, frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color;
