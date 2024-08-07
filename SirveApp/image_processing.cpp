@@ -435,15 +435,18 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
 
     cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
     cv::Mat frame_matrix_filtered;
-    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, cv::Size(5,5), 0);
+    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, cv::Size(5,5), 2);
     arma::mat processed_frame_matrix( reinterpret_cast<double*>(frame_matrix_filtered.data), frame_matrix_filtered.cols, frame_matrix_filtered.rows );
     arma::uvec index_negative = arma::find(processed_frame_matrix <= arma::mean(processed_frame_matrix.as_col() - (NThresh-1)*arma::stddev(processed_frame_matrix.as_col())));
 
     arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
     cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
     cv::Mat old_frame_matrix_filtered;
-    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, cv::Size(5,5), 0);
-    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_matrix_filtered.data), old_frame_matrix_filtered.cols,  old_frame_matrix_filtered.rows );
+    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, cv::Size(5,5), 2);
+    cv::Mat SE = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(2,2));
+    cv::Mat old_frame_closed;
+    cv::morphologyEx(old_frame_matrix_filtered,old_frame_closed,cv::MORPH_CLOSE,SE);
+    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_closed.data), old_frame_closed.cols,  old_frame_closed.rows );
     arma::uvec index_positive = arma::find(processed_old_frame_matrix >= arma::mean(processed_old_frame_matrix.as_col() + (NThresh)*arma::stddev(processed_old_frame_matrix.as_col())));
 
     arma::uvec index_change = arma::intersect(index_positive,index_negative);
