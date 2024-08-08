@@ -431,18 +431,18 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
 {	
     double MEAN, SIGMA;
-    int gs = 2;
+    int gs = 3;
     cv::Scalar m, s, m_old, s_old;
-    cv::Size g(5,5);
+    cv::Size g(7,7);
 
-    cv::Mat SE_dilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(2,2));
+    cv::Mat SE_dilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(3,3));
     cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(5,5));
 
     cv::Mat frame_matrix_filtered_gray, frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
 
     cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
     cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
-    cv::cvtColor(frame_matrix_filtered, frame_matrix_filtered_gray, cv::COLOR_BGR2GRAY );
+    cv::normalize(frame_matrix_filtered, frame_matrix_filtered_gray, 0, 255, cv::NORM_MINMAX );
     cv::meanStdDev(frame_matrix_filtered_gray,m,s);
     cv::threshold(frame_matrix_filtered_gray,frame_matrix_filtered_threshold,m[0]-NThresh*s[0],255,cv::THRESH_BINARY_INV);
     cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
@@ -456,9 +456,9 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
     arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
     cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
     cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, g, gs);
-    cv::cvtColor(old_frame_matrix_filtered, old_frame_matrix_filtered_gray, cv::COLOR_BGR2GRAY );
+    cv::normalize(old_frame_matrix_filtered, old_frame_matrix_filtered_gray, 0, 255, cv::NORM_MINMAX );
     cv::meanStdDev(old_frame_matrix_filtered_gray,m_old,s_old);
-    cv::threshold(old_frame_matrix_filtered_gray,old_frame_matrix_filtered_gray_threshold,m[0]+NThresh*s[0],255,cv::THRESH_BINARY);
+    cv::threshold(old_frame_matrix_filtered_gray,old_frame_matrix_filtered_gray_threshold,m_old[0]+NThresh*s_old[0],255,cv::THRESH_BINARY);
     cv::morphologyEx(old_frame_matrix_filtered_gray_threshold,old_frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
     cv::morphologyEx(old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
  
@@ -467,7 +467,7 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
 
     arma::uvec index_change = arma::intersect(index_positive,index_negative);
     if(index_change.n_elem>0){
-        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+3*arma::stddev(frame_vector.as_col()));
+        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+2*arma::stddev(frame_vector.as_col()));
         if(index_other.n_elem>0){
             MEAN = arma::mean(frame_vector.elem(index_other));
             SIGMA = arma::stddev(frame_vector.elem(index_other));
