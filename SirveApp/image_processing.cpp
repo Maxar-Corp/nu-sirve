@@ -431,23 +431,39 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
 {	
     double MEAN, SIGMA;
-    cv::Mat frame_matrix_filtered_negative, old_frame_matrix_filtered_positive;
+    int gs = 2;
+    cv::Scalar m, s, m_old, s_old;
+    cv::Size g(5,5);
+
+    cv::Mat SE_dilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(2,2));
+    cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(5,5));
+
+    cv::Mat frame_matrix_filtered_gray, frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
 
     cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
-    cv::Mat frame_matrix_filtered;
-    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, cv::Size(5,5), 2);
-    arma::mat processed_frame_matrix( reinterpret_cast<double*>(frame_matrix_filtered.data), frame_matrix_filtered.cols, frame_matrix_filtered.rows );
-    arma::uvec index_negative = arma::find(processed_frame_matrix <= arma::mean(processed_frame_matrix.as_col() - (NThresh-1)*arma::stddev(processed_frame_matrix.as_col())));
+    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
+    cv::cvtColor(frame_matrix_filtered, frame_matrix_filtered_gray, cv::COLOR_BGR2GRAY );
+    cv::meanStdDev(frame_matrix_filtered_gray,m,s);
+    cv::threshold(frame_matrix_filtered_gray,frame_matrix_filtered_threshold,m[0]-NThresh*s[0],255,cv::THRESH_BINARY_INV);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
+    cv::morphologyEx(frame_matrix_morph_closed,frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
+
+    arma::mat processed_frame_matrix( reinterpret_cast<double*>(frame_matrix_morph_dilated.data), frame_matrix_morph_dilated.cols, frame_matrix_morph_dilated.rows );
+    arma::uvec index_negative = arma::find(processed_frame_matrix > 0);
+
+    cv::Mat old_frame_matrix_filtered, old_frame_closed, old_frame_matrix_filtered_gray, old_frame_matrix_filtered_gray_threshold, old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated;
 
     arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
     cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
-    cv::Mat old_frame_matrix_filtered;
-    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, cv::Size(5,5), 2);
-    cv::Mat SE = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(2,2));
-    cv::Mat old_frame_closed;
-    cv::morphologyEx(old_frame_matrix_filtered,old_frame_closed,cv::MORPH_CLOSE,SE);
-    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_closed.data), old_frame_closed.cols,  old_frame_closed.rows );
-    arma::uvec index_positive = arma::find(processed_old_frame_matrix >= arma::mean(processed_old_frame_matrix.as_col() + (NThresh)*arma::stddev(processed_old_frame_matrix.as_col())));
+    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, g, gs);
+    cv::cvtColor(old_frame_matrix_filtered, old_frame_matrix_filtered_gray, cv::COLOR_BGR2GRAY );
+    cv::meanStdDev(old_frame_matrix_filtered_gray,m_old,s_old);
+    cv::threshold(old_frame_matrix_filtered_gray,old_frame_matrix_filtered_gray_threshold,m[0]+NThresh*s[0],255,cv::THRESH_BINARY);
+    cv::morphologyEx(old_frame_matrix_filtered_gray_threshold,old_frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
+    cv::morphologyEx(old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
+ 
+    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_matrix_morph_dilated.data), old_frame_matrix_morph_dilated.cols,  old_frame_matrix_morph_dilated.rows );
+    arma::uvec index_positive = arma::find(processed_old_frame_matrix > 0);
 
     arma::uvec index_change = arma::intersect(index_positive,index_negative);
     if(index_change.n_elem>0){
