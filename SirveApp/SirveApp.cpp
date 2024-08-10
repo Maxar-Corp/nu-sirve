@@ -522,6 +522,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     cmb_noise_suppresion->addItem("Fixed Background Noise Suppression");
     cmb_noise_suppresion->addItem("Adaptive Background Noise Suppression");
     cmb_noise_suppresion->addItem("RPCP Background Noise Suppression");
+    cmb_noise_suppresion->addItem("Accumulator Background Noise Suppression");
     connect(cmb_noise_suppresion, qOverload<int>(&QComboBox::currentIndexChanged), stck_noise_suppresssion_methods, &QStackedWidget::setCurrentIndex);
 
 	QGridLayout *grid_image_processing = new QGridLayout(grpbox_image_processing);
@@ -606,6 +607,21 @@ QWidget* SirveApp::SetupProcessingTab() {
 	btn_RPCP->setFixedWidth(200);
 	connect(btn_RPCP, &QPushButton::clicked, this, &SirveApp::ExecuteRPCPNoiseSuppression);
 	grid_RPCP_processing->addWidget(btn_RPCP, 0, 0, 1, 1);
+
+    QGroupBox *grpbox_accumulator_processing = new QGroupBox("");
+    grpbox_accumulator_processing->setObjectName("grpbox_accumulator_processing");
+	grpbox_accumulator_processing->setFlat(true);
+	grpbox_accumulator_processing->setStyleSheet("#grpbox_accumulator_processing {border-width: 0px;}");
+	QGridLayout* grid_accumulator_processing = new QGridLayout(grpbox_accumulator_processing);
+	btn_accumulator = new QPushButton("Accumulator Noise Suppression");
+	btn_accumulator->setFixedWidth(200);
+	connect(btn_accumulator, &QPushButton::clicked, this, &SirveApp::ExecuteAccumulatorNoiseSuppression);
+    txt_accumulator_weight = new QLineEdit("0.5");
+	txt_accumulator_weight->setFixedWidth(60);
+    QFormLayout *form_accumulator = new QFormLayout;
+    form_accumulator->addRow(tr("&Weight:"),txt_accumulator_weight);
+    grid_accumulator_processing->addWidget(btn_accumulator, 0, 0, 1, 1);
+	grid_accumulator_processing->addLayout(form_accumulator, 0, 1, 1, 1);
 	// ------------------------------------------------------------------------
 
 	QGroupBox * grpbox_deinterlacing = new QGroupBox("");
@@ -631,6 +647,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     stck_noise_suppresssion_methods->addWidget(grpbox_FNS_processing);
     stck_noise_suppresssion_methods->addWidget(grpbox_ANS_processing);
     stck_noise_suppresssion_methods->addWidget(grpbox_RPCP_processing);
+    stck_noise_suppresssion_methods->addWidget(grpbox_accumulator_processing);
     // ------------------------------------------------------------------------
     grpbox_image_shift = new QGroupBox();
     QHBoxLayout *hlayout_image_shift = new QHBoxLayout(grpbox_image_shift);
@@ -849,7 +866,6 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_zoom);
     // hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    // hlayout_video_buttons->insertStretch(4, 1);
     hlayout_video_buttons->addLayout(formLayout);
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->insertStretch(4, 0);
@@ -858,14 +874,11 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_pause);
     hlayout_video_buttons->addWidget(btn_play);
     hlayout_video_buttons->addWidget(btn_next_frame);
-    // hlayout_video_buttons->insertStretch(10, 0);
     hlayout_video_buttons->addWidget(lbl_fps);
     hlayout_video_buttons->addWidget(btn_fast_forward);
     hlayout_video_buttons->addWidget(btn_slow_back);
     hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-
     vlayout_frame_video->addLayout(hlayout_video_buttons);
-
 }
 
 void SirveApp::SetupPlotFrame() {
@@ -1361,6 +1374,12 @@ void SirveApp::LoadWorkspace()
                 case ProcessingMethod::RPCP_noise_suppression:
                 {
                     ApplyRPCPNoiseSuppression(current_state.source_state_ID);
+                    break;
+                }
+
+                case ProcessingMethod::accumulator_noise_suppression:
+                {
+                    ApplyAccumulatorNoiseSuppression(current_state.weight, current_state.source_state_ID);
                     break;
                 }
 
@@ -3389,7 +3408,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
         new_state.details.max_value = maxVal;
-        new_state.state_ID =  video_display->container.processing_states.size();
+        new_state.state_ID = video_display->container.processing_states.size();
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
@@ -3468,6 +3487,73 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
         QtHelpers::LaunchMessageBox(QString("Low memory"), "Insufficient memory for this operation. Please select fewer frames.");
     }
 }
+
+void SirveApp::ExecuteAccumulatorNoiseSuppression()
+{
+    int source_state_idx = cmb_processing_states->currentIndex();
+    double weight;
+    weight = txt_accumulator_weight->text().toDouble();
+    ApplyAccumulatorNoiseSuppression(weight, source_state_idx);
+}
+
+void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int source_state_idx)
+{
+    //Pause the video if it's running
+    playback_controller->StopTimer();
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
+    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
+    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+    GlobalMemoryStatusEx(&memInfo);
+    DWORDLONG availPhysMem = memInfo.ullAvailPhys;
+    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+    processingState new_state = original;
+    new_state.details.frames_16bit.clear();
+    new_state.ancestors.clear();
+    new_state.descendants.clear();
+    if(available_memory_ratio >=1.5){
+        ImageProcessing ACC;
+        lbl_progress_status->setText(QString("Accumulator Noise Suppression..."));
+        progress_bar_main->setRange(0,number_video_frames);
+        progress_bar_main->setTextVisible(true);
+        grpbox_progressbar_area->setEnabled(true);
+        connect(&ACC, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+        connect(btn_cancel_operation, &QPushButton::clicked, &ACC, &ImageProcessing::CancelOperation);
+        new_state.details.frames_16bit = ACC.AccumulatorNoiseSuppression(weight,1,original.details,false);
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
+        if(new_state.details.frames_16bit.size()>0){
+            new_state.method = ProcessingMethod::accumulator_noise_suppression;
+            new_state.source_state_ID = source_state_ind;
+            new_state.weight = weight;
+            uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+            for (const auto& row : new_state.details.frames_16bit) {
+                maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+            }
+            new_state.details.max_value = maxVal;
+            new_state.state_ID = video_display->container.processing_states.size() ;
+            new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
+            new_state.ancestors.push_back(source_state_ind);
+            std::string result;
+            for (auto num : new_state.ancestors) {
+                result += std::to_string(num) + " -> ";
+            }
+            result += std::to_string(new_state.state_ID);
+            QString state_steps = QString::fromStdString(result);
+            new_state.state_steps = state_steps;
+            new_state.process_steps.push_back(" [Accumulator Noise Suppression] ");
+            video_display->container.AddProcessingState(new_state);
+        }
+    }
+    else
+    {
+        QtHelpers::LaunchMessageBox(QString("Low memory"), "Insufficient memory for this operation. Please select fewer frames.");
+    }
+}
+
 
 void SirveApp::ExecuteAutoTracking()
 {

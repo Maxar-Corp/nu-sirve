@@ -89,6 +89,26 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.descendants = descendants;
         return temp;
     }
+    if (method == "Accumulator")
+    {
+        processingState temp = { ProcessingMethod::accumulator_noise_suppression };
+        temp.weight = json_obj.value("weight").toDouble();
+        temp.state_ID = json_obj.value("state_ID").toInt();
+        temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        std::vector<unsigned int>  ancestors;
+        for (auto json_item : json_obj.value("ancestors").toArray())
+        {
+            ancestors.push_back(json_item.toInt());
+        }
+        temp.ancestors = ancestors;
+        std::vector<unsigned int>  descendants;
+        for (auto json_item : json_obj.value("descendants").toArray())
+        {
+            descendants.push_back(json_item.toInt());
+        }
+        temp.descendants = descendants;
+        return temp;
+    }
      if (method == "Center on OSM")
     {
         processingState temp = { ProcessingMethod::center_on_OSM };
