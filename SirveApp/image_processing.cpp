@@ -283,7 +283,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 		}
     }
 	// Take the mean of each row
-	arma::vec mean_frame = arma::mean(window_data, 1);
+	arma::vec mean_frame = arma::median(window_data, 1);
 	double R;
 	arma::vec frame_vector(num_pixels, 1);
 	//Loop through frames to subtract mean
@@ -340,7 +340,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
             window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
             window_data.shed_col(0);
         }  
-		moving_mean = arma::mean(window_data,1);
+		moving_mean = arma::median(window_data,1);
 		frame_vector -= moving_mean;
 		if (hide_shadow_choice){
             adjusted_window_data.insert_cols(adjusted_window_data.n_cols,frame_vector);
@@ -387,7 +387,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 			return std::vector<std::vector<uint16_t>>();
 		}
         index_last_frame = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
-        moving_mean.col(j) = arma::mean(frame_data.cols(j,index_last_frame), 1);
+        moving_mean.col(j) = arma::median(frame_data.cols(j,index_last_frame), 1);
     }
 	frame_data -= arma::shift(moving_mean,-start_frame,1);
 	arma::vec frame_vector(num_pixels,1) ;

@@ -852,7 +852,8 @@ void SirveApp::SetupVideoFrame(){
     // hlayout_video_buttons->insertStretch(4, 1);
     hlayout_video_buttons->addLayout(formLayout);
     hlayout_video_buttons->addWidget(btn_prev_frame);
-    // hlayout_video_buttons->insertStretch(5, 0);
+    hlayout_video_buttons->insertStretch(4, 0);
+    hlayout_video_buttons->insertStretch(6, 0);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
     hlayout_video_buttons->addWidget(btn_play);
