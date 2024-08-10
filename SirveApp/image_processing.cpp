@@ -297,7 +297,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
     }
 
 	// Take the mean of each row
-	arma::vec mean_frame = arma::mean(window_data, 1);
+	arma::vec mean_frame = arma::median(window_data, 1);
 	double R;
 	arma::vec frame_vector(num_pixels, 1);
 
@@ -362,9 +362,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
         {
             window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
             window_data.shed_col(0);
-        }
-
-		moving_mean = arma::mean(window_data,1);
+        }  
+		moving_mean = arma::median(window_data,1);
 		frame_vector -= moving_mean;
 
         if (hide_shadow_choice)
@@ -421,7 +420,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 			return std::vector<std::vector<uint16_t>>();
 		}
         index_last_frame = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
-        moving_mean.col(j) = arma::mean(frame_data.cols(j,index_last_frame), 1);
+        moving_mean.col(j) = arma::median(frame_data.cols(j,index_last_frame), 1);
     }
 
 	frame_data -= arma::shift(moving_mean,-start_frame,1);
@@ -468,35 +467,64 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 
 void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
 {	
-	frame_vector = frame_vector/arma::stddev(frame_vector.as_col());
-	arma::mat frame_matrix = arma::reshape(frame_vector,nCols,nRows).t();
-	arma::uvec index_negative = arma::find(frame_vector < NThresh);
-	arma::vec old_frame_vector_mean;
-	double MEAN, SIGMA;
+    double MEAN, SIGMA;
+    int gs = 3;
+    cv::Scalar m, s, m_old, s_old;
+    cv::Size g(7,7);
 
-    old_frame_vector_mean = arma::mean(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
-    old_frame_vector_mean -= arma::mean(old_frame_vector_mean);
-    old_frame_vector_mean = old_frame_vector_mean/arma::stddev(old_frame_vector_mean);
+    cv::Mat SE_dilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(3,3));
+    cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(5,5));
 
-    arma::mat old_frame_mean_mat = arma::reshape(old_frame_vector_mean,nCols,nRows).t();
-    arma::mat old_frame_mean_mat_blurred = arma::conv2(old_frame_mean_mat,disk_avg_kernel,"same");
-    arma::uvec index_change = arma::find(old_frame_mean_mat_blurred.t() - frame_matrix.t() > NThresh);
+    cv::Mat frame_matrix_filtered_gray, frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
 
-    if(index_change.n_elem > 0){
-        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= 3);
-        if(index_other.n_elem > 0){
+    cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
+    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
+    cv::normalize(frame_matrix_filtered, frame_matrix_filtered_gray, 0, 255, cv::NORM_MINMAX );
+    cv::meanStdDev(frame_matrix_filtered_gray,m,s);
+    cv::threshold(frame_matrix_filtered_gray,frame_matrix_filtered_threshold,m[0]-NThresh*s[0],255,cv::THRESH_BINARY_INV);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
+    cv::morphologyEx(frame_matrix_morph_closed,frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
+
+    arma::mat processed_frame_matrix( reinterpret_cast<double*>(frame_matrix_morph_dilated.data), frame_matrix_morph_dilated.cols, frame_matrix_morph_dilated.rows );
+    arma::uvec index_negative = arma::find(processed_frame_matrix > 0);
+
+    cv::Mat old_frame_matrix_filtered, old_frame_closed, old_frame_matrix_filtered_gray, old_frame_matrix_filtered_gray_threshold, old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated;
+
+    arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
+    cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
+    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, g, gs);
+    cv::normalize(old_frame_matrix_filtered, old_frame_matrix_filtered_gray, 0, 255, cv::NORM_MINMAX );
+    cv::meanStdDev(old_frame_matrix_filtered_gray,m_old,s_old);
+    cv::threshold(old_frame_matrix_filtered_gray,old_frame_matrix_filtered_gray_threshold,m_old[0]+NThresh*s_old[0],255,cv::THRESH_BINARY);
+    cv::morphologyEx(old_frame_matrix_filtered_gray_threshold,old_frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
+    cv::morphologyEx(old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
+ 
+    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_matrix_morph_dilated.data), old_frame_matrix_morph_dilated.cols,  old_frame_matrix_morph_dilated.rows );
+    arma::uvec index_positive = arma::find(processed_old_frame_matrix > 0);
+
+    arma::uvec index_change = arma::intersect(index_positive,index_negative);
+    if(index_change.n_elem>0){
+        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+2*arma::stddev(frame_vector.as_col()));
+        if(index_other.n_elem>0){
             MEAN = arma::mean(frame_vector.elem(index_other));
             SIGMA = arma::stddev(frame_vector.elem(index_other));
+            if (SIGMA!=0){
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change.size(),arma::distr_param(0,index_other.n_elem-1));
+                arma::vec v = arma::randn<arma::vec>(index_other.size(),arma::distr_param(MEAN,SIGMA));
+                frame_vector.elem(index_change) = v.elem(rindices);
+            }
         }
         else{
             MEAN = arma::mean(frame_vector);
             SIGMA = arma::stddev(frame_vector);
-        }
-        if (SIGMA!=0){	
-            frame_vector.elem(index_change) = arma::randn<arma::vec>(index_change.size(),arma::distr_param(MEAN,SIGMA));
-        }
+            if (SIGMA!=0){	
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change.size(),arma::distr_param(0,frame_vector.n_elem-1));
+                arma::vec v = arma::randn<arma::vec>(frame_vector.size(),arma::distr_param(MEAN,SIGMA));
+                frame_vector.elem(index_change) = v.elem(rindices);
+            }               
+        }   
     }
-	frame_vector -= frame_vector.min();
+    frame_vector -= frame_vector.min();
 }
 
 std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDetails & original)

@@ -89,7 +89,7 @@ void SirveApp::SetupUi() {
 	fixed_width_video.setVerticalPolicy(QSizePolicy::Fixed);
 	frame_video_player->setSizePolicy(fixed_width_video);
 	frame_video_player->setFixedHeight(800);
-	frame_video_player->setFixedWidth(800);
+	frame_video_player->setFixedWidth(850);
     frame_video_player->setObjectName("frame_video_player");
 
     // ------------------------------------------------------------------------
@@ -210,38 +210,38 @@ void SirveApp::SetupUi() {
 	lbl_loaded_frames = new QLabel("Loaded Frames: ");
 	lbl_status_start_frame = new QLabel("Start Frame:");
 	lbl_status_stop_frame = new QLabel("Stop Frame:");
-    lbl_current_workspace_folder = new QLabel("Workspace Folder: ");
+    lbl_current_workspace_folder = new QLabel("Workspace Folder:");
     lbl_current_workspace_folder_field = new QLabel( config_values.workspace_folder);
     lbl_current_workspace_folder->setWordWrap(false);
-	lbl_workspace_name = new QLabel("Workspace File: ");
+	lbl_workspace_name = new QLabel("Workspace File:");
     lbl_workspace_name_field = new QLabel("");
     lbl_progress_status = new QLabel("");
     lbl_progress_status->setFixedWidth(200);
     QGroupBox *grpbox_status_bar = new QGroupBox();
-    QGridLayout * grid_status_bar = new QGridLayout();
+    QHBoxLayout * hlayout_status_bar = new QHBoxLayout();
     QGroupBox *grpbox_status_lbl = new QGroupBox();
-    QGridLayout * grid_status_lbl = new QGridLayout();
-    grpbox_status_lbl->setLayout(grid_status_lbl);
-    QSpacerItem *hspacer_item20 = new QSpacerItem(20,1);
+    QHBoxLayout * hlayout_status_lbl = new QHBoxLayout();
+    grpbox_status_lbl->setLayout(hlayout_status_lbl);
+    QSpacerItem *hspacer_item20 = new QSpacerItem(10,1);
     
-    grid_status_bar->addWidget(lbl_file_name,0,0,1,1);
-    grid_status_bar->addItem(hspacer_item20,0,1,1,1);
-    grid_status_bar->addWidget(lbl_loaded_frames,0,2,1,1);
-    grid_status_bar->addItem(hspacer_item20,0,3,1,1);
-    grid_status_bar->addWidget(lbl_status_start_frame,0,4,1,1);
-    grid_status_bar->addItem(hspacer_item20,0,5,1,1);
-    grid_status_bar->addWidget(lbl_status_stop_frame,0,6,1,1);
-    grid_status_bar->addItem(hspacer_item20,0,7,1,1);
-    grid_status_bar->addWidget(lbl_current_workspace_folder,0,8,1,1);
-    grid_status_bar->addWidget(lbl_current_workspace_folder_field,0,9,1,1);
-    grid_status_bar->addItem(hspacer_item20,0,10,1,1);
-    grid_status_bar->addWidget(lbl_workspace_name,0,11,1,1);
-    grid_status_bar->addWidget(lbl_workspace_name_field,0,12,1,1);
-    grid_status_bar->addItem(hspacer_item20,0,13,1,1);
-    grpbox_status_bar->setLayout(grid_status_bar);
+    hlayout_status_bar->addWidget(lbl_file_name);
+    hlayout_status_bar->addItem(hspacer_item20);
+    hlayout_status_bar->addWidget(lbl_loaded_frames);
+    hlayout_status_bar->addItem(hspacer_item20);
+    hlayout_status_bar->addWidget(lbl_status_start_frame);
+    hlayout_status_bar->addItem(hspacer_item20);
+    hlayout_status_bar->addWidget(lbl_status_stop_frame);
+    hlayout_status_bar->addItem(hspacer_item20);
+    hlayout_status_bar->addWidget(lbl_current_workspace_folder);
+    hlayout_status_bar->addWidget(lbl_current_workspace_folder_field);
+    hlayout_status_bar->addItem(hspacer_item20);
+    hlayout_status_bar->addWidget(lbl_workspace_name);
+    hlayout_status_bar->addWidget(lbl_workspace_name_field);
+    // hlayout_status_bar->addItem(hspacer_item20,0,13,1,1);
+    grpbox_status_bar->setLayout(hlayout_status_bar);
     status_bar->addWidget(grpbox_status_bar);
-    grid_status_lbl->addWidget(lbl_progress_status,0,0,1,1);
-    grid_status_lbl->addWidget(grpbox_progressbar_area,0,1,1,6);
+    hlayout_status_lbl->addWidget(lbl_progress_status);
+    hlayout_status_lbl->addWidget(grpbox_progressbar_area);
     status_bar->addPermanentWidget(grpbox_status_lbl,1);
 
     this->show();
@@ -759,6 +759,7 @@ void SirveApp::SetupVideoFrame(){
 
     lbl_fps = new QLabel("fps");
     lbl_fps->setAlignment(Qt::AlignRight);
+    lbl_fps->setFixedWidth(75);
 
     // ------------------------------------------------------------------------
 
@@ -838,27 +839,30 @@ void SirveApp::SetupVideoFrame(){
     btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
     txt_goto_frame = new QLineEdit("");
-    txt_goto_frame->setFixedWidth(50);
+    txt_goto_frame->setFixedWidth(60);
     connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
     QFormLayout *formLayout = new QFormLayout;   
-    formLayout->addRow(tr("&Frame # "),txt_goto_frame);
-
+    formLayout->addRow(tr("&Frame #"),txt_goto_frame);
     QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
     // hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    hlayout_video_buttons->addItem(formLayout);
+    // hlayout_video_buttons->insertStretch(4, 1);
+    hlayout_video_buttons->addLayout(formLayout);
     hlayout_video_buttons->addWidget(btn_prev_frame);
+    hlayout_video_buttons->insertStretch(4, 0);
+    hlayout_video_buttons->insertStretch(6, 0);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
     hlayout_video_buttons->addWidget(btn_play);
     hlayout_video_buttons->addWidget(btn_next_frame);
-    hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+    // hlayout_video_buttons->insertStretch(10, 0);
     hlayout_video_buttons->addWidget(lbl_fps);
     hlayout_video_buttons->addWidget(btn_fast_forward);
     hlayout_video_buttons->addWidget(btn_slow_back);
+    hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
 
     vlayout_frame_video->addLayout(hlayout_video_buttons);
 
@@ -3585,7 +3589,7 @@ void SirveApp::ToggleVideoPlaybackOptions(bool input)
     if (!input)
     {
         playback_controller->StopTimer();
-        lbl_fps->setText("");
+        lbl_fps->setText(" ");
     }
 }
 
