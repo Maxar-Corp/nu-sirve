@@ -64,10 +64,10 @@ void VideoDisplay::GetCurrentIdx(int current_idx_new)
 
 void VideoDisplay::InitializeToggles()
 {
-	banner_color = QString("red");
+	banner_color = QString("yellow");
 	banner_text = QString("EDIT CLASSIFICATION");
 	tracker_color = QString("blue");
-	QColor new_color(QString("Yellow"));
+	QColor new_color(QString("yellow"));
 	bad_pixel_color = new_color;
 }
 
@@ -1014,7 +1014,7 @@ void VideoDisplay::UpdateDisplayFrame()
     // Draw banner text
     QPainter p1(&frame);
     p1.setPen(QPen(banner_color));
-    p1.setFont(QFont("Times", 12, QFont::Bold));
+    p1.setFont(QFont("Times New Roman", 12, QFont::Bold));
     p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
     p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 

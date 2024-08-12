@@ -131,7 +131,7 @@ public:
 
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
-	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state;
+	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
     QStackedWidget *stck_noise_suppresssion_methods;
  
@@ -140,7 +140,7 @@ public:
     QStatusBar *status_bar;
     QLabel *lbl_status_start_frame, *lbl_status_stop_frame, *lbl_loaded_frames, *lbl_workspace_name, *lbl_workspace_name_field, *lbl_current_workspace_folder_field;
     QCheckBox *chk_bad_pixels_from_original;
-    QLineEdit *txt_goto_frame, *txt_auto_track_start_frame, *txt_auto_track_stop_frame;
+    QLineEdit *txt_goto_frame, *txt_auto_track_start_frame, *txt_auto_track_stop_frame, *txt_accumulator_weight;
 
 	/* --------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------- */
@@ -201,6 +201,7 @@ public:
         void ExecuteFrameStacking();
         void ExecuteFixedNoiseSuppression();
         void ExecuteRPCPNoiseSuppression();
+        void ExecuteAccumulatorNoiseSuppression();
         void ExecuteAutoTracking();
         void HandleFrameNumberChangeInput();
 
@@ -299,6 +300,7 @@ private:
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);
+    void ApplyAccumulatorNoiseSuppression(double weight, int source_state_idx);
     void ApplyDeinterlacingCurrent();
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);

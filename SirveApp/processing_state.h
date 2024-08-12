@@ -15,6 +15,7 @@ enum struct ProcessingMethod
 	adaptive_noise_suppression,
 	fixed_noise_suppression,
     RPCP_noise_suppression,
+    accumulator_noise_suppression,
     deinterlace,
     center_on_OSM,
     center_on_manual,
@@ -44,6 +45,7 @@ struct processingState {
     int ANS_num_frames;
     int ANS_shadow_threshold;
     bool ANS_hide_shadow;
+    double weight;
 
     QString FNS_file_path;
     int FNS_start_frame;
@@ -100,6 +102,13 @@ struct processingState {
             case ProcessingMethod::RPCP_noise_suppression:{
                 return "RPCP Noise Suppression\n<Source State " + QString::number(source_state_ID) + ">\n"\
                     +"Process steps: " + process_steps +"\n"\
+                    +"State steps: " + state_steps;
+                break;
+            }
+            case ProcessingMethod::accumulator_noise_suppression:{
+                return "Accumulator Noise Suppression\n<Source State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"Accumulator: Weight " + QString::number(weight);
                     +"State steps: " + state_steps;
                 break;
             }
@@ -183,6 +192,9 @@ struct processingState {
             case ProcessingMethod::RPCP_noise_suppression:
                 return "<Source State " + QString::number(source_state_ID) + "> RPCP";
                 break;
+            case ProcessingMethod::accumulator_noise_suppression:
+                return "<Source State " + QString::number(source_state_ID) + "> Accumulator";
+                break;
             case ProcessingMethod::deinterlace:
                 return "<Source State " + QString::number(source_state_ID) + "> Deinterlace" ;
                 break;
@@ -247,6 +259,12 @@ struct processingState {
                 state_object.insert("method", "RPCP");
                 state_object.insert("state description",state_description);
                 state_object.insert("state steps",state_steps);
+                break;
+            case ProcessingMethod::accumulator_noise_suppression:
+                state_object.insert("method", "Accumulator");
+                state_object.insert("state description",state_description);
+                state_object.insert("state steps",state_steps);
+                state_object.insert("weight",weight);
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");

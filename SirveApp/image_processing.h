@@ -41,7 +41,9 @@ public:
 
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, int NThresh, VideoDetails & original, bool hide_shadow_choice);
 
-    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original,  bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+
+    std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int NThresh, VideoDetails & original, bool hide_shadow_choice);
 
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
 
@@ -71,8 +73,6 @@ private:
     ABIRData abir_data;
 
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames);
-
-    static arma::cx_mat xcorr2(arma::mat inFrame1, arma::mat inFrame2, int nRows, int nCols);
 
     static arma::mat thresholding(arma::mat X, double tau);	
 
