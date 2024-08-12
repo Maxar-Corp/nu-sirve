@@ -2674,8 +2674,6 @@ void SirveApp::HandleBadPixelReplacement()
     processingState new_state = video_display->container.processing_states[cmb_processing_states->currentIndex()];
     int number_video_frames = static_cast<int>(new_state.details.frames_16bit.size());
 
-    bool ok;
-
     int type_choice = cmb_bad_pixels_type->currentIndex();
 
     int outlier_method = cmb_outlier_processing_type->currentIndex();
@@ -2702,6 +2700,7 @@ void SirveApp::HandleBadPixelReplacement()
     int start_frame = std::max(txt_bad_pixel_start_frame->text().toInt(),0);
     int end_frame = std::min(txt_bad_pixel_end_frame->text().toInt(),std::max(start_frame+500,number_video_frames));
     std::vector<std::vector<uint16_t>> test_data;
+
     if (chk_bad_pixels_from_original->isChecked()){
         ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
         test_data = test_frames.video_frames_16bit;
@@ -2709,14 +2708,17 @@ void SirveApp::HandleBadPixelReplacement()
     else{
         test_data = new_state.details.frames_16bit;
     }
+
     lbl_progress_status->setText(QString("Finding bad pixels..."));
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,number_video_frames - 1);
     progress_bar_main->setTextVisible(true);
     std::vector<unsigned int> dead_pixels;
     ImageProcessing BP;
+
     connect(&BP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &BP, &ImageProcessing::CancelOperation);
+
     if(type_choice == 0){
         lbl_progress_status->setText(QString("Finding dead pixels..."));
         arma::uvec index_dead0 = BP.FindDeadBadscalePixels(test_data);
@@ -2748,9 +2750,11 @@ void SirveApp::HandleBadPixelReplacement()
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
         }
     }
+
     if(dead_pixels.size()>0){
         ReplaceBadPixels(dead_pixels,cmb_processing_states->currentIndex());
     }
+
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -2803,13 +2807,19 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
     progress_bar_main->setRange(0,number_video_frames - 1);
     progress_bar_main->setTextVisible(true);
     ImageProcessing BP;
+
     connect(&BP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &BP, &ImageProcessing::CancelOperation);
+
     BP.ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
+
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
+
     if(pixels_to_replace.size()>0){
+
+        // fetch max value
         new_state.source_state_ID = source_state_ind;
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
@@ -2820,6 +2830,8 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+
+        // update state gui status
         std::string result;
         for (auto num : new_state.ancestors) {
             result += std::to_string(num) + " -> ";
@@ -2832,6 +2844,7 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
         lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
         chk_highlight_bad_pixels->setEnabled(true);
     }
+
     grpbox_progressbar_area->setEnabled(false);
 }
 
@@ -2908,7 +2921,7 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 
 void SirveApp::ExecuteFixedNoiseSuppression()
 {
-    //Pause the video if it's running
+    // Pause the video if it's running
     playback_controller->StopTimer();
 
     if (!chk_FNS_external_file->isChecked())
@@ -2957,18 +2970,25 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
     progress_bar_main->setRange(0,number_video_frames - 1);
     progress_bar_main->setTextVisible(true);
     lbl_progress_status->setText(QString("Fixed Noise Suppression..."));
+
     connect(&FNS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &FNS, &ImageProcessing::CancelOperation);
+
     new_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
+
     if(new_state.details.frames_16bit.size()>0){
+
+        // set new state
         new_state.method = ProcessingMethod::fixed_noise_suppression;
         new_state.FNS_file_path = file_path;
         new_state.FNS_start_frame = start_frame;
         new_state.FNS_stop_frame = end_frame;
         new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
@@ -2982,6 +3002,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         for (auto num : new_state.ancestors) {
             result += std::to_string(num) + " -> ";
         }
+
+        // update state gui status
         result += std::to_string(new_state.state_ID);
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
@@ -3033,24 +3055,34 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     progress_bar_main->setRange(0,number_video_frames - 1);
     progress_bar_main->setTextVisible(true);
     lbl_progress_status->setText(QString("Deinterlacing..."));
+
     connect(&DI, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &DI, &ImageProcessing::CancelOperation);
+
     new_state.details.frames_16bit = DI.DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString(""));
+
     if(new_state.details.frames_16bit.size()>0){
+
+        // set new state ...
         progress_bar_main->setTextVisible(false);
         new_state.method = ProcessingMethod::deinterlace;
         new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
+
         new_state.details.max_value = maxVal;
         new_state.state_ID = video_display->container.processing_states.size();
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+
+        // update state gui status
         std::string result;
         for (auto num : new_state.ancestors) {
             result += std::to_string(num) + " -> ";
@@ -3061,6 +3093,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
         new_state.process_steps.push_back(" [Deinterlace] ");
         video_display->container.AddProcessingState(new_state);
     }
+
     grpbox_progressbar_area->setEnabled(false);
 }
 
@@ -3074,9 +3107,11 @@ void SirveApp::ApplyDeinterlacingCurrent()
     std::vector<uint16_t> current_frame_16bit_0 = current_frame_16bit;
     int nRows = original.details.y_pixels;
     int nCols = original.details.x_pixels;
+
     video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = DI.DeinterlacePhaseCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
     lbl_progress_status->setText(QString(""));
     UpdateGlobalFrameVector();
+
     if(chk_deinterlace_confirmation->isChecked()){
         auto response = QtHelpers::LaunchYesNoMessageBox("Deinterlace Frame Confirmation", "Keep result? (can not be undone after accepted)");
         if (response != QMessageBox::Yes) {
@@ -3091,7 +3126,8 @@ void SirveApp::ExecuteCenterOnTracks()
     int track_id;
     boolean findAnyTrack = false;
     QString trackTypePriority;
-    if(cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
+
+    if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
         if (cmb_OSM_track_IDs->currentIndex()==0){
             track_id = -1;
         }
@@ -3123,6 +3159,8 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
     int OSMPriority = QString::compare(trackTypePriority,"OSM",Qt::CaseInsensitive);
     processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
     int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
+
+    // set new state ...
     processingState new_state = original;
     new_state.details.frames_16bit.clear();
     new_state.ancestors.clear();
@@ -3142,19 +3180,25 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
         new_state.method = ProcessingMethod::center_on_manual;
     }
     new_state.find_any_tracks = find_any_tracks;
+
     ImageProcessing COST;
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,number_frames - 1);
     lbl_progress_status->setText(QString("Center on OSM..."));
+
     connect(&COST, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &COST, &ImageProcessing::CancelOperation);
+
     new_state.details.frames_16bit = COST.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
-    if(new_state.details.frames_16bit.size()>0){
+
+    if (new_state.details.frames_16bit.size()>0){
         new_state.offsets = track_centered_offsets;
         new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
@@ -3164,6 +3208,8 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+
+        // update state gui status
         std::string result;
         for (auto num : new_state.ancestors) {
             result += std::to_string(num) + " -> ";
@@ -3199,24 +3245,34 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
     grpbox_progressbar_area->setEnabled(true);
     lbl_progress_status->setText(QString("Center on Brightest Object..."));
     ImageProcessing COB;
+
     connect(&COB, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &COB, &ImageProcessing::CancelOperation);
+
     new_state.details.frames_16bit = COB.CenterOnBrightest(original.details, brightest_centered_offsets);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
-    if(new_state.details.frames_16bit.size()>0){
+
+    if (new_state.details.frames_16bit.size()>0){
+
+        // set new state
         new_state.offsets = brightest_centered_offsets;
         new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
+
         new_state.details.max_value = maxVal;
         new_state.state_ID = video_display->container.processing_states.size();
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+
+        // update state gui status
         std::string result;
         for (auto num : new_state.ancestors) {
             result += std::to_string(num) + " -> ";
@@ -3288,7 +3344,7 @@ void SirveApp::ExecuteFrameStacking()
 
 void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
 {
-    //Pause the video if it's running
+    // Pause the video if it's running
     playback_controller->StopTimer();
 
     processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
@@ -3306,20 +3362,27 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     progress_bar_main->setRange(0,number_video_frames - 1);
     progress_bar_main->setTextVisible(true);
     grpbox_progressbar_area->setEnabled(true);
+
     connect(&FS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &FS, &ImageProcessing::CancelOperation);
+
     new_state.details.frames_16bit = FS.FrameStacking(number_of_frames, original.details);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
-    if(new_state.details.frames_16bit.size()>0){
+
+    if (new_state.details.frames_16bit.size()>0){
         new_state.method = ProcessingMethod::frame_stacking;
         new_state.frame_stack_num_frames = number_of_frames;
         new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
+
+        // create the new state
         new_state.details.max_value = maxVal;
         new_state.state_ID = video_display->container.processing_states.size();
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
@@ -3333,6 +3396,8 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
         new_state.process_steps.push_back(" [Frame Stacking] ");
+
+        // update gui status
         video_display->container.AddProcessingState(new_state);
     }
     grpbox_progressbar_area->setEnabled(false);
@@ -3379,44 +3444,56 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     progress_bar_main->setRange(0,number_video_frames - 1);
     progress_bar_main->setTextVisible(true);
     grpbox_progressbar_area->setEnabled(true);
+
     connect(&ANS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &ANS, &ImageProcessing::CancelOperation);
-    if(available_memory_ratio >=1.5){
+
+    if (available_memory_ratio >=1.5){
         new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
     }
     else{
         new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
     }
+
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
-    if(new_state.details.frames_16bit.size()>0){
+
+    if (new_state.details.frames_16bit.size()>0){
         QString description = "Filter starts at ";
         if (relative_start_frame > 0)
             description += "+";
         lbl_adaptive_noise_suppression_status->setWordWrap(true);
         description += QString::number(relative_start_frame) + " frames and averages " + QString::number(number_of_frames) + " frames";
         lbl_adaptive_noise_suppression_status->setText(description);
+
+        // set new state
         new_state.method = ProcessingMethod::adaptive_noise_suppression;
         new_state.ANS_relative_start_frame = relative_start_frame;
         new_state.ANS_num_frames = number_of_frames;
         new_state.ANS_hide_shadow = hide_shadow_choice;
         new_state.ANS_shadow_threshold = shadow_sigma_thresh;
         new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
         uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
+
         new_state.details.max_value = maxVal;
         new_state.state_ID = video_display->container.processing_states.size();
         video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
         new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
         new_state.ancestors.push_back(source_state_ind);
+
+        // update gui status
         std::string result;
         for (auto num : new_state.ancestors) {
             result += std::to_string(num) + " -> ";
         }
         result += std::to_string(new_state.state_ID);
+
         QString state_steps = QString::fromStdString(result);
         new_state.state_steps = state_steps;
         new_state.process_steps.push_back(" [Adaptive Noise Suppression] ");
@@ -3433,34 +3510,43 @@ void SirveApp::ExecuteRPCPNoiseSuppression()
 
 void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
 {
-    //Pause the video if it's running
+    // Pause the video if it's running
     playback_controller->StopTimer();
     processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
+
     int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
     int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+
     MEMORYSTATUSEX memInfo;
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
     double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+
     processingState new_state = original;
     new_state.details.frames_16bit.clear();
     new_state.ancestors.clear();
     new_state.descendants.clear();
+
     if(available_memory_ratio >=1.5){
+
+        // set new state
         ImageProcessing RPCP;
         lbl_progress_status->setText(QString("RPCP Noise Suppression..."));
         progress_bar_main->setRange(0,number_video_frames);
         progress_bar_main->setTextVisible(true);
         grpbox_progressbar_area->setEnabled(true);
+
         connect(&RPCP, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
         connect(btn_cancel_operation, &QPushButton::clicked, &RPCP, &ImageProcessing::CancelOperation);
+
         new_state.details.frames_16bit = RPCP.RPCPNoiseSuppression(original.details);
         lbl_progress_status->setText(QString(""));
         progress_bar_main->setValue(0);
         progress_bar_main->setTextVisible(false);
         grpbox_progressbar_area->setEnabled(false);
-        if(new_state.details.frames_16bit.size()>0){
+
+        if (new_state.details.frames_16bit.size()>0){
             new_state.method = ProcessingMethod::RPCP_noise_suppression;
             new_state.source_state_ID = source_state_ind;
             uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
@@ -3471,6 +3557,8 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
             new_state.state_ID =  video_display->container.processing_states.size() ;
             new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
             new_state.ancestors.push_back(source_state_ind);
+
+            // update gui status
             std::string result;
             for (auto num : new_state.ancestors) {
                 result += std::to_string(num) + " -> ";
