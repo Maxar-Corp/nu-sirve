@@ -448,66 +448,77 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
 		}
 	}
-
+    cv::destroyAllWindows();
 	return frames_out;
 }
 
 void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
 {	
     double MEAN, SIGMA;
-    int gs = 3;
+    int gs = 5;
     cv::Scalar m, s, m_old, s_old;
     cv::Size g(7,7);
 
-    cv::Mat SE_dilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(3,3));
-    cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(5,5));
+    cv::Mat SE_dilate = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(7,7));
+    cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(7,7));
 
-    cv::Mat frame_matrix_filtered_gray, frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
+    cv::Mat frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
 
     cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
     cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
-    cv::normalize(frame_matrix_filtered, frame_matrix_filtered_gray, 0, 255, cv::NORM_MINMAX );
-    cv::meanStdDev(frame_matrix_filtered_gray,m,s);
-    cv::threshold(frame_matrix_filtered_gray,frame_matrix_filtered_threshold,m[0]-NThresh*s[0],255,cv::THRESH_BINARY_INV);
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
-    cv::morphologyEx(frame_matrix_morph_closed,frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
+    cv::meanStdDev(frame_matrix_filtered,m,s);
+    cv::threshold(frame_matrix_filtered,frame_matrix_filtered_threshold,m[0]-(NThresh - 1)*s[0],1,cv::THRESH_BINARY_INV);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_DILATE,SE_dilate,cv::Point(-1,-1),2);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_ERODE,SE_dilate,cv::Point(-1,-1),2);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
 
-    arma::mat processed_frame_matrix( reinterpret_cast<double*>(frame_matrix_morph_dilated.data), frame_matrix_morph_dilated.cols, frame_matrix_morph_dilated.rows );
-    arma::uvec index_negative = arma::find(processed_frame_matrix > 0);
+    // cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1),2);
+    // cv::morphologyEx(frame_matrix_morph_closed,frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
 
-    cv::Mat old_frame_matrix_filtered, old_frame_closed, old_frame_matrix_filtered_gray, old_frame_matrix_filtered_gray_threshold, old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated;
+    cv::Mat old_frame_matrix_filtered, old_frame_closed, old_frame_matrix_filtered_threshold, old_frame_matrix_morph_closed, old_frame_matrix_morph_dilated;
 
     arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
     cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
     cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, g, gs);
-    cv::normalize(old_frame_matrix_filtered, old_frame_matrix_filtered_gray, 0, 255, cv::NORM_MINMAX );
-    cv::meanStdDev(old_frame_matrix_filtered_gray,m_old,s_old);
-    cv::threshold(old_frame_matrix_filtered_gray,old_frame_matrix_filtered_gray_threshold,m_old[0]+NThresh*s_old[0],255,cv::THRESH_BINARY);
-    cv::morphologyEx(old_frame_matrix_filtered_gray_threshold,old_frame_matrix_morph_closed,cv::MORPH_CLOSE,SE_close);
-    cv::morphologyEx(old_frame_matrix_morph_closed,old_frame_matrix_morph_dilated,cv::MORPH_CLOSE,SE_dilate);
- 
-    arma::mat processed_old_frame_matrix( reinterpret_cast<double*>( old_frame_matrix_morph_dilated.data), old_frame_matrix_morph_dilated.cols,  old_frame_matrix_morph_dilated.rows );
-    arma::uvec index_positive = arma::find(processed_old_frame_matrix > 0);
+    cv::meanStdDev(old_frame_matrix_filtered,m_old,s_old);
+    cv::threshold(old_frame_matrix_filtered,old_frame_matrix_filtered_threshold,m_old[0]+NThresh*s_old[0],1,cv::THRESH_BINARY);
+    cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_DILATE,SE_dilate,cv::Point(-1,-1),2);
+    cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_ERODE,SE_dilate,cv::Point(-1,-1),2);
+    cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
 
-    arma::uvec index_change = arma::intersect(index_positive,index_negative);
-    if(index_change.n_elem>0){
-        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+2*arma::stddev(frame_vector.as_col()));
+    cv::Mat frame_change,frame_change_threshold; 
+    cv::add(old_frame_matrix_filtered_threshold, frame_matrix_filtered_threshold, frame_change);
+    cv::imshow("Positive",old_frame_matrix_filtered_threshold);
+    cv::imshow("Negative",frame_matrix_filtered_threshold);
+    cv::threshold(frame_change,frame_change_threshold,1.9,1,cv::THRESH_BINARY);
+    cv::imshow("change",frame_change_threshold);
+    double min0,max0;
+    cv::minMaxLoc(frame_change,&min0,&max0);
+    std::vector<cv::Point> index_change;
+    cv::findNonZero(frame_change_threshold,index_change);
+    // cv::findNonZero(old_frame_matrix_filtered_threshold,index_change);
+    arma::uvec index_change_arma(index_change.size(),1);
+    for (int j = 0; j < index_change.size(); j++){
+        index_change_arma(j) = nCols*index_change.at(j).y + index_change.at(j).x;
+    }
+    if(index_change_arma.size()>0){
+        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+3*arma::stddev(frame_vector.as_col()));
         if(index_other.n_elem>0){
             MEAN = arma::mean(frame_vector.elem(index_other));
             SIGMA = arma::stddev(frame_vector.elem(index_other));
             if (SIGMA!=0){
-                arma::uvec rindices = arma::randi<arma::uvec>(index_change.size(),arma::distr_param(0,index_other.n_elem-1));
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change_arma.size(),arma::distr_param(0,index_other.n_elem-1));
                 arma::vec v = arma::randn<arma::vec>(index_other.size(),arma::distr_param(MEAN,SIGMA));
-                frame_vector.elem(index_change) = v.elem(rindices);
+                frame_vector.elem(index_change_arma) = v.elem(rindices);
             }
         }
         else{
             MEAN = arma::mean(frame_vector);
             SIGMA = arma::stddev(frame_vector);
             if (SIGMA!=0){	
-                arma::uvec rindices = arma::randi<arma::uvec>(index_change.size(),arma::distr_param(0,frame_vector.n_elem-1));
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change_arma.size(),arma::distr_param(0,frame_vector.n_elem-1));
                 arma::vec v = arma::randn<arma::vec>(frame_vector.size(),arma::distr_param(MEAN,SIGMA));
-                frame_vector.elem(index_change) = v.elem(rindices);
+                frame_vector.elem(index_change_arma) = v.elem(rindices);
             }               
         }   
     }
@@ -570,7 +581,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
         if(minimization_quantity <= convg_val){
             converged = true;
         }
-        k +=1;
+        k += 1;
     }
 
     int L0 = round(3*num_video_frames/4);
