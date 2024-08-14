@@ -144,7 +144,7 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::v
 
 arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels)
 {
-    int index_first_frame, index_last_frame;
+    int start_frame_index, stop_frame_index;
     int num_video_frames = input_pixels.size();
 	int num_pixels = input_pixels[0].size();
     double c = 1.4826;
@@ -172,10 +172,10 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length
 		{
 			return index_outlier;
 		}
-        index_first_frame = std::max(i - (half_window_length),0);
-        index_last_frame = std::min(i + (half_window_length),num_video_frames - 1);  
-        moving_median.col(i) = arma::median(frame_data.cols(index_first_frame,index_last_frame),1);
-        MAD.col(i) = c*arma::median(arma::abs(frame_data.cols(index_first_frame,index_last_frame).each_col() - moving_median.col(i)),1);
+        start_frame_index = std::max(i - (half_window_length),0);
+        stop_frame_index = std::min(i + (half_window_length),num_video_frames - 1);  
+        moving_median.col(i) = arma::median(frame_data.cols(start_frame_index,stop_frame_index),1);
+        MAD.col(i) = c*arma::median(arma::abs(frame_data.cols(start_frame_index,stop_frame_index).each_col() - moving_median.col(i)),1);
     }
 
     OUTL = arma::abs(frame_data - moving_median) > 3*MAD;
@@ -241,8 +241,8 @@ arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint1
 
 // 	int num_video_frames = original.frames_16bit.size();
 // 	int number_avg_frames;
-// 	int index_first_frame, index_last_frame;
-// 	index_first_frame = start_frame - 1;
+// 	int start_frame_index, stop_frame_index;
+// 	start_frame_index = start_frame - 1;
 
 // 	ABIRDataResult abir_result;
 // 	int compare = QString::compare(path_video_file, image_path, Qt::CaseInsensitive);
@@ -263,7 +263,7 @@ arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint1
 // 		number_avg_frames = end_frame - start_frame + 1;
 // 	}
 
-// 	index_last_frame = index_first_frame + number_avg_frames - 1;
+// 	stop_frame_index = start_frame_index + number_avg_frames - 1;
 // 	int num_pixels = abir_result.video_frames_16bit[0].size();
 
 // 	// Create an Armadillo matrix for submatrix average
@@ -277,7 +277,7 @@ arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint1
 // 	}
 // 	else{
 // 		int k = 0;
-// 		for (int i = index_first_frame; i < index_last_frame; i++){
+// 		for (int i = start_frame_index; i < stop_frame_index; i++){
 // 			window_data.col(k) = arma::conv_to<arma::vec>::from(abir_result.video_frames_16bit[i]);
 // 			k += 1;
 // 		}
@@ -383,19 +383,19 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	int num_pixels = original.frames_16bit[0].size();
 	int nRows = original.y_pixels;
     int nCols = original.x_pixels;
-	int index_first_frame, index_last_frame, abs_start_frame;
+	int start_frame_index, stop_frame_index, abs_start_frame;
 	double M;
 
 	abs_start_frame = std::abs(start_frame);
 	std::vector<std::vector<uint16_t>> frames_out;
   	arma::mat window_data(num_pixels,num_of_averaging_frames);
-	arma::mat adjusted_window_data(num_pixels,abs_start_frame);
+    int abs_start_frame_new = abs_start_frame+num_of_averaging_frames/2;
+	arma::mat adjusted_window_data(num_pixels,abs_start_frame_new);
     adjusted_window_data.fill(0.0);
 	arma::vec moving_median(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec frame_vector_out(num_pixels,1);
-    arma::vec tmp_vec(num_pixels,1);
-
+    int num_indices = std::max(num_of_averaging_frames/4,1);
 	for (int j = 0; j < num_of_averaging_frames; j++) { 
         window_data.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}
@@ -412,15 +412,24 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         M = arma::max(frame_vector);
-		index_first_frame = std::max(i + start_frame,0);
-        index_last_frame = std::min(index_first_frame + num_of_averaging_frames - 1, num_video_frames - 1);
+		start_frame_index = std::max(i + start_frame - num_of_averaging_frames/2,0);
+        stop_frame_index = std::min(start_frame_index + num_of_averaging_frames/2 - 1, num_video_frames - 1);
 
-        if (i>abs_start_frame)
+        if (i>abs_start_frame_new)
         {
-            window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
+            window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[stop_frame_index]));
             window_data.shed_col(0);
         }  
-		moving_median = arma::median(window_data,1);
+
+        arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(0,num_of_averaging_frames-1));
+
+        if(num_indices>1){
+            moving_median = arma::median(window_data.cols(rindices), 1);
+        }
+        else{
+            moving_median = window_data.col(0);
+        }
+
 		frame_vector -= moving_median;
 
         if (hide_shadow_choice)
@@ -465,7 +474,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
     int j0 = round(num_video_frames/3);
     arma::rowvec M = arma::max(frame_data,0);
 
-	int index_last_frame;
+	int stop_frame_index;
 	arma::mat moving_median(num_pixels, num_video_frames);
 
 	for (int j = 0; j < num_video_frames; j++)
@@ -476,8 +485,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		{
 			return std::vector<std::vector<uint16_t>>();
 		}
-        index_last_frame = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
-        moving_median.col(j) = arma::median(frame_data.cols(j,index_last_frame), 1);
+        stop_frame_index = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
+        moving_median.col(j) = arma::median(frame_data.cols(j,stop_frame_index), 1);
     }
 
 	frame_data -= arma::shift(moving_median,-start_frame,1);
@@ -1022,7 +1031,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
  {
     int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
-	int index_last_frame;
+	int stop_frame_index;
 	double R;
 
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -1046,11 +1055,11 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
         UpdateProgressBar(i);
         QCoreApplication::processEvents();
         frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
-        index_last_frame = std::min(i + num_of_averaging_frames - 1,num_video_frames - 1);
+        stop_frame_index = std::min(i + num_of_averaging_frames - 1,num_video_frames - 1);
 
         if(i >num_of_averaging_frames)
         {
-            window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[index_last_frame]));
+            window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[stop_frame_index]));
             window_data.shed_col(0);
         }
         moving_mean = arma::mean(window_data,1);
