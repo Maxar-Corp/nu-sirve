@@ -345,16 +345,18 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
     
 
 	// Take the median of random sampling of window data
-    int num_indices = std::max(number_avg_frames/4,1);
-    arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(0,number_avg_frames-1));
+    // int num_indices = std::max(number_avg_frames/4,1);
+    // arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(0,number_avg_frames-1));
     arma::vec median_frame;
-    if(num_indices>1){
-	    median_frame = arma::median(window_data.cols(rindices), 1);
-    }
-    else{
-        median_frame = window_data.col(0);
-    }
-
+    // if(num_indices>1){
+	//     median_frame = arma::median(window_data.cols(rindices), 1);
+    // }
+    // else{
+    //     median_frame = window_data.col(0);
+    // }
+    
+    median_frame = arma::median(window_data, 1);
+   
 	double M;
 	arma::vec frame_vector(num_pixels, 1);
 
@@ -395,7 +397,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	arma::vec moving_median(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec frame_vector_out(num_pixels,1);
-    int num_indices = std::max(num_of_averaging_frames/4,1);
+    int num_indices = std::max(num_of_averaging_frames/2,1);
 	for (int j = 0; j < num_of_averaging_frames; j++) { 
         window_data.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}
@@ -457,10 +459,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	int num_pixels = original.frames_16bit[0].size();
     int nRows = original.y_pixels;
     int nCols = original.x_pixels;
-
+    int num_indices = std::max(num_of_averaging_frames/4,1); 
 	arma::mat adjusted_window_data(num_pixels,num_of_averaging_frames);
     arma::mat frame_data(num_pixels,num_video_frames);
-
+    int start_frame_new = abs(start_frame)+num_of_averaging_frames/2;
     for (int i = 0; i < num_video_frames; i++) {
         UpdateProgressBar(std::round(i/3));
 		QCoreApplication::processEvents();
@@ -474,9 +476,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
     int j0 = round(num_video_frames/3);
     arma::rowvec M = arma::max(frame_data,0);
 
-	int stop_frame_index;
 	arma::mat moving_median(num_pixels, num_video_frames);
-
+    int si, fi, k;
+    int n2 = num_of_averaging_frames/2;
 	for (int j = 0; j < num_video_frames; j++)
 	{
         UpdateProgressBar(std::round(j0 + j/3));
@@ -485,8 +487,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		{
 			return std::vector<std::vector<uint16_t>>();
 		}
-        stop_frame_index = std::min(j + num_of_averaging_frames - 1, num_video_frames - 1);  
-        moving_median.col(j) = arma::median(frame_data.cols(j,stop_frame_index), 1);
+        si = std::max(0,j-n2);
+        fi = std::min(num_video_frames-1,j+n2);
+        arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(si,fi));
+        moving_median.col(j) = arma::median(frame_data.cols(rindices), 1);
     }
 
 	frame_data -= arma::shift(moving_median,-start_frame,1);
@@ -498,13 +502,14 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
         for (int k = 0; k < num_video_frames; k++)
         {
             UpdateProgressBar(std::round(k0 + k/3));
+
 		    QCoreApplication::processEvents();
             if (cancel_operation)
             {
                 return std::vector<std::vector<uint16_t>>();
             }
 			frame_vector = frame_data.col(k);
-            int start_index = std::max(k + start_frame,0);
+            int start_index = std::max(k - start_frame_new,0);
             int stop_index = std::min(start_index + num_of_averaging_frames - 1,num_video_frames - 1);
             adjusted_window_data = frame_data.cols(start_index,stop_index);
 			ImageProcessing::remove_shadow(nRows, nCols, frame_vector, adjusted_window_data, NThresh, num_of_averaging_frames);

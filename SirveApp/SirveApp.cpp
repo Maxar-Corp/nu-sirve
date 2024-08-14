@@ -3452,7 +3452,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     connect(btn_cancel_operation, &QPushButton::clicked, &ANS, &ImageProcessing::CancelOperation);
 
     if (available_memory_ratio >=1.5){
-        new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+        new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
     }
     else{
         new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
