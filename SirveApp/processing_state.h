@@ -50,6 +50,7 @@ struct processingState {
     QString FNS_file_path;
     int FNS_start_frame;
     int FNS_stop_frame;
+    int frame0;
 
     int frame_stack_num_frames;
 
@@ -282,6 +283,7 @@ struct processingState {
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 state_object.insert("method", "FNS");
+                state_object.insert("frame0",frame0);
                 state_object.insert("FNS_start_frame", FNS_start_frame);
                 state_object.insert("FNS_stop_frame", FNS_stop_frame);
                 state_object.insert("FNS_file_path", FNS_file_path);

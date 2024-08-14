@@ -70,6 +70,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
     if (method == "FNS")
     {
         processingState temp = { ProcessingMethod::fixed_noise_suppression };
+        temp.frame0 = json_obj.value("FNS_frame0").toInt();
         temp.FNS_start_frame = json_obj.value("FNS_start_frame").toInt();
         temp.FNS_stop_frame = json_obj.value("FNS_stop_frame").toInt();
         temp.FNS_file_path = json_obj.value("FNS_file_path").toString();

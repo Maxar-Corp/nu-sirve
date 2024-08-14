@@ -1393,7 +1393,7 @@ void SirveApp::LoadWorkspace()
                     break;
                 }
                 case ProcessingMethod::fixed_noise_suppression:{
-                    ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame, current_state.source_state_ID);
+                    ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.frame0, current_state.FNS_start_frame, current_state.FNS_stop_frame, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_OSM:{
@@ -2902,7 +2902,8 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
     {
         // assumes file version is same as base file opened
         int source_state_idx = cmb_processing_states->currentIndex();
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, start_frame, end_frame, source_state_idx);
+        int frame0 = start_frame - 1;
+        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, frame0, start_frame, end_frame, source_state_idx);
     }
     catch (const std::exception& e)
     {
@@ -2935,7 +2936,8 @@ void SirveApp::ExecuteFixedNoiseSuppression()
         int start_frame = txt_FNS_start_frame->text().toInt();
         int end_frame = txt_FNS_stop_frame->text().toInt();
         int source_state_idx = cmb_processing_states->currentIndex();
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame, source_state_idx);
+        int frame0 = data_plots->index_sub_plot_xmin;
+        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, end_frame, source_state_idx);
     }
     else
     {
@@ -2944,7 +2946,7 @@ void SirveApp::ExecuteFixedNoiseSuppression()
 
 }
 
-void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int start_frame, unsigned int end_frame, int source_state_idx)
+void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int start_frame, unsigned int end_frame, int source_state_idx)
 {
     int compare = QString::compare(file_path, image_path, Qt::CaseInsensitive);
     if (compare!=0){
@@ -2973,8 +2975,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
     connect(&FNS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &FNS, &ImageProcessing::CancelOperation);
-
-    new_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
+    
+    new_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, end_frame, config_values.version, original.details);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -2984,6 +2986,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         // set new state
         new_state.method = ProcessingMethod::fixed_noise_suppression;
         new_state.FNS_file_path = file_path;
+        new_state.frame0 = frame0;
         new_state.FNS_start_frame = start_frame;
         new_state.FNS_stop_frame = end_frame;
         new_state.source_state_ID = source_state_ind;
