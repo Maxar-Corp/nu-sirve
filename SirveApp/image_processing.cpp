@@ -459,10 +459,15 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	int num_pixels = original.frames_16bit[0].size();
     int nRows = original.y_pixels;
     int nCols = original.x_pixels;
-    int num_indices = std::max(num_of_averaging_frames/4,1); 
+    int n2 = num_of_averaging_frames;
+    int num_indices = std::max(num_of_averaging_frames/2,1); 
+    int si, fi;
 	arma::mat adjusted_window_data(num_pixels,num_of_averaging_frames);
     arma::mat frame_data(num_pixels,num_video_frames);
     int start_frame_new = abs(start_frame)+num_of_averaging_frames/2;
+    // arma::ivec rindices = arma::randi<arma::ivec>(num_indices,arma::distr_param(0,num_of_averaging_frames-1)) - n2;
+    // arma::ivec rindices2;
+    // arma::uvec rindices3;
     for (int i = 0; i < num_video_frames; i++) {
         UpdateProgressBar(std::round(i/3));
 		QCoreApplication::processEvents();
@@ -477,8 +482,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
     arma::rowvec M = arma::max(frame_data,0);
 
 	arma::mat moving_median(num_pixels, num_video_frames);
-    int si, fi, k;
-    int n2 = num_of_averaging_frames/2;
 	for (int j = 0; j < num_video_frames; j++)
 	{
         UpdateProgressBar(std::round(j0 + j/3));
@@ -489,12 +492,16 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		}
         si = std::max(0,j-n2);
         fi = std::min(num_video_frames-1,j+n2);
-        arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(si,fi));
+        arma::uvec rindices = arma::unique(arma::randi<arma::uvec>(num_indices,arma::distr_param(si,fi)));
+        // rindices2 = j + rindices;
+        // rindices2.elem(arma::find(rindices2<0)).zeros();
+        // rindices2.elem(arma::find(rindices2>num_video_frames-1)).fill(num_video_frames-1);
+        // rindices3 = arma::unique(arma::conv_to<arma::uvec>::from(rindices2));
         moving_median.col(j) = arma::median(frame_data.cols(rindices), 1);
     }
 
 	frame_data -= arma::shift(moving_median,-start_frame,1);
-	arma::vec frame_vector(num_pixels,1) ;
+	arma::vec frame_vector(num_pixels,1);
     int k0 = round(2*num_video_frames/3);
 	std::vector<std::vector<uint16_t>> frames_out;
 
