@@ -387,17 +387,17 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
     int nCols = original.x_pixels;
 	int start_frame_index, stop_frame_index, abs_start_frame;
 	double M;
-
+    int N2 = num_of_averaging_frames/2;
 	abs_start_frame = std::abs(start_frame);
 	std::vector<std::vector<uint16_t>> frames_out;
   	arma::mat window_data(num_pixels,num_of_averaging_frames);
-    int abs_start_frame_new = abs_start_frame+num_of_averaging_frames/2;
+    int abs_start_frame_new = abs_start_frame+N2;
 	arma::mat adjusted_window_data(num_pixels,abs_start_frame_new);
     adjusted_window_data.fill(0.0);
 	arma::vec moving_median(num_pixels, 1);
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec frame_vector_out(num_pixels,1);
-    int num_indices = std::max(num_of_averaging_frames/2,1);
+    int num_indices = std::max(N2,1);
 	for (int j = 0; j < num_of_averaging_frames; j++) { 
         window_data.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}
@@ -414,8 +414,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 
 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         M = arma::max(frame_vector);
-		start_frame_index = std::max(i + start_frame - num_of_averaging_frames/2,0);
-        stop_frame_index = std::min(start_frame_index + num_of_averaging_frames/2 - 1, num_video_frames - 1);
+		start_frame_index = std::max(i + start_frame - N2,0);
+        stop_frame_index = std::min(start_frame_index + N2 - 1, num_video_frames - 1);
 
         if (i>abs_start_frame_new)
         {
@@ -423,7 +423,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
             window_data.shed_col(0);
         }  
 
-        arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(0,num_of_averaging_frames-1));
+        arma::uvec rindices = arma::unique(arma::randi<arma::uvec>(num_indices,arma::distr_param(0,num_of_averaging_frames-1)));
 
         if(num_indices>1){
             moving_median = arma::median(window_data.cols(rindices), 1);
@@ -459,12 +459,12 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	int num_pixels = original.frames_16bit[0].size();
     int nRows = original.y_pixels;
     int nCols = original.x_pixels;
-    int n2 = num_of_averaging_frames;
-    int num_indices = std::max(num_of_averaging_frames/2,1); 
+    int N2 = num_of_averaging_frames/2;
+    int num_indices = std::max(N2,1); 
     int si, fi;
 	arma::mat adjusted_window_data(num_pixels,num_of_averaging_frames);
     arma::mat frame_data(num_pixels,num_video_frames);
-    int start_frame_new = abs(start_frame)+num_of_averaging_frames/2;
+    int start_frame_new = abs(start_frame)+N2;
     // arma::ivec rindices = arma::randi<arma::ivec>(num_indices,arma::distr_param(0,num_of_averaging_frames-1)) - n2;
     // arma::ivec rindices2;
     // arma::uvec rindices3;
@@ -490,8 +490,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		{
 			return std::vector<std::vector<uint16_t>>();
 		}
-        si = std::max(0,j-n2);
-        fi = std::min(num_video_frames-1,j+n2);
+        si = std::max(0,j-N2);
+        fi = std::min(num_video_frames-1,j+N2);
         arma::uvec rindices = arma::unique(arma::randi<arma::uvec>(num_indices,arma::distr_param(si,fi)));
         // rindices2 = j + rindices;
         // rindices2.elem(arma::find(rindices2<0)).zeros();

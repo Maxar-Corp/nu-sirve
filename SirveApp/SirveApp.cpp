@@ -567,13 +567,13 @@ QWidget* SirveApp::SetupProcessingTab() {
     vlayout_ans->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
 
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-	txt_ANS_offset_frames = new QLineEdit("-30");
+	txt_ANS_offset_frames = new QLineEdit("0");
 	txt_ANS_offset_frames->setFixedWidth(60);
-	txt_ANS_number_frames = new QLineEdit("5");
+	txt_ANS_number_frames = new QLineEdit("60");
 	txt_ANS_number_frames->setFixedWidth(60);
 	chk_hide_shadow = new QCheckBox("Hide Shadow");
 	chk_hide_shadow->setFixedWidth(110);
-	chk_hide_shadow->setChecked(true);
+	chk_hide_shadow->setChecked(false);
 	cmb_shadow_threshold = new QComboBox();
 	cmb_shadow_threshold->setFixedWidth(100);
 	cmb_shadow_threshold->addItem("3 sigma");
