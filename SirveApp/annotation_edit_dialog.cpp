@@ -342,6 +342,8 @@ void AnnotationEditDialog::CloseWindow()
 	done(QDialog::Rejected);
 
 	current_data = NULL;
+
+    this->deleteLater();
 }
 
 void AnnotationEditDialog::CloseEvent(QCloseEvent * event)
