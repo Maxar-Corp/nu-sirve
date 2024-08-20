@@ -46,8 +46,8 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
         _drag_active = false;
-        emit mouseReleased(event->globalPos() - _drag_position);
         event->accept();
+        emit mouseReleased(event->globalPos() - _drag_position);
     }
 }
 
