@@ -52,7 +52,7 @@ private:
 	QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_num_frames;
 	QPushButton *btn_add, *btn_cancel;
 
-    QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size;
+    QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size, *lbl_message;
 
 	QGridLayout *mainLayout;	
 

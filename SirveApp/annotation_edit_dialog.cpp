@@ -278,6 +278,8 @@ void AnnotationEditDialog::InitializeGui()
 	txt_x_loc = new QLineEdit(tr("0"));
 	txt_y_loc = new QLineEdit(tr("0"));
 
+    lbl_message = new QLabel();
+
 	// ------------------------------------------------------------
 	// set gridlayout
 	
@@ -296,17 +298,19 @@ void AnnotationEditDialog::InitializeGui()
     mainLayout->addWidget(txt_frame_start, 4, 0);
     mainLayout->addWidget(txt_num_frames, 4, 1);
 
-	
+    mainLayout->addWidget(lbl_message, 5, 0);
+
 	// set grid characterestics
 	mainLayout->setRowStretch(0, 0);
 	mainLayout->setRowStretch(1, 0);
 	mainLayout->setRowStretch(2, 0);
 	mainLayout->setRowStretch(3, 0);
 	mainLayout->setRowStretch(4, 0);
+    mainLayout->setRowStretch(5, 0);
 
 	mainLayout->setColumnStretch(0, 100);
 	mainLayout->setColumnStretch(1, 100);
-	mainLayout->setColumnStretch(2, 0);
+    mainLayout->setColumnStretch(2, 0);
 
 	setLayout(mainLayout);
 	setWindowTitle(tr("Add New Annotation"));
