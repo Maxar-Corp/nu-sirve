@@ -34,9 +34,9 @@ void AnnotationStencil::mouseMoveEvent(QMouseEvent *event)
 {
     if (_drag_active)
     {
-        move(event->globalPos() - _drag_position);
+        move(event->globalPos() - _drag_position - QPoint(0, 1.2 * current_data->font_size));
         event->accept();
-        emit mouseMoved(event->globalPos() - _drag_position);
+        emit mouseMoved(event->globalPos() - _drag_position - QPoint(0, 1.2 * current_data->font_size));
     }
 }
 
@@ -55,6 +55,11 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setPen(QPen(Qt::yellow, 2));
+
+    QFont font = painter.font();
+    font.setPointSize(current_data->font_size);
+    painter.setFont(font);
+
     painter.drawText(rect(), Qt::AlignCenter, current_data->text);
 }
 

@@ -214,7 +214,7 @@ void AnnotationEditDialog::InitializeGui()
 	txt_x_loc = new QLineEdit(tr("0"));
 	txt_y_loc = new QLineEdit(tr("0"));
 
-    lbl_message = new QLabel(tr("NOTE: Drag the yellow annotation stencil to your desired position."));
+    lbl_message = new QLabel("NOTE: Drag the yellow stencil to desired position to submit your new annotation.");
 
 	// ------------------------------------------------------------
 	// set gridlayout

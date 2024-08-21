@@ -33,6 +33,7 @@ public slots:
 
     void UpdateStencilPosition(QPoint position);
     void SetStencilLocation(QPoint location);
+    void onDialogRejected();
 
 private:
     std::vector<AnnotationInfo> &data;

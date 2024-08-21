@@ -134,7 +134,9 @@ void AnnotationListDialog::add()
     // display new annotation screen
     annotation_edit_dialog = new AnnotationEditDialog(data.back());
     connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
-    //connect(this, &AnnotationListDialog::locationChanged, &annotation_edit_dialog, &AnnotationEditDialog::LocationChanged);
+
+
+    connect(this, &QDialog::rejected, this, &AnnotationListDialog::onDialogRejected);
 
     auto response = annotation_edit_dialog->exec();
 
@@ -151,6 +153,8 @@ void AnnotationListDialog::add()
 
     emit updateAnnotationStencil(data[data.size()-1]);
     emit showAnnotationStencil();
+
+    btn_ok->setDisabled(true);
 }
 
 void AnnotationListDialog::edit()
@@ -225,6 +229,8 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
         lbl_description->setText(output);
 
         emit positionChanged(position);
+
+        btn_ok->setEnabled(true);
     }
 }
 
@@ -243,4 +249,8 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
         emit hideAnnotationStencil();
         emit annotationListUpdated();
     }
+}
+
+void AnnotationListDialog::onDialogRejected() {
+    emit hideAnnotationStencil();
 }
