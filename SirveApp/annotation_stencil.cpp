@@ -34,9 +34,13 @@ void AnnotationStencil::mouseMoveEvent(QMouseEvent *event)
 {
     if (_drag_active)
     {
-        move(event->globalPos() - _drag_position - QPoint(0, 1.2 * current_data->font_size));
+        // Beware: idiosyncartic formula ahead that accounts for the fact that the stencil is font size 10,
+        // but the range of font sizes runs form 8 to 18 inclusive.  Bottom line: it just works!
+        double scale_factor = (33 - current_data->font_size) / 12.5;
+
+        move(event->globalPos() - _drag_position - QPoint(0, scale_factor * current_data->font_size));
         event->accept();
-        emit mouseMoved(event->globalPos() - _drag_position - QPoint(0, 1.2 * current_data->font_size));
+        emit mouseMoved(event->globalPos() - _drag_position - QPoint(0, scale_factor * current_data->font_size));
     }
 }
 
@@ -47,7 +51,7 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
     {
         _drag_active = false;
         event->accept();
-        emit mouseReleased(event->globalPos() - _drag_position - QPoint(0, 1.2 * current_data->font_size));
+        emit mouseReleased(event->globalPos() - _drag_position);
     }
 }
 
