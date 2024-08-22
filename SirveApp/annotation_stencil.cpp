@@ -34,9 +34,9 @@ void AnnotationStencil::mouseMoveEvent(QMouseEvent *event)
 {
     if (_drag_active)
     {
-        // Beware: idiosyncartic formula ahead that accounts for the fact that the stencil is font size 10,
-        // but the range of font sizes runs form 8 to 18 inclusive.  Bottom line: it just works!
-        double scale_factor = (33 - current_data->font_size) / 12.5;
+        // Beware: idiosyncratic formula ahead that accounts for the fact that the stencil is font size 10,
+        // but the range of font sizes runs form 8 to 18 inclusive.
+        double scale_factor = (35 - current_data->font_size) / 12.5;
 
         move(event->globalPos() - _drag_position - QPoint(0, scale_factor * current_data->font_size));
         event->accept();
@@ -69,8 +69,8 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 
 void AnnotationStencil::InitializeData(AnnotationInfo data)
 {
-    const qreal padding = 1.67;
-    const int data_height = 20;
+    const qreal padding = 1.67; // eyeballed value to pad the stencil margins
+    const int data_height = 25; // function of raw pix height for font size 18
     current_data->color = data.color;
     current_data->font_size = data.font_size;
     current_data->text = data.text;
