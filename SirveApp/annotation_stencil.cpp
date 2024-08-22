@@ -47,7 +47,7 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
     {
         _drag_active = false;
         event->accept();
-        emit mouseReleased(event->globalPos() - _drag_position);
+        emit mouseReleased(event->globalPos() - _drag_position - QPoint(0, 1.2 * current_data->font_size));
     }
 }
 

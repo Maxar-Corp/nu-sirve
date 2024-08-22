@@ -882,59 +882,7 @@ void VideoDisplay::UpdateDisplayFrame()
 
     // ---------------------------------------------------------------------------------------
 
-    // Draw annotations
-
-    size_t num_annotations = annotation_list.size();
-
-    // if there are annotations ...
-    if (num_annotations > 0) {
-
-        // for each annotation ...
-        for (auto i = 0; i < num_annotations; i++) {
-
-            // get frame information
-            AnnotationInfo a = annotation_list[i];
-            unsigned int initial_frame_annotation = a.frame_start - a.min_frame;
-            unsigned int last_frame_annotation = initial_frame_annotation + a.num_frames;
-
-            // check that current frame is within bounds
-            if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
-
-                QString annotation_color = a.color;
-                int font_size = a.font_size;
-                QString annotation_text = a.text;
-
-                std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
-                int x = loc[0];
-                int y = loc[1];
-                int new_x = x - xCorrection;
-                int new_y = y - yCorrection;
-                if (new_x < 0){
-                    new_x = new_x + image_x;
-                }
-                if (new_y < 0){
-                    new_y = new_y + image_y;
-                }
-                if (new_x > image_x){
-                    new_x = new_x - image_x;
-                }
-                if (new_y > image_y){
-                    new_y = new_y - image_y ;
-                }
-
-                if (loc[0] >= 0)
-                {
-                    // write text
-                    QPainter p_a(&frame);
-                    p_a.setPen(QPen(annotation_color));
-                    p_a.setFont(QFont("Times", font_size));
-                    p_a.drawText(new_x, new_y, annotation_text);
-                }
-            }
-        }
-
-    }
-    // ---------------------------------------------------------------------------------------
+    DrawAnnotations();
 
     // determine if radiance calculation is selected
     bool rectangle_drawn = calculation_region.width() > 1 && calculation_region.height() > 1;
@@ -1029,6 +977,59 @@ void VideoDisplay::UpdateDisplayFrame()
     lbl_image_canvas->repaint();
 
     //counter++;
+}
+
+void VideoDisplay::DrawAnnotations()
+{
+    size_t num_annotations = annotation_list.size();
+
+    // if there are annotations ...
+    if (num_annotations > 0) {
+
+        // for each annotation ...
+        for (auto i = 0; i < num_annotations; i++) {
+
+            // get frame information
+            AnnotationInfo a = annotation_list[i];
+            unsigned int initial_frame_annotation = a.frame_start - a.min_frame;
+            unsigned int last_frame_annotation = initial_frame_annotation + a.num_frames;
+
+            // check that current frame is within bounds
+            if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
+
+                QString annotation_color = a.color;
+                int font_size = a.font_size;
+                QString annotation_text = a.text;
+
+                std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
+                int x = loc[0];
+                int y = loc[1];
+                int new_x = x - xCorrection;
+                int new_y = y - yCorrection;
+                if (new_x < 0){
+                    new_x = new_x + image_x;
+                }
+                if (new_y < 0){
+                    new_y = new_y + image_y;
+                }
+                if (new_x > image_x){
+                    new_x = new_x - image_x;
+                }
+                if (new_y > image_y){
+                    new_y = new_y - image_y ;
+                }
+
+                if (loc[0] >= 0)
+                {
+                    // write text
+                    QPainter p_a(&frame);
+                    p_a.setPen(QPen(annotation_color));
+                    p_a.setFont(QFont("Times", font_size));
+                    p_a.drawText(new_x, new_y, annotation_text);
+                }
+            }
+        }
+    }
 }
 
 QRectF VideoDisplay::GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height)
@@ -1238,6 +1239,7 @@ void VideoDisplay::ShowStencil()
 void VideoDisplay::HideStencil()
 {
     annotation_stencil->hide();
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::InitializeStencilData(AnnotationInfo data)
