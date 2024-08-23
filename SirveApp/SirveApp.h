@@ -138,7 +138,7 @@ public:
     AnnotationListDialog *annotate_gui;
 
     QStatusBar *status_bar;
-    QLabel *lbl_status_start_frame, *lbl_status_stop_frame, *lbl_loaded_frames, *lbl_workspace_name, *lbl_workspace_name_field, *lbl_current_workspace_folder_field;
+    QLabel *lbl_goto_frame, *lbl_status_start_frame, *lbl_status_stop_frame, *lbl_loaded_frames, *lbl_workspace_name, *lbl_workspace_name_field, *lbl_current_workspace_folder_field;
     QCheckBox *chk_bad_pixels_from_original;
     QLineEdit *txt_goto_frame, *txt_auto_track_start_frame, *txt_auto_track_stop_frame, *txt_accumulator_weight;
 

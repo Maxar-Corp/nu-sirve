@@ -85,11 +85,9 @@ void SirveApp::SetupUi() {
     tab_menu->addTab(SetupTracksTab(), "Tracks");
 
 	QSizePolicy fixed_width_video;
-	fixed_width_video.setHorizontalPolicy(QSizePolicy::Fixed);
-	fixed_width_video.setVerticalPolicy(QSizePolicy::Fixed);
+    fixed_width_video.setVerticalPolicy(QSizePolicy::Expanding);
 	frame_video_player->setSizePolicy(fixed_width_video);
-	frame_video_player->setFixedHeight(800);
-	frame_video_player->setFixedWidth(850);
+    frame_video_player->setFixedWidth(690);
     frame_video_player->setObjectName("frame_video_player");
 
     // ------------------------------------------------------------------------
@@ -775,8 +773,8 @@ void SirveApp::SetupVideoFrame(){
     // ------------------------------------------------------------------------
 
     lbl_fps = new QLabel("fps");
-    lbl_fps->setAlignment(Qt::AlignRight);
-    lbl_fps->setFixedWidth(75);
+    //lbl_fps->setAlignment(Qt::AlignRight);
+    lbl_fps->setFixedWidth(30);
 
     // ------------------------------------------------------------------------
 
@@ -787,8 +785,8 @@ void SirveApp::SetupVideoFrame(){
 
     // ------------------------------------------------------------------------
 
-    int button_video_width = 40;
-    int button_video_height = 40;
+    int button_video_width = 48;
+    int button_video_height = 50;
 
     //Add icons to video playback buttons
     btn_play = new QPushButton();
@@ -855,21 +853,22 @@ void SirveApp::SetupVideoFrame(){
     btn_popout_video->resize(button_video_width, button_video_height);
     btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
+
+    lbl_goto_frame = new QLabel("# Frames");
+    lbl_goto_frame->setFixedWidth(70);
     txt_goto_frame = new QLineEdit("");
-    txt_goto_frame->setFixedWidth(60);
-    connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
-    QFormLayout *formLayout = new QFormLayout;   
-    formLayout->addRow(tr("&Frame #"),txt_goto_frame);
+    txt_goto_frame->setFixedWidth(50);
+
     QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
-    // hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    hlayout_video_buttons->addLayout(formLayout);
+    hlayout_video_buttons->addWidget(lbl_goto_frame);
+    hlayout_video_buttons->addWidget(txt_goto_frame);
     hlayout_video_buttons->addWidget(btn_prev_frame);
-    hlayout_video_buttons->insertStretch(4, 0);
-    hlayout_video_buttons->insertStretch(6, 0);
+    //hlayout_video_buttons->insertStretch(4, 0);
+    //hlayout_video_buttons->insertStretch(6, 0);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
     hlayout_video_buttons->addWidget(btn_play);
@@ -877,8 +876,11 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(lbl_fps);
     hlayout_video_buttons->addWidget(btn_fast_forward);
     hlayout_video_buttons->addWidget(btn_slow_back);
-    hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+    //hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
     vlayout_frame_video->addLayout(hlayout_video_buttons);
+
+    connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
+
 }
 
 void SirveApp::SetupPlotFrame() {
