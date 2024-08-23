@@ -1487,10 +1487,6 @@ void SirveApp::LoadOsmData()
     lbl_file_name->setText("OSM File Name: " + abp_file_metadata.file_name);
     lbl_file_name->setToolTip(abp_file_metadata.directory_path);
 
-    txt_start_frame->setEnabled(true);
-    txt_stop_frame->setEnabled(true);
-    btn_get_frames->setEnabled(true);
-
     QString osm_max_frames = QString::number(osm_frames.size());
     txt_start_frame->setText(QString("1"));
     txt_stop_frame->setText(osm_max_frames);
@@ -1552,9 +1548,6 @@ void SirveApp::LoadOsmData()
     data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
 
     //--------------------------------------------------------------------------------
-    // Enable setting of epoch
-    dt_epoch->setEnabled(true);
-    btn_apply_epoch->setEnabled(true);
 
     std::vector<double> epoch0 = eng_data->get_epoch(osm_frames);
     std::vector<double> epoch_min = eng_data->get_adj_epoch(-2, osm_frames);
@@ -1616,12 +1609,20 @@ void SirveApp::LoadOsmData()
     return;
 }
 
-void SirveApp::UpdateGUI(bool data_status)
+void SirveApp::UpdateGUI(bool osm_data_status)
 {
-    btn_save_plot->setEnabled(data_status);
-    btn_plot_menu->setEnabled(data_status);
-    btn_popout_histogram->setEnabled(data_status);
-    txt_goto_frame->setEnabled(data_status);
+    btn_save_plot->setEnabled(osm_data_status);
+    btn_plot_menu->setEnabled(osm_data_status);
+    btn_popout_histogram->setEnabled(osm_data_status);
+    txt_goto_frame->setEnabled(osm_data_status);
+
+    // Enable setting of epoch
+    dt_epoch->setEnabled(osm_data_status);
+    btn_apply_epoch->setEnabled(osm_data_status);
+
+    txt_start_frame->setEnabled(osm_data_status);
+    txt_stop_frame->setEnabled(osm_data_status);
+    btn_get_frames->setEnabled(osm_data_status);
 }
 
 void SirveApp::UiLoadAbirData()
@@ -2096,26 +2097,8 @@ void SirveApp::HandlePlotCurrentFrameMarkerToggle()
     UpdatePlots();
 }
 
-
-// void SirveApp::ShowCalibrationDialog()
-// {
-// 	CalibrationDialog calibrate_dialog(calibration_model);
-
-// 	auto response = calibrate_dialog.exec();
-
-// 	if (response == 0) {
-
-// 		return;
-// 	}
-
-// 	calibration_model = calibrate_dialog.model;
-//     video_display->SetCalibrationModel(calibrate_dialog.model);
-// 	btn_calculate_radiance->setEnabled(true);
-// }
-
 void SirveApp::SetDataTimingOffset()
 {
-
     if (!eng_data)
         return;
 
