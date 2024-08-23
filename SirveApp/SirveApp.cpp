@@ -55,6 +55,7 @@ SirveApp::SirveApp(QWidget *parent)
     this->resize(0, 0);
 
     osmDataLoaded = false;
+    UpdateGUI(osmDataLoaded);
 }
 
 SirveApp::~SirveApp() {
@@ -1531,6 +1532,7 @@ void SirveApp::LoadOsmData()
     data_plots = new EngineeringPlots(osm_frames);
 
     osmDataLoaded = true;
+    UpdateGUI(osmDataLoaded);
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
     connect(btn_play, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
@@ -1609,7 +1611,17 @@ void SirveApp::LoadOsmData()
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
+    UpdateGUI(osmDataLoaded);
+
     return;
+}
+
+void SirveApp::UpdateGUI(bool data_status)
+{
+    btn_save_plot->setEnabled(data_status);
+    btn_plot_menu->setEnabled(data_status);
+    btn_popout_histogram->setEnabled(data_status);
+    txt_goto_frame->setEnabled(data_status);
 }
 
 void SirveApp::UiLoadAbirData()

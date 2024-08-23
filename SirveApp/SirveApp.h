@@ -169,6 +169,7 @@ public:
 
     bool osmDataLoaded;
     void UpdatePlots();
+    void UpdateGUI(bool status);
 
 	signals:
         void changeBanner(QString banner_text);
