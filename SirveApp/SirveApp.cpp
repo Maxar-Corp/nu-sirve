@@ -3347,6 +3347,10 @@ void SirveApp::HandleProcessingNewStateSelected()
 		return;
 	}
     lbl_processing_description->setText(video_display->container.processing_states[cmb_processing_states->currentIndex()].state_description);
+    int num_pixels_replaced = video_display->container.processing_states[cmb_processing_states->currentIndex()].replaced_pixels.size();
+    if(num_pixels_replaced>0){
+        lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(num_pixels_replaced));
+    }
 }
 
 void SirveApp::HandleProcessingStatesCleared()
