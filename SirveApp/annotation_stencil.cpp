@@ -69,7 +69,7 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 
 void AnnotationStencil::InitializeData(AnnotationInfo data)
 {
-    const qreal padding = 1.67; // eyeballed value to pad the stencil margins
+    const qreal padding = 2.5; // eyeballed value to pad the stencil margins
     const int data_height = 25; // function of raw pix height for font size 18
     current_data->color = data.color;
     current_data->font_size = data.font_size;

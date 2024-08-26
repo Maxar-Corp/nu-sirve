@@ -246,20 +246,20 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
     // if yes, set stencil location
     if (response == QMessageBox::Yes) {
 
-        //int index = lst_annotations->currentRow();
-
         data[index].x_pixel = location.x();
         data[index].y_pixel = location.y();
 
         emit hideAnnotationStencil();
         emit annotationListUpdated();
+
+        annotation_edit_dialog = nullptr;
+
     } else if (response == QMessageBox::Cancel)
     {
         // If adding an annotation, clean out newly-entered data:
-        if (this->windowTitle().contains("Add"))
+        if (this->annotation_edit_dialog->windowTitle().contains("Add"))
         {
-            data.pop_back();
-            lst_annotations->takeItem(lst_annotations->count()-1);
+            delete_object();
         } else
         {
             data[index] = old_data;
