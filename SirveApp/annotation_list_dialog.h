@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include "annotation_info.h"
 #include "video_display.h"
+#include "annotation_edit_dialog.h"
 
 class AnnotationListDialog : public QDialog
 {
@@ -15,6 +16,8 @@ class AnnotationListDialog : public QDialog
 public:
     AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent = nullptr);
     ~AnnotationListDialog();
+
+    AnnotationEditDialog *annotation_edit_dialog;
 
     void ShowAnnotation(int index);
     void repopulate_list();
