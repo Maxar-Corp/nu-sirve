@@ -1,8 +1,8 @@
 #include "annotation_edit_dialog.h"
 
-AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * parent)
+AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QString btn_text, QWidget * parent)
 {
-    InitializeGui();
+    InitializeGui(btn_text);
 
 	// store current annotation being worked on
 	current_data = &data;
@@ -170,7 +170,7 @@ void AnnotationEditDialog::FontSizeChanged(const QString & text)
 	emit annotationChanged();
 }
 
-void AnnotationEditDialog::InitializeGui()
+void AnnotationEditDialog::InitializeGui(QString btn_text)
 {
 	// ------------------------------------------------------------
 	// add colors and sizes
@@ -205,8 +205,8 @@ void AnnotationEditDialog::InitializeGui()
 	lbl_color = new QLabel(tr("Color"));
 	lbl_size = new QLabel(tr("Font Size (pt)"));
 
-	btn_add = new QPushButton(tr("Add"));
-	btn_cancel = new QPushButton(tr("Cancel"));
+    btn_add = new QPushButton(btn_text);
+    btn_cancel = new QPushButton(tr("Cancel"));
 
 	txt_annotation = new QLineEdit(tr("Insert Text Here"));
 	txt_frame_start = new QLineEdit(tr("1"));

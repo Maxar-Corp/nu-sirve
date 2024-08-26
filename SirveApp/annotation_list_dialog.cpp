@@ -132,10 +132,9 @@ void AnnotationListDialog::add()
     data.push_back(new_data);
 
     // display new annotation screen
-    annotation_edit_dialog = new AnnotationEditDialog(data.back());
+    annotation_edit_dialog = new AnnotationEditDialog(data.back(), "Add");
+
     connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
-
-
     connect(this, &QDialog::rejected, this, &AnnotationListDialog::onDialogRejected);
 
     auto response = annotation_edit_dialog->exec();
@@ -167,7 +166,7 @@ void AnnotationListDialog::edit()
         // store old data in case user cancels operation
         old_data = data[index];
 
-        annotation_edit_dialog = new AnnotationEditDialog(data[index]);
+        annotation_edit_dialog = new AnnotationEditDialog(data[index], QString("Edit"));
         annotation_edit_dialog->setWindowTitle("Edit Annotation");
         connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 
@@ -190,6 +189,8 @@ void AnnotationListDialog::edit()
 
         emit updateAnnotationStencil(data[index]);
         emit showAnnotationStencil();
+
+        btn_ok->setDisabled(true);
     }
 }
 

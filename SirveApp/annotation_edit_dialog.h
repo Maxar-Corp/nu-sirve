@@ -21,11 +21,13 @@ class AnnotationEditDialog : public QDialog
 	Q_OBJECT
 
 public:
-    AnnotationEditDialog(AnnotationInfo &data, QWidget *parent = nullptr);
+    AnnotationEditDialog(AnnotationInfo &data, QString btn_text, QWidget *parent = nullptr);
 	~AnnotationEditDialog();
 
 	int get_numeric_value(QString input);
-	bool check_numeric_value(QString input);
+    bool check_numeric_value(QString input);
+
+    QPushButton *btn_add, *btn_cancel;
 
 signals:
     void annotationChanged();
@@ -47,14 +49,13 @@ private:
 
 	QList<QString> colors, sizes;
 	QComboBox *cmb_colors, *cmb_size;
-	QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_num_frames;
-	QPushButton *btn_add, *btn_cancel;
+    QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_num_frames;
 
     QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size, *lbl_message;
 
 	QGridLayout *mainLayout;	
 
-	void InitializeGui();
+    void InitializeGui(QString btn_text);
 	void DisplayError(QString msg);
     void AddDialog();
 	void CloseWindow();
