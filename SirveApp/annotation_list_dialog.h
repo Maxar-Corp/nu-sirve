@@ -38,6 +38,7 @@ public slots:
 private:
     std::vector<AnnotationInfo> &data;
     VideoInfo base_data;
+    AnnotationInfo old_data;
 
     QLabel *lbl_annotations, *lbl_description;
     QListWidget *lst_annotations;
