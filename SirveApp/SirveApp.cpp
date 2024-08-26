@@ -2926,13 +2926,14 @@ void SirveApp::ExecuteFixedNoiseSuppression()
     playback_controller->StopTimer();
 
     if (!chk_FNS_external_file->isChecked())
-    {
-        if (txt_FNS_stop_frame->text().toInt() > video_display->container.processing_states[0].details.frames_16bit.size()){
-            txt_FNS_stop_frame->setText(QString::number(video_display->container.processing_states[0].details.frames_16bit.size()));
+    {       
+        if (txt_FNS_stop_frame->text().toInt() > txt_stop_frame->text().toInt() ||\
+         txt_FNS_start_frame->text().toInt() < txt_start_frame->text().toInt() || \
+         txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){         
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ".");
+            return;
         }
-        if (txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){
-            txt_FNS_start_frame->setText(QString::number(std::max(txt_FNS_stop_frame->text().toInt()-1,0)));
-        }
+        
         int start_frame = txt_FNS_start_frame->text().toInt();
         int end_frame = txt_FNS_stop_frame->text().toInt();
         int source_state_idx = cmb_processing_states->currentIndex();
