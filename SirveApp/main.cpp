@@ -50,5 +50,7 @@ int main(int argc, char *argv[])
 	SirveApp w;
     w.show();
 
+    qDebug() << "This is the screen width of SirveApp: " << w.size().width();
+
     return a.exec();
 }

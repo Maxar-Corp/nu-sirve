@@ -880,7 +880,6 @@ void SirveApp::SetupVideoFrame(){
     vlayout_frame_video->addLayout(hlayout_video_buttons);
 
     connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
-
 }
 
 void SirveApp::SetupPlotFrame() {
