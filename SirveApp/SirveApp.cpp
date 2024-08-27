@@ -2721,8 +2721,8 @@ void SirveApp::HandleBadPixelReplacement()
             QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start and the number of sample frames must be less than or equal to 2000.");
             return;
         } 
-        int start_offset = start_frame - txt_start_frame->text().toInt() - 1;
-        int stop_offset = stop_frame - txt_start_frame->text().toInt() - 1;
+        int start_offset = start_frame - txt_start_frame->text().toInt();
+        int stop_offset = stop_frame - txt_start_frame->text().toInt();
         test_data = {new_state.details.frames_16bit.begin()+ start_offset,new_state.details.frames_16bit.begin()+stop_offset};
     }
 
