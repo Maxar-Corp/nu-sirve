@@ -3681,7 +3681,7 @@ void SirveApp::ExecuteAutoTracking()
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
     int frame0 = data_plots->index_sub_plot_xmin;
     
-    int start_frame = txt_auto_track_start_frame->text().toInt();
+    uint start_frame = txt_auto_track_start_frame->text().toInt();
     int stop_frame = txt_auto_track_stop_frame->text().toInt();
     int num_frames_to_track = stop_frame - start_frame + 1;
     if (start_frame > 0 && stop_frame <= number_video_frames + start_frame && stop_frame>start_frame){

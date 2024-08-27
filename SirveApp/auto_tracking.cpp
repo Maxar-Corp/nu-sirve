@@ -20,7 +20,7 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
+arma::u32_mat AutoTracking::SingleTracker(u_int track_id, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
     int num_video_frames = original.frames_16bit.size();
     int nrows = original.y_pixels;
@@ -37,7 +37,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
 
     cv::Mat frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, image_vector.memptr());
     cv::Mat frame_matrix_8bit, frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color;
-    cv::Mat imCrop, imCrop_gray;
+    cv::Mat imCrop0, imCrop, imCrop_gray;
     frame_matrix.convertTo(frame_matrix_8bit, CV_8UC1);
 
     // attenuate image noise of initial frame
@@ -46,13 +46,33 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
 
     Ptr<Tracker> tracker = TrackerMIL::create();
     Rect ROI = cv::selectROI("ROI Selection", frame_matrix_filtered_8bit_color);
-    tracker->init(frame_matrix_filtered_8bit_color,ROI);
 
+    imCrop0 = frame_matrix_filtered_8bit(ROI);
+    cv::Mat thr0;
+    cv::threshold(imCrop0, thr0, 100, 255, cv::THRESH_OTSU);
+    cv::Moments m1 = cv::moments(thr0,false);
+    cv::Point p0(m1.m10/m1.m00, m1.m01/m1.m00);
+    u_int centerX0, centerY0;
     u_int indx, num_frames = stop_frame - start_frame + 1;
     arma::u32_mat output(num_frames, 4);
+
+    if (p0.x > 0 && p0.y > 0){
+        centerX0 = round(p0.x + ROI.x + 1);
+        centerY0 = round(p0.y + ROI.y + 1);
+    }
+    else
+    {
+        centerX0 = round(ROI.x + 0.5 * ROI.width + 1);
+        centerY0 = round(ROI.y + 0.5 * ROI.height + 1);
+    }
+    output.row(0) = {track_id, frame0, centerX0 ,centerY0};
+
+    tracker->init(frame_matrix_filtered_8bit_color,ROI);
+
+
     cv::destroyWindow("ROI Selection");
 
-    for (u_int i = 0; i < num_frames; i++) {
+    for (u_int i = 1; i < num_frames; i++) {
 
         if (cancel_operation)
 		{
@@ -111,7 +131,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, int frame0, int start_
             centerX = round(ROI.x + 0.5 * ROI.width + 1);
             centerY = round(ROI.y + 0.5 * ROI.height + 1);
         }
-        output.row(i) = {track_id, frame0 + i, centerX ,centerY };
+        output.row(i) = {track_id, frame0 + i, centerX ,centerY};
     }
     cv::destroyAllWindows();
     return output;
