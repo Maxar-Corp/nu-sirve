@@ -3,6 +3,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QWidget>
+#include <QFontMetrics>
 
 AnnotationStencil::AnnotationStencil(QWidget *parent)
     : QWidget(parent), _drag_active(true)
@@ -34,24 +35,22 @@ void AnnotationStencil::mouseMoveEvent(QMouseEvent *event)
 {
     if (_drag_active)
     {
-        // Beware: idiosyncratic formula ahead that accounts for the fact that the stencil is font size 10,
-        // but the range of font sizes runs form 8 to 18 inclusive.
-        double scale_factor = (35 - current_data->font_size) / 12.5;
-
-        move(event->globalPos() - _drag_position - QPoint(0, scale_factor * current_data->font_size));
+        move(event->globalPos() - _drag_position);
         event->accept();
-        emit mouseMoved(event->globalPos() - _drag_position - QPoint(0, scale_factor * current_data->font_size));
+        emit mouseMoved(event->globalPos() - _drag_position);
     }
 }
 
 void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
 {
-
     if (event->button() == Qt::LeftButton)
     {
         _drag_active = false;
         event->accept();
-        emit mouseReleased(event->globalPos() - _drag_position);
+
+        // Adjust the anno. position to offset the shift imposed by the zoom correction code:
+        QPoint offset = QPoint(this->width() * .005, this->height() * .75);
+        emit mouseReleased(event->globalPos() - _drag_position + offset);
     }
 }
 
@@ -59,8 +58,8 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.setPen(QPen(Qt::yellow, 2));
+    QFont font("Arial", current_data->font_size);
 
-    QFont font = painter.font();
     font.setPointSize(current_data->font_size);
     painter.setFont(font);
 
@@ -69,11 +68,16 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 
 void AnnotationStencil::InitializeData(AnnotationInfo data)
 {
-    const qreal padding = 2.5; // eyeballed value to pad the stencil margins
-    const int data_height = 25; // function of raw pix height for font size 18
     current_data->color = data.color;
     current_data->font_size = data.font_size;
     current_data->text = data.text;
-    qreal total_width = data.text.length() * (data.font_size + padding);
-    setFixedSize((int)total_width, data_height);
+
+    // Calculate the size needed to display the text and set accordingly
+    QFont font("Arial", current_data->font_size);
+    QFontMetrics fontMetrics(font);
+    int textWidth = fontMetrics.horizontalAdvance(current_data->text);
+    int textHeight = fontMetrics.height();
+
+    setFixedSize(textWidth, textHeight);
+    setFont(font);
 }
