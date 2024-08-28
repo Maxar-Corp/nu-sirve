@@ -882,8 +882,6 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(lbl_goto_frame);
     hlayout_video_buttons->addWidget(txt_goto_frame);
     hlayout_video_buttons->addWidget(btn_prev_frame);
-    //hlayout_video_buttons->insertStretch(4, 0);
-    //hlayout_video_buttons->insertStretch(6, 0);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
     hlayout_video_buttons->addWidget(btn_play);
@@ -891,7 +889,6 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(lbl_fps);
     hlayout_video_buttons->addWidget(btn_fast_forward);
     hlayout_video_buttons->addWidget(btn_slow_back);
-    //hlayout_video_buttons->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
     vlayout_frame_video->addLayout(hlayout_video_buttons);
 
     connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
@@ -899,7 +896,7 @@ void SirveApp::SetupVideoFrame(){
 
 void SirveApp::SetupPlotFrame() {
 
-    tab_plots->setTabPosition(QTabWidget::North);
+    tab_plots->setTabPosition(QTabWidget::South);
 
     // ------------------------------------------------------------------------
 
@@ -3202,15 +3199,15 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
     }
     new_state.find_any_tracks = find_any_tracks;
 
-    ImageProcessing COST;
+    ImageProcessing COT;
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,number_frames - 1);
     lbl_progress_status->setText(QString("Center on OSM..."));
 
-    connect(&COST, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &COST, &ImageProcessing::CancelOperation);
+    connect(&COT, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, &COT, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = COST.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    new_state.details.frames_16bit = COT.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -3672,7 +3669,6 @@ void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
     processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
     AutoTracking AT;
 
     progress_bar_main->setTextVisible(true);
@@ -3682,85 +3678,108 @@ void SirveApp::ExecuteAutoTracking()
     int frame0 = data_plots->index_sub_plot_xmin;
     
     uint start_frame = txt_auto_track_start_frame->text().toInt();
-    int stop_frame = txt_auto_track_stop_frame->text().toInt();
+    uint stop_frame = txt_auto_track_stop_frame->text().toInt();
     int num_frames_to_track = stop_frame - start_frame + 1;
-    if (start_frame > 0 && stop_frame <= number_video_frames + start_frame && stop_frame>start_frame){
-        progress_bar_main->setRange(0,num_frames_to_track);
-        int start_frame_i = start_frame - frame0;
-        int stop_frame_i = start_frame_i + num_frames_to_track -1;
-        bool ok;
-        u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
-        if (!ok || track_id < 0)
+    if (start_frame < txt_start_frame->text().toInt() || stop_frame > txt_stop_frame->text().toInt() || stop_frame<start_frame){
+        QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start.");
+        return;
+    }
+    progress_bar_main->setRange(0,num_frames_to_track);
+    int start_frame_i = start_frame - frame0;
+    int stop_frame_i = start_frame_i + num_frames_to_track -1;
+    bool ok;
+    u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
+    if (!ok || track_id < 0)
+    {
+        return;
+    }
+
+    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
+        if (response == QMessageBox::Yes)
         {
+            std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
+            PrepareForTrackCreation(track_id);
+            video_display->EnterTrackCreationMode(existing_track_details);
+        }
+    }
+    else
+    {
+    QString base_track_folder = config_values.workspace_folder;
+    QDate today = QDate::currentDate();
+    QTime currentTime = QTime::currentTime();;
+    QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+    QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id) + "_Frames_" + QString::number(start_frame) + "_" + QString::number(stop_frame) + "_" + formattedDate;
+    QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
+    if (new_track_file_name.isEmpty())
+    {
+        QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+        return;
+    }
+
+    arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    
+    if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
+        arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);
+        arma::mat offset_matrix(1,3,arma::fill::zeros);
+        arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
+        std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+        for (int rowi = 0; rowi< offsets.size(); rowi++){
+            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
+        }
+        offset_matrix.shed_row(0);
+        for (int rowii = 0; rowii<framei.size(); rowii++){
+             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii),1,"first");
+             if (!kk.is_empty()){
+                offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
+             }
+        }
+        offset_matrix2.shed_col(0);
+        offset_matrix2.insert_cols(0,2);
+        arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
+        autotrack_d += offset_matrix2;
+        autotrack = arma::conv_to<arma::u32_mat>::from(autotrack_d);
+    }
+
+    if (!autotrack.empty()){
+
+        autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
+
+        TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
+
+        if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
+        {
+            QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
+            return;
+        }
+
+        if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
+        {
+            QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
             return;
         }
 
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-        if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+        for ( int track_id : result.track_ids )
         {
-            auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
-            if (response == QMessageBox::Yes)
+            if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
             {
-                std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
-                PrepareForTrackCreation(track_id);
-                video_display->EnterTrackCreationMode(existing_track_details);
+                QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
             }
+            video_display->AddManualTrackIdToShowLater(track_id);
+            tm_widget->AddTrackControl(track_id);
+            cmb_manual_track_IDs->addItem(QString::number(track_id));
         }
-        else
-        {
-        QString base_track_folder = config_values.workspace_folder;
-        QDate today = QDate::currentDate();
-        QTime currentTime = QTime::currentTime();;
-        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-        QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id) + "_Frames_" + QString::number(start_frame) + "_" + QString::number(stop_frame) + "_" + formattedDate;
-        QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
-        if (new_track_file_name.isEmpty())
-        {
-            QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
-            return;
-        }
-        double lift = lbl_lift_value->text().toDouble();
-        double gain = lbl_gain_value->text().toDouble();
-        arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
-        
-        if (!autotrack.empty()){
 
-            autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
+        track_info->AddManualTracks(result.frames);
 
-            TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
-
-            if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
-            {
-                QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
-                return;
-            }
-
-            if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
-            {
-                QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
-                return;
-            }
-
-            std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-            for ( int track_id : result.track_ids )
-            {
-                if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
-                {
-                    QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
-                }
-                video_display->AddManualTrackIdToShowLater(track_id);
-                tm_widget->AddTrackControl(track_id);
-                cmb_manual_track_IDs->addItem(QString::number(track_id));
-            }
-
-            track_info->AddManualTracks(result.frames);
-
-            int index0 = data_plots->index_sub_plot_xmin;
-            int index1 = data_plots->index_sub_plot_xmax + 1;
-            video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            UpdatePlots();
-            }
+        int index0 = data_plots->index_sub_plot_xmin;
+        int index1 = data_plots->index_sub_plot_xmax + 1;
+        video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+        data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        UpdatePlots();
         }
     }
     lbl_progress_status->setText(QString(""));
