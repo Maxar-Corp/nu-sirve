@@ -895,7 +895,7 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    hlayout_video_buttons->addLayout(form_goto_frame);
+    hlayout_video_buttons->addWidget(txt_goto_frame);
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
