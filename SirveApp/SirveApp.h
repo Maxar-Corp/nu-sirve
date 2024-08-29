@@ -269,6 +269,8 @@ private:
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
     void HandleYAxisOptionChange();
+    void HandleExternalFileToggle();
+    void HandleBadPixelRawToggle();
     void AnnotateVideo();
 
     void HandlePopoutVideoClick(bool checked);

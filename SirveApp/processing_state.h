@@ -96,7 +96,7 @@ struct processingState {
             case ProcessingMethod::fixed_noise_suppression:{
                 return "Fixed Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                     +"Process steps: " + process_steps +"\n"\
-                    +"FNS: " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame)+".\n"\
+                    +"FNS: " + FNS_file_path + " Frames " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame)+".\n"\
                     +"State steps: " + state_steps;
                 break;
             }

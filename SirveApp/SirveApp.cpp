@@ -462,6 +462,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
     chk_bad_pixels_from_original = new QCheckBox("Load raw data");
     chk_bad_pixels_from_original->setChecked(true);
+    connect(chk_bad_pixels_from_original, &QCheckBox::stateChanged, this, &SirveApp::HandleBadPixelRawToggle);
 	cmb_bad_pixels_type = new QComboBox();
 	cmb_bad_pixels_type->addItem("All Bad Pixels");
 	cmb_bad_pixels_type->addItem("Dead/Bad Scale Only");
@@ -560,10 +561,14 @@ QWidget* SirveApp::SetupProcessingTab() {
     vlayout_fns->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
 
 	chk_FNS_external_file = new QCheckBox("External File");
+    connect(chk_FNS_external_file, &QCheckBox::stateChanged, this, &SirveApp::HandleExternalFileToggle);
 	chk_FNS_external_file->setFixedWidth(150);
 	txt_FNS_start_frame = new QLineEdit("1");
+    txt_FNS_start_frame->setObjectName("txt_FNS_start_frame");
+    txt_FNS_start_frame->setStyleSheet("#txt_FNS_start_frame {background-color:#ffffff; color:rgb(0,0,0);}");
 	txt_FNS_start_frame->setFixedWidth(60);
 	txt_FNS_stop_frame = new QLineEdit("50");
+    txt_FNS_stop_frame->setObjectName("txt_FNS_stop_frame");
 	txt_FNS_stop_frame->setFixedWidth(60);
 	btn_FNS = new QPushButton("Fixed Background Noise Suppression");
 	btn_FNS->setFixedWidth(275);
@@ -899,7 +904,7 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_slow_back);
     vlayout_frame_video->addLayout(hlayout_video_buttons);
 
-    connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
+    connect(txt_goto_frame, &QLineEdit::editingFinished, this, &SirveApp::HandleFrameNumberChangeInput);
 }
 
 void SirveApp::SetupPlotFrame() {
@@ -1122,6 +1127,36 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
+}
+
+void SirveApp::HandleBadPixelRawToggle()
+{
+    if (chk_bad_pixels_from_original->isChecked()){
+        txt_bad_pixel_start_frame->setText("1");
+        int nframes = osm_frames.size();
+        int istop = std::min(2001,nframes);
+        txt_bad_pixel_stop_frame->setText(QString::number(istop));
+    }
+    else{
+        txt_bad_pixel_start_frame->setText(txt_start_frame->text());
+        int istop = std::min(txt_start_frame->text().toInt() + 2000,txt_stop_frame->text().toInt());
+        txt_bad_pixel_stop_frame->setText(QString::number(istop));
+    }
+}
+void SirveApp::HandleExternalFileToggle()
+{
+    if (chk_FNS_external_file->isChecked()){
+        txt_FNS_start_frame->setStyleSheet("#txt_FNS_start_frame {background-color:#f0f0f0; color:rgb(75,75,75);}");
+        txt_FNS_stop_frame->setStyleSheet("#txt_FNS_stop_frame {background-color:#f0f0f0; color:rgb(75,75,75);}");
+        txt_FNS_stop_frame->setEnabled(false);
+        txt_FNS_start_frame->setEnabled(false);
+    }
+    else{
+        txt_FNS_start_frame->setStyleSheet("#txt_FNS_start_frame {background-color:#ffffff; color:rgb(0,0,0);}");
+        txt_FNS_stop_frame->setStyleSheet("#txt_FNS_stop_frame {background-color:#ffffff; color:rgb(0,0,0);}");
+        txt_FNS_stop_frame->setEnabled(true);
+        txt_FNS_start_frame->setEnabled(true);
+    }
 }
 
 void SirveApp::HandleYAxisOptionChange()
@@ -1624,7 +1659,6 @@ void SirveApp::LoadOsmData()
 
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
-
     return;
 }
 
@@ -1762,6 +1796,9 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
     progress_bar_main->setTextVisible(false);
     grpbox_progressbar_area->setEnabled(false);
     lbl_progress_status->setText(QString(""));
+    txt_FNS_start_frame->setText(txt_start_frame->text());
+    int istop = txt_start_frame->text().toInt() + 50;
+    txt_FNS_stop_frame->setText(QString::number(istop));
 }
 
 void SirveApp::HandlePopoutEngineeringClick(bool checked)
@@ -3362,10 +3399,20 @@ void SirveApp::HandleProcessingNewStateSelected()
 	{
 		return;
 	}
-    lbl_processing_description->setText(video_display->container.processing_states[cmb_processing_states->currentIndex()].state_description);
-    int num_pixels_replaced = video_display->container.processing_states[cmb_processing_states->currentIndex()].replaced_pixels.size();
-    if(num_pixels_replaced>0){
+    processingState state = video_display->container.processing_states[cmb_processing_states->currentIndex()];
+    lbl_processing_description->setText(state.state_description);
+    int num_pixels_replaced = state.replaced_pixels.size();
+    ProcessingMethod procMethod = state.method;
+    if (num_pixels_replaced>0) {
         lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(num_pixels_replaced));
+    }
+    if (procMethod == ProcessingMethod::fixed_noise_suppression){
+        QString description = "File: " + state.FNS_file_path + "\n";
+        description += "From frame " + QString::number(state.FNS_start_frame) + " to " + QString::number(state.FNS_stop_frame);
+        lbl_fixed_suppression->setText(description);
+    }
+    else{
+        lbl_fixed_suppression->setText("");
     }
 }
 
