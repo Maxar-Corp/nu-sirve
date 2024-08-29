@@ -2260,7 +2260,7 @@ void SirveApp::ExportAllFrames()
     int nRows = video_display->container.processing_states[0].details.y_pixels;
     int nCols = video_display->container.processing_states[0].details.x_pixels;
     arma::u32_cube frame_cube(nRows,nCols,num_video_frames);
-    for (int framei = min_frame - 1; framei < max_frame - 1 ; framei++){
+    for (int framei = 0; framei < num_video_frames ; framei++){
         std::vector<uint16_t> original_frame_vector = {video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[framei].begin(),
                 video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[framei].end()};
         frame_cube.slice(framei) = arma::reshape(arma::conv_to<arma::u32_vec>::from(original_frame_vector),nCols,nRows).t();
