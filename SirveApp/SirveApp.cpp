@@ -227,6 +227,7 @@ void SirveApp::SetupUi() {
     lbl_progress_status = new QLabel("");
     lbl_progress_status->setFixedWidth(200);
     QGroupBox *grpbox_status_bar = new QGroupBox();
+    grpbox_status_bar->setFixedWidth(900);
     QHBoxLayout * hlayout_status_bar1 = new QHBoxLayout();
     QHBoxLayout * hlayout_status_bar2 = new QHBoxLayout();
     QGroupBox *grpbox_status_lbl = new QGroupBox();
@@ -879,7 +880,6 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    hlayout_video_buttons->addWidget(lbl_goto_frame);
     hlayout_video_buttons->addLayout(form_goto_frame);
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
