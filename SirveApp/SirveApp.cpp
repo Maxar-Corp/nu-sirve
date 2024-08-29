@@ -868,11 +868,11 @@ void SirveApp::SetupVideoFrame(){
     btn_popout_video->resize(button_video_width, button_video_height);
     btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
-
-    lbl_goto_frame = new QLabel("# Frames");
-    lbl_goto_frame->setFixedWidth(70);
+    
     txt_goto_frame = new QLineEdit("");
-    txt_goto_frame->setFixedWidth(50);
+    QFormLayout *form_goto_frame = new QFormLayout;   
+    form_goto_frame->addRow(tr("&Go To Frame #"),txt_goto_frame);
+    txt_goto_frame->setFixedWidth(60);
 
     QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
     hlayout_video_buttons->addWidget(btn_frame_save);
@@ -880,7 +880,7 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_zoom);
     hlayout_video_buttons->addWidget(btn_popout_video);
     hlayout_video_buttons->addWidget(lbl_goto_frame);
-    hlayout_video_buttons->addWidget(txt_goto_frame);
+    hlayout_video_buttons->addLayout(form_goto_frame);
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
@@ -4046,10 +4046,9 @@ void SirveApp::HandleFrameChange()
 void SirveApp::HandleFrameNumberChangeInput()
 {
     unsigned int new_frame_number = txt_goto_frame->text().toUInt();
-    int number_video_frames = static_cast<int>(video_display->container.processing_states[cmb_processing_states->currentIndex()].details.frames_16bit.size());
-    if (new_frame_number > 0 && new_frame_number <= number_video_frames){
-        video_display->ViewFrame(new_frame_number-1);
-        slider_video->setValue(new_frame_number-1);
+    if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
+        video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
+        slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
         txt_auto_track_start_frame->setText(QString::number(new_frame_number));
         if (txt_auto_track_stop_frame->text().toInt()<new_frame_number){
             txt_auto_track_stop_frame->setText(QString::number(new_frame_number));
