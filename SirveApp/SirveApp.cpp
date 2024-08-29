@@ -1107,8 +1107,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     // Connect x-axis and y-axis changes to functions
-    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::UpdatePlots);
-    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::UpdatePlots);
+    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisOptionChange);
 
     // Connect save button functions
     connect(btn_save_plot, &QPushButton::clicked, this, &SirveApp::SavePlot);
@@ -1125,6 +1124,16 @@ void SirveApp::setupConnections() {
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
 }
 
+void SirveApp::HandleYAxisOptionChange()
+{
+    if(cmb_plot_yaxis->currentIndex()==0){
+        rad_scientific->setChecked(true);
+    }
+    else{
+        rad_decimal->setChecked(true);
+    }
+    UpdatePlots();
+}
 void SirveApp::ImportTracks()
 {
     QString base_track_folder = config_values.workspace_folder;

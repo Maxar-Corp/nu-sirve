@@ -268,7 +268,7 @@ private:
     void EditTrackerColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
-
+    void HandleYAxisOptionChange();
     void AnnotateVideo();
 
     void HandlePopoutVideoClick(bool checked);
