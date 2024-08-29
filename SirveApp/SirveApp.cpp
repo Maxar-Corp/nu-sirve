@@ -458,7 +458,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
     grpbox_bad_pixels_correction->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
     QVBoxLayout *vlayout_bad_pixels = new QVBoxLayout(grpbox_bad_pixels_correction);
-	QHBoxLayout *hlayout_bad_pixels = new QHBoxLayout();
     vlayout_bad_pixels->setAlignment(Qt::AlignCenter|Qt::AlignTop);
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
     chk_bad_pixels_from_original = new QCheckBox("Load raw data");
@@ -505,28 +504,34 @@ QWidget* SirveApp::SetupProcessingTab() {
     form_replace_which_pixels_col2->addRow(tr("&Window Length:"),txt_moving_median_N);
     form_replace_which_pixels_col2->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
 
+    QVBoxLayout *vlayout_bad_pixels_col1 = new QVBoxLayout;
+    QVBoxLayout *vlayout_bad_pixels_col2 = new QVBoxLayout;
+   
 	chk_highlight_bad_pixels = new QCheckBox("Highlight Bad Pixels");
 	cmb_bad_pixel_color = new QComboBox();
 	cmb_bad_pixel_color->setFixedWidth(100);
 	cmb_bad_pixel_color->addItems(colors);
 	cmb_bad_pixel_color->setCurrentIndex(2);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
-
     QFormLayout *form_highlight_bad_pixels = new QFormLayout;
-    form_highlight_bad_pixels->addRow(tr(""),chk_highlight_bad_pixels);
     form_highlight_bad_pixels->addRow(tr("&Color"),cmb_bad_pixel_color);
-    QHBoxLayout *hlayout_bad_pixels_display = new QHBoxLayout;
-    hlayout_bad_pixels_display->addWidget(btn_replace_bad_pixels);
-    hlayout_bad_pixels_display->addLayout(form_highlight_bad_pixels);
-    hlayout_bad_pixels_display->insertStretch(-1,0);
+
+    vlayout_bad_pixels_col1->addLayout(form_replace_which_pixels_col1);
+    vlayout_bad_pixels_col1->addWidget(chk_highlight_bad_pixels);
+    vlayout_bad_pixels_col1->addLayout(form_highlight_bad_pixels);
+
+    vlayout_bad_pixels_col2->addLayout(form_replace_which_pixels_col2);
+    vlayout_bad_pixels_col2->insertStretch(1,0);
+    vlayout_bad_pixels_col2->addWidget(btn_replace_bad_pixels);
+    vlayout_bad_pixels_col2->insertStretch(-1,0);
 
     vlayout_bad_pixels->addWidget(lbl_bad_pixel_count);
     vlayout_bad_pixels->addWidget(chk_bad_pixels_from_original);
+    QHBoxLayout *hlayout_bad_pixels = new QHBoxLayout();
+    hlayout_bad_pixels->addLayout(vlayout_bad_pixels_col1);
+    hlayout_bad_pixels->addLayout(vlayout_bad_pixels_col2);
+    hlayout_bad_pixels->insertStretch(-1,0);
     vlayout_bad_pixels->addLayout(hlayout_bad_pixels);
-    hlayout_bad_pixels->addLayout(form_replace_which_pixels_col1);
-    hlayout_bad_pixels->addLayout(form_replace_which_pixels_col2);
-    vlayout_bad_pixels->addLayout(hlayout_bad_pixels_display);
-    hlayout_bad_pixels->insertStretch(-1, 0);
     vlayout_bad_pixels->insertStretch(-1, 0);
     // ------------------------------------------------------------------------
 
