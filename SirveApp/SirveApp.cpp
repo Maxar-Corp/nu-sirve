@@ -458,7 +458,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_bad_pixels_correction->setStyleSheet(bold_large_styleSheet);
     grpbox_bad_pixels_correction->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
     QVBoxLayout *vlayout_bad_pixels = new QVBoxLayout(grpbox_bad_pixels_correction);
-    vlayout_bad_pixels->setAlignment(Qt::AlignCenter|Qt::AlignTop);
+    vlayout_bad_pixels->setAlignment(Qt::AlignCenter);
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
     chk_bad_pixels_from_original = new QCheckBox("Load raw data");
     chk_bad_pixels_from_original->setChecked(true);
@@ -554,11 +554,11 @@ QWidget* SirveApp::SetupProcessingTab() {
     grid_image_processing->addWidget(stck_noise_suppresssion_methods,1,0,1,6);
 	
     grpbox_FNS_processing = new QGroupBox("");
+    grpbox_FNS_processing->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 	lbl_fixed_suppression = new QLabel("No Frames Selected");
 
-    QHBoxLayout *hlayout_fns = new QHBoxLayout(grpbox_FNS_processing);
-    QVBoxLayout *vlayout_fns = new QVBoxLayout;
-    vlayout_fns->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
+    QVBoxLayout *vlayout_fns = new QVBoxLayout(grpbox_FNS_processing);
+    vlayout_fns->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 
 	chk_FNS_external_file = new QCheckBox("External File");
     connect(chk_FNS_external_file, &QCheckBox::stateChanged, this, &SirveApp::HandleExternalFileToggle);
@@ -576,14 +576,11 @@ QWidget* SirveApp::SetupProcessingTab() {
     QFormLayout *form_fns = new QFormLayout;
     form_fns->addRow(tr("&Start:"),txt_FNS_start_frame);
     form_fns->addRow(tr("&Stop:"),txt_FNS_stop_frame);
-    form_fns->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
-    hlayout_fns->addLayout(vlayout_fns);
+    form_fns->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     vlayout_fns->addWidget(lbl_fixed_suppression);
     vlayout_fns->addWidget(chk_FNS_external_file);
-    vlayout_fns->addLayout(hlayout_fns);
     vlayout_fns->addLayout(form_fns);
     vlayout_fns->addWidget(btn_FNS);
-    hlayout_fns->insertStretch(-1,0);
     vlayout_fns->insertStretch(-1,0);
 
 	// ------------------------------------------------------------------------
@@ -591,7 +588,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 
     QHBoxLayout *hlayout_ans = new QHBoxLayout(grpbox_ANS_processing);
     QVBoxLayout *vlayout_ans = new QVBoxLayout;
-    vlayout_ans->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
 
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
 	txt_ANS_offset_frames = new QLineEdit("0");
@@ -679,7 +675,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     grpbox_image_shift = new QGroupBox();
     QHBoxLayout *hlayout_image_shift = new QHBoxLayout(grpbox_image_shift);
     QVBoxLayout *vlayout_image_shift = new QVBoxLayout;
-    vlayout_image_shift->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
+    vlayout_image_shift->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
 
     txt_frame_stack_Nframes = new QLineEdit("5");
     txt_frame_stack_Nframes->setFixedWidth(50);
@@ -802,7 +798,6 @@ void SirveApp::SetupVideoFrame(){
     // ------------------------------------------------------------------------
 
     lbl_fps = new QLabel("fps");
-    //lbl_fps->setAlignment(Qt::AlignRight);
     lbl_fps->setFixedWidth(30);
 
     // ------------------------------------------------------------------------
@@ -1134,7 +1129,7 @@ void SirveApp::HandleBadPixelRawToggle()
     if (chk_bad_pixels_from_original->isChecked()){
         txt_bad_pixel_start_frame->setText("1");
         int nframes = osm_frames.size();
-        int istop = std::min(2001,nframes);
+        int istop = nframes;
         txt_bad_pixel_stop_frame->setText(QString::number(istop));
     }
     else{
@@ -2758,9 +2753,8 @@ void SirveApp::HandleBadPixelReplacement()
 
     if (chk_bad_pixels_from_original->isChecked()){
         if (stop_frame > txt_stop_frame->text().toInt() ||\
-         start_frame >= stop_frame ||\
-         stop_frame-start_frame >2000){         
-            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + txt_stop_frame->text() + ". Stop must be greater than start and the number of sample frames must be less than or equal to 2000.");
+         start_frame >= stop_frame){         
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + txt_stop_frame->text() + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
         ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, config_values.version);
@@ -2769,9 +2763,8 @@ void SirveApp::HandleBadPixelReplacement()
     else{
         if (stop_frame > txt_stop_frame->text().toInt() ||\
          start_frame < txt_start_frame->text().toInt() || \
-         start_frame >= stop_frame || \
-         stop_frame-start_frame >2000){         
-            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start and the number of sample frames must be less than or equal to 2000.");
+         start_frame >= stop_frame){         
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " + txt_stop_frame->text() + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         } 
         int start_offset = start_frame - txt_start_frame->text().toInt();
