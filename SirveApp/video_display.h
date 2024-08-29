@@ -119,27 +119,29 @@ signals:
     void finishTrackCreation();
 
 public slots:
-    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, std::vector<std::vector<int>> offsets);
-	void UpdateBannerText(QString input_banner_text);
-	void UpdateBannerColor(QString input_color);
-    void HandleTrackerColorUpdate(QString input_color);
-    void HandleColorMapUpdate(QVector<QRgb> color_table);
+
+    void ClearPinpoints();
     void GetCurrentIdx(int current_idx_new);
 
-    void HandleSensorBoresightDataCheck(bool checked);
-    void HandleFrameTimeToggle(bool checked);
-
-    void HandlePixelSelection(QPoint origin);
-    void ClearPinpoints();
-
     void HandleAnnotationChanges();
-
+    void HandleColorMapUpdate(QVector<QRgb> color_table);
+    void HandleFrameTimeToggle(bool checked);
     void HandleImageAreaSelection(QRect area);
-    void ShowStencil();
+    void HandlePinpointControlActivation(bool enabled);
+    void HandlePixelSelection(QPoint origin);
+    void HandleSensorBoresightDataCheck(bool checked);
+    void HandleTrackerColorUpdate(QString input_color);
+
+    // stencil stuff
     void HideStencil();
+    void ShowStencil();
     void InitializeStencilData(AnnotationInfo data);
+
     void UndoZoom();
 
+    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, std::vector<std::vector<int>> offsets);
+    void UpdateBannerText(QString input_banner_text);
+    void UpdateBannerColor(QString input_color);
 
 private:
     VideoDisplayZoomManager *zoom_manager;
@@ -149,9 +151,9 @@ private:
     QVector<QRgb> colorTable;
 
     QLabel *lbl_pinpoint;
-    QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
     QGroupBox *grp_pinpoint;
     std::vector<unsigned int> pinpoint_indices;
+    QPushButton *btn_pinpoint, *btn_pinpoint_bad_pixel, *btn_pinpoint_good_pixel, *btn_clear_pinpoints;
 
     QLabel *lbl_create_track;
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;

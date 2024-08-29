@@ -105,6 +105,8 @@ void AnnotationListDialog::ok()
 {
     done(1);
     this->deleteLater();
+
+    emit hideAnnotationStencil();
 }
 
 void AnnotationListDialog::add()
@@ -130,11 +132,11 @@ void AnnotationListDialog::add()
     data.push_back(new_data);
 
     // display new annotation screen
-    AnnotationEditDialog annotation_edit_dialog(data.back());
-    connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
+    annotation_edit_dialog = new AnnotationEditDialog(data.back());
+    connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
     //connect(this, &AnnotationListDialog::locationChanged, &annotation_edit_dialog, &AnnotationEditDialog::LocationChanged);
 
-    auto response = annotation_edit_dialog.exec();
+    auto response = annotation_edit_dialog->exec();
 
     // if action was cancelled or window closed, then remove the new annotation
     if (response == 0) {
@@ -161,11 +163,10 @@ void AnnotationListDialog::edit()
         // store old data in case user cancels operation
         AnnotationInfo old_data = data[index];
 
-        // display new annotation screen
-        AnnotationEditDialog annotation_edit_dialog(data[index]);
-        connect(&annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
+        annotation_edit_dialog = new AnnotationEditDialog(data[index]);
+        connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 
-        auto response = annotation_edit_dialog.exec();
+        auto response = annotation_edit_dialog->exec();
 
         // if action was cancelled or window closed, then restore previous annotation
         if (response == 0)
