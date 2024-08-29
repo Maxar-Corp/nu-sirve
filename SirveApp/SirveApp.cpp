@@ -1544,6 +1544,10 @@ void SirveApp::LoadOsmData()
     connect(btn_next_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
     connect(btn_prev_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
 
+    // Locks down and frees up the frame range specification text boxes:
+    connect(this->data_plots, &EngineeringPlots::changeMotionStatus, this, &SirveApp::HandlePlayerStateChanged);
+
+
     size_t num_tracks = track_info->get_track_count();
     if (num_tracks == 0)
     {
@@ -3318,6 +3322,13 @@ void SirveApp::HandleOsmTracksToggle()
     {
         cmb_tracker_color->setEnabled(false);
     }
+}
+
+void SirveApp::HandlePlayerStateChanged(bool status)
+{
+    txt_start_frame->setDisabled(status);
+    txt_stop_frame->setDisabled(status);
+    btn_get_frames->setDisabled(status);
 }
 
 void SirveApp::HandleNewProcessingState(QString state_name, QString combobox_state_name, int index)
