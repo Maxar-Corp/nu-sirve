@@ -227,7 +227,7 @@ void SirveApp::SetupUi() {
     lbl_progress_status = new QLabel("");
     lbl_progress_status->setFixedWidth(200);
     QGroupBox *grpbox_status_bar = new QGroupBox();
-    grpbox_status_bar->setFixedWidth(900);
+    grpbox_status_bar->setFixedWidth(975);
     QHBoxLayout * hlayout_status_bar1 = new QHBoxLayout();
     QHBoxLayout * hlayout_status_bar2 = new QHBoxLayout();
     QGroupBox *grpbox_status_lbl = new QGroupBox();
@@ -244,11 +244,13 @@ void SirveApp::SetupUi() {
     hlayout_status_bar1->addWidget(lbl_status_start_frame);
     hlayout_status_bar1->addItem(hspacer_item10);
     hlayout_status_bar1->addWidget(lbl_status_stop_frame);
+    hlayout_status_bar1->insertStretch(-1,0);
     hlayout_status_bar2->addWidget(lbl_current_workspace_folder);
     hlayout_status_bar2->addWidget(lbl_current_workspace_folder_field);
     hlayout_status_bar2->addItem(hspacer_item10);
     hlayout_status_bar2->addWidget(lbl_workspace_name);
     hlayout_status_bar2->addWidget(lbl_workspace_name_field);
+    hlayout_status_bar2->insertStretch(-1,0);
     vlayout_status_lbl->addLayout(hlayout_status_bar1);
     vlayout_status_lbl->addLayout(hlayout_status_bar2);
     grpbox_status_bar->setLayout(vlayout_status_lbl);
@@ -4000,8 +4002,8 @@ void SirveApp::DeleteState()
             desc.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
             QString desc2 = desc;
-            QString tmp0 = "<Source State " + QString::number(all_states[i].source_state_ID) + ">";
-            desc2.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            QString tmp0 = "<Previous State " + QString::number(all_states[i].source_state_ID) + ">";
+            desc2.replace(tmp0,"<Previous State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
 
             std::string result;
             for (auto num : all_states[i].ancestors) {
@@ -4020,7 +4022,7 @@ void SirveApp::DeleteState()
             desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
             QString desc4 = desc3;
-            desc4.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            desc4.replace(tmp0,"<Previous State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
             new_labels.append(desc4);
 
             all_states[i].state_ID = i;
