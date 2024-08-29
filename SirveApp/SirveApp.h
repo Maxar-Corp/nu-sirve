@@ -169,13 +169,15 @@ public:
 
     bool osmDataLoaded;
     void UpdatePlots();
-    void UpdateGUI(bool status);
+    void UpdateGuiPostDataLoad(bool status);
+    void UpdateGuiPostFrameRangeLoad(bool status);
 
 	signals:
         void changeBanner(QString banner_text);
         void changeBannerColor(QString color);
         void changeTrackerColor(QString color);
         void directorySelected(QString directory);
+        void updateVideoDisplayPinpointControls(bool status);
 
 	public slots:
 

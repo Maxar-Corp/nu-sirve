@@ -55,7 +55,7 @@ SirveApp::SirveApp(QWidget *parent)
     this->resize(0, 0);
 
     osmDataLoaded = false;
-    UpdateGUI(osmDataLoaded);
+    UpdateGuiPostDataLoad(osmDataLoaded);
 }
 
 SirveApp::~SirveApp() {
@@ -189,6 +189,9 @@ void SirveApp::SetupUi() {
 
     dt_epoch->setEnabled(false);
     btn_apply_epoch->setEnabled(false);
+
+    btn_delete_state->setEnabled(false);
+    btn_undo_step->setEnabled(false);
 
     rad_decimal->setChecked(true);
     rad_linear->setChecked(true);
@@ -856,8 +859,12 @@ void SirveApp::SetupVideoFrame(){
     btn_popout_video->resize(button_video_width, button_video_height);
     btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
+    btn_popout_video->setEnabled(false);
+
     txt_goto_frame = new QLineEdit("");
     txt_goto_frame->setFixedWidth(60);
+    txt_goto_frame->setEnabled(false);
+
     connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
     QFormLayout *formLayout = new QFormLayout;   
     formLayout->addRow(tr("&Frame #"),txt_goto_frame);
@@ -900,6 +907,8 @@ void SirveApp::SetupPlotFrame() {
     btn_popout_histogram = new QPushButton("Push to Popout Absolute Histogram");
     btn_popout_histogram->resize(40, 40);
     btn_popout_histogram->setCheckable(true);
+    btn_popout_histogram->setEnabled(false);
+
     vlayout_tab_histogram->addWidget(btn_popout_histogram);
     chk_relative_histogram = new QCheckBox("Relative Histogram");
     vlayout_tab_histogram->addWidget(frame_histogram_abs);
@@ -992,9 +1001,9 @@ void SirveApp::SetupPlotFrame() {
 
 void SirveApp::setupConnections() {
 
+    connect(this, &SirveApp::updateVideoDisplayPinpointControls, this->video_display, &VideoDisplay::HandlePinpointControlActivation);
 
     //---------------------------------------------------------------------------
-
     connect(&video_display->container, &VideoContainer::updateDisplayVideo, this, &SirveApp::HandleFrameChange);
     connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &VideoContainer::PopProcessingState);
     connect(playback_controller, &FramePlayer::frameSelected, this, &SirveApp::HandleFrameNumberChange);
@@ -1528,7 +1537,6 @@ void SirveApp::LoadOsmData()
     data_plots = new EngineeringPlots(osm_frames);
 
     osmDataLoaded = true;
-    UpdateGUI(osmDataLoaded);
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
     connect(btn_play, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
@@ -1604,25 +1612,42 @@ void SirveApp::LoadOsmData()
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
-    UpdateGUI(osmDataLoaded);
+    UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
 }
 
-void SirveApp::UpdateGUI(bool osm_data_status)
+void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
 {
+    // Enable plot capabilities
     btn_save_plot->setEnabled(osm_data_status);
     btn_plot_menu->setEnabled(osm_data_status);
-    btn_popout_histogram->setEnabled(osm_data_status);
-    txt_goto_frame->setEnabled(osm_data_status);
 
     // Enable setting of epoch
     dt_epoch->setEnabled(osm_data_status);
     btn_apply_epoch->setEnabled(osm_data_status);
 
+    // Enable frame range selection
+    btn_get_frames->setEnabled(osm_data_status);
     txt_start_frame->setEnabled(osm_data_status);
     txt_stop_frame->setEnabled(osm_data_status);
-    btn_get_frames->setEnabled(osm_data_status);
+}
+
+void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
+{
+    // Enable image processing state management
+    btn_undo_step->setEnabled(frame_range_status);
+    btn_delete_state->setEnabled(frame_range_status);
+
+    btn_popout_video->setEnabled(frame_range_status);
+    txt_goto_frame->setEnabled(frame_range_status);
+
+    // Enable plot popout only
+    btn_popout_histogram->setEnabled(frame_range_status);
+
+    // Enable the video pinpoint capabilities, which are
+    // privately held within the video display class
+    emit updateVideoDisplayPinpointControls(frame_range_status);
 }
 
 void SirveApp::UiLoadAbirData()
@@ -1754,6 +1779,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
     txt_auto_track_stop_frame->setText(QString::number(max_frame));
 
     ToggleVideoPlaybackOptions(true);
+    UpdateGuiPostFrameRangeLoad(true);
 
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);

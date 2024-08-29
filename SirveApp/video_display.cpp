@@ -141,14 +141,18 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_pinpoint->setIcon(QIcon(":icons/crosshair.png"));
     btn_pinpoint->setToolTip("Pinpoint");
     btn_pinpoint->setCheckable(true);
+    btn_pinpoint->setEnabled(false);
+
     connect(btn_pinpoint, &QPushButton::clicked, this, &VideoDisplay::HandleBtnPinpoint);
 
     QVBoxLayout* button_layout = new QVBoxLayout();
 
     btn_pinpoint_bad_pixel = new QPushButton("Mark as Bad Pixels");
+    btn_pinpoint_bad_pixel->setEnabled(false);
 
     connect(btn_pinpoint_bad_pixel, &QPushButton::clicked, this, &VideoDisplay::AddPinpointsToBadPixelMap);
     btn_pinpoint_good_pixel = new QPushButton("Mark as Good Pixels");
+    btn_pinpoint_good_pixel->setEnabled(false);
 
     connect(btn_pinpoint_good_pixel, &QPushButton::clicked, this, &VideoDisplay::RemovePinpointsFromBadPixelMap);
 
@@ -159,6 +163,8 @@ void VideoDisplay::SetupPinpointDisplay()
     btn_clear_pinpoints->setMaximumSize(40, 40);
     btn_clear_pinpoints->setIcon(QIcon(":icons/cancel.png"));
     btn_clear_pinpoints->setToolTip("Clear");
+    btn_clear_pinpoints->setEnabled(false);
+
     connect(btn_clear_pinpoints, &QPushButton::clicked, this, &VideoDisplay::ClearPinpoints);
 
     pinpoint_layout->addWidget(btn_pinpoint);
@@ -235,6 +241,14 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         lbl_image_canvas->unsetCursor();
     }
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::HandlePinpointControlActivation(bool status)
+{
+    btn_pinpoint->setEnabled(status);
+    btn_pinpoint_bad_pixel->setEnabled(status);
+    btn_pinpoint_good_pixel->setEnabled(status);
+    btn_clear_pinpoints->setEnabled(status);
 }
 
 void VideoDisplay::ReclaimLabel()
