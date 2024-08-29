@@ -461,7 +461,6 @@ QWidget* SirveApp::SetupProcessingTab() {
 	QHBoxLayout *hlayout_bad_pixels = new QHBoxLayout();
     vlayout_bad_pixels->setAlignment(Qt::AlignCenter|Qt::AlignTop);
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
-	// lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
     chk_bad_pixels_from_original = new QCheckBox("Load raw data");
     chk_bad_pixels_from_original->setChecked(true);
 	cmb_bad_pixels_type = new QComboBox();
@@ -497,6 +496,8 @@ QWidget* SirveApp::SetupProcessingTab() {
 	txt_moving_median_N = new QLineEdit("30");
 	txt_moving_median_N->setFixedWidth(60);
 	txt_moving_median_N->setEnabled(false);
+    txt_moving_median_N->setObjectName("txt_moving_median_N");
+    txt_moving_median_N->setStyleSheet("#txt_moving_median_N {background-color:#f0f0f0; color:rgb(75,75,75);}");
 
     QFormLayout *form_replace_which_pixels_col2 = new QFormLayout;
     form_replace_which_pixels_col2->addRow(tr("&Sample Start:"),txt_bad_pixel_start_frame);
@@ -2493,9 +2494,11 @@ void SirveApp::handle_outlier_processing_change()
 {
     if(cmb_outlier_processing_type->currentIndex() == 0){
         txt_moving_median_N->setEnabled(false);
+        txt_moving_median_N->setStyleSheet("#txt_moving_median_N {background-color:#f0f0f0; color:rgb(75,75,75);}");
     }
     else{
         txt_moving_median_N->setEnabled(true);
+        txt_moving_median_N->setStyleSheet("#txt_moving_median_N {background-color:#ffffff; color:rgb(0,0,0);}");
     }
 }
 void SirveApp::edit_bad_pixel_color()
