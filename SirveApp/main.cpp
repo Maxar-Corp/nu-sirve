@@ -2,8 +2,7 @@
 #include "SirveApp.h"
 #include <QtWidgets/QApplication>
 
-#include <iostream>
-
+#include <QDebug>
 #include <QFile>
 #include <QTextStream>
 
@@ -47,8 +46,10 @@ int main(int argc, char *argv[])
         file.close();
     }
 
-	SirveApp w;
-    w.show();
+    SirveApp app;
+    app.show();
+
+    qDebug() << "Dimensions of Sirve: Width=" << app.size().width() << " Height=" << app.size().height();
 
     return a.exec();
 }
