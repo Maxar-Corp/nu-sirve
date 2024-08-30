@@ -1641,10 +1641,6 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
 {
-    // Enable image processing state management
-    btn_undo_step->setEnabled(frame_range_status);
-    btn_delete_state->setEnabled(frame_range_status);
-
     btn_popout_video->setEnabled(frame_range_status);
     txt_goto_frame->setEnabled(frame_range_status);
 
@@ -3333,6 +3329,9 @@ void SirveApp::HandleNewProcessingState(QString state_name, QString combobox_sta
     cmb_processing_states->addItem(combobox_state_name);
     lbl_processing_description->setText(state_name);
     cmb_processing_states->setCurrentIndex(index);
+
+    btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
 }
 
 void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
@@ -3347,7 +3346,11 @@ void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
     {
         lbl_fixed_suppression->setText("No Frames Selected");
     }
+
+    btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
 }
+
 void SirveApp::HandleProcessingNewStateSelected()
 {
     if (cmb_processing_states->currentIndex() == -1)
@@ -4021,6 +4024,9 @@ void SirveApp::DeleteState()
     }
     cmb_processing_states->setCurrentIndex(cmb_processing_states->count()-1);
     video_display->container.processing_states = all_states;
+
+    btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
 }
 
 void SirveApp::HandleFrameChange()
