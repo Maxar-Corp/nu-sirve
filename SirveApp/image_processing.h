@@ -39,9 +39,9 @@ public:
 
     std::vector<std::vector<uint16_t>> FixedNoiseSuppression(QString image_path, QString path_video_file, int frame0, int start_frame, int end_frame, double version, VideoDetails & original);
 
-    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, VideoDetails & original);
 
-    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, VideoDetails & original);
 
     std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int NThresh, VideoDetails & original, bool hide_shadow_choice);
 

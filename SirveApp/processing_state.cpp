@@ -30,8 +30,6 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         processingState temp = { ProcessingMethod::adaptive_noise_suppression };
         temp.ANS_relative_start_frame = json_obj.value("ANS_relative_start_frame").toInt();
         temp.ANS_num_frames = json_obj.value("ANS_num_frames").toInt();
-        temp.ANS_shadow_threshold = json_obj.value("ANS_shadow_threshold").toInt();
-        temp.ANS_hide_shadow = json_obj.value("ANS_hide_shadow").toBool();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
         std::vector<unsigned int>  ancestors;
@@ -96,6 +94,8 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.weight = json_obj.value("weight").toDouble();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
+        temp.shadow_threshold = json_obj.value("shadow_threshold").toInt();
+        temp.hide_shadow = json_obj.value("hide_shadow").toBool();
         std::vector<unsigned int>  ancestors;
         for (auto json_item : json_obj.value("ancestors").toArray())
         {

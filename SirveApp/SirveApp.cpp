@@ -1507,13 +1507,13 @@ void SirveApp::LoadWorkspace()
 
                 case ProcessingMethod::accumulator_noise_suppression:
                 {
-                    ApplyAccumulatorNoiseSuppression(current_state.weight, current_state.source_state_ID);
+                    ApplyAccumulatorNoiseSuppression(current_state.weight, current_state.hide_shadow, current_state.shadow_threshold, current_state.source_state_ID);
                     break;
                 }
 
                 case ProcessingMethod::adaptive_noise_suppression:
                 {
-                    ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, current_state.ANS_hide_shadow, current_state.ANS_shadow_threshold,current_state.source_state_ID);
+                    ApplyAdaptiveNoiseSuppression(current_state.ANS_relative_start_frame, current_state.ANS_num_frames, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::deinterlace:{
@@ -3575,14 +3575,12 @@ void SirveApp::ExecuteAdaptiveNoiseSuppression()
 
     int relative_start_frame = txt_ANS_offset_frames->text().toInt();
     int number_of_frames = txt_ANS_number_frames->text().toInt();
-    bool hide_shadow_choice = chk_hide_shadow->isChecked();
-    int shadow_sigma_thresh = 3 - cmb_shadow_threshold->currentIndex();
     int source_state_idx = cmb_processing_states->currentIndex();
 
-    ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
+    ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, source_state_idx);
 }
 
-void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx)
+void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, int source_state_idx)
 {
     //Pause the video if it's running
     playback_controller->StopTimer();
@@ -3612,10 +3610,10 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     connect(btn_cancel_operation, &QPushButton::clicked, &ANS, &ImageProcessing::CancelOperation);
 
     if (available_memory_ratio >=1.5){
-        new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+        new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, original.details);
     }
     else{
-        new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, shadow_sigma_thresh, original.details, hide_shadow_choice);
+        new_state.details.frames_16bit = ANS.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, original.details);
     }
 
     progress_bar_main->setValue(0);
@@ -3634,8 +3632,6 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         new_state.method = ProcessingMethod::adaptive_noise_suppression;
         new_state.ANS_relative_start_frame = relative_start_frame;
         new_state.ANS_num_frames = number_of_frames;
-        new_state.ANS_hide_shadow = hide_shadow_choice;
-        new_state.ANS_shadow_threshold = shadow_sigma_thresh;
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
@@ -3743,11 +3739,13 @@ void SirveApp::ExecuteAccumulatorNoiseSuppression()
 {
     int source_state_idx = cmb_processing_states->currentIndex();
     double weight;
+    bool hide_shadow_choice = chk_hide_shadow->isChecked();
+    int shadow_sigma_thresh = 3 - cmb_shadow_threshold->currentIndex();
     weight = txt_accumulator_weight->text().toDouble();
-    ApplyAccumulatorNoiseSuppression(weight, source_state_idx);
+    ApplyAccumulatorNoiseSuppression(weight, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
 }
 
-void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int source_state_idx)
+void SirveApp::ApplyAccumulatorNoiseSuppression(double weight,  bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx)
 {
     //Pause the video if it's running
     playback_controller->StopTimer();
@@ -3780,6 +3778,8 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int source_state_
             new_state.method = ProcessingMethod::accumulator_noise_suppression;
             new_state.source_state_ID = source_state_ind;
             new_state.weight = weight;
+            new_state.hide_shadow = hide_shadow_choice;
+            new_state.shadow_threshold = shadow_sigma_thresh;
             uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
             for (const auto& row : new_state.details.frames_16bit) {
                 maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));

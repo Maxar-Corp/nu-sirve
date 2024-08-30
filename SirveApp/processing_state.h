@@ -43,9 +43,10 @@ struct processingState {
 
     int ANS_relative_start_frame;
     int ANS_num_frames;
-    int ANS_shadow_threshold;
-    bool ANS_hide_shadow;
+
     double weight;
+    int shadow_threshold;
+    bool hide_shadow;
 
     QString FNS_file_path;
     int FNS_start_frame;
@@ -75,22 +76,11 @@ struct processingState {
                     +QString::number(replaced_pixels.size()) + " bad pixels replaced.\n"+\
                     "State steps: " + state_steps;
                 break;
-            case ProcessingMethod::adaptive_noise_suppression:{
-                QString boolString = ANS_hide_shadow ? "true" : "false";
-                if (ANS_hide_shadow){
-                    return "Adaptive Noise Suppression with Hidden Shadow\n<Previous State " + QString::number(source_state_ID) + ">\n"\
-                        +"Process steps: " + process_steps +"\n"\
-                        +"ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)+" frames. Hide Shadow option set to " +\
-                         boolString +". Shadow threshold set to " + QString::number(ANS_shadow_threshold)+".\n"\
-                        +"State steps: " + state_steps;
-                }
-                else
-                {
-                    return "Adaptive Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
-                        +"Process steps: " + process_steps +"\n"\
-                        +"ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)+" frames. Hide Shadow option set to " + boolString +".\n"\
-                        +"State steps: " + state_steps;
-                }
+            case ProcessingMethod::adaptive_noise_suppression:{             
+                return "Adaptive Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
+                    +"Process steps: " + process_steps +"\n"\
+                    +"ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)+" frames.\n"\
+                    +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::fixed_noise_suppression:{
@@ -107,10 +97,20 @@ struct processingState {
                 break;
             }
             case ProcessingMethod::accumulator_noise_suppression:{
-                return "Accumulator Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
-                    +"Process steps: " + process_steps +"\n"\
-                    +"Accumulator: Weight " + QString::number(weight);
-                    +"State steps: " + state_steps;
+                QString boolString = hide_shadow ? "true" : "false";
+                if (hide_shadow){
+                    return "Rolling Mean Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
+                        +"Process steps: " + process_steps +"\n"\
+                        +"Accumulator: Weight " + QString::number(weight) +"\n"\
+                        "Hide Shadow option set to " + boolString +". Shadow threshold set to " + QString::number(shadow_threshold)+".\n"\
+                        +"State steps: " + state_steps;
+                }
+                else{
+                    return "Rolling Mean Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
+                        +"Process steps: " + process_steps +"\n"\
+                        +"Accumulator: Weight " + QString::number(weight) +"\n"\
+                        +"State steps: " + state_steps;
+                }
                 break;
             }
             case ProcessingMethod::deinterlace:{
@@ -178,13 +178,7 @@ struct processingState {
                 return "<Previous State " + QString::number(source_state_ID) + "> Replace Bad Pixels";;
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
-            if (ANS_hide_shadow){
-                    return "<Previous State " + QString::number(source_state_ID) + "> ANS Hide Shadow";
-                }
-                else
-                {
-                    return "<Previous State " + QString::number(source_state_ID) + "> ANS";
-                }
+                return "<Previous State " + QString::number(source_state_ID) + "> ANS";
                 break;
             case ProcessingMethod::fixed_noise_suppression:
                 //may potentially want to leave fns_file_path empty if it isn't an external file?
@@ -194,7 +188,12 @@ struct processingState {
                 return "<Previous State " + QString::number(source_state_ID) + "> RPCP";
                 break;
             case ProcessingMethod::accumulator_noise_suppression:
-                return "<Previous State " + QString::number(source_state_ID) + "> Accumulator";
+                if (hide_shadow){
+                    return "<Previous State " + QString::number(source_state_ID) + "> Rolling Mean Hide Shadow";
+                }
+                else{
+                     return "<Previous State " + QString::number(source_state_ID) + "> Rolling Mean";
+                }
                 break;
             case ProcessingMethod::deinterlace:
                 return "<Previous State " + QString::number(source_state_ID) + "> Deinterlace" ;
@@ -265,14 +264,14 @@ struct processingState {
                 state_object.insert("method", "Accumulator");
                 state_object.insert("state description",state_description);
                 state_object.insert("state steps",state_steps);
+                state_object.insert("hide_shadow", hide_shadow);
+                state_object.insert("shadow_threshold", shadow_threshold);
                 state_object.insert("weight",weight);
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");
                 state_object.insert("ANS_relative_start_frame", ANS_relative_start_frame);
                 state_object.insert("ANS_num_frames", ANS_num_frames);
-				state_object.insert("ANS_hide_shadow", ANS_hide_shadow);
-                state_object.insert("ANS_shadow_threshold", ANS_shadow_threshold);
                 state_object.insert("state description",state_description);
                 state_object.insert("state steps",state_steps);
                 break;

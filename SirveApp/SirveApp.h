@@ -299,10 +299,10 @@ private:
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
     
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
-    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
+    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);
-    void ApplyAccumulatorNoiseSuppression(double weight, int source_state_idx);
+    void ApplyAccumulatorNoiseSuppression(double weight, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyDeinterlacingCurrent();
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
