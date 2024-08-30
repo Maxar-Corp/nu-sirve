@@ -126,7 +126,7 @@ public:
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
-	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube;
+	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
 
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;

@@ -548,7 +548,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
             offseti = std::max(framei+offset,0);
         }
         else{
-            offseti = std::min(framei+offset,num_video_frames);
+            offseti = std::min(framei+offset,num_video_frames-1);
         }
         std::vector<uint16_t> vecold = {original.frames_16bit[offseti].begin(),original.frames_16bit[offseti].end()};
         cv::Mat frame(nRows,nCols,CV_16UC1,vec.data());

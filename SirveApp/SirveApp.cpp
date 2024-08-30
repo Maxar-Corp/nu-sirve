@@ -660,7 +660,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	grpbox_RPCP_processing->setStyleSheet("#grpbox_RPCP_processing {border-width: 0px;}");
 	QGridLayout* grid_RPCP_processing = new QGridLayout(grpbox_RPCP_processing);
 	btn_RPCP = new QPushButton("RPCP Noise Suppression");
-	btn_RPCP->setFixedWidth(200);
+	btn_RPCP->setFixedWidth(300);
 	connect(btn_RPCP, &QPushButton::clicked, this, &SirveApp::ExecuteRPCPNoiseSuppression);
 	grid_RPCP_processing->addWidget(btn_RPCP, 0, 0, 1, 1);
 
@@ -707,7 +707,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     QHBoxLayout * hlayout_deinterlacing = new QHBoxLayout(grpbox_deinterlacing);
 	QVBoxLayout * vlayout_deinterlacing = new QVBoxLayout;
 	btn_deinterlace = new QPushButton("Deinterlace");
-	btn_deinterlace->setFixedWidth(150);
+	btn_deinterlace->setFixedWidth(175);
 	connect(btn_deinterlace, &QPushButton::clicked, this, &SirveApp::ExecuteDeinterlace);
 	btn_deinterlace_current_frame = new QPushButton("Deinterlace Current Frame");
 	btn_deinterlace_current_frame->setFixedWidth(175);
@@ -860,11 +860,34 @@ QWidget* SirveApp::SetupTracksTab(){
     form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
     form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
 
+    QGroupBox* grpbox_autotrack_filters = new QGroupBox("Pre Filter Options");
+    QGridLayout *grid_autotrack_filters = new QGridLayout(grpbox_autotrack_filters);
+    // create and group radial boxes
+    rad_autotrack_filter_none = new QRadioButton("None");
+    rad_autotrack_filter_none->setChecked(true);
+    rad_autotrack_filter_gaussian = new QRadioButton("Gaussian");
+    rad_autotrack_filter_median = new QRadioButton("Median");
+    rad_autotrack_filter_nlmeans = new QRadioButton("Non Local Means");
+    QSpacerItem *vspacer_item20 = new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum);
+
+    QButtonGroup * buttongrp_autotrack_filters = new QButtonGroup();
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_none);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_gaussian);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_median);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_nlmeans);
+  
+    grid_autotrack_filters->addWidget(rad_autotrack_filter_none,1,0);
+    grid_autotrack_filters->addWidget(rad_autotrack_filter_gaussian,1,1);
+    grid_autotrack_filters->addWidget(rad_autotrack_filter_median,2,0);
+    grid_autotrack_filters->addWidget(rad_autotrack_filter_nlmeans,2,1);
+    grid_autotrack_filters->addItem(vspacer_item20,0,0,1,2);
     hlayout_auto_track_control->addLayout(form_auto_track_frame_limits);
+    hlayout_auto_track_control->addWidget(grpbox_autotrack_filters);
     hlayout_auto_track_control->addWidget(btn_auto_track_target);
     hlayout_auto_track_control->insertStretch(0,0);
     hlayout_auto_track_control->insertStretch(-1,0);
     vlayout_auto_track_control->insertStretch(0,0);
+    vlayout_auto_track_control->addItem(vspacer_item20);
     vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
     vlayout_auto_track_control->insertStretch(-1,0);
 
@@ -3340,7 +3363,7 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
     ImageProcessing COT;
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,number_frames - 1);
-    lbl_progress_status->setText(QString("Center on OSM..."));
+    lbl_progress_status->setText(QString("Center on tracks..."));
 
     connect(&COT, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &COT, &ImageProcessing::CancelOperation);
@@ -3774,7 +3797,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
     new_state.descendants.clear();
     if(available_memory_ratio >=1.5){
         ImageProcessing ACC;
-        lbl_progress_status->setText(QString("Accumulator Noise Suppression..."));
+        lbl_progress_status->setText(QString("Rolling Mean Noise Suppression..."));
         progress_bar_main->setRange(0,number_video_frames);
         progress_bar_main->setTextVisible(true);
         grpbox_progressbar_area->setEnabled(true);
@@ -3807,7 +3830,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
             result += std::to_string(new_state.state_ID);
             QString state_steps = QString::fromStdString(result);
             new_state.state_steps = state_steps;
-            new_state.process_steps.push_back(" [Accumulator Noise Suppression] ");
+            new_state.process_steps.push_back(" [Rolling Mean Noise Suppression] ");
             video_display->container.AddProcessingState(new_state);
         }
     }
@@ -3871,8 +3894,17 @@ void SirveApp::ExecuteAutoTracking()
         QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
         return;
     }
-
-    arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    string prefilter = "NONE";
+    if (rad_autotrack_filter_gaussian->isChecked()){
+        prefilter = "GAUSSIAN";
+    }
+    else if(rad_autotrack_filter_median->isChecked()){
+        prefilter = "MEDIAN";
+    }
+    else if(rad_autotrack_filter_nlmeans->isChecked()){
+        prefilter = "NLMEANS";
+    }
+    arma::u32_mat autotrack = AT.SingleTracker(track_id, prefilter, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
     if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
         arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);
@@ -3989,7 +4021,7 @@ void SirveApp::EnableEngineeringPlotOptions()
     cmb_plot_yaxis->addItem(QString("IFOV - Y"));
     cmb_plot_yaxis->addItem(QString("Boresight Azimuth"));
     cmb_plot_yaxis->addItem(QString("Boresight Elevation"));
-    cmb_plot_yaxis->setCurrentIndex(0);
+    cmb_plot_yaxis->setCurrentIndex(2);
 
 
     // ------------------------------------------ Set Plot Options ------------------------------------------

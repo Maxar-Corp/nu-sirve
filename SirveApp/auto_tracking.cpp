@@ -20,7 +20,7 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u32_mat AutoTracking::SingleTracker(u_int track_id, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
+arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
     int num_video_frames = original.frames_16bit.size();
     int nrows = original.y_pixels;
@@ -41,7 +41,16 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, uint frame0, int start
     frame_matrix.convertTo(frame_matrix_8bit, CV_8UC1);
 
     // attenuate image noise of initial frame
-    cv::GaussianBlur(frame_matrix_8bit, frame_matrix_filtered_8bit, cv::Size(5,5), 0);
+    frame_matrix_filtered_8bit = frame_matrix_8bit;
+    if(prefilter=="GAUSSIAN"){
+        cv::GaussianBlur(frame_matrix_8bit, frame_matrix_filtered_8bit, cv::Size(5,5), 0);
+    }
+    else if(prefilter=="MEDIAN"){
+        cv::medianBlur(frame_matrix_8bit, frame_matrix_filtered_8bit, 5);      
+    }
+    else if(prefilter=="NLMEANS"){
+        cv::fastNlMeansDenoising(frame_matrix_8bit, frame_matrix_filtered_8bit);
+    }
     cv::cvtColor(frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color,cv::COLOR_GRAY2RGB);
 
     Ptr<Tracker> tracker = TrackerMIL::create();
@@ -97,7 +106,16 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, uint frame0, int start
         frame_matrix_i.convertTo(frame_matrix_i_8bit, CV_8UC1);
 
         // attenuate noise of frame i
-        cv::GaussianBlur(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, cv::Size(5,5), 0);
+        frame_matrix_i_filtered_8bit = frame_matrix_i_8bit;
+        if(prefilter=="GAUSSIAN"){
+            cv::GaussianBlur(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, cv::Size(5,5), 0);
+        }
+        else if(prefilter=="MEDIAN"){
+            cv::medianBlur(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit, 5);      
+        }
+        else if(prefilter=="NLMEANS"){
+            cv::fastNlMeansDenoising(frame_matrix_i_8bit, frame_matrix_i_filtered_8bit);
+        }
 
         // convert to RGB so we can add a blue tracking rectangle later
         cv::cvtColor(frame_matrix_i_filtered_8bit, frame_matrix_i_filtered_8bit_color,COLOR_GRAY2RGB);
