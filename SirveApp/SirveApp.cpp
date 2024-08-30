@@ -984,6 +984,7 @@ void SirveApp::SetupPlotFrame() {
     hlayout_widget_plots_tab_color_control->addLayout(form_plot_axis_options);
     hlayout_widget_plots_tab_color_control->addWidget(plot_groupbox);
     hlayout_widget_plots_tab_color_control->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
+    plot_groupbox->setMinimumWidth(333);
 
     // set layout for engineering plots tab
     QWidget* widget_plots_tab_color = new QWidget();
