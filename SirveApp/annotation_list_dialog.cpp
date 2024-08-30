@@ -132,9 +132,10 @@ void AnnotationListDialog::add()
     data.push_back(new_data);
 
     // display new annotation screen
-    annotation_edit_dialog = new AnnotationEditDialog(data.back());
+    annotation_edit_dialog = new AnnotationEditDialog(data.back(), "Add");
+
     connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
-    //connect(this, &AnnotationListDialog::locationChanged, &annotation_edit_dialog, &AnnotationEditDialog::LocationChanged);
+    connect(this, &QDialog::rejected, this, &AnnotationListDialog::onDialogRejected);
 
     auto response = annotation_edit_dialog->exec();
 
@@ -151,6 +152,8 @@ void AnnotationListDialog::add()
 
     emit updateAnnotationStencil(data[data.size()-1]);
     emit showAnnotationStencil();
+
+    btn_ok->setDisabled(true);
 }
 
 void AnnotationListDialog::edit()
@@ -161,9 +164,10 @@ void AnnotationListDialog::edit()
 
     if (index >= 0) {
         // store old data in case user cancels operation
-        AnnotationInfo old_data = data[index];
+        old_data = data[index];
 
-        annotation_edit_dialog = new AnnotationEditDialog(data[index]);
+        annotation_edit_dialog = new AnnotationEditDialog(data[index], QString("Edit"));
+        annotation_edit_dialog->setWindowTitle("Edit Annotation");
         connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
 
         auto response = annotation_edit_dialog->exec();
@@ -174,6 +178,7 @@ void AnnotationListDialog::edit()
             data[index] = old_data;
 
             emit annotationListUpdated();
+            emit hideAnnotationStencil();
         }
 
         repopulate_list();
@@ -182,8 +187,10 @@ void AnnotationListDialog::edit()
             lst_annotations->setCurrentRow(index);
         }
 
-        emit updateAnnotationStencil(old_data);
+        emit updateAnnotationStencil(data[index]);
         emit showAnnotationStencil();
+
+        btn_ok->setDisabled(true);
     }
 }
 
@@ -225,22 +232,42 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
         lbl_description->setText(output);
 
         emit positionChanged(position);
+
+        btn_ok->setEnabled(true);
     }
 }
 
 void AnnotationListDialog::SetStencilLocation(QPoint location)
 {
-    auto response = QtHelpers::LaunchYesNoMessageBox("Locate Using Position", "Locate your new annotation here?");
+    auto response = QtHelpers::LaunchYesNoMessageBox("Locate Annotation", "Locate your new annotation here?", true);
+
+    int index = lst_annotations->currentRow();
 
     // if yes, set stencil location
     if (response == QMessageBox::Yes) {
-
-        int index = lst_annotations->currentRow();
 
         data[index].x_pixel = location.x();
         data[index].y_pixel = location.y();
 
         emit hideAnnotationStencil();
         emit annotationListUpdated();
+
+        annotation_edit_dialog = nullptr;
+
+    } else if (response == QMessageBox::Cancel)
+    {
+        // If adding an annotation, clean out newly-entered data:
+        if (this->annotation_edit_dialog->windowTitle().contains("Add"))
+        {
+            delete_object();
+        } else
+        {
+            data[index] = old_data;
+        }
+        emit hideAnnotationStencil();
     }
+}
+
+void AnnotationListDialog::onDialogRejected() {
+    emit hideAnnotationStencil();
 }

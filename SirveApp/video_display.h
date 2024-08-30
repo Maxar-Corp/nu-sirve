@@ -109,7 +109,8 @@ public:
     void RemoveFrame();
 
     void ReceiveVideoData(int x, int y);
-    void InitializeToggles();;
+    void InitializeToggles();
+    void DrawAnnotations();
 
 signals:
     void clearMouseButtons();

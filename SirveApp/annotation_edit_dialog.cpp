@@ -1,8 +1,8 @@
 #include "annotation_edit_dialog.h"
 
-AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * parent)
+AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QString btn_text, QWidget * parent)
 {
-    InitializeGui();
+    InitializeGui(btn_text);
 
 	// store current annotation being worked on
 	current_data = &data;
@@ -29,8 +29,6 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QWidget * paren
 	connect(txt_annotation, &QLineEdit::editingFinished, this, &AnnotationEditDialog::TextChanged);
 	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartChanged);
 	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::NumberOfFramesChanged);
-    //connect(txt_x_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::XLocationChanged);
-    //connect(txt_y_loc, &QLineEdit::editingFinished, this, &AnnotationEditDialog::YLocationChanged);
 
     connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::ColorChanged);
 	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::FontSizeChanged);
@@ -156,68 +154,6 @@ void AnnotationEditDialog::LocationChanged(QPoint location)
     emit annotationChanged();
 }
 
-void AnnotationEditDialog::XLocationChanged()
-{
-	// gets text
-	QString input = txt_x_loc->text();
-	
-	//checks for numeric data
-	bool is_numeric = check_numeric_value(input);
-	if (is_numeric) {
-
-		// checks to make sure min/max values not exceeded. if exceeded then replaces
-		int new_x_position = get_numeric_value(input);
-
-		if (new_x_position < current_data->x_min_position)
-			new_x_position = current_data->x_min_position;
-
-		if (new_x_position > current_data->x_max_position)
-			new_x_position = current_data->x_max_position;
-
-		// store and set text box to potential new value
-		current_data->x_pixel = new_x_position;
-		txt_x_loc->setText(QString::number(new_x_position));
-
-		emit annotationChanged();
-	}
-	else
-	{
-		QString msg("Input for x-location is non-numeric");
-        DisplayError(msg);
-	}
-}
-
-void AnnotationEditDialog::YLocationChanged()
-{
-	// gets text
-	QString input = txt_y_loc->text();
-	
-	//checks for numeric data
-	bool is_numeric = check_numeric_value(input);
-	if (is_numeric) {
-		
-		// checks to make sure min/max values not exceeded. if exceeded then replaces
-		int new_y_position = get_numeric_value(input);
-
-		if (new_y_position < current_data->y_min_position)
-			new_y_position = current_data->y_min_position;
-
-		if (new_y_position > current_data->y_max_position)
-			new_y_position = current_data->y_max_position;
-
-		// store and set text box to potential new value
-		current_data->y_pixel = new_y_position;
-		txt_y_loc->setText(QString::number(new_y_position));
-
-		emit annotationChanged();
-	}
-	else
-	{
-		QString msg("Input for y-location is non-numeric");
-        DisplayError(msg);
-	}
-}
-
 void AnnotationEditDialog::ColorChanged(const QString & text)
 {
 	QString input = text;
@@ -234,7 +170,7 @@ void AnnotationEditDialog::FontSizeChanged(const QString & text)
 	emit annotationChanged();
 }
 
-void AnnotationEditDialog::InitializeGui()
+void AnnotationEditDialog::InitializeGui(QString btn_text)
 {
 	// ------------------------------------------------------------
 	// add colors and sizes
@@ -269,14 +205,16 @@ void AnnotationEditDialog::InitializeGui()
 	lbl_color = new QLabel(tr("Color"));
 	lbl_size = new QLabel(tr("Font Size (pt)"));
 
-	btn_add = new QPushButton(tr("Add"));
-	btn_cancel = new QPushButton(tr("Cancel"));
+    btn_add = new QPushButton(btn_text);
+    btn_cancel = new QPushButton(tr("Cancel"));
 
 	txt_annotation = new QLineEdit(tr("Insert Text Here"));
 	txt_frame_start = new QLineEdit(tr("1"));
 	txt_num_frames = new QLineEdit(tr("1000"));
 	txt_x_loc = new QLineEdit(tr("0"));
 	txt_y_loc = new QLineEdit(tr("0"));
+
+    lbl_message = new QLabel("NOTE: Drag the yellow stencil to desired position to submit your new annotation.");
 
 	// ------------------------------------------------------------
 	// set gridlayout
@@ -296,17 +234,19 @@ void AnnotationEditDialog::InitializeGui()
     mainLayout->addWidget(txt_frame_start, 4, 0);
     mainLayout->addWidget(txt_num_frames, 4, 1);
 
-	
+    mainLayout->addWidget(lbl_message, 5, 0);
+
 	// set grid characterestics
 	mainLayout->setRowStretch(0, 0);
 	mainLayout->setRowStretch(1, 0);
 	mainLayout->setRowStretch(2, 0);
 	mainLayout->setRowStretch(3, 0);
 	mainLayout->setRowStretch(4, 0);
+    mainLayout->setRowStretch(5, 0);
 
 	mainLayout->setColumnStretch(0, 100);
 	mainLayout->setColumnStretch(1, 100);
-	mainLayout->setColumnStretch(2, 0);
+    mainLayout->setColumnStretch(2, 0);
 
 	setLayout(mainLayout);
 	setWindowTitle(tr("Add New Annotation"));

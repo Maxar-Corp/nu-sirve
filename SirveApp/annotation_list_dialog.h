@@ -33,10 +33,12 @@ public slots:
 
     void UpdateStencilPosition(QPoint position);
     void SetStencilLocation(QPoint location);
+    void onDialogRejected();
 
 private:
     std::vector<AnnotationInfo> &data;
     VideoInfo base_data;
+    AnnotationInfo old_data;
 
     QLabel *lbl_annotations, *lbl_description;
     QListWidget *lst_annotations;
