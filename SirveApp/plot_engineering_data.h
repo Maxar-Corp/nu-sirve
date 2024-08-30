@@ -163,7 +163,6 @@ private:
     unsigned int num_frames;
     XAxisPlotVariables x_axis_units;
 
-    bool is_moving;
     float fixed_max_y;
 
     void EstablishPlotLimits();

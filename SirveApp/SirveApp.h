@@ -236,6 +236,7 @@ public:
         void HandleFrameChange();
         void HandleOsmTracksToggle();
         void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
+        void HandlePlayerStateChanged(bool status);
         void HandleProcessingStateRemoval(ProcessingMethod method, int index);
         void HandlePopoutVideoClosed();
         void HandlePopoutHistogramClosed();
