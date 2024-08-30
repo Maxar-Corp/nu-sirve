@@ -181,6 +181,8 @@ void SirveApp::SetupUi() {
     tab_menu->setTabEnabled(1, false);
     tab_menu->setTabEnabled(2, false);
 
+    tab_menu->tabBar()->hide();
+
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
     btn_get_frames->setEnabled(false);
@@ -996,6 +998,8 @@ void SirveApp::SetupPlotFrame() {
     tab_plots->addTab(widget_tab_histogram, "Histogram");
     tab_plots->addTab(widget_plots_tab_color, "Plots");
 
+    tab_plots->tabBar()->hide();
+
     //directoryPicker = new DirectoryPicker(this);
 }
 
@@ -1635,19 +1639,19 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     btn_get_frames->setEnabled(osm_data_status);
     txt_start_frame->setEnabled(osm_data_status);
     txt_stop_frame->setEnabled(osm_data_status);
+
+    osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
 }
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
 {
-    // Enable image processing state management
-    btn_undo_step->setEnabled(frame_range_status);
-    btn_delete_state->setEnabled(frame_range_status);
-
     btn_popout_video->setEnabled(frame_range_status);
     txt_goto_frame->setEnabled(frame_range_status);
 
     // Enable plot popout only
     btn_popout_histogram->setEnabled(frame_range_status);
+
+    frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
 
     // Enable the video pinpoint capabilities, which are
     // privately held within the video display class
@@ -3336,6 +3340,9 @@ void SirveApp::HandleNewProcessingState(QString state_name, QString combobox_sta
     cmb_processing_states->addItem(combobox_state_name);
     lbl_processing_description->setText(state_name);
     cmb_processing_states->setCurrentIndex(index);
+
+    btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
 }
 
 void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
@@ -3350,7 +3357,11 @@ void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
     {
         lbl_fixed_suppression->setText("No Frames Selected");
     }
+
+    btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
 }
+
 void SirveApp::HandleProcessingNewStateSelected()
 {
     if (cmb_processing_states->currentIndex() == -1)
@@ -4024,6 +4035,9 @@ void SirveApp::DeleteState()
     }
     cmb_processing_states->setCurrentIndex(cmb_processing_states->count()-1);
     video_display->container.processing_states = all_states;
+
+    btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
 }
 
 void SirveApp::HandleFrameChange()
