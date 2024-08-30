@@ -49,7 +49,7 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
         event->accept();
 
         // Adjust the anno. position to offset the shift imposed by the zoom correction code:
-        QPoint offset = QPoint(this->width() * .005, this->height() * .75);
+        QPoint offset = QPoint(- this->width() * .005, this->height() * .82);
         emit mouseReleased(event->globalPos() - _drag_position + offset);
     }
 }
@@ -57,8 +57,8 @@ void AnnotationStencil::mouseReleaseEvent(QMouseEvent *event)
 void AnnotationStencil::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setPen(QPen(Qt::yellow, 2));
-    QFont font("Arial", current_data->font_size);
+    painter.setPen(QPen(Qt::yellow, 1));
+    QFont font("Times", current_data->font_size);
 
     font.setPointSize(current_data->font_size);
     painter.setFont(font);
@@ -73,7 +73,7 @@ void AnnotationStencil::InitializeData(AnnotationInfo data)
     current_data->text = data.text;
 
     // Calculate the size needed to display the text and set accordingly
-    QFont font("Arial", current_data->font_size);
+    QFont font("Times", current_data->font_size);
     QFontMetrics fontMetrics(font);
     int textWidth = fontMetrics.horizontalAdvance(current_data->text);
     int textHeight = fontMetrics.height();
