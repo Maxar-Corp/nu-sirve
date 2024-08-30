@@ -181,6 +181,8 @@ void SirveApp::SetupUi() {
     tab_menu->setTabEnabled(1, false);
     tab_menu->setTabEnabled(2, false);
 
+    tab_menu->tabBar()->hide();
+
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
     btn_get_frames->setEnabled(false);
@@ -996,6 +998,8 @@ void SirveApp::SetupPlotFrame() {
     tab_plots->addTab(widget_tab_histogram, "Histogram");
     tab_plots->addTab(widget_plots_tab_color, "Plots");
 
+    tab_plots->tabBar()->hide();
+
     //directoryPicker = new DirectoryPicker(this);
 }
 
@@ -1631,6 +1635,8 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     btn_get_frames->setEnabled(osm_data_status);
     txt_start_frame->setEnabled(osm_data_status);
     txt_stop_frame->setEnabled(osm_data_status);
+
+    osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
 }
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
@@ -1644,6 +1650,8 @@ void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
 
     // Enable plot popout only
     btn_popout_histogram->setEnabled(frame_range_status);
+
+    frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
 
     // Enable the video pinpoint capabilities, which are
     // privately held within the video display class
