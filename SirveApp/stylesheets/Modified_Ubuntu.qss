@@ -71,7 +71,7 @@ QLineEdit {
 QMenuBar {
 	color:rgb(223,219,210);
 	background-color:rgb(65,64,59);
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 }
 QMenuBar::item {
@@ -80,7 +80,7 @@ QMenuBar::item {
 	padding-right:4px;
 	color:rgb(223,219,210);
 	background-color:rgb(65,64,59);
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 }
 QMenuBar::item:selected {
@@ -102,7 +102,7 @@ QMenuBar::item:selected {
 QMenu {
 	color:rgb(223,219,210);
 	background-color:rgb(65,64,59);
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: bold;
 }
 QMenu::item {
