@@ -940,7 +940,7 @@ void SirveApp::SetupPlotFrame() {
     // ------------------------------------------------------------------------
 
     frame_plots = new QFrame();
-    QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
+    plot_groupbox = new QGroupBox("Y-Axis Options");
 
     // create and group radial boxes
     rad_decimal = new QRadioButton("Decimal");
@@ -987,6 +987,7 @@ void SirveApp::SetupPlotFrame() {
     hlayout_widget_plots_tab_color_control->addWidget(plot_groupbox);
     hlayout_widget_plots_tab_color_control->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
     plot_groupbox->setMinimumWidth(333);
+    plot_groupbox->setEnabled(false);
 
     // set layout for engineering plots tab
     QWidget* widget_plots_tab_color = new QWidget();
@@ -1646,6 +1647,10 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     btn_get_frames->setEnabled(osm_data_status);
     txt_start_frame->setEnabled(osm_data_status);
     txt_stop_frame->setEnabled(osm_data_status);
+
+    plot_groupbox->setEnabled(osm_data_status);
+    cmb_plot_yaxis->setEnabled(osm_data_status);
+    cmb_plot_xaxis->setEnabled(osm_data_status);
 
     osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
 }
@@ -3911,6 +3916,9 @@ void SirveApp::EnableEngineeringPlotOptions()
 
     btn_plot_menu->setEnabled(true);
     btn_save_plot->setEnabled(true);
+
+    cmb_plot_yaxis->setEnabled(false);
+    cmb_plot_xaxis->setEnabled(false);
 }
 
 void SirveApp::UpdateEpochString(QString new_epoch_string)
