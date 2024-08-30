@@ -458,24 +458,29 @@ QWidget* SirveApp::SetupColorCorrectionTab()
     vlayout_tab_color->addWidget(grpbox_overlay_controls);
 
     QGroupBox *grpbox_epoch_area = new QGroupBox();
-    QGridLayout *grid_epoch_area = new QGridLayout();
-    grpbox_epoch_area->setLayout(grid_epoch_area);
-    QLabel* label_epoch = new QLabel("Epoch");
-    QLabel* label_date_format = new QLabel("Format is:    YYYY/MM/DD HH:MM:SS");
+    QHBoxLayout *hlayout_epoch_area = new QHBoxLayout(grpbox_epoch_area);
+    QVBoxLayout *vlayout_epoch_area = new QVBoxLayout();
+
+    QLabel* label_date_format = new QLabel("Format is:   YYYY/MM/DD HH:MM:SS");
     
     dt_epoch = new QDateTimeEdit(QDateTime(QDate(2001, 01, 01), QTime(0, 0, 0, 0)));
     dt_epoch->setDisplayFormat("yyyy/MM/dd hh:mm:ss.zzz");
     dt_epoch->setAlignment(Qt::AlignHCenter);
 
+    QFormLayout * form_epoch_layout = new QFormLayout;
+    form_epoch_layout->addRow(tr("&Epoch "),dt_epoch);
+
     lbl_current_epoch = new QLabel("Applied Epoch: ");
 
     btn_apply_epoch = new QPushButton("Apply Epoch");
 
-    grid_epoch_area->addWidget(label_epoch, 0, 0, 1, 1);
-    grid_epoch_area->addWidget(dt_epoch, 0, 1, 1, 1);
-    grid_epoch_area->addWidget(label_date_format, 1,0,1,2);
-    grid_epoch_area->addWidget(lbl_current_epoch, 2,0,1,2);
-    grid_epoch_area->addWidget(btn_apply_epoch, 2, 1,1,1);
+    vlayout_epoch_area->addLayout(form_epoch_layout);
+    vlayout_epoch_area->addWidget(label_date_format);
+    vlayout_epoch_area->addWidget(lbl_current_epoch);
+    vlayout_epoch_area->addWidget(btn_apply_epoch);
+    hlayout_epoch_area->addLayout(vlayout_epoch_area);
+    hlayout_epoch_area->insertStretch(-1,0);
+    hlayout_epoch_area->insertStretch(0,0);
 
     vlayout_tab_color->addWidget(grpbox_epoch_area);
 
@@ -796,25 +801,30 @@ QWidget* SirveApp::SetupTracksTab(){
     QLabel *lbl_track = new QLabel("Manual Track Management");
     lbl_create_track_message = new QLabel("");
     btn_create_track = new QPushButton("Create Track");
+    btn_create_track->setFixedWidth(100);
     btn_finish_create_track = new QPushButton("Finish");
     btn_finish_create_track->setHidden(true);
+    btn_finish_create_track->setFixedWidth(100);
     btn_import_tracks = new QPushButton("Import Tracks");
-
-    QGridLayout* grid_workspace = new QGridLayout();
-
-    grid_workspace->addWidget(lbl_track, 0, 0, 1, -1, Qt::AlignCenter);
-    grid_workspace->addWidget(lbl_create_track_message, 1, 1, 1, 1);
-    grid_workspace->addWidget(btn_create_track, 1, 0, 1, 1);
-    grid_workspace->addWidget(btn_finish_create_track, 1, 0, 1, 1);
-    grid_workspace->addWidget(btn_import_tracks, 2, 0, 1, 1);
+    btn_import_tracks->setFixedWidth(100);
+    QVBoxLayout* vlayout_workspace = new QVBoxLayout();
+    vlayout_workspace->addWidget(lbl_track, Qt::AlignCenter);
+    vlayout_workspace->addWidget(lbl_create_track_message);
+    vlayout_workspace->addWidget(btn_create_track, Qt::AlignCenter);
+    vlayout_workspace->addWidget(btn_finish_create_track, Qt::AlignCenter);
+    vlayout_workspace->addWidget(btn_import_tracks, Qt::AlignCenter);
 
     tm_widget = new TrackManagementWidget(widget_tab_tracks);
     QScrollArea *track_management_scroll_area = new QScrollArea();
-    track_management_scroll_area->setWidgetResizable( true );
+    track_management_scroll_area->setMinimumHeight(300);
+    track_management_scroll_area->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
+    track_management_scroll_area->setWidgetResizable(true);
     track_management_scroll_area->setWidget(tm_widget);
     track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    grid_workspace->addWidget(track_management_scroll_area, 3, 0, -1, -1);
-
+    vlayout_workspace->addWidget(track_management_scroll_area);
+    vlayout_workspace->insertStretch(3,0);
+    vlayout_workspace->insertStretch(-1,0);
+    vlayout_workspace->insertStretch(0,0);
 	QStringList colors = ColorScheme::get_track_colors();
     chk_show_tracks = new QCheckBox("OSM Tracks");
     chk_show_tracks->setChecked(true);
@@ -830,6 +840,9 @@ QWidget* SirveApp::SetupTracksTab(){
     hlayout_OSM_track_display->insertStretch(-1,0);
     hlayout_OSM_track_display->insertStretch(0,0);
 
+    QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
+    QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
+    QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
     btn_auto_track_target = new QPushButton("Auto Tracker");
     connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     txt_auto_track_start_frame = new QLineEdit("1");
@@ -839,13 +852,17 @@ QWidget* SirveApp::SetupTracksTab(){
     QFormLayout *form_auto_track_frame_limits = new QFormLayout;
     form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
     form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
-    QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
+
     hlayout_auto_track_control->addLayout(form_auto_track_frame_limits);
     hlayout_auto_track_control->addWidget(btn_auto_track_target);
+    hlayout_auto_track_control->insertStretch(0,0);
     hlayout_auto_track_control->insertStretch(-1,0);
+    vlayout_auto_track_control->insertStretch(0,0);
+    vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
+    vlayout_auto_track_control->insertStretch(-1,0);
 
-    vlayout_tab_workspace->addLayout(grid_workspace);
-    vlayout_tab_workspace->addLayout(hlayout_auto_track_control);
+    vlayout_tab_workspace->addLayout(vlayout_workspace);
+    vlayout_tab_workspace->addWidget(grpbox_autotrack);
 
     vlayout_tab_workspace->addWidget(grpbox_OSM_track_display);
 
