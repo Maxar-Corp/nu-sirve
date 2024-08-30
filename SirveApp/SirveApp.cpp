@@ -2834,9 +2834,9 @@ void SirveApp::HandleBadPixelReplacement()
     int stop_frame = txt_bad_pixel_stop_frame->text().toInt();
 
     if (chk_bad_pixels_from_original->isChecked()){
-        if (stop_frame > txt_stop_frame->text().toInt() ||\
+        if (stop_frame > osm_frames.size() ||\
          start_frame >= stop_frame){         
-            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + txt_stop_frame->text() + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + QString::number(osm_frames.size()) + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
         ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, config_values.version);

@@ -72,7 +72,7 @@ private:
 
     ABIRData abir_data;
 
-    void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames);
+    void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
 
     static arma::mat thresholding(arma::mat X, double tau);	
 
