@@ -656,8 +656,7 @@ void VideoDisplay::UpdateDisplayFrame()
     // Convert image back to RGB to facilitate use of the colors
     frame = frame.convertToFormat(QImage::Format_RGB888);
 
-    arma::mat offset_matrix(1,3);
-    offset_matrix.zeros();
+    arma::mat offset_matrix(1,3,arma::fill::zeros);
     if ( offsets.size() > 0 ){
         for (int rowi = 0; rowi< offsets.size(); rowi++){
             offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));

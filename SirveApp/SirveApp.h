@@ -109,7 +109,7 @@ public:
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_end_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
+	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
@@ -295,12 +295,12 @@ private:
 	CalibrationData calibration_model;
 
     void LoadOsmData();
-    void LoadAbirData(int start_frame, int end_frame);
+    void LoadAbirData(int start_frame, int stop_frame);
 
     void HandleBadPixelReplacement();
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
     
-    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
+    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);

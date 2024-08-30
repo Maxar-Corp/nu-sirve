@@ -124,27 +124,26 @@ void SirveApp::SetupUi() {
 
     grpbox_progressbar_area = new QGroupBox();
     grpbox_progressbar_area->setObjectName("grpbox_progressbar_area");
-	QGridLayout *grid_progressbar_area = new QGridLayout();
-	grpbox_progressbar_area->setLayout(grid_progressbar_area);
+	QHBoxLayout *hlayout_progressbar_area = new QHBoxLayout();
+	grpbox_progressbar_area->setLayout(hlayout_progressbar_area);
     grpbox_progressbar_area->setEnabled(false);
 	progress_bar_main = new QProgressBar();
+    progress_bar_main->setFixedWidth(200);
 	btn_cancel_operation = new QPushButton("Cancel");
 	btn_cancel_operation->setFixedWidth(75);
-	grid_progressbar_area->addWidget(progress_bar_main,0,0,1,8);
-	grid_progressbar_area->addWidget(btn_cancel_operation,0,11,1,1);
+	hlayout_progressbar_area->addWidget(progress_bar_main);
+	hlayout_progressbar_area->addWidget(btn_cancel_operation);
 
 	grpbox_status_area = new QGroupBox("State Control");
 	grpbox_status_area->setObjectName("grpbox_status_area");
     grpbox_status_area->setFixedHeight(200);
-	QGridLayout *grid_status_area = new QGridLayout();
-	grpbox_status_area->setLayout(grid_status_area);
+	QVBoxLayout *vlayout_status_area = new QVBoxLayout();
+	grpbox_status_area->setLayout(vlayout_status_area);
 	cmb_processing_states = new QComboBox();
 	btn_undo_step = new QPushButton("Undo One Step");
 	btn_undo_step->setFixedWidth(110);
     btn_delete_state = new QPushButton("Delete State");
     connect(btn_delete_state, &QPushButton::clicked, this, &SirveApp::DeleteState);
-	QLabel *lbl_processing_state = new QLabel("Processing State:");
-	lbl_processing_state->setFixedWidth(110);
     lbl_processing_description = new QLabel("");
 	lbl_processing_description->setWordWrap(true);
     scrollarea_processing_description = new QScrollArea();
@@ -156,11 +155,16 @@ void SirveApp::SetupUi() {
     vlayout_processing_description->addWidget(lbl_processing_description);
     QSpacerItem * d_bottom_vertical_spacer = new QSpacerItem(100, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     vlayout_processing_description->addItem(d_bottom_vertical_spacer);
-    grid_status_area->addWidget(scrollarea_processing_description,0,0,1,-1);
-    grid_status_area->addWidget(lbl_processing_state,1,0,1,1);
-	grid_status_area->addWidget(cmb_processing_states,1,1,1,6);
-    grid_status_area->addWidget(btn_delete_state,1,7,1,1);
-	grid_status_area->addWidget(btn_undo_step,1,8,1,1);
+    vlayout_status_area->addWidget(scrollarea_processing_description);
+    QFormLayout *form_processing_state = new QFormLayout;
+    form_processing_state->addRow(tr("&Processing State:"),cmb_processing_states);
+    form_processing_state->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+    vlayout_status_area->addLayout(form_processing_state);
+    QHBoxLayout *hlayout_processing_state_buttons = new QHBoxLayout();
+    hlayout_processing_state_buttons->addWidget(btn_delete_state);
+	hlayout_processing_state_buttons->addWidget(btn_undo_step);
+    hlayout_processing_state_buttons->insertStretch(-1,0);
+    vlayout_status_area->addLayout(hlayout_processing_state_buttons);
 	grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     main_layout->addWidget(grpbox_load_frames_area,0,0,1,1);
@@ -211,42 +215,58 @@ void SirveApp::SetupUi() {
 
     status_bar = this->statusBar();
     lbl_file_name = new QLabel("OSM File Name:");
+    lbl_file_name->setFont(QFont("Arial", 8, QFont::Bold));
 	lbl_loaded_frames = new QLabel("Loaded Frames: ");
+    lbl_loaded_frames->setFont(QFont("Arial", 8, QFont::Bold));
 	lbl_status_start_frame = new QLabel("Start Frame:");
+    lbl_status_start_frame->setFont(QFont("Arial", 8, QFont::Bold));
 	lbl_status_stop_frame = new QLabel("Stop Frame:");
+    lbl_status_stop_frame->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_current_workspace_folder = new QLabel("Workspace Folder:");
-    lbl_current_workspace_folder_field = new QLabel( config_values.workspace_folder);
+    lbl_current_workspace_folder->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_current_workspace_folder_field = new QLabel(config_values.workspace_folder);
     lbl_current_workspace_folder->setWordWrap(false);
 	lbl_workspace_name = new QLabel("Workspace File:");
+    lbl_workspace_name->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_workspace_name_field = new QLabel("");
+    lbl_workspace_name_field->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_progress_status = new QLabel("");
     lbl_progress_status->setFixedWidth(200);
     QGroupBox *grpbox_status_bar = new QGroupBox();
-    QHBoxLayout * hlayout_status_bar = new QHBoxLayout();
+    grpbox_status_bar->setFixedWidth(975);
+    QHBoxLayout * hlayout_status_bar1 = new QHBoxLayout();
+    QHBoxLayout * hlayout_status_bar2 = new QHBoxLayout();
     QGroupBox *grpbox_status_lbl = new QGroupBox();
+    grpbox_status_lbl->setFixedWidth(tab_plots->width());
     QHBoxLayout * hlayout_status_lbl = new QHBoxLayout();
     grpbox_status_lbl->setLayout(hlayout_status_lbl);
-    QSpacerItem *hspacer_item20 = new QSpacerItem(10,1);
 
-    hlayout_status_bar->addWidget(lbl_file_name);
-    hlayout_status_bar->addItem(hspacer_item20);
-    hlayout_status_bar->addWidget(lbl_loaded_frames);
-    hlayout_status_bar->addItem(hspacer_item20);
-    hlayout_status_bar->addWidget(lbl_status_start_frame);
-    hlayout_status_bar->addItem(hspacer_item20);
-    hlayout_status_bar->addWidget(lbl_status_stop_frame);
-    hlayout_status_bar->addItem(hspacer_item20);
-    hlayout_status_bar->addWidget(lbl_current_workspace_folder);
-    hlayout_status_bar->addWidget(lbl_current_workspace_folder_field);
-    hlayout_status_bar->addItem(hspacer_item20);
-    hlayout_status_bar->addWidget(lbl_workspace_name);
-    hlayout_status_bar->addWidget(lbl_workspace_name_field);
-    // hlayout_status_bar->addItem(hspacer_item20,0,13,1,1);
-    grpbox_status_bar->setLayout(hlayout_status_bar);
+    QSpacerItem *hspacer_item10 = new QSpacerItem(10,1);
+    QVBoxLayout * vlayout_status_lbl = new QVBoxLayout();
+
+    hlayout_status_bar1->addWidget(lbl_file_name);
+    hlayout_status_bar1->addItem(hspacer_item10);
+    hlayout_status_bar1->addWidget(lbl_loaded_frames);
+    hlayout_status_bar1->addItem(hspacer_item10);
+    hlayout_status_bar1->addWidget(lbl_status_start_frame);
+    hlayout_status_bar1->addItem(hspacer_item10);
+    hlayout_status_bar1->addWidget(lbl_status_stop_frame);
+    hlayout_status_bar1->insertStretch(-1,0);
+    hlayout_status_bar2->addWidget(lbl_current_workspace_folder);
+    hlayout_status_bar2->addWidget(lbl_current_workspace_folder_field);
+    hlayout_status_bar2->addItem(hspacer_item10);
+    hlayout_status_bar2->addWidget(lbl_workspace_name);
+    hlayout_status_bar2->addWidget(lbl_workspace_name_field);
+    hlayout_status_bar2->insertStretch(-1,0);
+    vlayout_status_lbl->addLayout(hlayout_status_bar1);
+    vlayout_status_lbl->addLayout(hlayout_status_bar2);
+    grpbox_status_bar->setLayout(vlayout_status_lbl);
+
     status_bar->addWidget(grpbox_status_bar);
     hlayout_status_lbl->addWidget(lbl_progress_status);
     hlayout_status_lbl->addWidget(grpbox_progressbar_area);
-    status_bar->addPermanentWidget(grpbox_status_lbl,1);
+    hlayout_status_lbl->insertStretch(1,0);
+    status_bar->addPermanentWidget(grpbox_status_lbl,0);
 
     this->show();
 }
@@ -450,7 +470,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     vlayout_bad_pixels->setAlignment(Qt::AlignCenter|Qt::AlignTop);
 	lbl_bad_pixel_count = new QLabel("No Bad Pixels Replaced.");
 	// lbl_bad_pixel_count->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-    chk_bad_pixels_from_original = new QCheckBox("Use Original Data");
+    chk_bad_pixels_from_original = new QCheckBox("Load raw data");
     chk_bad_pixels_from_original->setChecked(true);
 	cmb_bad_pixels_type = new QComboBox();
 	cmb_bad_pixels_type->addItem("All Bad Pixels");
@@ -480,15 +500,15 @@ QWidget* SirveApp::SetupProcessingTab() {
 
 	txt_bad_pixel_start_frame = new QLineEdit("1");
 	txt_bad_pixel_start_frame->setFixedWidth(60);
-	txt_bad_pixel_end_frame = new QLineEdit("500");
-	txt_bad_pixel_end_frame->setFixedWidth(60);
+	txt_bad_pixel_stop_frame = new QLineEdit("500");
+	txt_bad_pixel_stop_frame->setFixedWidth(60);
 	txt_moving_median_N = new QLineEdit("30");
 	txt_moving_median_N->setFixedWidth(60);
 	txt_moving_median_N->setEnabled(false);
 
     QFormLayout *form_replace_which_pixels_col2 = new QFormLayout;
     form_replace_which_pixels_col2->addRow(tr("&Sample Start:"),txt_bad_pixel_start_frame);
-    form_replace_which_pixels_col2->addRow(tr("&Sample Stop:"),txt_bad_pixel_end_frame);
+    form_replace_which_pixels_col2->addRow(tr("&Sample Stop:"),txt_bad_pixel_stop_frame);
     form_replace_which_pixels_col2->addRow(tr("&Window Length:"),txt_moving_median_N);
     form_replace_which_pixels_col2->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
 
@@ -571,13 +591,13 @@ QWidget* SirveApp::SetupProcessingTab() {
     vlayout_ans->setAlignment(Qt::AlignLeft|Qt::AlignCenter);
 
 	lbl_adaptive_noise_suppression_status = new QLabel("No Frames Setup");
-	txt_ANS_offset_frames = new QLineEdit("-30");
+	txt_ANS_offset_frames = new QLineEdit("0");
 	txt_ANS_offset_frames->setFixedWidth(60);
-	txt_ANS_number_frames = new QLineEdit("5");
+	txt_ANS_number_frames = new QLineEdit("60");
 	txt_ANS_number_frames->setFixedWidth(60);
 	chk_hide_shadow = new QCheckBox("Hide Shadow");
 	chk_hide_shadow->setFixedWidth(110);
-	chk_hide_shadow->setChecked(true);
+	chk_hide_shadow->setChecked(false);
 	cmb_shadow_threshold = new QComboBox();
 	cmb_shadow_threshold->setFixedWidth(100);
 	cmb_shadow_threshold->addItem("3 sigma");
@@ -859,6 +879,7 @@ void SirveApp::SetupVideoFrame(){
     btn_popout_video->resize(button_video_width, button_video_height);
     btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
+
     btn_popout_video->setEnabled(false);
 
     lbl_goto_frame = new QLabel("# Frames");
@@ -876,7 +897,6 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    hlayout_video_buttons->addWidget(lbl_goto_frame);
     hlayout_video_buttons->addWidget(txt_goto_frame);
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
@@ -893,7 +913,7 @@ void SirveApp::SetupVideoFrame(){
 
 void SirveApp::SetupPlotFrame() {
 
-    tab_plots->setTabPosition(QTabWidget::North);
+    tab_plots->setTabPosition(QTabWidget::South);
 
     // ------------------------------------------------------------------------
 
@@ -920,8 +940,6 @@ void SirveApp::SetupPlotFrame() {
     // ------------------------------------------------------------------------
 
     frame_plots = new QFrame();
-    QLabel* label_x_axis_option = new QLabel("X-Axis");
-    QLabel* label_y_axis_option = new QLabel("Y-Axis");
     QGroupBox* plot_groupbox = new QGroupBox("Y-Axis Options");
 
     // create and group radial boxes
@@ -943,14 +961,13 @@ void SirveApp::SetupPlotFrame() {
     cmb_plot_yaxis = new QComboBox();
 
     // create buttons in the plot controls
-    btn_save_plot = new QPushButton();
-    btn_save_plot->setIcon(QIcon(":icons/content-save.png"));
+    btn_save_plot = new QPushButton("Save Plot");
+    // btn_save_plot->setIcon(QIcon(":icons/content-save.png"));
     btn_save_plot->setToolTip("Save Plot");
+    // btn_save_plot->setFixedWidth(50);
 
-    btn_plot_menu = new QPushButton();
-    btn_plot_menu->setIcon(QIcon(":icons/menu.png"));
+    btn_plot_menu = new QPushButton("Plot Options");
 
-    // establish layout of y-axis options
     QGridLayout* grid_plots_tab_color_groupbox = new QGridLayout(plot_groupbox);
     grid_plots_tab_color_groupbox->addWidget(rad_linear, 0, 0);
     grid_plots_tab_color_groupbox->addWidget(rad_log, 1, 0);
@@ -958,28 +975,18 @@ void SirveApp::SetupPlotFrame() {
     grid_plots_tab_color_groupbox->addWidget(rad_scientific, 1, 1);
 
     // set layout for combo boxes
-    QVBoxLayout* vlayout_y_axis_options = new QVBoxLayout();
-    vlayout_y_axis_options->addWidget(label_y_axis_option);
-    vlayout_y_axis_options->addWidget(cmb_plot_yaxis);
-    vlayout_y_axis_options->setAlignment(Qt::AlignTop);
-
-    QVBoxLayout* vlayout_x_axis_options = new QVBoxLayout();
-    vlayout_x_axis_options->addWidget(label_x_axis_option);
-    vlayout_x_axis_options->addWidget(cmb_plot_xaxis);
-    vlayout_x_axis_options->setAlignment(Qt::AlignTop);
-
-    QHBoxLayout* hlayout_buttons = new QHBoxLayout();
-    hlayout_buttons->addWidget(btn_plot_menu);
-    hlayout_buttons->addWidget(btn_save_plot);
-    hlayout_buttons->setAlignment(Qt::AlignTop);
+    QFormLayout *form_plot_axis_options = new QFormLayout;
+    form_plot_axis_options->addRow(tr("&Y-Axis:"), cmb_plot_yaxis);
+    form_plot_axis_options->addRow(tr("&X-Axis:"), cmb_plot_xaxis);
+    form_plot_axis_options->addRow(tr("&"), btn_plot_menu);
+    form_plot_axis_options->addRow(tr(""), btn_save_plot);
 
     // set layout for everything below the plot
     QHBoxLayout* hlayout_widget_plots_tab_color_control = new QHBoxLayout();
-    hlayout_widget_plots_tab_color_control->addLayout(vlayout_y_axis_options);
-    hlayout_widget_plots_tab_color_control->addLayout(vlayout_x_axis_options);
+    hlayout_widget_plots_tab_color_control->addLayout(form_plot_axis_options);
     hlayout_widget_plots_tab_color_control->addWidget(plot_groupbox);
     hlayout_widget_plots_tab_color_control->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-    hlayout_widget_plots_tab_color_control->addLayout(hlayout_buttons);
+    plot_groupbox->setMinimumWidth(333);
 
     // set layout for engineering plots tab
     QWidget* widget_plots_tab_color = new QWidget();
@@ -1407,7 +1414,7 @@ void SirveApp::LoadWorkspace()
                     break;
                 }
                 case ProcessingMethod::fixed_noise_suppression:{
-                    ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.FNS_start_frame, current_state.FNS_stop_frame, current_state.source_state_ID);
+                    ApplyFixedNoiseSuppression(workspace_vals.image_path, current_state.FNS_file_path, current_state.frame0, current_state.FNS_start_frame, current_state.FNS_stop_frame, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_OSM:{
@@ -1585,7 +1592,7 @@ void SirveApp::LoadOsmData()
 
     engineering_plot_layout = new QGridLayout();
     btn_popout_engineering = new QPushButton("Push to Popout Plots");
-    btn_popout_engineering->resize(40, 40);
+    // btn_popout_engineering->resize(40, 40);
     btn_popout_engineering->setCheckable(true);
     connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::HandlePopoutEngineeringClick);
     engineering_plot_layout->addWidget(btn_popout_engineering);
@@ -2701,6 +2708,7 @@ void SirveApp::ApplyEpochTime()
 void SirveApp::HandleBadPixelReplacement()
 {
     processingState new_state = video_display->container.processing_states[cmb_processing_states->currentIndex()];
+    std::vector<std::vector<uint16_t>> test_data;
     int number_video_frames = static_cast<int>(new_state.details.frames_16bit.size());
 
     int type_choice = cmb_bad_pixels_type->currentIndex();
@@ -2726,16 +2734,30 @@ void SirveApp::HandleBadPixelReplacement()
         }
     }
 
-    int start_frame = std::max(txt_bad_pixel_start_frame->text().toInt(),0);
-    int end_frame = std::min(txt_bad_pixel_end_frame->text().toInt(),std::max(start_frame+500,number_video_frames));
-    std::vector<std::vector<uint16_t>> test_data;
+    int start_frame = txt_bad_pixel_start_frame->text().toInt();
+    int stop_frame = txt_bad_pixel_stop_frame->text().toInt();
 
     if (chk_bad_pixels_from_original->isChecked()){
-        ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, end_frame, config_values.version);
+        if (stop_frame > txt_stop_frame->text().toInt() ||\
+         start_frame >= stop_frame ||\
+         stop_frame-start_frame >2000){         
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + txt_stop_frame->text() + ". Stop must be greater than start and the number of sample frames must be less than or equal to 2000.");
+            return;
+        }
+        ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, config_values.version);
         test_data = test_frames.video_frames_16bit;
     }
     else{
-        test_data = new_state.details.frames_16bit;
+        if (stop_frame > txt_stop_frame->text().toInt() ||\
+         start_frame < txt_start_frame->text().toInt() || \
+         start_frame >= stop_frame || \
+         stop_frame-start_frame >2000){         
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start and the number of sample frames must be less than or equal to 2000.");
+            return;
+        } 
+        int start_offset = start_frame - txt_start_frame->text().toInt();
+        int stop_offset = stop_frame - txt_start_frame->text().toInt();
+        test_data = {new_state.details.frames_16bit.begin()+ start_offset,new_state.details.frames_16bit.begin()+stop_offset};
     }
 
     lbl_progress_status->setText(QString("Finding bad pixels..."));
@@ -2753,13 +2775,13 @@ void SirveApp::HandleBadPixelReplacement()
         arma::uvec index_dead0 = BP.FindDeadBadscalePixels(test_data);
         lbl_progress_status->setText(QString("Finding outlier pixels..."));
         if (outlier_method == 0){
-            arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMedian(N,test_data);
+            arma::uvec index_outlier0 = BP.IdentifyBadPixelsMedian(N,test_data);
             index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
         }
         else{
             u_int window_length = txt_moving_median_N->text().toUInt();
-            arma::uvec index_outlier0 =  BP.IdentifyBadPixelsMovingMedian(window_length,N,test_data);
+            arma::uvec index_outlier0 = BP.IdentifyBadPixelsMovingMedian(window_length,N,test_data);
             index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
         }
@@ -2924,14 +2946,15 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 
     QString image_path = external_nuc_dialog.abp_metadata.image_path;
     unsigned int start_frame = external_nuc_dialog.start_frame;
-    unsigned int end_frame = external_nuc_dialog.stop_frame;
+    unsigned int stop_frame = external_nuc_dialog.stop_frame;
     txt_FNS_start_frame->setText(QString::number(start_frame));
-    txt_FNS_stop_frame->setText(QString::number(end_frame));
+    txt_FNS_stop_frame->setText(QString::number(stop_frame));
     try
     {
         // assumes file version is same as base file opened
         int source_state_idx = cmb_processing_states->currentIndex();
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, start_frame, end_frame, source_state_idx);
+        int frame0 = start_frame - 1;
+        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, frame0, start_frame, stop_frame, source_state_idx);
     }
     catch (const std::exception& e)
     {
@@ -2954,17 +2977,19 @@ void SirveApp::ExecuteFixedNoiseSuppression()
     playback_controller->StopTimer();
 
     if (!chk_FNS_external_file->isChecked())
-    {
-        if (txt_FNS_stop_frame->text().toInt() > video_display->container.processing_states[0].details.frames_16bit.size()){
-            txt_FNS_stop_frame->setText(QString::number(video_display->container.processing_states[0].details.frames_16bit.size()));
+    {       
+        if (txt_FNS_stop_frame->text().toInt() > txt_stop_frame->text().toInt() ||\
+         txt_FNS_start_frame->text().toInt() < txt_start_frame->text().toInt() || \
+         txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){         
+            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ".");
+            return;
         }
-        if (txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){
-            txt_FNS_start_frame->setText(QString::number(std::max(txt_FNS_stop_frame->text().toInt()-1,0)));
-        }
+        
         int start_frame = txt_FNS_start_frame->text().toInt();
-        int end_frame = txt_FNS_stop_frame->text().toInt();
+        int stop_frame = txt_FNS_stop_frame->text().toInt();
         int source_state_idx = cmb_processing_states->currentIndex();
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, start_frame, end_frame, source_state_idx);
+        int frame0 = data_plots->index_sub_plot_xmin;
+        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, stop_frame, source_state_idx);
     }
     else
     {
@@ -2973,11 +2998,11 @@ void SirveApp::ExecuteFixedNoiseSuppression()
 
 }
 
-void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int start_frame, unsigned int end_frame, int source_state_idx)
+void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int start_frame, unsigned int stop_frame, int source_state_idx)
 {
     int compare = QString::compare(file_path, image_path, Qt::CaseInsensitive);
     if (compare!=0){
-        if (!VerifyFrameSelection(start_frame, end_frame))
+        if (!VerifyFrameSelection(start_frame, stop_frame))
         {
             QtHelpers::LaunchMessageBox(QString("Invalid Frame Selection"), "Fixed noise suppression not completed, invalid frame selection");
             return;
@@ -3002,8 +3027,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
     connect(&FNS, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &FNS, &ImageProcessing::CancelOperation);
-
-    new_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, start_frame, end_frame, config_values.version, original.details);
+    
+    new_state.details.frames_16bit = FNS.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -3013,8 +3038,9 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         // set new state
         new_state.method = ProcessingMethod::fixed_noise_suppression;
         new_state.FNS_file_path = file_path;
+        new_state.frame0 = frame0;
         new_state.FNS_start_frame = start_frame;
-        new_state.FNS_stop_frame = end_frame;
+        new_state.FNS_stop_frame = stop_frame;
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
@@ -3047,7 +3073,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
             fileName = "Current File";
 
         QString description = "File: " + fileName + "\n";
-        description += "From frame " + QString::number(start_frame) + " to " + QString::number(end_frame);
+        description += "From frame " + QString::number(start_frame) + " to " + QString::number(stop_frame);
 
         lbl_fixed_suppression->setText(description);
     }
@@ -3210,15 +3236,15 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
     }
     new_state.find_any_tracks = find_any_tracks;
 
-    ImageProcessing COST;
+    ImageProcessing COT;
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,number_frames - 1);
     lbl_progress_status->setText(QString("Center on OSM..."));
 
-    connect(&COST, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &COST, &ImageProcessing::CancelOperation);
+    connect(&COT, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, &COT, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = COST.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    new_state.details.frames_16bit = COT.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -3369,6 +3395,10 @@ void SirveApp::HandleProcessingNewStateSelected()
 		return;
 	}
     lbl_processing_description->setText(video_display->container.processing_states[cmb_processing_states->currentIndex()].state_description);
+    int num_pixels_replaced = video_display->container.processing_states[cmb_processing_states->currentIndex()].replaced_pixels.size();
+    if(num_pixels_replaced>0){
+        lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(num_pixels_replaced));
+    }
 }
 
 void SirveApp::HandleProcessingStatesCleared()
@@ -3690,7 +3720,6 @@ void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
     processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
     AutoTracking AT;
 
     progress_bar_main->setTextVisible(true);
@@ -3698,87 +3727,112 @@ void SirveApp::ExecuteAutoTracking()
     connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
     int frame0 = data_plots->index_sub_plot_xmin;
+    
+    uint start_frame = txt_auto_track_start_frame->text().toInt();
+    uint stop_frame = txt_auto_track_stop_frame->text().toInt();
 
-    int start_frame = txt_auto_track_start_frame->text().toInt();
-    int stop_frame = txt_auto_track_stop_frame->text().toInt();
     int num_frames_to_track = stop_frame - start_frame + 1;
-    if (start_frame > 0 && stop_frame <= number_video_frames + start_frame && stop_frame>start_frame){
-        progress_bar_main->setRange(0,num_frames_to_track);
-        int start_frame_i = start_frame - frame0;
-        int stop_frame_i = start_frame_i + num_frames_to_track -1;
-        bool ok;
-        u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
-        if (!ok || track_id < 0)
+    if (start_frame < txt_start_frame->text().toInt() || stop_frame > txt_stop_frame->text().toInt() || stop_frame<start_frame){
+        QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start.");
+        return;
+    }
+    progress_bar_main->setRange(0,num_frames_to_track);
+    int start_frame_i = start_frame - frame0;
+    int stop_frame_i = start_frame_i + num_frames_to_track -1;
+    bool ok;
+    u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
+    if (!ok || track_id < 0)
+    {
+        return;
+    }
+
+    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
+        if (response == QMessageBox::Yes)
         {
+            std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
+            PrepareForTrackCreation(track_id);
+            video_display->EnterTrackCreationMode(existing_track_details);
+        }
+    }
+    else
+    {
+    QString base_track_folder = config_values.workspace_folder;
+    QDate today = QDate::currentDate();
+    QTime currentTime = QTime::currentTime();;
+    QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+    QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id) + "_Frames_" + QString::number(start_frame) + "_" + QString::number(stop_frame) + "_" + formattedDate;
+    QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
+    if (new_track_file_name.isEmpty())
+    {
+        QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+        return;
+    }
+
+    arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    
+    if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
+        arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);
+        arma::mat offset_matrix(1,3,arma::fill::zeros);
+        arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
+        std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+        for (int rowi = 0; rowi< offsets.size(); rowi++){
+            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
+        }
+        offset_matrix.shed_row(0);
+        for (int rowii = 0; rowii<framei.size(); rowii++){
+             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii),1,"first");
+             if (!kk.is_empty()){
+                offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
+             }
+        }
+
+        offset_matrix2.shed_col(0);
+        offset_matrix2.insert_cols(0,2);
+        arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
+        autotrack_d += offset_matrix2;
+        autotrack = arma::conv_to<arma::u32_mat>::from(autotrack_d);
+    }
+
+    if (!autotrack.empty()){
+
+        autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
+
+        TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
+
+        if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
+        {
+            QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
+            return;
+        }
+
+        if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
+        {
+            QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
             return;
         }
 
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-        if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
+        for ( int track_id : result.track_ids )
         {
-            auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
-            if (response == QMessageBox::Yes)
+            if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
             {
-                std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
-                PrepareForTrackCreation(track_id);
-                video_display->EnterTrackCreationMode(existing_track_details);
+                QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
             }
+            video_display->AddManualTrackIdToShowLater(track_id);
+            tm_widget->AddTrackControl(track_id);
+            cmb_manual_track_IDs->addItem(QString::number(track_id));
         }
-        else
-        {
-        QString base_track_folder = config_values.workspace_folder;
-        QDate today = QDate::currentDate();
-        QTime currentTime = QTime::currentTime();;
-        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-        QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id) + "_Frames_" + QString::number(start_frame) + "_" + QString::number(stop_frame) + "_" + formattedDate;
-        QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
-        if (new_track_file_name.isEmpty())
-        {
-            QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
-            return;
-        }
-        double lift = lbl_lift_value->text().toDouble();
-        double gain = lbl_gain_value->text().toDouble();
-        arma::u32_mat autotrack = AT.SingleTracker(track_id, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
 
-        if (!autotrack.empty()){
+        track_info->AddManualTracks(result.frames);
 
-            autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
-
-            TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
-
-            if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
-            {
-                QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
-                return;
-            }
-
-            if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
-            {
-                QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
-                return;
-            }
-
-            std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-            for ( int track_id : result.track_ids )
-            {
-                if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
-                {
-                    QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
-                }
-                video_display->AddManualTrackIdToShowLater(track_id);
-                tm_widget->AddTrackControl(track_id);
-                cmb_manual_track_IDs->addItem(QString::number(track_id));
-            }
-
-            track_info->AddManualTracks(result.frames);
-
-            int index0 = data_plots->index_sub_plot_xmin;
-            int index1 = data_plots->index_sub_plot_xmax + 1;
-            video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            UpdatePlots();
-            }
+        int index0 = data_plots->index_sub_plot_xmin;
+        int index1 = data_plots->index_sub_plot_xmax + 1;
+        video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+        data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        UpdatePlots();
         }
     }
     lbl_progress_status->setText(QString(""));
@@ -3999,8 +4053,8 @@ void SirveApp::DeleteState()
             desc.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
             QString desc2 = desc;
-            QString tmp0 = "<Source State " + QString::number(all_states[i].source_state_ID) + ">";
-            desc2.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            QString tmp0 = "<Previous State " + QString::number(all_states[i].source_state_ID) + ">";
+            desc2.replace(tmp0,"<Previous State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
 
             std::string result;
             for (auto num : all_states[i].ancestors) {
@@ -4019,7 +4073,7 @@ void SirveApp::DeleteState()
             desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
 
             QString desc4 = desc3;
-            desc4.replace(tmp0,"<Source State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            desc4.replace(tmp0,"<Previous State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
             new_labels.append(desc4);
 
             all_states[i].state_ID = i;
@@ -4048,10 +4102,9 @@ void SirveApp::HandleFrameChange()
 void SirveApp::HandleFrameNumberChangeInput()
 {
     unsigned int new_frame_number = txt_goto_frame->text().toUInt();
-    int number_video_frames = static_cast<int>(video_display->container.processing_states[cmb_processing_states->currentIndex()].details.frames_16bit.size());
-    if (new_frame_number > 0 && new_frame_number <= number_video_frames){
-        video_display->ViewFrame(new_frame_number-1);
-        slider_video->setValue(new_frame_number-1);
+    if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
+        video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
+        slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
         txt_auto_track_start_frame->setText(QString::number(new_frame_number));
         if (txt_auto_track_stop_frame->text().toInt()<new_frame_number){
             txt_auto_track_stop_frame->setText(QString::number(new_frame_number));
