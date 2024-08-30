@@ -45,6 +45,7 @@ struct processingState {
     int ANS_num_frames;
 
     double weight;
+    int offset;
     int shadow_threshold;
     bool hide_shadow;
 
@@ -102,7 +103,8 @@ struct processingState {
                     return "Rolling Mean Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                         +"Process steps: " + process_steps +"\n"\
                         +"Accumulator: Weight " + QString::number(weight) +"\n"\
-                        "Hide Shadow option set to " + boolString +". Shadow threshold set to " + QString::number(shadow_threshold)+".\n"\
+                        +"Hide Shadow option set to " + boolString +". Shadow threshold set to " + QString::number(shadow_threshold)+".\n"\
+                        +"Offset: " + QString::number(offset)+"\n"\
                         +"State steps: " + state_steps;
                 }
                 else{
@@ -267,6 +269,7 @@ struct processingState {
                 state_object.insert("hide_shadow", hide_shadow);
                 state_object.insert("shadow_threshold", shadow_threshold);
                 state_object.insert("weight",weight);
+                state_object.insert("offset",offset);
                 break;
             case ProcessingMethod::adaptive_noise_suppression:
                 state_object.insert("method", "ANS");

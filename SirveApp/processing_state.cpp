@@ -96,6 +96,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
         temp.shadow_threshold = json_obj.value("shadow_threshold").toInt();
         temp.hide_shadow = json_obj.value("hide_shadow").toBool();
+        temp.offset = json_obj.value("offset").toInt();
         std::vector<unsigned int>  ancestors;
         for (auto json_item : json_obj.value("ancestors").toArray())
         {

@@ -106,7 +106,7 @@ public:
 	QLabel *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
     QLabel *lbl_progress_status, *lbl_processing_description, *lbl_min_scale_value, *lbl_max_scale_value;
     QScrollArea *scrollarea_processing_description;
-	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes;
+	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_accumulator_offset;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
 	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
@@ -302,7 +302,7 @@ private:
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);
-    void ApplyAccumulatorNoiseSuppression(double weight, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
+    void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyDeinterlacingCurrent();
     void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);

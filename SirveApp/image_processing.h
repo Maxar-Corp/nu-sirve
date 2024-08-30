@@ -43,7 +43,7 @@ public:
 
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, VideoDetails & original);
 
-    std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice);
 
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
 

@@ -671,10 +671,13 @@ QWidget* SirveApp::SetupProcessingTab() {
 	chk_hide_shadow->setChecked(false);
 	cmb_shadow_threshold = new QComboBox();
 	cmb_shadow_threshold->setFixedWidth(100);
+    cmb_shadow_threshold->addItem("6 sigma");
+    cmb_shadow_threshold->addItem("5 sigma");
+    cmb_shadow_threshold->addItem("4 sigma");
 	cmb_shadow_threshold->addItem("3 sigma");
 	cmb_shadow_threshold->addItem("2 sigma");
 	cmb_shadow_threshold->addItem("1 sigma");
-    cmb_shadow_threshold->setCurrentIndex(1);
+    cmb_shadow_threshold->setCurrentIndex(0);
     QHBoxLayout* hlayout_accumulator_processing = new QHBoxLayout(grpbox_accumulator_processing);
 	QVBoxLayout* vlayout_accumulator_processing = new QVBoxLayout;
 	btn_accumulator = new QPushButton("Rolling Mean Noise Suppression");
@@ -682,12 +685,16 @@ QWidget* SirveApp::SetupProcessingTab() {
 	connect(btn_accumulator, &QPushButton::clicked, this, &SirveApp::ExecuteAccumulatorNoiseSuppression);
     txt_accumulator_weight = new QLineEdit("0.5");
 	txt_accumulator_weight->setFixedWidth(60);
+    txt_accumulator_offset = new QLineEdit("0");
+    txt_accumulator_offset->setFixedWidth(60);
     QFormLayout *form_accumulator = new QFormLayout;
     form_accumulator->addRow(tr("&Added Frame Weight:"),txt_accumulator_weight);
+    form_accumulator->addRow(tr("&Offset:"),txt_accumulator_offset);
     vlayout_accumulator_processing->addLayout(form_accumulator);
     vlayout_accumulator_processing->addWidget(chk_hide_shadow);
     QFormLayout *form_hide_shadow = new QFormLayout;
     form_hide_shadow->addRow(tr("&Shadow Threshold:"),cmb_shadow_threshold);
+
     vlayout_accumulator_processing->addLayout(form_hide_shadow);
     vlayout_accumulator_processing->addWidget(btn_accumulator);
     vlayout_accumulator_processing->insertStretch(-1,0);
@@ -1507,7 +1514,7 @@ void SirveApp::LoadWorkspace()
 
                 case ProcessingMethod::accumulator_noise_suppression:
                 {
-                    ApplyAccumulatorNoiseSuppression(current_state.weight, current_state.hide_shadow, current_state.shadow_threshold, current_state.source_state_ID);
+                    ApplyAccumulatorNoiseSuppression(current_state.weight, current_state.offset, current_state.hide_shadow, current_state.shadow_threshold, current_state.source_state_ID);
                     break;
                 }
 
@@ -3738,14 +3745,18 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
 void SirveApp::ExecuteAccumulatorNoiseSuppression()
 {
     int source_state_idx = cmb_processing_states->currentIndex();
-    double weight;
+    double weight = txt_accumulator_weight->text().toDouble();
+    if(weight<0 || weight >1){
+        QtHelpers::LaunchMessageBox(QString("Invalid weight."), "Weight must be between 0 and 1.");
+        return;
+    }
     bool hide_shadow_choice = chk_hide_shadow->isChecked();
-    int shadow_sigma_thresh = 3 - cmb_shadow_threshold->currentIndex();
-    weight = txt_accumulator_weight->text().toDouble();
-    ApplyAccumulatorNoiseSuppression(weight, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
+    int shadow_sigma_thresh = 6 - cmb_shadow_threshold->currentIndex();
+    int offset = txt_accumulator_offset->text().toInt();
+    ApplyAccumulatorNoiseSuppression(weight, offset, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
 }
 
-void SirveApp::ApplyAccumulatorNoiseSuppression(double weight,  bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx)
+void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx)
 {
     //Pause the video if it's running
     playback_controller->StopTimer();
@@ -3769,7 +3780,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight,  bool hide_shadow
         grpbox_progressbar_area->setEnabled(true);
         connect(&ACC, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
         connect(btn_cancel_operation, &QPushButton::clicked, &ACC, &ImageProcessing::CancelOperation);
-        new_state.details.frames_16bit = ACC.AccumulatorNoiseSuppression(weight,1,original.details,false);
+        new_state.details.frames_16bit = ACC.AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
         lbl_progress_status->setText(QString(""));
         progress_bar_main->setValue(0);
         progress_bar_main->setTextVisible(false);
@@ -3778,6 +3789,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight,  bool hide_shadow
             new_state.method = ProcessingMethod::accumulator_noise_suppression;
             new_state.source_state_ID = source_state_ind;
             new_state.weight = weight;
+            new_state.offset = offset;
             new_state.hide_shadow = hide_shadow_choice;
             new_state.shadow_threshold = shadow_sigma_thresh;
             uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
