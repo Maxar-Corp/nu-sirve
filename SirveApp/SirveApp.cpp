@@ -815,21 +815,26 @@ QWidget* SirveApp::SetupTracksTab(){
     btn_import_tracks = new QPushButton("Import Tracks");
     btn_import_tracks->setFixedWidth(100);
     QVBoxLayout* vlayout_workspace = new QVBoxLayout();
-    vlayout_workspace->addWidget(lbl_track, Qt::AlignCenter);
+    QHBoxLayout *hlayout_workspace = new QHBoxLayout();
+    hlayout_workspace->setAlignment(Qt::AlignLeft);
+    vlayout_workspace->addWidget(lbl_track, Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_create_track_message);
-    vlayout_workspace->addWidget(btn_create_track, Qt::AlignCenter);
-    vlayout_workspace->addWidget(btn_finish_create_track, Qt::AlignCenter);
-    vlayout_workspace->addWidget(btn_import_tracks, Qt::AlignCenter);
+    // hlayout_workspace->insertStretch(0,0);
+    // hlayout_workspace->insertStretch(-1,0);
+    hlayout_workspace->addWidget(btn_create_track,Qt::AlignLeft);
+    hlayout_workspace->addWidget(btn_finish_create_track,Qt::AlignLeft);
+    hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
+    vlayout_workspace->addLayout(hlayout_workspace);
 
     tm_widget = new TrackManagementWidget(widget_tab_tracks);
     QScrollArea *track_management_scroll_area = new QScrollArea();
-    track_management_scroll_area->setMinimumHeight(300);
+    track_management_scroll_area->setMinimumHeight(275);
     track_management_scroll_area->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
     track_management_scroll_area->setWidgetResizable(true);
     track_management_scroll_area->setWidget(tm_widget);
     track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vlayout_workspace->addWidget(track_management_scroll_area);
-    vlayout_workspace->insertStretch(3,0);
+    // vlayout_workspace->insertStretch(3,0);
     vlayout_workspace->insertStretch(-1,0);
     vlayout_workspace->insertStretch(0,0);
 	QStringList colors = ColorScheme::get_track_colors();
@@ -859,17 +864,19 @@ QWidget* SirveApp::SetupTracksTab(){
     QFormLayout *form_auto_track_frame_limits = new QFormLayout;
     form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
     form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
+    QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
+    vlayout_auto_track->addLayout( form_auto_track_frame_limits);
+    vlayout_auto_track->addWidget(btn_auto_track_target);
 
     QGroupBox* grpbox_autotrack_filters = new QGroupBox("Pre Filter Options");
     QGridLayout *grid_autotrack_filters = new QGridLayout(grpbox_autotrack_filters);
-    // create and group radial boxes
     rad_autotrack_filter_none = new QRadioButton("None");
     rad_autotrack_filter_none->setChecked(true);
     rad_autotrack_filter_gaussian = new QRadioButton("Gaussian");
     rad_autotrack_filter_median = new QRadioButton("Median");
     rad_autotrack_filter_nlmeans = new QRadioButton("Non Local Means");
     QSpacerItem *vspacer_item20 = new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum);
-
+    
     QButtonGroup * buttongrp_autotrack_filters = new QButtonGroup();
     buttongrp_autotrack_filters->addButton(rad_autotrack_filter_none);
     buttongrp_autotrack_filters->addButton(rad_autotrack_filter_gaussian);
@@ -881,22 +888,39 @@ QWidget* SirveApp::SetupTracksTab(){
     grid_autotrack_filters->addWidget(rad_autotrack_filter_median,2,0);
     grid_autotrack_filters->addWidget(rad_autotrack_filter_nlmeans,2,1);
     grid_autotrack_filters->addItem(vspacer_item20,0,0,1,2);
-    hlayout_auto_track_control->addLayout(form_auto_track_frame_limits);
+
+    QGroupBox* grpbox_autotrack_feature = new QGroupBox("Feature Options");
+    QGridLayout *grid_autotrack_feature = new QGridLayout(grpbox_autotrack_feature);
+    rad_autotrack_feature_weighted_centroid = new QRadioButton("Weighted Centroid");
+    rad_autotrack_feature_weighted_centroid->setChecked(true);
+    rad_autotrack_feature_centroid = new QRadioButton("Centroid");
+    rad_autotrack_feature_peak = new QRadioButton("Peak");
+
+    QButtonGroup * buttongrp_autotrack_feature = new QButtonGroup();
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_weighted_centroid);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_centroid);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_peak);
+
+    grid_autotrack_feature->addWidget(rad_autotrack_feature_weighted_centroid,1,0);
+    grid_autotrack_feature->addWidget(rad_autotrack_feature_centroid,2,0);
+    grid_autotrack_feature->addWidget(rad_autotrack_feature_peak,3,0);
+    grid_autotrack_feature->addItem(vspacer_item20,0,0,1,1);
+
+    hlayout_auto_track_control->addLayout(vlayout_auto_track);
     hlayout_auto_track_control->addWidget(grpbox_autotrack_filters);
-    hlayout_auto_track_control->addWidget(btn_auto_track_target);
+    hlayout_auto_track_control->addWidget(grpbox_autotrack_feature);
     hlayout_auto_track_control->insertStretch(0,0);
     hlayout_auto_track_control->insertStretch(-1,0);
     vlayout_auto_track_control->insertStretch(0,0);
     vlayout_auto_track_control->addItem(vspacer_item20);
     vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
     vlayout_auto_track_control->insertStretch(-1,0);
-
+    
     vlayout_tab_workspace->addLayout(vlayout_workspace);
     vlayout_tab_workspace->addWidget(grpbox_autotrack);
-
     vlayout_tab_workspace->addWidget(grpbox_OSM_track_display);
-
     vlayout_tab_workspace->insertStretch(-1, 0);
+
     return widget_tab_tracks;
 }
 
@@ -1555,13 +1579,13 @@ void SirveApp::LoadWorkspace()
                     break;
                 }
                 case ProcessingMethod::center_on_OSM:{
-                    QString trackTypePriority = "OSM";
-                    CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
+                    QString trackFeaturePriority = "OSM";
+                    CenterOnTracks(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_manual:{
-                    QString trackTypePriority = "manual";
-                    CenterOnTracks(trackTypePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
+                    QString trackFeaturePriority = "manual";
+                    CenterOnTracks(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_brightest:{
@@ -3304,7 +3328,7 @@ void SirveApp::ExecuteCenterOnTracks()
 {
     int track_id;
     boolean findAnyTrack = false;
-    QString trackTypePriority;
+    QString trackFeaturePriority;
 
     if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
         if (cmb_OSM_track_IDs->currentIndex()==0){
@@ -3313,7 +3337,7 @@ void SirveApp::ExecuteCenterOnTracks()
         else{
             track_id = cmb_OSM_track_IDs->currentText().toInt();
         }
-        trackTypePriority = "OSM";
+        trackFeaturePriority = "OSM";
     }
     else if(cmb_track_centering_priority->currentIndex()==1 || cmb_track_centering_priority->currentIndex()==3){
         if (cmb_manual_track_IDs->currentIndex()==0){
@@ -3322,7 +3346,7 @@ void SirveApp::ExecuteCenterOnTracks()
         else{
             track_id = cmb_manual_track_IDs->currentText().toInt();
         }
-        trackTypePriority = "Manual";
+        trackFeaturePriority = "Manual";
     }
     if(cmb_track_centering_priority->currentIndex()==2 || cmb_track_centering_priority->currentIndex()==3){
         findAnyTrack = true;
@@ -3330,12 +3354,12 @@ void SirveApp::ExecuteCenterOnTracks()
 
     std::vector<std::vector<int>> track_centered_offsets;
     int source_state_idx = cmb_processing_states->currentIndex();
-    CenterOnTracks(trackTypePriority, track_id, track_centered_offsets, findAnyTrack, source_state_idx);
+    CenterOnTracks(trackFeaturePriority, track_id, track_centered_offsets, findAnyTrack, source_state_idx);
 }
 
-void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
+void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
 {
-    int OSMPriority = QString::compare(trackTypePriority,"OSM",Qt::CaseInsensitive);
+    int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
     processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
     int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
 
@@ -3368,7 +3392,7 @@ void SirveApp::CenterOnTracks(QString trackTypePriority, int track_id, std::vect
     connect(&COT, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &COT, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = COT.CenterOnTracks(trackTypePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    new_state.details.frames_16bit = COT.CenterOnTracks(trackFeaturePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -3904,7 +3928,15 @@ void SirveApp::ExecuteAutoTracking()
     else if(rad_autotrack_filter_nlmeans->isChecked()){
         prefilter = "NLMEANS";
     }
-    arma::u32_mat autotrack = AT.SingleTracker(track_id, prefilter, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    if (rad_autotrack_feature_centroid->isChecked()){
+        trackFeature = "CENTROID";
+    }
+    else if(rad_autotrack_feature_peak->isChecked()){
+        trackFeature = "peak";
+    }
+
+    arma::u32_mat autotrack = AT.SingleTracker(track_id, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
     if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
         arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);

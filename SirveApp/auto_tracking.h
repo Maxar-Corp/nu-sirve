@@ -25,13 +25,13 @@ class  AutoTracking : public QObject
 
 public:
 
-    AutoTracking();
+    AutoTracking(); 
     ~AutoTracking();
 
 
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::u32_mat SingleTracker(u_int track_id, string prefilter, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
+    arma::u32_mat SingleTracker(u_int track_id, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
 
 signals:
      void SignalProgress(unsigned int frameval);

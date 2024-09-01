@@ -20,11 +20,12 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
+arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
     int num_video_frames = original.frames_16bit.size();
     int nrows = original.y_pixels;
     int ncols = original.x_pixels;
+    cv::Scalar cv_m,cv_s;
     u_int indx0 = start_frame - 1;
     arma::vec image_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[indx0]);
 
@@ -58,7 +59,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, uint
 
     imCrop0 = frame_matrix_filtered_8bit(ROI);
     cv::Mat thr0;
-    cv::threshold(imCrop0, thr0, 100, 255, cv::THRESH_OTSU);
+    cv::meanStdDev(frame_matrix_filtered_8bit,cv_m,cv_s);
+    cv::threshold(imCrop0, thr0, cv_m[0]+3*cv_s[0], 255, cv::THRESH_OTSU);
     cv::Moments m1 = cv::moments(thr0,false);
     cv::Point p0(m1.m10/m1.m00, m1.m01/m1.m00);
     u_int centerX0, centerY0;
@@ -130,26 +132,50 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, uint
             ROI = selectROI(frame_matrix_i_filtered_8bit_color);
             tracker->init(frame_matrix_i_filtered_8bit_color, ROI);
         }
-        waitKey(1);
 
         imCrop = frame_matrix_i_filtered_8bit(ROI);
 
         cv::Mat thr;
-        cv::threshold(imCrop, thr, 100, 255, cv::THRESH_OTSU);
-        cv::Moments m = cv::moments(thr,false);
-        cv::Point p(m.m10/m.m00, m.m01/m.m00);
+        cv::Point pout;
+        cv::meanStdDev(frame_matrix_i_filtered_8bit,cv_m,cv_s);
+        if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
+            cv::threshold(imCrop, thr, cv_m[0]+3*cv_s[0], 255, cv::THRESH_OTSU);
+            cv::Moments m = cv::moments(thr,false);
+            cv::Point p(m.m10/m.m00, m.m01/m.m00);
+            cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
+            cv::imshow("THR",thr);
+            pout = p;
+        }
+        else if (trackFeature == "CENTROID"){
+            cv::threshold(imCrop, thr, cv_m[0]+3*cv_s[0], 255, cv::THRESH_BINARY);
+            cv::Moments m = cv::moments(thr,true);
+            cv::Point p(m.m10/m.m00, m.m01/m.m00);
+            cv::circle(thr,p,3,cv::Scalar(255,0,0),-1);
+            cv::imshow("THR",thr);
+            pout = p;
+        }
+        else{
+            double minVal, maxVal;
+            cv::Point minLoc, p;
+            cv::minMaxLoc(imCrop, &minVal, &maxVal, &minLoc, &p);
+            cv::circle(imCrop,p,3, cv::Scalar(255,0,0),-1);
+            cv::imshow("IMCROP",imCrop);
+            pout = p;
+        }
+
         u_int centerX, centerY;
 
-        if (p.x > 0 && p.y > 0){
-            centerX = round(p.x + ROI.x + 1);
-            centerY = round(p.y + ROI.y + 1);
+        if (pout.x > 0 && pout.y > 0){
+            centerX = round(pout.x + ROI.x);
+            centerY = round(pout.y + ROI.y);
         }
         else
         {
-            centerX = round(ROI.x + 0.5 * ROI.width + 1);
-            centerY = round(ROI.y + 0.5 * ROI.height + 1);
+            centerX = round(ROI.x + 0.5 * ROI.width);
+            centerY = round(ROI.y + 0.5 * ROI.height);
         }
         output.row(i) = {track_id, frame0 + i, centerX ,centerY};
+        waitKey(1);
     }
     cv::destroyAllWindows();
     return output;

@@ -128,7 +128,7 @@ public:
 	QFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
-
+    QRadioButton * rad_autotrack_feature_weighted_centroid,  *rad_autotrack_feature_centroid, * rad_autotrack_feature_peak;
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color;
 	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
@@ -304,7 +304,7 @@ private:
     void ApplyDeinterlacing(int processing_state_idx);
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyDeinterlacingCurrent();
-    void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
+    void CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
     void ExportFrame();
