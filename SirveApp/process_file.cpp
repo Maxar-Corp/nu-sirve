@@ -67,14 +67,11 @@ bool ProcessFile::VerifyPath(QString path)
 	return file_exists && file_isFile;
 }
 
-ABIRDataResult ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_frame, double version)
-{
-	ABIRDataResult data_result;
-	data_result.had_error = true;
-	
+bool ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_frame, double version)
+{	
 	if (first_frame < 0 || last_frame < 0)
 	{
-		return data_result;
+        return false;
 	}
 
 	unsigned int frame_start = first_frame;
@@ -83,10 +80,15 @@ ABIRDataResult ProcessFile::LoadImageFile(QString image_path, int first_frame, i
 	QByteArray array = image_path.toLocal8Bit();
 	char* buffer = array.data();
 
-	data_result = abir_data.GetFrames(buffer, frame_start, frame_end, version, false);
-	if (data_result.had_error) {
-		return data_result;
+    data_result = abir_data.GetFrames(buffer, frame_start, frame_end, version, false);
+    if (data_result->had_error) {
+        return false;
 	}
 
-	return data_result;
+    return true;
+}
+
+ABIRDataResult* ProcessFile::getAbirDataLoadResult()
+{
+    return data_result;
 }

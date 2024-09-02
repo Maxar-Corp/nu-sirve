@@ -117,7 +117,7 @@ public:
     double file_version;
 	std::vector<ABIR_Frame> ir_data;
 
-    ABIRDataResult GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number = -0.1, bool header_only = false);
+    ABIRDataResult* GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number = -0.1, bool header_only = false);
 
 private:
     int FileSetup(const char* file_path, double version_number = -0.1);

@@ -71,11 +71,12 @@ public:
     ~SirveApp();
 
 	//Variables
-	ProcessFile file_processor;
 	OSMReader osm_reader;
 	std::vector<Frame> osm_frames;
 	AbpFileMetadata abp_file_metadata;
     Workspace *workspace;
+
+    ABIRDataResult *abir_data_result;
 
 	QWidget *main_widget;
 	QGridLayout *engineering_plot_layout;
@@ -255,6 +256,8 @@ private:
 	QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
 	QClipboard *clipboard;
 
+    ProcessFile *file_processor;
+
 	PopoutDialog *popout_video;
 	PopoutDialog *popout_histogram;
 	PopoutDialog *popout_engineering;
@@ -297,7 +300,10 @@ private:
 	CalibrationData calibration_model;
 
     void LoadOsmData();
+
+    void DeleteAbirData();
     void LoadAbirData(int start_frame, int stop_frame);
+    void AllocateAbirData(int start_frame, int stop_frame);
 
     void HandleBadPixelReplacement();
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
