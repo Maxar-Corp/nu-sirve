@@ -63,32 +63,36 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
 
     cv::Point pout0;
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
-        cv::Moments mom0 = cv::moments(imCrop0,false);
+        cv::Mat thr0;
+        cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
+        cv::threshold(imCrop0, thr0, filtered_mean0[0]+2*filtered_std0[0], 255, cv::THRESH_TOZERO);
+        cv::Moments mom0 = cv::moments(thr0,false);
         cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
-        cv::cvtColor(imCrop0,imCrop0, cv::COLOR_GRAY2RGB);
-        cv::circle(imCrop0,p0,3, cv::Scalar(255,0,0),-1);
-        cv::imshow("imCrop0",imCrop0);
+        cv::cvtColor(thr0,thr0, cv::COLOR_GRAY2RGB);
+        // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
+        // cv::imshow("thr0",thr0);
         pout0 = p0;
     }
     else if (trackFeature == "CENTROID"){
         cv::Mat thr0;
-        cv::meanStdDev(frame_matrix_filtered,filtered_mean0, filtered_std0);
+        cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
         cv::threshold(imCrop0, thr0, filtered_mean0[0]+3*filtered_std0[0], 255, cv::THRESH_BINARY);
-        // cv::adaptiveThreshold(imCrop0, thr0, 255 ,cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 2);
-        cv::imshow("THR00",thr0);
         cv::Moments mom0 = cv::moments(thr0,true);
         cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
         cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
-        cv::circle(thr0,p0,3,cv::Scalar(255,0,0),-1);
-        cv::imshow("THR0",thr0);
+        // cv::circle(thr0,p0,3,cv::Scalar(255,0,0),-1);
+        // cv::imshow("THR0",thr0);
         pout0 = p0;
     }
     else{;
         cv::Point p0;
-        cv::minMaxLoc(imCrop0, NULL, NULL, NULL, &p0);
-        cv::cvtColor(imCrop0, imCrop0,cv::COLOR_GRAY2RGB);
-        cv::circle(imCrop0,p0,3, cv::Scalar(255,0,0),-1);
-        cv::imshow("IMCROP",imCrop0);
+        cv::Mat thr0;
+        cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
+        cv::threshold(imCrop0, thr0, filtered_mean0[0]+2*filtered_std0[0], 255, cv::THRESH_TOZERO);
+        cv::minMaxLoc(thr0, NULL, NULL, NULL, &p0);
+        cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
+        // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
+        // cv::imshow("thr0",thr0);
         pout0 = p0;
     }
 
@@ -163,32 +167,36 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
 
     cv::Point pout;
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
-        cv::Moments mom = cv::moments(imCrop,false);
+        cv::Mat thr;
+        cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
+        cv::threshold(imCrop, thr, filtered_meani[0]+2*filtered_stdi[0], 255, cv::THRESH_TOZERO);
+        cv::Moments mom = cv::moments(thr,false);
         cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
-        cv::cvtColor(imCrop, imCrop, cv::COLOR_GRAY2RGB);
-        cv::circle(imCrop,p,3, cv::Scalar(255,0,0),-1);
-        cv::imshow("imCrop",imCrop);
+        cv::cvtColor(thr, thr, cv::COLOR_GRAY2RGB);
+        // cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
+        // cv::imshow("thr",thr);
         pout = p;
     }
     else if (trackFeature == "CENTROID"){
         cv::Mat thr;
-        cv::meanStdDev(frame_matrix_i_filtered,filtered_meani, filtered_stdi);
+        cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
         cv::threshold(imCrop, thr, filtered_meani[0]+3*filtered_stdi[0], 255, cv::THRESH_BINARY);
-        // cv::adaptiveThreshold(imCrop, thr, 255,cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 2);
-        cv::imshow("THR",thr);
         cv::Moments mom = cv::moments(thr,true);
         cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
         cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
-        cv::circle(thr,p,3,cv::Scalar(255,0,0),-1);
-        cv::imshow("THRi",thr);
+        // cv::circle(thr,p,3,cv::Scalar(255,0,0),-1);
+        // cv::imshow("THRi",thr);
         pout = p;
     }
     else{
         cv::Point p;
-        cv::minMaxLoc(imCrop, NULL, NULL, NULL, &p);
-        cv::cvtColor(imCrop, imCrop,cv::COLOR_GRAY2RGB);
-        cv::circle(imCrop,p,3, cv::Scalar(255,0,0),-1);
-        cv::imshow("IMCROP",imCrop);
+        cv::Mat thr;
+        cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
+        cv::threshold(imCrop, thr, filtered_meani[0]+3*filtered_stdi[0], 255, cv::THRESH_TOZERO);
+        cv::minMaxLoc(thr, NULL, NULL, NULL, &p);
+        cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
+        // cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
+        // cv::imshow("thr",thr);
         pout = p;
     }
 
