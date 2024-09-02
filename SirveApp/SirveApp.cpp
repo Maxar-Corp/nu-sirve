@@ -3136,7 +3136,7 @@ void SirveApp::ExecuteFixedNoiseSuppression()
         int start_frame = txt_FNS_start_frame->text().toInt();
         int stop_frame = txt_FNS_stop_frame->text().toInt();
         int source_state_idx = cmb_processing_states->currentIndex();
-        int frame0 = data_plots->index_sub_plot_xmin;
+        int frame0 = txt_start_frame->text().toInt();
         ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, stop_frame, source_state_idx);
     }
     else

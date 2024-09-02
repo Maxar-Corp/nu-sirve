@@ -243,8 +243,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
     int num_pixels = original.frames_16bit[0].size();
 	int number_avg_frames = stop_frame - start_frame + 1;
 	int index_start_frame, index_stop_frame;
-	index_start_frame = start_frame - 1 - frame0;
-    index_stop_frame = stop_frame - 1 - frame0;
+	index_start_frame = start_frame - frame0;
+    index_stop_frame = stop_frame  - frame0;
 
 	ABIRDataResult abir_result;
     abir_result.video_frames_16bit = original.frames_16bit;
