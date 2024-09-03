@@ -106,7 +106,7 @@ public:
 	QLabel *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
     QLabel *lbl_progress_status, *lbl_processing_description, *lbl_min_scale_value, *lbl_max_scale_value;
     QScrollArea *scrollarea_processing_description;
-	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes;
+	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_accumulator_offset;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
 	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
@@ -126,11 +126,11 @@ public:
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
-	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube;
+	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
-
+    QRadioButton * rad_autotrack_feature_weighted_centroid,  *rad_autotrack_feature_centroid, * rad_autotrack_feature_peak;
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
-	QComboBox* cmb_text_color, *cmb_tracker_color, *cmb_primary_tracker_color;
+	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
 	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
     QStackedWidget *stck_noise_suppresssion_methods;
@@ -274,7 +274,9 @@ private:
     void EditTrackerColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
-
+    void HandleYAxisOptionChange();
+    void HandleExternalFileToggle();
+    void HandleBadPixelRawToggle();
     void AnnotateVideo();
 
     void HandlePopoutVideoClick(bool checked);
@@ -303,12 +305,12 @@ private:
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
     
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
-    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, bool hide_shadow_choice, int shadow_sigma_thresh, int processing_state_idx);
+    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);
-    void ApplyAccumulatorNoiseSuppression(double weight, int source_state_idx);
+    void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyDeinterlacingCurrent();
-    void CenterOnTracks(QString trackTypePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
+    void CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
     void ExportFrame();
