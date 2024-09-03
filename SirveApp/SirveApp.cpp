@@ -1044,13 +1044,15 @@ void SirveApp::SetupVideoFrame(){
 
     connect(txt_goto_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleFrameNumberChangeInput);
     QFormLayout *formLayout = new QFormLayout;
+    formLayout->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
+    formLayout->addRow(tr("&Frame:"),txt_goto_frame);
     QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
 
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
     hlayout_video_buttons->addWidget(btn_popout_video);
-    hlayout_video_buttons->addWidget(txt_goto_frame);
+    hlayout_video_buttons->addLayout(formLayout);
     hlayout_video_buttons->addWidget(btn_prev_frame);
     hlayout_video_buttons->addWidget(btn_reverse);
     hlayout_video_buttons->addWidget(btn_pause);
@@ -1059,9 +1061,9 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(lbl_fps);
     hlayout_video_buttons->addWidget(btn_fast_forward);
     hlayout_video_buttons->addWidget(btn_slow_back);
+    hlayout_video_buttons->insertStretch(0,0);
+    hlayout_video_buttons->insertStretch(-1,0);
     vlayout_frame_video->addLayout(hlayout_video_buttons);
-
-    connect(txt_goto_frame, &QLineEdit::editingFinished, this, &SirveApp::HandleFrameNumberChangeInput);
 }
 
 void SirveApp::SetupPlotFrame() {
@@ -3577,13 +3579,6 @@ void SirveApp::HandlePlayerStateChanged(bool status)
     btn_get_frames->setDisabled(status);
 }
 
-void SirveApp::HandlePlayerStateChanged(bool status)
-{
-    txt_start_frame->setDisabled(status);
-    txt_stop_frame->setDisabled(status);
-    btn_get_frames->setDisabled(status);
-}
-
 void SirveApp::HandleNewProcessingState(QString state_name, QString combobox_state_name, int index)
 {
     cmb_processing_states->addItem(combobox_state_name);
@@ -3964,7 +3959,7 @@ void SirveApp::ExecuteAutoTracking()
     grpbox_progressbar_area->setEnabled(true);
     connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
-    int frame0 = data_plots->index_sub_plot_xmin;
+    int frame0 = txt_start_frame->text().toInt();
     
     uint start_frame = txt_auto_track_start_frame->text().toInt();
     uint stop_frame = txt_auto_track_stop_frame->text().toInt();

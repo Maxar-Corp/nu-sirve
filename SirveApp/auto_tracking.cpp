@@ -26,7 +26,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     int ncols = original.x_pixels;
     double m0, s0, mi, si;
     cv::Scalar filtered_mean0, filtered_std0, filtered_meani, filtered_stdi;
-    u_int indx0 = start_frame - 1;
+    u_int indx0 = start_frame;
     cv::Mat frame_matrix_filtered, frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color;
     cv::Mat imCrop0, imCrop;
 
@@ -128,7 +128,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         UpdateProgressBar(i);
         indx = (indx0 + i);
 
-        arma::vec image_vector_i = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
+        arma::vec image_vector_i = arma::conv_to<arma::vec>::from(original.frames_16bit[indx]);
         mi = arma::mean(image_vector_i);
         si = arma::stddev(image_vector_i);
         image_vector_i.clamp(mi - clamp_low*si, mi + clamp_high*si);
