@@ -3984,6 +3984,9 @@ void SirveApp::ExecuteAutoTracking()
 
     progress_bar_main->setTextVisible(true);
     grpbox_progressbar_area->setEnabled(true);
+    lbl_progress_status->setText(QString("Generating track..."));
+    progress_bar_main->setValue(0);
+
     connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
     int frame0 = txt_start_frame->text().toInt();
@@ -3994,11 +3997,15 @@ void SirveApp::ExecuteAutoTracking()
     int num_frames_to_track = stop_frame - start_frame + 1;
     if (start_frame < txt_start_frame->text().toInt() || stop_frame > txt_stop_frame->text().toInt() || stop_frame<start_frame){
         QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start.");
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
         return;
     }
     progress_bar_main->setRange(0,num_frames_to_track);
     int start_frame_i = start_frame - frame0;
-    int stop_frame_i = start_frame_i + num_frames_to_track -1;
+    int stop_frame_i = start_frame_i + num_frames_to_track - 1;
     bool ok;
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = 0;
@@ -4008,6 +4015,10 @@ void SirveApp::ExecuteAutoTracking()
     u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
         return;
     }
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
@@ -4031,6 +4042,10 @@ void SirveApp::ExecuteAutoTracking()
     if (new_track_file_name.isEmpty())
     {
         QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
         return;
     }
     string prefilter = "NONE";
@@ -4056,22 +4071,28 @@ void SirveApp::ExecuteAutoTracking()
     int threshold = 6 - cmb_autotrack_threshold->currentIndex();
     arma::u32_mat autotrack = AT.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
+    if (autotrack.is_empty()){
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
+        return;
+    }
+    
     if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
         arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);
-        arma::mat offset_matrix(1,3,arma::fill::zeros);
         arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
         std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
-        for (int rowi = 0; rowi< offsets.size(); rowi++){
-            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
+        arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
+        for (int rowi = 0; rowi < offsets.size(); rowi++){
+            offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
         }
-        offset_matrix.shed_row(0);
         for (int rowii = 0; rowii<framei.size(); rowii++){
-             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii),1,"first");
+             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
              if (!kk.is_empty()){
                 offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
              }
         }
-
         offset_matrix2.shed_col(0);
         offset_matrix2.insert_cols(0,2);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
