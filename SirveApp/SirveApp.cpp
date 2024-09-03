@@ -93,7 +93,7 @@ void SirveApp::SetupUi() {
 	QSizePolicy fixed_width_video;
     fixed_width_video.setVerticalPolicy(QSizePolicy::Expanding);
 	frame_video_player->setSizePolicy(fixed_width_video);
-    frame_video_player->setMinimumWidth(750);
+    frame_video_player->setMinimumWidth(725);
     frame_video_player->setObjectName("frame_video_player");
 
     // ------------------------------------------------------------------------
@@ -965,7 +965,7 @@ void SirveApp::SetupVideoFrame(){
     // ------------------------------------------------------------------------
 
     // int button_video_width = 45;
-    int button_video_width = 45;
+    int button_video_width = 42;
     int button_video_height = 50;
 
     //Add icons to video playback buttons
