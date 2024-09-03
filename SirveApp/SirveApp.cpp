@@ -864,6 +864,16 @@ QWidget* SirveApp::SetupTracksTab(){
     QFormLayout *form_auto_track_frame_limits = new QFormLayout;
     form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
     form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
+    cmb_autotrack_threshold = new QComboBox;
+    cmb_autotrack_threshold->addItem("6 Sigma");
+    cmb_autotrack_threshold->addItem("5 Sigma");
+    cmb_autotrack_threshold->addItem("4 Sigma");
+    cmb_autotrack_threshold->addItem("3 Sigma");
+    cmb_autotrack_threshold->addItem("2 Sigma");
+    cmb_autotrack_threshold->addItem("1 Sigma");
+    cmb_autotrack_threshold->addItem("0 Sigma");
+    cmb_autotrack_threshold->setCurrentIndex(3);
+    form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
     QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
     vlayout_auto_track->addLayout( form_auto_track_frame_limits);
     vlayout_auto_track->addWidget(btn_auto_track_target);
@@ -3900,7 +3910,6 @@ void SirveApp::ExecuteAutoTracking()
     {
         return;
     }
-
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
     {
         auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
@@ -3942,7 +3951,11 @@ void SirveApp::ExecuteAutoTracking()
         trackFeature = "peak";
     }
 
-    arma::u32_mat autotrack = AT.SingleTracker(track_id, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    double clamp_low = txt_lift_sigma->text().toDouble();
+    double clamp_high = txt_gain_sigma->text().toDouble();
+    double light_set_point = slider_gain->value() / 1000.;
+    int threshold = 6 - cmb_autotrack_threshold->currentIndex();
+    arma::u32_mat autotrack = AT.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
     if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
         arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);

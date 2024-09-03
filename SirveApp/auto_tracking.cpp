@@ -20,13 +20,11 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
+arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
-    int num_video_frames = original.frames_16bit.size();
     int nrows = original.y_pixels;
     int ncols = original.x_pixels;
     double m0, s0, mi, si;
-
     cv::Scalar filtered_mean0, filtered_std0, filtered_meani, filtered_stdi;
     u_int indx0 = start_frame - 1;
     cv::Mat frame_matrix_filtered, frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color;
@@ -36,7 +34,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
 
     m0 = arma::mean(image_vector);
     s0 = arma::stddev(image_vector);
-    image_vector.clamp(m0 - 3*s0, m0 + 3*s0);
+    image_vector.clamp(m0 - clamp_low*s0, m0 + clamp_high*s0);
     image_vector = image_vector - image_vector.min();
     image_vector = 255*image_vector/image_vector.max();
     cv::Mat frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, image_vector.memptr());
@@ -65,7 +63,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
         cv::Mat thr0;
         cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
-        cv::threshold(imCrop0, thr0, filtered_mean0[0]+2*filtered_std0[0], 255, cv::THRESH_TOZERO);
+        cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_TOZERO);
         cv::Moments mom0 = cv::moments(thr0,false);
         cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
         cv::cvtColor(thr0,thr0, cv::COLOR_GRAY2RGB);
@@ -76,7 +74,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
     else if (trackFeature == "CENTROID"){
         cv::Mat thr0;
         cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
-        cv::threshold(imCrop0, thr0, filtered_mean0[0]+3*filtered_std0[0], 255, cv::THRESH_BINARY);
+        cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_BINARY);
         cv::Moments mom0 = cv::moments(thr0,true);
         cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
         cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
@@ -88,7 +86,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
         cv::Point p0;
         cv::Mat thr0;
         cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
-        cv::threshold(imCrop0, thr0, filtered_mean0[0]+2*filtered_std0[0], 255, cv::THRESH_TOZERO);
+        cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_TOZERO);
         cv::minMaxLoc(thr0, NULL, NULL, NULL, &p0);
         cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
         // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
@@ -130,7 +128,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
         arma::vec image_vector_i = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         mi = arma::mean(image_vector_i);
         si = arma::stddev(image_vector_i);
-        image_vector_i.clamp(mi - 3*si, mi + 3*si);
+        image_vector_i.clamp(mi - clamp_low*si, mi + clamp_high*si);
         image_vector_i = image_vector_i - image_vector_i.min();
         image_vector_i = 255*image_vector_i/image_vector_i.max();
         cv::Mat frame_matrix_i = cv::Mat(nrows, ncols, CV_64FC1, image_vector_i.memptr());
@@ -169,7 +167,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
         cv::Mat thr;
         cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
-        cv::threshold(imCrop, thr, filtered_meani[0]+2*filtered_stdi[0], 255, cv::THRESH_TOZERO);
+        cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_TOZERO);
         cv::Moments mom = cv::moments(thr,false);
         cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
         cv::cvtColor(thr, thr, cv::COLOR_GRAY2RGB);
@@ -180,7 +178,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
     else if (trackFeature == "CENTROID"){
         cv::Mat thr;
         cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
-        cv::threshold(imCrop, thr, filtered_meani[0]+3*filtered_stdi[0], 255, cv::THRESH_BINARY);
+        cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_BINARY);
         cv::Moments mom = cv::moments(thr,true);
         cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
         cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
@@ -192,7 +190,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, string prefilter, stri
         cv::Point p;
         cv::Mat thr;
         cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
-        cv::threshold(imCrop, thr, filtered_meani[0]+3*filtered_stdi[0], 255, cv::THRESH_TOZERO);
+        cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_TOZERO);
         cv::minMaxLoc(thr, NULL, NULL, NULL, &p);
         cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
         // cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);

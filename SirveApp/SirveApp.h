@@ -130,7 +130,7 @@ public:
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
     QRadioButton * rad_autotrack_feature_weighted_centroid,  *rad_autotrack_feature_centroid, * rad_autotrack_feature_peak;
 	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
-	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color;
+	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
 	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
     QStackedWidget *stck_noise_suppresssion_methods;
