@@ -1349,13 +1349,14 @@ void SirveApp::ImportTracks()
 void SirveApp::HandleCreateTrackClick()
 {
     bool ok;
-    int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, 1, &ok);
+    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    int maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
+    u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
         return;
     }
 
-    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
     {
         auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
@@ -3890,7 +3891,7 @@ void SirveApp::ExecuteAutoTracking()
     bool ok;
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
-    u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), -1, 1, 1000000, maxID+1, &ok);
+    u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
         return;
