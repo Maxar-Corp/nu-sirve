@@ -66,7 +66,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_TOZERO);
         cv::Moments mom0 = cv::moments(thr0,false);
         cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
-        cv::cvtColor(thr0,thr0, cv::COLOR_GRAY2RGB);
+        // std::cout << "thr0 = " << std::endl << " "  << thr0 << std::endl << std::endl;
+        // cv::cvtColor(thr0,thr0, cv::COLOR_GRAY2RGB);
         // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
         // cv::imshow("thr0",thr0);
         pout0 = p0;
@@ -76,8 +77,9 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
         cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_BINARY);
         cv::Moments mom0 = cv::moments(thr0,true);
+        // std::cout << "thr0 = " << std::endl << " "  << thr0 << std::endl << std::endl;
         cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
-        cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
+        // cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
         // cv::circle(thr0,p0,3,cv::Scalar(255,0,0),-1);
         // cv::imshow("THR0",thr0);
         pout0 = p0;
@@ -88,7 +90,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
         cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_TOZERO);
         cv::minMaxLoc(thr0, NULL, NULL, NULL, &p0);
-        cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
+        // std::cout << "thr0 = " << std::endl << " "  << thr0 << std::endl << std::endl;
+        // cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
         // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
         // cv::imshow("thr0",thr0);
         pout0 = p0;
@@ -170,8 +173,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_TOZERO);
         cv::Moments mom = cv::moments(thr,false);
         cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
-        cv::cvtColor(thr, thr, cv::COLOR_GRAY2RGB);
-        // cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
+        // cv::cvtColor(thr, thr, cv::COLOR_GRAY2RGB);
+        cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
         // cv::imshow("thr",thr);
         pout = p;
     }
@@ -181,8 +184,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_BINARY);
         cv::Moments mom = cv::moments(thr,true);
         cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
-        cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
-        // cv::circle(thr,p,3,cv::Scalar(255,0,0),-1);
+        // cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
+        cv::circle(thr,p,3,cv::Scalar(255,0,0),-1);
         // cv::imshow("THRi",thr);
         pout = p;
     }
@@ -192,8 +195,8 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
         cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_TOZERO);
         cv::minMaxLoc(thr, NULL, NULL, NULL, &p);
-        cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
-        // cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
+        // cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
+        cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
         // cv::imshow("thr",thr);
         pout = p;
     }

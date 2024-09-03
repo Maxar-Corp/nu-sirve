@@ -1360,7 +1360,10 @@ void SirveApp::HandleCreateTrackClick()
 {
     bool ok;
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-    int maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
+    int maxID = 0;
+    if (previous_manual_track_ids.size()>0){
+        maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
+    }
     u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
@@ -3035,7 +3038,7 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
 
         // fetch max value
         new_state.source_state_ID = source_state_ind;
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3207,7 +3210,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3289,7 +3292,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3417,7 +3420,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3479,7 +3482,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3609,7 +3612,7 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3704,7 +3707,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         new_state.source_state_ID = source_state_ind;
 
         // fetch max value
-        uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
         for (const auto& row : new_state.details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
@@ -3777,7 +3780,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
         if (new_state.details.frames_16bit.size()>0){
             new_state.method = ProcessingMethod::RPCP_noise_suppression;
             new_state.source_state_ID = source_state_ind;
-            uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+            uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
             for (const auto& row : new_state.details.frames_16bit) {
                 maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
             }
@@ -3854,7 +3857,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
             new_state.offset = offset;
             new_state.hide_shadow = hide_shadow_choice;
             new_state.shadow_threshold = shadow_sigma_thresh;
-            uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
+            uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
             for (const auto& row : new_state.details.frames_16bit) {
                 maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
             }
@@ -3904,7 +3907,10 @@ void SirveApp::ExecuteAutoTracking()
     int stop_frame_i = start_frame_i + num_frames_to_track -1;
     bool ok;
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-    int maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
+    int maxID = 0;
+    if(previous_manual_track_ids.size()>0){
+        maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
+    }
     u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
@@ -3953,7 +3959,6 @@ void SirveApp::ExecuteAutoTracking()
 
     double clamp_low = txt_lift_sigma->text().toDouble();
     double clamp_high = txt_gain_sigma->text().toDouble();
-    double light_set_point = slider_gain->value() / 1000.;
     int threshold = 6 - cmb_autotrack_threshold->currentIndex();
     arma::u32_mat autotrack = AT.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
