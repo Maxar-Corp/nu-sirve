@@ -39,11 +39,11 @@ public:
 
     std::vector<std::vector<uint16_t>> FixedNoiseSuppression(QString image_path, QString path_video_file, int frame0, int start_frame, int end_frame, double version, VideoDetails & original);
 
-    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, VideoDetails & original);
 
-    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, VideoDetails & original);
 
-    std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int NThresh, VideoDetails & original, bool hide_shadow_choice);
+    std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice);
 
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
 
@@ -72,7 +72,7 @@ private:
 
     ABIRData abir_data;
 
-    void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat window_data, int NThresh, int num_of_averaging_frames);
+    void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
 
     static arma::mat thresholding(arma::mat X, double tau);	
 

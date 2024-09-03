@@ -234,78 +234,6 @@ arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint1
     return index_dead;
 }
 
-// std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QString image_path, QString path_video_file, int start_frame, int end_frame, double version, VideoDetails & original)
-// {
-// 	// Initialize output
-// 	std::vector<std::vector<uint16_t>> frames_out;
-
-// 	int num_video_frames = original.frames_16bit.size();
-// 	int number_avg_frames;
-// 	int start_frame_index, stop_frame_index;
-// 	start_frame_index = start_frame - 1;
-
-// 	ABIRDataResult abir_result;
-// 	int compare = QString::compare(path_video_file, image_path, Qt::CaseInsensitive);
-
-//     if (compare!=0)
-//     {
-//         QByteArray array = image_path.toLocal8Bit();
-//         char* buffer = array.data();
-//         abir_result = abir_data.GetFrames(buffer, start_frame, end_frame, version, false);
-//         if (abir_result.had_error)
-//         {
-//             return frames_out;
-//         }
-// 		 number_avg_frames = abir_result.video_frames_16bit.size();
-// 	}
-// 	else{
-// 		abir_result.video_frames_16bit = original.frames_16bit;
-// 		number_avg_frames = end_frame - start_frame + 1;
-// 	}
-
-// 	stop_frame_index = start_frame_index + number_avg_frames - 1;
-// 	int num_pixels = abir_result.video_frames_16bit[0].size();
-
-// 	// Create an Armadillo matrix for submatrix average
-//     arma::mat window_data(num_pixels, number_avg_frames);
-
-//     // Fill the Armadillo matrix from the std::vector
-// 	if (compare!=0){ 
-// 		for (int i = 0; i < number_avg_frames; i++){
-// 			window_data.col(i) = arma::conv_to<arma::vec>::from(abir_result.video_frames_16bit[i]);
-// 		}
-// 	}
-// 	else{
-// 		int k = 0;
-// 		for (int i = start_frame_index; i < stop_frame_index; i++){
-// 			window_data.col(k) = arma::conv_to<arma::vec>::from(abir_result.video_frames_16bit[i]);
-// 			k += 1;
-// 		}
-//     }
-
-// 	// Take the median of each row
-// 	arma::vec median_frame = arma::median(window_data, 1);
-// 	double M;
-// 	arma::vec frame_vector(num_pixels, 1);
-
-// 	//Loop through frames to subtract mean
-// 	for (int i = 0; i < num_video_frames; i++){
-// 		UpdateProgressBar(i);
-// 		QCoreApplication::processEvents();
-//         if (cancel_operation)
-// 		{
-// 			return std::vector<std::vector<uint16_t>>();
-// 		}
-// 		frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
-// 		M = frame_vector.max();
-// 		frame_vector -= median_frame;
-// 		frame_vector -= frame_vector.min();
-// 		frame_vector = M * frame_vector / frame_vector.max();
-// 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
-//     }
-
-// 	return frames_out;
-// }
 std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QString image_path, QString path_video_file, int frame0, int start_frame, int stop_frame, double version, VideoDetails & original)
 {
 	// Initialize output
@@ -313,10 +241,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 
 	int num_video_frames = original.frames_16bit.size();
     int num_pixels = original.frames_16bit[0].size();
-	int number_avg_frames = stop_frame - start_frame + 1;;
+	int number_avg_frames = stop_frame - start_frame + 1;
 	int index_start_frame, index_stop_frame;
-	index_start_frame = start_frame - 1 - frame0;
-    index_stop_frame = stop_frame - 1 - frame0;
+	index_start_frame = start_frame - frame0;
+    index_stop_frame = stop_frame  - frame0;
 
 	ABIRDataResult abir_result;
     abir_result.video_frames_16bit = original.frames_16bit;
@@ -343,24 +271,14 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
         k += 1;
     }
     
-
-	// Take the median of random sampling of window data
-    // int num_indices = std::max(number_avg_frames/4,1);
-    // arma::uvec rindices = arma::randi<arma::uvec>(num_indices,arma::distr_param(0,number_avg_frames-1));
     arma::vec median_frame;
-    // if(num_indices>1){
-	//     median_frame = arma::median(window_data.cols(rindices), 1);
-    // }
-    // else{
-    //     median_frame = window_data.col(0);
-    // }
-    
+
     median_frame = arma::median(window_data, 1);
    
 	double M;
 	arma::vec frame_vector(num_pixels, 1);
 
-	//Loop through frames to subtract mean
+	//Loop through frames to subtract median
 	for (int i = 0; i < num_video_frames; i++){
 		UpdateProgressBar(i);
 		QCoreApplication::processEvents();
@@ -379,7 +297,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames, VideoDetails & original)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -434,17 +352,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 
 		frame_vector -= moving_median;
 
-        if (hide_shadow_choice)
-        {
-            // Update adjusted window data to account for current moving mean and remove shadow for this frame
-            adjusted_window_data.insert_cols(adjusted_window_data.n_cols,frame_vector);
-            adjusted_window_data.shed_col(0);	
-			ImageProcessing::remove_shadow(nRows, nCols, frame_vector, adjusted_window_data, NThresh, num_of_averaging_frames);
-		}
-		else
-		{
-			frame_vector -= frame_vector.min();
-		}
+		frame_vector -= frame_vector.min();
 
 		frame_vector_out = M * frame_vector / frame_vector.max();
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
@@ -453,7 +361,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, int NThresh, VideoDetails & original, bool hide_shadow_choice)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, VideoDetails & original)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -465,9 +373,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	arma::mat adjusted_window_data(num_pixels,num_of_averaging_frames);
     arma::mat frame_data(num_pixels,num_video_frames);
     int start_frame_new = abs(start_frame)+N2;
-    // arma::ivec rindices = arma::randi<arma::ivec>(num_indices,arma::distr_param(0,num_of_averaging_frames-1)) - n2;
-    // arma::ivec rindices2;
-    // arma::uvec rindices3;
+
     for (int i = 0; i < num_video_frames; i++) {
         UpdateProgressBar(std::round(i/3));
 		QCoreApplication::processEvents();
@@ -493,10 +399,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
         si = std::max(0,j-N2);
         fi = std::min(num_video_frames-1,j+N2);
         arma::uvec rindices = arma::unique(arma::randi<arma::uvec>(num_indices,arma::distr_param(si,fi)));
-        // rindices2 = j + rindices;
-        // rindices2.elem(arma::find(rindices2<0)).zeros();
-        // rindices2.elem(arma::find(rindices2>num_video_frames-1)).fill(num_video_frames-1);
-        // rindices3 = arma::unique(arma::conv_to<arma::uvec>::from(rindices2));
         moving_median.col(j) = arma::median(frame_data.cols(rindices), 1);
     }
 
@@ -504,116 +406,21 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	arma::vec frame_vector(num_pixels,1);
     int k0 = round(2*num_video_frames/3);
 	std::vector<std::vector<uint16_t>> frames_out;
-
-	if (hide_shadow_choice){
-        for (int k = 0; k < num_video_frames; k++)
+    for (int k = 0; k < num_video_frames; k++){	
+        UpdateProgressBar(std::round(k0 + k/3));
+        QCoreApplication::processEvents();
+        if (cancel_operation)
         {
-            UpdateProgressBar(std::round(k0 + k/3));
-
-		    QCoreApplication::processEvents();
-            if (cancel_operation)
-            {
-                return std::vector<std::vector<uint16_t>>();
-            }
-			frame_vector = frame_data.col(k);
-            int start_index = std::max(k - start_frame_new,0);
-            int stop_index = std::min(start_index + num_of_averaging_frames - 1,num_video_frames - 1);
-            adjusted_window_data = frame_data.cols(start_index,stop_index);
-			ImageProcessing::remove_shadow(nRows, nCols, frame_vector, adjusted_window_data, NThresh, num_of_averaging_frames);
-			frame_vector = M(k) * frame_vector / frame_vector.max();
-			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
-			}
-		}
-	else
-	{
-		for (int k = 0; k < num_video_frames; k++){	
-            UpdateProgressBar(std::round(k0 + k/3));
-		    QCoreApplication::processEvents();
-            if (cancel_operation)
-            {
-                return std::vector<std::vector<uint16_t>>();
-            }
-			frame_vector = frame_data.col(k);
-			frame_vector -= frame_vector.min();
-            frame_vector = M(k) * frame_vector / frame_vector.max();
-			frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
-		}
-	}
+            return std::vector<std::vector<uint16_t>>();
+        }
+        frame_vector = frame_data.col(k);
+        frame_vector -= frame_vector.min();
+        frame_vector = M(k) * frame_vector / frame_vector.max();
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
+    }
+	
     cv::destroyAllWindows();
 	return frames_out;
-}
-
-void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, arma::mat adjusted_window_data, int NThresh, int num_of_averaging_frames)
-{	
-    double MEAN, SIGMA;
-    int gs = 0;
-    cv::Scalar m, s, m_old, s_old;
-    cv::Size g(3,3);
-
-    cv::Mat SE_DILATE = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(5,5));
-    cv::Mat SE_ERODE = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(3,3));
-    cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(7,7));
-
-    cv::Mat frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
-
-    cv::Mat frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,frame_vector.memptr());
-    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
-    cv::meanStdDev(frame_matrix_filtered,m,s);
-    cv::threshold(frame_matrix_filtered,frame_matrix_filtered_threshold,m[0]-(NThresh - 1)*s[0],1,cv::THRESH_BINARY_INV);
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_DILATE,SE_DILATE,cv::Point(-1,-1),2);
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_ERODE,SE_ERODE,cv::Point(-1,-1),1);
-    // cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
-
-    cv::Mat old_frame_matrix_filtered, old_frame_closed, old_frame_matrix_filtered_threshold, old_frame_matrix_morph_closed, old_frame_matrix_morph_dilated;
-
-    arma::vec old_frame_vector = arma::sum(adjusted_window_data.cols(0,num_of_averaging_frames - 1),1); 
-    cv::Mat old_frame_matrix = cv::Mat(nRows,nCols,CV_64FC1,old_frame_vector.memptr());
-    cv::GaussianBlur(old_frame_matrix, old_frame_matrix_filtered, g, gs);
-    cv::meanStdDev(old_frame_matrix_filtered,m_old,s_old);
-    cv::threshold(old_frame_matrix_filtered,old_frame_matrix_filtered_threshold,m_old[0]+NThresh*s_old[0],1,cv::THRESH_BINARY);
-    cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
-    cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_DILATE,SE_DILATE,cv::Point(-1,-1),2);
-    cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_ERODE,SE_ERODE,cv::Point(-1,-1),1);
-    // cv::morphologyEx(old_frame_matrix_filtered_threshold,old_frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
-
-    cv::Mat frame_change,frame_change_threshold; 
-    cv::add(old_frame_matrix_filtered_threshold, frame_matrix_filtered_threshold, frame_change);
-    cv::imshow("Positive",old_frame_matrix_filtered_threshold);
-    cv::imshow("Negative",frame_matrix_filtered_threshold);
-    cv::threshold(frame_change,frame_change_threshold,1.9,1,cv::THRESH_BINARY);
-    cv::imshow("change",frame_change_threshold);
-    double min0,max0;
-    cv::minMaxLoc(frame_change,&min0,&max0);
-    std::vector<cv::Point> index_change;
-    cv::findNonZero(frame_change_threshold,index_change);
-    // cv::findNonZero(old_frame_matrix_filtered_threshold,index_change);
-    arma::uvec index_change_arma(index_change.size(),1);
-    for (int j = 0; j < index_change.size(); j++){
-        index_change_arma(j) = nCols*index_change.at(j).y + index_change.at(j).x;
-    }
-    if(index_change_arma.size()>0){
-        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+3*arma::stddev(frame_vector.as_col()));
-        if(index_other.n_elem>0){
-            MEAN = arma::mean(frame_vector.elem(index_other));
-            SIGMA = arma::stddev(frame_vector.elem(index_other));
-            if (SIGMA!=0){
-                arma::uvec rindices = arma::randi<arma::uvec>(index_change_arma.size(),arma::distr_param(0,index_other.n_elem-1));
-                arma::vec v = arma::randn<arma::vec>(index_other.size(),arma::distr_param(MEAN,SIGMA));
-                frame_vector.elem(index_change_arma) = v.elem(rindices);
-            }
-        }
-        else{
-            MEAN = arma::mean(frame_vector);
-            SIGMA = arma::stddev(frame_vector);
-            if (SIGMA!=0){	
-                arma::uvec rindices = arma::randi<arma::uvec>(index_change_arma.size(),arma::distr_param(0,frame_vector.n_elem-1));
-                arma::vec v = arma::randn<arma::vec>(frame_vector.size(),arma::distr_param(MEAN,SIGMA));
-                frame_vector.elem(index_change_arma) = v.elem(rindices);
-            }               
-        }   
-    }
-    frame_vector -= frame_vector.min();
 }
 
 std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDetails & original)
@@ -717,15 +524,16 @@ arma::mat ImageProcessing::shrink(arma::mat s, double tau)
 }
 
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(double weight, int NThresh, VideoDetails & original, bool hide_shadow_choice)
+std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice)
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
     int nRows = original.y_pixels;
     int nCols = original.x_pixels;
+    int offseti;
     double min0, max0, min, max;
     std::vector<uint16_t> frame_out;
-    cv::Mat accumulator, foreground, foregroundn, frame_32FC1, frameold_32FC1, foreground_16UC1;
+    cv::Mat accumulator, foreground, foregroundn, frame_32FC1, frame_offset_32FC1, foreground_16UC1, foreground_64FC1;
     accumulator = cv::Mat::zeros(nRows,nCols, CV_32FC1);
     for (int framei = 0; framei < num_video_frames; framei++)
     {
@@ -736,17 +544,33 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
 			return std::vector<std::vector<uint16_t>>();
 		}
         std::vector<uint16_t> vec = {original.frames_16bit[framei].begin(),original.frames_16bit[framei].end()};
-        int oldi = std::max(framei-28,0);
-        std::vector<uint16_t> vecold = {original.frames_16bit[oldi].begin(),original.frames_16bit[oldi].end()};
+        if (offset<0){
+            offseti = std::max(framei+offset,0);
+        }
+        else{
+            offseti = std::min(framei+offset,num_video_frames-1);
+        }
+        std::vector<uint16_t> vecold = {original.frames_16bit[offseti].begin(),original.frames_16bit[offseti].end()};
         cv::Mat frame(nRows,nCols,CV_16UC1,vec.data());
         cv::Mat frameold(nRows,nCols,CV_16UC1,vecold.data());
         cv::minMaxLoc(frame,&min0,&max0);
         frame.convertTo(frame_32FC1,CV_32FC1);
-        frameold.convertTo(frameold_32FC1,CV_32FC1);
-        cv::accumulateWeighted(frameold_32FC1, accumulator, weight);
-        cv::subtract(frame_32FC1,accumulator,foreground);
-        cv::minMaxLoc(foreground,&min,&max);
-        foregroundn = max0*(foreground-min)/(max-min);
+        frameold.convertTo(frame_offset_32FC1,CV_32FC1);
+        cv::accumulateWeighted(frame_offset_32FC1, accumulator, weight);
+        cv::subtract(frame_32FC1,accumulator,foreground);  
+        if(hide_shadow_choice){
+            foreground.convertTo(foreground_64FC1,CV_64FC1);
+            arma::mat arma_frame( reinterpret_cast<double*>(foreground_64FC1.data),foreground_64FC1.cols, foreground_64FC1.rows );
+            arma::vec frame_vector = arma::vectorise(arma_frame);
+            ImageProcessing::remove_shadow(nRows,nCols,frame_vector,NThresh);
+            cv::Mat foreground_64FC1 = cv::Mat(nRows, nCols, CV_64FC1, frame_vector.memptr());
+            foregroundn = max0*foreground_64FC1;
+        }
+        else{
+            cv::minMaxLoc(foreground,&min,&max);
+            foregroundn = max0*(foreground - min)/(max - min);
+        }
+
         foregroundn.convertTo(foreground_16UC1,CV_16UC1);
         frame_out.assign(foreground_16UC1.begin<uint16_t>(),foreground_16UC1.end<uint16_t>());
         frames_out.push_back(frame_out);
@@ -754,6 +578,60 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
     return frames_out;
 }
 
+void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh)
+{	
+    double MEAN, SIGMA;
+    int gs = 0;
+    cv::Scalar m, s, m_old, s_old;
+    cv::Size g(3,3);
+    cv::Mat frame_out;
+    cv::Mat SE_DILATE = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(5,5));
+    cv::Mat SE_ERODE = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(3,3));
+    cv::Mat SE_close = cv::getStructuringElement(cv::MORPH_ELLIPSE,cv::Size(7,7));
+
+    cv::Mat frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
+    cv::Mat frame_matrix = cv::Mat(nRows, nCols, CV_64FC1, frame_vector.memptr());
+    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
+    cv::meanStdDev(frame_matrix_filtered,m,s);
+    cv::threshold(frame_matrix_filtered,frame_matrix_filtered_threshold,m[0]-(NThresh)*s[0],1,cv::THRESH_BINARY_INV);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_DILATE,SE_DILATE,cv::Point(-1,-1),2);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_ERODE,SE_ERODE,cv::Point(-1,-1),1);
+    // cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
+
+    // cv::imshow("Negative",frame_matrix_filtered_threshold);
+    std::vector<cv::Point> index_change;
+    cv::findNonZero(frame_matrix_filtered_threshold,index_change);
+
+    arma::uvec index_change_arma(index_change.size(),1);
+    for (int j = 0; j < index_change.size(); j++){
+        index_change_arma(j) = nCols*index_change.at(j).y + index_change.at(j).x;
+    }
+    frame_matrix.convertTo(frame_matrix,CV_64FC1);;
+    if(index_change_arma.size()>0){
+        arma::uvec index_other = arma::find(arma::abs(frame_vector) <= arma::mean(frame_vector.as_col())+3*arma::stddev(frame_vector.as_col()));
+        if(index_other.n_elem>0){
+            MEAN = arma::mean(frame_vector.elem(index_other));
+            SIGMA = arma::stddev(frame_vector.elem(index_other));
+            if (SIGMA!=0){
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change_arma.size(),arma::distr_param(0,index_other.n_elem-1));
+                arma::vec v = arma::randn<arma::vec>(index_other.size(),arma::distr_param(MEAN,SIGMA));
+                frame_vector.elem(index_change_arma) = v.elem(rindices);
+            }
+        }
+        else{
+            MEAN = arma::mean(frame_vector);
+            SIGMA = arma::stddev(frame_vector);
+            if (SIGMA!=0){	
+                arma::uvec rindices = arma::randi<arma::uvec>(index_change_arma.size(),arma::distr_param(0,frame_vector.n_elem-1));
+                arma::vec v = arma::randn<arma::vec>(frame_vector.size(),arma::distr_param(MEAN,SIGMA));
+                frame_vector.elem(index_change_arma) = v.elem(rindices);
+            }               
+        }   
+    }
+    frame_vector -= frame_vector.min();
+    frame_vector /= frame_vector.max();
+}
 
 std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrelation(std::vector<Frame> osm_frames,VideoDetails & original)
 {
