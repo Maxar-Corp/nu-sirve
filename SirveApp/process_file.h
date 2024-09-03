@@ -4,8 +4,6 @@
 #ifndef PROCESS_FILE_H
 #define PROCESS_FILE_H
 
-#include <iostream>
-#include <string>
 
 #include <qstring.h>
 
@@ -24,13 +22,16 @@ class ProcessFile : public QWidget
 	Q_OBJECT
 public:
 	ABIRData abir_data;
+    ABIRDataResult *data_result;
+    ABIRDataResult *test_frames;
 
     ProcessFile();
     ~ProcessFile();
 
     bool VerifyPath(QString path);
     AbpFileMetadata LocateAbpFiles(QString candidate_image_path);
-    ABIRDataResult LoadImageFile(QString image_path, int first_frame, int last_frame, double version);
+    bool LoadImageFile(QString image_path, int first_frame, int last_frame, double version);
+    ABIRDataResult* getAbirDataLoadResult();
 
 private:
 

@@ -7,6 +7,8 @@ SirveApp::SirveApp(QWidget *parent)
 
     workspace = new Workspace(config_values.workspace_folder);
 
+    file_processor = new ProcessFile();
+
     // establish object that will hold video and connect it to the playback thread
     color_map_display = new ColorMapDisplay(video_colors.maps[0].colors, 0, 1);
     video_display = new VideoDisplay(video_colors.maps[0].colors);
@@ -1680,7 +1682,7 @@ void SirveApp::HandleAbpFileSelected()
 
 bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 {
-    AbpFileMetadata possible_abp_file_metadata = file_processor.LocateAbpFiles(path_to_image_file);
+    AbpFileMetadata possible_abp_file_metadata = file_processor->LocateAbpFiles(path_to_image_file);
 
 	if (!possible_abp_file_metadata.error_msg.isEmpty())
 	{
@@ -1901,29 +1903,42 @@ void SirveApp::UiLoadAbirData()
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)
 {
+    DeleteAbirData();
+    AllocateAbirData(min_frame, max_frame);
+}
+
+void SirveApp::DeleteAbirData()
+{
+    abir_data_result = nullptr;
+}
+
+void SirveApp::AllocateAbirData(int min_frame, int max_frame)
+{
     lbl_progress_status->setText(QString("Loading frames..."));
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,4);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(true);
+
     // Load the ABIR data
     playback_controller->StopTimer();
-    ABIRDataResult abir_data_result = file_processor.LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+    file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+    abir_data_result = file_processor->getAbirDataLoadResult();
     progress_bar_main->setValue(1);
     lbl_progress_status->setText(QString("Configuring Application..."));
     progress_bar_main->setValue(2);
-    if (abir_data_result.had_error) {
+    if (abir_data_result->had_error) {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
         return;
     }
 
-    std::vector<std::vector<uint16_t>> video_frames = abir_data_result.video_frames_16bit;
+    std::vector<std::vector<uint16_t>> video_frames = abir_data_result->video_frames_16bit;
     unsigned int number_frames = static_cast<unsigned int>(video_frames.size());
 
-    int x_pixels = abir_data_result.x_pixels;
-    int y_pixels = abir_data_result.y_pixels;
-    int max_value = abir_data_result.max_value;
+    int x_pixels = abir_data_result->x_pixels;
+    int y_pixels = abir_data_result->y_pixels;
+    int max_value = abir_data_result->max_value;
     VideoDetails vid_details = {x_pixels, y_pixels, max_value, video_frames};
 
     processingState primary = { ProcessingMethod::original, vid_details };
@@ -1959,7 +1974,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
         cmb_OSM_track_IDs->addItem(QString::number(track_id));
     }
 
-    video_display->InitializeFrameData(min_frame, temp, file_processor.abir_data.ir_data);
+    video_display->InitializeFrameData(min_frame, temp, file_processor->abir_data.ir_data);
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
 
@@ -1972,12 +1987,10 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
     menu_plot_frame_marker->setIconVisibleInMenu(true);
     UpdatePlots();
 
-    //Update frame marker on engineering plot
+    // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots, &EngineeringPlots::PlotCurrentStep);
-
     connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
     connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
-
     connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);
@@ -2021,6 +2034,8 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
     int istop = txt_start_frame->text().toInt() + 50;
     txt_FNS_stop_frame->setText(QString::number(istop));
 }
+
+
 
 void SirveApp::HandlePopoutEngineeringClick(bool checked)
 {
@@ -2974,7 +2989,8 @@ void SirveApp::HandleBadPixelReplacement()
             QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + QString::number(osm_frames.size()) + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
-        ABIRDataResult test_frames = file_processor.LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, config_values.version);
+        file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, config_values.version);
+        ABIRDataResult test_frames = *file_processor->getAbirDataLoadResult();
         test_data = test_frames.video_frames_16bit;
     }
     else{

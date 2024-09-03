@@ -17,14 +17,14 @@ std::vector<double> NUC::CalculateNucCorrection(QString path_video_file, unsigne
 {
 	std::vector<double>out;
 
-	ABIRDataResult abir_result = abir_data.GetFrames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
-	if (abir_result.had_error) {
+    ABIRDataResult *abir_result = abir_data.GetFrames(path_video_file.toLocal8Bit().constData(), min_frame, max_frame, version, false);
+    if (abir_result->had_error) {
 		return out;
 	}
 
-	std::vector<std::vector<uint16_t>> video_frames_16bit = abir_result.video_frames_16bit;
-	x_pixels = abir_result.x_pixels;
-	y_pixels = abir_result.y_pixels;
+    std::vector<std::vector<uint16_t>> video_frames_16bit = abir_result->video_frames_16bit;
+    x_pixels = abir_result->x_pixels;
+    y_pixels = abir_result->y_pixels;
 
 	int number_frames = video_frames_16bit.size();
 	int number_pixels = video_frames_16bit[0].size();
