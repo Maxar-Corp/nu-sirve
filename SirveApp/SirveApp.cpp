@@ -93,7 +93,7 @@ void SirveApp::SetupUi() {
 	QSizePolicy fixed_width_video;
     fixed_width_video.setVerticalPolicy(QSizePolicy::Expanding);
 	frame_video_player->setSizePolicy(fixed_width_video);
-    frame_video_player->setMinimumWidth(690);
+    frame_video_player->setMinimumWidth(750);
     frame_video_player->setObjectName("frame_video_player");
 
     // ------------------------------------------------------------------------
@@ -964,72 +964,84 @@ void SirveApp::SetupVideoFrame(){
 
     // ------------------------------------------------------------------------
 
+    // int button_video_width = 45;
     int button_video_width = 45;
     int button_video_height = 50;
 
     //Add icons to video playback buttons
     btn_play = new QPushButton();
-    btn_play->resize(button_video_width, button_video_height);
+    btn_play->setFixedWidth(button_video_width);
+    // btn_play->resize(button_video_width, button_video_height);
     btn_play->setIcon(QIcon(":/icons/play.png"));
     btn_play->setProperty("id", "play");
     btn_play->setToolTip("Play Video");
 
     btn_pause = new QPushButton();
-    btn_pause->resize(button_video_width, button_video_height);
+    // btn_pause->resize(button_video_width, button_video_height);
+    btn_pause->setFixedWidth(button_video_width);
     btn_pause->setIcon(QIcon(":/icons/pause.png"));
     btn_pause->setProperty("id", "pause");
     btn_pause->setToolTip("Pause Video");
 
     btn_reverse = new QPushButton();
-    btn_reverse->resize(button_video_width, button_video_height);
+    // btn_reverse->resize(button_video_width, button_video_height);
+    btn_reverse->setFixedWidth(button_video_width);
     btn_reverse->setIcon(QIcon(":/icons/reverse.png"));
     btn_reverse->setProperty("id", "reverse");
     btn_reverse->setToolTip("Reverse Video");
 
     btn_fast_forward = new QPushButton();
-    btn_fast_forward->resize(button_video_width, button_video_height);
+    btn_fast_forward->setFixedWidth(button_video_width);
+    // btn_fast_forward->resize(button_video_width, button_video_height);
     btn_fast_forward->setIcon(QIcon(":/icons/chevron-double-up.png"));
     btn_fast_forward->setToolTip("Increase FPS");
 
     btn_next_frame = new QPushButton();
-    btn_next_frame->resize(button_video_width, button_video_height);
+    btn_next_frame->setFixedWidth(button_video_width);
+    // btn_next_frame->resize(button_video_width, button_video_height);
     btn_next_frame->setIcon(QIcon(":/icons/skip-next.png"));
     btn_next_frame->setProperty("id", "next");
     btn_next_frame->setToolTip("Next Frame");
 
     btn_slow_back = new QPushButton();
-    btn_slow_back->resize(button_video_width, button_video_height);
+    btn_slow_back->setFixedWidth(button_video_width);
+    // btn_slow_back->resize(button_video_width, button_video_height);
     btn_slow_back->setIcon(QIcon(":/icons/chevron-double-down.png"));
     btn_slow_back->setToolTip("Decrease FPS");
 
     btn_prev_frame = new QPushButton();
-    btn_prev_frame->resize(button_video_width, button_video_height);
+    btn_prev_frame->setFixedWidth(button_video_width);
+    // btn_prev_frame->resize(button_video_width, button_video_height);
     btn_prev_frame->setIcon(QIcon(":/icons/skip-previous.png"));
     btn_prev_frame->setProperty("id", "previous");
     btn_prev_frame->setToolTip("Previous Frame");
 
     btn_frame_record = new QPushButton();
-    btn_frame_record->resize(button_video_width, button_video_height);
+    btn_frame_record->setFixedWidth(button_video_width);
+    // btn_frame_record->resize(button_video_width, button_video_height);
     btn_frame_record->setIcon(QIcon(":/icons/record.png"));
     btn_frame_record->setToolTip("Record Video");
 
     btn_frame_save = new QPushButton();
-    btn_frame_save->resize(button_video_width, button_video_height);
+    btn_frame_save->setFixedWidth(button_video_width);
+    // btn_frame_save->resize(button_video_width, button_video_height);
     btn_frame_save->setIcon(QIcon(":/icons/content-save.png"));
     btn_frame_save->setToolTip("Save Frame");
 
     btn_zoom = new QPushButton();
-    btn_zoom->resize(button_video_width, button_video_height);
+    btn_zoom->setFixedWidth(button_video_width);
+    // btn_zoom->resize(button_video_width, button_video_height);
     btn_zoom->setIcon(QIcon(":/icons/magnify.png"));
     btn_zoom->setCheckable(true);
 
-    btn_calculate_radiance = new QPushButton();
-    btn_calculate_radiance->resize(button_video_width, button_video_height);
-    btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
-    btn_calculate_radiance->setCheckable(true);
+    // btn_calculate_radiance = new QPushButton();
+    // btn_calculate_radiance->resize(button_video_width, button_video_height);
+    // btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
+    // btn_calculate_radiance->setCheckable(true);
 
     btn_popout_video = new QPushButton();
-    btn_popout_video->resize(button_video_width, button_video_height);
+    btn_popout_video->setFixedWidth(button_video_width);
+    // btn_popout_video->resize(button_video_width, button_video_height);
     btn_popout_video->setIcon(QIcon(":/icons/expand.png"));
     btn_popout_video->setCheckable(true);
 
@@ -1047,7 +1059,6 @@ void SirveApp::SetupVideoFrame(){
     formLayout->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
     formLayout->addRow(tr("&Frame:"),txt_goto_frame);
     QHBoxLayout* hlayout_video_buttons = new QHBoxLayout();
-
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
