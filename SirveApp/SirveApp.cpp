@@ -1417,7 +1417,11 @@ void SirveApp::HandleFinishCreateTrackClick()
     if (response == QMessageBox::Yes)
     {
         QString base_track_folder = config_values.workspace_folder;
-        QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", base_track_folder, "CSV (*.csv)");
+        QDate today = QDate::currentDate();
+        QTime currentTime = QTime::currentTime();;
+        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+        QString suggested_track_name = base_track_folder + "/manual_track_" + QString::number(currently_editing_or_creating_track_id) + "_" + formattedDate;
+        QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
         if (new_track_file_name.isEmpty())
         {
             QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
@@ -3897,7 +3901,6 @@ void SirveApp::ExecuteAutoTracking()
         return;
     }
 
-   
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
     {
         auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
