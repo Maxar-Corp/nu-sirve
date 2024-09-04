@@ -1634,12 +1634,12 @@ void SirveApp::LoadWorkspace()
                 }
                 case ProcessingMethod::center_on_OSM:{
                     QString trackFeaturePriority = "OSM";
-                    CenterOnTracks(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
+                    CenterOnOffsets(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_manual:{
                     QString trackFeaturePriority = "manual";
-                    CenterOnTracks(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
+                    CenterOnOffsets(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_brightest:{
@@ -3490,6 +3490,73 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     connect(btn_cancel_operation, &QPushButton::clicked, &COT, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = COT.CenterOnTracks(trackFeaturePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    progress_bar_main->setValue(0);
+    progress_bar_main->setTextVisible(false);
+    lbl_progress_status->setText(QString(""));
+
+    if (new_state.details.frames_16bit.size()>0){
+        new_state.offsets = track_centered_offsets;
+        new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
+        for (const auto& row : new_state.details.frames_16bit) {
+            maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+        }
+        new_state.details.max_value = maxVal;
+        new_state.state_ID = video_display->container.processing_states.size();
+        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
+        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
+        new_state.ancestors.push_back(source_state_ind);
+
+        // update state gui status
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Center on Tracks] ");
+        video_display->container.AddProcessingState(new_state);
+    }
+    grpbox_progressbar_area->setEnabled(false);
+}
+
+void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
+{
+    int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
+    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
+
+    // set new state ...
+    processingState new_state = original;
+    new_state.details.frames_16bit.clear();
+    new_state.ancestors.clear();
+    new_state.descendants.clear();
+
+    int number_frames = static_cast<int>(original.details.frames_16bit.size());
+    int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+    int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
+    new_state.track_id = track_id;
+    if (OSMPriority==0){
+        new_state.method = ProcessingMethod::center_on_OSM;
+    }
+    else{
+
+        new_state.method = ProcessingMethod::center_on_manual;
+    }
+    new_state.find_any_tracks = find_any_tracks;
+
+    ImageProcessing COO;
+    grpbox_progressbar_area->setEnabled(true);
+    progress_bar_main->setRange(0,number_frames - 1);
+    lbl_progress_status->setText(QString("Center on tracks..."));
+
+    connect(&COO, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, &COO, &ImageProcessing::CancelOperation);
+
+    new_state.details.frames_16bit = COO.CenterImageFromOffsets(original.details, track_centered_offsets);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
