@@ -25,8 +25,8 @@ struct ConfigValues {
 
 namespace configReaderWriter
 {
-ConfigValues ExtractWorkspaceConfigValues();
-void SaveWorkspaceFolder(QString workspaceFolder);
+    ConfigValues ExtractWorkspaceConfigValues();
+    void SaveWorkspaceFolder(QString workspaceFolder);
 }
 
 #endif //CONFIG_H

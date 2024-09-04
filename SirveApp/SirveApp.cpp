@@ -1547,7 +1547,7 @@ void SirveApp::SaveWorkspace()
         QString suggested_name = current_workspace_name.length() > 0 ? current_workspace_name : initial_name;
         QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + suggested_name, tr("Workspace Files *.json"));
 
-        if (workspace_name.length()>0){
+        if (workspace_name.length() > 0) {
             QFileInfo fileInfo(workspace_name);
             lbl_current_workspace_folder_field->setText(fileInfo.path());
             workspace->SaveState(fileInfo.fileName(), config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
@@ -2404,8 +2404,9 @@ void SirveApp::ChangeWorkspaceDirectory()
     {
         configReaderWriter::SaveWorkspaceFolder(directory);
         config_values = configReaderWriter::ExtractWorkspaceConfigValues();
-        workspace = new Workspace(config_values.workspace_folder);
-        lbl_current_workspace_folder_field->setText(config_values.workspace_folder);
+        workspace = new Workspace(directory);
+        lbl_current_workspace_folder_field->setText(directory);
+        config_values.workspace_folder = directory;
         lbl_workspace_name_field->clear();
     }
 }
@@ -2561,6 +2562,7 @@ void SirveApp::CreateMenuActions()
 
     action_load_workspace = new QAction("Load Workspace");
     connect(action_load_workspace, &QAction::triggered, this, &SirveApp::LoadWorkspace);
+    //connect(workspace, updateWorkspaceFolder, this, &SirveApp::LoadWorkspace);
 
     action_save_workspace = new QAction("Save Workspace");
     connect(action_save_workspace, &QAction::triggered, this, &SirveApp::SaveWorkspace);
