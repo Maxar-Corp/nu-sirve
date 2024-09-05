@@ -1525,7 +1525,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
     double xmin = data_plots->axis_x->min();
     double ymax = data_plots->axis_y->max();
     double ymin = data_plots->axis_y->min();
-    UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
+    UpdatePlots();
     data_plots->set_xaxis_limits(xmin,xmax);
     data_plots->set_yaxis_limits(ymin,ymax);
 }
@@ -1544,13 +1544,11 @@ void SirveApp::SaveWorkspace()
         QString stop_frame = QString::number(data_plots->index_sub_plot_xmax + 1);
         QString initial_name = abpimage_file_base_name + "_" + start_frame + "-"+ stop_frame + "_" + formattedDate;
 
-        QString suggested_name = current_workspace_name.length() > 0 ? current_workspace_name : initial_name;
-        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + suggested_name, tr("Workspace Files *.json"));
+        QString selectedUserFilePath = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + initial_name, tr("Workspace Files *.json"));
 
-        if (workspace_name.length() > 0) {
-            QFileInfo fileInfo(workspace_name);
-            lbl_current_workspace_folder_field->setText(fileInfo.path());
-            workspace->SaveState(fileInfo.fileName(), config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+        if (selectedUserFilePath.length() > 0) {
+            QFileInfo fileInfo(selectedUserFilePath);
+            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
             lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
@@ -2560,11 +2558,11 @@ void SirveApp::CreateMenuActions()
     action_close->setStatusTip("Close main window");
     connect(action_close, &QAction::triggered, this, &SirveApp::CloseWindow);
 
-    action_load_workspace = new QAction("Load Workspace");
+    action_load_workspace = new QAction("Load Workspace File");
     connect(action_load_workspace, &QAction::triggered, this, &SirveApp::LoadWorkspace);
     //connect(workspace, updateWorkspaceFolder, this, &SirveApp::LoadWorkspace);
 
-    action_save_workspace = new QAction("Save Workspace");
+    action_save_workspace = new QAction("Save Workspace File");
     connect(action_save_workspace, &QAction::triggered, this, &SirveApp::SaveWorkspace);
 
     action_change_workspace_directory = new QAction("Change Workspace Directory");
