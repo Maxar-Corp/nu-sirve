@@ -1523,9 +1523,9 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
     data_plots->RecolorManualTrack(track_id, new_color);
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->axis_y->max();
-    double ymin = data_plots->axis_y->min();
-    UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
+    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+    UpdatePlots();
     data_plots->set_xaxis_limits(xmin,xmax);
     data_plots->set_yaxis_limits(ymin,ymax);
 }

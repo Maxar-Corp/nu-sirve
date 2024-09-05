@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QLegendMarker>
 
+// NOTE: SirveApp's instance of this class, Engineering_Plots, does not yet control its own graphical updates like VideoDisplay
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlotting()
 {
