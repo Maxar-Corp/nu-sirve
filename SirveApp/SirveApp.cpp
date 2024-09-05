@@ -242,7 +242,7 @@ void SirveApp::SetupUi() {
     lbl_workspace_name_field = new QLabel("");
     lbl_workspace_name_field->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_progress_status = new QLabel("");
-    lbl_progress_statuslbl_progress_status->setFixedWidth(200);
+    lbl_progress_status->setFixedWidth(200);
     lbl_progress_status->setWordWrap(true);
     QGroupBox *grpbox_status_bar = new QGroupBox();
     grpbox_status_bar->setMinimumWidth(1050);
