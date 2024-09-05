@@ -876,6 +876,41 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
     return frames_out;
 }
 
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterImageFromOffsets(VideoDetails & original, std::vector<std::vector<int>> track_centered_offsets)
+{
+    std::vector<std::vector<uint16_t>> frames_out;
+    int num_video_frames = original.frames_16bit.size();
+    int nRows = original.y_pixels;
+    int nCols = original.x_pixels;
+    int yOffset, xOffset;
+    arma::mat output(nRows, nCols);
+    arma::mat frame(nRows, nCols);
+    arma::mat offset_matrix(track_centered_offsets.size(),3,arma::fill::zeros);
+    for (int rowi = 0; rowi < track_centered_offsets.size(); rowi++){
+        offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(track_centered_offsets[rowi]);
+    }
+    for (int framei = 0; framei < num_video_frames; framei++)
+    {
+        UpdateProgressBar(framei);
+        QCoreApplication::processEvents();
+        if (cancel_operation)
+        {
+            return std::vector<std::vector<uint16_t>>();
+        }
+
+        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+        output = frame;
+        arma::uvec kk = arma::find(offset_matrix.col(0) == framei + 1,0,"first");
+        if (!kk.is_empty()){       
+            xOffset = offset_matrix(kk(0),1);
+            yOffset = offset_matrix(kk(0),2);
+            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+        }
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+    }
+    return frames_out;
+}
+
 std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets)
 {
     std::vector<std::vector<uint16_t>> frames_out;

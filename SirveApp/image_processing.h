@@ -60,6 +60,7 @@ public:
 
     std::vector<std::vector<uint16_t>> MedianFilterStandard(VideoDetails & original, int window_size);
 
+    std::vector<std::vector<uint16_t>> CenterImageFromOffsets(VideoDetails & original, std::vector<std::vector<int>> track_centered_offsets);
 
 signals:
      void SignalProgress(unsigned int frameval);
