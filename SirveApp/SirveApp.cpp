@@ -1544,13 +1544,11 @@ void SirveApp::SaveWorkspace()
         QString stop_frame = QString::number(data_plots->index_sub_plot_xmax + 1);
         QString initial_name = abpimage_file_base_name + "_" + start_frame + "-"+ stop_frame + "_" + formattedDate;
 
-        QString suggested_name = current_workspace_name.length() > 0 ? current_workspace_name : initial_name;
-        QString workspace_name = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + suggested_name, tr("Workspace Files *.json"));
+        QString selectedUserFilePath = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + initial_name, tr("Workspace Files *.json"));
 
-        if (workspace_name.length()>0){
-            QFileInfo fileInfo(workspace_name);
-            lbl_current_workspace_folder_field->setText(fileInfo.path());
-            workspace->SaveState(fileInfo.fileName(), config_values.workspace_folder, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+        if (selectedUserFilePath.length() > 0) {
+            QFileInfo fileInfo(selectedUserFilePath);
+            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
             lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
@@ -1634,12 +1632,12 @@ void SirveApp::LoadWorkspace()
                 }
                 case ProcessingMethod::center_on_OSM:{
                     QString trackFeaturePriority = "OSM";
-                    CenterOnTracks(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
+                    CenterOnOffsets(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_manual:{
                     QString trackFeaturePriority = "manual";
-                    CenterOnTracks(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
+                    CenterOnOffsets(trackFeaturePriority,current_state.track_id, current_state.offsets,current_state.find_any_tracks, current_state.source_state_ID);
                     break;
                 }
                 case ProcessingMethod::center_on_brightest:{
@@ -2404,8 +2402,9 @@ void SirveApp::ChangeWorkspaceDirectory()
     {
         configReaderWriter::SaveWorkspaceFolder(directory);
         config_values = configReaderWriter::ExtractWorkspaceConfigValues();
-        workspace = new Workspace(config_values.workspace_folder);
-        lbl_current_workspace_folder_field->setText(config_values.workspace_folder);
+        workspace = new Workspace(directory);
+        lbl_current_workspace_folder_field->setText(directory);
+        config_values.workspace_folder = directory;
         lbl_workspace_name_field->clear();
     }
 }
@@ -2559,10 +2558,11 @@ void SirveApp::CreateMenuActions()
     action_close->setStatusTip("Close main window");
     connect(action_close, &QAction::triggered, this, &SirveApp::CloseWindow);
 
-    action_load_workspace = new QAction("Load Workspace");
+    action_load_workspace = new QAction("Load Workspace File");
     connect(action_load_workspace, &QAction::triggered, this, &SirveApp::LoadWorkspace);
+    //connect(workspace, updateWorkspaceFolder, this, &SirveApp::LoadWorkspace);
 
-    action_save_workspace = new QAction("Save Workspace");
+    action_save_workspace = new QAction("Save Workspace File");
     connect(action_save_workspace, &QAction::triggered, this, &SirveApp::SaveWorkspace);
 
     action_change_workspace_directory = new QAction("Change Workspace Directory");
@@ -3523,6 +3523,73 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     grpbox_progressbar_area->setEnabled(false);
 }
 
+void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
+{
+    int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
+    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
+    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
+
+    // set new state ...
+    processingState new_state = original;
+    new_state.details.frames_16bit.clear();
+    new_state.ancestors.clear();
+    new_state.descendants.clear();
+
+    int number_frames = static_cast<int>(original.details.frames_16bit.size());
+    int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+    int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
+    new_state.track_id = track_id;
+    if (OSMPriority==0){
+        new_state.method = ProcessingMethod::center_on_OSM;
+    }
+    else{
+
+        new_state.method = ProcessingMethod::center_on_manual;
+    }
+    new_state.find_any_tracks = find_any_tracks;
+
+    ImageProcessing COO;
+    grpbox_progressbar_area->setEnabled(true);
+    progress_bar_main->setRange(0,number_frames - 1);
+    lbl_progress_status->setText(QString("Center on tracks..."));
+
+    connect(&COO, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, &COO, &ImageProcessing::CancelOperation);
+
+    new_state.details.frames_16bit = COO.CenterImageFromOffsets(original.details, track_centered_offsets);
+    progress_bar_main->setValue(0);
+    progress_bar_main->setTextVisible(false);
+    lbl_progress_status->setText(QString(""));
+
+    if (new_state.details.frames_16bit.size()>0){
+        new_state.offsets = track_centered_offsets;
+        new_state.source_state_ID = source_state_ind;
+
+        // fetch max value
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
+        for (const auto& row : new_state.details.frames_16bit) {
+            maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+        }
+        new_state.details.max_value = maxVal;
+        new_state.state_ID = video_display->container.processing_states.size();
+        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
+        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
+        new_state.ancestors.push_back(source_state_ind);
+
+        // update state gui status
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Center on Tracks] ");
+        video_display->container.AddProcessingState(new_state);
+    }
+    grpbox_progressbar_area->setEnabled(false);
+}
+
 void SirveApp::ExecuteCenterOnBrightest()
 {
     std::vector<std::vector<int>> brightest_centered_offsets;
@@ -3984,6 +4051,9 @@ void SirveApp::ExecuteAutoTracking()
 
     progress_bar_main->setTextVisible(true);
     grpbox_progressbar_area->setEnabled(true);
+    lbl_progress_status->setText(QString("Generating track..."));
+    progress_bar_main->setValue(0);
+
     connect(&AT, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AT, &AutoTracking::CancelOperation);
     int frame0 = txt_start_frame->text().toInt();
@@ -3994,11 +4064,15 @@ void SirveApp::ExecuteAutoTracking()
     int num_frames_to_track = stop_frame - start_frame + 1;
     if (start_frame < txt_start_frame->text().toInt() || stop_frame > txt_stop_frame->text().toInt() || stop_frame<start_frame){
         QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start.");
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
         return;
     }
     progress_bar_main->setRange(0,num_frames_to_track);
     int start_frame_i = start_frame - frame0;
-    int stop_frame_i = start_frame_i + num_frames_to_track -1;
+    int stop_frame_i = start_frame_i + num_frames_to_track - 1;
     bool ok;
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = 0;
@@ -4008,6 +4082,10 @@ void SirveApp::ExecuteAutoTracking()
     u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
         return;
     }
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
@@ -4031,6 +4109,10 @@ void SirveApp::ExecuteAutoTracking()
     if (new_track_file_name.isEmpty())
     {
         QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
         return;
     }
     string prefilter = "NONE";
@@ -4056,22 +4138,28 @@ void SirveApp::ExecuteAutoTracking()
     int threshold = 6 - cmb_autotrack_threshold->currentIndex();
     arma::u32_mat autotrack = AT.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
+    if (autotrack.is_empty()){
+        lbl_progress_status->setText(QString(""));
+        progress_bar_main->setValue(0);
+        progress_bar_main->setTextVisible(false);
+        grpbox_progressbar_area->setEnabled(false);
+        return;
+    }
+    
     if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
         arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);
-        arma::mat offset_matrix(1,3,arma::fill::zeros);
         arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
         std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
-        for (int rowi = 0; rowi< offsets.size(); rowi++){
-            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
+        arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
+        for (int rowi = 0; rowi < offsets.size(); rowi++){
+            offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
         }
-        offset_matrix.shed_row(0);
         for (int rowii = 0; rowii<framei.size(); rowii++){
-             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii),1,"first");
+             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
              if (!kk.is_empty()){
                 offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
              }
         }
-
         offset_matrix2.shed_col(0);
         offset_matrix2.insert_cols(0,2);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
