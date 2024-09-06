@@ -1514,7 +1514,13 @@ void SirveApp::HandleTrackRemoval(int track_id)
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+    double xmax = data_plots->axis_x->max();
+    double xmin = data_plots->axis_x->min();
+    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
     UpdatePlots();
+    data_plots->set_xaxis_limits(xmin,xmax);
+    data_plots->set_yaxis_limits(ymin,ymax);
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
