@@ -946,7 +946,7 @@ QWidget* SirveApp::SetupTracksTab(){
 
     return widget_tab_tracks;
 }
-void SirveApp::ResetGUI()
+void SirveApp::ResetEngineeringDataAndSliderGUIs()
 {
     slider_video->setValue(0);
     if (eng_data != NULL){
@@ -1729,7 +1729,7 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 
 void SirveApp::LoadOsmData()
 {
-    ResetGUI();
+    ResetEngineeringDataAndSliderGUIs();
     osm_frames = osm_reader.ReadOsmFileData(abp_file_metadata.osm_path);
     if (osm_frames.size() == 0)
     {
@@ -1922,7 +1922,7 @@ void SirveApp::UiLoadAbirData()
 void SirveApp::LoadAbirData(int min_frame, int max_frame)
 {
     DeleteAbirData();
-    ResetGUI();
+    ResetEngineeringDataAndSliderGUIs();
     AllocateAbirData(min_frame, max_frame);
 }
 
