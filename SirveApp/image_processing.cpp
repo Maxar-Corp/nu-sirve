@@ -316,6 +316,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec frame_vector_out(num_pixels,1);
     int num_indices = std::max(N2,1);
+
 	for (int j = 0; j < num_of_averaging_frames; j++) { 
         window_data.col(j)  = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
 	}

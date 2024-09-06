@@ -3010,39 +3010,39 @@ void SirveApp::HandleBadPixelReplacement()
     OpenProgressArea("Finding bad pixels",number_video_frames - 1);
 
     std::vector<unsigned int> dead_pixels;
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     if(type_choice == 0){
         lbl_progress_status->setText(QString("Finding dead pixels..."));
-        arma::uvec index_dead0 = ImageProcessor.FindDeadBadscalePixels(test_data);
+        arma::uvec index_dead0 = ImageProcessor->FindDeadBadscalePixels(test_data);
         lbl_progress_status->setText(QString("Finding outlier pixels..."));
         if (outlier_method == 0){
-            arma::uvec index_outlier0 = ImageProcessor.IdentifyBadPixelsMedian(N,test_data);
+            arma::uvec index_outlier0 = ImageProcessor->IdentifyBadPixelsMedian(N,test_data);
             index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
         }
         else{
             u_int window_length = txt_moving_median_N->text().toUInt();
-            arma::uvec index_outlier0 = ImageProcessor.IdentifyBadPixelsMovingMedian(window_length,N,test_data);
+            arma::uvec index_outlier0 = ImageProcessor->IdentifyBadPixelsMovingMedian(window_length,N,test_data);
             index_outlier0 = arma::unique(arma::join_vert(index_outlier0,index_dead0));
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier0);
         }
     } else if (type_choice == 1){
         lbl_progress_status->setText(QString("Finding outlier pixels..."));
-        arma::uvec index_dead1 = ImageProcessor.FindDeadBadscalePixels(test_data);
+        arma::uvec index_dead1 = ImageProcessor->FindDeadBadscalePixels(test_data);
         dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_dead1);
     } else {
         lbl_progress_status->setText(QString("Finding outlier pixels..."));
         if (outlier_method == 0){
-            arma::uvec index_outlier2 = ImageProcessor.IdentifyBadPixelsMedian(N,test_data);
+            arma::uvec index_outlier2 = ImageProcessor->IdentifyBadPixelsMedian(N,test_data);
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
         }
         else{
             u_int window_length = txt_moving_median_N->text().toUInt();
-            arma::uvec index_outlier2 = ImageProcessor.IdentifyBadPixelsMovingMedian(window_length,N,test_data);
+            arma::uvec index_outlier2 = ImageProcessor->IdentifyBadPixelsMovingMedian(window_length,N,test_data);
             dead_pixels = arma::conv_to<std::vector<unsigned int>>::from(index_outlier2);
         }
     }
@@ -3052,6 +3052,8 @@ void SirveApp::HandleBadPixelReplacement()
     }
 
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 
@@ -3097,11 +3099,11 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
     new_state.replaced_pixels = pixels_to_replace;
     OpenProgressArea("Replacing bad pixels...",number_video_frames - 1);
 
-    ImageProcessing ImageProcessor;
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
+    ImageProcessing *ImageProcessor = new ImageProcessing();
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    ImageProcessor.ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
+    ImageProcessor->ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
 
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
@@ -3136,6 +3138,8 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
     }
 
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
@@ -3258,13 +3262,13 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
 
     int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Fixed median noise suppression...",number_video_frames - 1);
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
-    new_state.details.frames_16bit = ImageProcessor.FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
+    new_state.details.frames_16bit = ImageProcessor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -3314,6 +3318,8 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         lbl_fixed_suppression->setText(description);
     }
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::ExecuteDeinterlace()
@@ -3357,13 +3363,13 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
 
     int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Deinterlacing...",number_video_frames - 1);
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
-
-    new_state.details.frames_16bit = ImageProcessor.DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
+    
+    new_state.details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString(""));
 
@@ -3399,12 +3405,16 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     }
 
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::ApplyDeinterlacingCurrent()
 {
     processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     lbl_progress_status->setText(QString("Deinterlacing..."));
     int framei = video_display->counter;
     std::vector<uint16_t> current_frame_16bit = original.details.frames_16bit[framei];
@@ -3412,7 +3422,7 @@ void SirveApp::ApplyDeinterlacingCurrent()
     int nRows = original.details.y_pixels;
     int nCols = original.details.x_pixels;
 
-    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = ImageProcessor.DeinterlacePhaseCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
+    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = ImageProcessor->DeinterlacePhaseCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
     lbl_progress_status->setText(QString(""));
     UpdateGlobalFrameVector();
 
@@ -3485,13 +3495,13 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     }
     new_state.find_any_tracks = find_any_tracks;
 
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Centering on tracks...",number_frames - 1);;
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = ImageProcessor.CenterOnTracks(trackFeaturePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    new_state.details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
     if (new_state.details.frames_16bit.size()>0){
         new_state.offsets = track_centered_offsets;
@@ -3520,6 +3530,8 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
         video_display->container.AddProcessingState(new_state);
     }
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
@@ -3547,13 +3559,13 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
     }
     new_state.find_any_tracks = find_any_tracks;
 
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Centering on offsets...",number_frames - 1);
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = ImageProcessor.CenterImageFromOffsets(original.details, track_centered_offsets);
+    new_state.details.frames_16bit = ImageProcessor->CenterImageFromOffsets(original.details, track_centered_offsets);
 
     if (new_state.details.frames_16bit.size()>0){
         new_state.offsets = track_centered_offsets;
@@ -3582,6 +3594,8 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
         video_display->container.AddProcessingState(new_state);
     }
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::ExecuteCenterOnBrightest()
@@ -3744,13 +3758,13 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     new_state.ancestors.clear();
     new_state.descendants.clear();
 
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Frame stacking...",number_video_frames - 1);
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
-
-    new_state.details.frames_16bit = ImageProcessor.FrameStacking(number_of_frames, original.details);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
+    
+    new_state.details.frames_16bit = ImageProcessor->FrameStacking(number_of_frames, original.details);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(false);
     lbl_progress_status->setText(QString(""));
@@ -3785,6 +3799,8 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
         video_display->container.AddProcessingState(new_state);
     }
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::ExecuteAdaptiveNoiseSuppression()
@@ -3821,18 +3837,18 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
     double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
 
-    ImageProcessing ImageProcessor;
+    ImageProcessing *ImageProcessor = new ImageProcessing();
     lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
     OpenProgressArea("Adaptive median background noise suppression...",number_video_frames - 1);;
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-    connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
+    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     if (available_memory_ratio >=1.5){
-        new_state.details.frames_16bit = ImageProcessor.AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, original.details);
+        new_state.details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, original.details);
     }
     else{
-        new_state.details.frames_16bit = ImageProcessor.AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, original.details);
+        new_state.details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, original.details);
     }
 
     progress_bar_main->setValue(0);
@@ -3878,6 +3894,8 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         video_display->container.AddProcessingState(new_state);
     }
     CloseProgressArea();
+
+    ImageProcessor->deleteLater();
 }
 
 void SirveApp::ExecuteRPCPNoiseSuppression()
@@ -3978,12 +3996,14 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
     new_state.details.frames_16bit.clear();
     new_state.ancestors.clear();
     new_state.descendants.clear();
+
     if(available_memory_ratio >=1.5){
-        ImageProcessing ImageProcessor;
+        ImageProcessing *ImageProcessor = new ImageProcessing();
+
         OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
-        connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
-        connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
-        new_state.details.frames_16bit = ImageProcessor.AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
+        connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+        connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
+        new_state.details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
         if(new_state.details.frames_16bit.size()>0){
             new_state.method = ProcessingMethod::accumulator_noise_suppression;
             new_state.source_state_ID = source_state_ind;
@@ -4008,6 +4028,8 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
             new_state.state_steps = state_steps;
             new_state.process_steps.push_back(" [Rolling Mean Noise Suppression] ");
             video_display->container.AddProcessingState(new_state);
+
+            ImageProcessor->deleteLater();
         }
     }
     else
