@@ -323,6 +323,9 @@ private:
     void ExportFrame();
     void ExportFrameRange();
     void ExportAllFrames();
+    void OpenProgressArea(QString message, int N);
+    void CloseProgressArea();
+    void ResetEngineeringDataAndSliderGUIs();
  
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
