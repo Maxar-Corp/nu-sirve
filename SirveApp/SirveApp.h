@@ -325,6 +325,7 @@ private:
     void ExportAllFrames();
     void OpenProgressArea(QString message, int N);
     void CloseProgressArea();
+    void ResetGUI();
  
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();

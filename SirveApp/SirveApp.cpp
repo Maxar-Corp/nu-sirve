@@ -242,16 +242,16 @@ void SirveApp::SetupUi() {
     lbl_workspace_name_field = new QLabel("");
     lbl_workspace_name_field->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_progress_status = new QLabel("");
-    lbl_progress_status->setFixedWidth(200);
+    lbl_progress_status->setFixedWidth(300);
     lbl_progress_status->setWordWrap(true);
     QGroupBox *grpbox_status_bar = new QGroupBox();
     grpbox_status_bar->setMinimumWidth(1050);
     QHBoxLayout * hlayout_status_bar1 = new QHBoxLayout();
     QHBoxLayout * hlayout_status_bar2 = new QHBoxLayout();
-    QGroupBox *grpbox_status_lbl = new QGroupBox();
-    grpbox_status_lbl->setMinimumWidth(500);
-    QHBoxLayout * hlayout_status_lbl = new QHBoxLayout();
-    grpbox_status_lbl->setLayout(hlayout_status_lbl);
+    QGroupBox *grpbox_status_permanent = new QGroupBox();
+    grpbox_status_permanent->setMinimumWidth(650);
+    QHBoxLayout * hlayout_status_permanent = new QHBoxLayout();
+    grpbox_status_permanent->setLayout(hlayout_status_permanent);
 
     QSpacerItem *hspacer_item10 = new QSpacerItem(10,1);
     QVBoxLayout * vlayout_status_lbl = new QVBoxLayout();
@@ -275,11 +275,12 @@ void SirveApp::SetupUi() {
     grpbox_status_bar->setLayout(vlayout_status_lbl);
 
     status_bar->addWidget(grpbox_status_bar);
-    hlayout_status_lbl->addWidget(lbl_progress_status);
-    hlayout_status_lbl->addWidget(grpbox_progressbar_area);
-    hlayout_status_lbl->addItem(hspacer_item10);
-    hlayout_status_lbl->insertStretch(-1,0);
-    status_bar->addPermanentWidget(grpbox_status_lbl,0);
+    hlayout_status_permanent->addWidget(lbl_progress_status);
+    hlayout_status_permanent->addItem(hspacer_item10);
+    hlayout_status_permanent->addWidget(grpbox_progressbar_area);
+    hlayout_status_permanent->addItem(hspacer_item10);
+    hlayout_status_permanent->insertStretch(-1,0);
+    status_bar->addPermanentWidget(grpbox_status_permanent,0);
 
     this->show();
 }
@@ -944,6 +945,20 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_tab_workspace->insertStretch(-1, 0);
 
     return widget_tab_tracks;
+}
+void SirveApp::ResetGUI()
+{
+    slider_video->setValue(0);
+    if (eng_data != NULL){
+        std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+        for ( int track_id : previous_manual_track_ids )
+        {
+            tm_widget->RemoveTrackControl(track_id );
+            track_info->RemoveManualTrack(track_id);
+            video_display->DeleteManualTrack(track_id);
+        }
+    }
+    UpdatePlots();
 }
 
 void SirveApp::SetupVideoFrame(){
@@ -1718,6 +1733,7 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 
 void SirveApp::LoadOsmData()
 {
+    ResetGUI();
     osm_frames = osm_reader.ReadOsmFileData(abp_file_metadata.osm_path);
     if (osm_frames.size() == 0)
     {
@@ -1910,6 +1926,7 @@ void SirveApp::UiLoadAbirData()
 void SirveApp::LoadAbirData(int min_frame, int max_frame)
 {
     DeleteAbirData();
+    ResetGUI();
     AllocateAbirData(min_frame, max_frame);
 }
 
@@ -1972,6 +1989,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Finalizing application state"));
     progress_bar_main->setValue(3);
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
+    cmb_OSM_track_IDs->clear();
     cmb_OSM_track_IDs->addItem("Primary");
     cmb_manual_track_IDs->clear();
     cmb_manual_track_IDs->addItem("Primary");
