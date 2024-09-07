@@ -7,24 +7,24 @@
 #include <armadillo>
 #include <qstring.h>
 
-class NUC
+class NonUniformityCorrection
 {
 public:
 	std::vector<double> nuc_correction;
 
-	NUC();
-	~NUC();
+    NonUniformityCorrection();
+    ~NonUniformityCorrection();
 
-	std::vector<double> CalculateNucCorrection(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version);
     std::vector<uint16_t> ApplyNucCorrection(std::vector<uint16_t> frame);
+	std::vector<double> CalculateNucCorrection(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version);
 	
 
 private:
+    ABIRData abir_data;
+    arma::vec adj_mean_frame;
+    arma::mat kernel;
+    arma::uvec pixels_dead, pixels_happy;
 	int x_pixels, y_pixels;
-	ABIRData abir_data;
-	arma::uvec pixels_dead, pixels_happy;
-	arma::vec adj_mean_frame;
-	arma::mat kernel;
 
     arma::vec ApplyKernel(arma::vec data, arma::uvec indices);
     arma::mat ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain);

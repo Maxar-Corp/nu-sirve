@@ -3036,7 +3036,7 @@ void SirveApp::HandleBadPixelReplacement()
     std::vector<unsigned int> dead_pixels;
     ImageProcessing *ImageProcessor = new ImageProcessing();
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     if(type_choice == 0){
@@ -3124,7 +3124,7 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
     OpenProgressArea("Replacing bad pixels...",number_video_frames - 1);
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     ImageProcessor->ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
@@ -3289,7 +3289,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Fixed median noise suppression...",number_video_frames - 1);
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
@@ -3390,7 +3390,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Deinterlacing...",number_video_frames - 1);
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
@@ -3522,7 +3522,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Centering on tracks...",number_frames - 1);;
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
@@ -3586,7 +3586,7 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Centering on offsets...",number_frames - 1);
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = ImageProcessor->CenterImageFromOffsets(original.details, track_centered_offsets);
@@ -3643,7 +3643,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
     lbl_progress_status->setText(QString("Center on Brightest Object..."));
     ImageProcessing ImageProcessor;
 
-    connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(&ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = ImageProcessor.CenterOnBrightest(original.details, brightest_centered_offsets);
@@ -3785,7 +3785,7 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Frame stacking...",number_video_frames - 1);
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->FrameStacking(number_of_frames, original.details);
@@ -3865,7 +3865,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
     OpenProgressArea("Adaptive median background noise suppression...",number_video_frames - 1);;
 
-    connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     if (available_memory_ratio >=1.5){
@@ -3954,7 +3954,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
         ImageProcessing ImageProcessor;
         OpenProgressArea("RPCP noise suppression...",number_video_frames - 1);
 
-        connect(&ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+        connect(&ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
         connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
 
         new_state.details.frames_16bit = ImageProcessor.RPCPNoiseSuppression(original.details);
@@ -4025,7 +4025,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
         ImageProcessing *ImageProcessor = new ImageProcessing();
 
         OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
-        connect(ImageProcessor, &ImageProcessing::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+        connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
         connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
         new_state.details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
         if(new_state.details.frames_16bit.size()>0){
@@ -4077,7 +4077,7 @@ void SirveApp::ExecuteAutoTracking()
 
     int num_frames_to_track = stop_frame - start_frame + 1;
     OpenProgressArea("Generating track...",num_frames_to_track);
-    connect(&AutoTracker, &AutoTracking::SignalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(&AutoTracker, &AutoTracking::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AutoTracker, &AutoTracking::CancelOperation);
 
     if (start_frame < txt_start_frame->text().toInt() || stop_frame > txt_stop_frame->text().toInt() || stop_frame<start_frame){

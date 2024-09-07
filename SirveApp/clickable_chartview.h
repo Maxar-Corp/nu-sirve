@@ -8,7 +8,6 @@
 #include <QMouseEvent> 
 
 #include <QPointF>
-//#include <qpoint.h>
 
 QT_CHARTS_USE_NAMESPACE
 

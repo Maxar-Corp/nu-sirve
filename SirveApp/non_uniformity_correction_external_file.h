@@ -3,25 +3,24 @@
 #ifndef EXTERNAL_NUC_H
 #define EXTERNAL_NUC_H
 
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qobject.h>
-#include <qlistwidget.h>
-#include <qdialog.h>
-#include <qlineedit.h>
 #include <qcombobox.h>
-#include <qmessagebox.h>
-
+#include <qdialog.h>
 #include <qgridlayout.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qlistwidget.h>
+#include <qmessagebox.h>
+#include <qobject.h>
+#include <qpushbutton.h>
 
-#include "Data_Structures.h"
-#include "tracks.h"
-#include "engineeringdata.h"
+
+#include "data_structures.h"
+#include "engineering_data.h"
+#include "osm_reader.h"
 #include "plot_engineering_data.h"
 #include "process_file.h"
-#include "osm_reader.h"
 #include "support/qthelpers.h"
-
+#include "tracks.h"
 
 class ExternalNUCInformationWidget : public QDialog
 {
@@ -30,10 +29,11 @@ class ExternalNUCInformationWidget : public QDialog
 public:
 	ExternalNUCInformationWidget();
 	~ExternalNUCInformationWidget();
+
+    AbpFileMetadata abp_metadata;
     ProcessFile file_processor;
 	OSMReader osm_reader;
-	std::vector<Frame> osm_frames;
-	AbpFileMetadata abp_metadata;
+    std::vector<Frame> osm_frames;
 	int start_frame, stop_frame;
 
 public slots:
@@ -55,13 +55,13 @@ private:
 	QGridLayout* mainLayout;
 	QVBoxLayout* frame_layout;
 
-	void InitializeGui();
-    void DisplayError(QString msg);
-    void PlotOsmFrameData();
-
-    void getFrames();
     void closeWindow();
-	void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event);
+    void getFrames();
+
+    void DisplayError(QString msg);
+    void InitializeGui();
+    void PlotOsmFrameData();
 };
 
 

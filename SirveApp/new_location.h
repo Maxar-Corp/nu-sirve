@@ -26,14 +26,12 @@ public:
 	AddLocation(QString path);
 	~AddLocation();
 
+    bool isNumeric(QString text);
+    void MakeLocationFile();
     bool VerifyLatitude();
     bool VerifyLongitude();
     bool VerifyAltitudeAsNumeric();
-
-	bool isNumeric(QString text);
     bool VerifyWithinRange(QString text, double min_value, double max_value);
-
-    void MakeLocationFile();
 
 public slots:
 

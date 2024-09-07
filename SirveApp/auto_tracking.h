@@ -1,8 +1,7 @@
 #pragma once
 #ifndef AUTO_TRACKING_H
 #define AUTO_TRACKING_H
-#include "video_details.h"
-#include "tracks.h"
+
 #include <armadillo>
 #include <iostream>
 #include <string>
@@ -16,6 +15,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/photo.hpp>
 
+#include "tracks.h"
+#include "video_details.h"
+
 using namespace std;
 using namespace cv;
 
@@ -28,13 +30,12 @@ public:
     AutoTracking(); 
     ~AutoTracking();
 
-
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
     arma::u32_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
 
 signals:
-     void SignalProgress(unsigned int frameval);
+     void signalProgress(unsigned int frameval);
 
 public slots:
     void CancelOperation();

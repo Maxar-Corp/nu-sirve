@@ -1,6 +1,6 @@
 #include "non_uniformity_correction.h"
 
-NUC::NUC()
+NonUniformityCorrection::NonUniformityCorrection()
 {
 	kernel = { {0, 0, 1, 0, 0},
 		       {0, 0, 1, 0, 0},
@@ -9,11 +9,11 @@ NUC::NUC()
 			   {0, 0, 1, 0, 0} };
 }
 
-NUC::~NUC()
+NonUniformityCorrection::~NonUniformityCorrection()
 {
 }
 
-std::vector<double> NUC::CalculateNucCorrection(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version)
+std::vector<double> NonUniformityCorrection::CalculateNucCorrection(QString path_video_file, unsigned int min_frame, unsigned int max_frame, double version)
 {
 	std::vector<double>out;
 
@@ -69,7 +69,7 @@ std::vector<double> NUC::CalculateNucCorrection(QString path_video_file, unsigne
 
 }
 
-std::vector<uint16_t> NUC::ApplyNucCorrection(std::vector<uint16_t> frame)
+std::vector<uint16_t> NonUniformityCorrection::ApplyNucCorrection(std::vector<uint16_t> frame)
 {
 
 	std::vector<double> converted_values(frame.begin(), frame.end());
@@ -102,7 +102,7 @@ std::vector<uint16_t> NUC::ApplyNucCorrection(std::vector<uint16_t> frame)
 	return vector_int;
 }
 
-arma::mat NUC::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain)
+arma::mat NonUniformityCorrection::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain)
 {
 	//Assumes a domain matrix that is square n x n, where n is an odd number greater than 1
 	
@@ -170,7 +170,7 @@ arma::mat NUC::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int o
 	return output;
 }
 
-double NUC::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain, int i, int j)
+double NonUniformityCorrection::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int order, arma::mat domain, int i, int j)
 {
     //Assumes a domain (kernel/filter) matrix that is square n x n, where n is an odd number greater than 1
 
@@ -232,7 +232,7 @@ double NUC::ApplyFilterMatrixWithOrderReduction(arma::mat input_matrix, int orde
 	return output;
 }
 
-arma::vec NUC::ApplyKernel(arma::vec data, arma::uvec indices)
+arma::vec NonUniformityCorrection::ApplyKernel(arma::vec data, arma::uvec indices)
 {
 
 	arma::mat data_matrix(data);
@@ -261,7 +261,7 @@ arma::vec NUC::ApplyKernel(arma::vec data, arma::uvec indices)
 	return output;
 }
 
-arma::vec NUC::ReplaceBrokenPixels(arma::vec values)
+arma::vec NonUniformityCorrection::ReplaceBrokenPixels(arma::vec values)
 {
 	// -------------------------------------------------------------
 	// Find values for happy/dead pixels in selected frames
@@ -328,7 +328,7 @@ arma::vec NUC::ReplaceBrokenPixels(arma::vec values)
 	return values;
 }
 
-void NUC::ReplacePixels(arma::vec &base, arma::vec &updated, arma::uvec pixels) {
+void NonUniformityCorrection::ReplacePixels(arma::vec &base, arma::vec &updated, arma::uvec pixels) {
 
 	int num_pixels = pixels.size();
 
@@ -355,7 +355,7 @@ void NUC::ReplacePixels(arma::vec &base, arma::vec &updated, arma::uvec pixels) 
 
 }
 
-void  NUC::ReplaceImagePixels(arma::vec &frame, arma::uvec &indices, arma::vec &update)
+void  NonUniformityCorrection::ReplaceImagePixels(arma::vec &frame, arma::uvec &indices, arma::vec &update)
 {
 	int num_pixels = indices.n_elem;
 	int pixel_index, pixel_row, pixel_col;

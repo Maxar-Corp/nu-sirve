@@ -2,10 +2,10 @@
 #ifndef ENHANCED_LABEL_H
 #define ENHANCED_LABEL_H
 
-#include <QLabel>
 #include <iostream>
 #include <qrubberband.h>
 #include <qpoint.h>
+#include <QLabel>
 #include <QMouseEvent> 
 
 
@@ -25,10 +25,10 @@ public:
 	void enable();
 
 signals:
-	void clicked(QPoint pt);
-    void rightClicked(QPoint pt);
     void areaHighlighted(QRect area);
     void doubleClicked(QPoint pt);
+	void clicked(QPoint pt);
+    void rightClicked(QPoint pt);
 
 protected:
 	void mousePressEvent(QMouseEvent *event);

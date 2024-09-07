@@ -1,8 +1,12 @@
 #ifndef HISTOGRAM_PLOTTER_H
 #define HISTOGRAM_PLOTTER_H
 
+#include <armadillo>
 #include <iostream>
+#include <math.h>
 #include <string>
+#include <vector>
+
 #include <QtCharts/QChartView>
 #include <QtCharts/QLegendMarker>
 #include <QtCharts/QAbstractAxis>
@@ -16,10 +20,6 @@
 #include <QList>
 #include <QPointF>
 #include <qlabel.h>
-#include <armadillo>
-
-#include <vector>
-#include <math.h>
 
 #include "color_scheme.h"
 #include "clickable_chartview.h"

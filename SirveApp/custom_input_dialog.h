@@ -11,7 +11,7 @@
 
 #include <qgridlayout.h>
 
-#include "Data_Structures.h"
+#include "data_structures.h"
 
 
 class CustomInputDialog : public QDialog
