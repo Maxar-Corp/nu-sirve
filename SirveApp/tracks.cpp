@@ -13,6 +13,8 @@ TrackInformation::TrackInformation()
     track_engineering_data = std::vector<TrackEngineeringData>();
 
     manual_plotting_frames = std::vector<ManualPlottingTrackFrame>();
+
+    manual_image_frames = std::vector<TrackFrame>();
 }
 
 TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
@@ -34,8 +36,12 @@ TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
         track_engineering_data.push_back(TrackEngineeringData());
 
         ManualPlottingTrackFrame manual_plotting_track_frame;
-        manual_plotting_track_frame.tracks = std::map<int, ManualPlottingTrackDetails>();
+        manual_plotting_track_frame.tracks = std::map<int,ManualPlottingTrackDetails>();
         manual_plotting_frames.push_back(manual_plotting_track_frame);
+
+        TrackFrame manual_image_track_frame;
+        manual_image_track_frame.tracks = std::map<int, TrackDetails>();
+        manual_image_frames.push_back(manual_image_track_frame);
     }
 }
 
@@ -111,8 +117,8 @@ std::vector<TrackFrame> TrackInformation::get_osm_frames(int start_index, int en
 
 std::vector<TrackFrame> TrackInformation::get_manual_frames(int start_index, int end_index)
 {
-	std::vector<TrackFrame>::const_iterator first = manual_frames.begin() + start_index;
-	std::vector<TrackFrame>::const_iterator last = manual_frames.begin() + end_index;
+	std::vector<TrackFrame>::const_iterator first = manual_image_frames.begin() + start_index;
+	std::vector<TrackFrame>::const_iterator last = manual_image_frames.begin() + end_index;
 
     std::vector<TrackFrame> subset(first, last);
 
@@ -127,6 +133,11 @@ std::vector<PlottingTrackFrame> TrackInformation::get_osm_plotting_track_frames(
 std::vector<ManualPlottingTrackFrame> TrackInformation::get_manual_plotting_frames()
 {
     return manual_plotting_frames;
+}
+
+std::vector<TrackFrame> TrackInformation::get_manual_image_frames()
+{
+    return manual_image_frames;
 }
 
 std::set<int> TrackInformation::get_manual_track_ids()
@@ -146,16 +157,25 @@ void TrackInformation::set_manual_frame(int frame_index, int track_id, TrackDeta
 void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
+     for (int i = 0; i < manual_frames.size(); i++ )
+    {
+		for ( const auto &trackData : new_frames[i].tracks )
+        {
+            int track_id = trackData.first;
+            RemoveManualTrackPlotting(track_id);
+            RemoveManualTrackImage(track_id);
+        }
+    }
     for (int i = 0; i < manual_frames.size(); i++ )
     {
 		for ( const auto &trackData : new_frames[i].tracks )
         {
             int track_id = trackData.first;
-            RemoveManualTrack(track_id);
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
-
             manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x, trackData.second.centroid_y);
+            manual_image_frames[i].tracks[track_id].centroid_x = trackData.second.centroid_x;
+            manual_image_frames[i].tracks[track_id].centroid_y = trackData.second.centroid_y;
         }
     }
 }
@@ -178,6 +198,16 @@ void TrackInformation::RemoveManualTrackPlotting(int track_id)
     }
 }
 
+
+void TrackInformation::RemoveManualTrackImage(int track_id)
+{
+    // manual_track_ids.erase(track_id);
+    for (int i = 0; i < manual_frames.size(); i++ )
+    {
+        manual_image_frames[i].tracks.erase(track_id);
+    }
+}
+
 void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
 {
     //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
@@ -186,6 +216,7 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
     RemoveManualTrackPlotting(track_id);
+    RemoveManualTrackImage(track_id);
     for (int i = 0; i < manual_frames.size(); i++)
     {
         if (new_track_details[i].has_value())
@@ -198,6 +229,8 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
             file.write("\n");
 
             manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y);
+            manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
+            manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
         }
     }
 

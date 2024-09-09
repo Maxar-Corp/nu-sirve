@@ -67,6 +67,7 @@ class TrackInformation {
         void AddManualTracks(std::vector<TrackFrame> new_frames);
         void RemoveManualTrack(int track_id);
         void RemoveManualTrackPlotting(int track_id);
+        void RemoveManualTrackImage(int track_id);
         void AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
         std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
         std::vector<std::optional<TrackDetails>> GetEmptyTrack();
@@ -75,13 +76,14 @@ class TrackInformation {
         std::vector<TrackFrame> get_manual_frames(int start_index, int end_index);
         std::vector<PlottingTrackFrame> get_osm_plotting_track_frames();
         std::vector<ManualPlottingTrackFrame> get_manual_plotting_frames();
+        std::vector<TrackFrame> get_manual_image_frames();
 
         int get_track_count();
         int get_frame_count();
         std::set<int> get_manual_track_ids();
         std::set<int> get_OSM_track_ids();
 
-        void set_manual_frame(int index, int track_id, TrackDetails *centroid);
+        void set_manual_frame(int index, int track_id, TrackDetails * centroid);
 
     private:
         TrackInformation();
@@ -95,6 +97,7 @@ class TrackInformation {
         std::vector<TrackFrame> manual_frames;
         std::set<int> manual_track_ids;
         std::vector<ManualPlottingTrackFrame> manual_plotting_frames;
+        std::vector<TrackFrame> manual_image_frames;
 };
 
 #endif

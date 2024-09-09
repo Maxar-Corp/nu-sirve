@@ -1406,6 +1406,7 @@ void SirveApp::ImportTracks()
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+    // video_display->UpdateManualTrackData(track_info->get_manual_image_frames());
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
@@ -1508,6 +1509,7 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = data_plots->index_sub_plot_xmin;
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+        // video_display->UpdateManualTrackData(track_info->get_manual_image_frames());
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
         double xmax = data_plots->axis_x->max();
         double xmin = data_plots->axis_x->min();
