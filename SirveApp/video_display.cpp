@@ -66,7 +66,7 @@ void VideoDisplay::InitializeToggles()
 {
 	banner_color = QString("yellow");
 	banner_text = QString("EDIT CLASSIFICATION");
-	tracker_color = QString("blue");
+	OSM_track_color = QString("blue");
 	QColor new_color(QString("yellow"));
 	bad_pixel_color = new_color;
 }
@@ -296,10 +296,10 @@ void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleTrackerColorUpdate(QString input_color)
+void VideoDisplay::HandleTrackerColorUpdate(QColor new_color)
 {
-    QColor new_color(input_color);
-    tracker_color = new_color;
+    // QColor new_color(input_color);
+    OSM_track_color = new_color;
 
     UpdateDisplayFrame();
 }
@@ -794,7 +794,7 @@ void VideoDisplay::UpdateDisplayFrame()
         double box_height = size_of_pixel_y - 1 + box_size * 2;
 
         QPainter rectangle_painter(&frame);
-        rectangle_painter.setPen(QPen(tracker_color));
+        rectangle_painter.setPen(QPen(OSM_track_color));
 
         for ( const auto &trackData : osm_track_frames[counter].tracks )
         {
@@ -961,7 +961,7 @@ void VideoDisplay::UpdateDisplayFrame()
             QPen pen_calculation_area;
             pen_calculation_area.setStyle(Qt::DashDotLine);
             pen_calculation_area.setWidth(3);
-            pen_calculation_area.setBrush(tracker_color);
+            pen_calculation_area.setBrush(OSM_track_color);
 
             QPoint top_left(pt1[0], pt1[1]);
             QPoint bottom_right(pt2[0], pt2[1]);

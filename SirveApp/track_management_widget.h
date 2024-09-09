@@ -18,12 +18,12 @@ class TrackManagementWidget : public QWidget
 public:
     TrackManagementWidget(QWidget *parent = nullptr);
     ~TrackManagementWidget();
-
+    std::map<int,QColor> track_colors;
     void AddTrackControl(int id);
     void RemoveTrackControl(int id);
 
 signals:
-    void displayTrack(int id);
+    void displayTrack(int id, QColor color);
     void hideTrack(int id);
     void deleteTrack(int id);
     void recolorTrack(int id, QColor color);
@@ -32,6 +32,7 @@ signals:
 private:
     QWidget* CreateTrackControl(int id);
     void HandleTrackColorSelection(int id, int index);
+    void HandleDisplayTrack(int id);
 
     QVBoxLayout *layout;
 };

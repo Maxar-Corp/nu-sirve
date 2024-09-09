@@ -72,7 +72,7 @@ public:
     VideoContainer container;
 
     QString banner_text, boresight_text;
-    QColor tracker_color, bad_pixel_color;
+    QColor OSM_track_color, bad_pixel_color;
     bool plot_tracks;
 
     void HighlightBadPixels(bool status);
@@ -131,7 +131,8 @@ public slots:
     void HandlePinpointControlActivation(bool enabled);
     void HandlePixelSelection(QPoint origin);
     void HandleSensorBoresightDataCheck(bool checked);
-    void HandleTrackerColorUpdate(QString input_color);
+    // void HandleTrackerColorUpdate(QString input_color);
+    void HandleTrackerColorUpdate(QColor input_color);
 
     // stencil stuff
     void HideStencil();

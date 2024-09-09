@@ -851,8 +851,8 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_workspace->insertStretch(-1,0);
     vlayout_workspace->insertStretch(0,0);
 	QStringList colors = ColorScheme::get_track_colors();
-    chk_show_tracks = new QCheckBox("OSM Tracks");
-    chk_show_tracks->setChecked(true);
+    chk_show_OSM_tracks = new QCheckBox("OSM Tracks");
+    chk_show_OSM_tracks->setChecked(true);
     cmb_OSM_track_color = new QComboBox();
     cmb_OSM_track_color->addItems(colors);
     cmb_OSM_track_color->setEnabled(true);
@@ -860,7 +860,7 @@ QWidget* SirveApp::SetupTracksTab(){
 
     QGroupBox * grpbox_OSM_track_display = new QGroupBox;
     QHBoxLayout *hlayout_OSM_track_display = new QHBoxLayout(grpbox_OSM_track_display);
-    hlayout_OSM_track_display->addWidget(chk_show_tracks);
+    hlayout_OSM_track_display->addWidget(chk_show_OSM_tracks);
     hlayout_OSM_track_display->addWidget(cmb_OSM_track_color);
     hlayout_OSM_track_display->insertStretch(-1,0);
     hlayout_OSM_track_display->insertStretch(0,0);
@@ -1234,8 +1234,8 @@ void SirveApp::setupConnections() {
     connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::UpdateGlobalFrameVector);
     //---------------------------------------------------------------------------
 
-    connect(chk_show_tracks, &QCheckBox::stateChanged, this, &SirveApp::HandleOsmTracksToggle);
-    connect(cmb_OSM_track_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditTrackerColor);
+    connect(chk_show_OSM_tracks, &QCheckBox::stateChanged, this, &SirveApp::HandleOsmTracksToggle);
+    connect(cmb_OSM_track_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditOSMTrackColor);
 
     connect(chk_sensor_track_data, &QCheckBox::stateChanged, video_display, &VideoDisplay::HandleSensorBoresightDataCheck);
     connect(chk_show_time, &QCheckBox::stateChanged, video_display, &VideoDisplay::HandleFrameTimeToggle);
@@ -1293,8 +1293,8 @@ void SirveApp::setupConnections() {
     connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::HandleFinishCreateTrackClick);
     connect(video_display, &VideoDisplay::finishTrackCreation, this, &SirveApp::HandleFinishCreateTrackClick);
 
-    connect(tm_widget, &TrackManagementWidget::displayTrack, video_display, &VideoDisplay::ShowManualTrackId);
-    connect(tm_widget, &TrackManagementWidget::hideTrack, video_display, &VideoDisplay::HideManualTrackId);
+    connect(tm_widget, &TrackManagementWidget::displayTrack, this, &SirveApp::HandleShowManualTrackId);
+    connect(tm_widget, &TrackManagementWidget::hideTrack, this, &SirveApp::HandleHideManualTrackId);
     connect(tm_widget, &TrackManagementWidget::deleteTrack, this, &SirveApp::HandleTrackRemoval);
     connect(tm_widget, &TrackManagementWidget::recolorTrack, this, &SirveApp::HandleManualTrackRecoloring);
 
@@ -1518,6 +1518,37 @@ void SirveApp::ExitTrackCreationMode()
     tab_menu->setTabEnabled(0, true);
     tab_menu->setTabEnabled(2, true);
     video_display->ExitTrackCreationMode();
+}
+
+void SirveApp::HandleHideManualTrackId(int track_id)
+{
+    QColor new_color(0,0,0,0);
+    video_display->HideManualTrackId(track_id);
+    int index0 = data_plots->index_sub_plot_xmin;
+    int index1 = data_plots->index_sub_plot_xmax + 1;
+    data_plots->RecolorManualTrack(track_id, new_color);
+    double xmax = data_plots->axis_x->max();
+    double xmin = data_plots->axis_x->min();
+    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+    UpdatePlots();
+    data_plots->set_xaxis_limits(xmin,xmax);
+    data_plots->set_yaxis_limits(ymin,ymax);
+}
+
+void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
+{
+    video_display->ShowManualTrackId(track_id);
+    int index0 = data_plots->index_sub_plot_xmin;
+    int index1 = data_plots->index_sub_plot_xmax + 1;
+    data_plots->RecolorManualTrack(track_id, new_color);
+    double xmax = data_plots->axis_x->max();
+    double xmin = data_plots->axis_x->min();
+    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+    UpdatePlots();
+    data_plots->set_xaxis_limits(xmin,xmax);
+    data_plots->set_yaxis_limits(ymin,ymax);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1848,7 +1879,7 @@ void SirveApp::LoadOsmData()
     calibration_model = temp;
 
     // Reset settings on video playback to defaults
-    chk_show_tracks->setChecked(true);
+    chk_show_OSM_tracks->setChecked(true);
     chk_show_time->setChecked(false);
     chk_sensor_track_data->setChecked(false);
     cmb_text_color->setCurrentIndex(0);
@@ -2771,15 +2802,17 @@ void SirveApp::EditBannerColor()
     video_display->UpdateBannerColor(color);
 }
 
-void SirveApp::EditTrackerColor()
+void SirveApp::EditOSMTrackColor()
 {
-    QString tracker_color = cmb_OSM_track_color->currentText();
-    video_display->HandleTrackerColorUpdate(tracker_color);
+    // QString tracker_color = cmb_OSM_track_color->currentText();
+    QStringList color_options = ColorScheme::get_track_colors();
+    QColor color = color_options[cmb_OSM_track_color->currentIndex()];
+    video_display->HandleTrackerColorUpdate(color);
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
     double ymax = data_plots->axis_y->max();
     double ymin = data_plots->axis_y->min();
-    data_plots->RecolorOsmTrack(tracker_color);
+    data_plots->RecolorOsmTrack(color);
     data_plots->set_xaxis_limits(xmin,xmax);
     data_plots->set_yaxis_limits(ymin,ymax);
     // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
@@ -3685,14 +3718,33 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 
 void SirveApp::HandleOsmTracksToggle()
 {
-    bool current_status = chk_show_tracks->isChecked();
+    bool current_status = chk_show_OSM_tracks->isChecked();
     video_display->ToggleOsmTracks(current_status);
     if (current_status) {
         cmb_OSM_track_color->setEnabled(true);
+        QStringList color_options = ColorScheme::get_track_colors();
+        QColor color = color_options[cmb_OSM_track_color->currentIndex()];
+        video_display->HandleTrackerColorUpdate(color);
+        double xmax = data_plots->axis_x->max();
+        double xmin = data_plots->axis_x->min();
+        double ymax = data_plots->axis_y->max();
+        double ymin = data_plots->axis_y->min();
+        data_plots->RecolorOsmTrack(color);
+        data_plots->set_xaxis_limits(xmin,xmax);
+        data_plots->set_yaxis_limits(ymin,ymax);
     }
     else
     {
         cmb_OSM_track_color->setEnabled(false);
+        QColor color = QColor(0,0,0,0);
+        video_display->HandleTrackerColorUpdate(color);
+        double xmax = data_plots->axis_x->max();
+        double xmin = data_plots->axis_x->min();
+        double ymax = data_plots->axis_y->max();
+        double ymin = data_plots->axis_y->min();
+        data_plots->RecolorOsmTrack(color);
+        data_plots->set_xaxis_limits(xmin,xmax);
+        data_plots->set_yaxis_limits(ymin,ymax);
     }
 }
 

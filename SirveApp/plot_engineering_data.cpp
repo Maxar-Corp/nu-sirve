@@ -35,6 +35,7 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     osm_track_color = colors.get_current_color();
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
+    manual_track_colors.clear();
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -576,10 +577,10 @@ void EngineeringPlots::RecolorManualTrack(int track_id, QColor new_color)
     manual_track_colors[track_id] = new_color;
 }
 
-void EngineeringPlots::RecolorOsmTrack(QString new_color_str)
+void EngineeringPlots::RecolorOsmTrack(QColor color)
 {
-    osm_track_color = new_color_str == "white" || new_color_str == "blue" ? colors.get_current_color() : QColor(new_color_str);
-
+    // osm_track_color = new_color_str == "white" || new_color_str == "blue" ? colors.get_current_color() : QColor(new_color_str);
+    osm_track_color = color;
     emit updatePlots();
 }
 void EngineeringPlots::HandlePlayerButtonClick()
