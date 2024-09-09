@@ -1297,7 +1297,6 @@ void SirveApp::setupConnections() {
     connect(tm_widget, &TrackManagementWidget::hideTrack, this, &SirveApp::HandleHideManualTrackId);
     connect(tm_widget, &TrackManagementWidget::deleteTrack, this, &SirveApp::HandleTrackRemoval);
     connect(tm_widget, &TrackManagementWidget::recolorTrack, this, &SirveApp::HandleManualTrackRecoloring);
-    connect(video_display, &VideoDisplay::updateTrackInformation, this, &SirveApp::HandleTrackRemovalByFrameIndex);
 
     // Connect epoch button click to function
     connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::ApplyEpochTime);
@@ -1565,11 +1564,6 @@ void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
     UpdatePlots();
     data_plots->set_xaxis_limits(xmin,xmax);
     data_plots->set_yaxis_limits(ymin,ymax);
-}
-
-void SirveApp::HandleTrackRemovalByFrameIndex(int frame_index)
-{
-    track_info->set_manual_frame(frame_index, this->currently_editing_or_creating_track_id, nullptr);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)

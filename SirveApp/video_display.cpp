@@ -526,8 +526,6 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     int current_frame_num = starting_frame_number + counter;
     track_details[current_frame_num - 1] = std::nullopt;
 
-    emit updateTrackInformation(current_frame_num - 1);
-
     if (chk_auto_advance_frame->isChecked())
     {
         emit advanceFrame(this->txt_frame_advance_amt->text().toInt());
@@ -536,7 +534,6 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     {
         UpdateDisplayFrame();
     }
-
     ResetCreateTrackMinAndMaxFrames();
     UpdateCreateTrackLabel();
 }
