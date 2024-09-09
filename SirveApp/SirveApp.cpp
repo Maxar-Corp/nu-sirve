@@ -1564,6 +1564,11 @@ void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
     data_plots->set_yaxis_limits(ymin,ymax);
 }
 
+void SirveApp::HandleTrackRemovalByFrameIndex(int frame_index)
+{
+    track_info->set_manual_frame(frame_index, this->currently_editing_or_creating_track_id, nullptr);
+}
+
 void SirveApp::HandleTrackRemoval(int track_id)
 {
     int ind_delete = cmb_manual_track_IDs->findText(QString::number(track_id));

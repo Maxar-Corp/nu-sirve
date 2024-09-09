@@ -534,6 +534,7 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     {
         UpdateDisplayFrame();
     }
+
     ResetCreateTrackMinAndMaxFrames();
     UpdateCreateTrackLabel();
 }
