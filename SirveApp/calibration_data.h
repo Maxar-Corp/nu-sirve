@@ -2,33 +2,24 @@
 #ifndef CALIBRATION_DATA_H
 #define CALIBRATION_DATA_H
 
+#include <armadillo>
 #include <iostream>
 #include <fstream>
-#include <qjsonobject.h>
-#include <qjsondocument.h>
 #include <string>
 #include <math.h>
 
-#include <armadillo>
-
-#include "abpnuc_reader.h"
-#include "clickable_chartview.h"
-#include "color_scheme.h"
-#include "process_file.h"
-#include "osm_reader.h"
-#include "Data_Structures.h"
-#include "support/qthelpers.h"
-
+#include <qbuttongroup.h>
+#include <qcombobox.h>
+#include <qdialog.h>
 #include <qfiledialog.h>
-#include <qlineedit.h>
+#include <qjsonobject.h>
+#include <qjsondocument.h>
 #include <qlabel.h>
+#include <qlineedit.h>
+#include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qobject.h>
-#include <qdialog.h>
-#include <qcombobox.h>
-#include <qmessagebox.h>
 #include <qradiobutton.h>
-#include <qbuttongroup.h>
 
 #include <QtCharts/QChartView>
 #include <QtCharts/QAbstractAxis>
@@ -40,10 +31,17 @@
 
 #include <qgridlayout.h>
 
+#include "abpnuc_reader.h"
+#include "clickable_chartview.h"
+#include "color_scheme.h"
+#include "data_structures.h"
+#include "osm_reader.h"
+#include "process_file.h"
+#include "support/qthelpers.h"
+
 struct ImportFrames {
 
 	int start_frame1, start_frame2, stop_frame1, stop_frame2;
-
 	bool all_frames_found;
 };
 
@@ -96,7 +94,7 @@ public:
 	CalibrationData model;
 
 	public slots:
-		void point_selected(double x0, double x1);
+        void PointSelected(double x0, double x1);
 
 private:
 

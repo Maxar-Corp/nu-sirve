@@ -2,16 +2,15 @@
 #ifndef ANNOTATIONS_NEW_H
 #define ANNOTATIONS_NEW_H
 
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qobject.h>
-#include <qlistwidget.h>
-#include <qdialog.h>
-#include <qlineedit.h>
 #include <qcombobox.h>
-#include <qmessagebox.h>
-
+#include <qdialog.h>
 #include <qgridlayout.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qlistwidget.h>
+#include <qmessagebox.h>
+#include <qobject.h>
+#include <qpushbutton.h>
 
 #include "annotation_info.h"
 
@@ -34,12 +33,12 @@ signals:
 
 public slots:
 
-    void TextChanged();
-    void FrameStartChanged();
-    void NumberOfFramesChanged();
-    void LocationChanged(QPoint location);
     void ColorChanged(const QString &text);
     void FontSizeChanged(const QString &text);
+    void FrameStartChanged();
+    void LocationChanged(QPoint location);
+    void NumberOfFramesChanged();
+    void TextChanged();
 
 private:
 	

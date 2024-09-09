@@ -2,15 +2,14 @@
 #ifndef ANNOTATION_TEMPLATE_H
 #define ANNOTATION_TEMPLATE_H
 
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qobject.h>
-#include <qlistwidget.h>
 #include <qdialog.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-
 #include <qgridlayout.h>
+#include <qlabel.h>
+#include <qlineedit.h>
+#include <qlistwidget.h>
+#include <qmessagebox.h>
+#include <qobject.h>
+#include <qpushbutton.h>
 
 #include "annotation_info.h"
 

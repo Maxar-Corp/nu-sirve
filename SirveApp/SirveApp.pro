@@ -25,9 +25,9 @@ HEADERS += abir_reader.h \
             color_scheme.h \
             config.h \
             custom_input_dialog.h \
-            Data_Structures.h \
             data_export.h \
-            engineeringdata.h \
+            data_structures.h \
+            engineering_data.h \
             enhanced_label.h \
             frame_player.h \
             histogram_plotter.h \
@@ -75,7 +75,7 @@ SOURCES += abir_reader.cpp \
             config.cpp \
             custom_input_dialog.cpp \
             data_export.cpp \
-            engineeringdata.cpp \
+            engineering_data.cpp \
             enhanced_label.cpp \
             frame_player.cpp \
             histogram_plotter.cpp \

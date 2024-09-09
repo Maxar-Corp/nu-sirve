@@ -135,7 +135,7 @@ void AnnotationListDialog::add()
     annotation_edit_dialog = new AnnotationEditDialog(data.back(), "Add");
 
     connect(annotation_edit_dialog, &AnnotationEditDialog::annotationChanged, this, &AnnotationListDialog::annotationListUpdated);
-    connect(this, &QDialog::rejected, this, &AnnotationListDialog::onDialogRejected);
+    connect(this, &QDialog::rejected, this, &AnnotationListDialog::OnDialogRejected);
 
     auto response = annotation_edit_dialog->exec();
 
@@ -268,6 +268,6 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
     }
 }
 
-void AnnotationListDialog::onDialogRejected() {
+void AnnotationListDialog::OnDialogRejected() {
     emit hideAnnotationStencil();
 }
