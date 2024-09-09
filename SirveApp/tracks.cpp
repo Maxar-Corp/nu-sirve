@@ -139,6 +139,11 @@ std::set<int> TrackInformation::get_OSM_track_ids()
     return osm_track_ids;
 }
 
+void TrackInformation::set_manual_frame(int frame_index, int track_id, TrackDetails centroid) {
+    manual_frames[frame_index].tracks[track_id] = centroid;
+}
+
+
 void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
