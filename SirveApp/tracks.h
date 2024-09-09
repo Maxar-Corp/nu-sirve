@@ -81,7 +81,7 @@ class TrackInformation {
         std::set<int> get_manual_track_ids();
         std::set<int> get_OSM_track_ids();
 
-        void set_manual_frame(int index, int track_id, TrackDetails centroid);
+        void set_manual_frame(int index, int track_id, TrackDetails *centroid);
 
     private:
         TrackInformation();
