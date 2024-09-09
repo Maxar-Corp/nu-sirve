@@ -66,6 +66,7 @@ class TrackInformation {
         TrackFileReadResult ReadTracksFromFile(QString file_name) const;
         void AddManualTracks(std::vector<TrackFrame> new_frames);
         void RemoveManualTrack(int track_id);
+        void RemoveManualTrackPlotting(int track_id);
         void AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
         std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
         std::vector<std::optional<TrackDetails>> GetEmptyTrack();

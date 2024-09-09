@@ -104,7 +104,7 @@ void VideoDisplay::SetupCreateTrackControls()
     lbl_frame_advance_amt = new QLabel("# Frames");
     txt_frame_advance_amt = new QLineEdit("1");
     txt_frame_advance_amt->setFixedWidth(30);
-    btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
+    btn_clear_track_centroid = new QPushButton("Remove Track Pt\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
     connect(txt_frame_advance_amt, &QLineEdit::textChanged, this, &VideoDisplay::HandleFrameAdvanceAmtEntry);
 
@@ -526,9 +526,16 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     int current_frame_num = starting_frame_number + counter;
     track_details[current_frame_num - 1] = std::nullopt;
 
+    if (chk_auto_advance_frame->isChecked())
+    {
+        emit advanceFrame(this->txt_frame_advance_amt->text().toInt());
+    }
+    else
+    {
+        UpdateDisplayFrame();
+    }
     ResetCreateTrackMinAndMaxFrames();
-
-    UpdateDisplayFrame();
+    UpdateCreateTrackLabel();
 }
 
 void VideoDisplay::HandleFrameAdvanceAmtEntry(const QString &text)
@@ -842,7 +849,7 @@ void VideoDisplay::UpdateDisplayFrame()
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
                 int track_x = trackData.second.centroid_x;
-                int track_y =  trackData.second.centroid_y;
+                int track_y = trackData.second.centroid_y;
                 int new_track_x = track_x - xCorrection;
                 int new_track_y = track_y - yCorrection;
                 if (new_track_x < 0){

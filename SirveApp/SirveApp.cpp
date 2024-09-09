@@ -1363,6 +1363,7 @@ void SirveApp::HandleYAxisOptionChange()
     }
     UpdatePlots();
 }
+
 void SirveApp::ImportTracks()
 {
     QString base_track_folder = config_values.workspace_folder;
@@ -1406,7 +1407,13 @@ void SirveApp::ImportTracks()
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+    double xmax = data_plots->axis_x->max();
+    double xmin = data_plots->axis_x->min();
+    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
     UpdatePlots();
+    data_plots->set_xaxis_limits(xmin,xmax);
+    data_plots->set_yaxis_limits(ymin,ymax);
 }
 
 void SirveApp::HandleCreateTrackClick()
@@ -1502,8 +1509,14 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        double xmax = data_plots->axis_x->max();
+        double xmin = data_plots->axis_x->min();
+        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
         UpdatePlots();
         cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
+        data_plots->set_xaxis_limits(xmin,xmax);
+        data_plots->set_yaxis_limits(ymin,ymax);
     }
 
     ExitTrackCreationMode();
@@ -4272,7 +4285,13 @@ void SirveApp::ExecuteAutoTracking()
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        double xmax = data_plots->axis_x->max();
+        double xmin = data_plots->axis_x->min();
+        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
         UpdatePlots();
+        data_plots->set_xaxis_limits(xmin,xmax);
+        data_plots->set_yaxis_limits(ymin,ymax);
         }
     }
     CloseProgressArea();
