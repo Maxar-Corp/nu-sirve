@@ -118,6 +118,7 @@ signals:
     void removeBadPixels(std::vector<unsigned int> pixels);
     void advanceFrame(int frame_amt);
     void finishTrackCreation();
+    void updateTrackInformation(int frame_index);
 
 public slots:
 

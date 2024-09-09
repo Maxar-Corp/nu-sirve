@@ -153,6 +153,8 @@ public:
 	TrackManagementWidget *tm_widget;
 	bool record_video;
 
+    int currently_editing_or_creating_track_id;
+
     void SetupUi();
     // QWidget* SetupFileImportTab();
     QWidget* SetupColorCorrectionTab();
@@ -195,6 +197,7 @@ public:
         void HandleManualTrackRecoloring(int track_id, QColor color);
         void HandleHideManualTrackId(int track_id);
         void HandleShowManualTrackId(int track_id, QColor color);
+        void HandleTrackRemovalByFrameIndex(int frame_index);
 
         void HandleAbpFileSelected();
         bool ValidateAbpFiles(QString path_to_image_file);
@@ -267,8 +270,6 @@ private:
 	HistogramLinePlot *histogram_plot;
 
 	ConfigValues config_values;
-
-	int currently_editing_or_creating_track_id;
 
     void CreateMenuActions();
     void EditColorMap();
