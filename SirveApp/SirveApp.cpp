@@ -1297,6 +1297,7 @@ void SirveApp::setupConnections() {
     connect(tm_widget, &TrackManagementWidget::hideTrack, this, &SirveApp::HandleHideManualTrackId);
     connect(tm_widget, &TrackManagementWidget::deleteTrack, this, &SirveApp::HandleTrackRemoval);
     connect(tm_widget, &TrackManagementWidget::recolorTrack, this, &SirveApp::HandleManualTrackRecoloring);
+    connect(video_display, &VideoDisplay::updateTrackInformation, this, &SirveApp::HandleTrackRemovalByFrameIndex);
 
     // Connect epoch button click to function
     connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::ApplyEpochTime);
