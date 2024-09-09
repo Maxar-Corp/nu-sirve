@@ -3863,7 +3863,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
     lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
-    OpenProgressArea("Adaptive median background noise suppression...",number_video_frames - 1);;
+    OpenProgressArea("Adaptive median background noise suppression...",number_video_frames - 1);
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
@@ -4025,8 +4025,10 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
         ImageProcessing *ImageProcessor = new ImageProcessing();
 
         OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
+
         connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
         connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
+
         new_state.details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
         if(new_state.details.frames_16bit.size()>0){
             new_state.method = ProcessingMethod::accumulator_noise_suppression;
@@ -4077,6 +4079,7 @@ void SirveApp::ExecuteAutoTracking()
 
     int num_frames_to_track = stop_frame - start_frame + 1;
     OpenProgressArea("Generating track...",num_frames_to_track);
+
     connect(&AutoTracker, &AutoTracking::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &AutoTracker, &AutoTracking::CancelOperation);
 
