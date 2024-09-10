@@ -33,9 +33,9 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     index_sub_plot_xmax = num_frames - 1;
 
     osm_track_color = colors.get_current_color();
+    // osm_track_color = colors.get_color(7);
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
-    manual_track_colors.clear();
 }
 
 EngineeringPlots::~EngineeringPlots()
@@ -263,13 +263,14 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
-        series->setColor(osm_track_color);
+        // series->setColor(osm_track_color);
         series->setName("OSM Data");
 
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
         AddSeries(series, x_values, y_values, true);
+        series->setColor(osm_track_color);
     }
 
     for (int track_id : manual_track_ids)
@@ -816,6 +817,9 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
     size_t num_data_pts = x.size();
     int num_breaks = 0;
 
+    if(osm_track_color == QColor(0,0,0,255)){
+       osm_track_color = QColor(0,0,0); 
+    }
     double base_x_distance = 1;
     if (num_data_pts > 1)
     {
@@ -830,29 +834,33 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
         if (i == 0)
         { //If first pt in series then continue...
             series->append(x[i], y[i]);
+            series->setColor(osm_track_color);
         }
         else if ((x[i] - x[i - 1] > base_x_distance) & broken_data)
         {
             //if current point is greater than 1 frame away then start new series...
             chart->addSeries(series);
+            series->setColor(osm_track_color);
 
             if (num_breaks > 0)
                 RemoveSeriesLegend();
             num_breaks++;
 
             series = new QLineSeries();
-            series->setColor(osm_track_color);
             series->append(x[i], y[i]);
+            series->setColor(osm_track_color);
         }
         else
         {
             //if continuation of current series...
             series->append(x[i], y[i]);
+            series->setColor(osm_track_color);
         }
+
     }
 
     QPen pen;
-    pen.setColor(osm_track_color);
+    // pen.setColor(osm_track_color);
     pen.setStyle(Qt::SolidLine);
     pen.setWidth(3);
     series->setPen(pen);
