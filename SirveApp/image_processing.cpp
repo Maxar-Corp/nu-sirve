@@ -1004,7 +1004,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
 
 void ImageProcessing::UpdateProgressBar(unsigned int val)
 {
-    emit SignalProgress(val);
+    emit signalProgress(val);
 }
 
 void ImageProcessing::CancelOperation()

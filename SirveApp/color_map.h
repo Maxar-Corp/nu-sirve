@@ -42,7 +42,6 @@ class ColorMap : public QWidget
 
 		ColorMap();
 		
-
 	private:
 		void initialize_gray_scale();
 		void initialize_jet_scale();

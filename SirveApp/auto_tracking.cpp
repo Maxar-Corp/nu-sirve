@@ -11,7 +11,7 @@ AutoTracking::~AutoTracking()
 
 void AutoTracking::UpdateProgressBar(unsigned int val)
 {
-    emit SignalProgress(val);
+    emit signalProgress(val);
 }
 
 void AutoTracking::CancelOperation()

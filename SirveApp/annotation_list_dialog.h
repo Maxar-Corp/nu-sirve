@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
+
 #include "annotation_info.h"
 #include "video_display.h"
 #include "annotation_edit_dialog.h"
@@ -24,16 +25,16 @@ public:
 
 signals:
     void annotationListUpdated();
-    void showAnnotationStencil();
     void hideAnnotationStencil();
-    void updateAnnotationStencil(AnnotationInfo data);
     void positionChanged(QPoint location);
+    void showAnnotationStencil();
+    void updateAnnotationStencil(AnnotationInfo data);
 
 public slots:
 
+    void OnDialogRejected();
     void UpdateStencilPosition(QPoint position);
     void SetStencilLocation(QPoint location);
-    void onDialogRejected();
 
 private:
     std::vector<AnnotationInfo> &data;

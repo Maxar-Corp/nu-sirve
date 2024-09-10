@@ -7,7 +7,7 @@
 #include "video_display.h"
 #include "histogram_plotter.h"
 #include "frame_player.h"
-#include "engineeringdata.h"
+#include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "video_container.h"
 #include "video_details.h"
@@ -22,7 +22,7 @@
 #include "support/jtime.h"
 #include "support/qthelpers.h"
 #include "workspace.h"
-#include "Data_Structures.h"
+#include "data_structures.h"
 #include "popout_dialog.h"
 #include "tracks.h"
 #include "track_management_widget.h"
@@ -154,7 +154,7 @@ public:
 	bool record_video;
 
     void SetupUi();
-    // QWidget* SetupFileImportTab();
+
     QWidget* SetupColorCorrectionTab();
     QWidget* SetupTracksTab();
     QWidget* SetupProcessingTab();
@@ -213,7 +213,6 @@ public:
 
         void StartStopVideoRecording();
         void HandleZoomOnVideoToggle();
-        // void HandleCalculationOnVideoToggle();
         void HandleProcessingNewStateSelected();
         void ClearZoomAndCalculationButtons();
 

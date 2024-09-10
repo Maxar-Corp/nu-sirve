@@ -8,16 +8,16 @@
 #include "new_location.h"
 #include "support/earth.h"
 
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qobject.h>
+#include <armadillo>
 #include <qdialog.h>
 #include <qdir.h>
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonvalue.h>
+#include <qlabel.h>
 #include <qmessagebox.h>
-#include <armadillo>
+#include <qobject.h>
+#include <qpushbutton.h>
 
 
 class LocationInput : public QDialog//, public QWidget
@@ -33,13 +33,13 @@ public:
 	QString directory_path;
 	bool path_set;
 
+    void ClearWidgetListItems();
 	std::vector<double> GetECEFVector();
 	void RefreshListBox();
-	void ClearWidgetListItems();
 
 public slots:
+    void OnAddNewPush();
 	void OnItemChange(QString item);
-	void OnAddNewPush();
 
 private:
 	Ui_Dialog ui;

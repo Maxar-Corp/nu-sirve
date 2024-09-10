@@ -18,7 +18,7 @@
 #include <armadillo>
 
 #include "color_scheme.h"
-#include "Data_Structures.h"
+#include "data_structures.h"
 #include "tracks.h"
 #include <armadillo>
 

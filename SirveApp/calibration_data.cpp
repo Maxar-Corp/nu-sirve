@@ -287,7 +287,7 @@ void CalibrationDialog::ImportNucFile()
 	return;
 }
 
-void CalibrationDialog::point_selected(double x0, double x1) {
+void CalibrationDialog::PointSelected(double x0, double x1) {
 
 	if (radio_temperature1->isChecked())
 	{
@@ -837,7 +837,7 @@ void CalibrationDialog::CreateTemperaturePlot(QList<QPointF> temperature) {
 	// set legend
 	chart_temperature->legend()->setVisible(false);
 
-    connect(chart_view_temperatures, &ClickableQChartView::clickDrag, this, &CalibrationDialog::point_selected);
+    connect(chart_view_temperatures, &ClickableQChartView::clickDrag, this, &CalibrationDialog::PointSelected);
 
 	// ----------------------------------------------------------------------------------------------------------------
 
