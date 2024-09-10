@@ -130,7 +130,7 @@ public:
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
 	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
     QRadioButton * rad_autotrack_feature_weighted_centroid,  *rad_autotrack_feature_centroid, * rad_autotrack_feature_peak;
-	QCheckBox* chk_show_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
+	QCheckBox* chk_show_OSM_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
 	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
@@ -193,6 +193,8 @@ public:
         void ImportTracks();
         void HandleTrackRemoval(int track_id);
         void HandleManualTrackRecoloring(int track_id, QColor color);
+        void HandleHideManualTrackId(int track_id);
+        void HandleShowManualTrackId(int track_id, QColor color);
 
         void HandleAbpFileSelected();
         bool ValidateAbpFiles(QString path_to_image_file);
@@ -273,7 +275,7 @@ private:
     void EditPlotText();
     void ExportPlotData();
     void EditBannerColor();
-    void EditTrackerColor();
+    void EditOSMTrackColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
     void HandleYAxisOptionChange();

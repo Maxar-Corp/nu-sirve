@@ -66,7 +66,7 @@ void VideoDisplay::InitializeToggles()
 {
 	banner_color = QString("yellow");
 	banner_text = QString("EDIT CLASSIFICATION");
-	tracker_color = QString("blue");
+	OSM_track_color = QString("blue");
 	QColor new_color(QString("yellow"));
 	bad_pixel_color = new_color;
 }
@@ -104,7 +104,7 @@ void VideoDisplay::SetupCreateTrackControls()
     lbl_frame_advance_amt = new QLabel("# Frames");
     txt_frame_advance_amt = new QLineEdit("1");
     txt_frame_advance_amt->setFixedWidth(30);
-    btn_clear_track_centroid = new QPushButton("Remove Track\nFrom Frame");
+    btn_clear_track_centroid = new QPushButton("Remove Track Pt\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
     connect(txt_frame_advance_amt, &QLineEdit::textChanged, this, &VideoDisplay::HandleFrameAdvanceAmtEntry);
 
@@ -296,10 +296,10 @@ void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleTrackerColorUpdate(QString input_color)
+void VideoDisplay::HandleTrackerColorUpdate(QColor new_color)
 {
-    QColor new_color(input_color);
-    tracker_color = new_color;
+    // QColor new_color(input_color);
+    OSM_track_color = new_color;
 
     UpdateDisplayFrame();
 }
@@ -526,9 +526,16 @@ void VideoDisplay::HandleClearTrackCentroidClick()
     int current_frame_num = starting_frame_number + counter;
     track_details[current_frame_num - 1] = std::nullopt;
 
+    if (chk_auto_advance_frame->isChecked())
+    {
+        emit advanceFrame(this->txt_frame_advance_amt->text().toInt());
+    }
+    else
+    {
+        UpdateDisplayFrame();
+    }
     ResetCreateTrackMinAndMaxFrames();
-
-    UpdateDisplayFrame();
+    UpdateCreateTrackLabel();
 }
 
 void VideoDisplay::HandleFrameAdvanceAmtEntry(const QString &text)
@@ -794,7 +801,7 @@ void VideoDisplay::UpdateDisplayFrame()
         double box_height = size_of_pixel_y - 1 + box_size * 2;
 
         QPainter rectangle_painter(&frame);
-        rectangle_painter.setPen(QPen(tracker_color));
+        rectangle_painter.setPen(QPen(OSM_track_color));
 
         for ( const auto &trackData : osm_track_frames[counter].tracks )
         {
@@ -842,7 +849,7 @@ void VideoDisplay::UpdateDisplayFrame()
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
                 int track_x = trackData.second.centroid_x;
-                int track_y =  trackData.second.centroid_y;
+                int track_y = trackData.second.centroid_y;
                 int new_track_x = track_x - xCorrection;
                 int new_track_y = track_y - yCorrection;
                 if (new_track_x < 0){
@@ -961,7 +968,7 @@ void VideoDisplay::UpdateDisplayFrame()
             QPen pen_calculation_area;
             pen_calculation_area.setStyle(Qt::DashDotLine);
             pen_calculation_area.setWidth(3);
-            pen_calculation_area.setBrush(tracker_color);
+            pen_calculation_area.setBrush(OSM_track_color);
 
             QPoint top_left(pt1[0], pt1[1]);
             QPoint bottom_right(pt2[0], pt2[1]);

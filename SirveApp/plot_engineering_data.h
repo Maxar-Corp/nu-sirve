@@ -129,7 +129,7 @@ public:
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
-    void RecolorOsmTrack(QString new_color);
+    void RecolorOsmTrack(QColor new_color);
 
     void toggle_yaxis_log(bool input);
     void toggle_yaxis_scientific(bool input);
