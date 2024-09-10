@@ -7,7 +7,7 @@ TrackManagementWidget::TrackManagementWidget(QWidget *parent)
     layout = new QVBoxLayout(this);
     layout->setAlignment(Qt::AlignTop);
     layout->setSpacing(0);
-    track_colors.clear();
+    // track_colors.clear();
 }
 
 TrackManagementWidget::~TrackManagementWidget()
@@ -31,6 +31,7 @@ void TrackManagementWidget::AddTrackControl(int id)
     {
         //If there's already a track control widget for this ID, just make sure the checkbox is checked
         QCheckBoxWithId * chk_box = existing_track_control->findChild<QCheckBoxWithId*>();
+        track_colors[id] = QColor(255,0,0,255);
         chk_box->setChecked(true);
         return;
     }
@@ -64,6 +65,11 @@ QWidget* TrackManagementWidget::CreateTrackControl(int id)
 
     QComboBoxWithId *recolor_combobox = new QComboBoxWithId(id);
     recolor_combobox->addItems(ColorScheme::get_track_colors());
+    
+    if (!track_colors.empty())
+    {
+        emit recolorTrack(id, track_colors[id]);
+    }
 
     connect(chk_should_display, &QCheckBoxWithId::checkedWithId, this, &TrackManagementWidget::HandleDisplayTrack);
     connect(chk_should_display, &QCheckBoxWithId::uncheckedWithId, this, &TrackManagementWidget::hideTrack);
@@ -96,5 +102,8 @@ void TrackManagementWidget::HandleTrackColorSelection(int id, int index)
 
 void TrackManagementWidget::HandleDisplayTrack(int id)
 {
+    if (track_colors.empty()){
+        track_colors[id] = QColor(255,0,0,255);
+    }
     emit displayTrack(id, track_colors[id]);
 }
