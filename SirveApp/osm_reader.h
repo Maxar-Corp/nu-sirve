@@ -3,20 +3,19 @@
 #ifndef OSM_READER_H
 #define OSM_READER_H
 
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <type_traits>
 #include <armadillo>
+#include <excpt.h>
+#include <fstream>
+#include <iostream>
 #include <math.h>
 #include <qstring.h>
-#include <excpt.h>
+#include <stdexcept>
+#include <type_traits>
 
-#include "location_input.h"
 #include "binary_file_reader.h"
 #include "binary_file_reader.cpp"
 #include "data_structures.h"
-
+#include "location_input.h"
 #include "support/earth.h"
 #include "support/az_el_calculation.h"
 
@@ -47,11 +46,11 @@ private:
     uint32_t FindMessageNumber();
     TrackData GetTrackData(FrameData & input);
     std::vector<Frame> LoadData(uint32_t num_messages, bool combine_tracks);
-     std::vector<Frame> LoadFrameVectors(const char *file_path, bool input_combine_tracks = false);
+    std::vector<Frame> LoadFrameVectors(const char *file_path, bool input_combine_tracks = false);
 
-	MessageHeader ReadMessageHeader();
 	FrameHeader ReadFrameHeader();
 	FrameData ReadFrameData();
+    MessageHeader ReadMessageHeader();
 };
 
 #endif

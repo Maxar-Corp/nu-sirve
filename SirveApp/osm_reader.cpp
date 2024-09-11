@@ -132,13 +132,11 @@ std::vector<Frame> OSMReader::LoadData(uint32_t num_messages, bool combine_track
 
 void OSMReader::AddTrackToLastFrame(std::vector<Frame> &data)
 {
-    //TODO Verify that this adding track to last frame works correctly.....
-    int return_code;
-    Frame last_frame = data.back();
+    //TODO: Verify that adding a track to last frame works correctly.
 
+    Frame last_frame = data.back();
     uint32_t start_track_index = last_frame.data.num_tracks;
-	
-    return_code = fseek(fp, 284, SEEK_SET);
+
     last_frame.data.num_tracks += ReadValue<uint32_t>(true);
 
     for (uint32_t j = start_track_index; j < last_frame.data.num_tracks; j++)
@@ -226,8 +224,8 @@ FrameData OSMReader::ReadFrameData()
 
 	//-----------------------------------------------------------------------------------------------------------------
 	data.ecf = ReadMultipleDoubleValues(6, true);
-	//DEBUG << "Value from ECEF variable in file: " << data.ecf[0] << ", " << data.ecf[1] << ", " << data.ecf[2] << ", " << data.ecf[3] << ", " << data.ecf[4] << ", " << data.ecf[5];
-	double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
+
+    double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
 
 	if (sum < kSMALL_NUMBER)
 	{
@@ -426,5 +424,3 @@ double OSMReader::CalculateGpsUtcJulianDate(double offset_gps_seconds)
 	
 	return utc_julian_date;
 }
-
-
