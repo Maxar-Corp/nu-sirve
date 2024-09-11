@@ -474,8 +474,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
 		{
 			return std::vector<std::vector<uint16_t>>();
 		}
-        L = thresholding(M - S - muinv*Y, mu);
-        S = shrink(M - L + muinv*Y, lambda_mu);
+        L = perform_thresholding(M - S - muinv*Y, mu);
+        S = apply_soft_threshold(M - L + muinv*Y, lambda_mu);
         Y = Y + mu*(M - L - S);
         minimization_quantity = arma::norm(M - L - S,"fro");
         if(minimization_quantity <= convg_val){
@@ -504,27 +504,26 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
 	return frames_out;
 }
 
-arma::mat ImageProcessing::thresholding(arma::mat X, double tau)
+arma::mat ImageProcessing::perform_thresholding(arma::mat X, double tau)
 {
     arma::mat U;
     arma::vec s;
     arma::mat V;
     arma::svd_econ(U,s,V,X);
     arma::mat S = arma::diagmat(s);
-    arma::mat ST = shrink(S,tau);
+    arma::mat ST = apply_soft_threshold(S ,tau);
     arma:: mat D = U * ST * V.t();
 
     return D;
 }
 
-arma::mat ImageProcessing::shrink(arma::mat s, double tau)
+arma::mat ImageProcessing::apply_soft_threshold(arma::mat s, double tau)
 {
     arma::mat z(s);
     arma::mat st = arma::sign(s) % arma::max(arma::abs(s)-tau, z.zeros());
 
     return st;
 }
-
 
 std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice)
 {
@@ -537,6 +536,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
     std::vector<uint16_t> frame_out;
     cv::Mat accumulator, foreground, foregroundn, frame_32FC1, frame_offset_32FC1, foreground_16UC1, foreground_64FC1;
     accumulator = cv::Mat::zeros(nRows,nCols, CV_32FC1);
+
     for (int framei = 0; framei < num_video_frames; framei++)
     {
         UpdateProgressBar(framei);
@@ -553,18 +553,19 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
             offseti = std::min(framei+offset,num_video_frames-1);
         }
         std::vector<uint16_t> vecold = {original.frames_16bit[offseti].begin(),original.frames_16bit[offseti].end()};
-        cv::Mat frame(nRows,nCols,CV_16UC1,vec.data());
-        cv::Mat frameold(nRows,nCols,CV_16UC1,vecold.data());
+        cv::Mat frame(nRows, nCols, CV_16UC1, vec.data());
+        cv::Mat frameold(nRows, nCols, CV_16UC1, vecold.data());
         cv::minMaxLoc(frame,&min0,&max0);
-        frame.convertTo(frame_32FC1,CV_32FC1);
-        frameold.convertTo(frame_offset_32FC1,CV_32FC1);
+        frame.convertTo(frame_32FC1, CV_32FC1);
+        frameold.convertTo(frame_offset_32FC1, CV_32FC1);
         cv::accumulateWeighted(frame_offset_32FC1, accumulator, weight);
-        cv::subtract(frame_32FC1,accumulator,foreground);  
+        cv::subtract(frame_32FC1, accumulator, foreground);
+
         if(hide_shadow_choice){
             foreground.convertTo(foreground_64FC1,CV_64FC1);
-            arma::mat arma_frame( reinterpret_cast<double*>(foreground_64FC1.data),foreground_64FC1.cols, foreground_64FC1.rows );
+            arma::mat arma_frame( reinterpret_cast<double*>(foreground_64FC1.data), foreground_64FC1.cols, foreground_64FC1.rows );
             arma::vec frame_vector = arma::vectorise(arma_frame);
-            ImageProcessing::remove_shadow(nRows,nCols,frame_vector,NThresh);
+            ImageProcessing::remove_shadow(nRows, nCols, frame_vector, NThresh);
             cv::Mat foreground_64FC1 = cv::Mat(nRows, nCols, CV_64FC1, frame_vector.memptr());
             foregroundn = max0*foreground_64FC1;
         }
@@ -574,7 +575,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
         }
 
         foregroundn.convertTo(foreground_16UC1,CV_16UC1);
-        frame_out.assign(foreground_16UC1.begin<uint16_t>(),foreground_16UC1.end<uint16_t>());
+        frame_out.assign(foreground_16UC1.begin<uint16_t>(), foreground_16UC1.end<uint16_t>());
         frames_out.push_back(frame_out);
     }
     return frames_out;
@@ -593,15 +594,17 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
 
     cv::Mat frame_matrix_filtered, frame_matrix_filtered_threshold, frame_matrix_morph_closed, frame_matrix_morph_dilated;
     cv::Mat frame_matrix = cv::Mat(nRows, nCols, CV_64FC1, frame_vector.memptr());
-    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
-    cv::meanStdDev(frame_matrix_filtered,m,s);
-    cv::threshold(frame_matrix_filtered,frame_matrix_filtered_threshold,m[0]-(NThresh)*s[0],1,cv::THRESH_BINARY_INV);
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_DILATE,SE_DILATE,cv::Point(-1,-1),2);
-    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_ERODE,SE_ERODE,cv::Point(-1,-1),1);
-    // cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE,SE_close,cv::Point(-1,-1));
 
+    cv::GaussianBlur(frame_matrix, frame_matrix_filtered, g, gs);
+    cv::meanStdDev(frame_matrix_filtered, m, s);
+    cv::threshold(frame_matrix_filtered, frame_matrix_filtered_threshold, m[0]-(NThresh)*s[0], 1, cv::THRESH_BINARY_INV);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_CLOSE, SE_close, cv::Point(-1,-1));
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_DILATE, SE_DILATE, cv::Point(-1,-1), 2);
+    cv::morphologyEx(frame_matrix_filtered_threshold,frame_matrix_filtered_threshold,cv::MORPH_ERODE, SE_ERODE, cv::Point(-1,-1),1);
+
+    // Can we get rid of this? :
     // cv::imshow("Negative",frame_matrix_filtered_threshold);
+
     std::vector<cv::Point> index_change;
     cv::findNonZero(frame_matrix_filtered_threshold,index_change);
 
@@ -688,7 +691,6 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrela
             }
         }
         output = output - arma::min(output.as_col());
-
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.as_col()));
     }
 

@@ -1,26 +1,28 @@
 #pragma once
 #ifndef IMAGE_PROCESSING_H
 #define IMAGE_PROCESSING_H
-#include "video_details.h"
-#include "tracks.h"
-#include "abir_reader.h"
+
 #include <armadillo>
+#include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <string>
+#include <type_traits>
+
 #include <QWidget>
 #include <QtWidgets>
 #include <QTimer>
+
 #include <opencv2/core/utility.hpp>
+#include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv2/video/tracking.hpp>
 #include <opencv2/videoio.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/opencv.hpp>
 
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <type_traits>
+#include "abir_reader.h"
+#include "tracks.h"
+#include "video_details.h"
 
 class  ImageProcessing : public QObject
 {
@@ -37,9 +39,9 @@ public:
     void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels);
     void UpdateProgressBar(unsigned int value);
 
+    arma::uvec FindDeadBadscalePixels(std::vector<std::vector<uint16_t>>& input_pixels);
     arma::uvec IdentifyBadPixelsMedian(double N, std::vector<std::vector<uint16_t>> & input_pixels);
     arma::uvec IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>> & input_pixels);
-    arma::uvec FindDeadBadscalePixels(std::vector<std::vector<uint16_t>>& input_pixels);
 
     std::vector<std::vector<uint16_t>> FixedNoiseSuppression(QString image_path, QString path_video_file, int frame0, int start_frame, int end_frame, double version, VideoDetails & original);
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, VideoDetails & original);
@@ -66,11 +68,11 @@ public slots:
 private:
 
     ABIRData abir_data;
-
     arma::mat disk_avg_kernel;
-    static arma::mat thresholding(arma::mat X, double tau);	
-    static arma::mat shrink(arma::mat s, double tau);  
+
+    static arma::mat apply_soft_threshold(arma::mat s, double tau);
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
+    static arma::mat perform_thresholding(arma::mat X, double tau);
 };
 
 #endif
