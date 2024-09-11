@@ -2015,8 +2015,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     int x_pixels = file_processor->getAbirDataLoadResult()->x_pixels;
     int y_pixels = file_processor->getAbirDataLoadResult()->y_pixels;
     int max_value = file_processor->getAbirDataLoadResult()->max_value;
-    VideoDetails vid_details = {x_pixels, y_pixels, max_value,file_processor->getAbirDataLoadResult()->video_frames_16bit};
-
+    VideoDetails vid_details = {x_pixels, y_pixels, max_value, file_processor->getAbirDataLoadResult()->video_frames_16bit};
+    max_frame = file_processor->getAbirDataLoadResult()->video_frames_16bit.size();
     processingState primary = { ProcessingMethod::original, vid_details };
     // video_display->container.ClearProcessingStates();
     video_display->container.AddProcessingState(primary);
@@ -2107,6 +2107,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setTextVisible(false);
     grpbox_progressbar_area->setEnabled(false);
     lbl_progress_status->setText(QString(""));
+
     txt_FNS_start_frame->setText(txt_start_frame->text());
     int istop = txt_start_frame->text().toInt() + 50;
     txt_FNS_stop_frame->setText(QString::number(istop));
