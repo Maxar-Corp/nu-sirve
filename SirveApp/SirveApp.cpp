@@ -953,8 +953,10 @@ void SirveApp::ResetEngineeringDataAndSliderGUIs()
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
         for ( int track_id : previous_manual_track_ids )
         {
-            tm_widget->RemoveTrackControl(track_id );
-            track_info->RemoveManualTrack(track_id);
+            // tm_widget->RemoveTrackControl(track_id);
+            // track_info->RemoveManualTrack(track_id);
+            // track_info->RemoveManualTrackPlotting(track_id);
+            HandleTrackRemoval(track_id);
             video_display->DeleteManualTrack(track_id);
         }
     }
@@ -1572,6 +1574,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
     cmb_manual_track_IDs->removeItem(ind_delete);
     tm_widget->RemoveTrackControl(track_id);
     track_info->RemoveManualTrack(track_id);
+    track_info->RemoveManualTrackPlotting(track_id);
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
@@ -1841,7 +1844,6 @@ void SirveApp::LoadOsmData()
     // Locks down and frees up the frame range specification text boxes:
     connect(this->data_plots, &EngineeringPlots::changeMotionStatus, this, &SirveApp::HandlePlayerStateChanged);
 
-
     size_t num_tracks = track_info->get_track_count();
     if (num_tracks == 0)
     {
@@ -1983,6 +1985,7 @@ void SirveApp::DeleteAbirData()
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 {
+    video_display->container.ClearProcessingStates();
     lbl_progress_status->setText(QString("Loading frames..."));
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,4);
@@ -2011,7 +2014,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     VideoDetails vid_details = {x_pixels, y_pixels, max_value, video_frames};
 
     processingState primary = { ProcessingMethod::original, vid_details };
-    video_display->container.ClearProcessingStates();
+    // video_display->container.ClearProcessingStates();
     video_display->container.AddProcessingState(primary);
 
     txt_start_frame->setText(QString::number(min_frame));
