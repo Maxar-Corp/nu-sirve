@@ -104,7 +104,7 @@ void SirveApp::SetupUi() {
     SetupVideoFrame();
     SetupPlotFrame();
 
-	lbl_max_frames = new QLabel("Max Frames: ");
+	lbl_max_frames = new QLabel("OSM Messages: ");
 	QFormLayout *form_start_frame = new QFormLayout;
 	QFormLayout *form_stop_frame = new QFormLayout;
 	txt_start_frame = new QLineEdit();
@@ -1797,7 +1797,7 @@ void SirveApp::LoadOsmData()
     txt_start_frame->setText(QString("1"));
     txt_stop_frame->setText(osm_max_frames);
 
-    lbl_max_frames->setText("Max Frames: " + osm_max_frames);
+    lbl_max_frames->setText("OSM Messages: " + osm_max_frames);
 
     SetLiftAndGain(0, 1);
 	txt_start_frame->setStyleSheet(orange_styleSheet);
@@ -2016,11 +2016,9 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     int y_pixels = file_processor->getAbirDataLoadResult()->y_pixels;
     int max_value = file_processor->getAbirDataLoadResult()->max_value;
     VideoDetails vid_details = {x_pixels, y_pixels, max_value, file_processor->getAbirDataLoadResult()->video_frames_16bit};
-    max_frame = file_processor->getAbirDataLoadResult()->video_frames_16bit.size();
+    max_frame = file_processor->data_result->last_valid_frame;
     processingState primary = { ProcessingMethod::original, vid_details };
-    // video_display->container.ClearProcessingStates();
     video_display->container.AddProcessingState(primary);
-
     txt_start_frame->setText(QString::number(min_frame));
     txt_stop_frame->setText(QString::number(max_frame));
 
@@ -2111,6 +2109,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_start_frame->setText(txt_start_frame->text());
     int istop = txt_start_frame->text().toInt() + 50;
     txt_FNS_stop_frame->setText(QString::number(istop));
+
+    DeleteAbirData();
 }
 
 

@@ -46,17 +46,22 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
     }
 
     if (valid_frames[1] > number_frames_file)
+    {
         valid_frames[1] = number_frames_file;
+    }
 
 	if (valid_frames[0] < 1)
+    {
 		valid_frames[0] = 1;
+    }
 
     ir_data.reserve(valid_frames[1] - valid_frames[0] + 1);
-
+    uint16_t maxVal = std::numeric_limits<uint16_t>::min(); // Initialize with the smallest possible int
+    uint16_t last_valid_frame;
     for (unsigned int frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
         ABIR_Header header_data;
-
+ 
 		size_t seek_rtn = _fseeki64(fp, (frame_index - 1) * frame_size, SEEK_SET);
 
         uint64_t temp_seconds = ReadValue<uint64_t>();
@@ -243,8 +248,6 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
             data_result->x_pixels = ir_data[0].header.image_x_size;
             data_result->y_pixels = ir_data[0].header.image_y_size;
             data_result->video_frames_16bit = video_frames_16bit;
-            uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
-	        // std::vector<std::vector<uint16_t>> vec = original.details.frames_16bit;
             for (const auto& row : video_frames_16bit) {
                 maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
             }
@@ -269,18 +272,18 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
 		delete[] raw_16bit_data;
 
         ir_data.push_back(temp_frame);
+        last_valid_frame = frame_index;
     }
-
     fclose(fp);
 
     data_result->x_pixels = ir_data[0].header.image_x_size;
     data_result->y_pixels = ir_data[0].header.image_y_size;
     data_result->video_frames_16bit = video_frames_16bit;
-    uint16_t maxVal = std::numeric_limits<int>::min(); // Initialize with the smallest possible int
     for (const auto& row : video_frames_16bit) {
         maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
     }
     data_result->max_value = maxVal;
+    data_result->last_valid_frame = last_valid_frame;
 
     return data_result;
 }
