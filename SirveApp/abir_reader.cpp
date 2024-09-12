@@ -38,13 +38,14 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
 
     uint32_t number_frames_file = file_size / frame_size;
 
-    //Check that minimum frame number is smaller than max frame number
+    // Ensure that minimum frame number is smaller than max frame number
     if (valid_frames[0] > valid_frames[1]) {
         uint32_t temp = valid_frames[1];
         valid_frames[1] = valid_frames[0];
         valid_frames[0] = temp;
     }
 
+    // Ensure reasonable upper and lower bounds
     if (valid_frames[1] > number_frames_file)
     {
         valid_frames[1] = number_frames_file;
@@ -57,7 +58,8 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
 
     ir_data.reserve(valid_frames[1] - valid_frames[0] + 1);
     uint16_t maxVal = std::numeric_limits<uint16_t>::min(); // Initialize with the smallest possible int
-    uint16_t last_valid_frame;
+    uint16_t last_valid_frame = 0;
+
     for (unsigned int frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
         ABIR_Header header_data;
@@ -235,7 +237,6 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
                 header_data.pressure = ReadValue<float>();
                 header_data.relative_humidity = ReadValue<float>();
             }
-
         }
 
         header_data.image_origin = ReadValue<uint32_t>();
@@ -254,8 +255,6 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
             data_result->max_value = maxVal;
             return data_result;
         }
-
-        //uint16_t total_range = 65535 / 4;
 
 		uint16_t *raw_16bit_data = new uint16_t[header_data.image_size];
 		
@@ -279,9 +278,11 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
     data_result->x_pixels = ir_data[0].header.image_x_size;
     data_result->y_pixels = ir_data[0].header.image_y_size;
     data_result->video_frames_16bit = video_frames_16bit;
+
     for (const auto& row : video_frames_16bit) {
         maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
     }
+
     data_result->max_value = maxVal;
     data_result->last_valid_frame = last_valid_frame;
 
