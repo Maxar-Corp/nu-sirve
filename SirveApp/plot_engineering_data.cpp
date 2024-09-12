@@ -314,6 +314,23 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
     }
 
+    for (int track_id : manual_track_ids)
+    {
+        std::vector<double> x_values, y_values;
+
+        for (size_t i = 0; i < manual_track_frames.size(); i++)
+        {
+            std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
+            if (it != manual_track_frames[i].tracks.end())
+            {
+                x_values.push_back(get_single_x_axis_value(i));
+                y_values.push_back(it->second.irradiance);
+            }
+        }
+
+        AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
+    }
+
     chart_y_maxes[0] = FindMaxForAxis(y_points);
     fixed_max_y = chart_y_maxes[0];
 
