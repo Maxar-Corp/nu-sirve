@@ -372,7 +372,7 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
     QFormLayout *form_auto_lift_gain = new QFormLayout;
     form_auto_lift_gain->addRow(tr("&Min (sigma below mean)"),txt_lift_sigma);
-    form_auto_lift_gain->addRow(tr("&Max (sigma below mean)"),txt_gain_sigma);
+    form_auto_lift_gain->addRow(tr("&Max (sigma above mean)"),txt_gain_sigma);
     hlayout_auto_lift_gain->addLayout(form_auto_lift_gain);
 
     QHBoxLayout *hlayout_auto_gain_group = new QHBoxLayout;
@@ -953,8 +953,10 @@ void SirveApp::ResetEngineeringDataAndSliderGUIs()
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
         for ( int track_id : previous_manual_track_ids )
         {
-            tm_widget->RemoveTrackControl(track_id );
-            track_info->RemoveManualTrack(track_id);
+            // tm_widget->RemoveTrackControl(track_id);
+            // track_info->RemoveManualTrack(track_id);
+            // track_info->RemoveManualTrackPlotting(track_id);
+            HandleTrackRemoval(track_id);
             video_display->DeleteManualTrack(track_id);
         }
     }
@@ -1572,6 +1574,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
     cmb_manual_track_IDs->removeItem(ind_delete);
     tm_widget->RemoveTrackControl(track_id);
     track_info->RemoveManualTrack(track_id);
+    track_info->RemoveManualTrackPlotting(track_id);
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
@@ -1841,7 +1844,6 @@ void SirveApp::LoadOsmData()
     // Locks down and frees up the frame range specification text boxes:
     connect(this->data_plots, &EngineeringPlots::changeMotionStatus, this, &SirveApp::HandlePlayerStateChanged);
 
-
     size_t num_tracks = track_info->get_track_count();
     if (num_tracks == 0)
     {
@@ -1978,11 +1980,16 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
 void SirveApp::DeleteAbirData()
 {
-    abir_data_result = nullptr;
+    // abir_data_result = nullptr;
+    if (file_processor->abir_data.ir_data.size()>0){
+        file_processor->abir_data.ir_data.clear();
+        file_processor->data_result->video_frames_16bit.clear();
+    }
 }
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 {
+    video_display->container.ClearProcessingStates();
     lbl_progress_status->setText(QString("Loading frames..."));
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setRange(0,4);
@@ -1992,26 +1999,26 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Load the ABIR data
     playback_controller->StopTimer();
     file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
-    abir_data_result = file_processor->getAbirDataLoadResult();
+    // abir_data_result = file_processor->getAbirDataLoadResult();
     progress_bar_main->setValue(1);
     lbl_progress_status->setText(QString("Configuring Application..."));
     progress_bar_main->setValue(2);
-    if (abir_data_result->had_error) {
+    if (file_processor->getAbirDataLoadResult()->had_error) {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
         return;
     }
 
-    std::vector<std::vector<uint16_t>> video_frames = abir_data_result->video_frames_16bit;
-    unsigned int number_frames = static_cast<unsigned int>(video_frames.size());
+    // std::vector<std::vector<uint16_t>> video_frames = abir_data_result->video_frames_16bit;
+    unsigned int number_frames = static_cast<unsigned int>(file_processor->getAbirDataLoadResult()->video_frames_16bit.size());
 
-    int x_pixels = abir_data_result->x_pixels;
-    int y_pixels = abir_data_result->y_pixels;
-    int max_value = abir_data_result->max_value;
-    VideoDetails vid_details = {x_pixels, y_pixels, max_value, video_frames};
+    int x_pixels = file_processor->getAbirDataLoadResult()->x_pixels;
+    int y_pixels = file_processor->getAbirDataLoadResult()->y_pixels;
+    int max_value = file_processor->getAbirDataLoadResult()->max_value;
+    VideoDetails vid_details = {x_pixels, y_pixels, max_value,file_processor->getAbirDataLoadResult()->video_frames_16bit};
 
     processingState primary = { ProcessingMethod::original, vid_details };
-    video_display->container.ClearProcessingStates();
+    // video_display->container.ClearProcessingStates();
     video_display->container.AddProcessingState(primary);
 
     txt_start_frame->setText(QString::number(min_frame));
