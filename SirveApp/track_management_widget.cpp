@@ -7,7 +7,6 @@ TrackManagementWidget::TrackManagementWidget(QWidget *parent)
     layout = new QVBoxLayout(this);
     layout->setAlignment(Qt::AlignTop);
     layout->setSpacing(0);
-    // track_colors.clear();
 }
 
 TrackManagementWidget::~TrackManagementWidget()
@@ -72,10 +71,18 @@ QWidget* TrackManagementWidget::CreateTrackControl(int id)
     connect(delete_button, &QPushButtonWithId::clickedWithId, this, &TrackManagementWidget::deleteTrack);
     connect(recolor_combobox, &QComboBoxWithId::currentIndexChangedWithId, this, &TrackManagementWidget::HandleTrackColorSelection);
 
+    QLabel *lbl_track_desc = new QLabel("");
+    lbl_track_desc->setObjectName("track_description");
+    lbl_track_desc->setWordWrap(true);
+    // lbl_track_desc->setStyleSheet("#track_description {background-color:#f5c87d;}");
+    lbl_track_desc->setStyleSheet("#track_description {background-color:rgb(245,200,125,125);}");
+
+
     QVBoxLayout *control_layout = new QVBoxLayout(track_control);
     QHBoxLayout *top_box = new QHBoxLayout();
     top_box->addWidget(label);
     top_box->addWidget(chk_should_display);
+    top_box->addWidget(lbl_track_desc);
     top_box->addStretch(1);
 
     QHBoxLayout *bottom_box = new QHBoxLayout();

@@ -1401,6 +1401,13 @@ void SirveApp::ImportTracks()
         video_display->AddManualTrackIdToShowLater(track_id);
         tm_widget->AddTrackControl(track_id);
         cmb_manual_track_IDs->addItem(QString::number(track_id));
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+        if (existing_track_control != nullptr)
+        {
+            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+            const QFileInfo info(file_selection);
+            lbl_track_description->setText(info.fileName());
+        }  
     }
 
     track_info->AddManualTracks(result.frames);
@@ -1408,7 +1415,6 @@ void SirveApp::ImportTracks()
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-    // video_display->UpdateManualTrackData(track_info->get_manual_image_frames());
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
@@ -1416,7 +1422,7 @@ void SirveApp::ImportTracks()
     double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
     UpdatePlots();
     data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    data_plots->set_yaxis_limits(ymin,ymax);   
 }
 
 void SirveApp::HandleCreateTrackClick()
@@ -1521,6 +1527,13 @@ void SirveApp::HandleFinishCreateTrackClick()
         cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
+        if (existing_track_control != nullptr)
+        {
+            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+            const QFileInfo info(new_track_file_name);
+            lbl_track_description->setText(info.fileName());
+        }  
     }
 
     ExitTrackCreationMode();
@@ -4306,6 +4319,14 @@ void SirveApp::ExecuteAutoTracking()
         UpdatePlots();
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
+        
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+        if (existing_track_control != nullptr)
+            {
+                QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                const QFileInfo info(new_track_file_name);
+                lbl_track_description->setText(info.fileName());
+            }    
         }
     }
     CloseProgressArea();
