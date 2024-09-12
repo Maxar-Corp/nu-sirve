@@ -24,198 +24,170 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 {
     int nrows = original.y_pixels;
     int ncols = original.x_pixels;
-    double m0, s0, mi, si;
-    cv::Scalar filtered_mean0, filtered_std0, filtered_meani, filtered_stdi;
+    cv::Scalar filtered_meani, filtered_stdi;
     u_int indx0 = start_frame;
-    cv::Mat frame_matrix_filtered, frame_matrix_filtered_8bit, frame_matrix_filtered_8bit_color;
-    cv::Mat imCrop0, imCrop;
+    cv::Mat  processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
+    cv::Mat frame_0_crop, frame_i_crop;
+    arma::vec frame_0_vector, frame_i_vector;
 
-    arma::vec image_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[indx0]);
+    GetProcessedFrameMatrix(indx0, clamp_low, clamp_high, original, frame_0_vector, processed_frame_0_matrix);
 
-    m0 = arma::mean(image_vector);
-    s0 = arma::stddev(image_vector);
-    image_vector.clamp(m0 - clamp_low*s0, m0 + clamp_high*s0);
-    image_vector = image_vector - image_vector.min();
-    image_vector = 255*image_vector/image_vector.max();
-    cv::Mat frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, image_vector.memptr());
-    frame_matrix.convertTo(frame_matrix, CV_8UC1);
+    cv::Mat frame_0_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_0_vector.memptr());
 
     // attenuate image noise of initial frame
-    frame_matrix_filtered = frame_matrix;
-    if(prefilter=="GAUSSIAN"){
-        cv::GaussianBlur(frame_matrix, frame_matrix_filtered, cv::Size(5,5), 0);
-    }
-    else if(prefilter=="MEDIAN"){
-        cv::medianBlur(frame_matrix, frame_matrix_filtered, 5);      
-    }
-    else if(prefilter=="NLMEANS"){
-        cv::fastNlMeansDenoising(frame_matrix, frame_matrix_filtered);
-    }
+    filtered_frame_0_matrix = processed_frame_0_matrix;
+    FilterImage(prefilter, processed_frame_0_matrix, filtered_frame_0_matrix);
 
-    cv::cvtColor(frame_matrix_filtered, frame_matrix_filtered_8bit_color,cv::COLOR_GRAY2RGB);
+    cv::cvtColor(filtered_frame_0_matrix, filtered_frame_0_matrix_8bit_color,cv::COLOR_GRAY2RGB);
 
     Ptr<Tracker> tracker = TrackerMIL::create();
-    Rect ROI = cv::selectROI("ROI Selection", frame_matrix_filtered_8bit_color);
+    Rect ROI = cv::selectROI("ROI Selection", filtered_frame_0_matrix_8bit_color);
 
-    imCrop0 = frame_matrix_filtered(ROI);
+    frame_0_crop = frame_0_matrix(ROI);
+    cv::Point frame_0_point, frame_i_point;
+    double peak_counts_0, peak_counts_old, peak_counts_i;
+    cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
+    uint N_threshold_pixels_0, N_ROI_pixels_0, N_threshold_pixels_i, N_ROI_pixels_i;
+    GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
+    peak_counts_i = peak_counts_old;
 
-    cv::Point pout0;
-    if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
-        cv::Mat thr0;
-        cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
-        cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_TOZERO);
-        cv::Moments mom0 = cv::moments(thr0,false);
-        cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
-        // std::cout << "thr0 = " << std::endl << " "  << thr0 << std::endl << std::endl;
-        // cv::cvtColor(thr0,thr0, cv::COLOR_GRAY2RGB);
-        // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
-        // cv::imshow("thr0",thr0);
-        pout0 = p0;
-    }
-    else if (trackFeature == "CENTROID"){
-        cv::Mat thr0;
-        cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
-        cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_BINARY);
-        cv::Moments mom0 = cv::moments(thr0,true);
-        // std::cout << "thr0 = " << std::endl << " "  << thr0 << std::endl << std::endl;
-        cv::Point p0(mom0.m10/mom0.m00, mom0.m01/mom0.m00);
-        // cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
-        // cv::circle(thr0,p0,3,cv::Scalar(255,0,0),-1);
-        // cv::imshow("THR0",thr0);
-        pout0 = p0;
-    }
-    else{;
-        cv::Point p0;
-        cv::Mat thr0;
-        cv::meanStdDev(imCrop0,filtered_mean0, filtered_std0);
-        cv::threshold(imCrop0, thr0, filtered_mean0[0]+threshold*filtered_std0[0], 255, cv::THRESH_TOZERO);
-        cv::minMaxLoc(thr0, NULL, NULL, NULL, &p0);
-        // std::cout << "thr0 = " << std::endl << " "  << thr0 << std::endl << std::endl;
-        // cv::cvtColor(thr0, thr0,cv::COLOR_GRAY2RGB);
-        // cv::circle(thr0,p0,3, cv::Scalar(255,0,0),-1);
-        // cv::imshow("thr0",thr0);
-        pout0 = p0;
-    }
-
-    u_int centerX0, centerY0;
+    u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
     u_int indx, num_frames = stop_frame - start_frame + 1;
-    arma::u32_mat output(num_frames, 4);
+    arma::u32_mat output(num_frames, 9);
 
-    if (pout0.x > 0 && pout0.y > 0){
-        centerX0 = round(pout0.x + ROI.x);
-        centerY0 = round(pout0.y + ROI.y);
-    }
-    else
-    {
-        centerX0 = round(ROI.x + 0.5 * ROI.width);
-        centerY0 = round(ROI.y + 0.5 * ROI.height);
-    }
+    GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
 
-    output.row(0) = {track_id, frame0, centerX0 ,centerY0};
+    output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0};
 
-    tracker->init(frame_matrix_filtered_8bit_color,ROI);
+    tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
 
     cv::destroyWindow("ROI Selection");
 
     for (u_int i = 1; i < num_frames; i++) {
 
         if (cancel_operation)
-		{
+        {
             cv::destroyAllWindows();
             return arma::u32_mat ();
-		}
+        }
 
         UpdateProgressBar(i);
         indx = (indx0 + i);
 
-        arma::vec image_vector_i = arma::conv_to<arma::vec>::from(original.frames_16bit[indx]);
-        mi = arma::mean(image_vector_i);
-        si = arma::stddev(image_vector_i);
-        image_vector_i.clamp(mi - clamp_low*si, mi + clamp_high*si);
-        image_vector_i = image_vector_i - image_vector_i.min();
-        image_vector_i = 255*image_vector_i/image_vector_i.max();
-        cv::Mat frame_matrix_i = cv::Mat(nrows, ncols, CV_64FC1, image_vector_i.memptr());
-        frame_matrix_i.convertTo(frame_matrix_i, CV_8UC1);
-        cv::Mat frame_matrix_i_filtered, frame_matrix_i_filtered_8bit_color;
+        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, original, frame_i_vector, processed_frame_i_matrix);
 
-        // attenuate noise of frame i
-        frame_matrix_i_filtered = frame_matrix_i;
-        if(prefilter=="GAUSSIAN"){
-            cv::GaussianBlur(frame_matrix_i, frame_matrix_i_filtered, cv::Size(5,5), 0);
-        }
-        else if(prefilter=="MEDIAN"){
-            cv::medianBlur(frame_matrix_i, frame_matrix_i_filtered, 5);      
-        }
-        else if(prefilter=="NLMEANS"){
-            cv::fastNlMeansDenoising(frame_matrix_i, frame_matrix_i_filtered);
-        }
+        cv::Mat frame_i_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_i_vector.memptr());
 
-        // convert to RGB so we can add a blue tracking rectangle later
-        cv::cvtColor(frame_matrix_i_filtered, frame_matrix_i_filtered_8bit_color,COLOR_GRAY2RGB);
+        filtered_frame_i_matrix = processed_frame_i_matrix;
+        FilterImage(prefilter, processed_frame_i_matrix, filtered_frame_i_matrix);
+
+        cv::cvtColor(filtered_frame_i_matrix, filtered_frame_i_matrix_8bit_color,cv::COLOR_GRAY2RGB);
+
+        bool ok = tracker->update(filtered_frame_i_matrix_8bit_color, ROI);
         
-        bool ok = tracker->update(frame_matrix_i_filtered_8bit_color, ROI);
+        frame_i_crop = frame_i_matrix(ROI);
+   
+        GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
 
-        if (ok) {
-            rectangle(frame_matrix_i_filtered_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
-            imshow("tracker", frame_matrix_i_filtered_8bit_color);
+        if (ok && peak_counts_i >= .5 * peak_counts_old) {
+            peak_counts_old = peak_counts_i;
+            rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
+            imshow("Tracking... ", filtered_frame_i_matrix_8bit_color);
         }
         else {
-            ROI = selectROI(frame_matrix_i_filtered_8bit_color);
-            tracker->init(frame_matrix_i_filtered_8bit_color, ROI);
+            ROI = selectROI("Track Lost. Select ROI again.", filtered_frame_i_matrix_8bit_color);
+            tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
+            cv::destroyWindow("Track Lost. Select ROI again.");
+            frame_i_crop = frame_i_matrix(ROI);
+            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+            peak_counts_i = peak_counts_old;
         }
+        
+        GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
 
-        imCrop = frame_matrix_i_filtered(ROI);
-
-    cv::Point pout;
-    if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
-        cv::Mat thr;
-        cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
-        cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_TOZERO);
-        cv::Moments mom = cv::moments(thr,false);
-        cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
-        // cv::cvtColor(thr, thr, cv::COLOR_GRAY2RGB);
-        cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
-        // cv::imshow("thr",thr);
-        pout = p;
-    }
-    else if (trackFeature == "CENTROID"){
-        cv::Mat thr;
-        cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
-        cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_BINARY);
-        cv::Moments mom = cv::moments(thr,true);
-        cv::Point p(mom.m10/mom.m00, mom.m01/mom.m00);
-        // cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
-        cv::circle(thr,p,3,cv::Scalar(255,0,0),-1);
-        // cv::imshow("THRi",thr);
-        pout = p;
-    }
-    else{
-        cv::Point p;
-        cv::Mat thr;
-        cv::meanStdDev(imCrop,filtered_meani, filtered_stdi);
-        cv::threshold(imCrop, thr, filtered_meani[0]+threshold*filtered_stdi[0], 255, cv::THRESH_TOZERO);
-        cv::minMaxLoc(thr, NULL, NULL, NULL, &p);
-        // cv::cvtColor(thr, thr,cv::COLOR_GRAY2RGB);
-        cv::circle(thr,p,3, cv::Scalar(255,0,0),-1);
-        // cv::imshow("thr",thr);
-        pout = p;
-    }
-
-        u_int centerX, centerY;
-
-        if (pout.x > 0 && pout.y > 0){
-            centerX = round(pout.x + ROI.x);
-            centerY = round(pout.y + ROI.y);
-        }
-        else
-        {
-            centerX = round(ROI.x + 0.5 * ROI.width);
-            centerY = round(ROI.y + 0.5 * ROI.height);
-        }
-        output.row(i) = {track_id, frame0 + i, centerX ,centerY};
-        // waitKey(-1);
+        output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i), static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i};
         waitKey(1);
     }
     cv::destroyAllWindows();
     return output;
+}
+
+void AutoTracking::FilterImage(string prefilter, cv::Mat & processed_frame_0_matrix, cv::Mat & filtered_frame_0_matrix)
+{
+  if(prefilter=="GAUSSIAN"){
+        cv::GaussianBlur(processed_frame_0_matrix, filtered_frame_0_matrix, cv::Size(5,5), 0);
+    }
+    else if(prefilter=="MEDIAN"){
+        cv::medianBlur(processed_frame_0_matrix, filtered_frame_0_matrix, 5);      
+    }
+    else if(prefilter=="NLMEANS"){
+        cv::fastNlMeansDenoising(processed_frame_0_matrix, filtered_frame_0_matrix);
+    }
+}
+
+void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point,\
+  double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels)
+{
+    cv::Mat frame_crop_threshold;
+    cv::Scalar frame_mean, frame_sigma;
+    cv::meanStdDev(frame_crop, frame_mean, frame_sigma);
+    sum_ROI_counts = cv::sum(frame_crop);
+    N_ROI_pixels = cv::countNonZero(frame_crop > 0);
+    if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
+        cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], NULL, cv::THRESH_TOZERO);
+        sum_counts = cv::sum(frame_crop_threshold);
+        N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
+        cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
+        cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
+        cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, NULL);
+
+        frame_point = frame_temp_point;
+    }
+    else if (trackFeature == "CENTROID"){
+        cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], 1, cv::THRESH_BINARY);
+        sum_counts = cv::sum(frame_crop_threshold * frame_crop);
+        N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
+        cv::Moments frame_moments = cv::moments(frame_crop_threshold,true);
+        cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
+        cv::minMaxLoc(frame_crop, NULL, &peak_counts, NULL, NULL);
+        frame_point = frame_temp_point;
+    }
+    else{
+        cv::Point frame_temp_point;
+        cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], NULL, cv::THRESH_TOZERO);
+        sum_counts = cv::sum(frame_crop_threshold);
+        N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
+        cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_temp_point);
+        frame_point = frame_temp_point;
+    }
+
+}
+
+void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
+{
+    if (input_point.x > 0 && input_point.y > 0){
+        centerX = round(input_point.x + ROI.x);
+        centerY = round(input_point.y + ROI.y);
+    }
+    else
+    {
+        centerX = round(ROI.x + 0.5 * ROI.width);
+        centerY = round(ROI.y + 0.5 * ROI.height);
+    }
+}
+
+void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails original, arma::vec & frame_vector, cv::Mat & processed_frame_matrix)
+{
+    double m, s;
+    int nrows = original.y_pixels;
+    int ncols = original.x_pixels;      
+    frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[indx]);
+    arma::vec processed_frame_vector = frame_vector;
+    m = arma::mean(frame_vector);
+    s = arma::stddev(frame_vector);
+    processed_frame_vector.clamp(m - clamp_low*s, m + clamp_high*s);
+    processed_frame_vector = processed_frame_vector - processed_frame_vector.min();
+    processed_frame_vector = 255*processed_frame_vector/processed_frame_vector.max();
+    processed_frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, processed_frame_vector.memptr());
+    processed_frame_matrix.convertTo(processed_frame_matrix, CV_8UC1);
 }
