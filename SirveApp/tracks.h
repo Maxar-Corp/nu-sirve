@@ -18,6 +18,7 @@
 struct TrackDetails {
     int centroid_x;
     int centroid_y;
+    double irradiance;
 };
 
 struct PlottingTrackDetails {
@@ -32,6 +33,7 @@ struct ManualPlottingTrackDetails {
     TrackDetails centroid;
     double azimuth;
     double elevation;
+    double irradiance;
 };
 
 struct ManualPlottingTrackFrame {
@@ -87,7 +89,7 @@ class TrackInformation {
 
     private:
         TrackInformation();
-        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y);
+        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double irradiance);
 
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;
