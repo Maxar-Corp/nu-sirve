@@ -4257,6 +4257,7 @@ void SirveApp::ExecuteAutoTracking()
         }
         offset_matrix2.shed_col(0);
         offset_matrix2.insert_cols(0,2);
+        offset_matrix2.insert_cols(offset_matrix2.n_cols,5);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
         autotrack_d += offset_matrix2;
         autotrack = arma::conv_to<arma::u32_mat>::from(autotrack_d);
