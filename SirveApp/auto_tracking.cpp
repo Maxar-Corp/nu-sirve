@@ -140,12 +140,12 @@ void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::
         cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
         cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, NULL);
-
         frame_point = frame_temp_point;
     }
     else if (trackFeature == "CENTROID"){
         cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], 1, cv::THRESH_BINARY);
-        sum_counts = cv::sum(frame_crop_threshold * frame_crop);
+        cv::Mat result;
+        cv::multiply(frame_crop_threshold,frame_crop,result);
         N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
         cv::Moments frame_moments = cv::moments(frame_crop_threshold,true);
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
