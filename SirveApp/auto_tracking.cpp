@@ -23,8 +23,6 @@ void AutoTracking::CancelOperation()
 arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
     double irradiance;
-    int nrows = original.y_pixels;
-    int ncols = original.x_pixels;
     cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
     u_int indx0 = start_frame;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
@@ -40,9 +38,9 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     cv::cvtColor(filtered_frame_0_matrix, filtered_frame_0_matrix_8bit_color,cv::COLOR_GRAY2RGB);
 
     Ptr<Tracker> tracker = TrackerMIL::create();
-    Rect ROI = cv::selectROI("ROI Selection", filtered_frame_0_matrix_8bit_color);
+    Rect region_of_interest = cv::selectROI("ROI Selection", filtered_frame_0_matrix_8bit_color);
 
-    frame_0_crop = frame_0_matrix(ROI);
+    frame_0_crop = frame_0_matrix(region_of_interest);
     cv::Point frame_0_point, frame_i_point;
     double peak_counts_0, peak_counts_old, peak_counts_i;
     cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
@@ -54,17 +52,11 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     u_int indx, num_frames = stop_frame - start_frame + 1;
     arma::u64_mat output(num_frames, 10);
 
-    GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
-    // if (N_threshold_pixels_0>0){
-    //         irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_threshold_pixels_0;
-    //     }
-    //     else{
-    //         irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_ROI_pixels_0;
-    // }
+    GetPointXY(frame_0_point, region_of_interest,frame_0_x,frame_0_y);
     irradiance =  static_cast<uint32_t>(sum_counts_0[0] - frame_crop_mean[0]);
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance)};
 
-    tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
+    tracker->init(filtered_frame_0_matrix_8bit_color,region_of_interest);
 
     cv::destroyWindow("ROI Selection");
 
@@ -86,34 +78,27 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
         cv::cvtColor(filtered_frame_i_matrix, filtered_frame_i_matrix_8bit_color,cv::COLOR_GRAY2RGB);
 
-        bool ok = tracker->update(filtered_frame_i_matrix_8bit_color, ROI);
+        bool ok = tracker->update(filtered_frame_i_matrix_8bit_color, region_of_interest);
         
-        frame_i_crop = frame_i_matrix(ROI);
+        frame_i_crop = frame_i_matrix(region_of_interest);
    
         GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
 
         if (ok && peak_counts_i >= .5 * peak_counts_old) {
             peak_counts_old = peak_counts_i;
-            rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
+            rectangle(filtered_frame_i_matrix_8bit_color, region_of_interest, cv::Scalar( 0, 0, 255 ), 2);
             imshow("Tracking... ", filtered_frame_i_matrix_8bit_color);
         }
         else {
-            ROI = selectROI("Track Lost. Select ROI again.", filtered_frame_i_matrix_8bit_color);
-            tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
+            region_of_interest = selectROI("Track Lost. Select ROI again.", filtered_frame_i_matrix_8bit_color);
+            tracker->init(filtered_frame_i_matrix_8bit_color, region_of_interest);
             cv::destroyWindow("Track Lost. Select ROI again.");
-            frame_i_crop = frame_i_matrix(ROI);
+            frame_i_crop = frame_i_matrix(region_of_interest);
             GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
             peak_counts_i = peak_counts_old;
         }
         
-        GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-
-        // if (N_threshold_pixels_i>0){
-        //        irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_threshold_pixels_i;
-        //     }
-        //     else{
-        //        irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_ROI_pixels_i;
-        // }
+        GetPointXY(frame_i_point, region_of_interest, frame_i_x, frame_i_y);
         irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i), static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance)};
         waitKey(1);
