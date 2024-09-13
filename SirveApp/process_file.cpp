@@ -80,6 +80,8 @@ bool ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_fr
 	QByteArray array = image_path.toLocal8Bit();
 	char* buffer = array.data();
 
+    connect(&abir_data, &ABIRData::advanceFrame, this, &ProcessFile::forwardProgress);
+
     data_result = abir_data.GetFrames(buffer, frame_start, frame_end, version, false);
     if (data_result->had_error) {
         return false;
@@ -87,6 +89,7 @@ bool ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_fr
 
     return true;
 }
+
 
 ABIRDataResult* ProcessFile::getAbirDataLoadResult()
 {

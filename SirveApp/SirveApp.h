@@ -234,6 +234,7 @@ public:
         void ApplyFixedNoiseSuppressionFromExternalFile();
         void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
         void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
+        void ReceiveProgressBarUpdate(int percent);
 
         void HandleFrameChange();
         void HandleOsmTracksToggle();
@@ -243,6 +244,7 @@ public:
         void HandlePopoutVideoClosed();
         void HandlePopoutHistogramClosed();
         void HandlePopoutEngineeringClosed();
+        void HandleProgressUpdate(int percent);
         void HandleZoomAfterSlider();
 
         void HandleAnnotationDialogClosed();
