@@ -1517,7 +1517,6 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = data_plots->index_sub_plot_xmin;
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        // video_display->UpdateManualTrackData(track_info->get_manual_image_frames());
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
         double xmax = data_plots->axis_x->max();
         double xmin = data_plots->axis_x->min();
@@ -4244,7 +4243,7 @@ void SirveApp::ExecuteAutoTracking()
     double clamp_low = txt_lift_sigma->text().toDouble();
     double clamp_high = txt_gain_sigma->text().toDouble();
     int threshold = 6 - cmb_autotrack_threshold->currentIndex();
-    arma::u32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
     if (autotrack.is_empty()){
         lbl_progress_status->setText(QString(""));
@@ -4273,7 +4272,7 @@ void SirveApp::ExecuteAutoTracking()
         offset_matrix2.insert_cols(offset_matrix2.n_cols,5);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
         autotrack_d += offset_matrix2;
-        autotrack = arma::conv_to<arma::u32_mat>::from(autotrack_d);
+        autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
     }
 
     if (!autotrack.empty()){
