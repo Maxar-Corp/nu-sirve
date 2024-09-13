@@ -1401,6 +1401,13 @@ void SirveApp::ImportTracks()
         video_display->AddManualTrackIdToShowLater(track_id);
         tm_widget->AddTrackControl(track_id);
         cmb_manual_track_IDs->addItem(QString::number(track_id));
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+        if (existing_track_control != nullptr)
+        {
+            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+            const QFileInfo info(file_selection);
+            lbl_track_description->setText(info.fileName());
+        }  
     }
 
     track_info->AddManualTracks(result.frames);
@@ -1408,7 +1415,6 @@ void SirveApp::ImportTracks()
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-    // video_display->UpdateManualTrackData(track_info->get_manual_image_frames());
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
@@ -1416,7 +1422,7 @@ void SirveApp::ImportTracks()
     double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
     UpdatePlots();
     data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    data_plots->set_yaxis_limits(ymin,ymax);   
 }
 
 void SirveApp::HandleCreateTrackClick()
@@ -1511,7 +1517,6 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = data_plots->index_sub_plot_xmin;
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        // video_display->UpdateManualTrackData(track_info->get_manual_image_frames());
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
         double xmax = data_plots->axis_x->max();
         double xmin = data_plots->axis_x->min();
@@ -1521,6 +1526,13 @@ void SirveApp::HandleFinishCreateTrackClick()
         cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
+        if (existing_track_control != nullptr)
+        {
+            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+            const QFileInfo info(new_track_file_name);
+            lbl_track_description->setText(info.fileName());
+        }  
     }
 
     ExitTrackCreationMode();
@@ -2097,6 +2109,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_stop_frame->setValidator(validator);
     txt_auto_track_start_frame->setText(QString::number(min_frame));
     txt_auto_track_stop_frame->setText(QString::number(max_frame));
+    connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
+    connect(txt_auto_track_stop_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStopChangeInput);
 
     ToggleVideoPlaybackOptions(true);
     UpdateGuiPostFrameRangeLoad(true);
@@ -3185,9 +3199,9 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
 
     ImageProcessor->ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
 
-    progress_bar_main->setValue(0);
-    progress_bar_main->setTextVisible(false);
-    lbl_progress_status->setText(QString(""));
+    // progress_bar_main->setValue(0);
+    // progress_bar_main->setTextVisible(false);
+    // lbl_progress_status->setText(QString(""));
 
     if(pixels_to_replace.size()>0){
 
@@ -3349,9 +3363,9 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
-    progress_bar_main->setValue(0);
-    progress_bar_main->setTextVisible(false);
-    lbl_progress_status->setText(QString(""));
+    // progress_bar_main->setValue(0);
+    // progress_bar_main->setTextVisible(false);
+    // lbl_progress_status->setText(QString(""));
 
     if(new_state.details.frames_16bit.size()>0){
 
@@ -3450,8 +3464,8 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
-    progress_bar_main->setValue(0);
-    lbl_progress_status->setText(QString(""));
+    // progress_bar_main->setValue(0);
+    // lbl_progress_status->setText(QString(""));
 
     if(new_state.details.frames_16bit.size()>0){
 
@@ -3485,8 +3499,6 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     }
 
     CloseProgressArea();
-
-    ImageProcessor->deleteLater();
 
     ImageProcessor->deleteLater();
 }
@@ -3703,9 +3715,9 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
     connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = ImageProcessor.CenterOnBrightest(original.details, brightest_centered_offsets);
-    progress_bar_main->setValue(0);
-    progress_bar_main->setTextVisible(false);
-    lbl_progress_status->setText(QString(""));
+    // progress_bar_main->setValue(0);
+    // progress_bar_main->setTextVisible(false);
+    // lbl_progress_status->setText(QString(""));
 
     if (new_state.details.frames_16bit.size()>0){
 
@@ -3864,9 +3876,9 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->FrameStacking(number_of_frames, original.details);
-    progress_bar_main->setValue(0);
-    progress_bar_main->setTextVisible(false);
-    lbl_progress_status->setText(QString(""));
+    // progress_bar_main->setValue(0);
+    // progress_bar_main->setTextVisible(false);
+    // lbl_progress_status->setText(QString(""));
 
     if (new_state.details.frames_16bit.size()>0){
         new_state.method = ProcessingMethod::frame_stacking;
@@ -3950,9 +3962,9 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         new_state.details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, original.details);
     }
 
-    progress_bar_main->setValue(0);
-    progress_bar_main->setTextVisible(false);
-    lbl_progress_status->setText(QString(""));
+    // progress_bar_main->setValue(0);
+    // progress_bar_main->setTextVisible(false);
+    // lbl_progress_status->setText(QString(""));
 
     if (new_state.details.frames_16bit.size()>0){
         QString description = "Filter starts at ";
@@ -4160,10 +4172,7 @@ void SirveApp::ExecuteAutoTracking()
 
     if (start_frame < txt_start_frame->text().toInt() || stop_frame > txt_stop_frame->text().toInt() || stop_frame<start_frame){
         QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ". Stop must be greater than start.");
-        lbl_progress_status->setText(QString(""));
-        progress_bar_main->setValue(0);
-        progress_bar_main->setTextVisible(false);
-        grpbox_progressbar_area->setEnabled(false);
+        CloseProgressArea();
         return;
     }
     int start_frame_i = start_frame - frame0;
@@ -4177,10 +4186,7 @@ void SirveApp::ExecuteAutoTracking()
     u_int track_id = QInputDialog::getInt(this, tr("Select New Track Identifier"), tr("Track ID:"), maxID+1, 1, 1000000, 1, &ok);
     if (!ok || track_id < 0)
     {
-        lbl_progress_status->setText(QString(""));
-        progress_bar_main->setValue(0);
-        progress_bar_main->setTextVisible(false);
-        grpbox_progressbar_area->setEnabled(false);
+        CloseProgressArea();
         return;
     }
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
@@ -4204,10 +4210,7 @@ void SirveApp::ExecuteAutoTracking()
     if (new_track_file_name.isEmpty())
     {
         QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
-        lbl_progress_status->setText(QString(""));
-        progress_bar_main->setValue(0);
-        progress_bar_main->setTextVisible(false);
-        grpbox_progressbar_area->setEnabled(false);
+        CloseProgressArea();
         return;
     }
     string prefilter = "NONE";
@@ -4231,13 +4234,10 @@ void SirveApp::ExecuteAutoTracking()
     double clamp_low = txt_lift_sigma->text().toDouble();
     double clamp_high = txt_gain_sigma->text().toDouble();
     int threshold = 6 - cmb_autotrack_threshold->currentIndex();
-    arma::u32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+    arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
     
     if (autotrack.is_empty()){
-        lbl_progress_status->setText(QString(""));
-        progress_bar_main->setValue(0);
-        progress_bar_main->setTextVisible(false);
-        grpbox_progressbar_area->setEnabled(false);
+        CloseProgressArea();
         return;
     }
     
@@ -4257,9 +4257,10 @@ void SirveApp::ExecuteAutoTracking()
         }
         offset_matrix2.shed_col(0);
         offset_matrix2.insert_cols(0,2);
+        offset_matrix2.insert_cols(offset_matrix2.n_cols,5);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
         autotrack_d += offset_matrix2;
-        autotrack = arma::conv_to<arma::u32_mat>::from(autotrack_d);
+        autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
     }
 
     if (!autotrack.empty()){
@@ -4305,6 +4306,14 @@ void SirveApp::ExecuteAutoTracking()
         UpdatePlots();
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
+        
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+        if (existing_track_control != nullptr)
+            {
+                QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                const QFileInfo info(new_track_file_name);
+                lbl_track_description->setText(info.fileName());
+            }    
         }
     }
     CloseProgressArea();
@@ -4571,16 +4580,32 @@ void SirveApp::HandleFrameChange()
     UpdateGlobalFrameVector();
 }
 
+void SirveApp::HandleAutoTrackStartChangeInput()
+{
+    unsigned int new_frame_number = txt_auto_track_start_frame->text().toUInt();
+    if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
+        video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
+        slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
+        UpdateGlobalFrameVector();
+    }
+}
+
+void SirveApp::HandleAutoTrackStopChangeInput()
+{
+    unsigned int new_frame_number = txt_auto_track_stop_frame->text().toUInt();
+    if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
+        video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
+        slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
+        UpdateGlobalFrameVector();
+    }
+}
+
 void SirveApp::HandleFrameNumberChangeInput()
 {
     unsigned int new_frame_number = txt_goto_frame->text().toUInt();
     if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
         video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
         slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
-        txt_auto_track_start_frame->setText(QString::number(new_frame_number));
-        if (txt_auto_track_stop_frame->text().toInt()<new_frame_number){
-            txt_auto_track_stop_frame->setText(QString::number(new_frame_number));
-        }
         UpdateGlobalFrameVector();
     }
 }

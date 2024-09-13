@@ -150,14 +150,11 @@ std::set<int> TrackInformation::get_OSM_track_ids()
     return osm_track_ids;
 }
 
-void TrackInformation::set_manual_frame(int frame_index, int track_id, TrackDetails *centroid) {
-    manual_frames[frame_index].tracks[track_id] = *centroid;
-}
 
 void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
-     for (int i = 0; i < manual_frames.size(); i++ )
+    for (int i = 0; i < manual_frames.size(); i++ )
     {
 		for ( const auto &trackData : new_frames[i].tracks )
         {
@@ -173,9 +170,10 @@ void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
             int track_id = trackData.first;
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x, trackData.second.centroid_y);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x, trackData.second.centroid_y, trackData.second.irradiance);
             manual_image_frames[i].tracks[track_id].centroid_x = trackData.second.centroid_x;
             manual_image_frames[i].tracks[track_id].centroid_y = trackData.second.centroid_y;
+            manual_plotting_frames[i].tracks[track_id].irradiance = trackData.second.irradiance;
         }
     }
 }
@@ -224,13 +222,25 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
 
-            QString csv_line = QString::number(track_id) + "," + QString::number(i+1) + "," + QString::number(track_details.centroid_x) + "," + QString::number(track_details.centroid_y);
+            QString csv_line =\
+             QString::number(track_id) + ","\
+             + QString::number(i+1) + ","\
+             + QString::number(track_details.centroid_x) + ","\
+             + QString::number(track_details.centroid_y)+ ","\
+             + QString::number(track_details.peak_counts)+ ","\
+             + QString::number(track_details.sum_counts)+ ","\
+             + QString::number(track_details.sum_ROI_counts)+ ","\
+             + QString::number(track_details.N_threshold_pixels)+ ","\
+             + QString::number(track_details.N_ROI_pixels)+ ","\
+             + QString::number(track_details.irradiance);
             file.write(csv_line.toUtf8());
             file.write("\n");
 
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.irradiance);
+            manual_plotting_frames[i].tracks[track_id].irradiance = track_details.irradiance;
             manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
             manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
+            manual_image_frames[i].tracks[track_id].irradiance = track_details.irradiance;
         }
     }
 
@@ -302,12 +312,29 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             if (!ok) throw std::runtime_error("Track X Value");
             int track_y = cells[3].toInt(&ok);
             if (!ok) throw std::runtime_error("Track Y Value");
-
+            int peak_counts = cells[4].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track Peak Counts");
+            int sum_counts = cells[5].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track Sum Counts");
+            int sum_ROI_counts = cells[6].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track sum ROI Counts");
+            int N_threshold_pixels = cells[7].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track N Threshold Pixels");
+            int N_ROI_pixels = cells[8].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track N ROI Pixels");   
+            int irradiance = cells[9].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track Irradiance");          
             if (frame_number < 0 || frame_number > num_frames) throw std::runtime_error("Invalid frame number");
 
             TrackDetails td;
             td.centroid_x = track_x;
             td.centroid_y = track_y;
+            td.irradiance = irradiance;
+            td.peak_counts = peak_counts;
+            td.sum_counts = sum_counts;
+            td.sum_ROI_counts = sum_ROI_counts;
+            td.N_threshold_pixels = N_threshold_pixels;
+            td.N_ROI_pixels = N_ROI_pixels;
             track_ids_in_file.insert(track_id);
             track_frames_from_file[frame_number - 1].tracks[track_id] = td;
         }
@@ -325,7 +352,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
 }
 
-ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y)
+ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double irradiance)
 {
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
     struct ManualPlottingTrackDetails details;
@@ -338,6 +365,7 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
 
     details.centroid.centroid_x = centroid_x;
     details.centroid.centroid_y = centroid_y;
+    details.irradiance = irradiance;
 
     return details;
 }
