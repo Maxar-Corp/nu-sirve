@@ -58,6 +58,8 @@ SirveApp::SirveApp(QWidget *parent)
 
     osmDataLoaded = false;
     UpdateGuiPostDataLoad(osmDataLoaded);
+
+    connect(this->file_processor, &ProcessFile::forwardProgress, this->progress_bar_main, &QProgressBar::setValue);
 }
 
 SirveApp::~SirveApp() {
@@ -2004,13 +2006,14 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     video_display->container.ClearProcessingStates();
     lbl_progress_status->setText(QString("Loading frames..."));
     grpbox_progressbar_area->setEnabled(true);
-    progress_bar_main->setRange(0,4);
+    progress_bar_main->setRange(0,100);
     progress_bar_main->setValue(0);
     progress_bar_main->setTextVisible(true);
 
     // Load the ABIR data
     playback_controller->StopTimer();
     file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+
     // abir_data_result = file_processor->getAbirDataLoadResult();
     progress_bar_main->setValue(1);
     lbl_progress_status->setText(QString("Configuring Application..."));
@@ -2153,6 +2156,11 @@ void SirveApp::HandlePopoutEngineeringClosed()
     btn_popout_engineering->setChecked(false);
     engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
+}
+
+void SirveApp::HandleProgressUpdate(int percent)
+{
+    progress_bar_main->setValue(percent);
 }
 
 void SirveApp::HandlePopoutHistogramClick(bool checked)
@@ -3269,6 +3277,11 @@ void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
             ReplaceBadPixels(bad_pixels,cmb_processing_states->currentIndex());
         }
     }
+}
+
+void SirveApp::ReceiveProgressBarUpdate(int percent)
+{
+    progress_bar_main->setValue(percent);
 }
 
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()

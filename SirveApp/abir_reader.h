@@ -107,8 +107,9 @@ struct ABIRDataResult
 //-------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------
 
-class ABIRData : private BinaryFileReader
+class ABIRData : public BinaryFileReader
 {
+    Q_OBJECT
 public:
     ABIRData();
     ~ABIRData();
@@ -118,6 +119,10 @@ public:
 	std::vector<ABIR_Frame> ir_data;
 
     ABIRDataResult* GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number = -0.1, bool header_only = false);
+
+
+signals:
+    void advanceFrame(int frame_amt);
 
 private:
     int FileSetup(const char* file_path, double version_number = -0.1);

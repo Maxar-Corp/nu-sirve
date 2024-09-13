@@ -33,10 +33,12 @@ public:
     bool LoadImageFile(QString image_path, int first_frame, int last_frame, double version);
     ABIRDataResult* getAbirDataLoadResult();
 
+signals:
+
+    void forwardProgress(int percent);
+
 private:
 
 };
-
-
 
 #endif // PROCESS_FILE_H
