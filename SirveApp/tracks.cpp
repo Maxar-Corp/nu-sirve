@@ -225,14 +225,15 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
 
-            QString csv_line = QString::number(track_id) + "," + QString::number(i+1) + "," + QString::number(track_details.centroid_x) + "," + QString::number(track_details.centroid_y);
+            QString csv_line = QString::number(track_id) + "," + QString::number(i+1) + "," + QString::number(track_details.centroid_x) + "," + QString::number(track_details.centroid_y)+ "," + QString::number(track_details.irradiance);
             file.write(csv_line.toUtf8());
             file.write("\n");
 
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, 0);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y,  track_details.irradiance);
             manual_plotting_frames[i].tracks[track_id].irradiance = track_details.irradiance;
             manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
             manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
+            manual_image_frames[i].tracks[track_id].irradiance = track_details.irradiance;
         }
     }
 

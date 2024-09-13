@@ -45,7 +45,7 @@ private:
     void GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point,  double & peak_counts, cv::Scalar & sum_counts,\
      cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels);
     void GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX,  u_int & centerY);
-    void GetProcessedFrameMatrix(int indx, double clampLow, double clampHigh, VideoDetails original,  arma::vec & frame_vector, cv::Mat & processed_frame_matrix);
+    void GetProcessedFrameMatrix(int indx, double clampLow, double clampHigh, VideoDetails original,  arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix);
 };
 
 #endif
