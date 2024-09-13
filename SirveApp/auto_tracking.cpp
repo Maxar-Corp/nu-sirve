@@ -25,7 +25,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     double irradiance;
     int nrows = original.y_pixels;
     int ncols = original.x_pixels;
-    cv::Scalar filtered_meani, filtered_stdi;
+    cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
     u_int indx0 = start_frame;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
     cv::Mat frame_0_crop, frame_i_crop;
@@ -47,7 +47,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     double peak_counts_0, peak_counts_old, peak_counts_i;
     cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
     uint N_threshold_pixels_0, N_ROI_pixels_0, N_threshold_pixels_i, N_ROI_pixels_i;
-    GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
+    GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, frame_crop_mean, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
     peak_counts_i = peak_counts_old;
 
     u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
@@ -55,12 +55,13 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     arma::u64_mat output(num_frames, 10);
 
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
-    if (N_threshold_pixels_0>0){
-            irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_threshold_pixels_0;
-        }
-        else{
-            irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_ROI_pixels_0;
-    }
+    // if (N_threshold_pixels_0>0){
+    //         irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_threshold_pixels_0;
+    //     }
+    //     else{
+    //         irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_ROI_pixels_0;
+    // }
+    irradiance =  static_cast<uint32_t>(sum_counts_0[0] - frame_crop_mean[0]);
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
@@ -89,7 +90,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         
         frame_i_crop = frame_i_matrix(ROI);
    
-        GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+        GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
 
         if (ok && peak_counts_i >= .5 * peak_counts_old) {
             peak_counts_old = peak_counts_i;
@@ -101,18 +102,19 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
             tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
             cv::destroyWindow("Track Lost. Select ROI again.");
             frame_i_crop = frame_i_matrix(ROI);
-            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
             peak_counts_i = peak_counts_old;
         }
         
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
 
-        if (N_threshold_pixels_i>0){
-               irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_threshold_pixels_i;
-            }
-            else{
-               irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_ROI_pixels_i;
-        }
+        // if (N_threshold_pixels_i>0){
+        //        irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_threshold_pixels_i;
+        //     }
+        //     else{
+        //        irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_ROI_pixels_i;
+        // }
+        irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i), static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance)};
         waitKey(1);
     }
@@ -133,16 +135,16 @@ void AutoTracking::FilterImage(string prefilter, cv::Mat & processed_frame_0_mat
     }
 }
 
-void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point,\
+void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point, cv::Scalar frame_crop_mean,\
   double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels)
 {
     cv::Mat frame_crop_threshold;
-    cv::Scalar frame_mean, frame_sigma;
-    cv::meanStdDev(frame_crop, frame_mean, frame_sigma);
+    cv::Scalar frame_crop_sigma;
+    cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
     sum_ROI_counts = cv::sum(frame_crop);
     N_ROI_pixels = cv::countNonZero(frame_crop > 0);
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){
-        cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], NULL, cv::THRESH_TOZERO);
+        cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
         sum_counts = cv::sum(frame_crop_threshold);
         N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
         cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
@@ -151,7 +153,7 @@ void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::
         frame_point = frame_temp_point;
     }
     else if (trackFeature == "CENTROID"){
-        cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], 1, cv::THRESH_BINARY);
+        cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], 1, cv::THRESH_BINARY);
         cv::Mat result;
         cv::multiply(frame_crop_threshold,frame_crop,result);
         N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
@@ -162,7 +164,7 @@ void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::
     }
     else{
         cv::Point frame_temp_point;
-        cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0]+threshold*frame_sigma[0], NULL, cv::THRESH_TOZERO);
+        cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
         sum_counts = cv::sum(frame_crop_threshold);
         N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
         cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_temp_point);
