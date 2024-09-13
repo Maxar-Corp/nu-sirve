@@ -96,33 +96,47 @@ void VideoDisplay::SetupCreateTrackControls()
     lbl_create_track = new QLabel("");
     lbl_create_track->setWordWrap(false);
 
+    QVBoxLayout *vlayout_track_centroid = new QVBoxLayout();
     btn_select_track_centroid = new QPushButton("Select Track Centroid");
     btn_select_track_centroid->setCheckable(true);
     connect(btn_select_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleBtnSelectTrackCentroid);
+    vlayout_track_centroid->addWidget(btn_select_track_centroid);
+    QFormLayout *form_ROI_dim = new QFormLayout;
+    txt_ROI_dim = new QLineEdit("30");
+    form_ROI_dim->addRow(tr("&ROI Dim"),txt_ROI_dim);
+    vlayout_track_centroid->addLayout(form_ROI_dim);
 
     chk_auto_advance_frame = new QCheckBox("Auto Advance");
-    lbl_frame_advance_amt = new QLabel("# Frames");
+    QFormLayout *form_frame_advance_increment = new QFormLayout;
     txt_frame_advance_amt = new QLineEdit("1");
+    form_frame_advance_increment->addRow(tr("&# Frames"),txt_frame_advance_amt);
     txt_frame_advance_amt->setFixedWidth(30);
     btn_clear_track_centroid = new QPushButton("Remove Track Pt\nFrom Frame");
     connect(btn_clear_track_centroid, &QPushButton::clicked, this, &VideoDisplay::HandleClearTrackCentroidClick);
     connect(txt_frame_advance_amt, &QLineEdit::textChanged, this, &VideoDisplay::HandleFrameAdvanceAmtEntry);
 
-    QPushButton *btn_finish_create_track = new QPushButton("Finish Track Editing");
+    QPushButton *btn_finish_create_track = new QPushButton("Finish Track\nEditing");
     connect(btn_finish_create_track, &QPushButton::clicked, this, &VideoDisplay::finishTrackCreation);
 
-    QGridLayout* grid_create_track = new QGridLayout();
-    grid_create_track->addWidget(lbl_create_track, 0, 0, 1, -1, Qt::AlignCenter);
-    grid_create_track->addWidget(btn_select_track_centroid, 1, 0, 1, 1);
-    grid_create_track->addWidget(chk_auto_advance_frame, 1, 1, 1, 1);
-    grid_create_track->addWidget(lbl_frame_advance_amt, 1, 2, 1, 1);
-    grid_create_track->addWidget(txt_frame_advance_amt, 1, 3, 1, 1);
-    grid_create_track->addWidget(btn_clear_track_centroid, 1, 4, 1, 1);
-    grid_create_track->addWidget(btn_finish_create_track, 1, 5, 1, 1);
+    QVBoxLayout *vlayout_frame_adv = new QVBoxLayout;
+    vlayout_frame_adv->addWidget(chk_auto_advance_frame);
+    vlayout_frame_adv->addLayout(form_frame_advance_increment);
+    QHBoxLayout* hlayout_create_track = new QHBoxLayout();
+    hlayout_create_track->addLayout(vlayout_track_centroid);
+    hlayout_create_track->addLayout(vlayout_frame_adv);
+    hlayout_create_track->addWidget(txt_frame_advance_amt);
+    hlayout_create_track->addWidget(btn_clear_track_centroid);
+    hlayout_create_track->addWidget(btn_finish_create_track);
+    hlayout_create_track->insertStretch(-1,0);
+    hlayout_create_track->insertStretch(0,0);
+    hlayout_create_track->setAlignment(Qt::AlignCenter|Qt::AlignVCenter);
 
     grp_create_track->setHidden(true);
 
-    vlayout_create_track->addLayout(grid_create_track);
+    QSpacerItem *vspacer_item10 = new QSpacerItem(1,10);
+    vlayout_create_track->addItem(vspacer_item10);
+    vlayout_create_track->addWidget(lbl_create_track);
+    vlayout_create_track->addLayout(hlayout_create_track);
     video_display_layout->insertStretch(0, -1);
     video_display_layout->addWidget(grp_create_track);
 }
@@ -498,8 +512,42 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
-    details.centroid_x = x + xCorrection;
-    details.centroid_y = y + yCorrection;
+
+    std::vector<uint16_t> frame_std_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].begin(),
+           this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].end()};  
+
+    int nrows = this->container.processing_states[this->container.current_idx].details.y_pixels;
+    int ncols = this->container.processing_states[this->container.current_idx].details.x_pixels;       
+
+    arma::vec frame_vector = arma::conv_to<arma::vec>::from(frame_std_vector);
+    cv::Mat frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
+    int ROI_dim = txt_ROI_dim->text().toInt();
+    uint minx = std::max(0,static_cast<int>(x)-ROI_dim/2);
+    uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
+    uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
+    uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
+    cv::Rect ROI(minx,miny,ROI_width,ROI_height);
+    // cv::Mat tmp = 255*frame_matrix/frame_vector.max();
+    // tmp.convertTo(tmp, CV_8UC1);
+    // cv::rectangle(tmp, ROI, cv::Scalar(0, 255, 0), 2); 
+    // cv::imshow("",tmp);
+    cv::Mat frame_crop = frame_matrix(ROI);
+    cv::Mat frame_crop_threshold;
+    cv::Scalar frame_mean, frame_sigma;
+    cv::meanStdDev(frame_crop, frame_mean, frame_sigma);
+    cv::Scalar sum_ROI_counts = cv::sum(frame_crop);
+    int N_ROI_pixels = cv::countNonZero(frame_crop > 0);
+    cv::Point frame_point;
+    cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0], NULL, cv::THRESH_TOZERO);
+    cv::Scalar sum_counts = cv::sum(frame_crop_threshold);
+    int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
+    double peak_counts;
+    cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_point);
+    details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_ROI_pixels;
+    int x2 = frame_point.x;
+    int y2 = frame_point.y;
+    details.centroid_x = round(x2 + xCorrection + ROI.x);
+    details.centroid_y = round(y2 + yCorrection + ROI.y);
 
     int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)

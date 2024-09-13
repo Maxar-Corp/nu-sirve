@@ -26,13 +26,11 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     int ncols = original.x_pixels;
     cv::Scalar filtered_meani, filtered_stdi;
     u_int indx0 = start_frame;
-    cv::Mat  processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
+    cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
     cv::Mat frame_0_crop, frame_i_crop;
     arma::vec frame_0_vector, frame_i_vector;
 
-    GetProcessedFrameMatrix(indx0, clamp_low, clamp_high, original, frame_0_vector, processed_frame_0_matrix);
-
-    cv::Mat frame_0_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_0_vector.memptr());
+    GetProcessedFrameMatrix(indx0, clamp_low, clamp_high, original, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
 
     // attenuate image noise of initial frame
     filtered_frame_0_matrix = processed_frame_0_matrix;
@@ -74,9 +72,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         UpdateProgressBar(i);
         indx = (indx0 + i);
 
-        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, original, frame_i_vector, processed_frame_i_matrix);
-
-        cv::Mat frame_i_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_i_vector.memptr());
+        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, original, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
         FilterImage(prefilter, processed_frame_i_matrix, filtered_frame_i_matrix);
@@ -176,7 +172,7 @@ void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & cente
     }
 }
 
-void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails original, arma::vec & frame_vector, cv::Mat & processed_frame_matrix)
+void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails original, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
 {
     double m, s;
     int nrows = original.y_pixels;
@@ -190,4 +186,5 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     processed_frame_vector = 255*processed_frame_vector/processed_frame_vector.max();
     processed_frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, processed_frame_vector.memptr());
     processed_frame_matrix.convertTo(processed_frame_matrix, CV_8UC1);
+    frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
