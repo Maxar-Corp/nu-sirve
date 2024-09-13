@@ -20,8 +20,9 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
+arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
+    double irradiance;
     int nrows = original.y_pixels;
     int ncols = original.x_pixels;
     cv::Scalar filtered_meani, filtered_stdi;
@@ -51,11 +52,16 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
     u_int indx, num_frames = stop_frame - start_frame + 1;
-    arma::u32_mat output(num_frames, 9);
+    arma::u64_mat output(num_frames, 10);
 
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
-
-    output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0};
+    if (N_threshold_pixels_0>0){
+            irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_threshold_pixels_0;
+        }
+        else{
+            irradiance =  static_cast<uint32_t>(sum_counts_0[0])/N_ROI_pixels_0;
+    }
+    output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
 
@@ -66,7 +72,7 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         if (cancel_operation)
         {
             cv::destroyAllWindows();
-            return arma::u32_mat ();
+            return arma::u64_mat ();
         }
 
         UpdateProgressBar(i);
@@ -101,7 +107,13 @@ arma::u32_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
 
-        output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i), static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i};
+        if (N_threshold_pixels_i>0){
+               irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_threshold_pixels_i;
+            }
+            else{
+               irradiance =  static_cast<uint32_t>(sum_counts_i[0])/N_ROI_pixels_i;
+        }
+        output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i), static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance)};
         waitKey(1);
     }
     cv::destroyAllWindows();

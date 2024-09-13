@@ -18,6 +18,11 @@
 struct TrackDetails {
     int centroid_x;
     int centroid_y;
+    int peak_counts;
+    int sum_counts;
+    int sum_ROI_counts;
+    int N_ROI_pixels;
+    int N_threshold_pixels;
     double irradiance;
 };
 

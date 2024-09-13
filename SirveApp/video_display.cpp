@@ -543,11 +543,21 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
     double peak_counts;
     cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_point);
-    details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_ROI_pixels;
     int x2 = frame_point.x;
     int y2 = frame_point.y;
     details.centroid_x = round(x2 + xCorrection + ROI.x);
     details.centroid_y = round(y2 + yCorrection + ROI.y);
+    details.peak_counts = peak_counts;
+    details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
+    details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
+    details.N_threshold_pixels = N_threshold_pixels;
+    details.N_ROI_pixels = N_ROI_pixels;
+    if (N_threshold_pixels>0){
+        details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_threshold_pixels;
+    }
+    else{
+        details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_ROI_pixels;
+    }
 
     int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
