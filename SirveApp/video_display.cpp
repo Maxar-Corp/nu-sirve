@@ -103,6 +103,7 @@ void VideoDisplay::SetupCreateTrackControls()
     vlayout_track_centroid->addWidget(btn_select_track_centroid);
     QFormLayout *form_ROI_dim = new QFormLayout;
     txt_ROI_dim = new QLineEdit("30");
+    txt_ROI_dim->setFixedWidth(60);
     form_ROI_dim->addRow(tr("&ROI Dim"),txt_ROI_dim);
     vlayout_track_centroid->addLayout(form_ROI_dim);
 
@@ -533,12 +534,12 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     // cv::imshow("",tmp);
     cv::Mat frame_crop = frame_matrix(ROI);
     cv::Mat frame_crop_threshold;
-    cv::Scalar frame_mean, frame_sigma;
-    cv::meanStdDev(frame_crop, frame_mean, frame_sigma);
+    cv::Scalar frame_crop_mean, frame_crop_sigma;
+    cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
     cv::Scalar sum_ROI_counts = cv::sum(frame_crop);
     int N_ROI_pixels = cv::countNonZero(frame_crop > 0);
     cv::Point frame_point;
-    cv::threshold(frame_crop, frame_crop_threshold, frame_mean[0], NULL, cv::THRESH_TOZERO);
+    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0], NULL, cv::THRESH_TOZERO);
     cv::Scalar sum_counts = cv::sum(frame_crop_threshold);
     int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
     double peak_counts;
@@ -552,13 +553,13 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
-    if (N_threshold_pixels>0){
-        details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_threshold_pixels;
-    }
-    else{
-        details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_ROI_pixels;
-    }
-
+    // if (N_threshold_pixels>0){
+    //     details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_threshold_pixels;
+    // }
+    // else{
+    //     details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_ROI_pixels;
+    // }
+    details.irradiance =  static_cast<uint32_t>(sum_counts[0] - frame_crop_mean[0]);
     int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
     {

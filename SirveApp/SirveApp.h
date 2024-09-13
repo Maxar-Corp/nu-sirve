@@ -327,7 +327,8 @@ private:
     void OpenProgressArea(QString message, int N);
     void CloseProgressArea();
     void ResetEngineeringDataAndSliderGUIs();
- 
+    void HandleAutoTrackStartChangeInput();
+    void HandleAutoTrackStopChangeInput();
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
     void HandleCreateTrackClick();
