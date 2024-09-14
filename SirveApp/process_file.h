@@ -35,7 +35,11 @@ public:
 
 signals:
 
-    void forwardProgress(int percent);
+    void forwardProgress(int);
+
+public slots:
+
+    void HandleProgressBarUpdate(int percent);
 
 private:
 

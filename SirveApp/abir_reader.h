@@ -122,7 +122,7 @@ public:
 
 
 signals:
-    void advanceFrame(int frame_amt);
+    void advanceFrame(int);
 
 private:
     int FileSetup(const char* file_path, double version_number = -0.1);
