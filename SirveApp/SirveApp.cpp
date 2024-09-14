@@ -2012,15 +2012,14 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
     // Load the ABIR data
     playback_controller->StopTimer();
-    file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+    file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);    progress_bar_main->setValue(100);
 
-    // abir_data_result = file_processor->getAbirDataLoadResult();
-    progress_bar_main->setValue(1);
     lbl_progress_status->setText(QString("Configuring Application..."));
-    progress_bar_main->setValue(2);
+
     if (file_processor->getAbirDataLoadResult()->had_error) {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
+
         return;
     }
 
@@ -2053,7 +2052,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     int index1 = max_frame;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
     lbl_progress_status->setText(QString("Finalizing application state"));
-    progress_bar_main->setValue(3);
+    //progress_bar_main->setValue(3);
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
     cmb_OSM_track_IDs->clear();
     cmb_OSM_track_IDs->addItem("Primary");
@@ -2086,7 +2085,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     playback_controller->set_initial_speed_index(10);
     UpdateFps();
 
-    progress_bar_main->setValue(4);
+    //progress_bar_main->setValue(4);
 
     tab_plots->setCurrentIndex(1);
 

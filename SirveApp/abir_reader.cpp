@@ -275,7 +275,8 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
         ir_data.push_back(temp_frame);
         last_valid_frame = frame_index;
 
-        emit advanceFrame((int)(frame_index/frame_span));
+        double progress = frame_index / (frame_span*.01);
+        emit advanceFrame((int)std::round(progress));
     }
     fclose(fp);
 
