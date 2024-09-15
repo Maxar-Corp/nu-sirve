@@ -23,6 +23,9 @@ void AutoTracking::CancelOperation()
 arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
 {
     double irradiance;
+    int nrows = original.y_pixels;
+    int ncols = original.x_pixels;
+
     cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
     u_int indx0 = start_frame;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
@@ -38,9 +41,11 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     cv::cvtColor(filtered_frame_0_matrix, filtered_frame_0_matrix_8bit_color,cv::COLOR_GRAY2RGB);
 
     Ptr<Tracker> tracker = TrackerMIL::create();
+
     Rect region_of_interest = cv::selectROI("ROI Selection", filtered_frame_0_matrix_8bit_color);
 
     frame_0_crop = frame_0_matrix(region_of_interest);
+
     cv::Point frame_0_point, frame_i_point;
     double peak_counts_0, peak_counts_old, peak_counts_i;
     cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
@@ -90,10 +95,12 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
             imshow("Tracking... ", filtered_frame_i_matrix_8bit_color);
         }
         else {
+
             region_of_interest = selectROI("Track Lost. Select ROI again.", filtered_frame_i_matrix_8bit_color);
             tracker->init(filtered_frame_i_matrix_8bit_color, region_of_interest);
             cv::destroyWindow("Track Lost. Select ROI again.");
             frame_i_crop = frame_i_matrix(region_of_interest);
+
             GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
             peak_counts_i = peak_counts_old;
         }

@@ -3186,7 +3186,7 @@ void SirveApp::HandleBadPixelReplacement()
 
 void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
 {
-    std::vector<unsigned int> bad_pixels = video_display->container.processing_states[0].replaced_pixels;
+    std::vector<unsigned int> bad_pixels = video_display->container.processing_states[video_display->container.current_idx].replaced_pixels;
 
     unsigned int count_new = 0;
     for (auto i = 0; i < new_pixels.size(); i++)
@@ -3232,10 +3232,6 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
 
     ImageProcessor->ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
 
-    // progress_bar_main->setValue(0);
-    // progress_bar_main->setTextVisible(false);
-    // lbl_progress_status->setText(QString(""));
-
     if(pixels_to_replace.size()>0){
 
         // fetch max value
@@ -3271,9 +3267,8 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
 
 void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
 {
-    std::vector<unsigned int> bad_pixels = video_display->container.processing_states[0].replaced_pixels;
-
-    unsigned int count_to_remove = 0;
+    std::vector<unsigned int> bad_pixels = video_display->container.processing_states[video_display->container.current_idx].replaced_pixels;
+    int num_video_frames = video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size();
     for (auto i = 0; i < pixels.size(); i++)
     {
         unsigned int candidate_pixel = pixels[i];
@@ -3281,27 +3276,16 @@ void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
         if (position != bad_pixels.end())
         {
             bad_pixels.erase(position);
-            count_to_remove += 1;
+            video_display->container.processing_states[video_display->container.current_idx].replaced_pixels = bad_pixels;
+            for (int framei = 0; framei < num_video_frames; framei++)
+            {
+                video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[framei][pixels[i]] =\
+                video_display->container.processing_states[0].details.frames_16bit[framei][pixels[i]];
+            }
+            
         }
     }
-
-    if (count_to_remove == 0)
-    {
-        QtHelpers::LaunchMessageBox("No Action Taken", "No bad pixels will be marked as good.");
-    }
-    else
-    {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Removing bad pixels will reset all filters and require re-reading the original data. Are you sure you want to continue? Number of bad pixels that will be marked as good: " + QString::number(count_to_remove));
-
-        if (response == QMessageBox::Yes)
-        {
-            int min_frame = data_plots->index_sub_plot_xmin + 1;
-            int max_frame = data_plots->index_sub_plot_xmax + 1;
-            LoadAbirData(min_frame, max_frame);
-
-            ReplaceBadPixels(bad_pixels,cmb_processing_states->currentIndex());
-        }
-    }
+    UpdateGlobalFrameVector();
 }
 
 void SirveApp::ReceiveProgressBarUpdate(int percent)
@@ -3401,9 +3385,6 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
-    // progress_bar_main->setValue(0);
-    // progress_bar_main->setTextVisible(false);
-    // lbl_progress_status->setText(QString(""));
 
     if(new_state.details.frames_16bit.size()>0){
 
@@ -3496,14 +3477,12 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
-    OpenProgressArea("Deinterlacing...",number_video_frames - 1);
+    OpenProgressArea("Deinterlacing...", number_video_frames - 1);
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
     new_state.details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
-    // progress_bar_main->setValue(0);
-    // lbl_progress_status->setText(QString(""));
 
     if(new_state.details.frames_16bit.size()>0){
 
