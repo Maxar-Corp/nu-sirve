@@ -3205,12 +3205,7 @@ void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
     }
     else
     {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue? Number of new bad pixels to add: " + QString::number(count_new));
-
-        if (response == QMessageBox::Yes)
-        {
-            ReplaceBadPixels(bad_pixels, cmb_processing_states->currentIndex());
-        }
+        ReplaceBadPixels(bad_pixels, cmb_processing_states->currentIndex());
     }
 }
 
@@ -3291,16 +3286,10 @@ void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
     }
     else
     {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Removing bad pixels will reset all filters and require re-reading the original data. Are you sure you want to continue? Number of bad pixels that will be marked as good: " + QString::number(count_to_remove));
-
-        if (response == QMessageBox::Yes)
-        {
-            int min_frame = data_plots->index_sub_plot_xmin + 1;
-            int max_frame = data_plots->index_sub_plot_xmax + 1;
-            LoadAbirData(min_frame, max_frame);
-
-            ReplaceBadPixels(bad_pixels,cmb_processing_states->currentIndex());
-        }
+        int min_frame = data_plots->index_sub_plot_xmin + 1;
+        int max_frame = data_plots->index_sub_plot_xmax + 1;
+        LoadAbirData(min_frame, max_frame);
+        ReplaceBadPixels(bad_pixels,cmb_processing_states->currentIndex());
     }
 }
 

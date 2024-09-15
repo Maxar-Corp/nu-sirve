@@ -772,7 +772,7 @@ void VideoDisplay::UpdateDisplayFrame()
             int pinpoint_x = pinpoint_idx % image_x;
             int pinpoint_y = pinpoint_idx / image_x;
             pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
-            if ( std::find(container.processing_states[0].replaced_pixels.begin(), container.processing_states[0].replaced_pixels.end(), pinpoint_idx) != container.processing_states[0].replaced_pixels.end() )
+            if ( std::find(container.processing_states[current_idx].replaced_pixels.begin(), container.processing_states[current_idx].replaced_pixels.end(), pinpoint_idx) != container.processing_states[current_idx].replaced_pixels.end() )
             {
                 pinpoint_text += " * (adjusted, bad pixel)";
             }
