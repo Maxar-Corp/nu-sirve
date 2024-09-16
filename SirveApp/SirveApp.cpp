@@ -1194,8 +1194,6 @@ void SirveApp::SetupPlotFrame() {
     tab_plots->addTab(widget_plots_tab_color, "Plots");
 
     tab_plots->tabBar()->hide();
-
-    //directoryPicker = new DirectoryPicker(this);
 }
 
 void SirveApp::setupConnections() {
@@ -1308,6 +1306,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     // Connect x-axis and y-axis changes to functions
+    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
     connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisOptionChange);
 
     // Connect save button functions
@@ -1365,6 +1364,12 @@ void SirveApp::HandleYAxisOptionChange()
     }
     UpdatePlots();
 }
+
+void SirveApp::HandleXAxisOptionChange()
+{
+    UpdatePlots();
+}
+
 
 void SirveApp::ImportTracks()
 {

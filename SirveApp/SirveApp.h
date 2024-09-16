@@ -222,6 +222,7 @@ public:
         void HandlePlotFullDataToggle();
         void HandlePlotPrimaryOnlyToggle();
         void HandlePlotCurrentFrameMarkerToggle();
+        void HandleXAxisOptionChange();
    
         void SetDataTimingOffset();
         void ChangeWorkspaceDirectory();

@@ -27,13 +27,12 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     yaxis_is_log = false;
     yaxis_is_scientific = false;
     SetPlotTitle("EDIT CLASSIFICATION");
-    current_chart_id = 0;
+    current_chart_id = 2; // 2 -> Elevation
 
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
     osm_track_color = colors.get_current_color();
-    // osm_track_color = colors.get_color(7);
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
