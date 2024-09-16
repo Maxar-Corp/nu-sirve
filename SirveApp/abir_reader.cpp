@@ -60,6 +60,8 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
     uint16_t maxVal = std::numeric_limits<uint16_t>::min(); // Initialize with the smallest possible int
     uint16_t last_valid_frame = 0;
 
+    double frame_span = valid_frames[1] - valid_frames[0];
+
     for (unsigned int frame_index = valid_frames[0]; frame_index <= valid_frames[1]; frame_index++)
     {
         ABIR_Header header_data;
@@ -272,6 +274,9 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
 
         ir_data.push_back(temp_frame);
         last_valid_frame = frame_index;
+
+        double progress = frame_index / (frame_span*.01);
+        emit advanceFrame((int)std::round(progress));
     }
     fclose(fp);
 

@@ -58,6 +58,8 @@ SirveApp::SirveApp(QWidget *parent)
 
     osmDataLoaded = false;
     UpdateGuiPostDataLoad(osmDataLoaded);
+
+    connect(this->file_processor, &ProcessFile::forwardProgress, this->progress_bar_main, &QProgressBar::setValue);
 }
 
 SirveApp::~SirveApp() {
@@ -2006,36 +2008,52 @@ void SirveApp::DeleteAbirData()
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 {
-    video_display->container.ClearProcessingStates();
-    lbl_progress_status->setText(QString("Loading frames..."));
-    grpbox_progressbar_area->setEnabled(true);
-    progress_bar_main->setRange(0,4);
-    progress_bar_main->setValue(0);
-    progress_bar_main->setTextVisible(true);
-
-    // Load the ABIR data
     playback_controller->StopTimer();
+    video_display->container.ClearProcessingStates();
+
+    grpbox_progressbar_area->setEnabled(true);
+    progress_bar_main->setTextVisible(true);
+    progress_bar_main->setRange(0,100);
+
+    // Task 1:
+    progress_bar_main->setValue(0);
+    lbl_progress_status->setText(QString("Loading ABIR data frames..."));
     file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
-    // abir_data_result = file_processor->getAbirDataLoadResult();
-    progress_bar_main->setValue(1);
-    lbl_progress_status->setText(QString("Configuring Application..."));
-    progress_bar_main->setValue(2);
+
     if (file_processor->getAbirDataLoadResult()->had_error) {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
+
         return;
     }
 
-    // std::vector<std::vector<uint16_t>> video_frames = abir_data_result->video_frames_16bit;
-    unsigned int number_frames = static_cast<unsigned int>(file_processor->getAbirDataLoadResult()->video_frames_16bit.size());
+    // Task 2:
+    progress_bar_main->setValue(0);
+    lbl_progress_status->setText(QString("Deriving processing state..."));
+    this->repaint();
 
+    unsigned int number_frames = static_cast<unsigned int>(file_processor->getAbirDataLoadResult()->video_frames_16bit.size());
     int x_pixels = file_processor->getAbirDataLoadResult()->x_pixels;
+    progress_bar_main->setValue(20);
     int y_pixels = file_processor->getAbirDataLoadResult()->y_pixels;
+    progress_bar_main->setValue(40);
     int max_value = file_processor->getAbirDataLoadResult()->max_value;
+    progress_bar_main->setValue(60);
     VideoDetails vid_details = {x_pixels, y_pixels, max_value, file_processor->getAbirDataLoadResult()->video_frames_16bit};
+    progress_bar_main->setValue(80);
     max_frame = file_processor->data_result->last_valid_frame;
     processingState primary = { ProcessingMethod::original, vid_details };
+    progress_bar_main->setValue(100);
+
+    // Task 3:
+    progress_bar_main->setValue(30);
+    lbl_progress_status->setText(QString("Adding processing state..."));
+    this->repaint();
+
     video_display->container.AddProcessingState(primary);
+    progress_bar_main->setValue(80);
+    this->repaint();
+
     txt_start_frame->setText(QString::number(min_frame));
     txt_stop_frame->setText(QString::number(max_frame));
 
@@ -2051,11 +2069,15 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         thread_timer.start();
     }
 
+    // Task 4:
+    progress_bar_main->setValue(0);
+    lbl_progress_status->setText(QString("Configuring the chart plotter..."));
+    this->repaint();
+
     int index0 = min_frame - 1;
     int index1 = max_frame;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
-    lbl_progress_status->setText(QString("Finalizing application state"));
-    progress_bar_main->setValue(3);
+
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
     cmb_OSM_track_IDs->clear();
     cmb_OSM_track_IDs->addItem("Primary");
@@ -2088,7 +2110,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     playback_controller->set_initial_speed_index(10);
     UpdateFps();
 
-    progress_bar_main->setValue(4);
+    progress_bar_main->setValue(100);
+    this->repaint();;
 
     tab_plots->setCurrentIndex(1);
 
@@ -2158,6 +2181,11 @@ void SirveApp::HandlePopoutEngineeringClosed()
     btn_popout_engineering->setChecked(false);
     engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
+}
+
+void SirveApp::HandleProgressUpdate(int percent)
+{
+    progress_bar_main->setValue(percent);
 }
 
 void SirveApp::HandlePopoutHistogramClick(bool checked)
@@ -3274,6 +3302,11 @@ void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
             ReplaceBadPixels(bad_pixels,cmb_processing_states->currentIndex());
         }
     }
+}
+
+void SirveApp::ReceiveProgressBarUpdate(int percent)
+{
+    progress_bar_main->setValue(percent);
 }
 
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
