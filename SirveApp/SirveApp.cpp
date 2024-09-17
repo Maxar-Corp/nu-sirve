@@ -1968,6 +1968,10 @@ void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
 
     frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
 
+    action_export_current_frame->setEnabled(frame_range_status);
+    action_export_frame_range->setEnabled(frame_range_status);
+    action_export_all_frames->setEnabled(frame_range_status);
+
     // Enable the video pinpoint capabilities, which are
     // privately held within the video display class
     emit updateVideoDisplayPinpointControls(frame_range_status);
@@ -2698,12 +2702,15 @@ void SirveApp::CreateMenuActions()
 
     action_export_current_frame = new QAction("Export Current Frame");
     connect(action_export_current_frame, &QAction::triggered, this, &SirveApp::ExportFrame);
+    action_export_current_frame->setEnabled(false);
 
     action_export_frame_range = new QAction("Export Frame Range");
     connect(action_export_frame_range, &QAction::triggered, this, &SirveApp::ExportFrameRange);
+    action_export_frame_range->setEnabled(false);
 
     action_export_all_frames = new QAction("Export All Frames");
     connect(action_export_all_frames, &QAction::triggered, this, &SirveApp::ExportAllFrames);
+    action_export_all_frames->setEnabled(false);
 
     action_set_timing_offset = new QAction("Set Timing Offset");
     action_set_timing_offset->setStatusTip("Set a time offset to apply to collected data");
@@ -3205,12 +3212,7 @@ void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
     }
     else
     {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Bad Pixel Confirmation", "Replacing bad pixels will reset all filters and modify the original frame. Are you sure you want to continue? Number of new bad pixels to add: " + QString::number(count_new));
-
-        if (response == QMessageBox::Yes)
-        {
-            ReplaceBadPixels(bad_pixels, cmb_processing_states->currentIndex());
-        }
+        ReplaceBadPixels(bad_pixels, cmb_processing_states->currentIndex());
     }
 }
 

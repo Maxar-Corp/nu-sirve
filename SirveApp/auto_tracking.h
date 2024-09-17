@@ -29,7 +29,7 @@ public:
 
     AutoTracking(); 
     ~AutoTracking();
-
+    int N = 2;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
     arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
