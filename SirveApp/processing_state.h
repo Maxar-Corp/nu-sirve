@@ -69,7 +69,7 @@ struct processingState {
        switch (method)
         {
             case ProcessingMethod::original:
-                return "Original Data";
+                return "Original ('Raw') Data";
                 break;
             case ProcessingMethod::replace_bad_pixels:
                 return "Replaced Bad Pixels\n<Previous State " + QString::number(source_state_ID) + ">\n"\
@@ -174,7 +174,7 @@ struct processingState {
        switch (method)
         {
             case ProcessingMethod::original:
-                return "Original";
+                return "Original ('Raw') Data";
                 break;
             case ProcessingMethod::replace_bad_pixels:
                 return "<Previous State " + QString::number(source_state_ID) + "> Replace Bad Pixels";;
@@ -239,7 +239,7 @@ struct processingState {
         {
             case ProcessingMethod::original:
                 {
-                    state_object.insert("method", "Original");
+                    state_object.insert("method", "Original ('Raw') Data");
                     state_object.insert("state description",state_description);
                     state_object.insert("state steps",state_steps);
                     break;
