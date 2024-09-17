@@ -5,7 +5,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
 {
     QString method = json_obj.value("method").toString();
 
-    if (method == "Original")
+    if (method == "Original ('Raw') Data")
     {
         processingState temp = { ProcessingMethod::original };
         temp.state_ID = json_obj.value("state_ID").toInt();
