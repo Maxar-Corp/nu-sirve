@@ -1812,6 +1812,8 @@ void SirveApp::LoadOsmData()
     lbl_file_name->setText("OSM File Name: " + abp_file_metadata.file_name);
     lbl_file_name->setToolTip(abp_file_metadata.directory_path);
 
+    this->window()->setWindowTitle("SirveApp - " + abp_file_metadata.directory_path + "/" + abp_file_metadata.file_name);
+
     QString osm_max_frames = QString::number(osm_frames.size());
     txt_start_frame->setText(QString("1"));
     txt_stop_frame->setText(osm_max_frames);
