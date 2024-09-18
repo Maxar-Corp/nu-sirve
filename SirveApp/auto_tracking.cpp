@@ -92,7 +92,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
 
-    irradiance =  static_cast<uint32_t>(sum_counts_0[0] - frame_crop_mean[0]);
+    irradiance =  static_cast<uint32_t>(sum_counts_0[0]);
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
@@ -184,10 +184,11 @@ void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::
         cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], 1, cv::THRESH_BINARY);
         cv::Mat result;
         cv::multiply(frame_crop_threshold,frame_crop,result);
+        sum_counts = cv::sum(result);
         N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
         cv::Moments frame_moments = cv::moments(frame_crop_threshold,true);
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
-        cv::minMaxLoc(frame_crop, NULL, &peak_counts, NULL, NULL);
+        cv::minMaxLoc(result, NULL, &peak_counts, NULL, NULL);
         frame_point = frame_temp_point;
     }
     else{
