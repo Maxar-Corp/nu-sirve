@@ -1533,12 +1533,15 @@ void SirveApp::HandleFinishCreateTrackClick()
         cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
+        QStringList color_options = ColorScheme::get_track_colors();
         QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
         if (existing_track_control != nullptr)
         {
             QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
             const QFileInfo info(new_track_file_name);
             lbl_track_description->setText(info.fileName());
+            int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
+            HandleManualTrackRecoloring(currently_editing_or_creating_track_id, color_options[ind]);
         }  
     }
 
