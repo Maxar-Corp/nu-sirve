@@ -27,6 +27,7 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
     yaxis_is_log = false;
     yaxis_is_scientific = false;
     SetPlotTitle("EDIT CLASSIFICATION");
+    current_unit_id = 1; // 1 -> counts
     current_chart_id = 2; // 2 -> Elevation
 
     index_sub_plot_xmin = 0;
@@ -34,11 +35,42 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
 
     osm_track_color = colors.get_current_color();
 
+    chart_x_maxes[0] = 6342;
+    chart_x_maxes[1] = 6342;
+    chart_x_maxes[2] = 208;
+
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
 
 EngineeringPlots::~EngineeringPlots()
 {
+}
+
+void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
+{
+    // If the unit of measurement has changed,
+    if (current_unit_id != xaxis_chart_id)
+    {
+        // Get the chart state object for updating
+        ChartState chartState = this->chart_view->get_chart_state();
+
+        // Record the state of the chart we are leaving behind:
+        QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
+
+        if (axisX)
+        {
+            qreal axismax = axisX->max();
+            qreal axismin = axisX->min();
+
+            chartState.scale_factor_maxx = axismax / chart_x_maxes[current_unit_id];
+            chartState.scale_factor_minx = axismin / chart_x_maxes[current_unit_id];
+
+            this->chart_view->set_chart_state(chartState);
+        }
+
+    }
+
+    current_unit_id = xaxis_chart_id;
 }
 
 void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
@@ -123,7 +155,7 @@ void EngineeringPlots::PlotChart()
         QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
 
         if (axisX) {
-            axisX->setRange(chartState.xMin, chartState.xMax);
+            axisX->setRange(chart_x_maxes[current_unit_id] * chartState.scale_factor_minx, chart_x_maxes[current_unit_id] * chartState.scale_factor_maxx);
         }
 
         if (axisY) {

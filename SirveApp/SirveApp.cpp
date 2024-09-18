@@ -2970,6 +2970,7 @@ void SirveApp::UpdatePlots()
                 break;
         }
 
+        data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
         data_plots->PlotChart();
 

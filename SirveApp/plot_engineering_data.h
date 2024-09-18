@@ -31,6 +31,9 @@ QT_CHARTS_USE_NAMESPACE
     qreal yMin;
     qreal yMax;
 
+    float scale_factor_maxx;
+    float scale_factor_minx;
+
     float scale_factor_max;
     float scale_factor_min;
 };
@@ -113,7 +116,7 @@ public:
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only, plot_current_marker;
     double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-    unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_chart_id;
+    unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_unit_id, current_chart_id;
 
     std::vector<double> past_midnight, past_epoch;
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
@@ -124,6 +127,7 @@ public:
 
     std::vector<PlottingFrameData> engineering_data;
 
+    void SetXAxisChartId(int xaxis_chart_id);
     void SetYAxisChartId(int yaxis_chart_id);
 
     void PlotChart();
@@ -137,6 +141,8 @@ public:
 
     void set_xaxis_units(XAxisPlotVariables unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+
+    float chart_x_maxes[3] = {-1, -1, -1}; // popupalate these later
 
     float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
     ChartState chart_states[7];
