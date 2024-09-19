@@ -35,9 +35,7 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
 
     osm_track_color = colors.get_current_color();
 
-    chart_x_maxes[0] = 6342;
-    chart_x_maxes[1] = 6342;
-    chart_x_maxes[2] = 208;
+    // TODO: Initialize chart x intervals somewhere around here...
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
@@ -62,8 +60,8 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
             qreal axismax = axisX->max();
             qreal axismin = axisX->min();
 
-            chartState.scale_factor_maxx = axismax / chart_x_maxes[current_unit_id];
-            chartState.scale_factor_minx = axismin / chart_x_maxes[current_unit_id];
+            //chartState.scale_factor_maxx = axismax / chart_x_intervals[current_unit_id];
+            //chartState.scale_factor_minx = axismin / chart_x_intervals[current_unit_id];
 
             this->chart_view->set_chart_state(chartState);
         }
@@ -155,7 +153,10 @@ void EngineeringPlots::PlotChart()
         QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
 
         if (axisX) {
-            axisX->setRange(chart_x_maxes[current_unit_id] * chartState.scale_factor_minx, chart_x_maxes[current_unit_id] * chartState.scale_factor_maxx);
+            qreal interval_span = chart_x_intervals[current_unit_id].second - chart_x_intervals[current_unit_id].first;
+            qreal interval_begin = chart_x_intervals[current_unit_id].first + chartState.scale_factor_minx * interval_span;
+            qreal interval_end = chartState.scale_factor_minx + chartState.scale_factor_maxx * interval_span;
+            axisX->setRange(interval_begin, interval_end);
         }
 
         if (axisY) {

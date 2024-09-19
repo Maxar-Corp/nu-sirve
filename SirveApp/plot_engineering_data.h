@@ -12,6 +12,7 @@
 #include <QtCharts/QLogValueAxis>
 #include <QtCharts/qxyseries.h>
 #include <qfiledialog.h>
+#include <QPair>
 #include <QString>
 #include <vector>
 #include <math.h>
@@ -142,7 +143,7 @@ public:
     void set_xaxis_units(XAxisPlotVariables unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
-    float chart_x_maxes[3] = {-1, -1, -1}; // popupalate these later
+    QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
 
     float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
     ChartState chart_states[7];
