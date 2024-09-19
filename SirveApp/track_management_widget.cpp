@@ -30,12 +30,14 @@ void TrackManagementWidget::AddTrackControl(int id)
     {
         //If there's already a track control widget for this ID, just make sure the checkbox is checked
         QCheckBoxWithId * chk_box = existing_track_control->findChild<QCheckBoxWithId*>();
-        track_colors[id] = QColor(255,0,0,255);
+        int indx = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
+        HandleTrackColorSelection(id,indx);
         chk_box->setChecked(true);
         return;
     }
 
     QWidget *track_control = CreateTrackControl(id);
+    QStringList color_options = ColorScheme::get_track_colors();
 
     // Maintain ascending order by track ID using the ID we hid in the track control widget's objectName property
     for (int i = 0; i < layout->count(); ++i) {
@@ -99,18 +101,16 @@ QWidget* TrackManagementWidget::CreateTrackControl(int id)
 void TrackManagementWidget::HandleTrackColorSelection(int id, int index)
 {
     QStringList color_options = ColorScheme::get_track_colors();
-    track_colors[id] = color_options[index];
     emit recolorTrack(id, color_options[index]);
 }
 
 void TrackManagementWidget::HandleDisplayTrack(int id)
 {
-    if (track_colors.empty()){
-        track_colors[id] = QColor(255,0,0,255);
-    }
+    QStringList color_options = ColorScheme::get_track_colors();
     QWidget *tmp = this->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
     tmp->findChild<QComboBoxWithId*>()->setEnabled(true);
-    emit displayTrack(id, track_colors[id]);
+    int indx = tmp->findChild<QComboBoxWithId*>()->currentIndex();
+    emit displayTrack(id, color_options[indx]);
 }
 
 void TrackManagementWidget::HandleHideTrack(int id)
