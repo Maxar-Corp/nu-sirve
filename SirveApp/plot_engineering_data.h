@@ -131,6 +131,7 @@ public:
     void SetXAxisChartId(int xaxis_chart_id);
     void SetYAxisChartId(int yaxis_chart_id);
 
+    void InitializeIntervals(std::vector<Frame> const &osm_frames);
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
@@ -172,9 +173,9 @@ private:
 
     float fixed_max_y;
 
-    void EstablishPlotLimits();
     void CreateCurrentMarker();
     void DrawTitle();
+    void EstablishPlotLimits();
 
     void PlotAzimuth(size_t plot_number_tracks);
     void PlotElevation(size_t plot_number_tracks);

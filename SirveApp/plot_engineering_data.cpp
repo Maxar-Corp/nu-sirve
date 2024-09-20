@@ -19,29 +19,52 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : QtPlo
         boresight_az.push_back(osm_frames[i].data.az_el_boresight[0]);
         boresight_el.push_back(osm_frames[i].data.az_el_boresight[1]);
     }
+    SetPlotTitle("EDIT CLASSIFICATION");
 
-    x_axis_units = frames;
     plot_all_data = true;
     plot_primary_only = false;
     plot_current_marker = false;
+
+    x_axis_units = frames;
     yaxis_is_log = false;
     yaxis_is_scientific = false;
-    SetPlotTitle("EDIT CLASSIFICATION");
-    current_unit_id = 1; // 1 -> counts
+
+    current_unit_id = 0; // 0 -> counts
     current_chart_id = 2; // 2 -> Elevation
 
+    // 'sub-plot' refers to the frame range, not to zoom
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
     osm_track_color = colors.get_current_color();
-
-    // TODO: Initialize chart x intervals somewhere around here...
 
     connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
 
 EngineeringPlots::~EngineeringPlots()
 {
+}
+
+void EngineeringPlots::InitializeIntervals(const std::vector<Frame> &osm_frames)
+{
+    x_axis_units = frames;
+    QPair<qreal,qreal> frame_interval = *new QPair<qreal,qreal>();
+    frame_interval.first = get_single_x_axis_value(0);
+    frame_interval.second = get_max_x_axis_value();
+
+    x_axis_units = seconds_past_midnight;
+    QPair<qreal,qreal> midnight_interval = *new QPair<qreal, qreal>();
+    midnight_interval.first = get_single_x_axis_value(0);
+    midnight_interval.second = get_max_x_axis_value();
+
+    x_axis_units = seconds_from_epoch;
+    QPair<qreal,qreal> epoch_interval = *new QPair<qreal, qreal>();
+    epoch_interval.first = get_single_x_axis_value(0);
+    epoch_interval.second = get_max_x_axis_value();
+
+    chart_x_intervals[0] = frame_interval;
+    chart_x_intervals[1] = midnight_interval;
+    chart_x_intervals[2] = epoch_interval;
 }
 
 void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
@@ -57,15 +80,19 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
         if (axisX)
         {
-            qreal axismax = axisX->max();
-            qreal axismin = axisX->min();
+            qreal axisMax = axisX->max();
+            qreal axisMin = axisX->min();
 
-            //chartState.scale_factor_maxx = axismax / chart_x_intervals[current_unit_id];
-            //chartState.scale_factor_minx = axismin / chart_x_intervals[current_unit_id];
+            qreal localAxisMin = axisMin - chart_x_intervals[current_unit_id].first;
+            qreal localAxisMax = axisMax - chart_x_intervals[current_unit_id].second;
+            qreal localIntervalLength = chart_x_intervals[current_unit_id].second -
+                                        chart_x_intervals[current_unit_id].first;
+
+            chartState.scale_factor_minx = localAxisMin / localIntervalLength;
+            chartState.scale_factor_maxx = localAxisMax / localIntervalLength;
 
             this->chart_view->set_chart_state(chartState);
         }
-
     }
 
     current_unit_id = xaxis_chart_id;
@@ -437,12 +464,11 @@ std::vector<double> EngineeringPlots::get_individual_y_track_elevation(size_t i)
 
 void EngineeringPlots::EstablishPlotLimits()
 {
-
     sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
     sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
 
     full_plot_xmin = get_single_x_axis_value(0);
-    full_plot_xmax = get_max_x_axis_value();
+    full_plot_xmax = get_max_x_axis_value(); 
 }
 
 void EngineeringPlots::set_xaxis_units(XAxisPlotVariables unit_choice)

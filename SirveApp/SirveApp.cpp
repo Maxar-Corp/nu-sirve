@@ -1940,6 +1940,8 @@ void SirveApp::LoadOsmData()
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
+    data_plots->InitializeIntervals(osm_frames);
+
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
