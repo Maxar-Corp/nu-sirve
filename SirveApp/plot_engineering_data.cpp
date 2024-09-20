@@ -84,7 +84,7 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
             qreal axisMin = axisX->min();
 
             qreal localAxisMin = axisMin - chart_x_intervals[current_unit_id].first;
-            qreal localAxisMax = axisMax - chart_x_intervals[current_unit_id].second;
+            qreal localAxisMax = axisMax - chart_x_intervals[current_unit_id].first;
             qreal localIntervalLength = chart_x_intervals[current_unit_id].second -
                                         chart_x_intervals[current_unit_id].first;
 
@@ -182,7 +182,7 @@ void EngineeringPlots::PlotChart()
         if (axisX) {
             qreal interval_span = chart_x_intervals[current_unit_id].second - chart_x_intervals[current_unit_id].first;
             qreal interval_begin = chart_x_intervals[current_unit_id].first + chartState.scale_factor_minx * interval_span;
-            qreal interval_end = chartState.scale_factor_minx + chartState.scale_factor_maxx * interval_span;
+            qreal interval_end = chart_x_intervals[current_unit_id].first + chartState.scale_factor_maxx * interval_span;
             axisX->setRange(interval_begin, interval_end);
         }
 
