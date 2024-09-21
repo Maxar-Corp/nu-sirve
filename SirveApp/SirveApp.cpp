@@ -4122,56 +4122,45 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
     processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
     int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
     int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-    MEMORYSTATUSEX memInfo;
-    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-    GlobalMemoryStatusEx(&memInfo);
-    DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
     processingState new_state = original;
     new_state.details.frames_16bit.clear();
     new_state.ancestors.clear();
     new_state.descendants.clear();
 
-    if(available_memory_ratio >=1.5){
-        ImageProcessing *ImageProcessor = new ImageProcessing();
+    ImageProcessing *ImageProcessor = new ImageProcessing();
 
-        OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
+    OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
 
-        connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
-        connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
+    connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-        new_state.details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
-        if(new_state.details.frames_16bit.size()>0){
-            new_state.method = ProcessingMethod::accumulator_noise_suppression;
-            new_state.source_state_ID = source_state_ind;
-            new_state.weight = weight;
-            new_state.offset = offset;
-            new_state.hide_shadow = hide_shadow_choice;
-            new_state.shadow_threshold = shadow_sigma_thresh;
-            uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-            for (const auto& row : new_state.details.frames_16bit) {
-                maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-            }
-            new_state.details.max_value = maxVal;
-            new_state.state_ID = video_display->container.processing_states.size() ;
-            new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-            new_state.ancestors.push_back(source_state_ind);
-            std::string result;
-            for (auto num : new_state.ancestors) {
-                result += std::to_string(num) + " -> ";
-            }
-            result += std::to_string(new_state.state_ID);
-            QString state_steps = QString::fromStdString(result);
-            new_state.state_steps = state_steps;
-            new_state.process_steps.push_back(" [Rolling Mean Noise Suppression] ");
-            video_display->container.AddProcessingState(new_state);
-
-            ImageProcessor->deleteLater();
+    new_state.details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
+    if(new_state.details.frames_16bit.size()>0){
+        new_state.method = ProcessingMethod::accumulator_noise_suppression;
+        new_state.source_state_ID = source_state_ind;
+        new_state.weight = weight;
+        new_state.offset = offset;
+        new_state.hide_shadow = hide_shadow_choice;
+        new_state.shadow_threshold = shadow_sigma_thresh;
+        uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
+        for (const auto& row : new_state.details.frames_16bit) {
+            maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
-    }
-    else
-    {
-        QtHelpers::LaunchMessageBox(QString("Low memory"), "Insufficient memory for this operation. Please select fewer frames.");
+        new_state.details.max_value = maxVal;
+        new_state.state_ID = video_display->container.processing_states.size() ;
+        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
+        new_state.ancestors.push_back(source_state_ind);
+        std::string result;
+        for (auto num : new_state.ancestors) {
+            result += std::to_string(num) + " -> ";
+        }
+        result += std::to_string(new_state.state_ID);
+        QString state_steps = QString::fromStdString(result);
+        new_state.state_steps = state_steps;
+        new_state.process_steps.push_back(" [Rolling Mean Noise Suppression] ");
+        video_display->container.AddProcessingState(new_state);
+
+        ImageProcessor->deleteLater();
     }
     CloseProgressArea();
 }
