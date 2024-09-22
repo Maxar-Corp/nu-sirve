@@ -1,4 +1,5 @@
 #include "plot_engineering_data.h"
+#include "qdebug.h"
 #include "qrubberband.h"
 
 #include <QPushButton>
@@ -742,6 +743,20 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
         rubberBand->hide();
         QRect selectedRect = rubberBand->geometry();
+
+        QRect rubberBandRect = rubberBand->geometry();  // Selected rectangle from the rubberband
+        QRectF sceneRect = this->mapToScene(rubberBandRect).boundingRect();  // Map to scene
+        QRectF plotArea = chart()->plotArea();  // Get the chart's plot area
+
+
+        // Check if the lower y value (bottom) is negative
+        if ((sceneRect.topLeft().y() + sceneRect.height()) > (plotArea.topLeft().y() + plotArea.height()))
+        {
+            qDebug() << "Selected rectangle goes negative relative to the chart!";
+            qreal difference = (sceneRect.topLeft().y() + sceneRect.height()) - (plotArea.topLeft().y() + plotArea.height());
+            selectedRect.setHeight(sceneRect.height() - difference);
+        }
+
         emit rubberBandChanged(selectedRect);
 
         if (!selectedRect.isEmpty()) {
