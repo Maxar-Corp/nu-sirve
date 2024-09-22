@@ -3201,26 +3201,41 @@ void SirveApp::HandleBadPixelReplacement()
 
 void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
 {
-    std::vector<unsigned int> bad_pixels = video_display->container.processing_states[video_display->container.current_idx].replaced_pixels;
-
-    unsigned int count_new = 0;
-    for (auto i = 0; i < new_pixels.size(); i++)
+    bool isReplacedBadPixelState = false;
+    int source_state_idx = video_display->container.processing_states[video_display->container.current_idx].source_state_ID;
+    int current_state_idx = video_display->container.processing_states[video_display->container.current_idx].state_ID;
+    ProcessingMethod method = video_display->container.processing_states[video_display->container.current_idx].method;
+    if (method == ProcessingMethod::replace_bad_pixels)
+    //If current state is already a new state with replaced pixels, just add new pixels to the repalced pixels
     {
-        unsigned int candidate_pixel = new_pixels[i];
-        if (std::find(bad_pixels.begin(), bad_pixels.end(), candidate_pixel) == bad_pixels.end())
+        isReplacedBadPixelState = true;
+    }
+    if (isReplacedBadPixelState)
+    {
+        std::vector<unsigned int> bad_pixels = video_display->container.processing_states[video_display->container.current_idx].replaced_pixels;
+
+        unsigned int count_new = 0;
+        for (auto i = 0; i < new_pixels.size(); i++)
         {
-            bad_pixels.push_back(candidate_pixel);
-            count_new += 1;
+            unsigned int candidate_pixel = new_pixels[i];
+            if (std::find(bad_pixels.begin(), bad_pixels.end(), candidate_pixel) == bad_pixels.end())
+            {
+                bad_pixels.push_back(candidate_pixel);
+                count_new += 1;
+            }
         }
-    }
 
-    if (count_new == 0)
-    {
-        QtHelpers::LaunchMessageBox("No Action Taken", "No new bad pixels will be replaced.");
-    }
-    else
-    {
-        ReplaceBadPixels(bad_pixels, cmb_processing_states->currentIndex());
+        if (count_new == 0)
+        {
+            QtHelpers::LaunchMessageBox("No Action Taken", "No new bad pixels will be replaced.");
+        }
+        else
+        {
+            video_display->container.processing_states[video_display->container.current_idx].replaced_pixels = bad_pixels;
+            video_display->container.processing_states.erase(video_display->container.processing_states.begin() + current_state_idx);
+            HandleProcessingStateRemoval(method,current_state_idx);
+            ReplaceBadPixels(bad_pixels, source_state_idx);
+        }
     }
 }
 
@@ -3250,6 +3265,7 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
@@ -3278,23 +3294,32 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
 
 void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
 {
-    std::vector<unsigned int> bad_pixels = video_display->container.processing_states[video_display->container.current_idx].replaced_pixels;
-    int num_video_frames = video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size();
-    for (auto i = 0; i < pixels.size(); i++)
+    bool isReplacedBadPixelState = false;
+    int source_state_idx = video_display->container.processing_states[video_display->container.current_idx].source_state_ID;
+    int current_state_idx = video_display->container.processing_states[video_display->container.current_idx].state_ID;
+    ProcessingMethod method = video_display->container.processing_states[video_display->container.current_idx].method;
+    if (method == ProcessingMethod::replace_bad_pixels)
+    //If current state is already a new state with replaced pixels, just replace pixels from source state
     {
-        unsigned int candidate_pixel = pixels[i];
-        std::vector<unsigned int>::iterator position = std::find(bad_pixels.begin(), bad_pixels.end(), candidate_pixel);
-        if (position != bad_pixels.end())
+        std::vector<unsigned int> bad_pixels = video_display->container.processing_states[current_state_idx].replaced_pixels;
+        int num_video_frames = video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size();
+        for (auto i = 0; i < pixels.size(); i++)
         {
-            bad_pixels.erase(position);
-            video_display->container.processing_states[video_display->container.current_idx].replaced_pixels = bad_pixels;
-            for (int framei = 0; framei < num_video_frames; framei++)
+            unsigned int candidate_pixel = pixels[i];
+            std::vector<unsigned int>::iterator position = std::find(bad_pixels.begin(), bad_pixels.end(), candidate_pixel);
+            if (position != bad_pixels.end())
             {
-                video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[framei][pixels[i]] =\
-                video_display->container.processing_states[0].details.frames_16bit[framei][pixels[i]];
+                bad_pixels.erase(position);
+                for (int framei = 0; framei < num_video_frames; framei++)
+                {
+                    video_display->container.processing_states[current_state_idx].details.frames_16bit[framei][pixels[i]] =\
+                    video_display->container.processing_states[source_state_idx].details.frames_16bit[framei][pixels[i]];
+                }
+                
             }
-            
         }
+        video_display->container.processing_states[video_display->container.current_idx].replaced_pixels = bad_pixels;
+        lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(bad_pixels.size()));
     }
     UpdateGlobalFrameVector();
 }
@@ -3407,6 +3432,7 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
         std::string result;
@@ -3500,6 +3526,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
@@ -3623,6 +3650,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
@@ -3686,6 +3714,7 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
@@ -3746,6 +3775,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
@@ -3902,6 +3932,7 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
         std::string result;
@@ -3989,6 +4020,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         video_display->container.processing_states[endi].details.max_value = maxVal;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);   
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
@@ -4466,6 +4498,15 @@ bool SirveApp::VerifyFrameSelection(int min_frame, int max_frame)
     }
 
     return true;
+}
+
+std::vector<unsigned int> SirveApp::GetUniqueIntegerVector(std::vector<unsigned int> A)
+{
+    std::vector<unsigned int> uniqueVals;
+    uniqueVals.insert( uniqueVals.end(),A.begin(), A.end() );
+    std::sort(uniqueVals.begin(), uniqueVals.end()); 
+    uniqueVals.erase(std::unique(uniqueVals.begin(), uniqueVals.end()), uniqueVals.end());
+    return uniqueVals;
 }
 
 void SirveApp::DeleteState()

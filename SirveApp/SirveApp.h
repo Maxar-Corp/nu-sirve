@@ -344,5 +344,9 @@ private:
 
     void DeleteState();
 
+    bool CheckCurrentStateisNoiseSuppressed(int source_state_idx);
+
+    std::vector<unsigned int> GetUniqueIntegerVector(std::vector<unsigned int> A);
+
     QString abpimage_file_base_name;
 };
