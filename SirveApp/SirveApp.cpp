@@ -4064,7 +4064,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
                 maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
             }
             video_display->container.processing_states[endi].details.max_value = maxVal;
-            video_display->container.processing_states[endi].state_ID =  video_display->container.processing_states.size();
+            video_display->container.processing_states[endi].state_ID =  video_display->container.processing_states.size() - 1;
             video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_ind].ancestors;
             video_display->container.processing_states[endi].ancestors.push_back(source_state_ind);
 
