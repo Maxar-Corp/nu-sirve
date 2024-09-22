@@ -2037,6 +2037,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     // Task 2:
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Deriving processing state..."));
     this->repaint();
@@ -2055,12 +2056,15 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setValue(100);
 
     // Task 3:
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(30);
     lbl_progress_status->setText(QString("Adding processing state..."));
     this->repaint();
 
     video_display->container.AddProcessingState(primary);
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(80);
+    
     this->repaint();
 
     txt_start_frame->setText(QString::number(min_frame));
@@ -2079,6 +2083,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     // Task 4:
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Configuring the chart plotter..."));
     this->repaint();

@@ -35,7 +35,6 @@ void VideoContainer::AddProcessingState(processingState new_state)
 		current_idx = 0;
 	}
     processing_states.push_back(new_state); // <--- this takes time
-
 	current_idx = processing_states.size() - 1;
 	QString state_name = "State " + QString::number(current_idx) + ": " + new_state.get_friendly_description();
 	QString combobox_state_name = QString::number(current_idx) + ": " + new_state.get_combobox_description();
