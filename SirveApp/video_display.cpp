@@ -62,6 +62,11 @@ void VideoDisplay::GetCurrentIdx(int current_idx_new)
 	current_idx = current_idx_new;
 }
 
+void VideoDisplay::GetThreshold(int threshold_in)
+{
+   threshold = 6 - threshold_in;
+}
+
 void VideoDisplay::InitializeToggles()
 {
 	banner_color = QString("yellow");
@@ -528,10 +533,6 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
-    // cv::Mat tmp = 255*frame_matrix/frame_vector.max();
-    // tmp.convertTo(tmp, CV_8UC1);
-    // cv::rectangle(tmp, ROI, cv::Scalar(0, 255, 0), 2); 
-    // cv::imshow("",tmp);
     cv::Mat frame_crop = frame_matrix(ROI);
     cv::Mat frame_crop_threshold;
     cv::Scalar frame_crop_mean, frame_crop_sigma;
@@ -539,7 +540,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Scalar sum_ROI_counts = cv::sum(frame_crop);
     int N_ROI_pixels = cv::countNonZero(frame_crop > 0);
     cv::Point frame_point;
-    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0], NULL, cv::THRESH_TOZERO);
+    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
     cv::Scalar sum_counts = cv::sum(frame_crop_threshold);
     int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
     double peak_counts;
@@ -553,13 +554,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
-    // if (N_threshold_pixels>0){
-    //     details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_threshold_pixels;
-    // }
-    // else{
-    //     details.irradiance =  static_cast<uint32_t>(sum_counts[0])/N_ROI_pixels;
-    // }
-    details.irradiance =  static_cast<uint32_t>(sum_counts[0] - frame_crop_mean[0]);
+    details.irradiance =  static_cast<uint32_t>(sum_counts[0]);
     int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
     {

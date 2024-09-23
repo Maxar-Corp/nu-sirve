@@ -8,7 +8,7 @@
 #include <vector>
 #include <stdexcept>
 #include <type_traits>
-
+#include <QtWidgets>
 #include <sys/stat.h>
 #include <qprogressdialog.h>
 #include <qinputdialog.h>
