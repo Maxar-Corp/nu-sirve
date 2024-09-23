@@ -888,6 +888,7 @@ QWidget* SirveApp::SetupTracksTab(){
     cmb_autotrack_threshold->addItem("1 Sigma");
     cmb_autotrack_threshold->addItem("0 Sigma");
     cmb_autotrack_threshold->setCurrentIndex(3);
+    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
     form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
     QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
     vlayout_auto_track->addLayout( form_auto_track_frame_limits);
