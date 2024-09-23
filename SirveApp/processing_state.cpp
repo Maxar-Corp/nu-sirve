@@ -44,6 +44,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
     if (method == "Deinterlace")
@@ -62,7 +63,9 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
         {
             descendants.push_back(json_item.toInt());
         }
+
         temp.descendants = descendants;
+
         return temp;
     }
     if (method == "FNS")
@@ -86,6 +89,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
     if (method == "Accumulator")
@@ -109,6 +113,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+     
         return temp;
     }
      if (method == "Center on OSM")
@@ -142,6 +147,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
 
@@ -178,6 +184,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
 
@@ -213,6 +220,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
 
@@ -234,6 +242,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
     if (method == "RPCP")
@@ -253,6 +262,7 @@ processingState create_processing_state_from_json(const QJsonObject & json_obj)
             descendants.push_back(json_item.toInt());
         }
         temp.descendants = descendants;
+
         return temp;
     }
     throw "Unexpected";

@@ -346,5 +346,8 @@ private:
 
     bool CheckCurrentStateisNoiseSuppressed(int source_state_idx);
 
+    std::vector<unsigned int> GetUniqueIntegerVector(std::vector<unsigned int> A);
+    std::vector<unsigned int> GetUniqueUnionIntegerVector(std::vector<unsigned int> A, std::vector<unsigned int> B);
+
     QString abpimage_file_base_name;
 };

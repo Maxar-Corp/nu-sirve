@@ -57,6 +57,7 @@ struct processingState {
     int frame_stack_num_frames;
 
 	std::vector<std::vector<int>> offsets;
+
     int track_id;
     bool find_any_tracks;
 
