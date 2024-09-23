@@ -4290,7 +4290,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
 void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
-    processingState original = video_display->container.CopyCurrentStateIdx(cmb_processing_states->currentIndex());
+    processingState original = video_display->container.processing_states[video_display->container.current_idx];
     AutoTracking AutoTracker;
 
     int frame0 = txt_start_frame->text().toInt();
@@ -4391,7 +4391,7 @@ void SirveApp::ExecuteAutoTracking()
         }
         offset_matrix2.shed_col(0);
         offset_matrix2.insert_cols(0,2);
-        offset_matrix2.insert_cols(offset_matrix2.n_cols,5);
+        offset_matrix2.insert_cols(offset_matrix2.n_cols,6);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
         autotrack_d += offset_matrix2;
         autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
