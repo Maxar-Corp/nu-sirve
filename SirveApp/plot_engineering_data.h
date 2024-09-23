@@ -35,8 +35,8 @@ QT_CHARTS_USE_NAMESPACE
     float scale_factor_maxx;
     float scale_factor_minx;
 
-    float scale_factor_max;
-    float scale_factor_min;
+    float scale_factor_maxy;
+    float scale_factor_miny;
 };
 
 class NewChartView : public QChartView {

@@ -94,6 +94,22 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
             this->chart_view->set_chart_state(chartState);
         }
+
+        // Get the chart state object for updating
+        chartState = this->chart_view->get_chart_state();
+
+        // Record the state of the chart we are leaving behind:
+        if (yaxis_is_log) {
+            chartState.scale_factor_maxy = axis_ylog->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axis_ylog->min() / chart_y_maxes[current_chart_id];
+        } else
+        {
+            QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
+            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
+        }
+
+        this->chart_view->set_chart_state(chartState);
     }
 
     current_unit_id = xaxis_chart_id;
@@ -109,13 +125,13 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 
         // Record the state of the chart we are leaving behind:
         if (yaxis_is_log) {
-            chartState.scale_factor_max = axis_ylog->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_min = axis_ylog->min() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_maxy = axis_ylog->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axis_ylog->min() / chart_y_maxes[current_chart_id];
         } else
         {
             QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-            chartState.scale_factor_max = axisY->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_min = axisY->min() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
         }
 
         this->chart_view->set_chart_state(chartState);
@@ -174,7 +190,7 @@ void EngineeringPlots::PlotChart()
 
     if (this->chart_view->is_zoomed)
     {
-        // We're on a new chart. Apply the target ranges to the axes:
+        // We're on a new chart. Apply the min/max values to the axes:
         ChartState chartState = this->chart_view->get_chart_state();
 
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
@@ -188,7 +204,7 @@ void EngineeringPlots::PlotChart()
         }
 
         if (axisY) {
-            axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_min, chart_y_maxes[current_chart_id] * chartState.scale_factor_max);
+            axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
         }
     }
 }
@@ -748,13 +764,13 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         QRectF sceneRect = this->mapToScene(rubberBandRect).boundingRect();  // Map to scene
         QRectF plotArea = chart()->plotArea();  // Get the chart's plot area
 
-
         // Check if the lower y value (bottom) is negative
         if ((sceneRect.topLeft().y() + sceneRect.height()) > (plotArea.topLeft().y() + plotArea.height()))
         {
             qDebug() << "Selected rectangle goes negative relative to the chart!";
             qreal difference = (sceneRect.topLeft().y() + sceneRect.height()) - (plotArea.topLeft().y() + plotArea.height());
             selectedRect.setHeight(sceneRect.height() - difference);
+            selectedRect.setTop(selectedRect.top() - 0.001);
         }
 
         emit rubberBandChanged(selectedRect);
