@@ -3306,6 +3306,18 @@ void SirveApp::ReceiveProgressBarUpdate(int percent)
     progress_bar_main->setValue(percent);
 }
 
+bool SirveApp::CheckCurrentStateisNoiseSuppressed(int source_state_idx)
+{
+    std::set<ProcessingMethod> test_set = {ProcessingMethod::fixed_noise_suppression, ProcessingMethod::accumulator_noise_suppression, ProcessingMethod::adaptive_noise_suppression,ProcessingMethod::RPCP_noise_suppression};
+    ProcessingMethod currentMethod = video_display->container.processing_states[source_state_idx].method;
+    if (test_set.count(currentMethod) > 0) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 {
     ExternalNUCInformationWidget external_nuc_dialog;
@@ -3325,8 +3337,20 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
     {
         // assumes file version is same as base file opened
         int source_state_idx = cmb_processing_states->currentIndex();
-        int frame0 = start_frame - 1;
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, frame0, start_frame, stop_frame, source_state_idx);
+        bool continueTF = true;
+        if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+        {
+            auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+            if (response != QMessageBox::Yes)
+                {
+                    continueTF = false;
+                }
+        }
+        if (continueTF)
+        {       
+            int frame0 = start_frame - 1;
+            ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, frame0, start_frame, stop_frame, source_state_idx);
+        }
     }
     catch (const std::exception& e)
     {
@@ -3348,24 +3372,36 @@ void SirveApp::ExecuteFixedNoiseSuppression()
     // Pause the video if it's running
     playback_controller->StopTimer();
 
-    if (!chk_FNS_external_file->isChecked())
-    {       
-        if (txt_FNS_stop_frame->text().toInt() > txt_stop_frame->text().toInt() ||\
-         txt_FNS_start_frame->text().toInt() < txt_start_frame->text().toInt() || \
-         txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){         
-            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ".");
-            return;
-        }
-        
-        int start_frame = txt_FNS_start_frame->text().toInt();
-        int stop_frame = txt_FNS_stop_frame->text().toInt();
-        int source_state_idx = cmb_processing_states->currentIndex();
-        int frame0 = txt_start_frame->text().toInt();
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, stop_frame, source_state_idx);
-    }
-    else
+    int source_state_idx = cmb_processing_states->currentIndex();
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
     {
-        ApplyFixedNoiseSuppressionFromExternalFile();
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
+    }
+    if (continueTF)
+    {
+        if (!chk_FNS_external_file->isChecked())
+        {       
+            if (txt_FNS_stop_frame->text().toInt() > txt_stop_frame->text().toInt() ||\
+            txt_FNS_start_frame->text().toInt() < txt_start_frame->text().toInt() || \
+            txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){         
+                QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ".");
+                return;
+            }
+            
+            int start_frame = txt_FNS_start_frame->text().toInt();
+            int stop_frame = txt_FNS_stop_frame->text().toInt();
+            int frame0 = txt_start_frame->text().toInt();
+            ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, stop_frame, source_state_idx);
+        }
+        else
+        {
+            ApplyFixedNoiseSuppressionFromExternalFile();
+        }
     }
 
 }
@@ -3954,8 +3990,20 @@ void SirveApp::ExecuteAdaptiveNoiseSuppression()
     int relative_start_frame = txt_ANS_offset_frames->text().toInt();
     int number_of_frames = txt_ANS_number_frames->text().toInt();
     int source_state_idx = cmb_processing_states->currentIndex();
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
+    }
+    if (continueTF)
+    {
 
-    ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, source_state_idx);
+        ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, source_state_idx);
+    }
 }
 
 void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, int source_state_idx)
@@ -4042,7 +4090,19 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 void SirveApp::ExecuteRPCPNoiseSuppression()
 {
     int source_state_idx = cmb_processing_states->currentIndex();
-    ApplyRPCPNoiseSuppression(source_state_idx);
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
+    }
+    if (continueTF)
+    {
+        ApplyRPCPNoiseSuppression(source_state_idx);
+    }
 }
 
 void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
@@ -4110,15 +4170,27 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
 void SirveApp::ExecuteAccumulatorNoiseSuppression()
 {
     int source_state_idx = cmb_processing_states->currentIndex();
-    double weight = txt_accumulator_weight->text().toDouble();
-    if(weight<0 || weight >1){
-        QtHelpers::LaunchMessageBox(QString("Invalid weight."), "Weight must be between 0 and 1.");
-        return;
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
     }
-    bool hide_shadow_choice = chk_hide_shadow->isChecked();
-    int shadow_sigma_thresh = 6 - cmb_shadow_threshold->currentIndex();
-    int offset = txt_accumulator_offset->text().toInt();
-    ApplyAccumulatorNoiseSuppression(weight, offset, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
+    if (continueTF)
+    {
+        double weight = txt_accumulator_weight->text().toDouble();
+        if(weight<0 || weight >1){
+            QtHelpers::LaunchMessageBox(QString("Invalid weight."), "Weight must be between 0 and 1.");
+            return;
+        }
+        bool hide_shadow_choice = chk_hide_shadow->isChecked();
+        int shadow_sigma_thresh = 6 - cmb_shadow_threshold->currentIndex();
+        int offset = txt_accumulator_offset->text().toInt();
+        ApplyAccumulatorNoiseSuppression(weight, offset, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
+    }
 }
 
 void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx)
