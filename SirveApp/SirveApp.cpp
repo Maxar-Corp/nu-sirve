@@ -888,6 +888,7 @@ QWidget* SirveApp::SetupTracksTab(){
     cmb_autotrack_threshold->addItem("1 Sigma");
     cmb_autotrack_threshold->addItem("0 Sigma");
     cmb_autotrack_threshold->setCurrentIndex(3);
+    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
     form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
     QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
     vlayout_auto_track->addLayout( form_auto_track_frame_limits);
@@ -1307,8 +1308,7 @@ void SirveApp::setupConnections() {
     connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::SaveFrame);
 
     //---------------------------------------------------------------------------
-    // Connect x-axis and y-axis changes to functions
-    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
+    // Connect y-axis change to function
     connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisOptionChange);
 
     // Connect save button functions
@@ -1369,7 +1369,17 @@ void SirveApp::HandleYAxisOptionChange()
 
 void SirveApp::HandleXAxisOptionChange()
 {
-    UpdatePlots();
+    if (data_plots != NULL)
+    {
+        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+        UpdatePlots();
+
+        if (ymin > 0 && ymax > 0)
+        {
+            data_plots->set_yaxis_limits(ymin, ymax);
+        }
+    }
 }
 
 
@@ -1936,6 +1946,8 @@ void SirveApp::LoadOsmData()
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
+    data_plots->InitializeIntervals(osm_frames);
+
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
@@ -1961,6 +1973,8 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     cmb_plot_xaxis->setEnabled(osm_data_status);
 
     osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
+
+    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
 }
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
@@ -2037,6 +2051,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     // Task 2:
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Deriving processing state..."));
     this->repaint();
@@ -2056,6 +2071,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setValue(100);
 
     // Task 3:
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(30);
     lbl_progress_status->setText(QString("Adding processing state..."));
     this->repaint();
@@ -2067,6 +2083,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     HandleNewProcessingState(state_name, combobox_state_name, 0);
 
     progress_bar_main->setValue(80);
+    
     this->repaint();
 
     txt_start_frame->setText(QString::number(min_frame));
@@ -2085,6 +2102,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     // Task 4:
+    QCoreApplication::processEvents();
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Configuring the chart plotter..."));
     this->repaint();
@@ -2967,6 +2985,7 @@ void SirveApp::UpdatePlots()
                 break;
         }
 
+        data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
         data_plots->PlotChart();
 
@@ -3092,6 +3111,7 @@ void SirveApp::ApplyEpochTime()
     eng_data->update_epoch_time(epoch_jdate);
 
     data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+    data_plots->InitializeIntervals(osm_frames);
     UpdatePlots();
 }
 
@@ -3304,6 +3324,18 @@ void SirveApp::ReceiveProgressBarUpdate(int percent)
     progress_bar_main->setValue(percent);
 }
 
+bool SirveApp::CheckCurrentStateisNoiseSuppressed(int source_state_idx)
+{
+    std::set<ProcessingMethod> test_set = {ProcessingMethod::fixed_noise_suppression, ProcessingMethod::accumulator_noise_suppression, ProcessingMethod::adaptive_noise_suppression,ProcessingMethod::RPCP_noise_suppression};
+    ProcessingMethod currentMethod = video_display->container.processing_states[source_state_idx].method;
+    if (test_set.count(currentMethod) > 0) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 {
     ExternalNUCInformationWidget external_nuc_dialog;
@@ -3323,8 +3355,20 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
     {
         // assumes file version is same as base file opened
         int source_state_idx = cmb_processing_states->currentIndex();
-        int frame0 = start_frame - 1;
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, frame0, start_frame, stop_frame, source_state_idx);
+        bool continueTF = true;
+        if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+        {
+            auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+            if (response != QMessageBox::Yes)
+                {
+                    continueTF = false;
+                }
+        }
+        if (continueTF)
+        {       
+            int frame0 = start_frame - 1;
+            ApplyFixedNoiseSuppression(abp_file_metadata.image_path, image_path, frame0, start_frame, stop_frame, source_state_idx);
+        }
     }
     catch (const std::exception& e)
     {
@@ -3346,24 +3390,36 @@ void SirveApp::ExecuteFixedNoiseSuppression()
     // Pause the video if it's running
     playback_controller->StopTimer();
 
-    if (!chk_FNS_external_file->isChecked())
-    {       
-        if (txt_FNS_stop_frame->text().toInt() > txt_stop_frame->text().toInt() ||\
-         txt_FNS_start_frame->text().toInt() < txt_start_frame->text().toInt() || \
-         txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){         
-            QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ".");
-            return;
-        }
-        
-        int start_frame = txt_FNS_start_frame->text().toInt();
-        int stop_frame = txt_FNS_stop_frame->text().toInt();
-        int source_state_idx = cmb_processing_states->currentIndex();
-        int frame0 = txt_start_frame->text().toInt();
-        ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, stop_frame, source_state_idx);
-    }
-    else
+    int source_state_idx = cmb_processing_states->currentIndex();
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
     {
-        ApplyFixedNoiseSuppressionFromExternalFile();
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
+    }
+    if (continueTF)
+    {
+        if (!chk_FNS_external_file->isChecked())
+        {       
+            if (txt_FNS_stop_frame->text().toInt() > txt_stop_frame->text().toInt() ||\
+            txt_FNS_start_frame->text().toInt() < txt_start_frame->text().toInt() || \
+            txt_FNS_start_frame->text().toInt() >= txt_FNS_stop_frame->text().toInt()){         
+                QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Min frame: " + txt_start_frame->text() + ". Max frame: " +txt_stop_frame->text() + ".");
+                return;
+            }
+            
+            int start_frame = txt_FNS_start_frame->text().toInt();
+            int stop_frame = txt_FNS_stop_frame->text().toInt();
+            int frame0 = txt_start_frame->text().toInt();
+            ApplyFixedNoiseSuppression(abp_file_metadata.image_path, abp_file_metadata.image_path, frame0, start_frame, stop_frame, source_state_idx);
+        }
+        else
+        {
+            ApplyFixedNoiseSuppressionFromExternalFile();
+        }
     }
 
 }
@@ -3933,8 +3989,20 @@ void SirveApp::ExecuteAdaptiveNoiseSuppression()
     int relative_start_frame = txt_ANS_offset_frames->text().toInt();
     int number_of_frames = txt_ANS_number_frames->text().toInt();
     int source_state_idx = cmb_processing_states->currentIndex();
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
+    }
+    if (continueTF)
+    {
 
-    ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, source_state_idx);
+        ApplyAdaptiveNoiseSuppression(relative_start_frame, number_of_frames, source_state_idx);
+    }
 }
 
 void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int number_of_frames, int source_state_idx)
@@ -4016,7 +4084,19 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
 void SirveApp::ExecuteRPCPNoiseSuppression()
 {
     int source_state_idx = cmb_processing_states->currentIndex();
-    ApplyRPCPNoiseSuppression(source_state_idx);
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
+    }
+    if (continueTF)
+    {
+        ApplyRPCPNoiseSuppression(source_state_idx);
+    }
 }
 
 void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
@@ -4082,27 +4162,39 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
 void SirveApp::ExecuteAccumulatorNoiseSuppression()
 {
     int source_state_idx = cmb_processing_states->currentIndex();
-    double weight = txt_accumulator_weight->text().toDouble();
-    if(weight<0 || weight >1){
-        QtHelpers::LaunchMessageBox(QString("Invalid weight."), "Weight must be between 0 and 1.");
-        return;
+    bool continueTF = true;
+    if (CheckCurrentStateisNoiseSuppressed(source_state_idx))
+    {
+        auto response = QtHelpers::LaunchYesNoMessageBox("Current state is already noise suppressed.", "Continue?");
+        if (response != QMessageBox::Yes)
+            {
+                continueTF = false;
+            }
     }
-    bool hide_shadow_choice = chk_hide_shadow->isChecked();
-    int shadow_sigma_thresh = 6 - cmb_shadow_threshold->currentIndex();
-    int offset = txt_accumulator_offset->text().toInt();
-    ApplyAccumulatorNoiseSuppression(weight, offset, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
+    if (continueTF)
+    {
+        double weight = txt_accumulator_weight->text().toDouble();
+        if(weight<0 || weight >1){
+            QtHelpers::LaunchMessageBox(QString("Invalid weight."), "Weight must be between 0 and 1.");
+            return;
+        }
+        bool hide_shadow_choice = chk_hide_shadow->isChecked();
+        int shadow_sigma_thresh = 6 - cmb_shadow_threshold->currentIndex();
+        int offset = txt_accumulator_offset->text().toInt();
+        ApplyAccumulatorNoiseSuppression(weight, offset, hide_shadow_choice, shadow_sigma_thresh, source_state_idx);
+    }
 }
 
 void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx)
 {
     //Pause the video if it's running
     playback_controller->StopTimer();
+
     video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
     int endi = video_display->container.processing_states.size()-1;
     int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
-
     OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
@@ -4140,7 +4232,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
 
         ImageProcessor->deleteLater();
     }
-   
+  
     CloseProgressArea();
 }
 

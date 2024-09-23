@@ -61,6 +61,7 @@ public:
     int current_idx;
     int counter_record, video_frame_number;
     bool record_frame;
+    int threshold = 3;
     cv::VideoWriter video;
 
     std::vector<AnnotationInfo> annotation_list;
@@ -121,7 +122,7 @@ signals:
     void finishTrackCreation();
 
 public slots:
-
+    void GetThreshold(int threshold_in);
     void ClearPinpoints();
     void GetCurrentIdx(int current_idx_new);
 

@@ -344,5 +344,7 @@ private:
 
     void DeleteState();
 
+    bool CheckCurrentStateisNoiseSuppressed(int source_state_idx);
+
     QString abpimage_file_base_name;
 };
