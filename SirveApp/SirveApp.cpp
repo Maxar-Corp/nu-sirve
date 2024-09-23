@@ -1308,8 +1308,7 @@ void SirveApp::setupConnections() {
     connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::SaveFrame);
 
     //---------------------------------------------------------------------------
-    // Connect x-axis and y-axis changes to functions
-    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
+    // Connect y-axis change to function
     connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisOptionChange);
 
     // Connect save button functions
@@ -1370,7 +1369,17 @@ void SirveApp::HandleYAxisOptionChange()
 
 void SirveApp::HandleXAxisOptionChange()
 {
-    UpdatePlots();
+    if (data_plots != NULL)
+    {
+        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+        UpdatePlots();
+
+        if (ymin > 0 && ymax > 0)
+        {
+            data_plots->set_yaxis_limits(ymin, ymax);
+        }
+    }
 }
 
 
@@ -1937,6 +1946,8 @@ void SirveApp::LoadOsmData()
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
+    data_plots->InitializeIntervals(osm_frames);
+
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
@@ -1962,6 +1973,8 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     cmb_plot_xaxis->setEnabled(osm_data_status);
 
     osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
+
+    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
 }
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
@@ -2970,6 +2983,7 @@ void SirveApp::UpdatePlots()
                 break;
         }
 
+        data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
         data_plots->PlotChart();
 
@@ -3095,6 +3109,7 @@ void SirveApp::ApplyEpochTime()
     eng_data->update_epoch_time(epoch_jdate);
 
     data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+    data_plots->InitializeIntervals(osm_frames);
     UpdatePlots();
 }
 
