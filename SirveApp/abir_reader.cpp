@@ -276,6 +276,7 @@ ABIRDataResult* ABIRData::GetFrames(const char* file_path, unsigned int min_fram
         last_valid_frame = frame_index;
 
         double progress = frame_index / (frame_span*.01);
+        QCoreApplication::processEvents();
         emit advanceFrame((int)std::round(progress));
     }
     fclose(fp);

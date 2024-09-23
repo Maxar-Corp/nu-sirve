@@ -4,7 +4,7 @@
 #include <qobject.h>
 
 #include <QString>
-
+#include <QtWidgets>
 #include "processing_state.h"
 
 class VideoContainer : public QObject
