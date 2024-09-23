@@ -3201,16 +3201,11 @@ void SirveApp::HandleBadPixelReplacement()
 
 void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
 {
-    bool isReplacedBadPixelState = false;
     int source_state_idx = video_display->container.processing_states[video_display->container.current_idx].source_state_ID;
     int current_state_idx = video_display->container.processing_states[video_display->container.current_idx].state_ID;
     ProcessingMethod method = video_display->container.processing_states[video_display->container.current_idx].method;
     if (method == ProcessingMethod::replace_bad_pixels)
-    //If current state is already a new state with replaced pixels, just add new pixels to the repalced pixels
-    {
-        isReplacedBadPixelState = true;
-    }
-    if (isReplacedBadPixelState)
+    //If current state is already a new state with replaced pixels, just add new pixels to the replaced pixels
     {
         std::vector<unsigned int> bad_pixels = video_display->container.processing_states[video_display->container.current_idx].replaced_pixels;
 
@@ -3231,11 +3226,26 @@ void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
         }
         else
         {
-            video_display->container.processing_states[video_display->container.current_idx].replaced_pixels = bad_pixels;
-            video_display->container.processing_states.erase(video_display->container.processing_states.begin() + current_state_idx);
-            HandleProcessingStateRemoval(method,current_state_idx);
-            ReplaceBadPixels(bad_pixels, source_state_idx);
+            ImageProcessing *ImageProcessor = new ImageProcessing();
+            ImageProcessor->ReplacePixelsWithNeighbors(video_display->container.processing_states[current_state_idx].details.frames_16bit, new_pixels, video_display->container.processing_states[current_state_idx].details.x_pixels);
+            uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
+            for (const auto& row : video_display->container.processing_states[current_state_idx].details.frames_16bit) {
+                maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
+            }
+            video_display->container.processing_states[current_state_idx].details.max_value = maxVal;
+            video_display->container.processing_states[current_state_idx].replaced_pixels = bad_pixels;
+            lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(bad_pixels.size()));
+            QString state_name = "State " + QString::number(current_state_idx) + ": " + video_display->container.processing_states[current_state_idx].get_friendly_description();
+	        video_display->container.processing_states[current_state_idx].state_description = state_name;
+            lbl_processing_description->setText(state_name);
+            ImageProcessor->deleteLater();
+            UpdateGlobalFrameVector();
         }
+    }
+    else
+    //Create a new replaced pixel state
+    {
+        ReplaceBadPixels(new_pixels, current_state_idx);
     }
 }
 
@@ -3279,7 +3289,7 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
         video_display->container.processing_states[endi].state_steps = state_steps;
         video_display->container.processing_states[endi].process_steps.push_back(" [Replace Bad Pixels] ");
         QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
-	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    QString combobox_state_name = QString::number(endi) + ": " + video_display->container.processing_states[endi].get_combobox_description();
 	    video_display->container.processing_states[endi].state_description = state_name;
         HandleNewProcessingState(state_name, combobox_state_name, endi);
         UpdateGlobalFrameVector();
@@ -3318,10 +3328,18 @@ void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
                 
             }
         }
-        video_display->container.processing_states[video_display->container.current_idx].replaced_pixels = bad_pixels;
+        video_display->container.processing_states[current_state_idx].replaced_pixels = bad_pixels;
         lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(bad_pixels.size()));
+        QString state_name = "State " + QString::number(current_state_idx) + ": " + video_display->container.processing_states[current_state_idx].get_friendly_description();
+        video_display->container.processing_states[current_state_idx].state_description = state_name;
+        lbl_processing_description->setText(state_name);
+        UpdateGlobalFrameVector();
     }
-    UpdateGlobalFrameVector();
+    else
+    {
+        QtHelpers::LaunchMessageBox("No Action Taken", "Pixels can only be recovered from 'Replace Bad Pixels' states.");
+    }
+
 }
 
 void SirveApp::ReceiveProgressBarUpdate(int percent)
@@ -4504,6 +4522,17 @@ std::vector<unsigned int> SirveApp::GetUniqueIntegerVector(std::vector<unsigned 
 {
     std::vector<unsigned int> uniqueVals;
     uniqueVals.insert( uniqueVals.end(),A.begin(), A.end() );
+    std::sort(uniqueVals.begin(), uniqueVals.end()); 
+    uniqueVals.erase(std::unique(uniqueVals.begin(), uniqueVals.end()), uniqueVals.end());
+    return uniqueVals;
+}
+
+std::vector<unsigned int> SirveApp::GetUniqueUnionIntegerVector(std::vector<unsigned int> A, std::vector<unsigned int> B)
+{
+    std::vector<unsigned int> uniqueVals;
+    uniqueVals.reserve(A.size() + B.size() ); 
+    uniqueVals.insert( uniqueVals.end(), A.begin(), A.end() );
+    uniqueVals.insert( uniqueVals.end(), B.begin(), B.end() );
     std::sort(uniqueVals.begin(), uniqueVals.end()); 
     uniqueVals.erase(std::unique(uniqueVals.begin(), uniqueVals.end()), uniqueVals.end());
     return uniqueVals;
