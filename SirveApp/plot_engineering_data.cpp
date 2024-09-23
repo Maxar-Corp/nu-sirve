@@ -764,15 +764,6 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
         QRectF sceneRect = this->mapToScene(rubberBandRect).boundingRect();  // Map to scene
         QRectF plotArea = chart()->plotArea();  // Get the chart's plot area
 
-        // Check if the lower y value (bottom) is negative
-        if ((sceneRect.topLeft().y() + sceneRect.height()) > (plotArea.topLeft().y() + plotArea.height()))
-        {
-            qDebug() << "Selected rectangle goes negative relative to the chart!";
-            qreal difference = (sceneRect.topLeft().y() + sceneRect.height()) - (plotArea.topLeft().y() + plotArea.height());
-            selectedRect.setHeight(sceneRect.height() - difference);
-            selectedRect.setTop(selectedRect.top() - 0.001);
-        }
-
         emit rubberBandChanged(selectedRect);
 
         if (!selectedRect.isEmpty()) {
