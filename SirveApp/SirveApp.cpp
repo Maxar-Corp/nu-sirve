@@ -2055,7 +2055,9 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Deriving processing state..."));
     this->repaint();
-
+    processingState primary;
+    primary.method = ProcessingMethod::original;
+    primary.state_ID = 0;
     unsigned int number_frames = static_cast<unsigned int>(file_processor->getAbirDataLoadResult()->video_frames_16bit.size());
     int x_pixels = file_processor->getAbirDataLoadResult()->x_pixels;
     progress_bar_main->setValue(20);
@@ -2063,10 +2065,9 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setValue(40);
     int max_value = file_processor->getAbirDataLoadResult()->max_value;
     progress_bar_main->setValue(60);
-    VideoDetails vid_details = {x_pixels, y_pixels, max_value, file_processor->getAbirDataLoadResult()->video_frames_16bit};
+    primary.details = {x_pixels, y_pixels, max_value, file_processor->getAbirDataLoadResult()->video_frames_16bit};
     progress_bar_main->setValue(80);
     max_frame = file_processor->data_result->last_valid_frame;
-    processingState primary = { ProcessingMethod::original, vid_details };
     progress_bar_main->setValue(100);
 
     // Task 3:
@@ -2075,8 +2076,12 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Adding processing state..."));
     this->repaint();
 
-    video_display->container.AddProcessingState(primary);
-    QCoreApplication::processEvents();
+    video_display->container.processing_states.push_back(primary);
+    QString state_name = "State " + QString::number(0) + ": " + video_display->container.processing_states[0].get_friendly_description();
+    QString combobox_state_name = QString::number(0) + ": " + video_display->container.processing_states[0].get_combobox_description();
+    video_display->container.processing_states[0].state_description = state_name;
+    HandleNewProcessingState(state_name, combobox_state_name, 0);
+
     progress_bar_main->setValue(80);
     
     this->repaint();
@@ -2117,6 +2122,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     video_display->InitializeFrameData(min_frame, temp, file_processor->abir_data.ir_data);
+    DeleteAbirData();
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
 
@@ -2179,11 +2185,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_start_frame->setText(txt_start_frame->text());
     int istop = txt_start_frame->text().toInt() + 50;
     txt_FNS_stop_frame->setText(QString::number(istop));
-
-    DeleteAbirData();
 }
-
-
 
 void SirveApp::HandlePopoutEngineeringClick(bool checked)
 {
@@ -3244,46 +3246,47 @@ void SirveApp::ReceiveNewBadPixels(std::vector<unsigned int> new_pixels)
 
 void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_idx)
 {
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-    processingState new_state = original;
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
-    new_state.method = ProcessingMethod::replace_bad_pixels;
-    int number_video_frames = static_cast<int>(new_state.details.frames_16bit.size());
-    new_state.replaced_pixels = pixels_to_replace;
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    video_display->container.processing_states[endi].method = ProcessingMethod::replace_bad_pixels;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
+    video_display->container.processing_states[endi].replaced_pixels = pixels_to_replace;
     OpenProgressArea("Replacing bad pixels...",number_video_frames - 1);
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    ImageProcessor->ReplacePixelsWithNeighbors(new_state.details.frames_16bit, pixels_to_replace, new_state.details.x_pixels);
+    ImageProcessor->ReplacePixelsWithNeighbors(video_display->container.processing_states[endi].details.frames_16bit, pixels_to_replace, video_display->container.processing_states[endi].details.x_pixels);
 
     if(pixels_to_replace.size()>0){
 
         // fetch max value
-        new_state.source_state_ID = source_state_ind;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
         // update state gui status
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Replace Bad Pixels] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Replace Bad Pixels] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
         lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(pixels_to_replace.size()));
         chk_highlight_bad_pixels->setEnabled(true);
     }
@@ -3432,55 +3435,51 @@ void SirveApp::ApplyFixedNoiseSuppression(QString image_path, QString file_path,
         }
     }
 
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
-
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Fixed median noise suppression...",number_video_frames - 1);
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
-    
-    new_state.details.frames_16bit = ImageProcessor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, original.details);
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path, frame0, start_frame, stop_frame, config_values.version, video_display->container.processing_states[source_state_idx].details);
 
-    if(new_state.details.frames_16bit.size()>0){
+    if(video_display->container.processing_states[endi].details.frames_16bit.size()>0){
 
         // set new state
-        new_state.method = ProcessingMethod::fixed_noise_suppression;
-        new_state.FNS_file_path = file_path;
-        new_state.frame0 = frame0;
-        new_state.FNS_start_frame = start_frame;
-        new_state.FNS_stop_frame = stop_frame;
-        new_state.source_state_ID = source_state_ind;
+        video_display->container.processing_states[endi].method = ProcessingMethod::fixed_noise_suppression;
+        video_display->container.processing_states[endi].FNS_file_path = file_path;
+        video_display->container.processing_states[endi].frame0 = frame0;
+        video_display->container.processing_states[endi].FNS_start_frame = start_frame;
+        video_display->container.processing_states[endi].FNS_stop_frame = stop_frame;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
 
         // update state gui status
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Fixed Noise Suppression] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Fixed Noise Suppression] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
 
         QFileInfo fi(file_path);
         QString fileName = fi.fileName().toLower();
@@ -3528,17 +3527,10 @@ void SirveApp::CloseProgressArea()
 
 void SirveApp::ApplyDeinterlacing(int source_state_idx)
 {
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
-
     // Apply de-interlace to the frames
-
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Deinterlacing...", number_video_frames - 1);
@@ -3546,37 +3538,41 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
-    new_state.details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames, original.details);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames,video_display->container.processing_states[source_state_idx].details);
 
-    if(new_state.details.frames_16bit.size()>0){
+    if(video_display->container.processing_states[endi].details.frames_16bit.size()>0){
 
         // set new state ...
         progress_bar_main->setTextVisible(false);
-        new_state.method = ProcessingMethod::deinterlace;
-        new_state.source_state_ID = source_state_ind;
+        video_display->container.processing_states[endi].method = ProcessingMethod::deinterlace;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
 
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
         // update state gui status
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Deinterlace] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Deinterlace] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
     }
 
     CloseProgressArea();
@@ -3644,63 +3640,62 @@ void SirveApp::ExecuteCenterOnTracks()
 void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
 {
     int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
 
     // set new state ...
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
-
-    int number_frames = static_cast<int>(original.details.frames_16bit.size());
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
     int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
     std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
     std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
-    new_state.track_id = track_id;
+    video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
-        new_state.method = ProcessingMethod::center_on_OSM;
+        video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
     }
     else{
 
-        new_state.method = ProcessingMethod::center_on_manual;
+        video_display->container.processing_states[endi].method = ProcessingMethod::center_on_manual;
     }
-    new_state.find_any_tracks = find_any_tracks;
+    video_display->container.processing_states[endi].find_any_tracks = find_any_tracks;
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
-    OpenProgressArea("Centering on tracks...",number_frames - 1);;
+    OpenProgressArea("Centering on tracks...",number_video_frames - 1);;
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, original.details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
-    if (new_state.details.frames_16bit.size()>0){
-        new_state.offsets = track_centered_offsets;
-        new_state.source_state_ID = source_state_ind;
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+        video_display->container.processing_states[endi].offsets = track_centered_offsets;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
         // update state gui status
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Center on Tracks] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Center on Tracks] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
     }
     CloseProgressArea();
 
@@ -3710,61 +3705,60 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
 void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
 {
     int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
 
     // set new state ...
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
-
-    int number_frames = static_cast<int>(original.details.frames_16bit.size());
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
     int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
-    new_state.track_id = track_id;
+    video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
-        new_state.method = ProcessingMethod::center_on_OSM;
+        video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
     }
     else{
 
-        new_state.method = ProcessingMethod::center_on_manual;
+        video_display->container.processing_states[endi].method = ProcessingMethod::center_on_manual;
     }
-    new_state.find_any_tracks = find_any_tracks;
+    video_display->container.processing_states[endi].find_any_tracks = find_any_tracks;
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
-    OpenProgressArea("Centering on offsets...",number_frames - 1);
+    OpenProgressArea("Centering on offsets...",number_video_frames - 1);
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = ImageProcessor->CenterImageFromOffsets(original.details, track_centered_offsets);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterImageFromOffsets(video_display->container.processing_states[source_state_idx].details, track_centered_offsets);
 
-    if (new_state.details.frames_16bit.size()>0){
-        new_state.offsets = track_centered_offsets;
-        new_state.source_state_ID = source_state_ind;
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+        video_display->container.processing_states[endi].offsets = track_centered_offsets;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
         // update state gui status
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Center on Tracks] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Center on Tracks] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
     }
     CloseProgressArea();
 
@@ -3780,14 +3774,10 @@ void SirveApp::ExecuteCenterOnBrightest()
 
 void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int source_state_idx)
 {
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-    processingState new_state = original;
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
-    new_state.details.frames_16bit.clear();
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-    new_state.method = ProcessingMethod::center_on_brightest;
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
+    video_display->container.processing_states[endi].method = ProcessingMethod::center_on_brightest;
     OpenProgressArea("Centering on brightest...",number_video_frames - 1);
     lbl_progress_status->setText(QString("Center on Brightest Object..."));
     ImageProcessing ImageProcessor;
@@ -3795,39 +3785,40 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
     connect(&ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = ImageProcessor.CenterOnBrightest(original.details, brightest_centered_offsets);
-    // progress_bar_main->setValue(0);
-    // progress_bar_main->setTextVisible(false);
-    // lbl_progress_status->setText(QString(""));
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor.CenterOnBrightest(video_display->container.processing_states[source_state_idx].details, brightest_centered_offsets);
 
-    if (new_state.details.frames_16bit.size()>0){
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
 
         // set new state
-        new_state.offsets = brightest_centered_offsets;
-        new_state.source_state_ID = source_state_ind;
+        video_display->container.processing_states[endi].offsets = brightest_centered_offsets;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
 
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
         // update state gui status
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-                new_state.process_steps.push_back(" [Center on Brightest] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Center on Brightest] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
     }
     CloseProgressArea();
 }
@@ -3895,7 +3886,7 @@ void SirveApp::HandleProcessingStateRemoval(ProcessingMethod method, int index)
     }
 
     btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
-    btn_delete_state->setEnabled(cmb_processing_states->count()> 1);
+    btn_delete_state->setEnabled(cmb_processing_states->count() > 1);
 }
 
 void SirveApp::HandleProcessingNewStateSelected()
@@ -3940,15 +3931,9 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     // Pause the video if it's running
     playback_controller->StopTimer();
 
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
     OpenProgressArea("Frame stacking...",number_video_frames - 1);
@@ -3956,39 +3941,38 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
-    new_state.details.frames_16bit = ImageProcessor->FrameStacking(number_of_frames, original.details);
-    // progress_bar_main->setValue(0);
-    // progress_bar_main->setTextVisible(false);
-    // lbl_progress_status->setText(QString(""));
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->FrameStacking(number_of_frames, video_display->container.processing_states[source_state_idx].details);
 
-    if (new_state.details.frames_16bit.size()>0){
-        new_state.method = ProcessingMethod::frame_stacking;
-        new_state.frame_stack_num_frames = number_of_frames;
-        new_state.source_state_ID = source_state_ind;
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+        video_display->container.processing_states[endi].method = ProcessingMethod::frame_stacking;
+        video_display->container.processing_states[endi].frame_stack_num_frames = number_of_frames;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
 
         // create the new state
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Frame Stacking] ");
-
-        // update gui status
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Frame Stacking] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
     }
     CloseProgressArea();
 
@@ -4026,14 +4010,9 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     //Pause the video if it's running
     playback_controller->StopTimer();
 
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
 
     MEMORYSTATUSEX memInfo;
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
@@ -4049,17 +4028,13 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
     if (available_memory_ratio >=1.5){
-        new_state.details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, original.details);
+        video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, video_display->container.processing_states[source_state_idx].details);
     }
     else{
-        new_state.details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, original.details);
+        video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->AdaptiveNoiseSuppressionByFrame(relative_start_frame, number_of_frames, video_display->container.processing_states[source_state_idx].details);
     }
 
-    // progress_bar_main->setValue(0);
-    // progress_bar_main->setTextVisible(false);
-    // lbl_progress_status->setText(QString(""));
-
-    if (new_state.details.frames_16bit.size()>0){
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
         QString description = "Filter starts at ";
         if (relative_start_frame > 0)
             description += "+";
@@ -4068,34 +4043,38 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         lbl_adaptive_noise_suppression_status->setText(description);
 
         // set new state
-        new_state.method = ProcessingMethod::adaptive_noise_suppression;
-        new_state.ANS_relative_start_frame = relative_start_frame;
-        new_state.ANS_num_frames = number_of_frames;
-        new_state.source_state_ID = source_state_ind;
+        video_display->container.processing_states[endi].method = ProcessingMethod::adaptive_noise_suppression;
+        video_display->container.processing_states[endi].ANS_relative_start_frame = relative_start_frame;
+        video_display->container.processing_states[endi].ANS_num_frames = number_of_frames;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
         // fetch max value
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
 
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size();
-        video_display->container.processing_states[source_state_idx].descendants.push_back(new_state.state_ID);
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
         // update gui status
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
 
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Adaptive Noise Suppression] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Adaptive Noise Suppression] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+	    QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+	    video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
     }
     CloseProgressArea();
 
@@ -4124,21 +4103,15 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
 {
     // Pause the video if it's running
     playback_controller->StopTimer();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
 
     MEMORYSTATUSEX memInfo;
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
     double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
-
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
 
     if(available_memory_ratio >=1.5){
 
@@ -4149,30 +4122,34 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
         connect(&ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
         connect(btn_cancel_operation, &QPushButton::clicked, &ImageProcessor, &ImageProcessing::CancelOperation);
 
-        new_state.details.frames_16bit = ImageProcessor.RPCPNoiseSuppression(original.details);
+        video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor.RPCPNoiseSuppression(video_display->container.processing_states[source_state_idx].details);
 
-        if (new_state.details.frames_16bit.size()>0){
-            new_state.method = ProcessingMethod::RPCP_noise_suppression;
-            new_state.source_state_ID = source_state_ind;
+        if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+            video_display->container.processing_states[endi].method = ProcessingMethod::RPCP_noise_suppression;
+            video_display->container.processing_states[endi].source_state_ID = source_state_idx;
             uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-            for (const auto& row : new_state.details.frames_16bit) {
+            for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
                 maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
             }
-            new_state.details.max_value = maxVal;
-            new_state.state_ID =  video_display->container.processing_states.size() ;
-            new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-            new_state.ancestors.push_back(source_state_ind);
+            video_display->container.processing_states[endi].details.max_value = maxVal;
+            video_display->container.processing_states[endi].state_ID =  video_display->container.processing_states.size() - 1;
+            video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+            video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
 
             // update gui status
             std::string result;
-            for (auto num : new_state.ancestors) {
+            for (auto num : video_display->container.processing_states[endi].ancestors) {
                 result += std::to_string(num) + " -> ";
             }
-            result += std::to_string(new_state.state_ID);
+            result += std::to_string(video_display->container.processing_states[endi].state_ID);
             QString state_steps = QString::fromStdString(result);
-            new_state.state_steps = state_steps;
-            new_state.process_steps.push_back(" [RPCP Noise Suppression] ");
-            video_display->container.AddProcessingState(new_state);
+            video_display->container.processing_states[endi].state_steps = state_steps;
+            video_display->container.processing_states[endi].process_steps.push_back(" [RPCP Noise Suppression] ");
+            QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+            QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+            video_display->container.processing_states[endi].state_description = state_name;
+            HandleNewProcessingState(state_name, combobox_state_name, endi);
+            UpdateGlobalFrameVector();
         }
     }
     else
@@ -4212,49 +4189,50 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
 {
     //Pause the video if it's running
     playback_controller->StopTimer();
-    processingState original = video_display->container.CopyCurrentStateIdx(source_state_idx);
-    int source_state_ind = video_display->container.processing_states[source_state_idx].state_ID;
-    int number_video_frames = static_cast<int>(original.details.frames_16bit.size());
-    processingState new_state = original;
-    new_state.details.frames_16bit.clear();
-    new_state.ancestors.clear();
-    new_state.descendants.clear();
+
+    video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
+    int endi = video_display->container.processing_states.size()-1;
+    int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
-
     OpenProgressArea("Rolling mean noise suppression...",number_video_frames - 1);
 
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    new_state.details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,original.details,hide_shadow_choice);
-    if(new_state.details.frames_16bit.size()>0){
-        new_state.method = ProcessingMethod::accumulator_noise_suppression;
-        new_state.source_state_ID = source_state_ind;
-        new_state.weight = weight;
-        new_state.offset = offset;
-        new_state.hide_shadow = hide_shadow_choice;
-        new_state.shadow_threshold = shadow_sigma_thresh;
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->AccumulatorNoiseSuppression(weight,offset,shadow_sigma_thresh,video_display->container.processing_states[source_state_idx].details,hide_shadow_choice);
+    if(video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+        video_display->container.processing_states[endi].method = ProcessingMethod::accumulator_noise_suppression;
+        video_display->container.processing_states[endi].source_state_ID = source_state_idx;
+        video_display->container.processing_states[endi].weight = weight;
+        video_display->container.processing_states[endi].offset = offset;
+        video_display->container.processing_states[endi].hide_shadow = hide_shadow_choice;
+        video_display->container.processing_states[endi].shadow_threshold = shadow_sigma_thresh;
         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-        for (const auto& row : new_state.details.frames_16bit) {
+        for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
-        new_state.details.max_value = maxVal;
-        new_state.state_ID = video_display->container.processing_states.size() ;
-        new_state.ancestors = video_display->container.processing_states[source_state_ind].ancestors;
-        new_state.ancestors.push_back(source_state_ind);
+        video_display->container.processing_states[endi].details.max_value = maxVal;
+        video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
+        video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
+        video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
         std::string result;
-        for (auto num : new_state.ancestors) {
+        for (auto num : video_display->container.processing_states[endi].ancestors) {
             result += std::to_string(num) + " -> ";
         }
-        result += std::to_string(new_state.state_ID);
+        result += std::to_string(video_display->container.processing_states[endi].state_ID);
         QString state_steps = QString::fromStdString(result);
-        new_state.state_steps = state_steps;
-        new_state.process_steps.push_back(" [Rolling Mean Noise Suppression] ");
-        video_display->container.AddProcessingState(new_state);
+        video_display->container.processing_states[endi].state_steps = state_steps;
+        video_display->container.processing_states[endi].process_steps.push_back(" [Rolling Mean Noise Suppression] ");
+        QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
+        QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
+        video_display->container.processing_states[endi].state_description = state_name;
+        HandleNewProcessingState(state_name, combobox_state_name, endi);
+        UpdateGlobalFrameVector();
 
         ImageProcessor->deleteLater();
     }
+  
     CloseProgressArea();
 }
 
@@ -4588,7 +4566,6 @@ void SirveApp::DeleteState()
     processingState original = video_display->container.processing_states[current_state_idx0];
     std::vector<unsigned int> descendants = original.descendants;
 
-    std::vector<processingState> all_states = video_display->container.processing_states;
     std::vector<u_int> delete_states_i;
     int current_state_id0 = original.state_ID;
     bool ischanged = false;
@@ -4597,7 +4574,7 @@ void SirveApp::DeleteState()
         auto response = QtHelpers::LaunchYesNoMessageBox("Deletion Confirmation", "Deleting this state will delete all derived states. Are you sure you want to continue?");
         if (response == QMessageBox::Yes){
             delete_states_i.push_back(current_state_idx0);
-            for (int i = 0; i < all_states.size(); i++){
+            for (int i = 0; i < video_display->container.processing_states.size(); i++){
                 std::vector<unsigned int> ancestors = video_display->container.processing_states[i].ancestors;
                 auto it = std::find(ancestors.begin(), ancestors.end(), current_state_id0);
                 if (it != ancestors.end()){
@@ -4607,7 +4584,7 @@ void SirveApp::DeleteState()
             std::sort(delete_states_i.begin(), delete_states_i.end(), std::greater<int>());
             for (auto i = 0; i <  delete_states_i.size() ;i++){
                 cmb_processing_states->removeItem(delete_states_i[i]);
-                all_states.erase(all_states.begin() + delete_states_i[i]);
+                video_display->container.processing_states.erase(video_display->container.processing_states.begin() + delete_states_i[i]);
             }
             ischanged = true;
         }
@@ -4615,36 +4592,36 @@ void SirveApp::DeleteState()
     else {
         int delete_idx = cmb_processing_states->currentIndex();
         cmb_processing_states->removeItem(delete_idx);
-        all_states.erase(all_states.begin() + delete_idx);
+        video_display->container.processing_states.erase(video_display->container.processing_states.begin() + delete_idx);
         ischanged = true;
     }
 
     if (ischanged){
         std::map<int,int> id_map;
-        for (auto i = 0; i <  all_states.size() ;i++){
-            id_map[all_states[i].state_ID] = i;
+        for (auto i = 0; i <  video_display->container.processing_states.size() ;i++){
+            id_map[video_display->container.processing_states[i].state_ID] = i;
         }
         QList<QString> tmp_state_desc;
         for (auto i = 0; i < cmb_processing_states->count() ;i++){
             tmp_state_desc.append(cmb_processing_states->itemText(i));
         }
         QList<QString> new_labels;
-        for (auto i = 0; i <  all_states.size() ;i++){
-            for (auto j = 0; j <  all_states[i].ancestors.size() ;j++){
-                all_states[i].ancestors[j] = id_map[all_states[i].ancestors[j]];
+        for (auto i = 0; i <  video_display->container.processing_states.size() ;i++){
+            for (auto j = 0; j <  video_display->container.processing_states[i].ancestors.size() ;j++){
+                video_display->container.processing_states[i].ancestors[j] = id_map[video_display->container.processing_states[i].ancestors[j]];
             }
-            for (auto k = 0; k < all_states[i].descendants.size(); k++){
-                all_states[i].descendants[k] = id_map[all_states[i].descendants[k]];
+            for (auto k = 0; k < video_display->container.processing_states[i].descendants.size(); k++){
+                video_display->container.processing_states[i].descendants[k] = id_map[video_display->container.processing_states[i].descendants[k]];
             }
-            QString desc = all_states[i].state_description;
-            desc.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
+            QString desc = video_display->container.processing_states[i].state_description;
+            desc.replace(QString::number(video_display->container.processing_states[i].state_ID) + ":",QString::number(id_map[video_display->container.processing_states[i].state_ID]) + ":");
 
             QString desc2 = desc;
-            QString tmp0 = "<Previous State " + QString::number(all_states[i].source_state_ID) + ">";
-            desc2.replace(tmp0,"<Previous State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            QString tmp0 = "<Previous State " + QString::number(video_display->container.processing_states[i].source_state_ID) + ">";
+            desc2.replace(tmp0,"<Previous State " + QString::number(id_map[video_display->container.processing_states[i].source_state_ID]) + ">");
 
             std::string result;
-            for (auto num : all_states[i].ancestors) {
+            for (auto num : video_display->container.processing_states[i].ancestors) {
                 result += std::to_string(num) + " -> ";
             }
             result += std::to_string(i);
@@ -4656,17 +4633,17 @@ void SirveApp::DeleteState()
                 int nchars = desc2b.length() - (index+13);
                 desc2b.replace(index + 13,nchars,state_steps);
             }
-            QString desc3 = tmp_state_desc[id_map[all_states[i].state_ID]];
-            desc3.replace(QString::number(all_states[i].state_ID) + ":",QString::number(id_map[all_states[i].state_ID]) + ":");
+            QString desc3 = tmp_state_desc[id_map[video_display->container.processing_states[i].state_ID]];
+            desc3.replace(QString::number(video_display->container.processing_states[i].state_ID) + ":",QString::number(id_map[video_display->container.processing_states[i].state_ID]) + ":");
 
             QString desc4 = desc3;
-            desc4.replace(tmp0,"<Previous State " + QString::number(id_map[all_states[i].source_state_ID]) + ">");
+            desc4.replace(tmp0,"<Previous State " + QString::number(id_map[video_display->container.processing_states[i].source_state_ID]) + ">");
             new_labels.append(desc4);
 
-            all_states[i].state_ID = i;
-            all_states[i].source_state_ID = id_map[all_states[i].source_state_ID];
-            all_states[i].state_description = desc2b;
-            all_states[i].state_steps = state_steps;
+            video_display->container.processing_states[i].state_ID = i;
+            video_display->container.processing_states[i].source_state_ID = id_map[video_display->container.processing_states[i].source_state_ID];
+            video_display->container.processing_states[i].state_description = desc2b;
+            video_display->container.processing_states[i].state_steps = state_steps;
         }
 
         cmb_processing_states->clear();
@@ -4675,7 +4652,6 @@ void SirveApp::DeleteState()
         }
     }
     cmb_processing_states->setCurrentIndex(cmb_processing_states->count()-1);
-    video_display->container.processing_states = all_states;
 
     btn_undo_step->setEnabled(cmb_processing_states->count() > 1);
     btn_delete_state->setEnabled(cmb_processing_states->count()> 1);

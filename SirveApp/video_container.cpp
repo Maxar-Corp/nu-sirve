@@ -61,7 +61,6 @@ void VideoContainer::PopProcessingState()
 	}
 
 	ProcessingMethod method = processing_states.back().method;
-
 	processing_states.pop_back();
 
 	emit stateRemoved(method, processing_states.size());
