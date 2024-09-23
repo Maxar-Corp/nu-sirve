@@ -3098,6 +3098,7 @@ void SirveApp::ApplyEpochTime()
     eng_data->update_epoch_time(epoch_jdate);
 
     data_plots->past_epoch = eng_data->get_seconds_from_epoch();
+    data_plots->InitializeIntervals(osm_frames);
     UpdatePlots();
 }
 
