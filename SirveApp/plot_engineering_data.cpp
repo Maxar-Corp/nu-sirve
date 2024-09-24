@@ -957,12 +957,13 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
     }
 
     QPen pen;
-    // pen.setColor(osm_track_color);
+    pen.setColor(osm_track_color);
     pen.setStyle(Qt::SolidLine);
-    pen.setWidth(3);
+    pen.setWidth(1);
     series->setPen(pen);
 
     chart->addSeries(series);
+
     if ((num_breaks > 0) & broken_data)
         RemoveSeriesLegend();
 }
