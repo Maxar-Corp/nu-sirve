@@ -294,6 +294,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 		frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
 
+    delete abir_result;
+
 	return frames_out;
 }
 

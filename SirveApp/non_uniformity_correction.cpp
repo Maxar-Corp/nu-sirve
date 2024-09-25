@@ -64,9 +64,10 @@ std::vector<double> NonUniformityCorrection::CalculateNucCorrection(QString path
 	arma::mat nuc_correction(adjusted_mean_frames);
 	nuc_correction.reshape(x_pixels, y_pixels);
 	nuc_correction = nuc_correction.t();
+
+    delete abir_result;
 	
 	return out;
-
 }
 
 std::vector<uint16_t> NonUniformityCorrection::ApplyNucCorrection(std::vector<uint16_t> frame)
