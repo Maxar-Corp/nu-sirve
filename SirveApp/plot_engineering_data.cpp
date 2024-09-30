@@ -135,6 +135,24 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
         }
 
         this->chart_view->set_chart_state(chartState);
+
+        QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
+
+        if (axisX)
+        {
+            qreal axisMax = axisX->max();
+            qreal axisMin = axisX->min();
+
+            qreal localAxisMin = axisMin - chart_x_intervals[current_unit_id].first;
+            qreal localAxisMax = axisMax - chart_x_intervals[current_unit_id].first;
+            qreal localIntervalLength = chart_x_intervals[current_unit_id].second -
+                                        chart_x_intervals[current_unit_id].first;
+
+            chartState.scale_factor_minx = localAxisMin / localIntervalLength;
+            chartState.scale_factor_maxx = localAxisMax / localIntervalLength;
+
+            this->chart_view->set_chart_state(chartState);
+        }
     }
 
     current_chart_id = yaxis_chart_id;
