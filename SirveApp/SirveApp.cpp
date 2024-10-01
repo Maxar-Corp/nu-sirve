@@ -1878,6 +1878,9 @@ void SirveApp::LoadOsmData()
     // Locks down and frees up the frame range specification text boxes:
     connect(this->data_plots, &EngineeringPlots::changeMotionStatus, this, &SirveApp::HandlePlayerStateChanged);
 
+    // Ensure the user can zoom out sooner rather than later:
+    connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
+
     size_t num_tracks = track_info->get_track_count();
     if (num_tracks == 0)
     {
@@ -2137,7 +2140,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
     // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots, &EngineeringPlots::PlotCurrentStep);
-    connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
     connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
     connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
