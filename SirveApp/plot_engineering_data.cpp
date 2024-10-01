@@ -718,6 +718,7 @@ NewChartView::NewChartView(QChart* chart)
     :QChartView(chart), rubberBand(new QRubberBand(QRubberBand::Rectangle, this))
 {
     newchart = chart;
+    newchart->setBackgroundBrush(QBrush(QColor(200, 200, 200)));
 
     setMouseTracking(true);
     setInteractive(true);

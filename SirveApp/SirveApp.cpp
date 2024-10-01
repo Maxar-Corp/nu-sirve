@@ -2742,6 +2742,10 @@ void SirveApp::CreateMenuActions()
     action_set_timing_offset->setStatusTip("Set a time offset to apply to collected data");
     connect(action_set_timing_offset, &QAction::triggered, this, &SirveApp::SetDataTimingOffset);
 
+    action_export_tracking_data = new QAction("Export Tracking Data");
+    action_export_tracking_data->setStatusTip(tr("Export the track data to file"));
+    connect(action_export_tracking_data, &QAction::triggered, this, &SirveApp::ExportPlotData);
+
 	file_menu = menuBar()->addMenu(tr("&File"));
 	file_menu->addAction(action_load_OSM);
 	file_menu->addAction(action_close);
@@ -2750,6 +2754,7 @@ void SirveApp::CreateMenuActions()
 	menu_workspace->addAction(action_save_workspace);
 	menu_workspace->addAction(action_change_workspace_directory);
     menu_export = menuBar()->addMenu(tr("&Export"));
+    menu_export->addAction(action_export_tracking_data);
     menu_export->addAction(action_export_current_frame);
 	menu_export->addAction(action_export_frame_range);
 	menu_export->addAction(action_export_all_frames);
@@ -2779,10 +2784,6 @@ void SirveApp::CreateMenuActions()
     menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
     menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
     connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::EditPlotText);
-
-    menu_plot_edit_banner = new QAction(tr("&Export Tracking Data"), this);
-    menu_plot_edit_banner->setStatusTip(tr("Export the plotted data to file"));
-    connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::ExportPlotData);
 
     // ---------------------- Set Acctions to Menu --------------------
 
@@ -2834,7 +2835,8 @@ void SirveApp::EditPlotText()
 
 void SirveApp::ExportPlotData()
 {
-
+    QString start_frame = txt_start_frame->text();
+    QString stop_frame = txt_stop_frame->text();
     QStringList items;
     items << "Export All Data" << "Export Only Selected Data";
 
@@ -2844,10 +2846,15 @@ void SirveApp::ExportPlotData()
     if (!ok && !item.isEmpty())
         return;
 
-    QString path = QFileDialog::getSaveFileName(this, ("Save File"), "", ("csv(*.csv)"));
-    std::string save_path = path.toStdString();
+    QString base_track_folder = config_values.workspace_folder;
+    QDate today = QDate::currentDate();
+    QTime currentTime = QTime::currentTime();;
+    QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+    QString suggested_file_name = base_track_folder + "/track_data_export_frames_" + start_frame + "_" + stop_frame + "_" + formattedDate;
+    QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_file_name, "CSV (*.csv)");
+    std::string save_path = new_track_file_name.toStdString();
 
-    if (path.size() == 0)
+    if (new_track_file_name.size() == 0)
         return;
 
     unsigned int min_frame, max_frame;

@@ -298,7 +298,8 @@ private:
     void ResizeUi();
 
 	QMenu *file_menu, *menu_workspace, *menu_export, *menu_settings;
-    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames, *action_load_workspace, *action_save_workspace, *action_export_current_frame, *action_export_frame_range;
+    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames;
+    QAction *action_load_workspace, *action_save_workspace, *action_export_current_frame, *action_export_frame_range, *action_export_tracking_data;
     QAction * action_export_all_frames;
 
     int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
