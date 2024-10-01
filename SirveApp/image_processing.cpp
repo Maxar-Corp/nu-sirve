@@ -963,7 +963,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
     int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
 	int stop_frame_index;
-	double R;
+	double R1, R2;
 
 	std::vector<std::vector<uint16_t>> frames_out;
   	arma::mat window_data(num_pixels,num_of_averaging_frames);
@@ -972,7 +972,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
 	arma::vec frame_vector(num_pixels,1);
 	arma::vec frame_vector_out(num_pixels,1);
 
-    for (int j = 0; j < num_of_averaging_frames - 1; j++)
+    for (int j = 0; j < num_of_averaging_frames; j++)
     {
         window_data.col(j) = arma::conv_to<arma::vec>::from(original.frames_16bit[j]);
     }
@@ -987,18 +987,14 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
         QCoreApplication::processEvents();
         frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         stop_frame_index = std::min(i + num_of_averaging_frames - 1,num_video_frames - 1);
-
-        if(i >num_of_averaging_frames)
-        {
-            window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[stop_frame_index]));
-            window_data.shed_col(0);
-        }
         moving_mean = arma::mean(window_data,1);
-
-        R = arma::max(frame_vector);
-        frame_vector -= moving_mean;
-        frame_vector -= frame_vector.min();
-        frame_vector_out = R * frame_vector / frame_vector.max();
+        window_data.insert_cols(window_data.n_cols,arma::conv_to<arma::vec>::from(original.frames_16bit[stop_frame_index]));
+        window_data.shed_col(0);
+        // R = arma::max(frame_vector);
+        R1 = arma::range(frame_vector);
+        R2 = arma::range(moving_mean);
+        // frame_vector_out = R * moving_mean / moving_mean.max();
+        frame_vector_out = R1 * moving_mean / R2;
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector_out));
     }
 
