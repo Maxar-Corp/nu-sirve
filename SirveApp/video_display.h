@@ -95,7 +95,7 @@ public:
 
     void SetCalibrationModel(CalibrationData input);
     void AddNewFrame(QImage &img, int format);
-    bool StartRecording(double fps);
+    bool StartRecording(QString file_name, double fps);
     void StopRecording();
 
     void ToggleActionZoom(bool status);

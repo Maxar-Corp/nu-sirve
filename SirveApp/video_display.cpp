@@ -1235,14 +1235,8 @@ void VideoDisplay::SetCalibrationModel(CalibrationData input)
     model = input;
 }
 
-bool VideoDisplay::StartRecording(double fps)
+bool VideoDisplay::StartRecording(QString file_name, double fps)
 {
-
-    QString file_name = QFileDialog::getSaveFileName(this, "Save File", "", "Video (*.avi)");
-
-    if (file_name.isEmpty())
-        return false;
-
     std::string file_string = file_name.toLocal8Bit().constData();
 
     video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(image_x, image_y));
