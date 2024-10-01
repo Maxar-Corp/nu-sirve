@@ -2298,7 +2298,7 @@ void SirveApp::StartStopVideoRecording()
         QTime currentTime = QTime::currentTime();;
         QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
         QString suggested_name = base_folder + "/" + abp_file_metadata.file_name + "_" +start_frame + "_" + stop_frame +"_" + formattedDate;
-        QString file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the video", suggested_name, "Video (*.avi)");
+        QString file_name = QFileDialog::getSaveFileName(this, "Save file to your workspace location using name suggested, or choose a new location/filename..", suggested_name, "Video (*.avi)");
 
         if (file_name.isEmpty())
             return;
