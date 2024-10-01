@@ -266,6 +266,9 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
         }
         emit hideAnnotationStencil();
     }
+
+    this->raise();
+    this->activateWindow();
 }
 
 void AnnotationListDialog::OnDialogRejected() {
