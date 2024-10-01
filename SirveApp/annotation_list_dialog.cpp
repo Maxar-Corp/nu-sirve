@@ -254,9 +254,6 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
 
         annotation_edit_dialog = nullptr;
 
-        this->raise();
-        this->activateWindow();
-
     } else if (response == QMessageBox::Cancel)
     {
         // If adding an annotation, clean out newly-entered data:
@@ -269,6 +266,9 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
         }
         emit hideAnnotationStencil();
     }
+
+    this->raise();
+    this->activateWindow();
 }
 
 void AnnotationListDialog::OnDialogRejected() {
