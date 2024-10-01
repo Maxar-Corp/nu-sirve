@@ -4785,8 +4785,9 @@ void SirveApp::UpdateGlobalFrameVector()
 
     lbl_min_scale_value->setText("Low: " + QString::number(image_min_value));
     lbl_max_scale_value->setText("High: " + QString::number(image_max_value));
-    image_vector = image_vector - image_min_value;
-    image_vector = image_vector / image_max_value;
+    image_vector -= arma::mean(image_vector);
+    image_vector /= (24*arma::stddev(image_vector));
+    image_vector += (12*arma::stddev(image_vector));
 
     if (chk_auto_lift_gain->isChecked())
     {
