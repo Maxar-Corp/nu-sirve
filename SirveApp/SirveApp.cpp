@@ -2848,9 +2848,13 @@ void SirveApp::ExportPlotData()
 
     QString base_track_folder = config_values.workspace_folder;
     QDate today = QDate::currentDate();
-    QTime currentTime = QTime::currentTime();;
+    QTime currentTime = QTime::currentTime();
+
+    QString osm_max_frames = QString::number(osm_frames.size());
+    QString export_stop_frame = item == "Export All Data" ? osm_max_frames : stop_frame;
+
     QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-    QString suggested_file_name = base_track_folder + "/track_data_export_frames_" + start_frame + "_" + stop_frame + "_" + formattedDate;
+    QString suggested_file_name = base_track_folder + "/track_data_export_frames_" + start_frame + "_" + export_stop_frame + "_" + formattedDate;
     QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_file_name, "CSV (*.csv)");
     std::string save_path = new_track_file_name.toStdString();
 
