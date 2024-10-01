@@ -2291,7 +2291,19 @@ void SirveApp::StartStopVideoRecording()
     }
     else {
         //Starting record video
-        bool file_opened = video_display->StartRecording(playback_controller->get_fps());
+        QString start_frame = txt_start_frame->text();
+        QString stop_frame = txt_stop_frame->text();
+        QString base_folder = config_values.workspace_folder;
+        QDate today = QDate::currentDate();
+        QTime currentTime = QTime::currentTime();;
+        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+        QString suggested_name = base_folder + "/" + abp_file_metadata.file_name + "_" +start_frame + "_" + stop_frame +"_" + formattedDate;
+        QString file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the video", suggested_name, "Video (*.avi)");
+
+        if (file_name.isEmpty())
+            return;
+
+        bool file_opened = video_display->StartRecording(file_name, playback_controller->get_fps());
 
         if (file_opened) {
 
