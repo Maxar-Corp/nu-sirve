@@ -1,7 +1,5 @@
 #include "plot_engineering_data.h"
-#include "qdebug.h"
 #include "qrubberband.h"
-
 #include <QPushButton>
 #include <QLegendMarker>
 
@@ -142,7 +140,6 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 
 void EngineeringPlots::PlotChart()
 {
-    // Clear chart
     chart->removeAllSeries();
     colors.ResetColors();
     StartNewChart();
@@ -485,7 +482,7 @@ void EngineeringPlots::EstablishPlotLimits()
     sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
 
     full_plot_xmin = get_single_x_axis_value(0);
-    full_plot_xmax = get_max_x_axis_value(); 
+    full_plot_xmax = get_max_x_axis_value();
 }
 
 void EngineeringPlots::set_xaxis_units(XAxisPlotVariables unit_choice)
@@ -627,8 +624,6 @@ void EngineeringPlots::DrawTitle()
     QBrush brush(brush_color);
 
     QFont font("Times New Roman", 12, QFont::Bold);
-    // font.setPointSize(10);
-    // font.setBold(true);
 
     chart->setTitleBrush(brush);
     chart->setTitleFont(font);
@@ -759,10 +754,6 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
         rubberBand->hide();
         QRect selectedRect = rubberBand->geometry();
-
-        QRect rubberBandRect = rubberBand->geometry();  // Selected rectangle from the rubberband
-        QRectF sceneRect = this->mapToScene(rubberBandRect).boundingRect();  // Map to scene
-        QRectF plotArea = chart()->plotArea();  // Get the chart's plot area
 
         emit rubberBandChanged(selectedRect);
 
@@ -915,7 +906,7 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
     int num_breaks = 0;
 
     if(osm_track_color == QColor(0,0,0,255)){
-       osm_track_color = QColor(0,0,0); 
+       osm_track_color = QColor(0,0,0);
     }
     double base_x_distance = 1;
     if (num_data_pts > 1)
@@ -1029,20 +1020,19 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
 
     int num_series = chart->series().size();
 
-    bool check1, check2;
     QList<QAbstractSeries *> all_series = chart->series();
 
     for (int i = 0; i < num_series; i++)
     {
-        check1 = all_series[i]->attachAxis(axis_x);
+        all_series[i]->attachAxis(axis_x);
 
         if (yaxis_is_log)
         {
-            check2 = all_series[i]->attachAxis(axis_ylog);
+            all_series[i]->attachAxis(axis_ylog);
         }
         else
         {
-            check2 = all_series[i]->attachAxis(axis_y);
+            all_series[i]->attachAxis(axis_y);
         }
     }
 
