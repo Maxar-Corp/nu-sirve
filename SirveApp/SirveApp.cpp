@@ -1933,7 +1933,7 @@ void SirveApp::LoadOsmData()
     chk_show_OSM_tracks->setChecked(true);
     chk_show_time->setChecked(false);
     chk_sensor_track_data->setChecked(false);
-    cmb_text_color->setCurrentIndex(0);
+    cmb_text_color->setCurrentIndex(2);
     video_display->InitializeToggles();
 
     // Reset setting engineering plot defaults
