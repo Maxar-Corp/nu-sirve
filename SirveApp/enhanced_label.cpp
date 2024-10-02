@@ -1,10 +1,11 @@
 #include "enhanced_label.h"
-
+#include <QDebug>
 
 EnhancedLabel::EnhancedLabel(QWidget *parent) :QLabel(parent)
 {
 	rubber_band = NULL;
 	enabled = true;
+	setAttribute(Qt::WA_Hover);
 }
 
 EnhancedLabel::~EnhancedLabel()
@@ -131,4 +132,52 @@ void EnhancedLabel::mouseReleaseEvent(QMouseEvent *event)
 		if(area.width() > 10 && area.height() > 10)
 			emit areaHighlighted(area);
 	}
+}
+
+bool EnhancedLabel::event(QEvent * e)
+{
+    switch(e->type())
+    {
+    case QEvent::HoverEnter:
+        hoverEnter(static_cast<QHoverEvent*>(e));
+        return true;
+        break;
+    case QEvent::HoverLeave:
+        hoverLeave(static_cast<QHoverEvent*>(e));
+        return true;
+        break;
+    case QEvent::HoverMove:
+        hoverMove(static_cast<QHoverEvent*>(e));
+        return true;
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(e);
+}
+
+void EnhancedLabel::enterEvent(QEvent * e)
+{
+    qDebug() << Q_FUNC_INFO << e->type();
+}
+
+void EnhancedLabel::leaveEvent(QEvent * e)
+{
+    qDebug() << Q_FUNC_INFO << e->type();
+}
+
+void EnhancedLabel::hoverEnter(QHoverEvent * event)
+{
+    qDebug() << Q_FUNC_INFO << event->type();
+}
+
+void EnhancedLabel::hoverLeave(QHoverEvent * event)
+{
+    qDebug() << Q_FUNC_INFO << event->type();
+}
+
+void EnhancedLabel::hoverMove(QHoverEvent * event)
+{
+    // qDebug() << Q_FUNC_INFO << event->pos();
+	emit hoverPoint(event->pos());
 }

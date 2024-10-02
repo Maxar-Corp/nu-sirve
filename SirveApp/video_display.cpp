@@ -1,7 +1,7 @@
 #include "video_display.h"
 #include "frame_player.h"
 
-VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
+VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent) : QWidget(parent)
 {
     zoom_manager = new VideoDisplayZoomManager(0, 0);
     lbl_image_canvas = new EnhancedLabel(this);
@@ -39,6 +39,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table)
     annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
     annotation_stencil->hide();
     annotation_stencil->move(50, 50);
+    connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
 }
 
 
@@ -235,6 +236,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         is_zoom_active = false;
         is_calculate_active = false;
         SetupCrosshairsCursor(":icons/crosshair-golden.png");
+        lbl_image_canvas->setAttribute(Qt::WA_Hover);
     } else
     {
         lbl_image_canvas->unsetCursor();
@@ -787,13 +789,40 @@ void VideoDisplay::UpdateDisplayFrame()
     }
     lbl_pinpoint->setText(pinpoint_text);
 
-    if (in_track_creation_mode)
+    if (in_track_creation_mode && btn_select_track_centroid->isChecked())
     {
+
+    AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+    double x_scale = image_x / final_zoom_level.width;
+    double y_scale = image_y / final_zoom_level.height;
+    double size_of_pixel_x = 1.0 * x_scale;
+    double size_of_pixel_y = 1.0 * y_scale;
+
+    int box_size = txt_ROI_dim->text().toInt();
+    int box_width = std::round(size_of_pixel_x - 1 + box_size);
+    int box_height = std::round(size_of_pixel_y - 1 + box_size);
+    QRgb rgb_cyan = QColorConstants::Cyan.rgb();
+    QPainter  MANRECT_painter(&frame);
+    MANRECT_painter.setPen(QPen(rgb_cyan));
+
+    int x = hover_pt.x();
+    int y = hover_pt.y();
+ 
+    int new_x = std::round(1.0*x/x_scale + final_zoom_level.x);
+    int new_y = std::round(1.0*y/y_scale + final_zoom_level.y);
+    // qDebug() << new_x << new_y;
+
+    QPoint top_left(new_x-box_width/2, new_y-box_height/2);
+    QPoint bottom_right(new_x+box_width/2, new_y+box_height/2);
+    QRect MAN_rectangle(top_left, bottom_right);
+    MANRECT_painter.drawRect(MAN_rectangle);
+
         if (track_details[starting_frame_number + counter - 1].has_value())
         {
-            TrackDetails td = track_details[starting_frame_number + counter - 1].value();
             QRgb rgb_cyan = QColorConstants::Cyan.rgb();
-            frame.setPixel(td.centroid_x - xCorrection, td.centroid_y - yCorrection, rgb_cyan);
+            TrackDetails td0 = track_details[starting_frame_number + counter - 1].value();
+            frame.setPixel(td0.centroid_x - xCorrection, td0.centroid_y - yCorrection, rgb_cyan);
+
         }
     }
 
@@ -841,6 +870,46 @@ void VideoDisplay::UpdateDisplayFrame()
     else
     {
         lbl_image_canvas->setStyleSheet("#video_object { border: 1px solid light gray; }");
+    }
+
+    if (in_track_creation_mode)
+    {
+        if (track_details[starting_frame_number + counter - 1].has_value())
+        {
+            AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+            double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
+            double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
+
+            int box_size = 5;
+            double box_width = size_of_pixel_x - 1 + box_size * 2;
+            double box_height = size_of_pixel_y - 1 + box_size * 2;
+
+            QRgb rgb_cyan = QColorConstants::Cyan.rgb();
+            QPainter ROI_painter(&frame);
+            ROI_painter.setPen(QPen(rgb_cyan));
+
+            TrackDetails td = track_details[starting_frame_number + counter - 1].value();
+            int track_x = td.centroid_x;
+            int track_y = td.centroid_y;
+            int new_track_x = track_x - xCorrection;
+            int new_track_y = track_y - yCorrection;
+            if (new_track_x < 0){
+                new_track_x = new_track_x + image_x;
+            }
+            if (new_track_y < 0){
+                new_track_y = new_track_y + image_y;
+            }
+            if (new_track_x > image_x){
+                new_track_x = new_track_x - image_x;
+            }
+            if (new_track_y > image_y){
+                new_track_y = new_track_y - image_y ;
+            }
+            QRectF ROI_rectangle = GetRectangleAroundPixel(new_track_x, new_track_y, box_size, box_width, box_height);
+            ROI_painter.drawRect(ROI_rectangle);
+
+            frame.setPixel(td.centroid_x - xCorrection, td.centroid_y - yCorrection, rgb_cyan);
+        }
     }
 
     size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
@@ -918,7 +987,7 @@ void VideoDisplay::UpdateDisplayFrame()
                 if (new_track_y > image_y){
                     new_track_y = new_track_y - image_y ;
                 }
-                QRectF rectangle = GetRectangleAroundPixel( new_track_x, new_track_y, box_size, box_width, box_height);
+                QRectF rectangle = GetRectangleAroundPixel(new_track_x, new_track_y, box_size, box_width, box_height);
                 if (rectangle.isNull())
                     continue;
                 QColor color = manual_track_colors[track_id];
@@ -1320,3 +1389,11 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 {
     annotation_stencil->InitializeData(data);
 }
+
+ void VideoDisplay::DisplayManualBox(QPoint pt)
+ {
+    // qDebug() << Q_FUNC_INFO << pt;
+    hover_pt = pt;
+    UpdateDisplayFrame();
+
+ }
