@@ -314,6 +314,11 @@ void EngineeringPlots::PlotFovY()
 
 void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
 {
+    double max_y_sub = 1;
+    double min_y_sub = 360;
+    double miny = 360;
+    double maxy = 1;
+
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries* series = new QLineSeries();
@@ -324,6 +329,20 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
         AddSeries(series, x_values, y_values, true);
+
+        arma::vec x_values_vector(x_values);
+        arma::vec y_values_vector(y_values);
+        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+        if (x_values_vector_i.n_elem>0)
+        {
+            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
+            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
+        }
+        if (y_values_vector.n_elem>0)
+        {
+            miny = std::min(y_values_vector.min(),miny);
+            maxy = std::max(y_values_vector.max(),maxy);
+        }
     }
 
     for (int track_id : manual_track_ids)
@@ -341,16 +360,35 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
+
+        arma::vec x_values_vector(x_values);
+        arma::vec y_values_vector(y_values);
+        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+        if (x_values_vector_i.n_elem>0)
+        {
+            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
+            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
+        }
+        if (y_values_vector.n_elem>0)
+        {
+            miny = std::min(y_values_vector.min(),miny);
+            maxy = std::max(y_values_vector.max(),maxy);
+        }
     }
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
 
-    DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
+    DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
 }
+
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 {
+    double max_y_sub = 1;
+    double min_y_sub = 90;
+    double miny = 90;
+    double maxy = 1;
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
@@ -361,6 +399,21 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
         AddSeries(series, x_values, y_values, true);
+
+        arma::vec x_values_vector(x_values);
+        arma::vec y_values_vector(y_values);
+        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+        if (x_values_vector_i.n_elem>0)
+        {
+            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
+            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
+        }
+        if (y_values_vector.n_elem>0)
+        {
+            miny = std::min(y_values_vector.min(),miny);
+            maxy = std::max(y_values_vector.max(),maxy);
+        }
+
         series->setColor(osm_track_color);
     }
 
@@ -379,18 +432,35 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
+        arma::vec x_values_vector(x_values);
+        arma::vec y_values_vector(y_values);
+        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+        if (x_values_vector_i.n_elem>0)
+        {
+            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
+            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
+        }
+        if (y_values_vector.n_elem>0)
+        {
+            miny = std::min(y_values_vector.min(),miny);
+            maxy = std::max(y_values_vector.max(),maxy);
+        }
+
     }
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 90);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 90);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
 }
 
 void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
 {
     std::vector<double> y_points;
-
+    double max_y_sub = 1;
+    double min_y_sub = 1e9;
+    double miny = 1e9;
+    double maxy = 1;
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
@@ -403,12 +473,25 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         AddSeries(series, x_values, y_values, true);;
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
-    }
 
+        arma::vec x_values_vector(x_values);
+        arma::vec y_values_vector(y_values);
+        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+        if (x_values_vector_i.n_elem>0)
+        {
+            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
+            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
+        }
+        if (y_values_vector.n_elem>0)
+        {
+            miny = std::min(y_values_vector.min(),miny);
+            maxy = std::max(y_values_vector.max(),maxy);
+        }
+    }
+    
     for (int track_id : manual_track_ids)
     {
         std::vector<double> x_values, y_values;
-
         for (size_t i = 0; i < manual_track_frames.size(); i++)
         {
             std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
@@ -420,15 +503,29 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
+
+        arma::vec x_values_vector(x_values);
+        arma::vec y_values_vector(y_values);
+        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+        if (x_values_vector_i.n_elem>0)
+        {
+            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
+            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
+        }
+        if (y_values_vector.n_elem>0)
+        {
+            miny = std::min(y_values_vector.min(),miny);
+            maxy = std::max(y_values_vector.max(),maxy);
+        }
     }
 
     chart_y_maxes[0] = FindMaxForAxis(y_points);
     fixed_max_y = chart_y_maxes[0];
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, FindMaxForAxis(y_points));
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, FindMaxForAxis(y_points));
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub,1.1*max_y_sub);
 }
 
 void EngineeringPlots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -1027,7 +1124,7 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
             min_y = 0.01;
         if (max_y <= 0.001)
             max_y = 0.01;
-
+        max_y = std::pow(10, std::ceil(std::log10(max_y)));
         axis_ylog->setRange(min_y, max_y);
         axis_ylog->setTitleText(y_title);
     }
