@@ -232,7 +232,12 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
              + QString::number(track_details.sum_ROI_counts)+ ","\
              + QString::number(track_details.N_threshold_pixels)+ ","\
              + QString::number(track_details.N_ROI_pixels)+ ","\
-             + QString::number(track_details.irradiance);
+             + QString::number(track_details.irradiance)+ ","\
+             + QString::number(track_details.ROI_x)+ ","\
+             + QString::number(track_details.ROI_y)+ ","\
+             + QString::number(track_details.ROI_Width)+ ","\
+             + QString::number(track_details.ROI_Height);
+
             file.write(csv_line.toUtf8());
             file.write("\n");
 
@@ -323,7 +328,15 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             int N_ROI_pixels = cells[8].toInt(&ok);
             if (!ok) throw std::runtime_error("Track N ROI Pixels");   
             int irradiance = cells[9].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track Irradiance");          
+            if (!ok) throw std::runtime_error("Track Irradiance");  
+            int ROI_x = cells[10].toInt(&ok);
+            if (!ok) throw std::runtime_error("ROI X");     
+            int ROI_y = cells[11].toInt(&ok);
+            if (!ok) throw std::runtime_error("ROI Y");     
+            int ROI_Width = cells[12].toInt(&ok);
+            if (!ok) throw std::runtime_error("ROI Width");  
+            int ROI_Height = cells[12].toInt(&ok);
+            if (!ok) throw std::runtime_error("ROI Height");      
             if (frame_number < 0 || frame_number > num_frames) throw std::runtime_error("Invalid frame number");
 
             TrackDetails td;
@@ -335,6 +348,10 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             td.sum_ROI_counts = sum_ROI_counts;
             td.N_threshold_pixels = N_threshold_pixels;
             td.N_ROI_pixels = N_ROI_pixels;
+            td.ROI_x = ROI_x;
+            td.ROI_y = ROI_y;
+            td.ROI_Width = ROI_Width;
+            td.ROI_Height = ROI_Height;
             track_ids_in_file.insert(track_id);
             track_frames_from_file[frame_number - 1].tracks[track_id] = td;
         }
