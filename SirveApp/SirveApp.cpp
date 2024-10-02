@@ -3679,7 +3679,7 @@ void SirveApp::ExecuteCenterOnTracks()
     int track_id;
     boolean findAnyTrack = false;
     QString trackFeaturePriority;
-
+    bool continueTF = true;
     if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
         if (cmb_OSM_track_IDs->currentIndex()==0){
             track_id = -1;
@@ -3704,7 +3704,15 @@ void SirveApp::ExecuteCenterOnTracks()
 
     std::vector<std::vector<int>> track_centered_offsets;
     int source_state_idx = cmb_processing_states->currentIndex();
-    CenterOnTracks(trackFeaturePriority, track_id, track_centered_offsets, findAnyTrack, source_state_idx);
+    if (video_display->container.processing_states[source_state_idx].offsets.size()>0)
+    {
+        QtHelpers::LaunchMessageBox(QString("Not allowed"), "Current state is already centered.");            
+        continueTF = false;
+    }
+    if (continueTF)
+    { 
+        CenterOnTracks(trackFeaturePriority, track_id, track_centered_offsets, findAnyTrack, source_state_idx);
+    }
 }
 
 void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
@@ -3841,7 +3849,17 @@ void SirveApp::ExecuteCenterOnBrightest()
 {
     std::vector<std::vector<int>> brightest_centered_offsets;
     int source_state_idx = cmb_processing_states->currentIndex();
-    CenterOnBrightest(brightest_centered_offsets,source_state_idx);
+    bool continueTF = true;
+
+    if (video_display->container.processing_states[source_state_idx].offsets.size()>0)
+    {
+        QtHelpers::LaunchMessageBox(QString("Not allowed"), "Current state is already centered.");            
+        continueTF = false;
+    }
+    if (continueTF)
+    {       
+        CenterOnBrightest(brightest_centered_offsets,source_state_idx);
+    }
 }
 
 void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int source_state_idx)
