@@ -14,7 +14,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/photo.hpp>
-
+#include "support/qthelpers.h"
 #include "tracks.h"
 #include "video_details.h"
 

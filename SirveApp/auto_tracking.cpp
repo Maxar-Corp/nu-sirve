@@ -97,7 +97,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
 
-    for (u_int i = 1; i < num_frames; i++) {
+    for (u_int i = 1; i < num_frames; i++)
+    {
 
         if (cancel_operation)
         {
@@ -121,12 +122,29 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
    
         GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
 
-        if (ok && peak_counts_i >= .5 * peak_counts_old) {
+        if (ok && peak_counts_i >= .5 * peak_counts_old)
+        {
             peak_counts_old = peak_counts_i;
             rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
             imshow(window_name_i, filtered_frame_i_matrix_8bit_color);
         }
-        else {
+        else
+        {
+            auto response = QtHelpers::LaunchYesNoMessageBox("Track has been lost.", "Try to Continue?");
+            if (response != QMessageBox::Yes)
+            {
+                cv::destroyAllWindows();
+                if (i>1)
+                {
+                    output.shed_rows(i,num_frames-1);
+                    return output;
+                }
+                else
+                {
+                    return arma::u64_mat ();
+                }
+            }
+
             window_name_i = "Track Lost. " + std::to_string(indx) + " Select ROI again.";
             ROI = selectROI(window_name_i, filtered_frame_i_matrix_8bit_color_resize);
             ROI.x /= N;
