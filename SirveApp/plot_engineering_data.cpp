@@ -230,19 +230,28 @@ void EngineeringPlots::PlotBoresightAzimuth()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
+    double max_y_sub = 1;
+    double min_y_sub = 360;
+    double miny = 360;
+    double maxy = 1;
+
+    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
+
     if (plot_all_data)
     {
         std::vector<double> y_values = boresight_az;
 
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
+        AddSeries(series, x_values, y_values, true);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
         std::vector<double> y_values(boresight_az.begin() + index_sub_plot_xmin, boresight_az.begin() + index_sub_plot_xmax + 1);
 
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true); 
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
 }
 
@@ -252,19 +261,28 @@ void EngineeringPlots::PlotBoresightElevation()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
+    double max_y_sub = 1;
+    double min_y_sub = 360;
+    double miny = 360;
+    double maxy = 1;
+
+    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
+
     if (plot_all_data)
     {
         std::vector<double> y_values = boresight_el;
 
         AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 90);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
         std::vector<double> y_values(boresight_el.begin() + index_sub_plot_xmin, boresight_el.begin() + index_sub_plot_xmax + 1);
 
         AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 90);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
 }
 
@@ -274,19 +292,28 @@ void EngineeringPlots::PlotFovX()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
+    double max_y_sub = 1;
+    double min_y_sub = 750;
+    double miny = 750;
+    double maxy = 1;
+
+    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
+
     if (plot_all_data)
     {
         std::vector<double> y_values = sensor_i_fov_x;
 
         AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 750);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
         std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
 
         AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 750);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
 }
 
@@ -296,19 +323,28 @@ void EngineeringPlots::PlotFovY()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
+    double max_y_sub = 1;
+    double min_y_sub = 750;
+    double miny = 750;
+    double maxy = 1;
+
+    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
+
     if (plot_all_data)
     {
         std::vector<double> y_values = sensor_i_fov_y;
 
         AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 750);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
         std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
 
         AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 750);
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
 }
 
@@ -330,19 +366,7 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
 
         AddSeries(series, x_values, y_values, true);
 
-        arma::vec x_values_vector(x_values);
-        arma::vec y_values_vector(y_values);
-        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
-        if (x_values_vector_i.n_elem>0)
-        {
-            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
-            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
-        }
-        if (y_values_vector.n_elem>0)
-        {
-            miny = std::min(y_values_vector.min(),miny);
-            maxy = std::max(y_values_vector.max(),maxy);
-        }
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
     for (int track_id : manual_track_ids)
@@ -361,26 +385,13 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
 
-        arma::vec x_values_vector(x_values);
-        arma::vec y_values_vector(y_values);
-        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
-        if (x_values_vector_i.n_elem>0)
-        {
-            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
-            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
-        }
-        if (y_values_vector.n_elem>0)
-        {
-            miny = std::min(y_values_vector.min(),miny);
-            maxy = std::max(y_values_vector.max(),maxy);
-        }
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
-
-    DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
 }
 
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
@@ -389,6 +400,7 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
     double min_y_sub = 90;
     double miny = 90;
     double maxy = 1;
+
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
@@ -400,19 +412,7 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 
         AddSeries(series, x_values, y_values, true);
 
-        arma::vec x_values_vector(x_values);
-        arma::vec y_values_vector(y_values);
-        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
-        if (x_values_vector_i.n_elem>0)
-        {
-            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
-            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
-        }
-        if (y_values_vector.n_elem>0)
-        {
-            miny = std::min(y_values_vector.min(),miny);
-            maxy = std::max(y_values_vector.max(),maxy);
-        }
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
 
         series->setColor(osm_track_color);
     }
@@ -432,19 +432,8 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
-        arma::vec x_values_vector(x_values);
-        arma::vec y_values_vector(y_values);
-        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
-        if (x_values_vector_i.n_elem>0)
-        {
-            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
-            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
-        }
-        if (y_values_vector.n_elem>0)
-        {
-            miny = std::min(y_values_vector.min(),miny);
-            maxy = std::max(y_values_vector.max(),maxy);
-        }
+
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
 
     }
 
@@ -470,23 +459,11 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-        AddSeries(series, x_values, y_values, true);;
+        AddSeries(series, x_values, y_values, true);
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
 
-        arma::vec x_values_vector(x_values);
-        arma::vec y_values_vector(y_values);
-        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
-        if (x_values_vector_i.n_elem>0)
-        {
-            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
-            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
-        }
-        if (y_values_vector.n_elem>0)
-        {
-            miny = std::min(y_values_vector.min(),miny);
-            maxy = std::max(y_values_vector.max(),maxy);
-        }
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
     
     for (int track_id : manual_track_ids)
@@ -504,19 +481,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
 
-        arma::vec x_values_vector(x_values);
-        arma::vec y_values_vector(y_values);
-        arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
-        if (x_values_vector_i.n_elem>0)
-        {
-            max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(),max_y_sub);
-            min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(),min_y_sub);
-        }
-        if (y_values_vector.n_elem>0)
-        {
-            miny = std::min(y_values_vector.min(),miny);
-            maxy = std::max(y_values_vector.max(),maxy);
-        }
+        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
     chart_y_maxes[0] = FindMaxForAxis(y_points);
@@ -665,6 +630,24 @@ double EngineeringPlots::get_max_x_axis_value()
         return past_epoch[past_epoch.size() - 1];
     default:
         return 0;
+    }
+}
+
+void EngineeringPlots::get_intervals_extents(double& min_y_sub, double& max_y_sub, double &min_y, double &max_y, std::vector<double> &x_values, std::vector<double> &y_values)
+{
+    arma::vec x_values_vector(x_values);
+    arma::vec y_values_vector(y_values);
+    arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+
+    if (x_values_vector_i.n_elem>0)
+    {
+        max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(), max_y_sub);
+        min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(), min_y_sub);
+    }
+    if (y_values_vector.n_elem>0)
+    {
+        min_y = std::min(y_values_vector.min(), min_y);
+        max_y = std::max(y_values_vector.max(), max_y);
     }
 }
 
