@@ -144,9 +144,10 @@ public:
     void set_xaxis_units(XAxisPlotVariables unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
-    QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
+    // These intervals get populated during chart initialization:
+    QPair<qreal, qreal> chart_x_intervals[3];
+    QPair<qreal, qreal> chart_y_intervals[7];
 
-    float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
     ChartState chart_states[7];
 
 signals:

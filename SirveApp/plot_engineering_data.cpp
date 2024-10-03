@@ -98,13 +98,30 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
         // Record the state of the chart we are leaving behind:
         if (yaxis_is_log) {
-            chartState.scale_factor_maxy = axis_ylog->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_miny = axis_ylog->min() / chart_y_maxes[current_chart_id];
+            qreal axisMax = axis_ylog->max();
+            qreal axisMin = axis_ylog->min();
+
+            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
+            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
+            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
+                                        chart_y_intervals[current_chart_id].first;
+
+            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
+            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
         } else
         {
             QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
+
+            qreal axisMax = axisY->max();
+            qreal axisMin = axisY->min();
+
+            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
+            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
+            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
+                                        chart_y_intervals[current_chart_id].first;
+
+            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
+            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
         }
 
         this->chart_view->set_chart_state(chartState);
@@ -123,15 +140,31 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 
         // Record the state of the chart we are leaving behind:
         if (yaxis_is_log) {
-            chartState.scale_factor_maxy = axis_ylog->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_miny = axis_ylog->min() / chart_y_maxes[current_chart_id];
+            qreal axisMax = axis_ylog->max();
+            qreal axisMin = axis_ylog->min();
+
+            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
+            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
+            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
+                                        chart_y_intervals[current_chart_id].first;
+
+            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
+            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
         } else
         {
             QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
-        }
 
+            qreal axisMax = axisY->max();
+            qreal axisMin = axisY->min();
+
+            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
+            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
+            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
+                                        chart_y_intervals[current_chart_id].first;
+
+            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
+            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
+        }
         this->chart_view->set_chart_state(chartState);
 
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
@@ -219,7 +252,10 @@ void EngineeringPlots::PlotChart()
         }
 
         if (axisY) {
-            axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
+            qreal interval_span = chart_y_intervals[current_chart_id].second - chart_y_intervals[current_chart_id].first;
+            qreal interval_begin = chart_y_intervals[current_chart_id].first + chartState.scale_factor_miny * interval_span;
+            qreal interval_end = chart_y_intervals[current_chart_id].first + chartState.scale_factor_maxy * interval_span;
+            axisY->setRange(interval_begin, interval_end);
         }
     }
 }
@@ -253,6 +289,11 @@ void EngineeringPlots::PlotBoresightAzimuth()
         AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true); 
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
+
+    QPair<qreal,qreal> boresight_azimuth = *new QPair<qreal, qreal>();
+    boresight_azimuth.first = plot_all_data ? miny : min_y_sub;
+    boresight_azimuth.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[5] = boresight_azimuth;
 }
 
 void EngineeringPlots::PlotBoresightElevation()
@@ -284,6 +325,11 @@ void EngineeringPlots::PlotBoresightElevation()
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
+
+    QPair<qreal,qreal> boresight_elevation = *new QPair<qreal, qreal>();
+    boresight_elevation.first = plot_all_data ? miny : min_y_sub;
+    boresight_elevation.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[6] = boresight_elevation;
 }
 
 void EngineeringPlots::PlotFovX()
@@ -315,6 +361,11 @@ void EngineeringPlots::PlotFovX()
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
+
+    QPair<qreal,qreal> fovx = *new QPair<qreal, qreal>();
+    fovx.first = plot_all_data ? miny : min_y_sub;
+    fovx.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[3] = fovx;
 }
 
 void EngineeringPlots::PlotFovY()
@@ -346,6 +397,11 @@ void EngineeringPlots::PlotFovY()
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
+
+    QPair<qreal,qreal> fovy = *new QPair<qreal, qreal>();
+    fovy.first = plot_all_data ? miny : min_y_sub;
+    fovy.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[4] = fovy;
 }
 
 void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
@@ -392,6 +448,11 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
+
+    QPair<qreal,qreal> azimuth = *new QPair<qreal, qreal>();
+    azimuth.first = plot_all_data ? miny : min_y_sub;
+    azimuth.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[1] = azimuth;
 }
 
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
@@ -441,6 +502,11 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
+
+    QPair<qreal,qreal> elevation = *new QPair<qreal, qreal>();
+    elevation.first = plot_all_data ? miny : min_y_sub;
+    elevation.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[2] = elevation;
 }
 
 void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
@@ -484,13 +550,20 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
-    chart_y_maxes[0] = FindMaxForAxis(y_points);
-    fixed_max_y = chart_y_maxes[0];
+    //chart_y_intervals[0] = FindMaxForAxis(y_points);
+    //fixed_max_y = chart_y_intervals[0];
 
     if (plot_all_data)
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     else
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub,1.1*max_y_sub);
+
+    QPair<qreal,qreal> irradiance = *new QPair<qreal, qreal>();
+    irradiance.first = plot_all_data ? miny : min_y_sub;
+    irradiance.second = plot_all_data ? maxy : max_y_sub;
+    chart_y_intervals[0] = irradiance;
+
+    fixed_max_y = chart_y_intervals[0].second;
 }
 
 void EngineeringPlots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
