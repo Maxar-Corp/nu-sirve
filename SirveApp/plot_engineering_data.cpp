@@ -722,6 +722,10 @@ void EngineeringPlots::get_intervals_extents(double& min_y_sub, double& max_y_su
         min_y = std::min(y_values_vector.min(), min_y);
         max_y = std::max(y_values_vector.max(), max_y);
     }
+
+    // Ensure that the y interval will never causea divide by zero error:
+    min_y = (max_y-min_y == 0) ? min_y+0.00001 : min_y;
+    min_y_sub = (max_y_sub-min_y_sub == 0) ? min_y_sub+0.00001 : min_y_sub;
 }
 
 void EngineeringPlots::CreateCurrentMarker()
