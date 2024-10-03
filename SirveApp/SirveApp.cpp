@@ -106,7 +106,7 @@ void SirveApp::SetupUi() {
     SetupVideoFrame();
     SetupPlotFrame();
 
-	lbl_max_frames = new QLabel("OSM Messages: ");
+    lbl_max_frames = new QLabel("Available Frames: ");
 	QFormLayout *form_start_frame = new QFormLayout;
 	QFormLayout *form_stop_frame = new QFormLayout;
 	txt_start_frame = new QLineEdit();
@@ -1831,7 +1831,7 @@ void SirveApp::LoadOsmData()
     txt_start_frame->setText(QString("1"));
     txt_stop_frame->setText(osm_max_frames);
 
-    lbl_max_frames->setText("OSM Messages: " + osm_max_frames);
+    lbl_max_frames->setText("Available Frames: " + osm_max_frames);
 
     SetLiftAndGain(0, 1);
 	txt_start_frame->setStyleSheet(orange_styleSheet);
