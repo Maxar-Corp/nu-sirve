@@ -88,12 +88,14 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
     u_int indx, num_frames = stop_frame - start_frame + 1;
-    arma::u64_mat output(num_frames, 10);
+    arma::u64_mat output(num_frames, 14);
 
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
 
     irradiance =  static_cast<uint32_t>(sum_counts_0[0]);
-    output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0), static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance)};
+    output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
+     static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
+     static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
 
@@ -161,7 +163,9 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
 
         irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
-        output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i), static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance)};
+        output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
+         static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
+         static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
         waitKey(1);
     }
     cv::destroyAllWindows();

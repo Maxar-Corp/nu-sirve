@@ -24,6 +24,10 @@ struct TrackDetails {
     int N_ROI_pixels;
     int N_threshold_pixels;
     double irradiance;
+    int ROI_x;
+    int ROI_y;
+    int ROI_Width;
+    int ROI_Height;
 };
 
 struct PlottingTrackDetails {

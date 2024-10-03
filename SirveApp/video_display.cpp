@@ -555,6 +555,10 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
     details.irradiance =  static_cast<uint32_t>(sum_counts[0]);
+    details.ROI_x = minx + xCorrection;
+    details.ROI_y = miny + yCorrection;
+    details.ROI_Width = ROI_width;
+    details.ROI_Height = ROI_height;
     int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
     {

@@ -4433,10 +4433,13 @@ void SirveApp::ExecuteAutoTracking()
              }
         }
         offset_matrix2.shed_col(0);
+        arma::mat offset_matrix3 = offset_matrix2;
         offset_matrix2.insert_cols(0,2);
         offset_matrix2.insert_cols(offset_matrix2.n_cols,6);
+        arma::mat offset_matrix4 = arma::join_rows(offset_matrix2,offset_matrix3);
+        offset_matrix4.insert_cols(offset_matrix4.n_cols,2);
         arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
-        autotrack_d += offset_matrix2;
+        autotrack_d += offset_matrix4;
         autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
     }
 
