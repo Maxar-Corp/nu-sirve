@@ -58,7 +58,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
             counts = std::to_string(track.second.irradiance);
 
-            myfile << frame_number << ", " << epoch_seconds << ", Manual Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x << ", " << centroid_y << ", " <<  counts << std::endl;
+            myfile << frame_number << ", " << epoch_seconds << ", Manual/Auto Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x << ", " << centroid_y << ", " <<  counts << std::endl;
         }
 	}
 
