@@ -713,6 +713,22 @@ void VideoDisplay::UpdateDisplayFrame()
         return;
     }
 
+    QRgb rgb_cyan = QColorConstants::Cyan.rgb();
+
+    AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+    double x_scale = image_x / final_zoom_level.width;
+    double y_scale = image_y / final_zoom_level.height;
+    double size_of_pixel_x = 1.0 * x_scale;
+    double size_of_pixel_y = 1.0 * y_scale;
+    
+    int ROI_box_size = txt_ROI_dim->text().toInt();
+    int ROI_box_width = std::round(size_of_pixel_x - 1 + ROI_box_size);
+    int ROI_box_height = std::round(size_of_pixel_y - 1 + ROI_box_size);
+
+    // int marker_size = 5;
+    // double marker_width = size_of_pixel_x - 1 + marker_size * 2;
+    // double marker_height = size_of_pixel_y - 1 + marker_size * 2;
+
     uint8_t* color_corrected_frame = display_ready_converted_values.data();
     frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
@@ -795,38 +811,27 @@ void VideoDisplay::UpdateDisplayFrame()
 
     if (in_track_creation_mode && btn_select_track_centroid->isChecked())
     {
+        QPainter  manual_ROI_painter(&frame);
+        manual_ROI_painter.setPen(QPen(rgb_cyan));
 
-    AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
-    double x_scale = image_x / final_zoom_level.width;
-    double y_scale = image_y / final_zoom_level.height;
-    double size_of_pixel_x = 1.0 * x_scale;
-    double size_of_pixel_y = 1.0 * y_scale;
+        int x = hover_pt.x();
+        int y = hover_pt.y();
+    
+        int new_x = std::round(1.0*x/x_scale + final_zoom_level.x);
+        int new_y = std::round(1.0*y/y_scale + final_zoom_level.y);
+        // qDebug() << new_x << new_y;
 
-    int box_size = txt_ROI_dim->text().toInt();
-    int box_width = std::round(size_of_pixel_x - 1 + box_size);
-    int box_height = std::round(size_of_pixel_y - 1 + box_size);
-    QRgb rgb_cyan = QColorConstants::Cyan.rgb();
-    QPainter  MANRECT_painter(&frame);
-    MANRECT_painter.setPen(QPen(rgb_cyan));
-
-    int x = hover_pt.x();
-    int y = hover_pt.y();
- 
-    int new_x = std::round(1.0*x/x_scale + final_zoom_level.x);
-    int new_y = std::round(1.0*y/y_scale + final_zoom_level.y);
-    // qDebug() << new_x << new_y;
-
-    QPoint top_left(new_x-box_width/2, new_y-box_height/2);
-    QPoint bottom_right(new_x+box_width/2, new_y+box_height/2);
-    QRect MAN_rectangle(top_left, bottom_right);
-    MANRECT_painter.drawRect(MAN_rectangle);
+        QPoint top_left(new_x - ROI_box_width/2, new_y - ROI_box_height/2);
+        QPoint bottom_right(new_x + ROI_box_width/2, new_y + ROI_box_height/2);
+        QRect manual_ROI_rectangle(top_left, bottom_right);
+        manual_ROI_painter.drawRect(manual_ROI_rectangle);
 
         if (track_details[starting_frame_number + counter - 1].has_value())
         {
-            QRgb rgb_cyan = QColorConstants::Cyan.rgb();
             TrackDetails td0 = track_details[starting_frame_number + counter - 1].value();
-            frame.setPixel(td0.centroid_x - xCorrection, td0.centroid_y - yCorrection, rgb_cyan);
-
+            int new_x_in_progress_track = std::round(1.0*(td0.centroid_x - xCorrection));
+            int new_y_in_progress_track = std::round(1.0*(td0.centroid_y - yCorrection));
+            frame.setPixel(new_x_in_progress_track, new_y_in_progress_track, rgb_cyan);
         }
     }
 
@@ -875,22 +880,20 @@ void VideoDisplay::UpdateDisplayFrame()
     {
         lbl_image_canvas->setStyleSheet("#video_object { border: 1px solid light gray; }");
     }
-
+    AbsoluteZoomInfo final_zoom_level2 = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+    double x_scale2 = image_x / final_zoom_level2.width;
+    double y_scale2 = image_y / final_zoom_level2.height;
+    double size_of_pixel_x2 = 1.0 * x_scale2;
+    double size_of_pixel_y2 = 1.0 * y_scale2;
+    int marker_size = 5;
+    double marker_width = size_of_pixel_x2 - 1 + marker_size * 2;
+    double marker_height = size_of_pixel_y2 - 1 + marker_size * 2;
     if (in_track_creation_mode)
     {
         if (track_details[starting_frame_number + counter - 1].has_value())
         {
-            AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
-            double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
-            double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
-
-            int box_size = 5;
-            double box_width = size_of_pixel_x - 1 + box_size * 2;
-            double box_height = size_of_pixel_y - 1 + box_size * 2;
-
-            QRgb rgb_cyan = QColorConstants::Cyan.rgb();
-            QPainter ROI_painter(&frame);
-            ROI_painter.setPen(QPen(rgb_cyan));
+            QPainter track_creation_marker_painter(&frame);
+            track_creation_marker_painter.setPen(QPen(rgb_cyan));
 
             TrackDetails td = track_details[starting_frame_number + counter - 1].value();
             int track_x = td.centroid_x;
@@ -909,26 +912,18 @@ void VideoDisplay::UpdateDisplayFrame()
             if (new_track_y > image_y){
                 new_track_y = new_track_y - image_y ;
             }
-            QRectF ROI_rectangle = GetRectangleAroundPixel(new_track_x, new_track_y, box_size, box_width, box_height);
-            ROI_painter.drawRect(ROI_rectangle);
-
-            frame.setPixel(td.centroid_x - xCorrection, td.centroid_y - yCorrection, rgb_cyan);
+            // new_track_x = std::round(1.0*new_track_x/x_scale2 + final_zoom_level2.x);
+            // new_track_y = std::round(1.0*new_track_y/y_scale2 + final_zoom_level2.y);
+            QRectF track_creation_marker = GetRectangleAroundPixel(new_track_x, new_track_y, marker_size, marker_width, marker_height);
+            track_creation_marker_painter.drawRect(track_creation_marker);
         }
     }
 
     size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
     if (plot_tracks && num_osm_tracks > 0)
     {
-        AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
-        double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
-        double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
-
-        int box_size = 5;
-        double box_width = size_of_pixel_x - 1 + box_size * 2;
-        double box_height = size_of_pixel_y - 1 + box_size * 2;
-
-        QPainter rectangle_painter(&frame);
-        rectangle_painter.setPen(QPen(OSM_track_color));
+        QPainter osm_track_marker_painter(&frame);
+        osm_track_marker_painter.setPen(QPen(OSM_track_color));
 
         for ( const auto &trackData : osm_track_frames[counter].tracks )
         {
@@ -949,32 +944,27 @@ void VideoDisplay::UpdateDisplayFrame()
              if (new_y_center > image_y){
                 new_y_center = new_y_center - image_y;
             }
-            QRectF rectangle = GetRectangleAroundPixel(new_x_center, new_y_center, box_size, box_width, box_height);
-            if (rectangle.isNull())
+            // new_x_center = std::round(1.0*new_x_center/x_scale2 + final_zoom_level2.x);
+            // new_y_center = std::round(1.0*new_y_center/y_scale2 + final_zoom_level2.y);
+            QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center, new_y_center, marker_size, marker_width, marker_height);
+            if (osm_track_marker.isNull())
                 continue;
-            rectangle_painter.drawRect(rectangle);
+            osm_track_marker_painter.drawRect(osm_track_marker);
         }
     }
 
     size_t num_manual_tracks = manual_track_frames[counter].tracks.size();
     if (num_manual_tracks > 0 && manual_track_ids_to_show.size() > 0)
     {
-        AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
-        double size_of_pixel_x = 1.0 * image_x / final_zoom_level.width;
-        double size_of_pixel_y = 1.0 * image_y / final_zoom_level.height;
-
-        int box_size = 5;
-        double box_width = size_of_pixel_x - 1 + box_size * 2;
-        double box_height = size_of_pixel_y - 1 + box_size * 2;
-
-        QPainter rectangle_painter(&frame);
-        rectangle_painter.setPen(QPen(banner_color));
+        QPainter manual_track_marker_painter(&frame);
+        manual_track_marker_painter.setPen(QPen(rgb_cyan));
 
         for ( const auto &trackData : manual_track_frames[counter].tracks )
         {
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end())
             {
+                QColor color = manual_track_colors[track_id];
                 int track_x = trackData.second.centroid_x;
                 int track_y = trackData.second.centroid_y;
                 int new_track_x = track_x - xCorrection;
@@ -991,12 +981,13 @@ void VideoDisplay::UpdateDisplayFrame()
                 if (new_track_y > image_y){
                     new_track_y = new_track_y - image_y ;
                 }
-                QRectF rectangle = GetRectangleAroundPixel(new_track_x, new_track_y, box_size, box_width, box_height);
-                if (rectangle.isNull())
+                // new_track_x = std::round(1.0*new_track_x/x_scale2 + final_zoom_level2.x);
+                // new_track_y = std::round(1.0*new_track_y/y_scale2 + final_zoom_level2.y);
+                QRectF manual_track_marker = GetRectangleAroundPixel(new_track_x, new_track_y, marker_size, marker_width, marker_height);
+                if (manual_track_marker.isNull())
                     continue;
-                QColor color = manual_track_colors[track_id];
-                rectangle_painter.setPen(QPen(color));
-                rectangle_painter.drawRect(rectangle);
+                manual_track_marker_painter.setPen(QPen(color));
+                manual_track_marker_painter.drawRect(manual_track_marker);
             }
         }
     }
