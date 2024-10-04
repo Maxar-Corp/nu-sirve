@@ -1990,9 +1990,9 @@ void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
 
     frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
 
-    action_export_current_frame->setEnabled(frame_range_status);
-    action_export_frame_range->setEnabled(frame_range_status);
-    action_export_all_frames->setEnabled(frame_range_status);
+    // action_export_current_frame->setEnabled(frame_range_status);
+    // action_export_frame_range->setEnabled(frame_range_status);
+    // action_export_all_frames->setEnabled(frame_range_status);
 
     // Enable the video pinpoint capabilities, which are
     // privately held within the video display class
