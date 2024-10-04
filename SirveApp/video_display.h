@@ -45,16 +45,20 @@
 class VideoDisplay : public QWidget
 {
     Q_OBJECT
+
 public:
-   
+    // VideoDisplay(QVector<QRgb> starting_color_table);
+
+    VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent = nullptr);
+    ~VideoDisplay();       
+
 	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
-    VideoDisplay(QVector<QRgb> starting_color_table);
-    ~VideoDisplay();
     QVBoxLayout *video_display_layout;
     void ReclaimLabel();
 
 	unsigned int counter;
+    QPoint hover_pt;
 	std::vector<std::vector<int>> offsets;
 	int xCorrection = 0;
     int yCorrection = 0;
@@ -190,6 +194,7 @@ private:
     std::map<int, QColor> manual_track_colors;
     std::vector<ABIR_Frame> frame_headers;
 
+    void DisplayManualBox(QPoint pt);
     void SetupLabels();
     void SetupCreateTrackControls();
     void SetupPinpointDisplay();
