@@ -272,21 +272,17 @@ void EngineeringPlots::PlotBoresightAzimuth()
     double maxy = 1;
 
     std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-
+    std::vector<double> y_values = boresight_az;
     if (plot_all_data)
     {
-        std::vector<double> y_values = boresight_az;
-
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
-        std::vector<double> y_values(boresight_az.begin() + index_sub_plot_xmin, boresight_az.begin() + index_sub_plot_xmax + 1);
-
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true); 
+        AddSeries(series, x_values, y_values, true); 
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
 
@@ -308,20 +304,16 @@ void EngineeringPlots::PlotBoresightElevation()
     double maxy = 1;
 
     std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-
+    std::vector<double> y_values = boresight_el;
     if (plot_all_data)
     {
-        std::vector<double> y_values = boresight_el;
-
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
-        std::vector<double> y_values(boresight_el.begin() + index_sub_plot_xmin, boresight_el.begin() + index_sub_plot_xmax + 1);
-
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
@@ -344,20 +336,16 @@ void EngineeringPlots::PlotFovX()
     double maxy = 1;
 
     std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-
+    std::vector<double> y_values = sensor_i_fov_x;
     if (plot_all_data)
     {
-        std::vector<double> y_values = sensor_i_fov_x;
-
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
-        std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
-
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
@@ -380,20 +368,16 @@ void EngineeringPlots::PlotFovY()
     double maxy = 1;
 
     std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-
+    std::vector<double> y_values = sensor_i_fov_y;
     if (plot_all_data)
     {
-        std::vector<double> y_values = sensor_i_fov_y;
-
-        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(full_plot_xmin, full_plot_xmax, .9*miny, 1.1*maxy);
     }
     else
     {
-        std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
-
-        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, .9*min_y_sub, 1.1*max_y_sub);
     }
@@ -710,7 +694,7 @@ void EngineeringPlots::get_intervals_extents(double& min_y_sub, double& max_y_su
 {
     arma::vec x_values_vector(x_values);
     arma::vec y_values_vector(y_values);
-    arma::uvec x_values_vector_i = arma::find(x_values_vector > sub_plot_xmin && x_values_vector < sub_plot_xmax);
+    arma::uvec x_values_vector_i = arma::find(x_values_vector >= sub_plot_xmin && x_values_vector <= sub_plot_xmax);
 
     if (x_values_vector_i.n_elem>0)
     {
