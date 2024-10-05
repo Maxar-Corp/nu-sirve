@@ -294,11 +294,12 @@ private:
 
     void HandlePopoutEngineeringClick(bool checked);
     void OpenPopoutEngineeringPlot();
+    void ProvideInformationAbout();
 
     void ResizeUi();
 
-	QMenu *file_menu, *menu_workspace, *menu_export, *menu_settings;
-    QAction *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames;
+    QMenu *file_menu, *menu_workspace, *menu_export, *menu_settings, *menu_about;
+    QAction *action_about, *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames;
     QAction *action_load_workspace, *action_save_workspace, *action_export_current_frame, *action_export_frame_range, *action_export_tracking_data;
     QAction * action_export_all_frames;
 
@@ -351,4 +352,6 @@ private:
     std::vector<unsigned int> GetUniqueUnionIntegerVector(std::vector<unsigned int> A, std::vector<unsigned int> B);
 
     QString abpimage_file_base_name;
+
+    void GetAboutTimeStamp();
 };
