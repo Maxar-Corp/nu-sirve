@@ -1461,6 +1461,11 @@ void SirveApp::HandleCreateTrackClick()
         auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
         if (response == QMessageBox::Yes)
         {
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            if (existing_track_control != nullptr)
+            {
+                existing_track_control->findChild<QCheckBoxWithId*>()->setChecked(false);
+            } 
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
             video_display->EnterTrackCreationMode(existing_track_details);
@@ -4412,11 +4417,6 @@ void SirveApp::ExecuteAutoTracking()
     double clamp_high = txt_gain_sigma->text().toDouble();
     int threshold = 6 - cmb_autotrack_threshold->currentIndex();
     arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
-    
-    // if (autotrack.is_empty()){
-    //     CloseProgressArea();
-    //     return;
-    // }
     
     if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
         arma::vec framei = arma::regspace(start_frame_i,stop_frame_i);

@@ -821,6 +821,14 @@ void VideoDisplay::UpdateDisplayFrame()
         int new_y = std::round(1.0*y/y_scale + final_zoom_level.y);
         // qDebug() << new_x << new_y;
 
+        if (ROI_box_height>=20)
+        {
+           lbl_image_canvas->setCursor(Qt::BlankCursor);
+        }
+        else
+        {
+            SetupCrosshairsCursor(":icons/crosshair-golden.png");
+        }
         QPoint top_left(new_x - ROI_box_width/2, new_y - ROI_box_height/2);
         QPoint bottom_right(new_x + ROI_box_width/2, new_y + ROI_box_height/2);
         QRect manual_ROI_rectangle(top_left, bottom_right);
@@ -912,8 +920,6 @@ void VideoDisplay::UpdateDisplayFrame()
             if (new_track_y > image_y){
                 new_track_y = new_track_y - image_y ;
             }
-            // new_track_x = std::round(1.0*new_track_x/x_scale2 + final_zoom_level2.x);
-            // new_track_y = std::round(1.0*new_track_y/y_scale2 + final_zoom_level2.y);
             QRectF track_creation_marker = GetRectangleAroundPixel(new_track_x, new_track_y, marker_size, marker_width, marker_height);
             track_creation_marker_painter.drawRect(track_creation_marker);
         }
@@ -944,8 +950,6 @@ void VideoDisplay::UpdateDisplayFrame()
              if (new_y_center > image_y){
                 new_y_center = new_y_center - image_y;
             }
-            // new_x_center = std::round(1.0*new_x_center/x_scale2 + final_zoom_level2.x);
-            // new_y_center = std::round(1.0*new_y_center/y_scale2 + final_zoom_level2.y);
             QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center, new_y_center, marker_size, marker_width, marker_height);
             if (osm_track_marker.isNull())
                 continue;
@@ -981,8 +985,6 @@ void VideoDisplay::UpdateDisplayFrame()
                 if (new_track_y > image_y){
                     new_track_y = new_track_y - image_y ;
                 }
-                // new_track_x = std::round(1.0*new_track_x/x_scale2 + final_zoom_level2.x);
-                // new_track_y = std::round(1.0*new_track_y/y_scale2 + final_zoom_level2.y);
                 QRectF manual_track_marker = GetRectangleAroundPixel(new_track_x, new_track_y, marker_size, marker_width, marker_height);
                 if (manual_track_marker.isNull())
                     continue;
