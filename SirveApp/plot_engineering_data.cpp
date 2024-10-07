@@ -277,13 +277,13 @@ void EngineeringPlots::PlotBoresightAzimuth()
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.999*miny, 1.001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
     }
     else
     {
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
         AddSeries(series, x_values, y_values, true); 
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.999*min_y_sub, 1.001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
     }
 
     QPair<qreal,qreal> boresight_azimuth = *new QPair<qreal, qreal>();
@@ -309,13 +309,13 @@ void EngineeringPlots::PlotBoresightElevation()
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.999*miny, 1.001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
     }
     else
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.999*min_y_sub, 1.001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
     }
 
     QPair<qreal,qreal> boresight_elevation = *new QPair<qreal, qreal>();
@@ -341,13 +341,13 @@ void EngineeringPlots::PlotFovX()
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.999*miny, 1.001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
     }
     else
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.999*min_y_sub, 1.001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
     }
 
     QPair<qreal,qreal> fovx = *new QPair<qreal, qreal>();
@@ -373,13 +373,13 @@ void EngineeringPlots::PlotFovY()
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.999*miny, 1.001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
     }
     else
     {
         AddSeries(series, x_values, y_values, true);
         get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.999*min_y_sub, 1.001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
     }
 
     QPair<qreal,qreal> fovy = *new QPair<qreal, qreal>();
@@ -429,9 +429,9 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
     }
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.9999*miny, 1.0001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, 1.0001*maxy);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.9999*min_y_sub, 1.0001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, 1.0001*max_y_sub);
 
     QPair<qreal,qreal> azimuth = *new QPair<qreal, qreal>();
     azimuth.first = plot_all_data ? miny : min_y_sub;
@@ -483,9 +483,9 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
     }
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.9999*miny, 1.0001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, 1.0001*maxy);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.9999*min_y_sub, 1.0001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, 1.0001*max_y_sub);
 
     QPair<qreal,qreal> elevation = *new QPair<qreal, qreal>();
     elevation.first = plot_all_data ? miny : min_y_sub;
@@ -538,9 +538,9 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
     //fixed_max_y = chart_y_intervals[0];
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0.999*miny, 1.001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0.999*min_y_sub, 1.001*max_y_sub);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
 
     QPair<qreal,qreal> irradiance = *new QPair<qreal, qreal>();
     irradiance.first = plot_all_data ? miny : min_y_sub;

@@ -196,6 +196,9 @@ private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
     double get_single_x_axis_value(int x_index);
     double get_max_x_axis_value();
+
+    const double miny_scale_factor = 0.999;
+    const double maxy_scale_factor = 1.001;
 };
 
 #endif
