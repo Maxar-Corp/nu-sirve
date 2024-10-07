@@ -8,6 +8,7 @@
 #include <QWidget>
 #include <QtWidgets>
 #include <QTimer>
+#include <QDialog>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video/tracking.hpp>

@@ -49,7 +49,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     cv::Rect ROI = cv::selectROI(ROI_window_name, filtered_frame_0_matrix_8bit_color_resize);
     while (true) {
         int key = cv::pollKey();
-        if (key == 13 && !ROI.empty()){
+        if (key == 13 && !ROI.empty()){ //Enter ket
             cv::destroyWindow(ROI_window_name);
             break;
         }
@@ -57,7 +57,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
             ROI.width = 0;
             ROI.height = 0;
             cv::destroyAllWindows();
-            break;
+            QtHelpers::LaunchMessageBox("Canceled", "ROI selection canceled. Exiting without saving.");
+            return arma::u64_mat ();
         } else if (cv::getWindowProperty(ROI_window_name, cv::WND_PROP_VISIBLE) < 1) {
             // Window has been closed
             ROI.width = 0;
@@ -68,6 +69,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     
     if (ROI.width == 0 || ROI.height == 0)
     {
+        QtHelpers::LaunchMessageBox("Invalid ROI", "There was an error in the ROI selection. Exiting without saving.");
         cv::destroyAllWindows();
         return arma::u64_mat ();
     }
@@ -132,10 +134,15 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         }
         else
         {
-            auto response = QtHelpers::LaunchYesNoMessageBox("Track has been lost.", "Try to Continue?");
-            if (response != QMessageBox::Yes)
+            cv::destroyAllWindows();
+            QDialog dialog;
+            dialog.setWindowTitle("Track Lost");
+
+            QMessageBox::StandardButton response = QMessageBox::question(&dialog, "Track Lost... ", "Save available track data and exit, try to continue tracking, or discard and exit?",
+                                                              QMessageBox::Save | QMessageBox::Discard | QMessageBox::Retry);
+            
+            if (response == QMessageBox::Save)
             {
-                cv::destroyAllWindows();
                 if (i>1)
                 {
                     output.shed_rows(i,num_frames-1);
@@ -143,21 +150,56 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
                 }
                 else
                 {
+                    QtHelpers::LaunchMessageBox("Empty Track", "The track is empty and nothing was saved.");
                     return arma::u64_mat ();
                 }
             }
+            else if (response == QMessageBox::Discard)
+                {
+                    return arma::u64_mat ();
+                }
+            else
+            {
+                window_name_i = "Track Lost. " + std::to_string(indx) + " Select ROI again.";
+                ROI = selectROI(window_name_i, filtered_frame_i_matrix_8bit_color_resize);
 
-            window_name_i = "Track Lost. " + std::to_string(indx) + " Select ROI again.";
-            ROI = selectROI(window_name_i, filtered_frame_i_matrix_8bit_color_resize);
-            ROI.x /= N;
-            ROI.y /= N;
-            ROI.width /= N;
-            ROI.height /= N;
-            tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
-            cv::destroyWindow(window_name_i);
-            frame_i_crop = frame_i_matrix(ROI);
-            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
-            peak_counts_i = peak_counts_old;
+                while (true) {
+                    int key = cv::pollKey();
+                    if (key == 13 && !ROI.empty()){ //Enter ket
+                        cv::destroyWindow(window_name_i);
+                        break;
+                    }
+                    else if(key == 27) { // Check for Esc key press
+                        ROI.width = 0;
+                        ROI.height = 0;
+                        cv::destroyAllWindows();
+                        QtHelpers::LaunchMessageBox("Canceled", "ROI selection canceled. Exiting without saving.");
+                        return arma::u64_mat ();
+                    } else if (cv::getWindowProperty(window_name_i, cv::WND_PROP_VISIBLE) < 1) {
+                        // Window has been closed
+                        ROI.width = 0;
+                        ROI.height = 0;
+                        break;
+                    }
+                }
+    
+                if (ROI.width == 0 || ROI.height == 0)
+                {
+                    QtHelpers::LaunchMessageBox("Invalid ROI", "There was an error in the ROI selection. Exiting without saving.");
+                    cv::destroyAllWindows();
+                    return arma::u64_mat ();
+                }
+
+                ROI.x /= N;
+                ROI.y /= N;
+                ROI.width /= N;
+                ROI.height /= N;
+                tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
+                frame_i_crop = frame_i_matrix(ROI);
+               
+                GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+                peak_counts_i = peak_counts_old;
+            }
         }
 
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);

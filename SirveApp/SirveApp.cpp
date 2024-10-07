@@ -27,7 +27,6 @@ SirveApp::SirveApp(QWidget *parent)
     playback_controller = new FramePlayer(1);
     playback_controller->moveToThread(&thread_timer);
 
-
     //---------------------------------------------------------------------------
     // setup container to store all videos
     eng_data = NULL;
