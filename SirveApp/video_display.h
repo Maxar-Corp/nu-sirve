@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <vector>
 #include <optional>
+#include <windows.h>
 
 #include <QString>
 #include <QTimer>
@@ -124,6 +125,8 @@ signals:
     void removeBadPixels(std::vector<unsigned int> pixels);
     void advanceFrame(int frame_amt);
     void finishTrackCreation();
+    void disableTrack(int id);
+    void enableTrack(int id);
 
 public slots:
     void GetThreshold(int threshold_in);
