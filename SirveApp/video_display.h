@@ -48,8 +48,6 @@ class VideoDisplay : public QWidget
     Q_OBJECT
 
 public:
-    // VideoDisplay(QVector<QRgb> starting_color_table);
-
     VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent = nullptr);
     ~VideoDisplay();       
 

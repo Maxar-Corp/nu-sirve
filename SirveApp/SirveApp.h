@@ -84,7 +84,7 @@ public:
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
 
-	QThread thread_video, thread_timer;
+	// QThread thread_video, thread_timer;
 
 	FramePlayer *playback_controller;
 	QMenu *menu, *plot_menu;

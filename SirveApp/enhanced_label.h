@@ -36,12 +36,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 
-	void enterEvent(QEvent *);
-	void leaveEvent(QEvent *);
 	bool event(QEvent * e);
-
-	void hoverEnter(QHoverEvent * event);
-	void hoverLeave(QHoverEvent * event);
 	void hoverMove(QHoverEvent * event);
 
 private:
