@@ -3,6 +3,8 @@
 SirveApp::SirveApp(QWidget *parent)
     : QMainWindow(parent)
 {
+    //GetAboutTimeStamp();
+
     config_values = configReaderWriter::ExtractWorkspaceConfigValues();
 
     workspace = new Workspace(config_values.workspace_folder);
@@ -2760,6 +2762,9 @@ void SirveApp::CreateMenuActions()
     action_export_tracking_data->setStatusTip(tr("Export the track data to file"));
     connect(action_export_tracking_data, &QAction::triggered, this, &SirveApp::ExportPlotData);
 
+    action_about = new QAction("SirveApp");
+    connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
+
 	file_menu = menuBar()->addMenu(tr("&File"));
 	file_menu->addAction(action_load_OSM);
 	file_menu->addAction(action_close);
@@ -2774,6 +2779,8 @@ void SirveApp::CreateMenuActions()
 	menu_export->addAction(action_export_all_frames);
 	menu_settings = menuBar()->addMenu(tr("&Settings"));
 	menu_settings->addAction(action_set_timing_offset);
+    menu_about = menuBar()->addMenu(tr("&About"));
+    menu_about->addAction(action_about);
 
     // ------------------------- PLOT MENU ACTIONS -------------------------
 
@@ -2893,6 +2900,13 @@ void SirveApp::ExportPlotData()
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
+}
+
+void SirveApp::ProvideInformationAbout()
+{
+    QString message = QString("This version of SIRVE was compiled on %1 at %2.").arg(__DATE__).arg(__TIME__);
+    QMessageBox::information(nullptr, "About SirveApp", message);
+    qDebug() << "This Version of SIRVE was built on: " << __DATE__ " at " << __TIME__ << ".";
 }
 
 int SirveApp::GetCurrentColorIndex(QVector<QString> colors, QColor input_color) {
@@ -4878,4 +4892,18 @@ void SirveApp::UpdateGlobalFrameVector()
     }
 
     video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets);
+}
+
+void SirveApp::GetAboutTimeStamp()
+{
+    HMODULE hModule = GetModuleHandle(NULL);  // Get handle to current module (the .exe itself)
+        if (hModule) {
+            PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
+            PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((BYTE*)pDosHeader + pDosHeader->e_lfanew);
+            DWORD timestamp = pNtHeaders->FileHeader.TimeDateStamp;
+            std::cout << "Timestamp: " << timestamp << std::endl;
+            std::cout << "Build date: " << ctime((time_t*)&timestamp);
+
+        }
+
 }
