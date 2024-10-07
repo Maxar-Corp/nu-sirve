@@ -12,7 +12,7 @@ SirveApp::SirveApp(QWidget *parent)
     // establish object that will hold video and connect it to the playback thread
     color_map_display = new ColorMapDisplay(video_colors.maps[0].colors, 0, 1);
     video_display = new VideoDisplay(video_colors.maps[0].colors);
-    video_display->moveToThread(&thread_video);
+    // video_display->moveToThread(&thread_video);
 
     histogram_plot = new HistogramLinePlot();
 
@@ -25,7 +25,7 @@ SirveApp::SirveApp(QWidget *parent)
 
     // establish object to control playback timer and move to a new thread
     playback_controller = new FramePlayer(1);
-    playback_controller->moveToThread(&thread_timer);
+    // playback_controller->moveToThread(&thread_timer);
 
 
     //---------------------------------------------------------------------------
@@ -67,8 +67,8 @@ SirveApp::~SirveApp() {
     delete playback_controller;
     delete eng_data;
     delete data_plots;
-    thread_video.terminate();
-    thread_timer.terminate();
+    // thread_video.terminate();
+    // thread_timer.terminate();
 }
 
 void SirveApp::SetupUi() {
@@ -2098,11 +2098,11 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     slider_video->setRange(0, number_frames - 1);
 
     // Start threads...
-    if (!thread_timer.isRunning())
-    {
-        thread_video.start();
-        thread_timer.start();
-    }
+    // if (!thread_timer.isRunning())
+    // {
+    //     thread_video.start();
+    //     thread_timer.start();
+    // }
 
     // Task 4:
     QCoreApplication::processEvents();
