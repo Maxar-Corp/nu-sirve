@@ -191,11 +191,14 @@ private:
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_elevation(size_t i);
 
-    void get_intervals_extents(double& min_y_sub, double& max_y_sub, double& min_y, double& max_y, std::vector<double> &x_values, std::vector<double> &y_values);
+    void get_intervals_extents(double& min_y_sub, double& max_y_sub, double& min_y, double& max_y, std::vector<double> x_values, std::vector<double> y_values);
 
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
     double get_single_x_axis_value(int x_index);
     double get_max_x_axis_value();
+
+    const double miny_scale_factor = 0.999;
+    const double maxy_scale_factor = 1.001;
 };
 
 #endif
