@@ -1,4 +1,5 @@
 #include "plot_engineering_data.h"
+#include "qdebug.h"
 #include "qrubberband.h"
 #include <QPushButton>
 #include <QLegendMarker>
@@ -115,8 +116,9 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
 void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 {
+    qDebug() << "yAxisChanged =" << yAxisChanged;
     // If the chart type has changed,
-    if (current_chart_id != yaxis_chart_id)
+    if ((current_chart_id != yaxis_chart_id) || yAxisChanged)
     {
         // Get the chart state object for updating
         ChartState chartState = this->chart_view->get_chart_state();
@@ -156,8 +158,10 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
     current_chart_id = yaxis_chart_id;
 }
 
-void EngineeringPlots::PlotChart()
+void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
 {
+    yAxisChanged = yAxisChangedLocal;
+
     chart->removeAllSeries();
     colors.ResetColors();
     StartNewChart();

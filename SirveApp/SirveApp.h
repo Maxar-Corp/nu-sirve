@@ -169,6 +169,7 @@ public:
     QString CreateEpochString(std::vector<double> new_epoch);
 
     bool osmDataLoaded;
+    bool yAxisChanged = false;
     void UpdatePlots();
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);

@@ -132,7 +132,7 @@ public:
     void SetYAxisChartId(int yaxis_chart_id);
 
     void InitializeIntervals(std::vector<Frame> const &osm_frames);
-    void PlotChart();
+    void PlotChart(bool yAxisChangedLocal);
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
@@ -147,7 +147,9 @@ public:
     QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
 
     float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
-    ChartState chart_states[7];
+    ChartState chart_states[7];\
+
+    bool yAxisChanged = false;
 
 signals:
     void changeMotionStatus(bool status);
