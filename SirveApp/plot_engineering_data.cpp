@@ -98,30 +98,13 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
         // Record the state of the chart we are leaving behind:
         if (yaxis_is_log) {
-            qreal axisMax = axis_ylog->max();
-            qreal axisMin = axis_ylog->min();
-
-            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
-            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
-            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
-                                        chart_y_intervals[current_chart_id].first;
-
-            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
-            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
+            chartState.scale_factor_maxy = axis_ylog->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axis_ylog->min() / chart_y_maxes[current_chart_id];
         } else
         {
             QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-
-            qreal axisMax = axisY->max();
-            qreal axisMin = axisY->min();
-
-            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
-            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
-            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
-                                        chart_y_intervals[current_chart_id].first;
-
-            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
-            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
+            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
         }
 
         this->chart_view->set_chart_state(chartState);
@@ -140,31 +123,15 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 
         // Record the state of the chart we are leaving behind:
         if (yaxis_is_log) {
-            qreal axisMax = axis_ylog->max();
-            qreal axisMin = axis_ylog->min();
-
-            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
-            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
-            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
-                                        chart_y_intervals[current_chart_id].first;
-
-            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
-            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
+            chartState.scale_factor_maxy = axis_ylog->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axis_ylog->min() / chart_y_maxes[current_chart_id];
         } else
         {
             QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-
-            qreal axisMax = axisY->max();
-            qreal axisMin = axisY->min();
-
-            qreal localAxisMin = axisMin - chart_y_intervals[current_chart_id].first;
-            qreal localAxisMax = axisMax - chart_y_intervals[current_chart_id].first;
-            qreal localIntervalLength = chart_y_intervals[current_chart_id].second -
-                                        chart_y_intervals[current_chart_id].first;
-
-            chartState.scale_factor_maxy = localAxisMax / localIntervalLength;
-            chartState.scale_factor_miny = localAxisMin / localIntervalLength;
+            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
+            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
         }
+
         this->chart_view->set_chart_state(chartState);
 
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
@@ -252,10 +219,7 @@ void EngineeringPlots::PlotChart()
         }
 
         if (axisY) {
-            qreal interval_span = chart_y_intervals[current_chart_id].second - chart_y_intervals[current_chart_id].first;
-            qreal interval_begin = chart_y_intervals[current_chart_id].first + chartState.scale_factor_miny * interval_span;
-            qreal interval_end = chart_y_intervals[current_chart_id].first + chartState.scale_factor_maxy * interval_span;
-            axisY->setRange(interval_begin, interval_end);
+            axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
         }
     }
 }
@@ -266,30 +230,20 @@ void EngineeringPlots::PlotBoresightAzimuth()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
-    double max_y_sub = 1;
-    double min_y_sub = 360;
-    double miny = 360;
-    double maxy = 1;
-
-    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-    std::vector<double> y_values = boresight_az;
     if (plot_all_data)
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
+        std::vector<double> y_values = boresight_az;
+
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
     }
     else
     {
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        AddSeries(series, x_values, y_values, true); 
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
-    }
+        std::vector<double> y_values(boresight_az.begin() + index_sub_plot_xmin, boresight_az.begin() + index_sub_plot_xmax + 1);
 
-    QPair<qreal,qreal> boresight_azimuth = *new QPair<qreal, qreal>();
-    boresight_azimuth.first = plot_all_data ? miny : min_y_sub;
-    boresight_azimuth.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[5] = boresight_azimuth;
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
+    }
 }
 
 void EngineeringPlots::PlotBoresightElevation()
@@ -298,30 +252,20 @@ void EngineeringPlots::PlotBoresightElevation()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
-    double max_y_sub = 1;
-    double min_y_sub = 360;
-    double miny = 360;
-    double maxy = 1;
-
-    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-    std::vector<double> y_values = boresight_el;
     if (plot_all_data)
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
+        std::vector<double> y_values = boresight_el;
+
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 90);
     }
     else
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
-    }
+        std::vector<double> y_values(boresight_el.begin() + index_sub_plot_xmin, boresight_el.begin() + index_sub_plot_xmax + 1);
 
-    QPair<qreal,qreal> boresight_elevation = *new QPair<qreal, qreal>();
-    boresight_elevation.first = plot_all_data ? miny : min_y_sub;
-    boresight_elevation.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[6] = boresight_elevation;
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 90);
+    }
 }
 
 void EngineeringPlots::PlotFovX()
@@ -330,30 +274,20 @@ void EngineeringPlots::PlotFovX()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
-    double max_y_sub = 1;
-    double min_y_sub = 750;
-    double miny = 750;
-    double maxy = 1;
-
-    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-    std::vector<double> y_values = sensor_i_fov_x;
     if (plot_all_data)
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
+        std::vector<double> y_values = sensor_i_fov_x;
+
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 750);
     }
     else
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
-    }
+        std::vector<double> y_values(sensor_i_fov_x.begin() + index_sub_plot_xmin, sensor_i_fov_x.begin() + index_sub_plot_xmax + 1);
 
-    QPair<qreal,qreal> fovx = *new QPair<qreal, qreal>();
-    fovx.first = plot_all_data ? miny : min_y_sub;
-    fovx.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[3] = fovx;
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 750);
+    }
 }
 
 void EngineeringPlots::PlotFovY()
@@ -362,39 +296,24 @@ void EngineeringPlots::PlotFovY()
     series->setColor(osm_track_color);
     series->setName("OSM Data");
 
-    double max_y_sub = 1;
-    double min_y_sub = 750;
-    double miny = 750;
-    double maxy = 1;
-
-    std::vector<double> x_values = get_x_axis_values(0, num_frames - 1);
-    std::vector<double> y_values = sensor_i_fov_y;
     if (plot_all_data)
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
+        std::vector<double> y_values = sensor_i_fov_y;
+
+        AddSeries(series, get_x_axis_values(0, num_frames - 1), y_values, true);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 750);
     }
     else
     {
-        AddSeries(series, x_values, y_values, true);
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
-    }
+        std::vector<double> y_values(sensor_i_fov_y.begin() + index_sub_plot_xmin, sensor_i_fov_y.begin() + index_sub_plot_xmax + 1);
 
-    QPair<qreal,qreal> fovy = *new QPair<qreal, qreal>();
-    fovy.first = plot_all_data ? miny : min_y_sub;
-    fovy.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[4] = fovy;
+        AddSeries(series, get_x_axis_values(index_sub_plot_xmin, index_sub_plot_xmax), y_values, true);
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 750);
+    }
 }
 
 void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
 {
-    double max_y_sub = 1;
-    double min_y_sub = 360;
-    double miny = 360;
-    double maxy = 1;
-
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries* series = new QLineSeries();
@@ -405,8 +324,6 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_azimuth(i);
 
         AddSeries(series, x_values, y_values, true);
-
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
     for (int track_id : manual_track_ids)
@@ -424,28 +341,16 @@ void EngineeringPlots::PlotAzimuth(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
-
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, 1.0001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 360);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, 1.0001*max_y_sub);
 
-    QPair<qreal,qreal> azimuth = *new QPair<qreal, qreal>();
-    azimuth.first = plot_all_data ? miny : min_y_sub;
-    azimuth.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[1] = azimuth;
+    DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 360);
 }
-
 void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 {
-    double max_y_sub = 1;
-    double min_y_sub = 90;
-    double miny = 90;
-    double maxy = 1;
-
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
@@ -456,9 +361,6 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         std::vector<double> y_values = get_individual_y_track_elevation(i);
 
         AddSeries(series, x_values, y_values, true);
-
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-
         series->setColor(osm_track_color);
     }
 
@@ -477,29 +379,18 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
-
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
-
     }
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, 1.0001*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, 90);
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, 1.0001*max_y_sub);
-
-    QPair<qreal,qreal> elevation = *new QPair<qreal, qreal>();
-    elevation.first = plot_all_data ? miny : min_y_sub;
-    elevation.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[2] = elevation;
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 90);
 }
 
 void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
 {
     std::vector<double> y_points;
-    double max_y_sub = 1;
-    double min_y_sub = 1e9;
-    double miny = 1e9;
-    double maxy = 1;
+
     for (size_t i = 0; i < plot_number_tracks; i++)
     {
         QLineSeries *series = new QLineSeries();
@@ -509,16 +400,15 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         std::vector<double> x_values = get_individual_x_track(i);
         std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-        AddSeries(series, x_values, y_values, true);
+        AddSeries(series, x_values, y_values, true);;
 
         y_points.insert(y_points.end(), y_values.begin(), y_values.end());
-
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
-    
+
     for (int track_id : manual_track_ids)
     {
         std::vector<double> x_values, y_values;
+
         for (size_t i = 0; i < manual_track_frames.size(); i++)
         {
             std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
@@ -530,24 +420,15 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         }
 
         AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
-
-        get_intervals_extents(min_y_sub, max_y_sub, miny, maxy, x_values, y_values);
     }
 
-    //chart_y_intervals[0] = FindMaxForAxis(y_points);
-    //fixed_max_y = chart_y_intervals[0];
+    chart_y_maxes[0] = FindMaxForAxis(y_points);
+    fixed_max_y = chart_y_maxes[0];
 
     if (plot_all_data)
-        DefineChartProperties(full_plot_xmin, full_plot_xmax, miny_scale_factor*miny, maxy_scale_factor*maxy);
+        DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, FindMaxForAxis(y_points));
     else
-        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, miny_scale_factor*min_y_sub, maxy_scale_factor*max_y_sub);
-
-    QPair<qreal,qreal> irradiance = *new QPair<qreal, qreal>();
-    irradiance.first = plot_all_data ? miny : min_y_sub;
-    irradiance.second = plot_all_data ? maxy : max_y_sub;
-    chart_y_intervals[0] = irradiance;
-
-    fixed_max_y = chart_y_intervals[0].second;
+        DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, FindMaxForAxis(y_points));
 }
 
 void EngineeringPlots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -688,29 +569,6 @@ double EngineeringPlots::get_max_x_axis_value()
     default:
         return 0;
     }
-}
-
-void EngineeringPlots::get_intervals_extents(double& min_y_sub, double& max_y_sub, double &min_y, double &max_y, std::vector<double> x_values, std::vector<double> y_values)
-{
-    arma::vec x_values_vector(x_values);
-    arma::vec y_values_vector(y_values);
-    arma::uvec x_values_vector_i = arma::find(x_values_vector >= sub_plot_xmin && x_values_vector <= sub_plot_xmax);
-
-    if (x_values_vector_i.n_elem>0)
-    {  
-        max_y_sub = std::max(y_values_vector.elem(x_values_vector_i).max(), max_y_sub);
-        min_y_sub = std::min(y_values_vector.elem(x_values_vector_i).min(), min_y_sub);
-    }
-
-    if (y_values_vector.n_elem>0)
-    {
-        min_y = std::min(y_values_vector.min(), min_y);
-        max_y = std::max(y_values_vector.max(), max_y);
-    }
-
-    // Ensure that the y interval will never causea divide by zero error:
-    // min_y = (max_y-min_y == 0) ? min_y+0.00001 : min_y;
-    // min_y_sub = (max_y_sub-min_y_sub == 0) ? min_y_sub+0.00001 : min_y_sub;
 }
 
 void EngineeringPlots::CreateCurrentMarker()
@@ -1067,7 +925,7 @@ void QtPlotting::AddSeries(QXYSeries *series, std::vector<double> x, std::vector
     int num_breaks = 0;
 
     if(osm_track_color == QColor(0,0,0,255)){
-       osm_track_color = QColor(0,0,0);
+        osm_track_color = QColor(0,0,0);
     }
     double base_x_distance = 1;
     if (num_data_pts > 1)
@@ -1169,7 +1027,7 @@ void QtPlotting::DefineChartProperties(double min_x, double max_x, double min_y,
             min_y = 0.01;
         if (max_y <= 0.001)
             max_y = 0.01;
-        max_y = std::pow(10, std::ceil(std::log10(max_y)));
+
         axis_ylog->setRange(min_y, max_y);
         axis_ylog->setTitleText(y_title);
     }
