@@ -169,6 +169,7 @@ public:
     QString CreateEpochString(std::vector<double> new_epoch);
 
     bool osmDataLoaded;
+    bool yAxisChanged = false;
     void UpdatePlots();
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
@@ -281,7 +282,7 @@ private:
     void EditOSMTrackColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
-    void HandleYAxisOptionChange();
+    void HandleYAxisChange();
     void HandleExternalFileToggle();
     void HandleBadPixelRawToggle();
     void AnnotateVideo();

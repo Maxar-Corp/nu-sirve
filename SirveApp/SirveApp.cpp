@@ -1310,7 +1310,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     // Connect y-axis change to function
-    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisOptionChange);
+    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisChange);
 
     // Connect save button functions
     connect(btn_save_plot, &QPushButton::clicked, this, &SirveApp::SavePlot);
@@ -1357,7 +1357,7 @@ void SirveApp::HandleExternalFileToggle()
     }
 }
 
-void SirveApp::HandleYAxisOptionChange()
+void SirveApp::HandleYAxisChange()
 {
     if(cmb_plot_yaxis->currentIndex()==0){
         rad_scientific->setChecked(true);
@@ -1365,6 +1365,7 @@ void SirveApp::HandleYAxisOptionChange()
     else{
         rad_decimal->setChecked(true);
     }
+    yAxisChanged=true;
     UpdatePlots();
 }
 
@@ -3030,7 +3031,7 @@ void SirveApp::UpdatePlots()
 
         data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
-        data_plots->PlotChart();
+        data_plots->PlotChart(yAxisChanged);
 
         data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
     }
@@ -3064,6 +3065,8 @@ void SirveApp::UpdatePlots()
             }
         }
     }
+
+    yAxisChanged = false;
 }
 
 void SirveApp::AnnotateVideo()

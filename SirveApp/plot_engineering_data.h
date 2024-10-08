@@ -25,7 +25,7 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-struct ChartState
+    struct ChartState
 {
     qreal xMin;
     qreal xMax;
@@ -132,7 +132,7 @@ public:
     void SetYAxisChartId(int yaxis_chart_id);
 
     void InitializeIntervals(std::vector<Frame> const &osm_frames);
-    void PlotChart();
+    void PlotChart(bool yAxisChangedLocal);
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
@@ -144,11 +144,12 @@ public:
     void set_xaxis_units(XAxisPlotVariables unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
-    // These intervals get populated during chart initialization:
-    QPair<qreal, qreal> chart_x_intervals[3];
-    QPair<qreal, qreal> chart_y_intervals[7];
+    QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
 
-    ChartState chart_states[7];
+    float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
+    ChartState chart_states[7];\
+
+    bool yAxisChanged = false;
 
 signals:
     void changeMotionStatus(bool status);
@@ -190,15 +191,9 @@ private:
     std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_elevation(size_t i);
-
-    void get_intervals_extents(double& min_y_sub, double& max_y_sub, double& min_y, double& max_y, std::vector<double> x_values, std::vector<double> y_values);
-
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
     double get_single_x_axis_value(int x_index);
     double get_max_x_axis_value();
-
-    const double miny_scale_factor = 0.999;
-    const double maxy_scale_factor = 1.001;
 };
 
 #endif

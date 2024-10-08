@@ -102,7 +102,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
 
     plot_data->toggle_yaxis_log(true);
     plot_data->SetYAxisChartId(2);
-    plot_data->PlotChart();
+    plot_data->PlotChart(false);
 
     btn_load_frames->setEnabled(true);    
     
