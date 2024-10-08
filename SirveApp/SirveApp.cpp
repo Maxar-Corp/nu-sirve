@@ -1310,7 +1310,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     // Connect y-axis change to function
-    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisOptionChange);
+    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisChange);
 
     // Connect save button functions
     connect(btn_save_plot, &QPushButton::clicked, this, &SirveApp::SavePlot);
@@ -1357,7 +1357,7 @@ void SirveApp::HandleExternalFileToggle()
     }
 }
 
-void SirveApp::HandleYAxisOptionChange()
+void SirveApp::HandleYAxisChange()
 {
     if(cmb_plot_yaxis->currentIndex()==0){
         rad_scientific->setChecked(true);

@@ -282,7 +282,7 @@ private:
     void EditOSMTrackColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
-    void HandleYAxisOptionChange();
+    void HandleYAxisChange();
     void HandleExternalFileToggle();
     void HandleBadPixelRawToggle();
     void AnnotateVideo();
