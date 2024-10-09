@@ -957,9 +957,6 @@ void SirveApp::ResetEngineeringDataAndSliderGUIs()
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
         for ( int track_id : previous_manual_track_ids )
         {
-            // tm_widget->RemoveTrackControl(track_id);
-            // track_info->RemoveManualTrack(track_id);
-            // track_info->RemoveManualTrackPlotting(track_id);
             HandleTrackRemoval(track_id);
             video_display->DeleteManualTrack(track_id);
         }
@@ -1414,33 +1411,75 @@ void SirveApp::ImportTracks()
     {
         if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
         {
-            QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
+            auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "Warning: Overwriting track ID: " + QString::number(track_id));
+            if (response == QMessageBox::Yes)
+            {
+                video_display->AddManualTrackIdToShowLater(track_id);
+                tm_widget->AddTrackControl(track_id);
+                QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+                if (existing_track_control != nullptr)
+                {
+                    QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                    const QFileInfo info(file_selection);
+                    lbl_track_description->setText(info.fileName());
+                } 
+                track_info->AddManualTracks(result.frames);
+
+                int index0 = data_plots->index_sub_plot_xmin;
+                int index1 = data_plots->index_sub_plot_xmax + 1;
+                video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+                data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+                double xmax = data_plots->axis_x->max();
+                double xmin = data_plots->axis_x->min();
+                double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+                double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+                UpdatePlots();
+                data_plots->set_xaxis_limits(xmin,xmax);
+                data_plots->set_yaxis_limits(ymin,ymax); 
+            }
         }
-        video_display->AddManualTrackIdToShowLater(track_id);
-        tm_widget->AddTrackControl(track_id);
-        cmb_manual_track_IDs->addItem(QString::number(track_id));
-        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-        if (existing_track_control != nullptr)
+        else
         {
-            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-            const QFileInfo info(file_selection);
-            lbl_track_description->setText(info.fileName());
-        }  
-    }
+            video_display->AddManualTrackIdToShowLater(track_id);
+            tm_widget->AddTrackControl(track_id);
 
-    track_info->AddManualTracks(result.frames);
+            cmb_manual_track_IDs->addItem(QString::number(track_id));           
+            QStringList items;
+            QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
+            for (int i = 0; i < model->rowCount(); ++i) {
+                items.append(model->item(i)->text());
+            }
+            std::sort(items.begin(), items.end());
+            items.prepend(("Primary"));
+            items.removeLast();
+            model->clear();
+            for (const QString& item : items) {
+                model->appendRow(new QStandardItem(item));
+            }
 
-    int index0 = data_plots->index_sub_plot_xmin;
-    int index1 = data_plots->index_sub_plot_xmax + 1;
-    video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-    data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);   
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            if (existing_track_control != nullptr)
+            {
+                QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                const QFileInfo info(file_selection);
+                lbl_track_description->setText(info.fileName());
+            } 
+            track_info->AddManualTracks(result.frames);
+
+            int index0 = data_plots->index_sub_plot_xmin;
+            int index1 = data_plots->index_sub_plot_xmax + 1;
+            video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+            data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            double xmax = data_plots->axis_x->max();
+            double xmin = data_plots->axis_x->min();
+            double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+            double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+            UpdatePlots();
+            data_plots->set_xaxis_limits(xmin,xmax);
+            data_plots->set_yaxis_limits(ymin,ymax); 
+        }
+
+    } 
 }
 
 void SirveApp::HandleCreateTrackClick()
@@ -1521,12 +1560,30 @@ void SirveApp::HandleFinishCreateTrackClick()
 
     if (response == QMessageBox::Yes)
     {
-        QString base_track_folder = config_values.workspace_folder;
-        QDate today = QDate::currentDate();
-        QTime currentTime = QTime::currentTime();;
-        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-        QString suggested_track_name = base_track_folder + "/manual_track_" + QString::number(currently_editing_or_creating_track_id) + "_" + formattedDate;
-        QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
+        QString new_track_file_name;
+        QString suggested_track_name;
+        std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+        bool existing_track_TF = false;
+        if (previous_manual_track_ids.find(currently_editing_or_creating_track_id) == previous_manual_track_ids.end())
+        {
+            QString base_track_folder = config_values.workspace_folder;
+            QDate today = QDate::currentDate();
+            QTime currentTime = QTime::currentTime();;
+            QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+            suggested_track_name = base_track_folder + "/manual_track_" + QString::number(currently_editing_or_creating_track_id) + "_" + formattedDate;
+        }
+        else
+        {
+            existing_track_TF = true;          
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
+            if (existing_track_control != nullptr)
+                {
+                    QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                    suggested_track_name = lbl_track_description->text();
+                }    
+            
+        }
+        new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
         if (new_track_file_name.isEmpty())
         {
             QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
@@ -1546,7 +1603,22 @@ void SirveApp::HandleFinishCreateTrackClick()
         double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
         double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
         UpdatePlots();
-        cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
+        if (!existing_track_TF)
+        {
+            cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
+            QStringList items;
+            QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
+            for (int i = 0; i < model->rowCount(); ++i) {
+                items.append(model->item(i)->text());
+            }
+            std::sort(items.begin(), items.end());
+            items.prepend(("Primary"));
+            items.removeLast();
+            model->clear();
+            for (const QString& item : items) {
+                model->appendRow(new QStandardItem(item));
+            }
+        }
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
         QStringList color_options = ColorScheme::get_track_colors();
@@ -1610,6 +1682,18 @@ void SirveApp::HandleTrackRemoval(int track_id)
 {
     int ind_delete = cmb_manual_track_IDs->findText(QString::number(track_id));
     cmb_manual_track_IDs->removeItem(ind_delete);
+    QStringList items;
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
+    for (int i = 0; i < model->rowCount(); ++i) {
+        items.append(model->item(i)->text());
+    }
+    std::sort(items.begin(), items.end());
+    items.prepend(("Primary"));
+    items.removeLast();
+    model->clear();
+    for (const QString& item : items) {
+        model->appendRow(new QStandardItem(item));
+    }
     tm_widget->RemoveTrackControl(track_id);
     track_info->RemoveManualTrack(track_id);
     track_info->RemoveManualTrackPlotting(track_id);
@@ -4396,65 +4480,65 @@ void SirveApp::ExecuteAutoTracking()
     }
     else
     {
-    QString base_track_folder = config_values.workspace_folder;
-    QDate today = QDate::currentDate();
-    QTime currentTime = QTime::currentTime();;
-    QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-    QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id) + "_Frames_" + QString::number(start_frame) + "_" + QString::number(stop_frame) + "_" + formattedDate;
-    QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
-    if (new_track_file_name.isEmpty())
-    {
-        QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
-        CloseProgressArea();
-        return;
-    }
-    string prefilter = "NONE";
-    if (rad_autotrack_filter_gaussian->isChecked()){
-        prefilter = "GAUSSIAN";
-    }
-    else if(rad_autotrack_filter_median->isChecked()){
-        prefilter = "MEDIAN";
-    }
-    else if(rad_autotrack_filter_nlmeans->isChecked()){
-        prefilter = "NLMEANS";
-    }
-    string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
-    if (rad_autotrack_feature_centroid->isChecked()){
-        trackFeature = "CENTROID";
-    }
-    else if(rad_autotrack_feature_peak->isChecked()){
-        trackFeature = "peak";
-    }
+        QString base_track_folder = config_values.workspace_folder;
+        QDate today = QDate::currentDate();
+        QTime currentTime = QTime::currentTime();;
+        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+        QString suggested_track_name = base_track_folder + "/auto_track_" + QString::number(track_id) + "_Frames_" + QString::number(start_frame) + "_" + QString::number(stop_frame) + "_" + formattedDate;
+        QString new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", suggested_track_name, "CSV (*.csv)");
+        if (new_track_file_name.isEmpty())
+        {
+            QtHelpers::LaunchMessageBox("Returning to Track Creation", "An invalid or empty file was chosen. To prevent data loss, edited tracks must be saved to disk to finish track creation. Returning to track editing mode.");
+            CloseProgressArea();
+            return;
+        }
+        string prefilter = "NONE";
+        if (rad_autotrack_filter_gaussian->isChecked()){
+            prefilter = "GAUSSIAN";
+        }
+        else if(rad_autotrack_filter_median->isChecked()){
+            prefilter = "MEDIAN";
+        }
+        else if(rad_autotrack_filter_nlmeans->isChecked()){
+            prefilter = "NLMEANS";
+        }
+        string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+        if (rad_autotrack_feature_centroid->isChecked()){
+            trackFeature = "CENTROID";
+        }
+        else if(rad_autotrack_feature_peak->isChecked()){
+            trackFeature = "peak";
+        }
 
-    double clamp_low = txt_lift_sigma->text().toDouble();
-    double clamp_high = txt_gain_sigma->text().toDouble();
-    int threshold = 6 - cmb_autotrack_threshold->currentIndex();
-    arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
-    
-    if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
-        arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
-        arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
-        std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
-        arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
-        for (int rowi = 0; rowi < offsets.size(); rowi++){
-            offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
+        double clamp_low = txt_lift_sigma->text().toDouble();
+        double clamp_high = txt_gain_sigma->text().toDouble();
+        int threshold = 6 - cmb_autotrack_threshold->currentIndex();
+        arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+        
+        if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
+            arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
+            arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
+            std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+            arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
+            for (int rowi = 0; rowi < offsets.size(); rowi++){
+                offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
+            }
+            for (int rowii = 0; rowii<framei.size(); rowii++){
+                arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
+                if (!kk.is_empty()){
+                    offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
+                }
+            }
+            offset_matrix2.shed_col(0);
+            arma::mat offset_matrix3 = offset_matrix2;
+            offset_matrix2.insert_cols(0,2);
+            offset_matrix2.insert_cols(offset_matrix2.n_cols,6);
+            arma::mat offset_matrix4 = arma::join_rows(offset_matrix2,offset_matrix3);
+            offset_matrix4.insert_cols(offset_matrix4.n_cols,2);
+            arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
+            autotrack_d += offset_matrix4;
+            autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
         }
-        for (int rowii = 0; rowii<framei.size(); rowii++){
-             arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
-             if (!kk.is_empty()){
-                offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
-             }
-        }
-        offset_matrix2.shed_col(0);
-        arma::mat offset_matrix3 = offset_matrix2;
-        offset_matrix2.insert_cols(0,2);
-        offset_matrix2.insert_cols(offset_matrix2.n_cols,6);
-        arma::mat offset_matrix4 = arma::join_rows(offset_matrix2,offset_matrix3);
-        offset_matrix4.insert_cols(offset_matrix4.n_cols,2);
-        arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
-        autotrack_d += offset_matrix4;
-        autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
-    }
 
     if (!autotrack.empty()){
 
@@ -4477,13 +4561,31 @@ void SirveApp::ExecuteAutoTracking()
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
         for ( int track_id : result.track_ids )
         {
-            if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
-            {
-                QtHelpers::LaunchMessageBox("Warning", "Warning: Overwriting track ID: " + QString::number(track_id));
+            if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end()){
+                auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "Warning: Overwriting track ID: " + QString::number(track_id));
+                if (!response == QMessageBox::Yes)
+                {
+                    return;
+                }
             }
-            video_display->AddManualTrackIdToShowLater(track_id);
-            tm_widget->AddTrackControl(track_id);
-            cmb_manual_track_IDs->addItem(QString::number(track_id));
+            else
+            {
+                video_display->AddManualTrackIdToShowLater(track_id);
+                tm_widget->AddTrackControl(track_id);
+                cmb_manual_track_IDs->addItem(QString::number(track_id));
+                QStringList items;
+                QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
+                for (int i = 0; i < model->rowCount(); ++i) {
+                    items.append(model->item(i)->text());
+                }
+                std::sort(items.begin(), items.end());
+                items.prepend(("Primary"));
+                items.removeLast();
+                model->clear();
+                for (const QString& item : items) {
+                    model->appendRow(new QStandardItem(item));
+                }               
+            }
         }
 
         track_info->AddManualTracks(result.frames);
