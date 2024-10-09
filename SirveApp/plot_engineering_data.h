@@ -147,7 +147,7 @@ public:
     QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
 
     float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
-    ChartState chart_states[7];\
+    ChartState chart_states[7];
 
     bool yAxisChanged = false;
 

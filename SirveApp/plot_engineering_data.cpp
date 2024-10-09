@@ -130,8 +130,11 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
         } else
         {
             QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-            chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
-            chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
+            if (axisY)
+            {
+                chartState.scale_factor_maxy = axisY->max() / chart_y_maxes[current_chart_id];
+                chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
+            }
         }
 
         this->chart_view->set_chart_state(chartState);
