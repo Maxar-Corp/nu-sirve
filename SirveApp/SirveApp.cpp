@@ -1443,20 +1443,13 @@ void SirveApp::ImportTracks()
         {
             video_display->AddManualTrackIdToShowLater(track_id);
             tm_widget->AddTrackControl(track_id);
-
-            cmb_manual_track_IDs->addItem(QString::number(track_id));           
-            QStringList items;
-            QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
-            for (int i = 0; i < model->rowCount(); ++i) {
-                items.append(model->item(i)->text());
-            }
-            std::sort(items.begin(), items.end());
-            items.prepend(("Primary"));
-            items.removeLast();
-            model->clear();
-            for (const QString& item : items) {
-                model->appendRow(new QStandardItem(item));
-            }
+            track_info->AddManualTracks(result.frames);
+            cmb_manual_track_IDs->clear();
+            cmb_manual_track_IDs->addItem("Primary");
+            std::set<int> track_ids = track_info->get_manual_track_ids();
+            for ( int track_id : track_ids ){
+                cmb_manual_track_IDs->addItem(QString::number(track_id));
+            } 
 
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)
@@ -1465,8 +1458,6 @@ void SirveApp::ImportTracks()
                 const QFileInfo info(file_selection);
                 lbl_track_description->setText(info.fileName());
             } 
-            track_info->AddManualTracks(result.frames);
-
             int index0 = data_plots->index_sub_plot_xmin;
             int index1 = data_plots->index_sub_plot_xmax + 1;
             video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
@@ -1606,19 +1597,12 @@ void SirveApp::HandleFinishCreateTrackClick()
         UpdatePlots();
         if (!existing_track_TF)
         {
-            cmb_manual_track_IDs->addItem(QString::number(currently_editing_or_creating_track_id));
-            QStringList items;
-            QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
-            for (int i = 0; i < model->rowCount(); ++i) {
-                items.append(model->item(i)->text());
-            }
-            std::sort(items.begin(), items.end());
-            items.prepend(("Primary"));
-            items.removeLast();
-            model->clear();
-            for (const QString& item : items) {
-                model->appendRow(new QStandardItem(item));
-            }
+            cmb_manual_track_IDs->clear();
+            cmb_manual_track_IDs->addItem("Primary");
+            std::set<int> track_ids = track_info->get_manual_track_ids();
+            for ( int track_id : track_ids ){
+                cmb_manual_track_IDs->addItem(QString::number(track_id));
+            } 
         }
         data_plots->set_xaxis_limits(xmin,xmax);
         data_plots->set_yaxis_limits(ymin,ymax);
@@ -1681,22 +1665,14 @@ void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
 
 void SirveApp::HandleTrackRemoval(int track_id)
 {
-    int ind_delete = cmb_manual_track_IDs->findText(QString::number(track_id));
-    cmb_manual_track_IDs->removeItem(ind_delete);
-    QStringList items;
-    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
-    for (int i = 0; i < model->rowCount(); ++i) {
-        items.append(model->item(i)->text());
-    }
-    std::sort(items.begin(), items.end());
-    items.prepend(("Primary"));
-    items.removeLast();
-    model->clear();
-    for (const QString& item : items) {
-        model->appendRow(new QStandardItem(item));
-    }
     tm_widget->RemoveTrackControl(track_id);
     track_info->RemoveManualTrack(track_id);
+    cmb_manual_track_IDs->clear();
+    cmb_manual_track_IDs->addItem("Primary");
+    std::set<int> track_ids = track_info->get_manual_track_ids();
+    for ( int track_id : track_ids ){
+        cmb_manual_track_IDs->addItem(QString::number(track_id));
+    } 
     track_info->RemoveManualTrackPlotting(track_id);
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
@@ -4575,23 +4551,15 @@ void SirveApp::ExecuteAutoTracking()
             {
                 video_display->AddManualTrackIdToShowLater(track_id);
                 tm_widget->AddTrackControl(track_id);
-                cmb_manual_track_IDs->addItem(QString::number(track_id));
-                QStringList items;
-                QStandardItemModel* model = qobject_cast<QStandardItemModel*>(cmb_manual_track_IDs->model());
-                for (int i = 0; i < model->rowCount(); ++i) {
-                    items.append(model->item(i)->text());
-                }
-                std::sort(items.begin(), items.end());
-                items.prepend(("Primary"));
-                items.removeLast();
-                model->clear();
-                for (const QString& item : items) {
-                    model->appendRow(new QStandardItem(item));
-                }               
+                track_info->AddManualTracks(result.frames);  
+                cmb_manual_track_IDs->clear();
+                cmb_manual_track_IDs->addItem("Primary");
+                std::set<int> track_ids = track_info->get_manual_track_ids();
+                for ( int track_id : track_ids ){
+                    cmb_manual_track_IDs->addItem(QString::number(track_id));
+                }          
             }
         }
-
-        track_info->AddManualTracks(result.frames);
 
         int index0 = data_plots->index_sub_plot_xmin;
         int index1 = data_plots->index_sub_plot_xmax + 1;
