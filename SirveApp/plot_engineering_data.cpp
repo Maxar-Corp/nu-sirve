@@ -116,7 +116,6 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
 void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 {
-    qDebug() << "yAxisChanged =" << yAxisChanged;
     // If the chart type has changed,
     if ((current_chart_id != yaxis_chart_id) || yAxisChanged)
     {
