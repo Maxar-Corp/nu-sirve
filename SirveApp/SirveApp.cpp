@@ -1674,6 +1674,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
         cmb_manual_track_IDs->addItem(QString::number(track_id));
     } 
     track_info->RemoveManualTrackPlotting(track_id);
+    track_info->RemoveManualTrackImage(track_id);
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
