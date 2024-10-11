@@ -4494,7 +4494,7 @@ void SirveApp::ExecuteAutoTracking()
         int threshold = 6 - cmb_autotrack_threshold->currentIndex();
         arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
         
-        if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
+        if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
             arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
             std::vector<std::vector<int>> offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
