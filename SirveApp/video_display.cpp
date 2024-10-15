@@ -718,16 +718,8 @@ void VideoDisplay::UpdateDisplayFrame()
     AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
     double x_scale = image_x / final_zoom_level.width;
     double y_scale = image_y / final_zoom_level.height;
-    double size_of_pixel_x = 1.0 * x_scale;
-    double size_of_pixel_y = 1.0 * y_scale;
     
     int ROI_box_size = txt_ROI_dim->text().toInt();
-    int ROI_box_width = std::round(size_of_pixel_x - 1 + ROI_box_size);
-    int ROI_box_height = std::round(size_of_pixel_y - 1 + ROI_box_size);
-
-    // int marker_size = 5;
-    // double marker_width = size_of_pixel_x - 1 + marker_size * 2;
-    // double marker_height = size_of_pixel_y - 1 + marker_size * 2;
 
     uint8_t* color_corrected_frame = display_ready_converted_values.data();
     frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
@@ -819,9 +811,8 @@ void VideoDisplay::UpdateDisplayFrame()
     
         int new_x = std::round(1.0*x/x_scale + final_zoom_level.x);
         int new_y = std::round(1.0*y/y_scale + final_zoom_level.y);
-        // qDebug() << new_x << new_y;
 
-        if (ROI_box_height>=20)
+        if (ROI_box_size>=20)
         {
            lbl_image_canvas->setCursor(Qt::BlankCursor);
         }
@@ -829,8 +820,8 @@ void VideoDisplay::UpdateDisplayFrame()
         {
             SetupCrosshairsCursor(":icons/crosshair-golden.png");
         }
-        QPoint top_left(new_x - ROI_box_width/2, new_y - ROI_box_height/2);
-        QPoint bottom_right(new_x + ROI_box_width/2, new_y + ROI_box_height/2);
+        QPoint top_left(new_x - ROI_box_size/2, new_y - ROI_box_size/2);
+        QPoint bottom_right(new_x + ROI_box_size/2, new_y + ROI_box_size/2);
         QRect manual_ROI_rectangle(top_left, bottom_right);
         manual_ROI_painter.drawRect(manual_ROI_rectangle);
 
