@@ -1374,8 +1374,9 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 
  void VideoDisplay::DisplayManualBox(QPoint pt)
  {
-    // qDebug() << Q_FUNC_INFO << pt;
-    hover_pt = pt;
-    UpdateDisplayFrame();
+    if (in_track_creation_mode){
+	    hover_pt = pt;
+	    UpdateDisplayFrame();
+    }
 
  }
