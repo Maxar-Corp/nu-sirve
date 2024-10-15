@@ -105,6 +105,14 @@ bool EnhancedLabel::event(QEvent * e)
 {
     switch(e->type())
     {
+    case QEvent::HoverEnter:
+        hoverEnter(static_cast<QHoverEvent*>(e));
+        return true;
+        break;
+    case QEvent::HoverLeave:
+        hoverLeave(static_cast<QHoverEvent*>(e));
+        return true;
+        break;
     case QEvent::HoverMove:
         hoverMove(static_cast<QHoverEvent*>(e));
         return true;
@@ -115,6 +123,29 @@ bool EnhancedLabel::event(QEvent * e)
     return QWidget::event(e);
 }
 
+void EnhancedLabel::enterEvent(QEvent * e)
+{
+    // qDebug() << Q_FUNC_INFO << e->type();
+	emit cursorInImage(true);
+}
+
+void EnhancedLabel::leaveEvent(QEvent * e)
+{
+    // qDebug() << Q_FUNC_INFO << e->type();
+	emit cursorInImage(false);
+}
+
+void EnhancedLabel::hoverEnter(QHoverEvent * event)
+{
+    // qDebug() << Q_FUNC_INFO << event->type();
+	emit cursorInImage(true);
+}
+
+void EnhancedLabel::hoverLeave(QHoverEvent * event)
+{
+    // qDebug() << Q_FUNC_INFO << event->type();
+	emit cursorInImage(false);
+}
 
 void EnhancedLabel::hoverMove(QHoverEvent * event)
 {
