@@ -20,7 +20,10 @@ std::vector<double> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, i
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
 	arma::mat radiance = (sub_m % x + sub_b) * scale_factor;
-	
+    // std::cout << "M " << sub_m << std::endl;
+    // std::cout << "B " << sub_b << std::endl;
+    // std::cout << "X " << x << std::endl;
+    // std::cout << "RAD " << radiance << std::endl;
 	arma::uvec indices_inf = arma::find_nonfinite(m);
 	std::vector<unsigned int> vector_inf = arma::conv_to<std::vector<unsigned int>>::from(indices_inf);
 
@@ -31,13 +34,16 @@ std::vector<double> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, i
 	// remove any non-finite numbers
 	arma::vec vector_radiance = arma::vectorise(radiance);
 	arma::uvec indices_finite = arma::find_finite(vector_radiance);
-	arma::vec vector_radiance_norm = vector_radiance(indices_finite);
+	std::vector<double> output{0,0,0};
+	if (indices_finite.n_elem>0){
+		arma::vec vector_radiance_norm = vector_radiance(indices_finite);
 
-	double max_pixel = arma::max(vector_radiance_norm);
-	double area_sum = arma::accu(vector_radiance_norm);
-	double average_radiance = arma::mean(vector_radiance_norm);
+		double max_pixel = arma::max(vector_radiance_norm);
+		double area_sum = arma::accu(vector_radiance_norm);
+		double average_radiance = arma::mean(vector_radiance_norm);
 
-	std::vector<double> output{ max_pixel, average_radiance, area_sum };
+		output = { max_pixel, average_radiance, area_sum };
+	}
 
 	return output;
 }
@@ -47,6 +53,8 @@ void CalibrationData::setup_model(arma::mat input_m, arma::mat input_b)
 	calibration_available = true;
 	m = input_m;
 	b = input_b;
+    // std::cout << "m " << m << std::endl;
+    // std::cout << "b " << b << std::endl;
 }
 
 bool CalibrationData::set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2, double int_time)
@@ -461,20 +469,22 @@ arma::vec CalibrationDialog::CalculatePlankEquation(double temperature)
 {
 	
 	arma::vec wavelengths(vector_wavelength);
+	arma::vec wavelengths_m = wavelengths*1e-6;
 
-	double speed_light = 299792458;  // m/s
-	double planks_constant = 6.626068963 * std::pow(10, -34);  // m^2 * kg / s
-	double boltzmann_constant = 1.3806504 * std::pow(10, -23);  // J / K
+	double c = 299792458;  // m/s
+	double h = 6.626068963 * 1e-34;  // m^2 * kg / s
+	double k = 1.3806504 * 1e-23;  // J / K
 
-	double c_um = speed_light * std::pow(10, 6);
-	double planks_um = planks_constant * std::pow(10, 12);
+	// double c_um = speed_light * std::pow(10, 6);
+	// double planks_um = planks_constant * std::pow(10, 12);
 
-	double constant1 = 2 * std::_Pi * planks_um * std::pow(c_um, 2);
-	double constant2 = planks_constant * c_um / boltzmann_constant;
+	// double constant1 = 2 * std::_Pi * planks_um * std::pow(c_um, 2);
+	// double constant2 = planks_constant * c_um / boltzmann_constant;
 
-	arma::vec out = constant1 / (arma::pow(wavelengths, 5) % (arma::exp(constant2 / (wavelengths * temperature)) - 1));
+	// arma::vec out = constant1 / (arma::pow(wavelengths, 5) % (arma::exp(constant2 / (wavelengths * temperature)) - 1));
 	//arma::vec out = 3.7418301e8 / (arma::pow(wavelengths, 5) % (arma::exp(14387.86 / (wavelengths * temperature)) - 1));
-	
+
+	arma::vec out = 2*h*std::pow(c,2)/arma::pow(wavelengths_m, 5) % (1 / (arma::exp(h*c/((wavelengths_m * k*temperature))-1)))/1e9;
 	return out;
 }
 
@@ -656,6 +666,8 @@ void CalibrationDialog::verifyCalibrationValues()
         arma::vec irradiance_vector1 = CalculatePlankEquation(user_selection1.temperature_mean + 273.15);
         arma::vec irradiance_vector2 = CalculatePlankEquation(user_selection2.temperature_mean + 273.15);
 
+        // std::cout << "irradiance_vector1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << irradiance_vector1 << std::endl;
+        // std::cout << "irradiance_vector2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << irradiance_vector1 << std::endl;
 		arma::vec response1 = filter % irradiance_vector1;
 		arma::vec response2 = filter % irradiance_vector2;
 
@@ -667,6 +679,7 @@ void CalibrationDialog::verifyCalibrationValues()
         file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
         ABIRDataResult result1 = *file_processor.getAbirDataLoadResult();
         std::vector<std::vector<uint16_t>> video_frames1 = result1.video_frames_16bit;
+        file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
         ABIRDataResult result2 = *file_processor.getAbirDataLoadResult();
         std::vector<std::vector<uint16_t>> video_frames2 = result2.video_frames_16bit;
 
@@ -674,8 +687,11 @@ void CalibrationDialog::verifyCalibrationValues()
 
         arma::mat average_count1 = AverageMultipleFrames(video_frames1);
         arma::mat average_count2 = AverageMultipleFrames(video_frames2);
+        // std::cout << "average_count1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << average_count1 << std::endl;
+        // std::cout << "average_count2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << average_count2 << std::endl;
 
 		arma::mat dx = average_count2 - average_count1;
+        // std::cout << "dx %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << dx << std::endl;
 		double dy = irradiance2 - irradiance1;
 
 		arma::mat m = dy / dx;

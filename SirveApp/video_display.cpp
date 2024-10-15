@@ -352,7 +352,6 @@ void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
 
 void VideoDisplay::HandleTrackerColorUpdate(QColor new_color)
 {
-    // QColor new_color(input_color);
     OSM_track_color = new_color;
 
     UpdateDisplayFrame();
@@ -1097,9 +1096,9 @@ void VideoDisplay::UpdateDisplayFrame()
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
-            QString max_value = QString::number(measurements[0]) + " W/m^2/sr";
-            QString avg_value = QString::number(measurements[1]) + " W/m^2/sr";
-            QString sum_value = QString::number(measurements[2]) + " W/m^2/sr";
+            QString max_value = QString::number(measurements[0]) + " W/sr/m^2/nm";
+            QString avg_value = QString::number(measurements[1]) + " W/sr/m^2/nm";
+            QString sum_value = QString::number(measurements[2]) + " W/sr/m^2/nm";
 
             QString calculation_text = "***** Beta Calculation *****\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
@@ -1414,6 +1413,8 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 
  void VideoDisplay::DisplayManualBox(QPoint pt)
  {
-    hover_pt = pt;
-    UpdateDisplayFrame();
+    if (in_track_creation_mode){
+        hover_pt = pt;
+        UpdateDisplayFrame();
+    }
  }
