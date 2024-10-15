@@ -566,13 +566,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
     uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
-    // qDebug() << x << y << minx << miny << ROI_width << ROI_height;
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
-    // cv::Mat image = frame_matrix;
-    // image.convertTo(image, CV_8UC1);
-    // cv::cvtColor(image,image,cv::COLOR_GRAY2RGB);
-    // cv::rectangle(image, ROI, cv::Scalar( 0, 0, 255 ), 2);
-    // cv::imshow("Current", image);
     cv::Mat frame_crop = frame_matrix(ROI);
     cv::Mat frame_crop_threshold;
     cv::Scalar frame_crop_mean, frame_crop_sigma;
@@ -759,14 +753,6 @@ void VideoDisplay::UpdateDisplayFrame()
 
     QRgb rgb_cyan = QColorConstants::Cyan.rgb();
 
-    // AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
-    // double x_scale = image_x / final_zoom_level.width;
-    // double y_scale = image_y / final_zoom_level.height;
-
-    // int ROI_box_size = txt_ROI_dim->text().toInt();
-    // int ROI_box_width = std::round(1.0*ROI_box_size*x_scale);
-    // int ROI_box_height = std::round(1.0*ROI_box_size*y_scale);
-
     uint8_t* color_corrected_frame = display_ready_converted_values.data();
     frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
 
@@ -859,23 +845,18 @@ void VideoDisplay::UpdateDisplayFrame()
         int ROI_box_size = txt_ROI_dim->text().toInt();
         double x_scale = rectangle.width/image_x;
         double y_scale = rectangle.height/image_y;
-        // int ROI_box_width = std::round(1.0*ROI_box_size/x_scale);
-        // int ROI_box_height = std::round(1.0*ROI_box_size/y_scale);
+
         double absolute_x = rectangle.x + 1.0 * x * x_scale;
         double absolute_y = rectangle.y + 1.0 * y * y_scale;
 
         unsigned int new_x = std::floor(absolute_x);
         unsigned int new_y = std::floor(absolute_y);
 
-        // qDebug() << "x: " << x << "y: " << y << "new_x: " << new_x << "new_y: " <<  new_y << "box width: " << ROI_box_width << "box height: " <<  ROI_box_height << "x_scale: " << x_scale << "y_scale: " << y_scale;
-        // qDebug() << "rectangle.width: " << rectangle.width << "rectangle.height: " << rectangle.height;
-
         if (cursor_in_image && rectangle.width/ROI_box_size >=1.5)
         {
             lbl_image_canvas->setCursor(Qt::BlankCursor);
             QPoint top_left(new_x - std::round(ROI_box_size/2.), new_y - std::round(ROI_box_size/2.));
             QPoint bottom_right(new_x + std::round(ROI_box_size/2.), new_y + std::round(ROI_box_size/2.));
-            qDebug() << top_left << bottom_right;
             QRect manual_ROI_rectangle(top_left, bottom_right);
             manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
@@ -1433,8 +1414,6 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 
  void VideoDisplay::DisplayManualBox(QPoint pt)
  {
-    // qDebug() << Q_FUNC_INFO << pt;
     hover_pt = pt;
     UpdateDisplayFrame();
-
  }
