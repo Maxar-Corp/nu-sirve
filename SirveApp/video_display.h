@@ -129,6 +129,8 @@ signals:
     void enableTrack(int id);
 
 public slots:
+    void DisplayManualBox(QPoint pt);
+    void SetSelectCentroidBtn(bool status);
     void GetThreshold(int threshold_in);
     void ClearPinpoints();
     void GetCurrentIdx(int current_idx_new);
@@ -168,7 +170,7 @@ private:
 
     QLabel *lbl_create_track;
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
-    QCheckBox  *chk_auto_advance_frame;
+    QCheckBox  *chk_auto_advance_frame, *chk_snap_to_peak, *chk_show_crosshair;
     QLineEdit *txt_frame_advance_amt,  *txt_ROI_dim;
     QGroupBox *grp_create_track;
     QVBoxLayout* vlayout_create_track;
@@ -176,7 +178,7 @@ private:
     int track_details_min_frame, track_details_max_frame;
 
     bool is_zoom_active, is_calculate_active, should_show_bad_pixels;
-    bool in_track_creation_mode;
+    bool in_track_creation_mode, cursor_in_image;
     QLabel *lbl_frame_number, *lbl_video_time_midnight, *lbl_zulu_time;
 
     QRect calculation_region;
@@ -197,7 +199,8 @@ private:
     std::map<int, QColor> manual_track_colors;
     std::vector<ABIR_Frame> frame_headers;
 
-    void DisplayManualBox(QPoint pt);
+    // void DisplayManualBox(QPoint pt);
+    // void SetSelectCentroidBtn(bool status);
     void SetupLabels();
     void SetupCreateTrackControls();
     void SetupPinpointDisplay();

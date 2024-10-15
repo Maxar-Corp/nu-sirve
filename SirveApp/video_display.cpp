@@ -16,6 +16,7 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent) 
     should_show_bad_pixels = false;
     in_track_creation_mode = false;
     display_boresight = false;
+    cursor_in_image = false;
 
     counter = 0;
     starting_frame_number = 0;
@@ -46,6 +47,10 @@ void VideoDisplay::EstablishStencil()
     annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
     annotation_stencil->hide();
     annotation_stencil->move(50, 50);
+
+    connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
+    connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
+    connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
 }
 
 
@@ -58,6 +63,26 @@ VideoDisplay::~VideoDisplay()
     delete lbl_zulu_time;
 
     delete zoom_manager;
+}
+
+void VideoDisplay::SetSelectCentroidBtn(bool status)
+{
+    if (in_track_creation_mode && !btn_pinpoint->isChecked())
+    {
+        if (is_zoom_active && status){
+            btn_select_track_centroid->setChecked(false);
+            cursor_in_image = true;
+        }
+        else if (!is_zoom_active && status){
+            btn_select_track_centroid->setChecked(true);
+            cursor_in_image = true;
+        }
+        else if (!status){
+            btn_select_track_centroid->setChecked(false);
+            cursor_in_image = false;
+        }
+        UpdateDisplayFrame();
+    }
 }
 
 void VideoDisplay::GetCurrentIdx(int current_idx_new)
@@ -119,6 +144,14 @@ void VideoDisplay::SetupCreateTrackControls()
     form_ROI_dim->addRow(tr("&ROI Dim"),txt_ROI_dim);
     vlayout_track_centroid->addLayout(form_ROI_dim);
 
+    chk_show_crosshair = new QCheckBox("Show Crosshair");
+    chk_show_crosshair->setChecked(true);
+    chk_snap_to_peak = new QCheckBox("Snap to Peak");
+    chk_snap_to_peak->setChecked(true);
+    QVBoxLayout *vlayout_crosshair = new QVBoxLayout;
+    vlayout_crosshair->addWidget(chk_show_crosshair);
+    vlayout_crosshair->addWidget(chk_snap_to_peak);
+
     chk_auto_advance_frame = new QCheckBox("Auto Advance");
     QFormLayout *form_frame_advance_increment = new QFormLayout;
     txt_frame_advance_amt = new QLineEdit("1");
@@ -136,6 +169,7 @@ void VideoDisplay::SetupCreateTrackControls()
     vlayout_frame_adv->addLayout(form_frame_advance_increment);
     QHBoxLayout* hlayout_create_track = new QHBoxLayout();
     hlayout_create_track->addLayout(vlayout_track_centroid);
+    hlayout_create_track->addLayout(vlayout_crosshair);
     hlayout_create_track->addLayout(vlayout_frame_adv);
     hlayout_create_track->addWidget(txt_frame_advance_amt);
     hlayout_create_track->addWidget(btn_clear_track_centroid);
@@ -540,7 +574,13 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
     uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
+    // qDebug() << x << y << minx << miny << ROI_width << ROI_height;
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
+    // cv::Mat image = frame_matrix;
+    // image.convertTo(image, CV_8UC1);
+    // cv::cvtColor(image,image,cv::COLOR_GRAY2RGB);
+    // cv::rectangle(image, ROI, cv::Scalar( 0, 0, 255 ), 2);
+    // cv::imshow("Current", image);
     cv::Mat frame_crop = frame_matrix(ROI);
     cv::Mat frame_crop_threshold;
     cv::Scalar frame_crop_mean, frame_crop_sigma;
@@ -552,11 +592,17 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Scalar sum_counts = cv::sum(frame_crop_threshold);
     int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
     double peak_counts;
-    cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_point);
-    int x2 = frame_point.x;
-    int y2 = frame_point.y;
-    details.centroid_x = round(x2 + xCorrection + ROI.x);
-    details.centroid_y = round(y2 + yCorrection + ROI.y);
+    int x2 = x;
+    int y2 = y;
+    details.centroid_x = round(x2 + xCorrection);
+    details.centroid_y = round(y2 + yCorrection);
+    cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_point); 
+    if (chk_snap_to_peak->isChecked()){  
+        x2 = frame_point.x;
+        y2 = frame_point.y;
+        details.centroid_x = round(x2 + xCorrection + ROI.x);
+        details.centroid_y = round(y2 + yCorrection + ROI.y);
+    }
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
@@ -721,11 +767,14 @@ void VideoDisplay::UpdateDisplayFrame()
 
     QRgb rgb_cyan = QColorConstants::Cyan.rgb();
 
-    AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
-    double x_scale = image_x / final_zoom_level.width;
-    double y_scale = image_y / final_zoom_level.height;
-    
-    int ROI_box_size = txt_ROI_dim->text().toInt();
+
+    // AbsoluteZoomInfo final_zoom_level = zoom_manager->absolute_zoom_list[zoom_manager->absolute_zoom_list.size() - 1];
+    // double x_scale = image_x / final_zoom_level.width;
+    // double y_scale = image_y / final_zoom_level.height;
+
+    // int ROI_box_size = txt_ROI_dim->text().toInt();
+    // int ROI_box_width = std::round(1.0*ROI_box_size*x_scale);
+    // int ROI_box_height = std::round(1.0*ROI_box_size*y_scale);
 
     uint8_t* color_corrected_frame = display_ready_converted_values.data();
     frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
@@ -815,21 +864,34 @@ void VideoDisplay::UpdateDisplayFrame()
         int x = hover_pt.x();
         int y = hover_pt.y();
     
-        int new_x = std::round(1.0*x/x_scale + final_zoom_level.x);
-        int new_y = std::round(1.0*y/y_scale + final_zoom_level.y);
+        AbsoluteZoomInfo rectangle = zoom_manager->absolute_zoom_list[zoom_manager->zoom_list.size() - 1];
+        int ROI_box_size = txt_ROI_dim->text().toInt();
+        double x_scale = rectangle.width/image_x;
+        double y_scale = rectangle.height/image_y;
+        // int ROI_box_width = std::round(1.0*ROI_box_size/x_scale);
+        // int ROI_box_height = std::round(1.0*ROI_box_size/y_scale);
+        double absolute_x = rectangle.x + 1.0 * x * x_scale;
+        double absolute_y = rectangle.y + 1.0 * y * y_scale;
 
-        if (ROI_box_size>=20)
+        unsigned int new_x = std::floor(absolute_x);
+        unsigned int new_y = std::floor(absolute_y);
+
+        // qDebug() << "x: " << x << "y: " << y << "new_x: " << new_x << "new_y: " <<  new_y << "box width: " << ROI_box_width << "box height: " <<  ROI_box_height << "x_scale: " << x_scale << "y_scale: " << y_scale;
+        // qDebug() << "rectangle.width: " << rectangle.width << "rectangle.height: " << rectangle.height;
+
+        if (cursor_in_image && rectangle.width/ROI_box_size >=1.5)
         {
-           lbl_image_canvas->setCursor(Qt::BlankCursor);
+            lbl_image_canvas->setCursor(Qt::BlankCursor);
+            QPoint top_left(new_x - std::round(ROI_box_size/2.), new_y - std::round(ROI_box_size/2.));
+            QPoint bottom_right(new_x + std::round(ROI_box_size/2.), new_y + std::round(ROI_box_size/2.));
+            qDebug() << top_left << bottom_right;
+            QRect manual_ROI_rectangle(top_left, bottom_right);
+            manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
-        else
+        if (chk_show_crosshair->isChecked())
         {
             SetupCrosshairsCursor(":icons/crosshair-golden.png");
         }
-        QPoint top_left(new_x - ROI_box_size/2, new_y - ROI_box_size/2);
-        QPoint bottom_right(new_x + ROI_box_size/2, new_y + ROI_box_size/2);
-        QRect manual_ROI_rectangle(top_left, bottom_right);
-        manual_ROI_painter.drawRect(manual_ROI_rectangle);
 
         if (track_details[starting_frame_number + counter - 1].has_value())
         {
