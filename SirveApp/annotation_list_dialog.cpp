@@ -223,15 +223,18 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
     if (index >= 0) {
 
         AnnotationInfo d = data[index];
+        QPoint adjPos;
+        adjPos.setX(d.x_pixel);
+        adjPos.setY(d.y_pixel);
 
         output = "Annotation: " + d.text + "\n\n";
-        output += "X Pixel: " + QString::number(position.x()) + "\t Y Pixel: " + QString::number(position.y()) + " \n\n";
+        output += "X Pixel: " + QString::number(adjPos.x()) + "\t Y Pixel: " + QString::number(adjPos.y()) + " \n\n";
         output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n\n";
         output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nNum Frames: " + QString::number(d.num_frames) + " \n";
 
         lbl_description->setText(output);
 
-        emit positionChanged(position);
+        emit positionChanged(adjPos);
 
         btn_ok->setEnabled(true);
     }
@@ -246,8 +249,26 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
     // if yes, set stencil location
     if (response == QMessageBox::Yes) {
 
-        data[index].x_pixel = location.x();
-        data[index].y_pixel = location.y();
+        int xc = base_data.x_correction;
+        int yc = base_data.y_correction;
+        int xpos = location.x() + xc;
+        int ypos = location.y() + yc;
+
+        if (xpos < 0){
+            xpos = xpos + 640;
+        }
+        if (ypos < 0){
+            ypos = ypos + 480;
+        }
+        if (xpos > 640){
+            xpos = ypos - 640;
+        }
+        if (ypos > 480){
+            ypos = ypos - 480;
+        }
+
+        data[index].x_pixel = xpos;
+        data[index].y_pixel = ypos;
 
         emit hideAnnotationStencil();
         emit annotationListUpdated();

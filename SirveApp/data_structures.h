@@ -65,7 +65,7 @@ struct Frame {
 
 struct VideoInfo {
 
-	int x_pixels, y_pixels, min_frame, max_frame;
+	int x_pixels, y_pixels, min_frame, max_frame, x_correction, y_correction;
 };
 
 struct PlottingFrameData {

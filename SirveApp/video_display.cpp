@@ -1133,22 +1133,24 @@ void VideoDisplay::DrawAnnotations()
                 QString annotation_text = a.text;
 
                 std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
-                int x = loc[0];
-                int y = loc[1];
-                int new_x = x - xCorrection;
-                int new_y = y - yCorrection;
-                if (new_x < 0){
-                    new_x = new_x + image_x;
-                }
-                if (new_y < 0){
-                    new_y = new_y + image_y;
-                }
-                if (new_x > image_x){
-                    new_x = new_x - image_x;
-                }
-                if (new_y > image_y){
-                    new_y = new_y - image_y ;
-                }
+                int new_x = loc[0];
+                int new_y = loc[1];
+                // int x = loc[0];
+                // int y = loc[1];
+                // int new_x = x - xCorrection;
+                // int new_y = y - yCorrection;
+                // if (new_x < 0){
+                //     new_x = new_x + image_x;
+                // }
+                // if (new_y < 0){
+                //     new_y = new_y + image_y;
+                // }
+                // if (new_x > image_x){
+                //     new_x = new_x - image_x;
+                // }
+                // if (new_y > image_y){
+                //     new_y = new_y - image_y ;
+                // }
 
                 if (loc[0] >= 0)
                 {
