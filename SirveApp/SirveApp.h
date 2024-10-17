@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 
+#include "constants.h"
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
 #include "video_display.h"
