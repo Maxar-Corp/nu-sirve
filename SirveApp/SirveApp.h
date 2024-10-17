@@ -174,7 +174,11 @@ public:
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
 
-	signals:
+	void RefreshChartSpace(int track_id, QColor new_color);
+
+void FramePlotSpace();
+
+signals:
         void changeBanner(QString banner_text);
         void changeBannerColor(QString color);
         void changeTrackerColor(QString color);
