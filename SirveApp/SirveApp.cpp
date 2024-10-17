@@ -1430,13 +1430,7 @@ void SirveApp::ImportTracks()
                 int index1 = data_plots->index_sub_plot_xmax + 1;
                 video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
                 data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-                double xmax = data_plots->axis_x->max();
-                double xmin = data_plots->axis_x->min();
-                double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-                double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-                UpdatePlots();
-                data_plots->set_xaxis_limits(xmin,xmax);
-                data_plots->set_yaxis_limits(ymin,ymax); 
+                FramePlotSpace();
             }
         }
         else
@@ -1462,13 +1456,7 @@ void SirveApp::ImportTracks()
             int index1 = data_plots->index_sub_plot_xmax + 1;
             video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
             data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            double xmax = data_plots->axis_x->max();
-            double xmin = data_plots->axis_x->min();
-            double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-            double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-            UpdatePlots();
-            data_plots->set_xaxis_limits(xmin,xmax);
-            data_plots->set_yaxis_limits(ymin,ymax); 
+            FramePlotSpace();
         }
 
     } 
@@ -1590,11 +1578,9 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        double xmax = data_plots->axis_x->max();
-        double xmin = data_plots->axis_x->min();
-        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-        UpdatePlots();
+
+        FramePlotSpace();
+
         if (!existing_track_TF)
         {
             cmb_manual_track_IDs->clear();
@@ -1602,10 +1588,9 @@ void SirveApp::HandleFinishCreateTrackClick()
             std::set<int> track_ids = track_info->get_manual_track_ids();
             for ( int track_id : track_ids ){
                 cmb_manual_track_IDs->addItem(QString::number(track_id));
-            } 
+            }
         }
-        data_plots->set_xaxis_limits(xmin,xmax);
-        data_plots->set_yaxis_limits(ymin,ymax);
+
         QStringList color_options = ColorScheme::get_track_colors();
         QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
         if (existing_track_control != nullptr)
@@ -1639,28 +1624,14 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     data_plots->RecolorManualTrack(track_id, new_color);
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    FramePlotSpace();
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
 {
     video_display->ShowManualTrackId(track_id);
-    int index0 = data_plots->index_sub_plot_xmin;
-    int index1 = data_plots->index_sub_plot_xmax + 1;
     data_plots->RecolorManualTrack(track_id, new_color);
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    FramePlotSpace();
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1680,19 +1651,18 @@ void SirveApp::HandleTrackRemoval(int track_id)
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    FramePlotSpace();
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots->RecolorManualTrack(track_id, new_color);
+    FramePlotSpace();
+}
+
+void SirveApp::FramePlotSpace()
+{
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
     double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
@@ -4566,13 +4536,8 @@ void SirveApp::ExecuteAutoTracking()
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        double xmax = data_plots->axis_x->max();
-        double xmin = data_plots->axis_x->min();
-        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-        UpdatePlots();
-        data_plots->set_xaxis_limits(xmin,xmax);
-        data_plots->set_yaxis_limits(ymin,ymax);
+
+        FramePlotSpace();
         
         QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
         if (existing_track_control != nullptr)
