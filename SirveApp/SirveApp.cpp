@@ -2084,6 +2084,13 @@ void SirveApp::UiLoadAbirData()
         return;
     }
 
+    if (video_display->annotation_list.size() > 0)
+    {
+        video_display->annotation_list.clear();
+        video_display->EstablishStencil();
+        video_display->HideStencil();
+    }
+
     LoadAbirData(min_frame, max_frame);
     lbl_workspace_name->setText("Workspace File: ");
 }
