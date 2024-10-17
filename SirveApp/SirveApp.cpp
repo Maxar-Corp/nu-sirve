@@ -4166,7 +4166,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*SirveAppConstants::VideoDisplayWidth*SirveAppConstants::VideoDisplayHeight);
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
     lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
@@ -4260,7 +4260,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*SirveAppConstants::VideoDisplayWidth*SirveAppConstants::VideoDisplayHeight);
 
     if(available_memory_ratio >=1.5){
 

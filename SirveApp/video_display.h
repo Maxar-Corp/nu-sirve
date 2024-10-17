@@ -31,6 +31,7 @@
 
 #include <armadillo>
 
+#include "constants.h"
 #include "annotation_stencil.h"
 #include "color_scheme.h"
 #include "abir_reader.h"

@@ -1,11 +1,12 @@
 #include "test_video_display_zoom.h"
+#include "constants.h"
 
 TestVideoDisplayZoom::TestVideoDisplayZoom()
 {}
 
 void TestVideoDisplayZoom::test_is_currently_zoomed()
 {
-    VideoDisplayZoomManager v(640, 480);
+    VideoDisplayZoomManager v(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
     QCOMPARE(v.is_currently_zoomed(), false);
 
     v.ZoomImage(QRect(1, 1, 10, 10));
@@ -29,7 +30,7 @@ void TestVideoDisplayZoom::test_is_currently_zoomed()
 
 void TestVideoDisplayZoom::test_zoom_and_unzoom()
 {
-    VideoDisplayZoomManager v(640, 480);
+    VideoDisplayZoomManager v(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
     v.ZoomImage(QRect(320, 240, 320, 240)); //the bottom right quadrant
     v.ZoomImage(QRect(320, 240, 320, 240)); //the bottom right quadrant of ^
 
@@ -53,17 +54,17 @@ void TestVideoDisplayZoom::test_zoom_and_unzoom()
     //Ensure the "zoom" level is the full image
     QCOMPARE(v.absolute_zoom_list.size(), 1);
     QCOMPARE(v.absolute_zoom_list[0].x, 0);
-    QCOMPARE(v.absolute_zoom_list[0].width, 640);
+    QCOMPARE(v.absolute_zoom_list[0].width, SirveAppConstants::VideoDisplayWidth);
     QCOMPARE(v.absolute_zoom_list[0].y, 0);
-    QCOMPARE(v.absolute_zoom_list[0].height, 480);
+    QCOMPARE(v.absolute_zoom_list[0].height, SirveAppConstants::VideoDisplayHeight);
 }
 
 void TestVideoDisplayZoom::test_get_position_within_zoom()
 {
-    VideoDisplayZoomManager v(640, 480);
+    VideoDisplayZoomManager v(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
 
     //Ensure pixels are at the right position in an unzoomed image
-    std::vector<int> result = v.get_position_within_zoom(480, 360);
+    std::vector<int> result = v.get_position_within_zoom(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
     QCOMPARE(result[0], 480);
     QCOMPARE(result[1], 360);
 
@@ -78,9 +79,9 @@ void TestVideoDisplayZoom::test_get_position_within_zoom()
     result = v.get_position_within_zoom(320, 240);
     QCOMPARE(result[0], 0);
     QCOMPARE(result[1], 0);
-    result = v.get_position_within_zoom(640, 480);
-    QCOMPARE(result[0], 640);
-    QCOMPARE(result[1], 480);
+    result = v.get_position_within_zoom(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
+    QCOMPARE(result[0], SirveAppConstants::VideoDisplayWidth);
+    QCOMPARE(result[1], SirveAppConstants::VideoDisplayHeight);
     
     //Ensure points outside the zoom window aren't returned
     result = v.get_position_within_zoom(160, 120); //a point in the top left quadrant
@@ -94,11 +95,11 @@ void TestVideoDisplayZoom::test_get_position_within_zoom()
     result = v.get_position_within_zoom(560, 420);
     QCOMPARE(result[0], 320);
     QCOMPARE(result[1], 240);
-    result = v.get_position_within_zoom(480, 360);
+    result = v.get_position_within_zoom(SirveAppConstants::VideoDisplayHeight, 360);
     QCOMPARE(result[0], 0);
     QCOMPARE(result[1], 0);
-    result = v.get_position_within_zoom(640, 480);
-    QCOMPARE(result[0], 640);
+    result = v.get_position_within_zoom(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
+    QCOMPARE(result[0], SirveAppConstants::VideoDisplayWidth);
     QCOMPARE(result[1], 480);
     result = v.get_position_within_zoom(320, 240);
     QCOMPARE(result[0], -1);
@@ -107,7 +108,7 @@ void TestVideoDisplayZoom::test_get_position_within_zoom()
 
 void TestVideoDisplayZoom::test_is_any_piece_within_zoom()
 {
-    VideoDisplayZoomManager v(640, 480);
+    VideoDisplayZoomManager v(SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
 
     //hyper zoom into a randomly chosen weird box in the top left
     v.ZoomImage(QRect(10, 10, 19, 11));
@@ -154,7 +155,7 @@ void TestVideoDisplayZoom::test_is_any_piece_within_zoom()
 
 void TestVideoDisplayZoom::test_zoom_resets_up_and_left_if_over_the_edge()
 {
-    VideoDisplayZoomManager v(640, 480);
+    VideoDisplayZoomManager v( SirveAppConstants::VideoDisplayWidth, SirveAppConstants::VideoDisplayHeight);
 
     //Remember that the zoom levels are 0-indexed, so the furthest right 10 pixels are 629-639
     //Try to zoom into a box that extends out of the viewport
