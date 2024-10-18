@@ -1795,6 +1795,10 @@ void SirveApp::LoadWorkspace()
             }
         }
 
+        video_display->annotation_list.clear();
+        video_display->EstablishStencil();
+        video_display->HideStencil();
+
         for (auto i = 0; i < workspace_vals.annotations.size(); i++)
         {
             AnnotationInfo anno = workspace_vals.annotations[i];
@@ -2048,6 +2052,13 @@ void SirveApp::UiLoadAbirData()
         btn_get_frames->setEnabled(true);
 
         return;
+    }
+
+    if (video_display->annotation_list.size() > 0)
+    {
+        video_display->annotation_list.clear();
+        video_display->EstablishStencil();
+        video_display->HideStencil();
     }
 
     LoadAbirData(min_frame, max_frame);
@@ -3117,8 +3128,8 @@ void SirveApp::AnnotateVideo()
     connect(annotate_gui, &AnnotationListDialog::rejected, this, &SirveApp::HandleAnnotationDialogClosed);
     connect(annotate_gui, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed);
 
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition);
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::SetStencilLocation);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition, Qt::UniqueConnection);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::SetStencilLocation, Qt::UniqueConnection);
 
     btn_add_annotations->setDisabled(true);
 

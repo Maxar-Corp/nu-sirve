@@ -239,36 +239,25 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
 
 void AnnotationListDialog::SetStencilLocation(QPoint location)
 {
-    auto response = QtHelpers::LaunchYesNoMessageBox("Locate Annotation", "Locate your new annotation here?", true);
 
     int index = lst_annotations->currentRow();
 
-    // if yes, set stencil location
-    if (response == QMessageBox::Yes) {
+    data[index].x_pixel = location.x();
+    data[index].y_pixel = location.y();
 
-        data[index].x_pixel = location.x();
-        data[index].y_pixel = location.y();
+    emit hideAnnotationStencil();
+    emit annotationListUpdated();
 
-        emit hideAnnotationStencil();
-        emit annotationListUpdated();
-
-        annotation_edit_dialog = nullptr;
-
-    } else if (response == QMessageBox::Cancel)
-    {
-        // If adding an annotation, clean out newly-entered data:
-        if (this->annotation_edit_dialog->windowTitle().contains("Add"))
-        {
-            delete_object();
-        } else
-        {
-            data[index] = old_data;
-        }
-        emit hideAnnotationStencil();
-    }
+    annotation_edit_dialog = nullptr;
 
     this->raise();
     this->activateWindow();
+}
+
+
+void AnnotationListDialog::closeEvent(QCloseEvent *event) {
+    // Ignore the close event to prevent the dialog from closing
+    event->ignore();
 }
 
 void AnnotationListDialog::OnDialogRejected() {
