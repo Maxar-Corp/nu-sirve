@@ -3120,6 +3120,9 @@ void SirveApp::AnnotateVideo()
     standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
     standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
+    standard_info.x_correction = video_display->xCorrection;
+    standard_info.y_correction = video_display->yCorrection;
+
     annotate_gui = new AnnotationListDialog(video_display->annotation_list, standard_info);
 
     connect(annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
