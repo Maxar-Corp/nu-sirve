@@ -1,5 +1,6 @@
 #include "annotation_list_dialog.h"
 #include "annotation_edit_dialog.h"
+#include "constants.h"
 
 AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent)
     : QDialog(parent, Qt::Window), data(input_vector), base_data(details)
@@ -242,54 +243,42 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
 
 void AnnotationListDialog::SetStencilLocation(QPoint location)
 {
-    auto response = QtHelpers::LaunchYesNoMessageBox("Locate Annotation", "Locate your new annotation here?", true);
-
     int index = lst_annotations->currentRow();
 
-    // if yes, set stencil location
-    if (response == QMessageBox::Yes) {
+    int xc = base_data.x_correction;
+    int yc = base_data.y_correction;
+    int xpos = location.x() + xc;
+    int ypos = location.y() + yc;
 
-        int xc = base_data.x_correction;
-        int yc = base_data.y_correction;
-        int xpos = location.x() + xc;
-        int ypos = location.y() + yc;
-
-        if (xpos < 0){
-            xpos = xpos + 640;
-        }
-        if (ypos < 0){
-            ypos = ypos + 480;
-        }
-        if (xpos > 640){
-            xpos = ypos - 640;
-        }
-        if (ypos > 480){
-            ypos = ypos - 480;
-        }
-
-        data[index].x_pixel = xpos;
-        data[index].y_pixel = ypos;
-
-        emit hideAnnotationStencil();
-        emit annotationListUpdated();
-
-        annotation_edit_dialog = nullptr;
-
-    } else if (response == QMessageBox::Cancel)
-    {
-        // If adding an annotation, clean out newly-entered data:
-        if (this->annotation_edit_dialog->windowTitle().contains("Add"))
-        {
-            delete_object();
-        } else
-        {
-            data[index] = old_data;
-        }
-        emit hideAnnotationStencil();
+    if (xpos < 0){
+        xpos = xpos + SirveAppConstants::VideoDisplayWidth;
     }
+    if (ypos < 0){
+        ypos = ypos + SirveAppConstants::VideoDisplayHeight;
+    }
+    if (xpos > 640){
+        xpos = ypos - SirveAppConstants::VideoDisplayWidth;
+    }
+    if (ypos > 480){
+        ypos = ypos - SirveAppConstants::VideoDisplayHeight;
+    }
+
+    data[index].x_pixel = xpos;
+    data[index].y_pixel = ypos;
+
+    emit hideAnnotationStencil();
+    emit annotationListUpdated();
+
+    annotation_edit_dialog = nullptr;
 
     this->raise();
     this->activateWindow();
+}
+
+
+void AnnotationListDialog::closeEvent(QCloseEvent *event) {
+    // Ignore the close event to prevent the dialog from closing
+    event->ignore();
 }
 
 void AnnotationListDialog::OnDialogRejected() {

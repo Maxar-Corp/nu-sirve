@@ -36,10 +36,16 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent) 
     yCorrection = 0;
     current_idx = -1;
 
+    EstablishStencil();
+
+    connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
+}
+
+void VideoDisplay::EstablishStencil()
+{
     annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
     annotation_stencil->hide();
     annotation_stencil->move(50, 50);
-    connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
 }
 
 
