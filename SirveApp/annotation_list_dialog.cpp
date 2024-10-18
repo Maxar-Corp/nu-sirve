@@ -1,5 +1,6 @@
 #include "annotation_list_dialog.h"
 #include "annotation_edit_dialog.h"
+#include "constants.h"
 
 AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent)
     : QDialog(parent, Qt::Window), data(input_vector), base_data(details)
@@ -223,15 +224,18 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
     if (index >= 0) {
 
         AnnotationInfo d = data[index];
+        QPoint adjPos;
+        adjPos.setX(d.x_pixel);
+        adjPos.setY(d.y_pixel);
 
         output = "Annotation: " + d.text + "\n\n";
-        output += "X Pixel: " + QString::number(position.x()) + "\t Y Pixel: " + QString::number(position.y()) + " \n\n";
+        output += "X Pixel: " + QString::number(adjPos.x()) + "\t Y Pixel: " + QString::number(adjPos.y()) + " \n\n";
         output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n\n";
         output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nNum Frames: " + QString::number(d.num_frames) + " \n";
 
         lbl_description->setText(output);
 
-        emit positionChanged(position);
+        emit positionChanged(adjPos);
 
         btn_ok->setEnabled(true);
     }
@@ -239,11 +243,28 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
 
 void AnnotationListDialog::SetStencilLocation(QPoint location)
 {
-
     int index = lst_annotations->currentRow();
 
-    data[index].x_pixel = location.x();
-    data[index].y_pixel = location.y();
+    int xc = base_data.x_correction;
+    int yc = base_data.y_correction;
+    int xpos = location.x() + xc;
+    int ypos = location.y() + yc;
+
+    if (xpos < 0){
+        xpos = xpos + SirveAppConstants::VideoDisplayWidth;
+    }
+    if (ypos < 0){
+        ypos = ypos + SirveAppConstants::VideoDisplayHeight;
+    }
+    if (xpos > 640){
+        xpos = ypos - SirveAppConstants::VideoDisplayWidth;
+    }
+    if (ypos > 480){
+        ypos = ypos - SirveAppConstants::VideoDisplayHeight;
+    }
+
+    data[index].x_pixel = xpos;
+    data[index].y_pixel = ypos;
 
     emit hideAnnotationStencil();
     emit annotationListUpdated();
