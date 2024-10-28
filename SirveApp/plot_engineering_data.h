@@ -19,12 +19,14 @@
 
 #include "data_structures.h"
 #include "new_chart_view.h"
-#include "qt_plotting.h"
 #include "tracks.h"
+
+#include "jkqtplotter/jkqtplotter.h"
+#include "jkqtplotter/graphs/jkqtplines.h"
 
 enum XAxisPlotVariables{frames , seconds_past_midnight, seconds_from_epoch};
 
-class EngineeringPlots : public QtPlotting
+class EngineeringPlots : public JKQTPlotter
 {
     Q_OBJECT
 public:

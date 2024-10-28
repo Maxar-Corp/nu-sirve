@@ -114,6 +114,16 @@ QT += charts widgets
 
 LIBS += "-L../5.15.2/msvc2019_64/lib/"
 
+include(..\..\JKQtPlotter\lib\jkqtplotter.pri)
+include(..\..\JKQtPlotter\lib\jkqtcommon.pri)
+include(..\..\JKQtPlotter\lib\jkqtfastplotter.pri)
+
+include(..\..\JKQtPlotter\lib\jkqtcommon_statistics_and_math.pri)
+include(..\..\JKQtPlotter\lib\jkqtmath.pri)
+include(..\..\JKQtPlotter\lib\jkqtmathtext.pri)
+
+include(..\..\JKQtPlotter\examples\libexampletools\libexampletools.pri)
+
 #To copy all the required files alongside the exe, run `nmake install`
 dlls.files = "../6.3.0/msvc2019_64/bin/Qt6Charts.dll" \
             "../6.3.0/msvc2019_64/bin/Qt6Core.dll" \
@@ -190,6 +200,15 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../fftw-3.3.5-dll64/ -l
 
 INCLUDEPATH += $$PWD/../fftw-3.3.5-dll64
 DEPENDPATH += $$PWD/../fftw-3.3.5-dll64
+
+INCLUDEPATH += $$PWD\..\..\JKQtPlotter\lib \
+                $$PWD\..\..\JKQtPlotter\examples\libexampletools
+
+#SOURCES += $$PWD\..\..\JKQtPlotter\examples\simpletest\simpletest.cpp
+
+HEADERS += $$PWD\..\..\JKQtPlotter\examples\libexampletools\jkqtpexampleapplication.h
+
+LIBS += $$PWD\..\..\SIRVE\SirveApp\build\Desktop_Qt_6_3_0_MSVC2019_64bit-Debug\debug\jkqtplotterstyle.obj
 
 RESOURCES += \
     SirveApp.qrc

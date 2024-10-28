@@ -1368,17 +1368,17 @@ void SirveApp::HandleYAxisChange()
 
 void SirveApp::HandleXAxisOptionChange()
 {
-    if (data_plots != NULL)
-    {
-        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-        UpdatePlots();
+    // if (data_plots != NULL)
+    // {
+    //     double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    //     double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+    //     UpdatePlots();
 
-        if (ymin > 0 && ymax > 0)
-        {
-            data_plots->set_yaxis_limits(ymin, ymax);
-        }
-    }
+    //     if (ymin > 0 && ymax > 0)
+    //     {
+    //         data_plots->set_yaxis_limits(ymin, ymax);
+    //     }
+    // }
 }
 
 
@@ -1663,13 +1663,13 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 
 void SirveApp::FramePlotSpace()
 {
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    // double xmax = data_plots->axis_x->max();
+    // double xmin = data_plots->axis_x->min();
+    // double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
+    // double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
+    // UpdatePlots();
+    // data_plots->set_xaxis_limits(xmin,xmax);
+    // data_plots->set_yaxis_limits(ymin,ymax);
 }
 
 void SirveApp::SaveWorkspace()
@@ -1921,7 +1921,7 @@ void SirveApp::LoadOsmData()
     connect(this->data_plots, &EngineeringPlots::changeMotionStatus, this, &SirveApp::HandlePlayerStateChanged);
 
     // Ensure the user can zoom out sooner rather than later:
-    connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
+    //connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
 
     size_t num_tracks = track_info->get_track_count();
     if (num_tracks == 0)
@@ -1960,7 +1960,7 @@ void SirveApp::LoadOsmData()
     btn_popout_engineering->setCheckable(true);
     connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::HandlePopoutEngineeringClick);
     engineering_plot_layout->addWidget(btn_popout_engineering);
-    engineering_plot_layout->addWidget(data_plots->chart_view);
+    //engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 
     // btn_calculate_radiance->setChecked(false);
@@ -2190,7 +2190,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots, &EngineeringPlots::PlotCurrentStep);
     connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
-    connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
+   // connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);
     UpdateFps();
@@ -2252,7 +2252,7 @@ void SirveApp::HandlePopoutEngineeringClick(bool checked)
 
 void SirveApp::OpenPopoutEngineeringPlot()
 {
-    popout_engineering->acquire(data_plots->chart_view);
+    //popout_engineering->acquire(data_plots->chart_view);
     connect(popout_engineering, &QDialog::finished, this, &SirveApp::HandlePopoutEngineeringClosed);
     popout_engineering->open();
 }
@@ -2260,7 +2260,7 @@ void SirveApp::OpenPopoutEngineeringPlot()
 void SirveApp::HandlePopoutEngineeringClosed()
 {
     btn_popout_engineering->setChecked(false);
-    engineering_plot_layout->addWidget(data_plots->chart_view);
+   // engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 }
 
@@ -2636,7 +2636,7 @@ void SirveApp::CloseWindow()
 
 void SirveApp::SavePlot()
 {
-    data_plots->SavePlot();
+    //data_plots->SavePlot();
 }
 
 void SirveApp::SaveFrame()
@@ -2878,9 +2878,9 @@ void SirveApp::EditBannerText()
     video_display->UpdateBannerText(input_text);
 
     // checks if banners are the same and asks user if they want them to be the same
-    QString plot_banner_text = data_plots->title;
-    int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
-    if (check != 0)
+    //QString plot_banner_text = data_plots->title;
+    //int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
+    //if (check != 0)
     {
         auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
         if (response == QMessageBox::Yes)
@@ -2893,12 +2893,12 @@ void SirveApp::EditBannerText()
 void SirveApp::EditPlotText()
 {
     bool ok;
-    QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, data_plots->title, &ok);
+    // QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, data_plots->title, &ok);
 
-    if (ok)
-    {
-        data_plots->SetPlotTitle(input_text);
-    }
+    // if (ok)
+    // {
+    //     data_plots->SetPlotTitle(input_text);
+    // }
 }
 
 void SirveApp::ExportPlotData()
@@ -2997,13 +2997,13 @@ void SirveApp::EditOSMTrackColor()
     QStringList color_options = ColorScheme::get_track_colors();
     QColor color = color_options[cmb_OSM_track_color->currentIndex()];
     video_display->HandleTrackerColorUpdate(color);
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->axis_y->max();
-    double ymin = data_plots->axis_y->min();
-    data_plots->RecolorOsmTrack(color);
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    // double xmax = data_plots->axis_x->max();
+    // double xmin = data_plots->axis_x->min();
+    // double ymax = data_plots->axis_y->max();
+    // double ymin = data_plots->axis_y->min();
+    // data_plots->RecolorOsmTrack(color);
+    // data_plots->set_xaxis_limits(xmin,xmax);
+    // data_plots->set_yaxis_limits(ymin,ymax);
     // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
@@ -3103,7 +3103,7 @@ void SirveApp::UpdatePlots()
                 trackSeries->append(0, 0);
                 trackSeries->append(0, 0);
 
-                data_plots->chart->addSeries(trackSeries);
+               // data_plots->chart->addSeries(trackSeries);
             }
         }
     }
@@ -3989,26 +3989,26 @@ void SirveApp::HandleOsmTracksToggle()
         QStringList color_options = ColorScheme::get_track_colors();
         QColor color = color_options[cmb_OSM_track_color->currentIndex()];
         video_display->HandleTrackerColorUpdate(color);
-        double xmax = data_plots->axis_x->max();
-        double xmin = data_plots->axis_x->min();
-        double ymax = data_plots->axis_y->max();
-        double ymin = data_plots->axis_y->min();
-        data_plots->RecolorOsmTrack(color);
-        data_plots->set_xaxis_limits(xmin,xmax);
-        data_plots->set_yaxis_limits(ymin,ymax);
+        // double xmax = data_plots->axis_x->max();
+        // double xmin = data_plots->axis_x->min();
+        // double ymax = data_plots->axis_y->max();
+        // double ymin = data_plots->axis_y->min();
+        // data_plots->RecolorOsmTrack(color);
+        // data_plots->set_xaxis_limits(xmin,xmax);
+        // data_plots->set_yaxis_limits(ymin,ymax);
     }
     else
     {
         cmb_OSM_track_color->setEnabled(false);
         QColor color = QColor(0,0,0,0);
         video_display->HandleTrackerColorUpdate(color);
-        double xmax = data_plots->axis_x->max();
-        double xmin = data_plots->axis_x->min();
-        double ymax = data_plots->axis_y->max();
-        double ymin = data_plots->axis_y->min();
-        data_plots->RecolorOsmTrack(color);
-        data_plots->set_xaxis_limits(xmin,xmax);
-        data_plots->set_yaxis_limits(ymin,ymax);
+        // double xmax = data_plots->axis_x->max();
+        // double xmin = data_plots->axis_x->min();
+        // double ymax = data_plots->axis_y->max();
+        // double ymin = data_plots->axis_y->min();
+        // data_plots->RecolorOsmTrack(color);
+        // data_plots->set_xaxis_limits(xmin,xmax);
+        // data_plots->set_yaxis_limits(ymin,ymax);
     }
 }
 

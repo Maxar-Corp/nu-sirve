@@ -6,6 +6,10 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "jkqtplotter/jkqtplotter.h"
+#include "jkqtplotter/graphs/jkqtplines.h"
+#include "jkqtpexampleapplication.h"
+
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QString LOG_FILE_PATH = "log/debug_log_file.txt";
     QFile file(LOG_FILE_PATH);
@@ -37,19 +41,20 @@ int main(int argc, char *argv[])
         qInstallMessageHandler(customMessageHandler);
     }
 
-	QApplication a(argc, argv);
+    JKQTPAppSettingController highDPIController(argc,argv);
+    JKQTPExampleApplication app(argc, argv);
 
     QFile file(":/stylesheets/Modified_Ubuntu.qss");
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        a.setStyleSheet(file.readAll());
+        app.setStyleSheet(file.readAll());
         file.close();
     }
 
-    SirveApp app;
-    app.show();
+    SirveApp widget;
+    widget.show();
 
-    qDebug() << "Dimensions of Sirve: Width=" << app.size().width() << " Height=" << app.size().height() << "\r\n";
+    qDebug() << "Dimensions of Sirve: Width=" << widget.size().width() << " Height=" << widget.size().height() << "\r\n";
 
-    return a.exec();
+    return app.exec();
 }

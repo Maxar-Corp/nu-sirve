@@ -77,7 +77,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     if (engineering_data != NULL) {
 
         // delete objects with existing data within them
-        frame_layout->removeWidget(plot_data->chart_view);
+        //frame_layout->removeWidget(plot_data->chart_view);
         delete engineering_data;
     }
 
@@ -98,7 +98,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
     plot_data->SetPlotTitle("");
 
-    frame_layout->addWidget(plot_data->chart_view);
+    //frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);
     plot_data->SetYAxisChartId(2);

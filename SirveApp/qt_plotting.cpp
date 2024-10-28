@@ -2,16 +2,54 @@
 #include "color_scheme.h"
 #include "qt_plotting.h"
 
+#include "jkqtplotter/jkqtplotter.h"
+#include "jkqtplotter/graphs/jkqtplines.h"
+
 #include <armadillo>
 
 QtPlotting::QtPlotting()
 {
-    chart = new QChart();
-    chart_view = new NewChartView(chart);
+    // chart = new QChart();
+    // chart_view = new NewChartView(chart);
 
-    axis_x = new QValueAxis;
-    axis_y = new QValueAxis;
-    axis_ylog = new QLogValueAxis;
+    // axis_x = new QValueAxis;
+    // axis_y = new QValueAxis;
+    // axis_ylog = new QLogValueAxis;
+
+
+    // 1. create a plotter window and get a pointer to the internal datastore (for convenience)
+    JKQTPlotter plot;
+    JKQTPDatastore* ds=plot.getDatastore();
+
+    // 2. now we create data for a simple plot (a sine curve)
+    QVector<double> X, Y;
+    const int Ndata=100;
+    for (int i=0; i<Ndata; i++) {
+        const double x=double(i)/double(Ndata)*8.0*JKQTPSTATISTICS_PI;
+        X<<x;
+        Y<<sin(x);
+    }
+
+    // 3. make data available to JKQTPlotter by adding it to the internal datastore.
+    size_t columnX=ds->addCopiedColumn(X, "x");
+    size_t columnY=ds->addCopiedColumn(Y, "y");
+
+    // 4. create a graph in the plot, which plots the dataset X/Y:
+    JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(&plot);
+    graph1->setXColumn(columnX);
+    graph1->setYColumn(columnY);
+    graph1->setTitle(QObject::tr("sine graph"));
+
+    // 5. add the graph to the plot, so it is actually displayed
+    plot.addGraph(graph1);
+
+    // 6. autoscale the plot so the graph is contained
+    plot.zoomToFit();
+
+    // show plotter and make it a decent size
+    plot.getPlotter()->setPlotLabel(QObject::tr("Simple Test"));
+    plot.show();
+    plot.resize(400,300);
 }
 
 QtPlotting::~QtPlotting()
