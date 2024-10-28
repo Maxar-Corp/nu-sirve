@@ -3,6 +3,7 @@
 #ifndef ENGINEERING_PLOT_H
 #define ENGINEERING_PLOT_H
 
+#include <armadillo>
 #include <QtCharts/QChartView>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QLineSeries>
@@ -15,62 +16,11 @@
 #include <QPair>
 #include <QString>
 #include <vector>
-#include <math.h>
-#include <armadillo>
 
 #include "color_scheme.h"
 #include "data_structures.h"
+#include "new_chart_view.h"
 #include "tracks.h"
-#include <armadillo>
-
-
-struct ChartState
-{
-    qreal xMin;
-    qreal xMax;
-    qreal yMin;
-    qreal yMax;
-
-    float scale_factor_maxx;
-    float scale_factor_minx;
-
-    float scale_factor_maxy;
-    float scale_factor_miny;
-};
-
-class NewChartView : public QChartView {
-
-    Q_OBJECT
-private:
-    bool is_frameline_moving;
-    ChartState savedChartState;
-
-public:
-    NewChartView(QChart *chart);
-    void clearSeriesByName(const QString &seriesName);
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
-    void apply_nice_numbers();
-
-    QChart *newchart;
-    bool is_zoomed;
-    ChartState get_chart_state();
-    void set_chart_state(ChartState chartState);
-
-signals:
-    void rubberBandChanged(const QRect &rect);
-    void updatePlots();
-    void updateFrameLine();
-
-public slots:
-    void UpdateChartFramelineStatus(bool status);
-
-private:
-    QRubberBand *rubberBand;
-    QPoint origin;
-};
-
 
 class QtPlotting : public QWidget
 {

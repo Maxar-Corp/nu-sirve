@@ -34,6 +34,7 @@ HEADERS += abir_reader.h \
             histogram_plotter.h \
             image_processing.h \
             location_input.h \
+            new_chart_view.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
@@ -83,6 +84,7 @@ SOURCES += abir_reader.cpp \
             image_processing.cpp \
             location_input.cpp \
             main.cpp \
+            new_chart_view.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
             non_uniformity_correction.cpp \
