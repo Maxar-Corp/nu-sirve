@@ -13,7 +13,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 
     // Write the message to the file
     QTextStream stream(&file);
-    stream << msg << endl;
+    //stream << msg << endl;
 
     // Also output the message to the console
     // QTextStream(stdout) << msg << endl;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         file.open(QIODevice::WriteOnly | QIODevice::Text);
 
         QTextStream stream(&file);
-        stream << "Sirve app was launched, beginning a new log file." << endl;
+        stream << "Sirve app was launched, beginning a new log file.";
         qInstallMessageHandler(customMessageHandler);
     }
 

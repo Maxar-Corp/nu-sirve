@@ -256,8 +256,7 @@ signals:
 
         void HandleAnnotationDialogClosed();
         
-        void SirveApp::HandleProcessingStatesCleared();
-        void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+        void HandleProcessingStatesCleared();
 
 private:
 	ColorMap video_colors;

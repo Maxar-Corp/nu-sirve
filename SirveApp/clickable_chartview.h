@@ -9,7 +9,6 @@
 
 #include <QPointF>
 
-QT_CHARTS_USE_NAMESPACE
 
 class ClickableQChartView : public QChartView
 {

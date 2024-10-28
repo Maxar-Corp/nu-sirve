@@ -24,8 +24,6 @@
 #include "color_scheme.h"
 #include "clickable_chartview.h"
 
-QT_CHARTS_USE_NAMESPACE
-
 
 class HistogramLinePlot : public QWidget //public QChartView
 {

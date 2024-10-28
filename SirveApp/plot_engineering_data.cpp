@@ -808,7 +808,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 void NewChartView::apply_nice_numbers()
 {
     QList<QAbstractAxis*> axes_list = newchart->axes();
-    for each (QAbstractAxis * abstract_axis in axes_list)
+    for (QAbstractAxis * abstract_axis : axes_list)
     {
         QValueAxis* value_axis = qobject_cast<QValueAxis*>(abstract_axis);
         if (value_axis)

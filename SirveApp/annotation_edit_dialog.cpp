@@ -30,8 +30,8 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QString btn_tex
 	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartChanged);
 	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::NumberOfFramesChanged);
 
-    connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::ColorChanged);
-	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::FontSizeChanged);
+    connect(cmb_colors, &QComboBox::currentTextChanged, this, &AnnotationEditDialog::ColorChanged);
+    connect(cmb_size, &QComboBox::currentTextChanged, this, &AnnotationEditDialog::FontSizeChanged);
 
     connect(btn_add, &QPushButton::pressed, this, &AnnotationEditDialog::AddDialog);
     connect(btn_cancel, &QPushButton::pressed, this, &AnnotationEditDialog::CloseWindow);

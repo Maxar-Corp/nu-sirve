@@ -23,9 +23,8 @@
 #include "tracks.h"
 #include <armadillo>
 
-QT_CHARTS_USE_NAMESPACE
 
-    struct ChartState
+struct ChartState
 {
     qreal xMin;
     qreal xMax;
