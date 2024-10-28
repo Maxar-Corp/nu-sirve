@@ -111,10 +111,10 @@ QT += charts widgets
 LIBS += "-L../5.15.2/msvc2019_64/lib/"
 
 #To copy all the required files alongside the exe, run `nmake install`
-dlls.files = "../6.3.0/msvc2019_64/bin/Qt5Charts.dll" \
-            "../6.3.0/msvc2019_64/bin/Qt5Core.dll" \
-            "../6.3.0/msvc2019_64/bin/Qt5Gui.dll" \
-            "../6.3.0/msvc2019_64/bin/Qt5Widgets.dll" \
+dlls.files = "../6.3.0/msvc2019_64/bin/Qt6Charts.dll" \
+            "../6.3.0/msvc2019_64/bin/Qt6Core.dll" \
+            "../6.3.0/msvc2019_64/bin/Qt6Gui.dll" \
+            "../6.3.0/msvc2019_64/bin/Qt6Widgets.dll" \
             "../fftw-3.3.5-dll64/libfftw3-3.dll" \
             "../fftw-3.3.5-dll64/libfftw3f-3.dll" \
             "../fftw-3.3.5-dll64/libfftw3l-3.dll" \
