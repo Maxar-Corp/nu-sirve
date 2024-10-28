@@ -13,10 +13,10 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 
     // Write the message to the file
     QTextStream stream(&file);
-    //stream << msg << endl;
+    stream << msg << "\r\n";
 
     // Also output the message to the console
-    // QTextStream(stdout) << msg << endl;
+    QTextStream(stdout) << msg << "\r\n";
 }
 
 int main(int argc, char *argv[])
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         file.open(QIODevice::WriteOnly | QIODevice::Text);
 
         QTextStream stream(&file);
-        stream << "Sirve app was launched, beginning a new log file.";
+        stream << "Sirve app was launched, beginning a new log file." << "\r\n";
         qInstallMessageHandler(customMessageHandler);
     }
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     SirveApp app;
     app.show();
 
-    qDebug() << "Dimensions of Sirve: Width=" << app.size().width() << " Height=" << app.size().height();
+    qDebug() << "Dimensions of Sirve: Width=" << app.size().width() << " Height=" << app.size().height() << "\r\n";
 
     return a.exec();
 }
