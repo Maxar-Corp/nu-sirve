@@ -19,8 +19,8 @@ std::vector<double> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, i
 	arma::mat sub_b = b.submat(ul_row, ul_col, lr_row, lr_col);
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
-	arma::mat radiance = (sub_m % x + sub_b) * scale_factor; // W/m2/sr
-	radiance = 100*radiance; // uW/cm2-sr
+	arma::mat radiance = (sub_m % x + sub_b) * scale_factor; // W/m2
+	radiance = 100*radiance; // uW/cm2
     // std::cout << "M " << sub_m << std::endl;
     // std::cout << "B " << sub_b << std::endl;
     // std::cout << "X " << x << std::endl;
@@ -478,7 +478,7 @@ arma::vec CalibrationDialog::CalculatePlanckEquation(double temperature)
 
 	double c1 = 1.191042e8; //W/m2-sr-um(-4)
 	double c2 = 1.4387752e4;// K um
-	arma::vec out = c1/(arma::pow(wavelengths, 5) % (arma::exp(c2/(wavelengths * temperature))-1)); // W/m2-sr-um
+	arma::vec out = std::_Pi*c1/(arma::pow(wavelengths, 5) % (arma::exp(c2/(wavelengths * temperature))-1)); // W/m2-um
 	return out;
 }
 
@@ -668,8 +668,8 @@ void CalibrationDialog::verifyCalibrationValues()
 		int y_pixels = result2.y_pixels;
 
         arma::vec filter = CalculateTotalFilterResponse();
-        arma::vec irradiance_vector1 = CalculatePlanckEquation(user_selection1.temperature_mean + 273.15); // W/m2m/sr
-        arma::vec irradiance_vector2 = CalculatePlanckEquation(user_selection2.temperature_mean + 273.15); // W/m2m/sr
+        arma::vec irradiance_vector1 = CalculatePlanckEquation(user_selection1.temperature_mean + 273.15); // W/m2-um
+        arma::vec irradiance_vector2 = CalculatePlanckEquation(user_selection2.temperature_mean + 273.15); // W/m2-um
 
         // std::cout << "irradiance_vector1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << irradiance_vector1 << std::endl;
         // std::cout << "irradiance_vector2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% " << irradiance_vector1 << std::endl;
@@ -678,10 +678,10 @@ void CalibrationDialog::verifyCalibrationValues()
 
 		arma::vec x(vector_wavelength);
 		// arma::vec x_m = x*1e-6;
-        // double irradiance1 = CalculateTrapezoidalArea(x_m, response1);
-        // double irradiance2 = CalculateTrapezoidalArea(x_m, response2);
-        double irradiance1 = CalculateTrapezoidalArea(x, response1); //W/m2-sr
-        double irradiance2 = CalculateTrapezoidalArea(x, response2); //W/m2-sr
+        // double irradiance1 = TrapezoidalIntegration(x_m, response1);
+        // double irradiance2 = TrapezoidalIntegration(x_m, response2);
+        double irradiance1 = TrapezoidalIntegration(x, response1); //W/m2
+        double irradiance2 = TrapezoidalIntegration(x, response2); //W/m2
 		double integration_time = file_processor.abir_data.ir_data[0].header.int_time;
 
         arma::mat average_count1 = AverageMultipleFrames(video_frames1);
@@ -864,7 +864,7 @@ bool CalibrationDialog::CheckPath(QString path)
 	return file_exists && file_isFile;
 }
 
-double CalibrationDialog::CalculateTrapezoidalArea(arma::vec x, arma::vec Y) {
+double CalibrationDialog::TrapezoidalIntegration(arma::vec x, arma::vec Y) {
 
 	arma::vec integ = arma::trapz(x,Y,0);
 	std::vector<double> area = arma::conv_to<std::vector<double>>::from(integ);

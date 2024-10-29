@@ -139,7 +139,7 @@ private:
     bool CheckFilterFile(QString path);
 
     arma::vec CalculateTotalFilterResponse();
-    double CalculateTrapezoidalArea(arma::vec x, arma::vec Y);
+    double TrapezoidalIntegration(arma::vec x, arma::vec Y);
     arma::vec CalculatePlanckEquation(double temperature);
 
     void verifyCalibrationValues();
