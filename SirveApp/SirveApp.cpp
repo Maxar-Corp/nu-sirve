@@ -1968,7 +1968,7 @@ void SirveApp::LoadOsmData()
     btn_popout_engineering->setCheckable(true);
     connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::HandlePopoutEngineeringClick);
     engineering_plot_layout->addWidget(btn_popout_engineering);
-    engineering_plot_layout->addWidget(data_plots->chart_view);
+    engineering_plot_layout->addWidget(data_plots);
     frame_plots->setLayout(engineering_plot_layout);
 
     // btn_calculate_radiance->setChecked(false);

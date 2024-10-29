@@ -34,6 +34,8 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
+
+
     JKQTPDatastore* ds= this->getDatastore();
 
     // 2. now we create data for a simple plot (a sine curve)
@@ -62,14 +64,6 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     this->zoomToFit();
     this->resize(400,300);
     this->show();
-
-    chart_view = new QChartView(this);
-    chart_view->setRenderHint(QPainter::Antialiasing);
-
-    // Layout for the chart widget
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(chart_view);
-    setLayout(layout);
 
     //osm_track_color = colors.get_current_color();
 
