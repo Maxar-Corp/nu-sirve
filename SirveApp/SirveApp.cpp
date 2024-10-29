@@ -1909,6 +1909,14 @@ void SirveApp::LoadOsmData()
     track_info = new TrackInformation(osm_frames);
     data_plots = new EngineeringPlots(osm_frames);
 
+    QChartView *chartView = new QChartView(data_plots);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    // Layout for the chart widget
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(chartView);
+    setLayout(layout);
+
     osmDataLoaded = true;
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
@@ -1960,7 +1968,7 @@ void SirveApp::LoadOsmData()
     btn_popout_engineering->setCheckable(true);
     connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::HandlePopoutEngineeringClick);
     engineering_plot_layout->addWidget(btn_popout_engineering);
-    //engineering_plot_layout->addWidget(data_plots->chart_view);
+    engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 
     // btn_calculate_radiance->setChecked(false);
@@ -2252,7 +2260,7 @@ void SirveApp::HandlePopoutEngineeringClick(bool checked)
 
 void SirveApp::OpenPopoutEngineeringPlot()
 {
-    //popout_engineering->acquire(data_plots->chart_view);
+    popout_engineering->acquire(data_plots->chart_view);
     connect(popout_engineering, &QDialog::finished, this, &SirveApp::HandlePopoutEngineeringClosed);
     popout_engineering->open();
 }
@@ -2260,7 +2268,7 @@ void SirveApp::OpenPopoutEngineeringPlot()
 void SirveApp::HandlePopoutEngineeringClosed()
 {
     btn_popout_engineering->setChecked(false);
-   // engineering_plot_layout->addWidget(data_plots->chart_view);
+    engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 }
 

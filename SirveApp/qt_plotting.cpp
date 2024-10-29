@@ -48,8 +48,14 @@ QtPlotting::QtPlotting()
 
     // show plotter and make it a decent size
     plot.getPlotter()->setPlotLabel(QObject::tr("Simple Test"));
-    plot.show();
-    plot.resize(400,300);
+
+    QChartView *chartView = new QChartView(&plot);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    // Layout for the chart widget
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(chartView);
+    setLayout(layout);
 }
 
 QtPlotting::~QtPlotting()

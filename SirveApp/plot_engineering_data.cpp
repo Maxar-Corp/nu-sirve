@@ -46,10 +46,6 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     }
 
     // 3. make data available to JKQTPlotter by adding it to the internal datastore.
-    //    Note: In this step the data is copied (of not specified otherwise), so you can
-    //          reuse X and Y afterwards!
-    //    the variables columnX and columnY will contain the internal column ID of the newly
-    //    created columns with names "x" and "y" and the (copied) data from X and Y.
     size_t columnX=ds->addCopiedColumn(X, "x");
     size_t columnY=ds->addCopiedColumn(Y, "y");
 
@@ -64,11 +60,16 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
 
     // 6. autoscale the plot so the graph is contained
     this->zoomToFit();
-
-    // show plotter and make it a decent size
-    this->getPlotter()->setPlotLabel(QObject::tr("Simple Test"));
-    this->show();
     this->resize(400,300);
+    this->show();
+
+    chart_view = new QChartView(this);
+    chart_view->setRenderHint(QPainter::Antialiasing);
+
+    // Layout for the chart widget
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(chart_view);
+    setLayout(layout);
 
     //osm_track_color = colors.get_current_color();
 

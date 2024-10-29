@@ -33,6 +33,8 @@ public:
     EngineeringPlots(std::vector<Frame> const &osm_frames);
     ~EngineeringPlots();
 
+    QChartView *chart_view;
+
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only, plot_current_marker;
     double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
