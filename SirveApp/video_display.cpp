@@ -1096,9 +1096,9 @@ void VideoDisplay::UpdateDisplayFrame()
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
-            QString max_value = QString::number(measurements[0]) + " uW/cm^2";
-            QString avg_value = QString::number(measurements[1]) + " uW/cm^2";
-            QString sum_value = QString::number(measurements[2]) + " uW/cm^2";
+            QString max_value = QString::number(measurements[0]) + " uW/cm^2/sr";
+            QString avg_value = QString::number(measurements[1]) + " uW/cm^2/sr";
+            QString sum_value = QString::number(measurements[2]) + " uW/cm^2/sr";
 
             QString calculation_text = "***** Beta Calculation *****\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
