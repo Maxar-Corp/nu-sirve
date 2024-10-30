@@ -34,32 +34,32 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
-    JKQTPDatastore* ds= this->getDatastore();
+    // JKQTPDatastore* ds= this->getDatastore();
 
-    // 2. now we create data for a simple plot (a sine curve)
-    QVector<double> X, Y;
-    const int Ndata=100;
-    for (int i=0; i<Ndata; i++) {
-        const double x=double(i)/double(Ndata)*8.0*JKQTPSTATISTICS_PI;
-        X<<x;
-        Y<<sin(x);
-    }
+    // // 2. now we create data for a simple plot (a sine curve)
+    // QVector<double> X, Y;
+    // const int Ndata=100;
+    // for (int i=0; i<Ndata; i++) {
+    //     const double x=double(i)/double(Ndata)*8.0*JKQTPSTATISTICS_PI;
+    //     X<<x;
+    //     Y<<sin(x);
+    // }
 
-    // 3. make data available to JKQTPlotter by adding it to the internal datastore.
-    size_t columnX=ds->addCopiedColumn(X, "x");
-    size_t columnY=ds->addCopiedColumn(Y, "y");
+    // // 3. make data available to JKQTPlotter by adding it to the internal datastore.
+    // size_t columnX=ds->addCopiedColumn(X, "x");
+    // size_t columnY=ds->addCopiedColumn(Y, "y");
 
-    // 4. create a graph in the plot, which plots the dataset X/Y:
-    JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(this);
-    graph1->setXColumn(columnX);
-    graph1->setYColumn(columnY);
-    graph1->setTitle(QObject::tr("sine graph"));
+    // // 4. create a graph in the plot, which plots the dataset X/Y:
+    // JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(this);
+    // graph1->setXColumn(columnX);
+    // graph1->setYColumn(columnY);
+    // graph1->setTitle(QObject::tr("sine graph"));
 
-    // 5. add the graph to the plot, so it is actually displayed
-    this->addGraph(graph1);
+    // // 5. add the graph to the plot, so it is actually displayed
+    // this->addGraph(graph1);
 
-    // 6. autoscale the plot so the graph is contained
-    this->zoomToFit();
+    // // 6. autoscale the plot so the graph is contained
+    // this->zoomToFit();
     //this->resize(400,300);
     //this->show();
 
@@ -114,18 +114,18 @@ void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
     // chart->removeAllSeries();
     // colors.ResetColors();
     // StartNewChart();
-    // CreateCurrentMarker();
-    // EstablishPlotLimits();
+    CreateCurrentMarker();
+    EstablishPlotLimits();
 
-    // size_t plot_number_tracks = number_of_tracks;
-    // if (plot_primary_only && plot_number_tracks > 0)
-    //     plot_number_tracks = 1;
+    size_t plot_number_tracks = number_of_tracks;
+    if (plot_primary_only && plot_number_tracks > 0)
+        plot_number_tracks = 1;
 
     // switch (current_chart_id)
     // {
     // case 0:
     //     y_title = QString("ROI Counts");
-    //     PlotIrradiance(plot_number_tracks);
+     PlotIrradiance(plot_number_tracks);
     //     break;
     // case 1:
     //     y_title = QString("Azimuth (deg)");
@@ -293,21 +293,33 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
 
 void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
 {
-    // std::vector<double> y_points;
+    std::vector<double> y_points;
 
-    // for (size_t i = 0; i < plot_number_tracks; i++)
-    // {
-    //     QLineSeries *series = new QLineSeries();
-    //     series->setColor(osm_track_color);
-    //     series->setName("OSM Data");
+    for (size_t i = 0; i < plot_number_tracks; i++)
+    {
+        JKQTPDatastore* ds= this->getDatastore();
 
-    //     std::vector<double> x_values = get_individual_x_track(i);
-    //     std::vector<double> y_values = get_individual_y_track_irradiance(i);
+        std::vector<double> x_values = get_individual_x_track(i);
+        std::vector<double> y_values = get_individual_y_track_irradiance(i);
 
-    //     AddSeries(series, x_values, y_values, true);;
+        QVector<double> X(x_values.begin(), x_values.end());
+        QVector<double> Y(y_values.begin(), y_values.end());
 
-    //     y_points.insert(y_points.end(), y_values.begin(), y_values.end());
-    // }
+        // 3. make data available to JKQTPlotter by adding it to the internal datastore.
+        size_t columnX=ds->addCopiedColumn(X, "x");
+        size_t columnY=ds->addCopiedColumn(Y, "y");
+
+        // 4. create a graph in the plot, which plots the dataset X/Y:
+        JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(this);
+        graph1->setXColumn(columnX);
+        graph1->setYColumn(columnY);
+        graph1->setTitle(QObject::tr("sine graph"));
+
+        // 5. add the graph to the plot, so it is actually displayed
+        this->addGraph(graph1);
+
+        // 6. autoscale the plot so the graph is contained
+        this->zoomToFit();
 
     // for (int track_id : manual_track_ids)
     // {
