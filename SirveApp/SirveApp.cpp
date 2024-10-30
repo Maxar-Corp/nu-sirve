@@ -1925,11 +1925,7 @@ void SirveApp::LoadOsmData()
     connect(btn_next_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
     connect(btn_prev_frame, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
 
-    // Locks down and frees up the frame range specification text boxes:
-    connect(this->data_plots, &EngineeringPlots::changeMotionStatus, this, &SirveApp::HandlePlayerStateChanged);
-
-    // Ensure the user can zoom out sooner rather than later:
-    //connect(this->data_plots->chart_view, &NewChartView::updatePlots, this, &SirveApp::UpdatePlots);
+    // Old connectors for zoom and frame line have been commented out.
 
     size_t num_tracks = track_info->get_track_count();
     if (num_tracks == 0)
@@ -1957,7 +1953,6 @@ void SirveApp::LoadOsmData()
     dt_epoch->setDate(new_date);
     dt_epoch->setMinimumDate(min_date);
     dt_epoch->setMaximumDate(max_date);
-
     dt_epoch->setTime(QTime(epoch0[3], epoch0[4], epoch0[5]));
 
     //--------------------------------------------------------------------------------
