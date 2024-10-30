@@ -135,6 +135,12 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         graph1->setYColumn(columnY);
         graph1->setTitle(QObject::tr("irradiance"));
 
+        graph1->setSymbolSize(5);
+        // set width of symbol lines
+        graph1->setSymbolLineWidth(1);
+        graph1->setColor(QColor::fromRgb(20,20,255));
+        graph1->setSymbolColor(QColor::fromRgb(255,20,20));
+
         // 5. add the graph to the plot, so it is actually displayed
         this->addGraph(graph1);
 
