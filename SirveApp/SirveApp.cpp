@@ -961,7 +961,7 @@ void SirveApp::ResetEngineeringDataAndSliderGUIs()
             video_display->DeleteManualTrack(track_id);
         }
     }
-    UpdatePlots();
+    //UpdatePlots();
 }
 
 void SirveApp::SetupVideoFrame(){
@@ -1315,10 +1315,10 @@ void SirveApp::setupConnections() {
     //---------------------------------------------------------------------------
     // connect the plot radial buttons to adjust plot
 
-    connect(rad_log, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-    connect(rad_decimal, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-    connect(rad_linear, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-    connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
+    //connect(rad_log, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
+    //connect(rad_decimal, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
+    //connect(rad_linear, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
+    //connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
 
     //---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
@@ -1363,7 +1363,7 @@ void SirveApp::HandleYAxisChange()
         rad_decimal->setChecked(true);
     }
     yAxisChanged=true;
-    UpdatePlots();
+    //UpdatePlots();
 }
 
 void SirveApp::HandleXAxisOptionChange()
@@ -1986,16 +1986,13 @@ void SirveApp::LoadOsmData()
 
     // Reset setting engineering plot defaults
     menu_plot_all_data->setIconVisibleInMenu(true);
-
     menu_plot_primary->setIconVisibleInMenu(false);
-
     menu_plot_frame_marker->setIconVisibleInMenu(false);
 
     EnableEngineeringPlotOptions();
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
-
     data_plots->InitializeIntervals(osm_frames);
-
+    UpdatePlots();
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
@@ -2192,7 +2189,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
     // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots, &EngineeringPlots::PlotCurrentStep);
-    connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
+    //connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
    // connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);
@@ -2575,7 +2572,7 @@ void SirveApp::HandlePlotFullDataToggle()
     data_plots->plot_all_data = !data_plots->plot_all_data;
     menu_plot_all_data->setIconVisibleInMenu(data_plots->plot_all_data);
 
-    UpdatePlots();
+    //UpdatePlots();
 }
 
 void SirveApp::HandlePlotPrimaryOnlyToggle()
@@ -2583,7 +2580,7 @@ void SirveApp::HandlePlotPrimaryOnlyToggle()
     data_plots->plot_primary_only = !data_plots->plot_primary_only;
     menu_plot_primary->setIconVisibleInMenu(data_plots->plot_primary_only);
 
-    UpdatePlots();
+    //UpdatePlots();
 }
 
 void SirveApp::HandlePlotCurrentFrameMarkerToggle()
@@ -2591,7 +2588,7 @@ void SirveApp::HandlePlotCurrentFrameMarkerToggle()
     data_plots->plot_current_marker = !data_plots->plot_current_marker;
     menu_plot_frame_marker->setIconVisibleInMenu(data_plots->plot_current_marker);
 
-    UpdatePlots();
+    //UpdatePlots();
 }
 
 void SirveApp::SetDataTimingOffset()
@@ -2613,7 +2610,7 @@ void SirveApp::SetDataTimingOffset()
         std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
         video_display->UpdateFrameData(temp);
 
-        UpdatePlots();
+        //UpdatePlots();
     }
 }
 
@@ -4958,7 +4955,5 @@ void SirveApp::GetAboutTimeStamp()
             DWORD timestamp = pNtHeaders->FileHeader.TimeDateStamp;
             std::cout << "Timestamp: " << timestamp << std::endl;
             std::cout << "Build date: " << ctime((time_t*)&timestamp);
-
         }
-
 }
