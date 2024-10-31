@@ -6,17 +6,8 @@
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTPlotter()
 {
-    num_frames = static_cast<unsigned int>(osm_frames.size());
+    //num_frames = static_cast<unsigned int>(osm_frames.size());
 
-    for (size_t i = 0; i < num_frames; i++)
-    {
-        /* Scaling each val by 1e6 to convert to microradians. */
-        sensor_i_fov_x.push_back(osm_frames[i].data.i_fov_x * 1e6);
-        sensor_i_fov_y.push_back(osm_frames[i].data.i_fov_y * 1e6);
-
-        boresight_az.push_back(osm_frames[i].data.az_el_boresight[0]);
-        boresight_el.push_back(osm_frames[i].data.az_el_boresight[1]);
-    }
     //SetPlotTitle("EDIT CLASSIFICATION");
 
     plot_all_data = true;

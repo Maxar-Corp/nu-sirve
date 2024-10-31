@@ -1909,14 +1909,6 @@ void SirveApp::LoadOsmData()
     track_info = new TrackInformation(osm_frames);
     data_plots = new EngineeringPlots(osm_frames);
 
-    QChartView *chartView = new QChartView(data_plots);
-    chartView->setRenderHint(QPainter::Antialiasing);
-
-    // Layout for the chart widget
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(chartView);
-    setLayout(layout);
-
     osmDataLoaded = true;
 
     connect(btn_pause, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
