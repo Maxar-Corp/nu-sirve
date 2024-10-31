@@ -1,7 +1,21 @@
 #include <QPushButton>
 #include <QLegendMarker>
+#include <functional>
 
 #include "plot_engineering_data.h"
+
+class MyClass {
+public:
+    // Generic processItems function that accepts any callable
+    template<typename Func>
+    void processItems(const std::vector<int>& items, Func func) {
+        for (const auto& item : items) {
+            func(item);  // Calls the passed lambda or function
+        }
+    }
+};
+
+
 
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTPlotter()
 {
@@ -23,8 +37,6 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     plot_current_marker = false;
 
     x_axis_units = frames;
-    //yaxis_is_log = false;
-    //yaxis_is_scientific = false;
 
     current_unit_id = 0; // 0 -> counts
     current_chart_id = 2; // 2 -> Elevation
@@ -32,37 +44,6 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     // 'sub-plot' refers to the frame range, not to zoom
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
-
-    // JKQTPDatastore* ds= this->getDatastore();
-
-    // // 2. now we create data for a simple plot (a sine curve)
-    // QVector<double> X, Y;
-    // const int Ndata=100;
-    // for (int i=0; i<Ndata; i++) {
-    //     const double x=double(i)/double(Ndata)*8.0*JKQTPSTATISTICS_PI;
-    //     X<<x;
-    //     Y<<sin(x);
-    // }
-
-    // // 3. make data available to JKQTPlotter by adding it to the internal datastore.
-    // size_t columnX=ds->addCopiedColumn(X, "x");
-    // size_t columnY=ds->addCopiedColumn(Y, "y");
-
-    // // 4. create a graph in the plot, which plots the dataset X/Y:
-    // JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(this);
-    // graph1->setXColumn(columnX);
-    // graph1->setYColumn(columnY);
-    // graph1->setTitle(QObject::tr("sine graph"));
-
-    // // 5. add the graph to the plot, so it is actually displayed
-    // this->addGraph(graph1);
-
-    // // 6. autoscale the plot so the graph is contained
-    // this->zoomToFit();
-    //this->resize(400,300);
-    //this->show();
-
-    //osm_track_color = colors.get_current_color();
 
     //connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
@@ -108,19 +89,21 @@ void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
 {
     int plot_number_tracks = 1;
 
-     PlotIrradiance(plot_number_tracks);
+    auto func = std::bind(&EngineeringPlots::get_individual_y_track_irradiance, this, std::placeholders::_1);
+
+    PlotSirveQuantity(func, plot_number_tracks);
 }
 
-void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
+void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_t)> func, size_t plot_number_tracks)
 {
     std::vector<double> y_points;
 
-    for (size_t i = 0; i < plot_number_tracks; i++)
+    for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
     {
         JKQTPDatastore* ds= this->getDatastore();
 
-        std::vector<double> x_values = get_individual_x_track(i);
-        std::vector<double> y_values = get_individual_y_track_irradiance(i);
+        std::vector<double> x_values = get_individual_x_track(track_index);
+        std::vector<double> y_values = get_individual_y_track_irradiance(track_index);
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
@@ -138,7 +121,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         graph1->setSymbolSize(5);
         // set width of symbol lines
         graph1->setSymbolLineWidth(1);
-        graph1->setColor(QColor::fromRgb(20,20,255));
+        graph1->setColor(colors.get_current_color());
         graph1->setSymbolColor(QColor::fromRgb(255,20,20));
 
         // 5. add the graph to the plot, so it is actually displayed
@@ -147,31 +130,6 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         // 6. autoscale the plot so the graph is contained
         this->zoomToFit();
     }
-
-    // for (int track_id : manual_track_ids)
-    // {
-    //     std::vector<double> x_values, y_values;
-
-    //     for (size_t i = 0; i < manual_track_frames.size(); i++)
-    //     {
-    //         std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
-    //         if (it != manual_track_frames[i].tracks.end())
-    //         {
-    //             x_values.push_back(get_single_x_axis_value(i));
-    //             y_values.push_back(it->second.irradiance);
-    //         }
-    //     }
-
-    //     AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
-    // }
-
-    // chart_y_maxes[0] = FindMaxForAxis(y_points);
-    // fixed_max_y = chart_y_maxes[0];
-
-    // if (plot_all_data)
-    //     DefineChartProperties(full_plot_xmin, full_plot_xmax, 0, FindMaxForAxis(y_points));
-    // else
-    //     DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, FindMaxForAxis(y_points));
 }
 
 void EngineeringPlots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -248,21 +206,21 @@ void EngineeringPlots::EstablishPlotLimits()
 
 void EngineeringPlots::set_xaxis_units(XAxisPlotVariables unit_choice)
 {
-    // x_axis_units = unit_choice;
-    // switch (x_axis_units)
-    // {
-    // case frames:
-    //     x_title = "Frame #";
-    //     break;
-    // case seconds_past_midnight:
-    //     x_title = "Seconds Past Midnight";
-    //     break;
-    // case seconds_from_epoch:
-    //     x_title = "Seconds Past Epoch";
-    //     break;
-    // default:
-    //     break;
-    // }
+    x_axis_units = unit_choice;
+    switch (x_axis_units)
+    {
+    case frames:
+        x_title = "Frame #";
+        break;
+    case seconds_past_midnight:
+        x_title = "Seconds Past Midnight";
+        break;
+    case seconds_from_epoch:
+        x_title = "Seconds Past Epoch";
+        break;
+    default:
+        break;
+    }
 }
 
 std::vector<double> EngineeringPlots::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
@@ -316,20 +274,20 @@ double EngineeringPlots::get_max_x_axis_value()
 
 void EngineeringPlots::CreateCurrentMarker()
 {
-    // current_frame_marker = new QLineSeries();
-    // current_frame_marker->setName("Red Line");
+    current_frame_marker = new QLineSeries();
+    current_frame_marker->setName("Red Line");
 
-    // QPen pen;
-    // pen.setColor(colors.get_color(2));
-    // pen.setStyle(Qt::SolidLine);
-    // pen.setWidth(3);
+    QPen pen;
+    pen.setColor(colors.get_color(2));
+    pen.setStyle(Qt::SolidLine);
+    pen.setWidth(3);
 
-    // current_frame_marker->setPen(pen);
+    current_frame_marker->setPen(pen);
 
-    // current_frame_marker->append(0, 0);
-    // current_frame_marker->append(0, 0);
+    current_frame_marker->append(0, 0);
+    current_frame_marker->append(0, 0);
 
-    // chart->addSeries(current_frame_marker);
+    //chart->addSeries(current_frame_marker);
 }
 
 void EngineeringPlots::toggle_yaxis_log(bool input)

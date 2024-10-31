@@ -1,5 +1,6 @@
 #pragma once
 
+#include "color_scheme.h"
 #ifndef ENGINEERING_PLOT_H
 #define ENGINEERING_PLOT_H
 
@@ -34,6 +35,9 @@ public:
     ~EngineeringPlots();
 
     QChartView *chart_view;
+    ColorScheme colors;
+
+    QString x_title, y_title, title;
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only, plot_current_marker;
@@ -102,7 +106,8 @@ private:
 
     void PlotAzimuth(size_t plot_number_tracks);
     void PlotElevation(size_t plot_number_tracks);
-    void PlotIrradiance(size_t plot_number_tracks);
+
+    void PlotSirveQuantity(std::function<std::vector<double>(size_t)> func, size_t plot_number_tracks);
     void PlotFovX();
     void PlotFovY();
     void PlotBoresightAzimuth();
