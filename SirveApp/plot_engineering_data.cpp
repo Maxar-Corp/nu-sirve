@@ -103,7 +103,7 @@ void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_
         JKQTPDatastore* ds= this->getDatastore();
 
         std::vector<double> x_values = get_individual_x_track(track_index);
-        std::vector<double> y_values = get_individual_y_track_irradiance(track_index);
+        std::vector<double> y_values = func(track_index);
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
