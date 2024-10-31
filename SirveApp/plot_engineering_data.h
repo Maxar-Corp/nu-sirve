@@ -88,6 +88,7 @@ public slots:
     void HandlePlayerButtonClick();
 
 private:
+    QTabWidget* tabWidget;
 
     int number_of_tracks;
     std::vector<PlottingTrackFrame> track_frames;
@@ -107,7 +108,7 @@ private:
     void PlotAzimuth(size_t plot_number_tracks);
     void PlotElevation(size_t plot_number_tracks);
 
-    void PlotSirveQuantity(std::function<std::vector<double>(size_t)> func, size_t plot_number_tracks);
+    void PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title);
     void PlotFovX();
     void PlotFovY();
     void PlotBoresightAzimuth();

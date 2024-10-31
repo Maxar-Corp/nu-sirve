@@ -4,19 +4,6 @@
 
 #include "plot_engineering_data.h"
 
-class MyClass {
-public:
-    // Generic processItems function that accepts any callable
-    template<typename Func>
-    void processItems(const std::vector<int>& items, Func func) {
-        for (const auto& item : items) {
-            func(item);  // Calls the passed lambda or function
-        }
-    }
-};
-
-
-
 EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTPlotter()
 {
     num_frames = static_cast<unsigned int>(osm_frames.size());
@@ -91,10 +78,18 @@ void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
 
     auto func = std::bind(&EngineeringPlots::get_individual_y_track_irradiance, this, std::placeholders::_1);
 
-    PlotSirveQuantity(func, plot_number_tracks);
+    PlotSirveQuantity(func, plot_number_tracks, QString("ROI Counts"));
+
+    func = std::bind(&EngineeringPlots::get_individual_y_track_azimuth, this, std::placeholders::_1);
+
+    PlotSirveQuantity(func, plot_number_tracks, QString("Azimuth"));
+
+    func = std::bind(&EngineeringPlots::get_individual_y_track_elevation, this, std::placeholders::_1);
+
+    PlotSirveQuantity(func, plot_number_tracks, QString("Elevation"));
 }
 
-void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_t)> func, size_t plot_number_tracks)
+void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title)
 {
     std::vector<double> y_points;
 
@@ -103,7 +98,7 @@ void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_
         JKQTPDatastore* ds= this->getDatastore();
 
         std::vector<double> x_values = get_individual_x_track(track_index);
-        std::vector<double> y_values = func(track_index);
+        std::vector<double> y_values = get_y_track_func(track_index);
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
@@ -116,10 +111,9 @@ void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_
         JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(this);
         graph1->setXColumn(columnX);
         graph1->setYColumn(columnY);
-        graph1->setTitle(QObject::tr("irradiance"));
+        graph1->setTitle(title);
 
         graph1->setSymbolSize(5);
-        // set width of symbol lines
         graph1->setSymbolLineWidth(1);
         graph1->setColor(colors.get_current_color());
         graph1->setSymbolColor(QColor::fromRgb(255,20,20));
