@@ -204,11 +204,7 @@ DEPENDPATH += $$PWD/../fftw-3.3.5-dll64
 INCLUDEPATH += $$PWD\..\..\JKQtPlotter\lib \
                 $$PWD\..\..\JKQtPlotter\examples\libexampletools
 
-#SOURCES += $$PWD\..\..\JKQtPlotter\examples\simpletest\simpletest.cpp
-
 HEADERS += $$PWD\..\..\JKQtPlotter\examples\libexampletools\jkqtpexampleapplication.h
-
-LIBS += $$PWD\..\..\SIRVE\SirveApp\build\Desktop_Qt_6_3_0_MSVC2019_64bit-Debug\debug\jkqtplotterstyle.obj
 
 RESOURCES += \
     SirveApp.qrc
