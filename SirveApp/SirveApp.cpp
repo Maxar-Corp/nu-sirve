@@ -3042,9 +3042,10 @@ void SirveApp::UpdatePlots()
     // Check that indices are all positive
     if (x_index >= 0 && y_index >= 0 && eng_data)
     {
-
         bool scientific_is_checked = rad_scientific->isChecked();
         bool log_is_checked = rad_log->isChecked();
+
+        // Feed the current Y-Axis Linear/Log option into the plot engineering widget
         data_plots->toggle_yaxis_log(log_is_checked);
 
         // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):

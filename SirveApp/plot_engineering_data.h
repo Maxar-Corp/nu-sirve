@@ -12,6 +12,7 @@
 #include <QtCharts/QLogValueAxis>
 #include <QtCharts/qxyseries.h>
 #include <qfiledialog.h>
+#include <QDebug>
 #include <QPair>
 #include <QString>
 #include <vector>
@@ -88,7 +89,7 @@ public:
     QLogValueAxis *axis_ylog;
     QString x_title, y_title, title;
 
-    bool yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
+    bool yaxis_is_log, old_yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
 
     void StartNewChart();
     void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
