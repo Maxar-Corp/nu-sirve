@@ -3074,7 +3074,7 @@ void SirveApp::UpdatePlots()
 
         data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
-        data_plots->PlotChart(yAxisChanged);
+        data_plots->PlotChart();
 
         data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
     }

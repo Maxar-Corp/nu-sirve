@@ -13,7 +13,7 @@ QDebug operator<<(QDebug debug, const ChartState &s) {
                     << "xMax: " << s.xMax << ", "
                     << "yMin: " << s.yMin << ", "
                     << "yMax: " << s.yMax << ", "
-                    << "scale_factor_miny: " << s.scale_factor_miny << ")" << ", "
+                    << "scale_factor_miny: " << s.scale_factor_miny << ", "
                     << "scale_factor_maxy: " << s.scale_factor_maxy << ")";
     return debug;
 }
@@ -134,11 +134,13 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
     qDebug() << "SetYAxisChartId";
 
     bool yAxisLogLinearChanged = yaxis_is_log != old_yaxis_is_log;
+    bool yAxisDecimalScientificChanged = yaxis_is_scientific != old_yaxis_is_scientific;
 
     qDebug() << "yAxisLogLinearChanged" << yAxisLogLinearChanged;
+    qDebug() << "yAxisDecimalScientificChanged" << yAxisDecimalScientificChanged;
 
     // If the chart type has changed,
-    if ((current_chart_id != yaxis_chart_id) || yAxisChanged || yAxisLogLinearChanged)
+    if ((current_chart_id != yaxis_chart_id) || yAxisDecimalScientificChanged || yAxisLogLinearChanged)
     {
         // Get the chart state object for updating
         ChartState chartState = this->chart_view->get_chart_state();
@@ -186,12 +188,11 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
     current_chart_id = yaxis_chart_id;
 
     old_yaxis_is_log = yaxis_is_log;
+    old_yaxis_is_scientific = yaxis_is_scientific;
 }
 
-void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
+void EngineeringPlots::PlotChart()
 {
-    yAxisChanged = yAxisChangedLocal;
-
     chart->removeAllSeries();
     colors.ResetColors();
     StartNewChart();
@@ -244,15 +245,12 @@ void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
         ChartState chartState = this->chart_view->get_chart_state();
 
         qDebug() << chartState;
-
         qDebug() << "Setting Axes";
 
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
         QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
 
-        qDebug() << "DONE";
-
-        qDebug() << axisX;
+        qDebug() << "axisX" << axisX;
 
         if (axisX) {
             qreal interval_span = chart_x_intervals[current_unit_id].second - chart_x_intervals[current_unit_id].first;
@@ -263,13 +261,13 @@ void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
 
         if (yaxis_is_log) {
             axis_ylog->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
-
             qDebug() << "axis_ylog min: " << axis_ylog->min() << " , axis_ylog max: " << axis_ylog->max();
         } else {
             axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
-
             qDebug() << "axisY min: " << axisY->min() << " , axisY max: " << axisY->max();
         }
+
+        qDebug() << "DONE";
     }
 }
 
