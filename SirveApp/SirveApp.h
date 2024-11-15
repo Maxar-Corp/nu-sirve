@@ -184,6 +184,7 @@ signals:
         void changeBannerColor(QString color);
         void changeTrackerColor(QString color);
         void directorySelected(QString directory);
+        void enableYAxisOptions(bool enabled);
         void updateVideoDisplayPinpointControls(bool status);
 
 	public slots:
@@ -193,6 +194,8 @@ signals:
         void HandleAutoLiftGainCheck(int state);
         void HandleLiftSliderToggled();
         void HandleGainSliderToggled();
+
+        void EnableYAxisOptions(bool enabled);
 
         void SaveWorkspace();
         void LoadWorkspace();
