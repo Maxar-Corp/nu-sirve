@@ -162,8 +162,14 @@ std::vector<double> OSMReader::CalculateLatLonAltVector(std::vector<double> ecf)
 MessageHeader OSMReader::ReadMessageHeader()
 {
     uint64_t seconds = ReadValue<uint64_t>();
+
+    qDebug() << "Message Header seconds = " << seconds;
+
     uint64_t nano_seconds = ReadValue<uint64_t>();
+    qDebug() << "Message nano_seconds = " << nano_seconds;
+
     uint64_t tsize = ReadValue<uint64_t>();
+    qDebug() << "Message tsize = " << tsize;
 
 	MessageHeader current_message;
     if (tsize < kSMALL_NUMBER)
@@ -182,6 +188,9 @@ FrameHeader OSMReader::ReadFrameHeader()
 {
     FrameHeader fh;
     fh.authorization = ReadValue<uint64_t>(true);
+
+    qDebug() << "fh.authorization" << fh.authorization;
+
     fh.classification = ReadValue<uint32_t>(true);
     fh.type = ReadValue<uint32_t>(true);
     fh.priority = ReadValue<uint32_t>(true);
@@ -201,6 +210,8 @@ FrameHeader OSMReader::ReadFrameHeader()
     fh.message_length = ReadValue<uint32_t>(true);
     fh.software_version = ReadValue<uint32_t>(true);
 
+    qDebug() << "fh.software_version" << fh.software_version;
+
     return fh;
 }
 
@@ -210,15 +221,26 @@ FrameData OSMReader::ReadFrameData()
 
     data.task_id = ReadValue<uint32_t>(true);
     uint32_t osm_seconds = ReadValue<uint32_t>(true);
+    qDebug() << "osm_seconds = " << osm_seconds;
+
     uint32_t osm_micro_seconds = ReadValue<uint32_t>(true);
+
     data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
+    qDebug() << "data.frametime = " << data.frametime;
 
     data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
+    qDebug() << "data.julian_date = " << data.julian_date;
+
 	double modified_julian_date = data.julian_date + 0.5;
 	int midnight_julian = std::floor(modified_julian_date);
 	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
 
+    qDebug() << "data.seconds_past_midnight = " << data.seconds_past_midnight;
+
     data.mrp = ReadMultipleDoubleValues(3, true);
+
+    qDebug() << "data.mrp = " << data.mrp;
+
     data.mrp_cov_rand = ReadMultipleDoubleValues(6, true);
     data.mrp_cov_bias = ReadMultipleDoubleValues(6, true);
 
@@ -370,12 +392,6 @@ std::vector<double> OSMReader::CalculateDirectionCosineMatrix(std::vector<double
 
 	dcos = norm * dcos;
 
-	//sig = 1 - mr'*mr;
-	//norm = 1 / (1 + mr'*mr)^2;
-	//dcos = norm * [4 * (mr(1) ^ 2 - mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(1)*mr(2) + 4 * mr(3)*sig     8 * mr(1)*mr(3) - 4 * mr(2)*sig
-	//	8 * mr(1)*mr(2) - 4 * mr(3)*sig         4 * (-mr(1) ^ 2 + mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(2)*mr(3) + 4 * mr(1)*sig
-	//	8 * mr(1)*mr(3) + 4 * mr(2)*sig         8 * mr(2)*mr(3) - 4 * mr(1)*sig            4 * (-mr(1) ^ 2 - mr(2) ^ 2 + mr(3) ^ 2) + sig ^ 2];
-	
 	arma::vec temp = arma::conv_to<arma::vec>::from(arma::vectorise(dcos));
 	std::vector<double> out = arma::conv_to<std::vector<double>>::from(temp);
 
@@ -385,7 +401,8 @@ std::vector<double> OSMReader::CalculateDirectionCosineMatrix(std::vector<double
 std::vector<double> OSMReader::CalculateAzimuthElevation(int x_pixel, int y_pixel, FrameData & input)
 {
 	std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y, false);
-	return results;
+
+    return results;
 }
 
 double OSMReader::CalculateGpsUtcJulianDate(double offset_gps_seconds)

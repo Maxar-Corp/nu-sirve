@@ -40,30 +40,6 @@ void BinaryFileReader::ByteSwap(void *v, int num_bytes) {
 }
 
 template<typename T>
-size_t BinaryFileReader::ReadMultipleValues(T &data, bool convert_endian, uint64_t force_num_elements) {
-
-	const uint64_t total_bytes = sizeof(data);
-	const uint64_t bytes_per_element = sizeof(data[0]);
-	uint64_t num_elements = total_bytes / bytes_per_element;
-
-	if (force_num_elements > 0) {
-		num_elements = force_num_elements;
-	}
-
-	size_t read_code = fread(data, bytes_per_element, num_elements, fp);
-
-	if (convert_endian) {
-
-		for (size_t i = 0; i < num_elements; i++)
-		{
-			ByteSwap<T>(&data[i], bytes_per_element);
-		}
-	}
-
-	return read_code;
-}
-
-template<typename T>
 std::vector<T> BinaryFileReader::ReadMultipleValuesIntoVector(int number_values, bool convert_endian) {
 
 	std::vector<T> data_vector;
@@ -88,6 +64,23 @@ std::vector<T> BinaryFileReader::ReadMultipleValuesIntoVector(int number_values,
 	return data_vector;
 }
 
+template<typename T>
+T BinaryFileReader::ReadValue(bool convert_endian) {
+
+    bool is_double = std::is_same<T, double>::value;
+
+    if (is_double & convert_endian) {
+
+        std::vector<double> out = ReadMultipleDoubleValues(1, convert_endian);
+        return out[0];
+    }
+
+    T data[1];
+    ReadMultipleValues(data, convert_endian);
+
+    return data[0];
+}
+
 std::vector<double> BinaryFileReader::ReadMultipleDoubleValues(int num_values, bool convert_endian)
 {
 
@@ -103,20 +96,27 @@ std::vector<double> BinaryFileReader::ReadMultipleDoubleValues(int num_values, b
 }
 
 template<typename T>
-T BinaryFileReader::ReadValue(bool convert_endian) {
+size_t BinaryFileReader::ReadMultipleValues(T &data, bool convert_endian, uint64_t force_num_elements) {
 
-	bool is_double = std::is_same<T, double>::value;;
+    const uint64_t total_bytes = sizeof(data);
+    const uint64_t bytes_per_element = sizeof(data[0]);
+    uint64_t num_elements = total_bytes / bytes_per_element;
 
-	if (is_double & convert_endian) {
+    if (force_num_elements > 0) {
+        num_elements = force_num_elements;
+    }
 
-		std::vector<double> out = ReadMultipleDoubleValues(1, convert_endian);
-		return out[0];
-	}
+    size_t read_code = fread(data, bytes_per_element, num_elements, fp);
 
-	T data[1];
-	ReadMultipleValues(data, convert_endian);
+    if (convert_endian) {
 
-	return data[0];
+        for (size_t i = 0; i < num_elements; i++)
+        {
+            ByteSwap<T>(&data[i], bytes_per_element);
+        }
+    }
+
+    return read_code;
 }
 
 double BinaryFileReader::ReadDoubleFromBinary(FILE *fp, int bigendian)

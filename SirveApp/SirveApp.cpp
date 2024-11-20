@@ -4646,13 +4646,8 @@ void SirveApp::EnableYAxisOptions(bool enabled)
     this->rad_decimal->setEnabled(enabled);
     this->rad_scientific->setEnabled(enabled);
 
-    qDebug() << "enabled" << enabled;
-    qDebug() << "------>>> enabled=" << enabled;
-
     if (!enabled)
     {
-        qDebug() << "TOGGLING";
-
         data_plots->toggle_yaxis_log(false);
         data_plots->toggle_yaxis_scientific(false);
     }

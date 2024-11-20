@@ -82,8 +82,6 @@ void EngineeringPlots::InitializeIntervals(const std::vector<Frame> &osm_frames)
 
 void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 {
-    qDebug() << "SetXAxisChartId";
-
     // If the unit of measurement has changed,
     if (current_unit_id != xaxis_chart_id)
     {
@@ -144,9 +142,6 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
     {
         // Get the chart state object for updating
         ChartState chartState = this->chart_view->get_chart_state();
-
-        qDebug() << "yaxis_is_log" << yaxis_is_log;
-        qDebug() << "old_yaxis_is_log" << old_yaxis_is_log;
 
         // Record the state of the chart we are leaving behind:
         if (old_yaxis_is_log) {
