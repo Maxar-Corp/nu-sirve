@@ -26,6 +26,10 @@ public:
 	inline std::vector<double> ReadMultipleDoubleValues(int num_values, bool convert_endian = false);
 	template<typename T> inline void ByteSwap(void * v, int num_bytes);
 	inline double ReadDoubleFromBinary(FILE *fp, int bigendian);
+
+private:
+    inline bool isSystemBigEndian();
+    inline double swapEndianness(double value);
 };
 
 #endif

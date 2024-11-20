@@ -119,93 +119,140 @@ size_t BinaryFileReader::ReadMultipleValues(T &data, bool convert_endian, uint64
     return read_code;
 }
 
-double BinaryFileReader::ReadDoubleFromBinary(FILE *fp, int bigendian)
-{
-	//Function help from https://github.com/MalcolmMcLean/ieee754/blob/master/ieee754.c
-
-	unsigned char buff[8];
-	int i;
-	double fnorm = 0.0;
-	unsigned char temp;
-	int sign;
-	int exponent;
-	double bitval;
-	int maski, mask;
-	int expbits = 11;
-	int significandbits = 52;
-	int shift;
-	double answer;
-
-	/* read the data */
-	for (i = 0; i < 8; i++)
-		buff[i] = fgetc(fp);
-	/* just reverse if not big-endian*/
-	if (!bigendian)
-	{
-		for (i = 0; i < 4; i++)
-		{
-			temp = buff[i];
-			buff[i] = buff[8 - i - 1];
-			buff[8 - i - 1] = temp;
-		}
-	}
-	sign = buff[0] & 0x80 ? -1 : 1;
-	/* exponet in raw format*/
-	exponent = ((buff[0] & 0x7F) << 4) | ((buff[1] & 0xF0) >> 4);
-
-	/* read in the mantissa. Top bit is 0.5, the successive bits half*/
-	bitval = 0.5;
-	maski = 1;
-	mask = 0x08;
-	for (i = 0; i < significandbits; i++)
-	{
-		if (buff[maski] & mask)
-			fnorm += bitval;
-
-		bitval /= 2.0;
-		mask >>= 1;
-		if (mask == 0)
-		{
-			mask = 0x80;
-			maski++;
-		}
-	}
-	/* handle zero specially */
-	if (exponent == 0 && fnorm == 0)
-		return 0.0;
-
-	shift = exponent - ((1 << (expbits - 1)) - 1); /* exponent = shift + bias */
-	/* nans have exp 1024 and non-zero mantissa */
-	if (shift == 1024 && fnorm != 0)
-		return std::sqrt(-1.0);
-	/*infinity*/
-	if (shift == 1024 && fnorm == 0)
-	{
-
-#ifdef INFINITY
-		return sign == 1 ? INFINITY : -INFINITY;
-#endif
-		return	(sign * 1.0) / 0.0;
-	}
-	if (shift > -1023)
-	{
-		answer = std::ldexp(fnorm + 1.0, shift);
-		return answer * sign;
-	}
-	else
-	{
-		/* denormalised numbers */
-		if (fnorm == 0.0)
-			return 0.0;
-		shift = -1022;
-		while (fnorm < 1.0)
-		{
-			fnorm *= 2;
-			shift--;
-		}
-		answer = std::ldexp(fnorm, shift);
-		return answer * sign;
-	}
+// Utility to determine system endianness.
+bool BinaryFileReader::isSystemBigEndian() {
+    uint16_t test = 0x0102;
+    uint8_t* bytes = reinterpret_cast<uint8_t*>(&test);
+    return bytes[0] == 0x01; // Big-endian if the most significant byte is first.
 }
+
+// Swap the byte order of a double value.
+double BinaryFileReader::swapEndianness(double value) {
+    union {
+        double d;
+        uint8_t bytes[sizeof(double)];
+    } source, dest;
+
+    source.d = value;
+    for (size_t i = 0; i < sizeof(double); ++i) {
+        dest.bytes[i] = source.bytes[sizeof(double) - 1 - i];
+    }
+
+    return dest.d;
+}
+
+// Reads a double value from a binary file stream, accounting for endianness.
+double BinaryFileReader::ReadDoubleFromBinary(FILE *fp, int bigendian) {
+    if (!fp) {
+        throw std::invalid_argument("Invalid file pointer.");
+    }
+
+    double value = 0.0;
+    size_t bytesRead = fread(&value, sizeof(double), 1, fp);
+
+    if (bytesRead != 1) {
+        if (feof(fp)) {
+            throw std::runtime_error("End of file reached unexpectedly.");
+        } else {
+            throw std::runtime_error("Failed to read a double value from the binary file.");
+        }
+    }
+
+    // Swap byte order if file's endianness doesn't match the system's
+    if (bigendian != isSystemBigEndian()) {
+        value = swapEndianness(value);
+    }
+
+    return value;
+}
+
+// double BinaryFileReader::ReadDoubleFromBinary(FILE *fp, int bigendian)
+// {
+// 	//Function help from https://github.com/MalcolmMcLean/ieee754/blob/master/ieee754.c
+
+// 	unsigned char buff[8];
+// 	int i;
+// 	double fnorm = 0.0;
+// 	unsigned char temp;
+// 	int sign;
+// 	int exponent;
+// 	double bitval;
+// 	int maski, mask;
+// 	int expbits = 11;
+// 	int significandbits = 52;
+// 	int shift;
+// 	double answer;
+
+// 	/* read the data */
+// 	for (i = 0; i < 8; i++)
+// 		buff[i] = fgetc(fp);
+// 	/* just reverse if not big-endian*/
+// 	if (!bigendian)
+// 	{
+// 		for (i = 0; i < 4; i++)
+// 		{
+// 			temp = buff[i];
+// 			buff[i] = buff[8 - i - 1];
+// 			buff[8 - i - 1] = temp;
+// 		}
+// 	}
+// 	sign = buff[0] & 0x80 ? -1 : 1;
+// 	/* exponet in raw format*/
+// 	exponent = ((buff[0] & 0x7F) << 4) | ((buff[1] & 0xF0) >> 4);
+
+// 	/* read in the mantissa. Top bit is 0.5, the successive bits half*/
+// 	bitval = 0.5;
+// 	maski = 1;
+// 	mask = 0x08;
+// 	for (i = 0; i < significandbits; i++)
+// 	{
+// 		if (buff[maski] & mask)
+// 			fnorm += bitval;
+
+// 		bitval /= 2.0;
+// 		mask >>= 1;
+// 		if (mask == 0)
+// 		{
+// 			mask = 0x80;
+// 			maski++;
+// 		}
+// 	}
+// 	/* handle zero specially */
+// 	if (exponent == 0 && fnorm == 0)
+// 		return 0.0;
+
+// 	shift = exponent - ((1 << (expbits - 1)) - 1); /* exponent = shift + bias */
+// 	/* nans have exp 1024 and non-zero mantissa */
+// 	if (shift == 1024 && fnorm != 0)
+// 		return std::sqrt(-1.0);
+// 	/*infinity*/
+// 	if (shift == 1024 && fnorm == 0)
+// 	{
+
+// #ifdef INFINITY
+// 		return sign == 1 ? INFINITY : -INFINITY;
+// #endif
+// 		return	(sign * 1.0) / 0.0;
+// 	}
+// 	if (shift > -1023)
+// 	{
+// 		answer = std::ldexp(fnorm + 1.0, shift);
+// 		return answer * sign;
+// 	}
+// 	else
+// 	{
+// 		/* denormalised numbers */
+// 		if (fnorm == 0.0)
+// 			return 0.0;
+// 		shift = -1022;
+// 		while (fnorm < 1.0)
+// 		{
+// 			fnorm *= 2;
+// 			shift--;
+// 		}
+// 		answer = std::ldexp(fnorm, shift);
+// 		return answer * sign;
+// 	}
+// }
 
 #endif
