@@ -54,7 +54,10 @@ uint32_t OSMReader::FindMessageNumber()
     {
         const int num_header_values = 3;
         uint64_t header[num_header_values];
+        qDebug() << "Finding Message Header";
         status_code = ReadMultipleValues(header);
+
+        qDebug() << status_code;
 
         if (status_code == num_header_values && header[2]) {
             num_messages++;
