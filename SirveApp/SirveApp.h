@@ -10,6 +10,7 @@
 #include "frame_player.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
+#include "plot_palette.h"
 #include "video_container.h"
 #include "video_details.h"
 #include "process_file.h"
@@ -148,7 +149,10 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 	VideoDisplay *video_display;
-	EngineeringPlots *data_plots;
+    PlotPalette *plot_palette;
+    EngineeringPlot *data_plots_azimuth;
+    EngineeringPlot *data_plots_elevation;
+    EngineeringPlot *data_plots_irradiance;
 	EngineeringData *eng_data;
 	TrackInformation *track_info;
 	TrackManagementWidget *tm_widget;

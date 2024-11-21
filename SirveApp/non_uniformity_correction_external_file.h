@@ -45,7 +45,7 @@ private:
 	QString file_path, instructions;
 	
 	EngineeringData *engineering_data;
-    EngineeringPlots* plot_data;
+    EngineeringPlot* plot_data;
 	TrackInformation *track_info;
 
 	QPushButton* btn_load_file, *btn_load_frames, *btn_close;

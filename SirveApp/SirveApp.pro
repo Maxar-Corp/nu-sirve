@@ -40,6 +40,7 @@ HEADERS += abir_reader.h \
             non_uniformity_correction.h \
             osm_reader.h \
             plot_engineering_data.h \
+            plot_palette.h \
             popout_dialog.h \
             process_file.h \
             processing_state.h \
@@ -91,6 +92,7 @@ SOURCES += abir_reader.cpp \
             non_uniformity_correction.cpp \
             osm_reader.cpp \
             plot_engineering_data.cpp \
+            plot_palette.cpp \
             popout_dialog.cpp \
             process_file.cpp \
             processing_state.cpp \

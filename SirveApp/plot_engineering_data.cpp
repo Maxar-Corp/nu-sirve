@@ -4,8 +4,9 @@
 
 #include "plot_engineering_data.h"
 
-EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, PlotTypes plot_type) : JKQTPlotter()
 {
+    plotType = plot_type;
     //num_frames = static_cast<unsigned int>(osm_frames.size());
 
     //SetPlotTitle("EDIT CLASSIFICATION");
@@ -26,11 +27,11 @@ EngineeringPlots::EngineeringPlots(std::vector<Frame> const &osm_frames) : JKQTP
     //connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
 }
 
-EngineeringPlots::~EngineeringPlots()
+EngineeringPlot::~EngineeringPlot()
 {
 }
 
-void EngineeringPlots::InitializeIntervals(const std::vector<Frame> &osm_frames)
+void EngineeringPlot::InitializeIntervals(const std::vector<Frame> &osm_frames)
 {
     x_axis_units = frames;
     QPair<qreal,qreal> frame_interval = *new QPair<qreal,qreal>();
@@ -52,35 +53,37 @@ void EngineeringPlots::InitializeIntervals(const std::vector<Frame> &osm_frames)
     chart_x_intervals[2] = epoch_interval;
 }
 
-void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
+void EngineeringPlot::SetXAxisChartId(int xaxis_chart_id)
 {
 
     current_unit_id = xaxis_chart_id;
 }
 
-void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
+void EngineeringPlot::SetYAxisChartId(int yaxis_chart_id)
 {
     current_chart_id = yaxis_chart_id;
 }
 
-void EngineeringPlots::PlotChart(bool yAxisChangedLocal)
+void EngineeringPlot::PlotChart(bool yAxisChangedLocal)
 {
     int plot_number_tracks = 1;
 
-    auto func = std::bind(&EngineeringPlots::get_individual_y_track_irradiance, this, std::placeholders::_1);
-
-    PlotSirveQuantity(func, plot_number_tracks, QString("ROI Counts"));
-
-    func = std::bind(&EngineeringPlots::get_individual_y_track_azimuth, this, std::placeholders::_1);
-
-    PlotSirveQuantity(func, plot_number_tracks, QString("Azimuth"));
-
-    func = std::bind(&EngineeringPlots::get_individual_y_track_elevation, this, std::placeholders::_1);
-
-    PlotSirveQuantity(func, plot_number_tracks, QString("Elevation"));
+    if (plotType == azimuth)
+    {
+        auto func = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
+        PlotSirveQuantity(func, plot_number_tracks, QString("Azimuth"));
+    } else if (plotType == elevation)
+    {
+        auto func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+        PlotSirveQuantity(func, plot_number_tracks, QString("Elevation"));
+    } else
+    {
+        auto func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
+        PlotSirveQuantity(func, plot_number_tracks, QString("ROI Counts"));
+    }
 }
 
-void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title)
+void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title)
 {
     std::vector<double> y_points;
 
@@ -117,13 +120,13 @@ void EngineeringPlots::PlotSirveQuantity(std::function<std::vector<double>(size_
     }
 }
 
-void EngineeringPlots::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
+void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
 {
     track_frames = frames;
     number_of_tracks = num_unique;
 }
 
-std::vector<double> EngineeringPlots::get_individual_x_track(size_t i)
+std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
 {
     std::vector<double> x_values;
 
@@ -138,7 +141,7 @@ std::vector<double> EngineeringPlots::get_individual_x_track(size_t i)
     return x_values;
 }
 
-std::vector<double> EngineeringPlots::get_individual_y_track_irradiance(size_t i)
+std::vector<double> EngineeringPlot::get_individual_y_track_irradiance(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
@@ -152,7 +155,7 @@ std::vector<double> EngineeringPlots::get_individual_y_track_irradiance(size_t i
     return y_values;
 }
 
-std::vector<double> EngineeringPlots::get_individual_y_track_azimuth(size_t i)
+std::vector<double> EngineeringPlot::get_individual_y_track_azimuth(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
@@ -166,7 +169,7 @@ std::vector<double> EngineeringPlots::get_individual_y_track_azimuth(size_t i)
     return y_values;
 }
 
-std::vector<double> EngineeringPlots::get_individual_y_track_elevation(size_t i)
+std::vector<double> EngineeringPlot::get_individual_y_track_elevation(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
@@ -180,7 +183,7 @@ std::vector<double> EngineeringPlots::get_individual_y_track_elevation(size_t i)
     return y_values;
 }
 
-void EngineeringPlots::EstablishPlotLimits()
+void EngineeringPlot::EstablishPlotLimits()
 {
     sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
     sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
@@ -189,7 +192,7 @@ void EngineeringPlots::EstablishPlotLimits()
     full_plot_xmax = get_max_x_axis_value();
 }
 
-void EngineeringPlots::set_xaxis_units(XAxisPlotVariables unit_choice)
+void EngineeringPlot::set_xaxis_units(XAxisPlotVariables unit_choice)
 {
     x_axis_units = unit_choice;
     switch (x_axis_units)
@@ -208,7 +211,7 @@ void EngineeringPlots::set_xaxis_units(XAxisPlotVariables unit_choice)
     }
 }
 
-std::vector<double> EngineeringPlots::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
+std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
 {
     switch (x_axis_units)
     {
@@ -227,7 +230,7 @@ std::vector<double> EngineeringPlots::get_x_axis_values(unsigned int start_idx, 
     }
 }
 
-double EngineeringPlots::get_single_x_axis_value(int x_index)
+double EngineeringPlot::get_single_x_axis_value(int x_index)
 {
     switch (x_axis_units)
     {
@@ -242,7 +245,7 @@ double EngineeringPlots::get_single_x_axis_value(int x_index)
     }
 }
 
-double EngineeringPlots::get_max_x_axis_value()
+double EngineeringPlot::get_max_x_axis_value()
 {
     switch (x_axis_units)
     {
@@ -257,7 +260,7 @@ double EngineeringPlots::get_max_x_axis_value()
     }
 }
 
-void EngineeringPlots::CreateCurrentMarker()
+void EngineeringPlot::CreateCurrentMarker()
 {
     current_frame_marker = new QLineSeries();
     current_frame_marker->setName("Red Line");
@@ -275,22 +278,22 @@ void EngineeringPlots::CreateCurrentMarker()
     //chart->addSeries(current_frame_marker);
 }
 
-void EngineeringPlots::toggle_yaxis_log(bool input)
+void EngineeringPlot::toggle_yaxis_log(bool input)
 {
     // yaxis_is_log = input;
 }
 
-void EngineeringPlots::toggle_yaxis_scientific(bool input)
+void EngineeringPlot::toggle_yaxis_scientific(bool input)
 {
     // yaxis_is_scientific = input;
 }
 
-void EngineeringPlots::toggle_xaxis_fixed_pt(bool input)
+void EngineeringPlot::toggle_xaxis_fixed_pt(bool input)
 {
     // xaxis_is_fixed_pt = input;
 }
 
-void EngineeringPlots::PlotCurrentStep(int counter)
+void EngineeringPlot::PlotCurrentStep(int counter)
 {
     // if (plot_current_marker)
     // {
@@ -314,7 +317,7 @@ void EngineeringPlots::PlotCurrentStep(int counter)
     // }
 }
 
-void EngineeringPlots::SetPlotTitle(QString input_title)
+void EngineeringPlot::SetPlotTitle(QString input_title)
 {
 
     // title = input_title;
@@ -322,7 +325,7 @@ void EngineeringPlots::SetPlotTitle(QString input_title)
 
 }
 
-void EngineeringPlots::DrawTitle()
+void EngineeringPlot::DrawTitle()
 {
     // QColor brush_color("black");
     // QBrush brush(brush_color);
@@ -335,7 +338,7 @@ void EngineeringPlots::DrawTitle()
     // chart->setTitle(title);
 }
 
-void EngineeringPlots::ToggleSubplot()
+void EngineeringPlot::ToggleSubplot()
 {
     // if (plot_all_data)
     // {
@@ -347,7 +350,7 @@ void EngineeringPlots::ToggleSubplot()
     // }
 }
 
-void EngineeringPlots::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
 {
     // manual_track_frames = frames;
     // manual_track_ids = track_ids;
@@ -364,18 +367,18 @@ void EngineeringPlots::UpdateManualPlottingTrackFrames(std::vector<ManualPlottin
     //But this has minimal impact and isn't worth the code required to solve it
 }
 
-void EngineeringPlots::RecolorManualTrack(int track_id, QColor new_color)
+void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 {
     manual_track_colors[track_id] = new_color;
 }
 
-void EngineeringPlots::RecolorOsmTrack(QColor color)
+void EngineeringPlot::RecolorOsmTrack(QColor color)
 {
     // osm_track_color = new_color_str == "white" || new_color_str == "blue" ? colors.get_current_color() : QColor(new_color_str);
     //osm_track_color = color;
     emit updatePlots();
 }
-void EngineeringPlots::HandlePlayerButtonClick()
+void EngineeringPlot::HandlePlayerButtonClick()
 {
     QPushButton *button = qobject_cast<QPushButton*>(sender());
     if (button) {

@@ -27,12 +27,14 @@
 
 enum XAxisPlotVariables{frames , seconds_past_midnight, seconds_from_epoch};
 
-class EngineeringPlots : public JKQTPlotter
+enum PlotTypes {azimuth, elevation, irradiance};
+
+class EngineeringPlot : public JKQTPlotter
 {
     Q_OBJECT
 public:
-    EngineeringPlots(std::vector<Frame> const &osm_frames);
-    ~EngineeringPlots();
+    EngineeringPlot(std::vector<Frame> const &osm_frames, PlotTypes plot_type);
+    ~EngineeringPlot();
 
     QChartView *chart_view;
     ColorScheme colors;
@@ -75,6 +77,8 @@ public:
     ChartState chart_states[7];
 
     bool yAxisChanged = false;
+
+    PlotTypes plotType;
 
 signals:
     void changeMotionStatus(bool status);
