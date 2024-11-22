@@ -1913,11 +1913,11 @@ void SirveApp::LoadOsmData()
 
     osmDataLoaded = true;
 
-    connect(btn_pause, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    connect(btn_play, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    connect(btn_reverse, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    connect(btn_next_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    connect(btn_prev_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(btn_pause, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(btn_play, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(btn_reverse, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(btn_next_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(btn_prev_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
 
     // Old connectors for zoom and frame line have been commented out.
 
@@ -1930,7 +1930,15 @@ void SirveApp::LoadOsmData()
     data_plots_azimuth->past_midnight = eng_data->get_seconds_from_midnight();
     data_plots_azimuth->past_epoch = eng_data->get_seconds_from_epoch();
 
+    data_plots_elevation->past_midnight = eng_data->get_seconds_from_midnight();
+    data_plots_elevation->past_epoch = eng_data->get_seconds_from_epoch();
+
+    data_plots_irradiance->past_midnight = eng_data->get_seconds_from_midnight();
+    data_plots_irradiance->past_epoch = eng_data->get_seconds_from_epoch();
+
     data_plots_azimuth->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    data_plots_elevation->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    data_plots_irradiance->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
 
     //--------------------------------------------------------------------------------
 
@@ -1987,7 +1995,11 @@ void SirveApp::LoadOsmData()
     EnableEngineeringPlotOptions();
     data_plots_azimuth->SetPlotTitle(QString("EDIT CLASSIFICATION"));
     data_plots_azimuth->InitializeIntervals(osm_frames);
-    UpdatePlots();
+    data_plots_elevation->InitializeIntervals(osm_frames);
+    data_plots_irradiance->InitializeIntervals(osm_frames);
+    UpdatePlots(data_plots_azimuth);
+    UpdatePlots(data_plots_elevation);
+    UpdatePlots(data_plots_irradiance);
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
@@ -2180,7 +2192,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     menu_plot_all_data->setIconVisibleInMenu(false);
     data_plots_azimuth->plot_current_marker = true;
     menu_plot_frame_marker->setIconVisibleInMenu(true);
-    UpdatePlots();
+    UpdatePlots(data_plots_azimuth);
 
     // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots_azimuth, &EngineeringPlot::PlotCurrentStep);
@@ -3019,7 +3031,7 @@ void SirveApp::edit_bad_pixel_color()
     video_display->HighlightBadPixelsColors(bad_pixel_color);
 }
 
-void SirveApp::UpdatePlots()
+void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 {
     // x - axis
     // Index 0 - Frames
@@ -3040,37 +3052,37 @@ void SirveApp::UpdatePlots()
 
         bool scientific_is_checked = rad_scientific->isChecked();
         bool log_is_checked = rad_log->isChecked();
-        data_plots_azimuth->toggle_yaxis_log(log_is_checked);
+        engineering_plot->toggle_yaxis_log(log_is_checked);
 
         // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):
-        data_plots_azimuth->toggle_yaxis_scientific(scientific_is_checked && cmb_plot_yaxis->currentIndex() == 0 );
+        engineering_plot->toggle_yaxis_scientific(scientific_is_checked && cmb_plot_yaxis->currentIndex() == 0 );
 
         // For y-axis, use fixed-point precision for 'seconds past' options only ('frame' option is first combo box option):
-        data_plots_azimuth->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
+        engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
 
         switch (x_index)
         {
             case 0:
-                data_plots_azimuth->set_xaxis_units(frames);
+                engineering_plot->set_xaxis_units(frames);
                 break;
 
             case 1:
-                data_plots_azimuth->set_xaxis_units(seconds_past_midnight);
+                engineering_plot->set_xaxis_units(seconds_past_midnight);
                 break;
 
             case 2:
-                data_plots_azimuth->set_xaxis_units(seconds_from_epoch);
+                engineering_plot->set_xaxis_units(seconds_from_epoch);
                 break;
 
             default:
                 break;
         }
 
-        data_plots_azimuth->SetXAxisChartId(x_index);
-        data_plots_azimuth->SetYAxisChartId(y_index);
-        data_plots_azimuth->PlotChart(yAxisChanged);
+        engineering_plot->SetXAxisChartId(x_index);
+        engineering_plot->SetYAxisChartId(y_index);
+        engineering_plot->PlotChart(yAxisChanged);
 
-        data_plots_azimuth->PlotCurrentStep(playback_controller->get_current_frame_number());
+        engineering_plot->PlotCurrentStep(playback_controller->get_current_frame_number());
     }
 
     if (osmDataLoaded == true)
@@ -3198,7 +3210,7 @@ void SirveApp::ApplyEpochTime()
 
     data_plots_azimuth->past_epoch = eng_data->get_seconds_from_epoch();
     data_plots_azimuth->InitializeIntervals(osm_frames);
-    UpdatePlots();
+    UpdatePlots(data_plots_azimuth);
 }
 
 void SirveApp::HandleBadPixelReplacement()

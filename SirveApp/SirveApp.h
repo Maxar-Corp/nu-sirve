@@ -175,7 +175,7 @@ public:
 
     bool osmDataLoaded;
     bool yAxisChanged = false;
-    void UpdatePlots();
+    void UpdatePlots(EngineeringPlot *engineering_plot);
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
 
