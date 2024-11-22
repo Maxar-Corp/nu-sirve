@@ -2259,9 +2259,23 @@ void SirveApp::HandlePopoutEngineeringClick(bool checked)
 
 void SirveApp::OpenPopoutEngineeringPlot()
 {
-    popout_engineering->acquire(data_plots_azimuth->chart_view);
+    // Create and show the dialog
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("Popped-Out Chart");
+    QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
+
+    // Embed the plotter in the dialog
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, PlotTypes::azimuth);
+    dialogPlotter->copyStateFrom(*data_plots_azimuth);
+
+    dialogLayout->addWidget(dialogPlotter);
+
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->resize(plot_palette->width(), plot_palette->height());
+    dialog->show();
+
     connect(popout_engineering, &QDialog::finished, this, &SirveApp::HandlePopoutEngineeringClosed);
-    popout_engineering->open();
+    // popout_engineering->open();
 }
 
 void SirveApp::HandlePopoutEngineeringClosed()

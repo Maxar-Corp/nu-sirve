@@ -25,6 +25,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, PlotTypes
     index_sub_plot_xmax = num_frames - 1;
 
     //connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
+
+    ds = this->getDatastore();
 }
 
 EngineeringPlot::~EngineeringPlot()
@@ -85,12 +87,8 @@ void EngineeringPlot::PlotChart(bool yAxisChangedLocal)
 
 void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title)
 {
-    std::vector<double> y_points;
-
     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
     {
-        JKQTPDatastore* ds= this->getDatastore();
-
         std::vector<double> x_values = get_individual_x_track(track_index);
         std::vector<double> y_values = get_y_track_func(track_index);
 
@@ -102,7 +100,7 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
         size_t columnY=ds->addCopiedColumn(Y, "y");
 
         // 4. create a graph in the plot, which plots the dataset X/Y:
-        JKQTPXYLineGraph* graph1=new JKQTPXYLineGraph(this);
+        graph1=new JKQTPXYLineGraph(this);
         graph1->setXColumn(columnX);
         graph1->setYColumn(columnY);
         graph1->setTitle(title);
@@ -395,4 +393,50 @@ void EngineeringPlot::HandlePlayerButtonClick()
             emit changeMotionStatus(true);
         }
     }
+}
+
+void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
+
+    // Get the datastore from the source plotter
+    //JKQTPDatastore* srcDatastore = other.get_data_store();
+   // JKQTPDatastore* dstDatastore = this->get_data_store();
+
+    ds = other.get_data_store();
+
+    // Clear current datastore in the target plotter
+    ds->clear();
+
+    //Copy columns from the source datastore to the destination datastore
+    // for (size_t i = 0; i < srcDatastore->getColumnCount(); ++i) {
+    //     dstDatastore->addCopiedColumn(srcDatastore->getColumn(i), srcDatastore->getColumnTitle(i));
+    // }
+
+    // Clear existing graphs in the destination plotter
+    this->clearGraphs();
+
+    // Replicate graphs from the source plotter
+    //for (size_t i = 0; i < 1; ++i) {
+        auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph1);
+        if (srcGraph) {
+            auto* dstGraph = new JKQTPXYLineGraph(this);
+
+            // Set X and Y columns
+            dstGraph->setXColumn(srcGraph->getXColumn());
+            dstGraph->setYColumn(srcGraph->getYColumn());
+
+            // Copy graph properties
+            dstGraph->setTitle(srcGraph->getTitle());
+            qDebug() << srcGraph->getTitle();
+            dstGraph->setSymbolSize(srcGraph->getSymbolSize());
+            dstGraph->setSymbolLineWidth(srcGraph->getSymbolLineWidth());
+            //dstGraph->setColor(srcGraph->);
+            dstGraph->setSymbolColor(srcGraph->getSymbolColor());
+
+            // Add the graph to the destination plotter
+            this->addGraph(dstGraph);
+        }
+    //}
+
+    // Autoscale to fit the copied data
+    this->zoomToFit();
 }

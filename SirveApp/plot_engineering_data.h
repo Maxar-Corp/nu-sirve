@@ -36,6 +36,8 @@ public:
     EngineeringPlot(std::vector<Frame> const &osm_frames, PlotTypes plot_type);
     ~EngineeringPlot();
 
+    JKQTPDatastore* ds;
+
     QChartView *chart_view;
     ColorScheme colors;
 
@@ -54,6 +56,18 @@ public:
     QXYSeries *current_frame_marker;
 
     std::vector<PlottingFrameData> engineering_data;
+
+    JKQTPXYLineGraph* graph1;
+
+    void copyStateFrom(const EngineeringPlot &other);
+
+    // Correctly marked as const
+    JKQTPDatastore* get_data_store() const {
+        return ds;
+    }
+
+    // Returns a const reference to the column data
+    const QVector<double>& getColumn(size_t index) const;
 
     void SetXAxisChartId(int xaxis_chart_id);
     void SetYAxisChartId(int yaxis_chart_id);
@@ -92,6 +106,7 @@ public slots:
     void HandlePlayerButtonClick();
 
 private:
+
     QTabWidget* tabWidget;
 
     int number_of_tracks;
