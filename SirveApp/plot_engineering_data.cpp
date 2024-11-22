@@ -398,45 +398,52 @@ void EngineeringPlot::HandlePlayerButtonClick()
 void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
 
     // Get the datastore from the source plotter
-    //JKQTPDatastore* srcDatastore = other.get_data_store();
+    JKQTPDatastore* srcDatastore = other.get_data_store();
    // JKQTPDatastore* dstDatastore = this->get_data_store();
 
-    ds = other.get_data_store();
-
-    // Clear current datastore in the target plotter
+    // Clear existing data in the destination datastore
     ds->clear();
 
-    //Copy columns from the source datastore to the destination datastore
-    // for (size_t i = 0; i < srcDatastore->getColumnCount(); ++i) {
-    //     dstDatastore->addCopiedColumn(srcDatastore->getColumn(i), srcDatastore->getColumnTitle(i));
-    // }
+    // Step 1: Get the X and Y data from the source
+    size_t srcXColumn = other.graph1->getXColumn();  // Get the X column index from the first graph
+    size_t srcYColumn = other.graph1->getYColumn();  // Get the Y column index from the first graph
 
-    // Clear existing graphs in the destination plotter
-    this->clearGraphs();
+    // Step 2: Access the data for X and Y columns from the source datastore
+    // Assuming getColumnData (or a similar method) is available instead of getColumn
 
-    // Replicate graphs from the source plotter
-    //for (size_t i = 0; i < 1; ++i) {
-        auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph1);
-        if (srcGraph) {
-            auto* dstGraph = new JKQTPXYLineGraph(this);
+    QString name0 = srcDatastore->getColumnName(0);
+    QString name1 = srcDatastore->getColumnName(1);
 
-            // Set X and Y columns
-            dstGraph->setXColumn(srcGraph->getXColumn());
-            dstGraph->setYColumn(srcGraph->getYColumn());
+    QVector<double> srcXData = srcDatastore->getData(0, &name0);  // Get X data from source datastore
+    QVector<double> srcYData = srcDatastore->getData(1, &name1);
 
-            // Copy graph properties
-            dstGraph->setTitle(srcGraph->getTitle());
-            qDebug() << srcGraph->getTitle();
-            dstGraph->setSymbolSize(srcGraph->getSymbolSize());
-            dstGraph->setSymbolLineWidth(srcGraph->getSymbolLineWidth());
-            //dstGraph->setColor(srcGraph->);
-            dstGraph->setSymbolColor(srcGraph->getSymbolColor());
+    // Step 3: Add the copied columns to the destination datastore (ds)
+    size_t dstXColumn = ds->addCopiedColumn(srcXData, "x");  // Add X data to destination datastore (ds)
+    size_t dstYColumn = ds->addCopiedColumn(srcYData, "y");  // Add Y data to destination datastore (ds)
 
-            // Add the graph to the destination plotter
-            this->addGraph(dstGraph);
-        }
-    //}
+    // Step 4: Copy the graph configuration from the source to the destination plot
+    this->clearGraphs();  // Clear existing graphs in the destination plotter
 
-    // Autoscale to fit the copied data
+    // Create a new graph for the destination plotter
+    auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph1);  // Get the first graph from the source
+    if (srcGraph) {
+        auto* dstGraph = new JKQTPXYLineGraph(this);  // Create a new graph in the destination plotter
+
+        // Set the X and Y columns in the new graph to the copied columns
+        dstGraph->setXColumn(dstXColumn);
+        dstGraph->setYColumn(dstYColumn);
+
+        // Copy other properties from the source graph
+        dstGraph->setTitle(srcGraph->getTitle());
+        dstGraph->setSymbolSize(srcGraph->getSymbolSize());
+        dstGraph->setSymbolLineWidth(srcGraph->getSymbolLineWidth());
+        dstGraph->setColor(srcGraph->getLineColor());
+        dstGraph->setSymbolColor(srcGraph->getSymbolColor());
+
+        // Add the new graph to the destination plot
+        this->addGraph(dstGraph);
+    }
+
+    // Step 5: Autoscale the plot to fit the new data
     this->zoomToFit();
 }
