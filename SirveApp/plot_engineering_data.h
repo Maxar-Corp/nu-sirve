@@ -1,6 +1,7 @@
 #pragma once
 
 #include "color_scheme.h"
+#include "qmetaobject.h"
 #ifndef ENGINEERING_PLOT_H
 #define ENGINEERING_PLOT_H
 
@@ -20,6 +21,7 @@
 
 #include "data_structures.h"
 #include "new_chart_view.h"
+#include "plot_types.h"
 #include "tracks.h"
 
 #include "jkqtplotter/jkqtplotter.h"
@@ -27,13 +29,12 @@
 
 enum XAxisPlotVariables{frames , seconds_past_midnight, seconds_from_epoch};
 
-enum PlotTypes {azimuth, elevation, irradiance};
-
 class EngineeringPlot : public JKQTPlotter
 {
     Q_OBJECT
 public:
-    EngineeringPlot(std::vector<Frame> const &osm_frames, PlotTypes plot_type);
+
+    EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotTypes plot_type);
     ~EngineeringPlot();
 
     JKQTPDatastore* ds;
@@ -92,7 +93,7 @@ public:
 
     bool yAxisChanged = false;
 
-    PlotTypes plotType;
+    Enums::PlotTypes plotType;
 
 signals:
     void changeMotionStatus(bool status);

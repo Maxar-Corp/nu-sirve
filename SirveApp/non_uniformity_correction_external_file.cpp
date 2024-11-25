@@ -89,7 +89,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
         this->resize(500, 500);
 
     engineering_data = new EngineeringData(osm_frames);
-    plot_data = new EngineeringPlot(osm_frames, PlotTypes::irradiance);
+    plot_data = new EngineeringPlot(osm_frames, Enums::PlotTypes::irradiance);
 
     track_info = new TrackInformation(osm_frames);
     plot_data->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());

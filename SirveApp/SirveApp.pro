@@ -41,6 +41,7 @@ HEADERS += abir_reader.h \
             osm_reader.h \
             plot_engineering_data.h \
             plot_palette.h \
+            plot_types.h \
             popout_dialog.h \
             process_file.h \
             processing_state.h \

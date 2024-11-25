@@ -259,8 +259,9 @@ signals:
         void HandleZoomAfterSlider();
 
         void HandleAnnotationDialogClosed();
-        
         void HandleProcessingStatesCleared();
+
+        void OpenPopoutEngineeringPlot(int plotType);
 
 private:
 	ColorMap video_colors;
@@ -301,8 +302,7 @@ private:
     void HandlePopoutHistogramClick(bool checked);
     void OpenPopoutHistogramPlot();
 
-    void HandlePopoutEngineeringClick(bool checked);
-    void OpenPopoutEngineeringPlot();
+    //void HandlePopoutEngineeringClick(bool checked);
     void ProvideInformationAbout();
 
     void ResizeUi();

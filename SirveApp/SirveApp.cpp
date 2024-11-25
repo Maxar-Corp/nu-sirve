@@ -1902,9 +1902,9 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    data_plots_azimuth = new EngineeringPlot(osm_frames, PlotTypes::azimuth);
-    data_plots_elevation = new EngineeringPlot(osm_frames, PlotTypes::elevation);
-    data_plots_irradiance = new EngineeringPlot(osm_frames, PlotTypes::irradiance);
+    data_plots_azimuth = new EngineeringPlot(osm_frames, Enums::PlotTypes::azimuth);
+    data_plots_elevation = new EngineeringPlot(osm_frames, Enums::PlotTypes::elevation);
+    data_plots_irradiance = new EngineeringPlot(osm_frames, Enums::PlotTypes::irradiance);
 
     plot_palette = new PlotPalette();
     plot_palette->addPlotTab(data_plots_azimuth, "Azimuth");
@@ -1960,12 +1960,10 @@ void SirveApp::LoadOsmData()
     //--------------------------------------------------------------------------------
 
     engineering_plot_layout = new QGridLayout();
-    btn_popout_engineering = new QPushButton("Push to Popout Plots");
-    btn_popout_engineering->setCheckable(true);
 
-    connect(btn_popout_engineering, &QPushButton::clicked, this, &SirveApp::HandlePopoutEngineeringClick);
+    // commented out old btn_popout_engineering
 
-    engineering_plot_layout->addWidget(btn_popout_engineering);
+    connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
 
     engineering_plot_layout->addWidget(plot_palette);
 
@@ -2245,19 +2243,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_stop_frame->setText(QString::number(istop));
 }
 
-void SirveApp::HandlePopoutEngineeringClick(bool checked)
-{
-    if (checked)
-    {
-        OpenPopoutEngineeringPlot();
-    }
-    else
-    {
-        popout_engineering->close();
-    }
-}
-
-void SirveApp::OpenPopoutEngineeringPlot()
+void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
 {
     // Create and show the dialog
     QDialog *dialog = new QDialog(this);
@@ -2265,8 +2251,18 @@ void SirveApp::OpenPopoutEngineeringPlot()
     QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
 
     // Embed the plotter in the dialog
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, PlotTypes::azimuth);
-    dialogPlotter->copyStateFrom(*data_plots_azimuth);
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, Enums::getPlotTypeByIndex(plotTypeIndex));
+
+    if (plotTypeIndex == 0)
+    {
+        dialogPlotter->copyStateFrom(*data_plots_azimuth);
+    } else if (plotTypeIndex == 1)
+    {
+        dialogPlotter->copyStateFrom(*data_plots_elevation);
+    } else
+    {
+        dialogPlotter->copyStateFrom(*data_plots_irradiance);
+    }
 
     dialogLayout->addWidget(dialogPlotter);
 
@@ -2280,7 +2276,7 @@ void SirveApp::OpenPopoutEngineeringPlot()
 
 void SirveApp::HandlePopoutEngineeringClosed()
 {
-    btn_popout_engineering->setChecked(false);
+    //btn_popout_engineering->setChecked(false);
     engineering_plot_layout->addWidget(data_plots_azimuth->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 }

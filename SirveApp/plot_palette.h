@@ -16,6 +16,12 @@ public:
 
 private:
     void addTab();
+
+signals:
+    void popoutPlot(int plotType);
+
+private slots:
+    void HandleTabRightClicked(const QPoint &pos);
 };
 
 #endif // PLOT_PALETTE_H
