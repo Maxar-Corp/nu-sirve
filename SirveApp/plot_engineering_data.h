@@ -12,10 +12,10 @@
 #include <QtCharts/QLogValueAxis>
 #include <QtCharts/qxyseries.h>
 #include <qfiledialog.h>
+#include <QDebug>
 #include <QPair>
 #include <QString>
 #include <vector>
-#include <math.h>
 #include <armadillo>
 
 #include "color_scheme.h"
@@ -88,7 +88,7 @@ public:
     QLogValueAxis *axis_ylog;
     QString x_title, y_title, title;
 
-    bool yaxis_is_log, yaxis_is_scientific, xaxis_is_fixed_pt;
+    bool yaxis_is_log, old_yaxis_is_log, yaxis_is_scientific, old_yaxis_is_scientific, xaxis_is_fixed_pt;
 
     void StartNewChart();
     void AddSeries(QXYSeries *series, std::vector<double> x, std::vector<double> y, bool broken_data = false);
@@ -132,7 +132,7 @@ public:
     void SetYAxisChartId(int yaxis_chart_id);
 
     void InitializeIntervals(std::vector<Frame> const &osm_frames);
-    void PlotChart(bool yAxisChangedLocal);
+    void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
@@ -149,7 +149,7 @@ public:
     float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
     ChartState chart_states[7];
 
-    bool yAxisChanged = false;
+    bool yAxisDecimalScientificChanged = false;
 
 signals:
     void changeMotionStatus(bool status);

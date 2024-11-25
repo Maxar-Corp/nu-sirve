@@ -1322,6 +1322,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
+    connect(this, &SirveApp::enableYAxisOptions, this, &SirveApp::EnableYAxisOptions);
 }
 
 void SirveApp::HandleBadPixelRawToggle()
@@ -1361,6 +1362,7 @@ void SirveApp::HandleYAxisChange()
     }
     else{
         rad_decimal->setChecked(true);
+        rad_linear->setChecked(true);
     }
     yAxisChanged=true;
     UpdatePlots();
@@ -1989,6 +1991,9 @@ void SirveApp::LoadOsmData()
     menu_plot_frame_marker->setIconVisibleInMenu(false);
 
     EnableEngineeringPlotOptions();
+
+    EnableYAxisOptions(false);
+
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
     data_plots->InitializeIntervals(osm_frames);
@@ -3042,9 +3047,10 @@ void SirveApp::UpdatePlots()
     // Check that indices are all positive
     if (x_index >= 0 && y_index >= 0 && eng_data)
     {
-
         bool scientific_is_checked = rad_scientific->isChecked();
         bool log_is_checked = rad_log->isChecked();
+
+        // Feed the current Y-Axis Linear/Log option into the plot engineering widget
         data_plots->toggle_yaxis_log(log_is_checked);
 
         // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):
@@ -3071,9 +3077,11 @@ void SirveApp::UpdatePlots()
                 break;
         }
 
+        emit enableYAxisOptions(y_index == 0);
+
         data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
-        data_plots->PlotChart(yAxisChanged);
+        data_plots->PlotChart();
 
         data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
     }
@@ -4629,6 +4637,25 @@ void SirveApp::EnableEngineeringPlotOptions()
 
     cmb_plot_yaxis->setEnabled(false);
     cmb_plot_xaxis->setEnabled(false);
+}
+
+void SirveApp::EnableYAxisOptions(bool enabled)
+{
+    this->rad_log->setEnabled(enabled);
+    this->rad_linear->setEnabled(enabled);
+    this->rad_decimal->setEnabled(enabled);
+    this->rad_scientific->setEnabled(enabled);
+
+    qDebug() << "enabled" << enabled;
+    qDebug() << "------>>> enabled=" << enabled;
+
+    if (!enabled)
+    {
+        qDebug() << "TOGGLING";
+
+        data_plots->toggle_yaxis_log(false);
+        data_plots->toggle_yaxis_scientific(false);
+    }
 }
 
 void SirveApp::UpdateEpochString(QString new_epoch_string)
