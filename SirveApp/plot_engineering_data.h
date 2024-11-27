@@ -21,7 +21,7 @@
 
 #include "data_structures.h"
 #include "new_chart_view.h"
-#include "plot_types.h"
+#include "enums.h"
 #include "tracks.h"
 
 #include "jkqtplotter/jkqtplotter.h"
@@ -34,7 +34,7 @@ class EngineeringPlot : public JKQTPlotter
     Q_OBJECT
 public:
 
-    EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotTypes plot_type);
+    EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotType plot_type);
     ~EngineeringPlot();
 
     JKQTPDatastore* ds;
@@ -93,7 +93,7 @@ public:
 
     bool yAxisChanged = false;
 
-    Enums::PlotTypes plotType;
+    Enums::PlotType plotType;
 
 signals:
     void changeMotionStatus(bool status);

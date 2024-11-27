@@ -30,6 +30,7 @@ HEADERS += abir_reader.h \
             data_structures.h \
             engineering_data.h \
             enhanced_label.h \
+            enums.h \
             frame_player.h \
             histogram_plotter.h \
             image_processing.h \
@@ -41,7 +42,6 @@ HEADERS += abir_reader.h \
             osm_reader.h \
             plot_engineering_data.h \
             plot_palette.h \
-            plot_types.h \
             popout_dialog.h \
             process_file.h \
             processing_state.h \

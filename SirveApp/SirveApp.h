@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 
+#include "enums.h"
 #include "constants.h"
 #include "osm_reader.h"
 #include "ABIR_Reader.h"

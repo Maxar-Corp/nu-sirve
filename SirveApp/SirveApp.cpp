@@ -1902,9 +1902,9 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    data_plots_azimuth = new EngineeringPlot(osm_frames, Enums::PlotTypes::azimuth);
-    data_plots_elevation = new EngineeringPlot(osm_frames, Enums::PlotTypes::elevation);
-    data_plots_irradiance = new EngineeringPlot(osm_frames, Enums::PlotTypes::irradiance);
+    data_plots_azimuth = new EngineeringPlot(osm_frames, Enums::PlotType::azimuth);
+    data_plots_elevation = new EngineeringPlot(osm_frames, Enums::PlotType::elevation);
+    data_plots_irradiance = new EngineeringPlot(osm_frames, Enums::PlotType::irradiance);
 
     plot_palette = new PlotPalette();
     plot_palette->addPlotTab(data_plots_azimuth, "Azimuth");
@@ -2247,7 +2247,7 @@ void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
 {
     // Create and show the dialog
     QDialog *dialog = new QDialog(this);
-    dialog->setWindowTitle("Popped-Out Chart");
+    QString title;
     QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
 
     // Embed the plotter in the dialog
@@ -2256,9 +2256,11 @@ void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
     if (plotTypeIndex == 0)
     {
         dialogPlotter->copyStateFrom(*data_plots_azimuth);
+        data_plots_elevation->synchronizeXToMaster(dialogPlotter);
     } else if (plotTypeIndex == 1)
     {
         dialogPlotter->copyStateFrom(*data_plots_elevation);
+        data_plots_azimuth->synchronizeXToMaster(dialogPlotter);
     } else
     {
         dialogPlotter->copyStateFrom(*data_plots_irradiance);
@@ -2266,12 +2268,12 @@ void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
 
     dialogLayout->addWidget(dialogPlotter);
 
+    dialog->setWindowTitle(Enums::plotTypeToString(Enums::getPlotTypeByIndex(plotTypeIndex)));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->resize(plot_palette->width(), plot_palette->height());
     dialog->show();
 
     connect(popout_engineering, &QDialog::finished, this, &SirveApp::HandlePopoutEngineeringClosed);
-    // popout_engineering->open();
 }
 
 void SirveApp::HandlePopoutEngineeringClosed()

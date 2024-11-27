@@ -3,9 +3,9 @@
 #include <functional>
 
 #include "plot_engineering_data.h"
-#include "plot_types.h"
+#include "enums.h"
 
-EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotTypes plot_type) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotType plot_type) : JKQTPlotter()
 {
     plotType = plot_type;
     //num_frames = static_cast<unsigned int>(osm_frames.size());
@@ -71,11 +71,11 @@ void EngineeringPlot::PlotChart(bool yAxisChangedLocal)
 {
     int plot_number_tracks = 1;
 
-    if (plotType == Enums::PlotTypes::azimuth)
+    if (plotType == Enums::PlotType::azimuth)
     {
         auto func = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
         PlotSirveQuantity(func, plot_number_tracks, QString("Azimuth"));
-    } else if (plotType == Enums::PlotTypes::elevation)
+    } else if (plotType == Enums::PlotType::elevation)
     {
         auto func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
         PlotSirveQuantity(func, plot_number_tracks, QString("Elevation"));
