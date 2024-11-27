@@ -2095,6 +2095,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setTextVisible(true);
     progress_bar_main->setRange(0,100);
 
+    qDebug() << "TASK 1";
+
     // Task 1:
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
@@ -4731,6 +4733,8 @@ bool SirveApp::VerifyFrameSelection(int min_frame, int max_frame)
     }
 
     int frame_stop = data_plots_azimuth->full_plot_xmax + 1;
+
+    qDebug() << "frame_stop=" << frame_stop;
 
     if (max_frame > frame_stop)
     {

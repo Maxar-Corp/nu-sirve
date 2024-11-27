@@ -4,6 +4,7 @@
 
 #include "plot_engineering_data.h"
 #include "enums.h"
+#include "jkqtplotter/graphs/jkqtpevaluatedfunction.h"
 
 EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotType plot_type) : JKQTPlotter()
 {
@@ -110,6 +111,12 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
         graph1->setSymbolLineWidth(1);
         graph1->setColor(colors.get_current_color());
         graph1->setSymbolColor(QColor::fromRgb(255,20,20));
+
+
+        JKQTPXFunctionLineGraph* func1=new JKQTPXFunctionLineGraph(this);
+        func1->setPlotFunctionFunctor([](double x) { return 0.2*x*x-0.015*x*x*x; });
+        func1->setTitle("C++-inline function $0.2x^2-0.015x^3$");
+        this->addGraph(func1);;
 
         // 5. add the graph to the plot, so it is actually displayed
         this->addGraph(graph1);
