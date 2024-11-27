@@ -31,8 +31,41 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos) {
 
     // Create the context menu
     QMenu contextMenu;
-    QAction *closeTabAction = contextMenu.addAction("Close Tab");
+    QCheckBox *syncCheckBox = new QCheckBox("Sync Plot", this);
+    //syncCheckBox->setStyleSheet("QCheckBox::indicator { border: 1px solid gray; width: 15px; height: 15px; background-color: rgba(245,200,125,255); }");
+
+    syncCheckBox->setStyleSheet(
+        "QCheckBox {"
+        "   font-size: 14px;"            // Set font size
+        "   color: black;"               // Set text color
+        "   font-weight: bold;"          // Set font weight
+        "   background-color: rgba(120, 193, 218, 255);" // Set background Ubuntu blue
+        "}"
+        "QCheckBox::indicator {"
+        "   width: 15px;"                // Set indicator width
+        "   height: 15px;"               // Set indicator height
+        "   background-color: white;"    // Set checkbox background
+        "   border: 2px solid gray;"    // Set border around checkbox
+        "}"
+        "QCheckBox::indicator:checked {"
+        "   background-color:rgb(246, 134, 86)"
+        "}"
+        "QCheckBox::indicator:unchecked {"
+        "   background-color:rgb(200,200,200);"
+        "}"
+    );
+
+    // Create a QWidgetAction and set the checkbox as the widget
+    QWidgetAction *syncAction = new QWidgetAction(this);
+
+    syncAction->setDefaultWidget(syncCheckBox);
     QAction *popoutPlotAction = contextMenu.addAction("Popout Plot");
+
+    syncAction->setCheckable(true);
+    syncAction->setChecked(false);
+    contextMenu.addAction(syncAction);
+
+    QAction *closeTabAction = contextMenu.addAction("Close Tab");
 
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
