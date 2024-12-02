@@ -2192,10 +2192,10 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     menu_plot_all_data->setIconVisibleInMenu(false);
     data_plots_azimuth->plot_current_marker = true;
     menu_plot_frame_marker->setIconVisibleInMenu(true);
-    UpdatePlots(data_plots_azimuth);
+    //UpdatePlots(data_plots_azimuth);
 
     // Update frame marker on engineering plot
-    connect(playback_controller, &FramePlayer::frameSelected, data_plots_azimuth, &EngineeringPlot::PlotCurrentStep);
+    connect(playback_controller, &FramePlayer::frameSelected, data_plots_azimuth, &EngineeringPlot::PlotCurrentFrameline);
     //connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
    // connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
@@ -2344,7 +2344,7 @@ void SirveApp::HandlePopoutVideoClosed()
 
 void SirveApp::HandleZoomAfterSlider()
 {
-    data_plots_azimuth->PlotCurrentStep(playback_controller->get_current_frame_number());
+    data_plots_azimuth->PlotCurrentFrameline(playback_controller->get_current_frame_number());
 }
 
 void SirveApp::StartStopVideoRecording()
@@ -3096,7 +3096,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
         engineering_plot->SetYAxisChartId(y_index);
         engineering_plot->PlotChart(yAxisChanged);
 
-        engineering_plot->PlotCurrentStep(playback_controller->get_current_frame_number());
+        engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
     }
 
     if (osmDataLoaded == true)
@@ -4733,8 +4733,6 @@ bool SirveApp::VerifyFrameSelection(int min_frame, int max_frame)
     }
 
     int frame_stop = data_plots_azimuth->full_plot_xmax + 1;
-
-    qDebug() << "frame_stop=" << frame_stop;
 
     if (max_frame > frame_stop)
     {

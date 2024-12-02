@@ -9,7 +9,7 @@
 EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotType plot_type) : JKQTPlotter()
 {
     plotType = plot_type;
-    //num_frames = static_cast<unsigned int>(osm_frames.size());
+    num_frames = static_cast<unsigned int>(osm_frames.size());
 
     //SetPlotTitle("EDIT CLASSIFICATION");
 
@@ -85,6 +85,7 @@ void EngineeringPlot::PlotChart(bool yAxisChangedLocal)
         auto func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
         PlotSirveQuantity(func, plot_number_tracks, QString("ROI Counts"));
     }
+
 }
 
 void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title)
@@ -102,28 +103,28 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
         size_t columnY=ds->addCopiedColumn(Y, "y");
 
         // 4. create a graph in the plot, which plots the dataset X/Y:
-        graph1=new JKQTPXYLineGraph(this);
-        graph1->setXColumn(columnX);
-        graph1->setYColumn(columnY);
-        graph1->setTitle(title);
+        graph=new JKQTPXYLineGraph(this);
+        graph->setXColumn(columnX);
+        graph->setYColumn(columnY);
+        graph->setTitle(title);
 
-        graph1->setSymbolSize(5);
-        graph1->setSymbolLineWidth(1);
-        graph1->setColor(colors.get_current_color());
-        graph1->setSymbolColor(QColor::fromRgb(255,20,20));
+        graph->setSymbolSize(5);
+        graph->setSymbolLineWidth(1);
+        graph->setColor(colors.get_current_color());
+        graph->setSymbolColor(QColor::fromRgb(255,20,20));
 
+        // 6. add the graph to the plot, so it is actually displayed
+        this->addGraph(graph);
 
-        JKQTPXFunctionLineGraph* func1=new JKQTPXFunctionLineGraph(this);
-        func1->setPlotFunctionFunctor([](double x) { return 0.2*x*x-0.015*x*x*x; });
-        func1->setTitle("C++-inline function $0.2x^2-0.015x^3$");
-        this->addGraph(func1);;
-
-        // 5. add the graph to the plot, so it is actually displayed
-        this->addGraph(graph1);
-
-        // 6. autoscale the plot so the graph is contained
+        // 7. autoscale the plot so the graph is contained
         this->zoomToFit();
+
+        this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
+
+        CreateCurrentMarker(0);
     }
+
+    EstablishPlotLimits();
 }
 
 void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -194,8 +195,8 @@ void EngineeringPlot::EstablishPlotLimits()
     sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
     sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
 
-    full_plot_xmin = get_single_x_axis_value(0);
-    full_plot_xmax = get_max_x_axis_value();
+    this->full_plot_xmin = get_single_x_axis_value(0);
+    this->full_plot_xmax = get_max_x_axis_value();
 }
 
 void EngineeringPlot::set_xaxis_units(XAxisPlotVariables unit_choice)
@@ -266,22 +267,22 @@ double EngineeringPlot::get_max_x_axis_value()
     }
 }
 
-void EngineeringPlot::CreateCurrentMarker()
+void EngineeringPlot::CreateCurrentMarker(double x_intercept)
 {
-    current_frame_marker = new QLineSeries();
-    current_frame_marker->setName("Red Line");
+    // Define data points for the line
+    QVector<double> xData = {x_intercept, x_intercept};
+    QVector<double> yData = {0, this->fixed_max_y}; // e.g., y = x^2
 
-    QPen pen;
-    pen.setColor(colors.get_color(2));
-    pen.setStyle(Qt::SolidLine);
-    pen.setWidth(3);
+    // 3. make data available to JKQTPlotter by adding it to the internal datastore.
+    size_t columnX2=ds->addCopiedColumn(xData, "x");
+    size_t columnY2=ds->addCopiedColumn(yData, "y");
 
-    current_frame_marker->setPen(pen);
+    // Create the line graph and set its data
+    JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
+    lineGraph->setXColumn(columnX2);
+    lineGraph->setYColumn(columnY2);
 
-    current_frame_marker->append(0, 0);
-    current_frame_marker->append(0, 0);
-
-    //chart->addSeries(current_frame_marker);
+    this->addGraph(lineGraph);
 }
 
 void EngineeringPlot::toggle_yaxis_log(bool input)
@@ -299,28 +300,14 @@ void EngineeringPlot::toggle_xaxis_fixed_pt(bool input)
     // xaxis_is_fixed_pt = input;
 }
 
-void EngineeringPlot::PlotCurrentStep(int counter)
+void EngineeringPlot::PlotCurrentFrameline(int counter)
 {
-    // if (plot_current_marker)
-    // {
-    //     double current_x = get_single_x_axis_value(index_sub_plot_xmin + counter);
-    //     double min_y, max_y;
-
-    //     if (yaxis_is_log)
-    //     {
-    //         min_y = 0.000000001;
-    //         max_y = axis_ylog->max();
-    //     }
-    //     else
-    //     {
-    //         min_y = axis_y->min();
-    //         max_y = axis_y->max();
-    //     }
-
-    //     current_frame_marker->clear();
-    //     current_frame_marker->append(current_x, min_y);
-    //     current_frame_marker->append(current_x, max_y);
-    // }
+    if (plot_current_marker)
+    {
+        double x_intercept = get_single_x_axis_value(index_sub_plot_xmin + counter);
+        CreateCurrentMarker(x_intercept);
+        this->deleteGraph(1); // Remove the old graph (expected to be at index 1)
+    }
 }
 
 void EngineeringPlot::SetPlotTitle(QString input_title)
@@ -413,8 +400,8 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
     ds->clear();
 
     // Step 1: Get the X and Y data from the source
-    size_t srcXColumn = other.graph1->getXColumn();  // Get the X column index from the first graph
-    size_t srcYColumn = other.graph1->getYColumn();  // Get the Y column index from the first graph
+    size_t srcXColumn = other.graph->getXColumn();  // Get the X column index from the first graph
+    size_t srcYColumn = other.graph->getYColumn();  // Get the Y column index from the first graph
 
     // Step 2: Access the data for X and Y columns from the source datastore
     // Assuming getColumnData (or a similar method) is available instead of getColumn
@@ -433,7 +420,7 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
     this->clearGraphs();  // Clear existing graphs in the destination plotter
 
     // Create a new graph for the destination plotter
-    auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph1);  // Get the first graph from the source
+    auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph);  // Get the first graph from the source
     if (srcGraph) {
         auto* dstGraph = new JKQTPXYLineGraph(this);  // Create a new graph in the destination plotter
 

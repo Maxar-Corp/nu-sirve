@@ -58,7 +58,7 @@ public:
 
     std::vector<PlottingFrameData> engineering_data;
 
-    JKQTPXYLineGraph* graph1;
+    JKQTPXYLineGraph* graph;
 
     void copyStateFrom(const EngineeringPlot &other);
 
@@ -88,7 +88,6 @@ public:
 
     QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
 
-    float chart_y_maxes[7] = {-1, 360.0, 90.0, 750.0, 750.0, 360.0, 90.0}; // the -1 entry for irradiance gets populated later...
     ChartState chart_states[7];
 
     bool yAxisChanged = false;
@@ -102,7 +101,7 @@ signals:
 public slots:
 
     void ToggleSubplot();
-    void PlotCurrentStep(int counter);
+    void PlotCurrentFrameline(int counter);
     void SetPlotTitle(QString input_title);
     void HandlePlayerButtonClick();
 
@@ -119,9 +118,9 @@ private:
     unsigned int num_frames;
     XAxisPlotVariables x_axis_units;
 
-    float fixed_max_y;
+    double fixed_max_y;
 
-    void CreateCurrentMarker();
+    void CreateCurrentMarker(double x_intercept);
     void DrawTitle();
     void EstablishPlotLimits();
 
