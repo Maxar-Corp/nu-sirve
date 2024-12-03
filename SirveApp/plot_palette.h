@@ -16,7 +16,7 @@ public:
     void addPlotTab(EngineeringPlot *engineering_plot, QString title);
 
 protected:
-    void mousePressEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
     void addTab();

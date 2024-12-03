@@ -81,14 +81,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos) {
     }
 }
 
-void PlotPalette::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::RightButton) {
-        qDebug() << "Right-click detected at position:" << event->pos();
-        // Respond to the right-click here
-    } else {
-        QWidget::mousePressEvent(event); // Pass the event to the base class
-    }
-
+void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event) {
     if (event->button() == Qt::RightButton) {
         QMenu menu(this);
         menu.addAction("Add Tab", [this]() {
