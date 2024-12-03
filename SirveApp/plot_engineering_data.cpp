@@ -72,11 +72,11 @@ void EngineeringPlot::PlotChart(bool yAxisChangedLocal)
 {
     int plot_number_tracks = 1;
 
-    if (plotType == Enums::PlotType::azimuth)
+    if (plotType == Enums::PlotType::Azimuth)
     {
         auto func = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
         PlotSirveQuantity(func, plot_number_tracks, QString("Azimuth"));
-    } else if (plotType == Enums::PlotType::elevation)
+    } else if (plotType == Enums::PlotType::Elevation)
     {
         auto func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
         PlotSirveQuantity(func, plot_number_tracks, QString("Elevation"));

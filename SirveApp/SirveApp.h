@@ -255,7 +255,7 @@ signals:
         void HandleProcessingStateRemoval(ProcessingMethod method, int index);
         void HandlePopoutVideoClosed();
         void HandlePopoutHistogramClosed();
-        void HandlePopoutEngineeringClosed();
+
         void HandleProgressUpdate(int percent);
         void HandleZoomAfterSlider();
 
@@ -263,6 +263,7 @@ signals:
         void HandleProcessingStatesCleared();
 
         void OpenPopoutEngineeringPlot(int plotType);
+        void ClosePopoutEngineeringPlot();
 
 private:
 	ColorMap video_colors;

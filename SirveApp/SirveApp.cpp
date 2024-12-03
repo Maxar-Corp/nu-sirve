@@ -1902,9 +1902,9 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    data_plots_azimuth = new EngineeringPlot(osm_frames, Enums::PlotType::azimuth);
-    data_plots_elevation = new EngineeringPlot(osm_frames, Enums::PlotType::elevation);
-    data_plots_irradiance = new EngineeringPlot(osm_frames, Enums::PlotType::irradiance);
+    data_plots_azimuth = new EngineeringPlot(osm_frames, Enums::PlotType::Azimuth);
+    data_plots_elevation = new EngineeringPlot(osm_frames, Enums::PlotType::Elevation);
+    data_plots_irradiance = new EngineeringPlot(osm_frames, Enums::PlotType::Irradiance);
 
     plot_palette = new PlotPalette();
     plot_palette->addPlotTab(data_plots_azimuth, "Azimuth");
@@ -1964,6 +1964,7 @@ void SirveApp::LoadOsmData()
     // commented out old btn_popout_engineering
 
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
+    connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
 
     engineering_plot_layout->addWidget(plot_palette);
 
@@ -2275,14 +2276,18 @@ void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
     dialog->resize(plot_palette->width(), plot_palette->height());
     dialog->show();
 
-    connect(popout_engineering, &QDialog::finished, this, &SirveApp::HandlePopoutEngineeringClosed);
+    connect(dialog, &QDialog::finished, this, &SirveApp::ClosePopoutEngineeringPlot);
 }
 
-void SirveApp::HandlePopoutEngineeringClosed()
+void SirveApp::ClosePopoutEngineeringPlot()
 {
-    //btn_popout_engineering->setChecked(false);
-    engineering_plot_layout->addWidget(data_plots_azimuth->chart_view);
-    frame_plots->setLayout(engineering_plot_layout);
+    // Implementing Close this way avoids the cost of inheriting QDialog and making a new signal/slot...
+    QObject *sendingObject = sender();
+    QDialog *dialog = qobject_cast<QDialog *>(sendingObject);
+    plot_palette->tabBar()->setTabVisible(Enums::getPlotTypeIndexFromString(dialog->windowTitle()), true);
+    // Without the next two lines, the plot palette's tab bar will appear 'scrunched up' when tab is restored...
+    plot_palette->update();
+    plot_palette->adjustSize();
 }
 
 void SirveApp::HandleProgressUpdate(int percent)

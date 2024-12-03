@@ -19,6 +19,7 @@ private:
 
 signals:
     void popoutPlot(int plotType);
+    void popinPlot(int plotType);
 
 private slots:
     void HandleTabRightClicked(const QPoint &pos);
