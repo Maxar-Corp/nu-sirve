@@ -80,3 +80,24 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos) {
         emit popoutPlot(tabIndex);
     }
 }
+
+void PlotPalette::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::RightButton) {
+        qDebug() << "Right-click detected at position:" << event->pos();
+        // Respond to the right-click here
+    } else {
+        QWidget::mousePressEvent(event); // Pass the event to the base class
+    }
+
+    if (event->button() == Qt::RightButton) {
+        QMenu menu(this);
+        menu.addAction("Add Tab", [this]() {
+            designer = new PlotDesigner(this);
+            designer->exec();
+        });
+        ///menu.addAction("Option 2", []() { qDebug() << "Option 2 selected"; });
+        menu.exec(event->globalPos()); // Show menu at the cursor position
+    } else {
+        QWidget::mousePressEvent(event); // Pass the event to the base class
+    }
+}

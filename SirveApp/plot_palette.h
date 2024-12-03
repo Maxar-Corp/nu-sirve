@@ -1,6 +1,7 @@
 #ifndef PLOT_PALETTE_H
 #define PLOT_PALETTE_H
 
+#include "plot_designer.h"
 #include "plot_engineering_data.h"
 #include <QTabWidget>
 #include <QWidget>
@@ -14,8 +15,13 @@ public:
     explicit PlotPalette(QWidget *parent = nullptr);
     void addPlotTab(EngineeringPlot *engineering_plot, QString title);
 
+protected:
+    void mousePressEvent(QMouseEvent *event);
+
 private:
     void addTab();
+
+    PlotDesigner *designer;
 
 signals:
     void popoutPlot(int plotType);
