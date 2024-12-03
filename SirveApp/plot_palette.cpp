@@ -5,8 +5,9 @@
 #include "SirveApp.h"
 
 
-PlotPalette::PlotPalette(QWidget *parent)
-    : QTabWidget(parent) {
+PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
+{
+    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FOV_X", "FOV_Y", "Frames", "Irradiance", "Seconds_From_Epoch", "Second_Past_Midnight"};
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -14,7 +15,8 @@ PlotPalette::PlotPalette(QWidget *parent)
             this, &PlotPalette::HandleTabRightClicked);
 }
 
-void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, QString title) {
+void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, QString title)
+{
 
     QWidget *tab1 = new QWidget(this);
     QVBoxLayout *layout1 = new QVBoxLayout(tab1);
@@ -24,7 +26,8 @@ void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, QString title) {
     this->QTabWidget::addTab(tab1, title);
 }
 
-void PlotPalette::HandleTabRightClicked(const QPoint &pos) {
+void PlotPalette::HandleTabRightClicked(const QPoint &pos)
+{
     int tabIndex = tabBar()->tabAt(pos);
     if (tabIndex == -1)
         return; // Click was not on a tab
@@ -81,14 +84,25 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos) {
     }
 }
 
-void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event) {
+void PlotPalette::HandleDesignerParamsSelected(const std::vector<QString> &strings)
+{
+    qDebug() << "forwarding";
+    emit paletteParamsSelected(strings);
+}
+
+void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
+{
     if (event->button() == Qt::RightButton) {
         QMenu menu(this);
         menu.addAction("Add Tab", [this]() {
             designer = new PlotDesigner(this);
+            designer->AddCheckableItemsByIndex(0, quantities);
+            designer->AddCheckableItemsByIndex(1, quantities);
+
+            connect(designer, &PlotDesigner::designerParamsSelected, this, &PlotPalette::HandleDesignerParamsSelected);
+
             designer->exec();
         });
-        ///menu.addAction("Option 2", []() { qDebug() << "Option 2 selected"; });
         menu.exec(event->globalPos()); // Show menu at the cursor position
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class

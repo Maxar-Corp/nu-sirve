@@ -1919,6 +1919,8 @@ void SirveApp::LoadOsmData()
     // connect(btn_next_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
     // connect(btn_prev_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
 
+    connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
+
     // Old connectors for zoom and frame line have been commented out.
 
     size_t num_tracks = track_info->get_track_count();
@@ -2002,6 +2004,13 @@ void SirveApp::LoadOsmData()
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
+}
+
+void SirveApp::HandleParamsSelected(const std::vector<QString> &strings) {
+    qDebug() << "Got here";
+    for (const auto &str : strings) {
+        qDebug() << "HandleParamsSelected:" << str;
+    }
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)

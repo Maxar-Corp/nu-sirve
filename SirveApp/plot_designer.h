@@ -15,6 +15,11 @@ class PlotDesigner : public QDialog {
 public:
     explicit PlotDesigner(QWidget *parent = nullptr);
 
+    void AddCheckableItemsByIndex(int index, QStringList items);
+
+signals:
+    void designerParamsSelected(const std::vector<QString> &strings);
+
 private:
     QLabel *label1;       // Label for the first group
     QLabel *label2;       // Label for the second group
@@ -22,7 +27,13 @@ private:
     QTextEdit *textEdit2; // Multiline box for the second group
     QPushButton *closeButton; // Close button
 
+    QListWidget *listWidget1;
+    QListWidget *listWidget2;
+
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
+
+protected:
+    void accept() override;
 };
 
 #endif // PLOT_DESIGNER_H

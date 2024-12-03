@@ -265,6 +265,8 @@ signals:
         void OpenPopoutEngineeringPlot(int plotType);
         void ClosePopoutEngineeringPlot();
 
+        void HandleParamsSelected(const std::vector<QString> &strings);
+
 private:
 	ColorMap video_colors;
 	ColorMapDisplay *color_map_display;

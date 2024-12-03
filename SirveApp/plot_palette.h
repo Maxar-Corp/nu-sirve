@@ -22,13 +22,19 @@ private:
     void addTab();
 
     PlotDesigner *designer;
+    QStringList quantities;
 
 signals:
     void popoutPlot(int plotType);
     void popinPlot(int plotType);
+    void paletteParamsSelected(const std::vector<QString> &strings);
 
 private slots:
     void HandleTabRightClicked(const QPoint &pos);
+
+public slots:
+    void HandleDesignerParamsSelected(const std::vector<QString> &strings);
+
 };
 
 #endif // PLOT_PALETTE_H
