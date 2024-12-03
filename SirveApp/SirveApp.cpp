@@ -2006,11 +2006,11 @@ void SirveApp::LoadOsmData()
     return;
 }
 
-void SirveApp::HandleParamsSelected(const std::vector<QString> &strings) {
-    qDebug() << "Got here";
-    for (const auto &str : strings) {
-        qDebug() << "HandleParamsSelected:" << str;
-    }
+void SirveApp::HandleParamsSelected(const std::vector<QString> &strings)
+{
+    qDebug() << "About to create new tab..." << strings[0];
+    EngineeringPlot *data_plots = new EngineeringPlot(osm_frames, Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(strings[0])));
+    plot_palette->addPlotTab(data_plots, strings[0]);
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
