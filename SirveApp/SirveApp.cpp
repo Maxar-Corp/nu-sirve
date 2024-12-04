@@ -1902,9 +1902,9 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    data_plots_azimuth = new EngineeringPlot(osm_frames, Enums::PlotType::Azimuth);
-    data_plots_elevation = new EngineeringPlot(osm_frames, Enums::PlotType::Elevation);
-    data_plots_irradiance = new EngineeringPlot(osm_frames, Enums::PlotType::Irradiance);
+    data_plots_azimuth = new EngineeringPlot(osm_frames, {"Azimuth", "Frames"});
+    data_plots_elevation = new EngineeringPlot(osm_frames, {"Elevation", "Frames"});
+    data_plots_irradiance = new EngineeringPlot(osm_frames, {"Irradiance", "Frames"});
 
     plot_palette = new PlotPalette();
     plot_palette->addPlotTab(data_plots_azimuth, "Azimuth");
@@ -1995,9 +1995,7 @@ void SirveApp::LoadOsmData()
 
     EnableEngineeringPlotOptions();
     data_plots_azimuth->SetPlotTitle(QString("EDIT CLASSIFICATION"));
-    data_plots_azimuth->InitializeIntervals(osm_frames);
-    data_plots_elevation->InitializeIntervals(osm_frames);
-    data_plots_irradiance->InitializeIntervals(osm_frames);
+
     UpdatePlots(data_plots_azimuth);
     UpdatePlots(data_plots_elevation);
     UpdatePlots(data_plots_irradiance);
@@ -2006,11 +2004,12 @@ void SirveApp::LoadOsmData()
     return;
 }
 
-void SirveApp::HandleParamsSelected(const std::vector<QString> &strings)
+void SirveApp::HandleParamsSelected(const std::vector<QString> &params)
 {
-    qDebug() << "About to create new tab..." << strings[0];
-    EngineeringPlot *data_plots = new EngineeringPlot(osm_frames, Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(strings[0])));
-    plot_palette->addPlotTab(data_plots, strings[0]);
+    EngineeringPlot *data_plots = new EngineeringPlot(osm_frames, params);
+    data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    UpdatePlots(data_plots);
+    plot_palette->addPlotTab(data_plots, params[0]);
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
@@ -2262,8 +2261,10 @@ void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
     QString title;
     QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
 
+    QString plotType = Enums::plotTypeToString(Enums::getPlotTypeByIndex(plotTypeIndex));
+
     // Embed the plotter in the dialog
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, Enums::getPlotTypeByIndex(plotTypeIndex));
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, {plotType, "frames"});
 
     if (plotTypeIndex == 0)
     {
@@ -3108,7 +3109,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 
         engineering_plot->SetXAxisChartId(x_index);
         engineering_plot->SetYAxisChartId(y_index);
-        engineering_plot->PlotChart(yAxisChanged);
+        engineering_plot->PlotChart();
 
         engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
     }
@@ -3237,7 +3238,7 @@ void SirveApp::ApplyEpochTime()
     eng_data->update_epoch_time(epoch_jdate);
 
     data_plots_azimuth->past_epoch = eng_data->get_seconds_from_epoch();
-    data_plots_azimuth->InitializeIntervals(osm_frames);
+    data_plots_azimuth->InitializeIntervals();
     UpdatePlots(data_plots_azimuth);
 }
 

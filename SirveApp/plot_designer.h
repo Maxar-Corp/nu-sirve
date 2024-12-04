@@ -20,6 +20,9 @@ public:
 signals:
     void designerParamsSelected(const std::vector<QString> &strings);
 
+public slots:
+    void accept() override;
+
 private:
     QLabel *label1;       // Label for the first group
     QLabel *label2;       // Label for the second group
@@ -31,9 +34,6 @@ private:
     QListWidget *listWidget2;
 
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
-
-protected:
-    void accept() override;
 };
 
 #endif // PLOT_DESIGNER_H

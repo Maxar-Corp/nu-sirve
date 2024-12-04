@@ -4,11 +4,11 @@
 
 #include "plot_engineering_data.h"
 #include "enums.h"
-#include "jkqtplotter/graphs/jkqtpevaluatedfunction.h"
 
-EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotType plot_type) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params) : JKQTPlotter()
 {
-    plotType = plot_type;
+    my_params = params;
+    plotType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
     num_frames = static_cast<unsigned int>(osm_frames.size());
 
     //SetPlotTitle("EDIT CLASSIFICATION");
@@ -35,7 +35,7 @@ EngineeringPlot::~EngineeringPlot()
 {
 }
 
-void EngineeringPlot::InitializeIntervals(const std::vector<Frame> &osm_frames)
+void EngineeringPlot::InitializeIntervals()
 {
     x_axis_units = frames;
     QPair<qreal,qreal> frame_interval = *new QPair<qreal,qreal>();
@@ -68,7 +68,7 @@ void EngineeringPlot::SetYAxisChartId(int yaxis_chart_id)
     current_chart_id = yaxis_chart_id;
 }
 
-void EngineeringPlot::PlotChart(bool yAxisChangedLocal)
+void EngineeringPlot::PlotChart()
 {
     int plot_number_tracks = 1;
 

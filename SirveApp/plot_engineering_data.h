@@ -34,7 +34,7 @@ class EngineeringPlot : public JKQTPlotter
     Q_OBJECT
 public:
 
-    EngineeringPlot(std::vector<Frame> const &osm_frames, Enums::PlotType plot_type);
+    EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params);
     ~EngineeringPlot();
 
     JKQTPDatastore* ds;
@@ -73,8 +73,8 @@ public:
     void SetXAxisChartId(int xaxis_chart_id);
     void SetYAxisChartId(int yaxis_chart_id);
 
-    void InitializeIntervals(std::vector<Frame> const &osm_frames);
-    void PlotChart(bool yAxisChangedLocal);
+    void InitializeIntervals();
+    void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
@@ -140,6 +140,8 @@ private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
     double get_single_x_axis_value(int x_index);
     double get_max_x_axis_value();
+
+    std::vector<QString> my_params;
 };
 
 #endif
