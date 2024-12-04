@@ -35,27 +35,27 @@ EngineeringPlot::~EngineeringPlot()
 {
 }
 
-void EngineeringPlot::InitializeIntervals()
-{
-    x_axis_units = frames;
-    QPair<qreal,qreal> frame_interval = *new QPair<qreal,qreal>();
-    frame_interval.first = get_single_x_axis_value(0);
-    frame_interval.second = get_max_x_axis_value();
+// void EngineeringPlot::InitializeIntervals()
+// {
+//     x_axis_units = frames;
+//     QPair<qreal,qreal> frame_interval = *new QPair<qreal,qreal>();
+//     frame_interval.first = get_single_x_axis_value(0);
+//     frame_interval.second = get_max_x_axis_value();
 
-    x_axis_units = seconds_past_midnight;
-    QPair<qreal,qreal> midnight_interval = *new QPair<qreal, qreal>();
-    midnight_interval.first = get_single_x_axis_value(0);
-    midnight_interval.second = get_max_x_axis_value();
+//     x_axis_units = seconds_past_midnight;
+//     QPair<qreal,qreal> midnight_interval = *new QPair<qreal, qreal>();
+//     midnight_interval.first = get_single_x_axis_value(0);
+//     midnight_interval.second = get_max_x_axis_value();
 
-    x_axis_units = seconds_from_epoch;
-    QPair<qreal,qreal> epoch_interval = *new QPair<qreal, qreal>();
-    epoch_interval.first = get_single_x_axis_value(0);
-    epoch_interval.second = get_max_x_axis_value();
+//     x_axis_units = seconds_from_epoch;
+//     QPair<qreal,qreal> epoch_interval = *new QPair<qreal, qreal>();
+//     epoch_interval.first = get_single_x_axis_value(0);
+//     epoch_interval.second = get_max_x_axis_value();
 
-    chart_x_intervals[0] = frame_interval;
-    chart_x_intervals[1] = midnight_interval;
-    chart_x_intervals[2] = epoch_interval;
-}
+//     chart_x_intervals[0] = frame_interval;
+//     chart_x_intervals[1] = midnight_interval;
+//     chart_x_intervals[2] = epoch_interval;
+// }
 
 void EngineeringPlot::SetXAxisChartId(int xaxis_chart_id)
 {
@@ -116,9 +116,14 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
         // 6. add the graph to the plot, so it is actually displayed
         this->addGraph(graph);
 
-        // 7. autoscale the plot so the graph is contained
-        this->zoomToFit();
+        // 7. set some axis properties (we use LaTeX for nice equation rendering)
+        this->getXAxis()->setAxisLabel(my_params[1]);
+        this->getYAxis()->setAxisLabel(my_params[0]);
+        this->getYAxis()->setLabelFontSize(10); // large x-axis label
+        this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
+        // 8. autoscale the plot so the graph is contained
+        this->zoomToFit();
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
 
         CreateCurrentMarker(0);
