@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "plot_engineering_data.h"
+#include "plot_engineering_data.h"
 #include "enums.h"
 #include "SirveApp.h"
 
@@ -10,7 +11,13 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 {
     my_params = params;
     plotType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
+    plotUnit = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));
     num_frames = static_cast<unsigned int>(osm_frames.size());
+
+    EngineeringData *engineeringData = new EngineeringData(osm_frames);
+
+    this->past_midnight = engineeringData->get_seconds_from_midnight();
+    this->past_epoch = engineeringData->get_seconds_from_epoch();
 
     //SetPlotTitle("EDIT CLASSIFICATION");
 
@@ -18,7 +25,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
     plot_primary_only = false;
     plot_current_marker = false;
 
-    x_axis_units = frames;
+    x_axis_units = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));;
 
     current_unit_id = 0; // 0 -> counts
     current_chart_id = 2; // 2 -> Elevation
@@ -27,8 +34,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
-    //connect(this, &EngineeringPlots::changeMotionStatus, this->chart_view, &NewChartView::UpdateChartFramelineStatus);
-
     ds = this->getDatastore();
 }
 
@@ -36,31 +41,8 @@ EngineeringPlot::~EngineeringPlot()
 {
 }
 
-// void EngineeringPlot::InitializeIntervals()
-// {
-//     x_axis_units = frames;
-//     QPair<qreal,qreal> frame_interval = *new QPair<qreal,qreal>();
-//     frame_interval.first = get_single_x_axis_value(0);
-//     frame_interval.second = get_max_x_axis_value();
-
-//     x_axis_units = seconds_past_midnight;
-//     QPair<qreal,qreal> midnight_interval = *new QPair<qreal, qreal>();
-//     midnight_interval.first = get_single_x_axis_value(0);
-//     midnight_interval.second = get_max_x_axis_value();
-
-//     x_axis_units = seconds_from_epoch;
-//     QPair<qreal,qreal> epoch_interval = *new QPair<qreal, qreal>();
-//     epoch_interval.first = get_single_x_axis_value(0);
-//     epoch_interval.second = get_max_x_axis_value();
-
-//     chart_x_intervals[0] = frame_interval;
-//     chart_x_intervals[1] = midnight_interval;
-//     chart_x_intervals[2] = epoch_interval;
-// }
-
 void EngineeringPlot::SetXAxisChartId(int xaxis_chart_id)
 {
-
     current_unit_id = xaxis_chart_id;
 }
 
@@ -73,28 +55,32 @@ void EngineeringPlot::PlotChart()
 {
     int plot_number_tracks = 1;
 
+    std::function<std::vector<double>(size_t)> func_x, func_y;
+
+    x_axis_units = plotUnit;
+
+    func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
+
     if (plotType == Enums::PlotType::Azimuth)
     {
-        auto func = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
-        PlotSirveQuantity(func, plot_number_tracks, QString("Azimuth"));
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
     } else if (plotType == Enums::PlotType::Elevation)
     {
-        auto func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
-        PlotSirveQuantity(func, plot_number_tracks, QString("Elevation"));
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
     } else
     {
-        auto func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
-        PlotSirveQuantity(func, plot_number_tracks, QString("ROI Counts"));
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
     }
 
+    PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_params[0]);
 }
 
-void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title)
+void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
 {
     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
     {
-        std::vector<double> x_values = get_individual_x_track(track_index);
-        std::vector<double> y_values = get_y_track_func(track_index);
+        std::vector<double> x_values = get_x_func(track_index);
+        std::vector<double> y_values = get_y_func(track_index);
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
@@ -130,7 +116,7 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
 
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
-        CreateCurrentMarker(0);
+        InitializeFrameLine(0);
     }
 
     EstablishPlotLimits();
@@ -208,18 +194,18 @@ void EngineeringPlot::EstablishPlotLimits()
     this->full_plot_xmax = get_max_x_axis_value();
 }
 
-void EngineeringPlot::set_xaxis_units(XAxisPlotVariables unit_choice)
+void EngineeringPlot::set_xaxis_units(Enums::PlotUnit unit_choice)
 {
     x_axis_units = unit_choice;
     switch (x_axis_units)
     {
-    case frames:
+    case Enums::Frames:
         x_title = "Frame #";
         break;
-    case seconds_past_midnight:
+    case Enums::Seconds_Past_Midnight:
         x_title = "Seconds Past Midnight";
         break;
-    case seconds_from_epoch:
+    case Enums::Seconds_From_Epoch:
         x_title = "Seconds Past Epoch";
         break;
     default:
@@ -231,15 +217,15 @@ std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, u
 {
     switch (x_axis_units)
     {
-    case frames:
+    case Enums::Frames:
     {
         std::vector<double> x_values(end_idx - start_idx + 1);
         std::iota(std::begin(x_values), std::end(x_values), start_idx + 1);
         return x_values;
     }
-    case seconds_past_midnight:
+    case Enums::Seconds_Past_Midnight:
         return std::vector<double>(past_midnight.begin() + start_idx, past_midnight.begin() + end_idx + 1);
-    case seconds_from_epoch:
+    case Enums::Seconds_From_Epoch:
         return std::vector<double>(past_epoch.begin() + start_idx, past_epoch.begin() + end_idx + 1);
     default:
         return std::vector<double>();
@@ -250,11 +236,11 @@ double EngineeringPlot::get_single_x_axis_value(int x_index)
 {
     switch (x_axis_units)
     {
-    case frames:
+    case Enums::Frames:
         return x_index + 1;
-    case seconds_past_midnight:
+    case Enums::Seconds_Past_Midnight:
         return past_midnight[x_index];
-    case seconds_from_epoch:
+    case Enums::Seconds_From_Epoch:
         return past_epoch[x_index];
     default:
         return 0;
@@ -265,18 +251,23 @@ double EngineeringPlot::get_max_x_axis_value()
 {
     switch (x_axis_units)
     {
-    case frames:
+    case Enums::Frames:
         return num_frames;
-    case seconds_past_midnight:
+    case Enums::Seconds_Past_Midnight:
         return past_midnight[past_midnight.size() - 1];
-    case seconds_from_epoch:
+    case Enums::Seconds_From_Epoch:
         return past_epoch[past_epoch.size() - 1];
     default:
         return 0;
     }
 }
 
-void EngineeringPlot::CreateCurrentMarker(double x_intercept)
+std::vector<QString> EngineeringPlot::get_params()
+{
+    return my_params;
+}
+
+void EngineeringPlot::InitializeFrameLine(double x_intercept)
 {
     // Define data points for the line
     QVector<double> xData = {x_intercept, x_intercept};
@@ -403,14 +394,9 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
 
     // Get the datastore from the source plotter
     JKQTPDatastore* srcDatastore = other.get_data_store();
-   // JKQTPDatastore* dstDatastore = this->get_data_store();
 
-    // Clear existing data in the destination datastore
+    // Step 1: Clear existing data in the destination datastore
     ds->clear();
-
-    // Step 1: Get the X and Y data from the source
-    size_t srcXColumn = other.graph->getXColumn();  // Get the X column index from the first graph
-    size_t srcYColumn = other.graph->getYColumn();  // Get the Y column index from the first graph
 
     // Step 2: Access the data for X and Y columns from the source datastore
     // Assuming getColumnData (or a similar method) is available instead of getColumn
@@ -428,7 +414,7 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
     // Step 4: Copy the graph configuration from the source to the destination plot
     this->clearGraphs();  // Clear existing graphs in the destination plotter
 
-    // Create a new graph for the destination plotter
+    // Step 5: Create a new graph for the destination plotter
     auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph);  // Get the first graph from the source
     if (srcGraph) {
         auto* dstGraph = new JKQTPXYLineGraph(this);  // Create a new graph in the destination plotter
@@ -448,6 +434,6 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
         this->addGraph(dstGraph);
     }
 
-    // Step 5: Autoscale the plot to fit the new data
+    // Step 6: Autoscale the plot to fit the new data
     this->zoomToFit();
 }

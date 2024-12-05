@@ -27,8 +27,6 @@
 #include "jkqtplotter/jkqtplotter.h"
 #include "jkqtplotter/graphs/jkqtplines.h"
 
-enum XAxisPlotVariables{frames , seconds_past_midnight, seconds_from_epoch};
-
 class EngineeringPlot : public JKQTPlotter
 {
     Q_OBJECT
@@ -54,6 +52,7 @@ public:
 
     JKQTPXYLineGraph* graph;
     Enums::PlotType plotType;
+    Enums::PlotUnit plotUnit;
 
     void copyStateFrom(const EngineeringPlot &other);
 
@@ -77,8 +76,9 @@ public:
     void toggle_yaxis_scientific(bool input);
     void toggle_xaxis_fixed_pt(bool input);
 
-    void set_xaxis_units(XAxisPlotVariables unit_choice);
+    void set_xaxis_units(Enums::PlotUnit unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+    std::vector<QString> get_params();
 
 signals:
     void changeMotionStatus(bool status);
@@ -102,21 +102,21 @@ private:
     unsigned int num_frames;
     int number_of_tracks;
     std::vector<PlottingTrackFrame> track_frames;
-    XAxisPlotVariables x_axis_units;
+    Enums::PlotUnit x_axis_units;
     QTabWidget* tabWidget;
 
-    void CreateCurrentMarker(double x_intercept);
     void DrawTitle();
     void EstablishPlotLimits();
+    void InitializeFrameLine(double x_intercept);
 
     void PlotAzimuth(size_t plot_number_tracks);
-    void PlotElevation(size_t plot_number_tracks);
-
-    void PlotSirveQuantity(std::function<std::vector<double>(size_t)> get_y_track_func, size_t plot_number_tracks, QString title);
-    void PlotFovX();
-    void PlotFovY();
     void PlotBoresightAzimuth();
     void PlotBoresightElevation();
+    void PlotElevation(size_t plot_number_tracks);
+
+    void PlotFovX();
+    void PlotFovY();
+    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
 
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);

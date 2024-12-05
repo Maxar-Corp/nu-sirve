@@ -7,7 +7,7 @@
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
-    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FOV_X", "FOV_Y", "Frames", "Irradiance", "Seconds_From_Epoch", "Second_Past_Midnight"};
+    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FOV_X", "FOV_Y", "Frames", "Irradiance", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -15,7 +15,7 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
             this, &PlotPalette::HandleTabRightClicked);
 }
 
-void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, QString title)
+void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params)
 {
 
     QWidget *tab1 = new QWidget(this);
@@ -23,7 +23,7 @@ void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, QString title)
     layout1->addWidget(engineering_plot);
 
     // Add tabs to the QTabWidget
-    this->QTabWidget::addTab(tab1, title);
+    this->QTabWidget::addTab(tab1, params[0]);
 }
 
 void PlotPalette::HandleTabRightClicked(const QPoint &pos)

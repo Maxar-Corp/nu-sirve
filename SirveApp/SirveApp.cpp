@@ -1908,9 +1908,9 @@ void SirveApp::LoadOsmData()
     data_plots_irradiance = new EngineeringPlot(osm_frames, {"Irradiance", "Frames"});
 
     plot_palette = new PlotPalette();
-    plot_palette->addPlotTab(data_plots_azimuth, "Azimuth");
-    plot_palette->addPlotTab(data_plots_elevation, "Elevation");
-    plot_palette->addPlotTab(data_plots_irradiance, "Irradiance");
+    plot_palette->addPlotTab(data_plots_azimuth, {"Azimuth", "Frames"});
+    plot_palette->addPlotTab(data_plots_elevation, {"Elevation", "Frames"});
+    plot_palette->addPlotTab(data_plots_irradiance, {"Irradiance", "Frames"});
 
     osmDataLoaded = true;
 
@@ -2005,12 +2005,14 @@ void SirveApp::LoadOsmData()
     return;
 }
 
+
+// Receives plot configuration parameters from the the plot designer, forwarded by plot palette:
 void SirveApp::HandleParamsSelected(const std::vector<QString> &params)
 {
     EngineeringPlot *data_plots = new EngineeringPlot(osm_frames, params);
     data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
     UpdatePlots(data_plots);
-    plot_palette->addPlotTab(data_plots, params[0]);
+    plot_palette->addPlotTab(data_plots, params);
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
@@ -3087,24 +3089,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 
         // For y-axis, use fixed-point precision for 'seconds past' options only ('frame' option is first combo box option):
         engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
-
-        switch (x_index)
-        {
-            case 0:
-                engineering_plot->set_xaxis_units(frames);
-                break;
-
-            case 1:
-                engineering_plot->set_xaxis_units(seconds_past_midnight);
-                break;
-
-            case 2:
-                engineering_plot->set_xaxis_units(seconds_from_epoch);
-                break;
-
-            default:
-                break;
-        }
+        engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
 
         engineering_plot->SetXAxisChartId(x_index);
         engineering_plot->SetYAxisChartId(y_index);

@@ -13,7 +13,7 @@ class PlotPalette : public QTabWidget {
 
 public:
     explicit PlotPalette(QWidget *parent = nullptr);
-    void addPlotTab(EngineeringPlot *engineering_plot, QString title);
+    void addPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
