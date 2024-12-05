@@ -98,11 +98,11 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
 
-        // 3. make data available to JKQTPlotter by adding it to the internal datastore.
+        // make data available to JKQTPlotter by adding it to the internal datastore.
         size_t columnX=ds->addCopiedColumn(X, "x");
         size_t columnY=ds->addCopiedColumn(Y, "y");
 
-        // 4. create a graph in the plot, which plots the dataset X/Y:
+        // create a graph in the plot, which plots the dataset X/Y:
         graph=new JKQTPXYLineGraph(this);
         graph->setXColumn(columnX);
         graph->setYColumn(columnY);
@@ -113,18 +113,20 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
         graph->setColor(colors.get_current_color());
         graph->setSymbolColor(QColor::fromRgb(255,20,20));
 
-        // 6. add the graph to the plot, so it is actually displayed
+        // add the graph to the plot, so it is actually displayed
         this->addGraph(graph);
 
-        // 7. set some axis properties (we use LaTeX for nice equation rendering)
+        // set some axis properties (we use LaTeX for nice equation rendering)
         this->getXAxis()->setAxisLabel(my_params[1]);
         this->getYAxis()->setAxisLabel(my_params[0]);
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
-        // 8. autoscale the plot so the graph is contained
+        // autoscale the plot so the graph is contained
         this->zoomToFit();
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
+
+        this->setToolbarAlwaysOn(true);
 
         CreateCurrentMarker(0);
     }
