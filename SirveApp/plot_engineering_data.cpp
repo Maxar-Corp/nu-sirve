@@ -93,7 +93,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         graph=new JKQTPXYLineGraph(this);
         graph->setXColumn(columnX);
         graph->setYColumn(columnY);
-        graph->setTitle(title);
+        graph->setTitle(title.replace('_',' '));
 
         graph->setSymbolSize(5);
         graph->setSymbolLineWidth(1);
@@ -104,8 +104,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         this->addGraph(graph);
 
         // set some axis properties (we use LaTeX for nice equation rendering)
-        this->getXAxis()->setAxisLabel(my_params[1]);
-        this->getYAxis()->setAxisLabel(my_params[0]);
+        this->getXAxis()->setAxisLabel(my_params[1].replace('_', ' '));
+        this->getYAxis()->setAxisLabel(my_params[0].replace('_', ' '));
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 

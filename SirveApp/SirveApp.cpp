@@ -2255,25 +2255,28 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_stop_frame->setText(QString::number(istop));
 }
 
-void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
+void SirveApp::OpenPopoutEngineeringPlot(std::vector<QString> params)
 {
     // Create and show the dialog
     QDialog *dialog = new QDialog(this);
-    QString title;
     QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
 
-    QString plotType = Enums::plotTypeToString(Enums::getPlotTypeByIndex(plotTypeIndex));
-
     // Embed the plotter in the dialog
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, {plotType, "frames"});
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, params);
 
-    if (plotTypeIndex == 0)
+    // need a better way to derive the plot identity besides using the tab index, since not 1:1
+    // could use a list of pointers to engineering plots, housed in the plot palette ...
+    if (Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0])) == Enums::PlotType::Azimuth)
     {
         dialogPlotter->copyStateFrom(*data_plots_azimuth);
+
+        // syncronize by default (for now)
         data_plots_elevation->synchronizeXToMaster(dialogPlotter);
-    } else if (plotTypeIndex == 1)
+    } else if (Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0])) == Enums::PlotType::Elevation)
     {
         dialogPlotter->copyStateFrom(*data_plots_elevation);
+
+        // syncronize by default (for now)
         data_plots_azimuth->synchronizeXToMaster(dialogPlotter);
     } else
     {
@@ -2282,7 +2285,7 @@ void SirveApp::OpenPopoutEngineeringPlot(int plotTypeIndex)
 
     dialogLayout->addWidget(dialogPlotter);
 
-    dialog->setWindowTitle(Enums::plotTypeToString(Enums::getPlotTypeByIndex(plotTypeIndex)));
+    dialog->setWindowTitle(params[0].replace('_',' '));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->resize(plot_palette->width(), plot_palette->height());
     dialog->show();

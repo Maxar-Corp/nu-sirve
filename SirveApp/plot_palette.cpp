@@ -21,9 +21,19 @@ void PlotPalette::addPlotTab(EngineeringPlot *engineering_plot, std::vector<QStr
     QWidget *tab1 = new QWidget(this);
     QVBoxLayout *layout1 = new QVBoxLayout(tab1);
     layout1->addWidget(engineering_plot);
+    plotPointers.append(engineering_plot);
 
     // Add tabs to the QTabWidget
     this->QTabWidget::addTab(tab1, params[0]);
+}
+
+EngineeringPlot* PlotPalette::get_plot(int index)  {
+    if (index >= 0 && index < plotPointers.size()) {
+        return plotPointers.at(index); // Use at() for safety
+    } else {
+        qWarning() << "Index out of bounds:" << index;
+        return nullptr; // Handle invalid index
+    }
 }
 
 void PlotPalette::HandleTabRightClicked(const QPoint &pos)
@@ -68,6 +78,8 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     syncAction->setChecked(false);
     contextMenu.addAction(syncAction);
 
+    // What should be a simple use case for syncing plots?  How many can be synced at a given time?  What combos are allowed?
+
     QAction *closeTabAction = contextMenu.addAction("Close Tab");
 
     // Show the menu at the cursor position
@@ -80,7 +92,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         removeTab(tabIndex);
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
-        emit popoutPlot(tabIndex);
+        emit popoutPlot({Enums::plotTypeToString(Enums::getPlotTypeByIndex(tabIndex)),"Frames"});
     }
 }
 

@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QList>
 
 class PlotPalette : public QTabWidget {
     Q_OBJECT
@@ -15,6 +16,8 @@ public:
     explicit PlotPalette(QWidget *parent = nullptr);
     void addPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params);
 
+    EngineeringPlot* get_plot(int index);
+
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
@@ -22,10 +25,11 @@ private:
     void addTab();
 
     PlotDesigner *designer;
+    QList<EngineeringPlot*> plotPointers;
     QStringList quantities;
 
 signals:
-    void popoutPlot(int plotType);
+    void popoutPlot(std::vector<QString> params);
     void popinPlot(int plotType);
     void paletteParamsSelected(const std::vector<QString> &strings);
 
