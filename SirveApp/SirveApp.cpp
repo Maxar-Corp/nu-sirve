@@ -1204,6 +1204,7 @@ void SirveApp::setupConnections() {
     //---------------------------------------------------------------------------
     connect(&video_display->container, &VideoContainer::updateDisplayVideo, this, &SirveApp::HandleFrameChange);
     connect(btn_undo_step, &QPushButton::clicked, &video_display->container, &VideoContainer::PopProcessingState);
+    // This next line slows refresh.  Consider calling it only once the slider has stopped moving:
     connect(playback_controller, &FramePlayer::frameSelected, this, &SirveApp::HandleFrameNumberChange);
 
     connect(&video_display->container, &VideoContainer::stateAdded, this, &SirveApp::HandleNewProcessingState);
@@ -2201,11 +2202,9 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     menu_plot_all_data->setIconVisibleInMenu(false);
     data_plots_azimuth->plot_current_marker = true;
     menu_plot_frame_marker->setIconVisibleInMenu(true);
-    //UpdatePlots(data_plots_azimuth);
 
     // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots_azimuth, &EngineeringPlot::PlotCurrentFrameline);
-    //connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
    // connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);

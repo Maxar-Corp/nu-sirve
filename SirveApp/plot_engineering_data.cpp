@@ -4,6 +4,7 @@
 
 #include "plot_engineering_data.h"
 #include "enums.h"
+#include "SirveApp.h"
 
 EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params) : JKQTPlotter()
 {
@@ -124,10 +125,11 @@ void EngineeringPlot::PlotSirveQuantity(std::function<std::vector<double>(size_t
 
         // autoscale the plot so the graph is contained
         this->zoomToFit();
-        this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
 
         this->setToolbarAlwaysOn(true);
 
+        // get the upper bound for drawing the frame line
+        this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
         CreateCurrentMarker(0);
     }
 
@@ -278,16 +280,16 @@ void EngineeringPlot::CreateCurrentMarker(double x_intercept)
 {
     // Define data points for the line
     QVector<double> xData = {x_intercept, x_intercept};
-    QVector<double> yData = {0, this->fixed_max_y}; // e.g., y = x^2
+    QVector<double> yData = {0, this->fixed_max_y};
 
-    // 3. make data available to JKQTPlotter by adding it to the internal datastore.
-    size_t columnX2=ds->addCopiedColumn(xData, "x");
-    size_t columnY2=ds->addCopiedColumn(yData, "y");
+    // Make data available to JKQTPlotter by adding it to the internal datastore.
+    frameLineColumnX = ds->addCopiedColumn(xData, "x");
+    size_t frameLineColumnY = ds->addCopiedColumn(yData, "y");
 
     // Create the line graph and set its data
     JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
-    lineGraph->setXColumn(columnX2);
-    lineGraph->setYColumn(columnY2);
+    lineGraph->setXColumn(frameLineColumnX);
+    lineGraph->setYColumn(frameLineColumnY);
 
     this->addGraph(lineGraph);
 }
@@ -311,9 +313,9 @@ void EngineeringPlot::PlotCurrentFrameline(int counter)
 {
     if (plot_current_marker)
     {
-        double x_intercept = get_single_x_axis_value(index_sub_plot_xmin + counter);
-        CreateCurrentMarker(x_intercept);
-        this->deleteGraph(1); // Remove the old graph (expected to be at index 1)
+        QVector<double> updatedXData = {(double)counter, (double)counter};
+        ds->setColumnData(frameLineColumnX, updatedXData);
+        this->plotter->plotUpdated();
     }
 }
 

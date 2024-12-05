@@ -37,10 +37,9 @@ public:
     EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params);
     ~EngineeringPlot();
 
-    JKQTPDatastore* ds;
-
     QChartView *chart_view;
     ColorScheme colors;
+    JKQTPDatastore* ds;
 
     QString x_title, y_title, title;
 
@@ -53,12 +52,8 @@ public:
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
     std::vector<double> boresight_az, boresight_el;
 
-    // plot axes titles
-    QXYSeries *current_frame_marker;
-
-    std::vector<PlottingFrameData> engineering_data;
-
     JKQTPXYLineGraph* graph;
+    Enums::PlotType plotType;
 
     void copyStateFrom(const EngineeringPlot &other);
 
@@ -73,7 +68,6 @@ public:
     void SetXAxisChartId(int xaxis_chart_id);
     void SetYAxisChartId(int yaxis_chart_id);
 
-    //void InitializeIntervals();
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
@@ -86,39 +80,30 @@ public:
     void set_xaxis_units(XAxisPlotVariables unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
 
-    QPair<qreal, qreal> chart_x_intervals[3]; // popupalate these later
-
-    ChartState chart_states[7];
-
-    bool yAxisChanged = false;
-
-    Enums::PlotType plotType;
-
 signals:
     void changeMotionStatus(bool status);
     void updatePlots();
 
 public slots:
 
-    void ToggleSubplot();
+    void HandlePlayerButtonClick();
     void PlotCurrentFrameline(int counter);
     void SetPlotTitle(QString input_title);
-    void HandlePlayerButtonClick();
+    void ToggleSubplot();
 
 private:
 
-    QTabWidget* tabWidget;
-
+    double fixed_max_y;
+    size_t frameLineColumnX;
+    std::vector<QString> my_params;
+    std::map<int, QColor> manual_track_colors;
+    std::vector<ManualPlottingTrackFrame> manual_track_frames;
+    std::set<int> manual_track_ids;
+    unsigned int num_frames;
     int number_of_tracks;
     std::vector<PlottingTrackFrame> track_frames;
-    std::set<int> manual_track_ids;
-    std::vector<ManualPlottingTrackFrame> manual_track_frames;
-    std::map<int, QColor> manual_track_colors;
-
-    unsigned int num_frames;
     XAxisPlotVariables x_axis_units;
-
-    double fixed_max_y;
+    QTabWidget* tabWidget;
 
     void CreateCurrentMarker(double x_intercept);
     void DrawTitle();
@@ -137,11 +122,9 @@ private:
     std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_elevation(size_t i);
-    std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
-    double get_single_x_axis_value(int x_index);
     double get_max_x_axis_value();
-
-    std::vector<QString> my_params;
+    double get_single_x_axis_value(int x_index);
+    std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 };
 
 #endif
