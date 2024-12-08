@@ -4515,7 +4515,17 @@ void SirveApp::ExecuteAutoTracking()
 
         if (!autotrack.empty()){
 
-            autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
+            // autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
+
+            // Create a CSV file
+            std::ofstream outfile(new_track_file_name.toStdString());
+
+            // Write headers (if needed)
+            outfile << "TrackID,Frame,X,Y,PeakCounts,SumCounts,SumROICounts,NThresholdPixels,NROIPixels,Irradiance,ROI_x,ROI_y,ROI_Width,ROI_Height" << std::endl;
+
+            autotrack.save(outfile, arma::csv_ascii);
+            outfile.close();
+
             TrackDetails details;
             for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
@@ -4531,13 +4541,12 @@ void SirveApp::ExecuteAutoTracking()
                 details.ROI_y = autotrack(rowii,11);
                 details.ROI_Width = autotrack(rowii,12);
                 details.ROI_Height = autotrack(rowii,13);
-
                 track_details[autotrack(rowii,1)] = details;
             }
 
-            tm_widget->AddTrackControl(currently_editing_or_creating_track_id);
-            video_display->AddManualTrackIdToShowLater(currently_editing_or_creating_track_id);
-            track_info->AddCreatedManualTrack(currently_editing_or_creating_track_id, track_details, new_track_file_name);
+            tm_widget->AddTrackControl(track_id);
+            video_display->AddManualTrackIdToShowLater(track_id);
+            track_info->AddCreatedManualTrack(track_id, track_details, new_track_file_name);
 
             int index0 = data_plots->index_sub_plot_xmin;
             int index1 = data_plots->index_sub_plot_xmax + 1;
@@ -4562,7 +4571,7 @@ void SirveApp::ExecuteAutoTracking()
                 const QFileInfo info(new_track_file_name);
                 lbl_track_description->setText(info.fileName());
                 int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-                HandleManualTrackRecoloring(currently_editing_or_creating_track_id, color_options[ind]);
+                HandleManualTrackRecoloring(track_id, color_options[ind]);
             }  
         }
 
