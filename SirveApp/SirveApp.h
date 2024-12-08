@@ -148,6 +148,7 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 	VideoDisplay *video_display;
+    AutoTracking *auto_tracking;
 	EngineeringPlots *data_plots;
 	EngineeringData *eng_data;
 	TrackInformation *track_info;
