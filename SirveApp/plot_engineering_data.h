@@ -44,7 +44,7 @@ public:
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only, plot_current_marker;
     double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-    unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max, current_unit_id, current_chart_id;
+    unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max;
 
     std::vector<double> past_midnight, past_epoch;
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
@@ -63,9 +63,6 @@ public:
 
     // Returns a const reference to the column data
     const QVector<double>& getColumn(size_t index) const;
-
-    void SetXAxisChartId(int xaxis_chart_id);
-    void SetYAxisChartId(int yaxis_chart_id);
 
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
@@ -89,7 +86,6 @@ public slots:
     void HandlePlayerButtonClick();
     void PlotCurrentFrameline(int counter);
     void SetPlotTitle(QString input_title);
-    void ToggleSubplot();
 
 private:
 

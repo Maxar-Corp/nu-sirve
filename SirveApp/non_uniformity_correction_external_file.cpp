@@ -73,7 +73,6 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
 
 void ExternalNUCInformationWidget::PlotOsmFrameData()
 {
-
     if (engineering_data != NULL) {
 
         // delete objects with existing data within them
@@ -101,7 +100,6 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     //frame_layout->addWidget(plot_data->chart_view);
 
     plot_data->toggle_yaxis_log(true);
-    plot_data->SetYAxisChartId(2);
     //plot_data->PlotChart(false);
 
     btn_load_frames->setEnabled(true);    

@@ -3094,10 +3094,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
         engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
         engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
 
-        engineering_plot->SetXAxisChartId(x_index);
-        engineering_plot->SetYAxisChartId(y_index);
         engineering_plot->PlotChart();
-
         engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
     }
 

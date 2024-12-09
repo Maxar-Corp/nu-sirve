@@ -27,9 +27,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 
     x_axis_units = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));;
 
-    current_unit_id = 0; // 0 -> counts
-    current_chart_id = 2; // 2 -> Elevation
-
     // 'sub-plot' refers to the frame range, not to zoom
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
@@ -39,16 +36,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 
 EngineeringPlot::~EngineeringPlot()
 {
-}
-
-void EngineeringPlot::SetXAxisChartId(int xaxis_chart_id)
-{
-    current_unit_id = xaxis_chart_id;
-}
-
-void EngineeringPlot::SetYAxisChartId(int yaxis_chart_id)
-{
-    current_chart_id = yaxis_chart_id;
 }
 
 void EngineeringPlot::PlotChart()
@@ -329,18 +316,6 @@ void EngineeringPlot::DrawTitle()
     // chart->setTitleFont(font);
 
     // chart->setTitle(title);
-}
-
-void EngineeringPlot::ToggleSubplot()
-{
-    // if (plot_all_data)
-    // {
-    //     set_xaxis_limits(full_plot_xmin, full_plot_xmax);
-    // }
-    // else
-    // {
-    //     set_xaxis_limits(sub_plot_xmin, sub_plot_xmax);
-    // }
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
