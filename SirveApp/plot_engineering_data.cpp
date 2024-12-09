@@ -27,7 +27,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 
     x_axis_units = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));;
 
-    // 'sub-plot' refers to the frame range, not to zoom
+    // 'sub-plot' refers to the chart's domain
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
@@ -105,8 +105,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
         InitializeFrameLine(0);
     }
-
-    EstablishPlotLimits();
 }
 
 void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -170,15 +168,6 @@ std::vector<double> EngineeringPlot::get_individual_y_track_elevation(size_t i)
     }
 
     return y_values;
-}
-
-void EngineeringPlot::EstablishPlotLimits()
-{
-    sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
-    sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
-
-    this->full_plot_xmin = get_single_x_axis_value(0);
-    this->full_plot_xmax = get_max_x_axis_value();
 }
 
 void EngineeringPlot::set_xaxis_units(Enums::PlotUnit unit_choice)
@@ -254,10 +243,10 @@ std::vector<QString> EngineeringPlot::get_params()
     return my_params;
 }
 
-void EngineeringPlot::InitializeFrameLine(double x_intercept)
+void EngineeringPlot::InitializeFrameLine(double frameline_x)
 {
     // Define data points for the line
-    QVector<double> xData = {x_intercept, x_intercept};
+    QVector<double> xData = {frameline_x, frameline_x};
     QVector<double> yData = {0, this->fixed_max_y};
 
     // Make data available to JKQTPlotter by adding it to the internal datastore.
@@ -287,11 +276,11 @@ void EngineeringPlot::toggle_xaxis_fixed_pt(bool input)
     // xaxis_is_fixed_pt = input;
 }
 
-void EngineeringPlot::PlotCurrentFrameline(int counter)
+void EngineeringPlot::PlotCurrentFrameline(int frameline_x)
 {
     if (plot_current_marker)
     {
-        QVector<double> updatedXData = {(double)counter, (double)counter};
+        QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
         ds->setColumnData(frameLineColumnX, updatedXData);
         this->plotter->plotUpdated();
     }

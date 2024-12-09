@@ -4732,11 +4732,11 @@ bool SirveApp::VerifyFrameSelection(int min_frame, int max_frame)
 
     int frame_stop = data_plots_azimuth->full_plot_xmax + 1;
 
-    if (max_frame > frame_stop)
-    {
-        QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (1-" + QString::number(frame_stop) + ")");
-        return false;
-    }
+    // if (max_frame > frame_stop)
+    // {
+    //     QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (1-" + QString::number(frame_stop) + ")");
+    //     return false;
+    // }
 
     return true;
 }

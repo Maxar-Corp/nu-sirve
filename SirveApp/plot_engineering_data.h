@@ -102,7 +102,6 @@ private:
     QTabWidget* tabWidget;
 
     void DrawTitle();
-    void EstablishPlotLimits();
     void InitializeFrameLine(double x_intercept);
 
     void PlotAzimuth(size_t plot_number_tracks);
