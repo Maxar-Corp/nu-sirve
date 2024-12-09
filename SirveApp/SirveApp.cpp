@@ -2200,6 +2200,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Reset engineering plots with new sub plot indices
     data_plots_azimuth->index_sub_plot_xmin = min_frame - 1;
     data_plots_azimuth->index_sub_plot_xmax = max_frame - 1;
+    data_plots_azimuth->getXAxis()->setRange(min_frame, max_frame);
 
     // These next few lines should be deprecated
     data_plots_azimuth->plot_all_data = false;
