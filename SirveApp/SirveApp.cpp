@@ -2200,10 +2200,12 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Reset engineering plots with new sub plot indices
     data_plots_azimuth->index_sub_plot_xmin = min_frame - 1;
     data_plots_azimuth->index_sub_plot_xmax = max_frame - 1;
+
+    // These next few lines should be deprecated
     data_plots_azimuth->plot_all_data = false;
-    menu_plot_all_data->setIconVisibleInMenu(false);
+    //menu_plot_all_data->setIconVisibleInMenu(false);
     data_plots_azimuth->plot_current_marker = true;
-    menu_plot_frame_marker->setIconVisibleInMenu(true);
+    //menu_plot_frame_marker->setIconVisibleInMenu(true);
 
     // Update frame marker on engineering plot
     connect(playback_controller, &FramePlayer::frameSelected, data_plots_azimuth, &EngineeringPlot::PlotCurrentFrameline);

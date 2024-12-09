@@ -84,7 +84,7 @@ signals:
 public slots:
 
     void HandlePlayerButtonClick();
-    void PlotCurrentFrameline(int counter);
+    void PlotCurrentFrameline(int frameline_x);
     void SetPlotTitle(QString input_title);
 
 private:

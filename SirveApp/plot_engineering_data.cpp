@@ -103,7 +103,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
-        InitializeFrameLine(0);
+        InitializeFrameLine(index_sub_plot_xmin + 0);
     }
 }
 
@@ -261,6 +261,17 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     this->addGraph(lineGraph);
 }
 
+void EngineeringPlot::PlotCurrentFrameline(int frame)
+{
+    if (plot_current_marker)
+    {
+        int frameline_x = frame + index_sub_plot_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
+        QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
+        ds->setColumnData(frameLineColumnX, updatedXData);
+        emit this->plotter->plotUpdated();
+    }
+}
+
 void EngineeringPlot::toggle_yaxis_log(bool input)
 {
     // yaxis_is_log = input;
@@ -274,16 +285,6 @@ void EngineeringPlot::toggle_yaxis_scientific(bool input)
 void EngineeringPlot::toggle_xaxis_fixed_pt(bool input)
 {
     // xaxis_is_fixed_pt = input;
-}
-
-void EngineeringPlot::PlotCurrentFrameline(int frameline_x)
-{
-    if (plot_current_marker)
-    {
-        QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
-        ds->setColumnData(frameLineColumnX, updatedXData);
-        this->plotter->plotUpdated();
-    }
 }
 
 void EngineeringPlot::SetPlotTitle(QString input_title)
