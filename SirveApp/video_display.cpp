@@ -50,7 +50,6 @@ void VideoDisplay::EstablishStencil()
 
     connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
     connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
-    connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
 }
 
 
@@ -78,7 +77,7 @@ void VideoDisplay::SetSelectCentroidBtn(bool status)
             cursor_in_image = true;
         }
         else if (!status){
-            btn_select_track_centroid->setChecked(false);
+            // btn_select_track_centroid->setChecked(false);
             cursor_in_image = false;
         }
         UpdateDisplayFrame();

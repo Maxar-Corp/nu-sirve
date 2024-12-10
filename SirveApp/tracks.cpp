@@ -105,7 +105,6 @@ int TrackInformation::get_frame_count()
     return static_cast<int>(osm_frames.size());
 }
 
-
 std::vector<TrackFrame> TrackInformation::get_osm_frames(int start_index, int end_index)
 {
 	std::vector<TrackFrame>::const_iterator first = osm_frames.begin() + start_index;
@@ -214,6 +213,9 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
 
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
+    QString csv_line0 = "TrackID,Frame,X,Y,PeakCounts,SumCounts,SumROICounts,NThresholdPixels,NROIPixels,Irradiance,ROI_x,ROI_y,ROI_Width,ROI_Height";
+    file.write(csv_line0.toUtf8());
+    file.write("\n");
     RemoveManualTrackPlotting(track_id);
     RemoveManualTrackImage(track_id);
     for (int i = 0; i < manual_frames.size(); i++)
@@ -227,16 +229,16 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
              QString::number(track_id) + ","\
              + QString::number(i+1) + ","\
              + QString::number(track_details.centroid_x) + ","\
-             + QString::number(track_details.centroid_y)+ ","\
-             + QString::number(track_details.peak_counts)+ ","\
-             + QString::number(track_details.sum_counts)+ ","\
-             + QString::number(track_details.sum_ROI_counts)+ ","\
-             + QString::number(track_details.N_threshold_pixels)+ ","\
-             + QString::number(track_details.N_ROI_pixels)+ ","\
-             + QString::number(track_details.irradiance)+ ","\
-             + QString::number(track_details.ROI_x)+ ","\
-             + QString::number(track_details.ROI_y)+ ","\
-             + QString::number(track_details.ROI_Width)+ ","\
+             + QString::number(track_details.centroid_y) + ","\
+             + QString::number(track_details.peak_counts) + ","\
+             + QString::number(track_details.sum_counts) + ","\
+             + QString::number(track_details.sum_ROI_counts) + ","\
+             + QString::number(track_details.N_threshold_pixels) + ","\
+             + QString::number(track_details.N_ROI_pixels) + ","\
+             + QString::number(track_details.irradiance) + ","\
+             + QString::number(track_details.ROI_x + 1) + ","\
+             + QString::number(track_details.ROI_y + 1) + ","\
+             + QString::number(track_details.ROI_Width) + ","\
              + QString::number(track_details.ROI_Height);
 
             file.write(csv_line.toUtf8());
@@ -302,7 +304,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
     {
         QFile file(absolute_file_name);
         file.open(QIODevice::ReadOnly|QIODevice::Text);
-
+        QByteArray line = file.readLine();
         while (!file.atEnd())
         {
             line_num += 1;

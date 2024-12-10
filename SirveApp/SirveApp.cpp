@@ -2165,7 +2165,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     this->repaint();
 
     int index0 = min_frame - 1;
-    int index1 = max_frame;
+    int index1 = max_frame - 1;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
@@ -2911,7 +2911,7 @@ void SirveApp::ExportPlotData()
     QString start_frame = txt_start_frame->text();
     QString stop_frame = txt_stop_frame->text();
     QStringList items;
-    items << "Export All Data" << "Export Only Selected Data";
+    items << "Export Only Selected Data" << "Export All Data" ;
 
     bool ok;
     QString item = QInputDialog::getItem(this, "Export Data", "Select Data to Export", items, 0, false, &ok);
@@ -2940,8 +2940,8 @@ void SirveApp::ExportPlotData()
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
     }
     else {
-        min_frame = data_plots->index_sub_plot_xmin;
-        max_frame = data_plots->index_sub_plot_xmax;
+        min_frame = data_plots->index_sub_plot_xmin + 1;
+        max_frame = data_plots->index_sub_plot_xmax + 1;
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
     }
@@ -4515,17 +4515,6 @@ void SirveApp::ExecuteAutoTracking()
 
         if (!autotrack.empty()){
 
-            // autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
-
-            // Create a CSV file
-            std::ofstream outfile(new_track_file_name.toStdString());
-
-            // Write headers (if needed)
-            outfile << "TrackID,Frame,X,Y,PeakCounts,SumCounts,SumROICounts,NThresholdPixels,NROIPixels,Irradiance,ROI_x,ROI_y,ROI_Width,ROI_Height" << std::endl;
-
-            autotrack.save(outfile, arma::csv_ascii);
-            outfile.close();
-
             TrackDetails details;
             for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
@@ -4541,7 +4530,7 @@ void SirveApp::ExecuteAutoTracking()
                 details.ROI_y = autotrack(rowii,11);
                 details.ROI_Width = autotrack(rowii,12);
                 details.ROI_Height = autotrack(rowii,13);
-                track_details[autotrack(rowii,1)] = details;
+                track_details[autotrack(rowii,1)-1] = details;
             }
 
             tm_widget->AddTrackControl(track_id);
@@ -4564,7 +4553,7 @@ void SirveApp::ExecuteAutoTracking()
             }
 
             QStringList color_options = ColorScheme::get_track_colors();
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)
             {
                 QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
