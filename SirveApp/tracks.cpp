@@ -170,9 +170,9 @@ void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
             int track_id = trackData.first;
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x, trackData.second.centroid_y, trackData.second.irradiance);
-            manual_image_frames[i].tracks[track_id].centroid_x = trackData.second.centroid_x;
-            manual_image_frames[i].tracks[track_id].centroid_y = trackData.second.centroid_y;
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x-1, trackData.second.centroid_y-1, trackData.second.irradiance);
+            manual_image_frames[i].tracks[track_id].centroid_x = trackData.second.centroid_x-1;
+            manual_image_frames[i].tracks[track_id].centroid_y = trackData.second.centroid_y-1;
             manual_plotting_frames[i].tracks[track_id].irradiance = trackData.second.irradiance;
         }
     }
@@ -228,16 +228,16 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
             QString csv_line =\
              QString::number(track_id) + ","\
              + QString::number(i+1) + ","\
-             + QString::number(track_details.centroid_x) + ","\
-             + QString::number(track_details.centroid_y) + ","\
+             + QString::number(track_details.centroid_x+1) + ","\
+             + QString::number(track_details.centroid_y+1) + ","\
              + QString::number(track_details.peak_counts) + ","\
              + QString::number(track_details.sum_counts) + ","\
              + QString::number(track_details.sum_ROI_counts) + ","\
              + QString::number(track_details.N_threshold_pixels) + ","\
              + QString::number(track_details.N_ROI_pixels) + ","\
              + QString::number(track_details.irradiance) + ","\
-             + QString::number(track_details.ROI_x + 1) + ","\
-             + QString::number(track_details.ROI_y + 1) + ","\
+             + QString::number(track_details.ROI_x+1) + ","\
+             + QString::number(track_details.ROI_y+1) + ","\
              + QString::number(track_details.ROI_Width) + ","\
              + QString::number(track_details.ROI_Height);
 
@@ -400,8 +400,8 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
     details.azimuth = az_el_result[0];
     details.elevation = az_el_result[1];
 
-    details.centroid.centroid_x = centroid_x;
-    details.centroid.centroid_y = centroid_y;
+    details.centroid.centroid_x = centroid_x+1;
+    details.centroid.centroid_y = centroid_y+1;
     details.irradiance = irradiance;
 
     return details;

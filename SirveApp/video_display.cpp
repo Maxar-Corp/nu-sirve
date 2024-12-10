@@ -990,7 +990,7 @@ void VideoDisplay::UpdateDisplayFrame()
              if (new_y_center > image_y){
                 new_y_center = new_y_center - image_y;
             }
-            QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center, new_y_center, marker_size, marker_width, marker_height);
+            QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center-1, new_y_center-1, marker_size, marker_width, marker_height);
             if (osm_track_marker.isNull())
                 continue;
             osm_track_marker_painter.drawRect(osm_track_marker);
