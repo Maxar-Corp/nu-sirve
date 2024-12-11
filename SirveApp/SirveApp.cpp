@@ -1056,10 +1056,10 @@ void SirveApp::SetupVideoFrame(){
     btn_zoom->setIcon(QIcon(":/icons/magnify.png"));
     btn_zoom->setCheckable(true);
 
-    // btn_calculate_radiance = new QPushButton();
-    // btn_calculate_radiance->resize(button_video_width, button_video_height);
-    // btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
-    // btn_calculate_radiance->setCheckable(true);
+    btn_calculate_radiance = new QPushButton();
+    btn_calculate_radiance->resize(button_video_width, button_video_height);
+    btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
+    btn_calculate_radiance->setCheckable(true);
 
     btn_popout_video = new QPushButton();
     btn_popout_video->setFixedWidth(button_video_width);
@@ -1084,6 +1084,7 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
+    hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
     hlayout_video_buttons->addLayout(formLayout);
     hlayout_video_buttons->addWidget(btn_prev_frame);
@@ -1271,7 +1272,7 @@ void SirveApp::setupConnections() {
     connect(btn_slow_back, &QPushButton::clicked, this, &SirveApp::UpdateFps);
 
     connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::HandleZoomOnVideoToggle);
-    // connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::HandleCalculationOnVideoToggle);
+    connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::HandleCalculationOnVideoToggle);
     connect(video_display, &VideoDisplay::clearMouseButtons, this, &SirveApp::ClearZoomAndCalculationButtons);
 
     connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::HandlePopoutVideoClick);
@@ -1965,8 +1966,8 @@ void SirveApp::LoadOsmData()
     engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 
-    // btn_calculate_radiance->setChecked(false);
-    // btn_calculate_radiance->setEnabled(false);
+    btn_calculate_radiance->setChecked(false);
+    btn_calculate_radiance->setEnabled(false);
     chk_highlight_bad_pixels->setChecked(false);
     chk_highlight_bad_pixels->setEnabled(false);
 
@@ -2387,7 +2388,7 @@ void SirveApp::HandleZoomOnVideoToggle() {
     if (status_zoom_btn)
     {
         video_display->ToggleActionZoom(true);
-        // btn_calculate_radiance->setChecked(false);
+        btn_calculate_radiance->setChecked(false);
     }
     else {
         video_display->ToggleActionZoom(false);
@@ -2396,25 +2397,25 @@ void SirveApp::HandleZoomOnVideoToggle() {
 }
 
 
-// void SirveApp::HandleCalculationOnVideoToggle()
-// {
+void SirveApp::HandleCalculationOnVideoToggle()
+{
 
-//     bool status_calculation_btn = btn_calculate_radiance->isChecked();
+    bool status_calculation_btn = btn_calculate_radiance->isChecked();
 
-//     if (status_calculation_btn) {
+    if (status_calculation_btn) {
 
-//         video_display->ToggleActionCalculateRadiance(true);
-//         btn_zoom->setChecked(false);
-//     }
-//     else {
-//         video_display->ToggleActionCalculateRadiance(false);
-//     }
-// }
+        video_display->ToggleActionCalculateRadiance(true);
+        btn_zoom->setChecked(false);
+    }
+    else {
+        video_display->ToggleActionCalculateRadiance(false);
+    }
+}
 
 void SirveApp::ClearZoomAndCalculationButtons()
 {
     btn_zoom->setChecked(false);
-    // btn_calculate_radiance->setChecked(false);
+    btn_calculate_radiance->setChecked(false);
 }
 
 void SirveApp::UpdateFps()
@@ -2779,6 +2780,9 @@ void SirveApp::CreateMenuActions()
     action_load_OSM->setStatusTip("Load OSM abpimage file");
     connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
 
+    action_show_calibration_dialog = new QAction("Setup Calibration");
+    connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
+
     action_close = new QAction("Close");
     action_close->setStatusTip("Close main window");
     connect(action_close, &QAction::triggered, this, &SirveApp::CloseWindow);
@@ -2819,6 +2823,8 @@ void SirveApp::CreateMenuActions()
 
 	file_menu = menuBar()->addMenu(tr("&File"));
 	file_menu->addAction(action_load_OSM);
+    file_menu->addAction(action_show_calibration_dialog);
+
 	file_menu->addAction(action_close);
 	menu_workspace = menuBar()->addMenu(tr("&Workspace"));
 	menu_workspace->addAction(action_load_workspace);
@@ -2904,6 +2910,22 @@ void SirveApp::EditPlotText()
     {
         data_plots->SetPlotTitle(input_text);
     }
+}
+
+void SirveApp::ShowCalibrationDialog()
+{
+	CalibrationDialog calibrate_dialog(calibration_model);
+	
+	auto response = calibrate_dialog.exec();
+
+	if (response == 0) {
+
+		return;
+	}
+
+	calibration_model = calibrate_dialog.model;
+	video_display->SetCalibrationModel(calibrate_dialog.model);
+	btn_calculate_radiance->setEnabled(true);
 }
 
 void SirveApp::ExportPlotData()

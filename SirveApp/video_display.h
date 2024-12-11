@@ -142,7 +142,6 @@ public slots:
     void HandlePinpointControlActivation(bool enabled);
     void HandlePixelSelection(QPoint origin);
     void HandleSensorBoresightDataCheck(bool checked);
-    // void HandleTrackerColorUpdate(QString input_color);
     void HandleTrackerColorUpdate(QColor input_color);
 
     // stencil stuff

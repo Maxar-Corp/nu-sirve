@@ -360,7 +360,6 @@ void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
 
 void VideoDisplay::HandleTrackerColorUpdate(QColor new_color)
 {
-    // QColor new_color(input_color);
     OSM_track_color = new_color;
 
     UpdateDisplayFrame();
@@ -866,7 +865,7 @@ void VideoDisplay::UpdateDisplayFrame()
             lbl_image_canvas->setCursor(Qt::BlankCursor);
             QPoint top_left(new_x - std::round(ROI_box_size/2.), new_y - std::round(ROI_box_size/2.));
             QPoint bottom_right(new_x + std::round(ROI_box_size/2.), new_y + std::round(ROI_box_size/2.));
-            qDebug() << top_left << bottom_right;
+
             QRect manual_ROI_rectangle(top_left, bottom_right);
             manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
@@ -1107,9 +1106,9 @@ void VideoDisplay::UpdateDisplayFrame()
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
-            QString max_value = QString::number(measurements[0]) + " W/m^2/sr";
-            QString avg_value = QString::number(measurements[1]) + " W/m^2/sr";
-            QString sum_value = QString::number(measurements[2]) + " W/m^2/sr";
+            QString max_value = QString::number(measurements[0]) + " uW/cm^2-sr";
+            QString avg_value = QString::number(measurements[1]) + " uW/cm^2-sr";
+            QString sum_value = QString::number(measurements[2]) + " uW/cm^2-sr";
 
             QString calculation_text = "***** Beta Calculation *****\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
@@ -1408,6 +1407,8 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 
  void VideoDisplay::DisplayManualBox(QPoint pt)
  {
-    hover_pt = pt;
-    UpdateDisplayFrame();
+    if (in_track_creation_mode){
+        hover_pt = pt;
+        UpdateDisplayFrame();
+    }
  }
