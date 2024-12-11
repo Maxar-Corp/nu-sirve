@@ -97,7 +97,6 @@ public:
     void RecolorManualTrack(int id, QColor color);
     void DeleteManualTrack(int id);
 
-
     void SetCalibrationModel(CalibrationData input);
     void AddNewFrame(QImage &img, int format);
     bool StartRecording(QString file_name, double fps);

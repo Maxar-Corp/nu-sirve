@@ -2166,7 +2166,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     this->repaint();
 
     int index0 = min_frame - 1;
-    int index1 = max_frame;
+    int index1 = max_frame - 1;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
@@ -2933,7 +2933,7 @@ void SirveApp::ExportPlotData()
     QString start_frame = txt_start_frame->text();
     QString stop_frame = txt_stop_frame->text();
     QStringList items;
-    items << "Export All Data" << "Export Only Selected Data";
+    items << "Export Only Selected Data" << "Export All Data" ;
 
     bool ok;
     QString item = QInputDialog::getItem(this, "Export Data", "Select Data to Export", items, 0, false, &ok);
@@ -2962,8 +2962,8 @@ void SirveApp::ExportPlotData()
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
     }
     else {
-        min_frame = data_plots->index_sub_plot_xmin;
-        max_frame = data_plots->index_sub_plot_xmax;
+        min_frame = data_plots->index_sub_plot_xmin + 1;
+        max_frame = data_plots->index_sub_plot_xmax + 1;
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
     }
@@ -4464,7 +4464,7 @@ void SirveApp::ExecuteAutoTracking()
     }
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
     {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
+        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
         if (response == QMessageBox::Yes)
         {
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
@@ -4507,6 +4507,7 @@ void SirveApp::ExecuteAutoTracking()
         double clamp_low = txt_lift_sigma->text().toDouble();
         double clamp_high = txt_gain_sigma->text().toDouble();
         int threshold = 6 - cmb_autotrack_threshold->currentIndex();
+        std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
@@ -4534,65 +4535,59 @@ void SirveApp::ExecuteAutoTracking()
             autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
         }
 
-    if (!autotrack.empty()){
+        if (!autotrack.empty()){
 
-        autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
-
-        TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
-
-        if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
-        {
-            QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
-            return;
-        }
-
-        if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
-        {
-            QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
-            return;
-        }
-
-        std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-        for ( int track_id : result.track_ids )
-        {
-            if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end()){
-                auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "Warning: Overwriting track ID: " + QString::number(track_id));
-                if (!response == QMessageBox::Yes)
-                {
-                    return;
-                }
-            }
-            else
+            TrackDetails details;
+            for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
-                video_display->AddManualTrackIdToShowLater(track_id);
-                tm_widget->AddTrackControl(track_id);
-                track_info->AddManualTracks(result.frames);  
-                cmb_manual_track_IDs->clear();
-                cmb_manual_track_IDs->addItem("Primary");
-                std::set<int> track_ids = track_info->get_manual_track_ids();
-                for ( int track_id : track_ids ){
-                    cmb_manual_track_IDs->addItem(QString::number(track_id));
-                }          
+                details.centroid_x = autotrack(rowii,2);
+                details.centroid_y = autotrack(rowii,3);
+                details.peak_counts = autotrack(rowii,4);
+                details.sum_counts = autotrack(rowii,5);
+                details.sum_ROI_counts = autotrack(rowii,6);
+                details.N_threshold_pixels = autotrack(rowii,7);
+                details.N_ROI_pixels = autotrack(rowii,8);
+                details.irradiance =  autotrack(rowii,9);
+                details.ROI_x = autotrack(rowii,10);
+                details.ROI_y = autotrack(rowii,11);
+                details.ROI_Width = autotrack(rowii,12);
+                details.ROI_Height = autotrack(rowii,13);
+                track_details[autotrack(rowii,1)-1] = details;
             }
-        }
 
-        int index0 = data_plots->index_sub_plot_xmin;
-        int index1 = data_plots->index_sub_plot_xmax + 1;
-        video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            tm_widget->AddTrackControl(track_id);
+            video_display->AddManualTrackIdToShowLater(track_id);
+            track_info->AddCreatedManualTrack(track_id, track_details, new_track_file_name);
 
-        FramePlotSpace();
-        
-        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-        if (existing_track_control != nullptr)
+            int index0 = data_plots->index_sub_plot_xmin;
+            int index1 = data_plots->index_sub_plot_xmax + 1;
+            video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+            data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+
+            FramePlotSpace();
+
+            cmb_manual_track_IDs->clear();
+            cmb_manual_track_IDs->addItem("Primary");
+            std::set<int> track_ids = track_info->get_manual_track_ids();
+            for ( int track_id : track_ids )
+            {
+                cmb_manual_track_IDs->addItem(QString::number(track_id));
+            }
+
+            QStringList color_options = ColorScheme::get_track_colors();
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            if (existing_track_control != nullptr)
             {
                 QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
                 const QFileInfo info(new_track_file_name);
                 lbl_track_description->setText(info.fileName());
-            }    
+                int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
+                HandleManualTrackRecoloring(track_id, color_options[ind]);
+            }  
         }
-    }
+
     CloseProgressArea();
+    }
 }
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)

@@ -14,7 +14,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 	std::ofstream myfile;
 	myfile.open(save_path);
 
-	unsigned int initial_frame = min_frame;
+	unsigned int initial_frame = min_frame-1;
 	unsigned int final_frame = max_frame;
 
     std::string epoch_seconds, frame_number, track_id, azimuth, elevation, centroid_x, centroid_y, counts;
@@ -25,7 +25,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 	for (unsigned int i = initial_frame; i < final_frame; i++)
 	{
 		epoch_seconds = std::to_string(frame_data[i].seconds_past_midnight);
-        frame_number = std::to_string(i);
+        frame_number = std::to_string(i + 1);
 		track_id = std::to_string(0);
 		azimuth = std::to_string(frame_data[i].azimuth_sensor);
 		elevation = std::to_string(frame_data[i].elevation_sensor);

@@ -28,12 +28,11 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     int ncols = original.x_pixels;
 
     cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
-    u_int indx0 = start_frame;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
     cv::Mat frame_0_crop, frame_i_crop, filtered_frame_0_matrix_8bit_color_resize, filtered_frame_i_matrix_8bit_color_resize;
     arma::vec frame_0_vector, frame_i_vector;
 
-    GetProcessedFrameMatrix(indx0, clamp_low, clamp_high, original, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
+    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, original, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
 
     // attenuate image noise of initial frame
     filtered_frame_0_matrix = processed_frame_0_matrix;
@@ -95,6 +94,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
 
     irradiance =  static_cast<uint32_t>(sum_counts_0[0]);
+
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
      static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
@@ -111,7 +111,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         }
 
         UpdateProgressBar(i);
-        indx = (indx0 + i);
+        indx = (start_frame + i);
         string window_name_i = "Tracking... ";
         GetProcessedFrameMatrix(indx, clamp_low, clamp_high, original, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
 
@@ -205,6 +205,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
 
         irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
+
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
          static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
          static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
