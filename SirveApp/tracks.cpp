@@ -1,4 +1,5 @@
 #include "tracks.h"
+#include "constants.h"
 
 TrackInformation::TrackInformation()
 {
@@ -375,7 +376,24 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
     struct ManualPlottingTrackDetails details;
 	
 	bool adjust_frame_ref = true;
-	
+
+    if (centroid_x < 0)
+    {
+        centroid_x = centroid_x +  SirveAppConstants::VideoDisplayWidth;
+    }
+    if (centroid_y < 0)
+    {
+        centroid_y = centroid_y +  SirveAppConstants::VideoDisplayHeight;
+    }
+    if (centroid_x > SirveAppConstants::VideoDisplayWidth)
+    {
+        centroid_x = centroid_x - SirveAppConstants::VideoDisplayWidth;
+    }
+    if (centroid_y > SirveAppConstants::VideoDisplayHeight)
+    {
+        centroid_y = centroid_y -  SirveAppConstants::VideoDisplayHeight;
+    }
+
     std::vector<double> az_el_result = AzElCalculation::calculate(centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y, adjust_frame_ref);
     details.azimuth = az_el_result[0];
     details.elevation = az_el_result[1];

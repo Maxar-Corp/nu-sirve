@@ -24,6 +24,7 @@ HEADERS += abir_reader.h \
             color_map.h \
             color_scheme.h \
             config.h \
+            constants.h \
             custom_input_dialog.h \
             data_export.h \
             data_structures.h \

@@ -37,9 +37,17 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent) 
     yCorrection = 0;
     current_idx = -1;
 
+    EstablishStencil();
+
+    connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
+}
+
+void VideoDisplay::EstablishStencil()
+{
     annotation_stencil = new AnnotationStencil(this->lbl_image_canvas);
     annotation_stencil->hide();
     annotation_stencil->move(50, 50);
+
     connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
     connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
     connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
@@ -565,6 +573,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
     uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
+
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
     cv::Mat frame_crop = frame_matrix(ROI);
     cv::Mat frame_crop_threshold;
@@ -856,6 +865,7 @@ void VideoDisplay::UpdateDisplayFrame()
             lbl_image_canvas->setCursor(Qt::BlankCursor);
             QPoint top_left(new_x - std::round(ROI_box_size/2.), new_y - std::round(ROI_box_size/2.));
             QPoint bottom_right(new_x + std::round(ROI_box_size/2.), new_y + std::round(ROI_box_size/2.));
+
             QRect manual_ROI_rectangle(top_left, bottom_right);
             manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
@@ -1145,8 +1155,6 @@ void VideoDisplay::UpdateDisplayFrame()
 
     lbl_image_canvas->update();
     lbl_image_canvas->repaint();
-
-    //counter++;
 }
 
 void VideoDisplay::DrawAnnotations()
@@ -1172,22 +1180,8 @@ void VideoDisplay::DrawAnnotations()
                 QString annotation_text = a.text;
 
                 std::vector<int> loc = zoom_manager->GetPositionWithinZoom(a.x_pixel, a.y_pixel);
-                int x = loc[0];
-                int y = loc[1];
-                int new_x = x - xCorrection;
-                int new_y = y - yCorrection;
-                if (new_x < 0){
-                    new_x = new_x + image_x;
-                }
-                if (new_y < 0){
-                    new_y = new_y + image_y;
-                }
-                if (new_x > image_x){
-                    new_x = new_x - image_x;
-                }
-                if (new_y > image_y){
-                    new_y = new_y - image_y ;
-                }
+                int new_x = loc[0];
+                int new_y = loc[1];
 
                 if (loc[0] >= 0)
                 {

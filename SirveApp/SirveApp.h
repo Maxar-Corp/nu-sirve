@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 
+#include "constants.h"
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
 #include "video_display.h"
@@ -174,11 +175,16 @@ public:
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
 
-	signals:
+	void RefreshChartSpace(int track_id, QColor new_color);
+
+void FramePlotSpace();
+
+signals:
         void changeBanner(QString banner_text);
         void changeBannerColor(QString color);
         void changeTrackerColor(QString color);
         void directorySelected(QString directory);
+        void enableYAxisOptions(bool enabled);
         void updateVideoDisplayPinpointControls(bool status);
 
 	public slots:
@@ -188,6 +194,8 @@ public:
         void HandleAutoLiftGainCheck(int state);
         void HandleLiftSliderToggled();
         void HandleGainSliderToggled();
+
+        void EnableYAxisOptions(bool enabled);
 
         void SaveWorkspace();
         void LoadWorkspace();

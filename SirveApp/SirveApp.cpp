@@ -1323,6 +1323,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
+    connect(this, &SirveApp::enableYAxisOptions, this, &SirveApp::EnableYAxisOptions);
 }
 
 void SirveApp::HandleBadPixelRawToggle()
@@ -1362,6 +1363,7 @@ void SirveApp::HandleYAxisChange()
     }
     else{
         rad_decimal->setChecked(true);
+        rad_linear->setChecked(true);
     }
     yAxisChanged=true;
     UpdatePlots();
@@ -1431,13 +1433,7 @@ void SirveApp::ImportTracks()
                 int index1 = data_plots->index_sub_plot_xmax + 1;
                 video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
                 data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-                double xmax = data_plots->axis_x->max();
-                double xmin = data_plots->axis_x->min();
-                double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-                double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-                UpdatePlots();
-                data_plots->set_xaxis_limits(xmin,xmax);
-                data_plots->set_yaxis_limits(ymin,ymax); 
+                FramePlotSpace();
             }
         }
         else
@@ -1463,13 +1459,7 @@ void SirveApp::ImportTracks()
             int index1 = data_plots->index_sub_plot_xmax + 1;
             video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
             data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            double xmax = data_plots->axis_x->max();
-            double xmin = data_plots->axis_x->min();
-            double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-            double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-            UpdatePlots();
-            data_plots->set_xaxis_limits(xmin,xmax);
-            data_plots->set_yaxis_limits(ymin,ymax); 
+            FramePlotSpace();
         }
 
     } 
@@ -1591,11 +1581,9 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        double xmax = data_plots->axis_x->max();
-        double xmin = data_plots->axis_x->min();
-        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-        UpdatePlots();
+
+        FramePlotSpace();
+
         if (!existing_track_TF)
         {
             cmb_manual_track_IDs->clear();
@@ -1603,10 +1591,9 @@ void SirveApp::HandleFinishCreateTrackClick()
             std::set<int> track_ids = track_info->get_manual_track_ids();
             for ( int track_id : track_ids ){
                 cmb_manual_track_IDs->addItem(QString::number(track_id));
-            } 
+            }
         }
-        data_plots->set_xaxis_limits(xmin,xmax);
-        data_plots->set_yaxis_limits(ymin,ymax);
+
         QStringList color_options = ColorScheme::get_track_colors();
         QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
         if (existing_track_control != nullptr)
@@ -1640,28 +1627,14 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     int index0 = data_plots->index_sub_plot_xmin;
     int index1 = data_plots->index_sub_plot_xmax + 1;
     data_plots->RecolorManualTrack(track_id, new_color);
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    FramePlotSpace();
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
 {
     video_display->ShowManualTrackId(track_id);
-    int index0 = data_plots->index_sub_plot_xmin;
-    int index1 = data_plots->index_sub_plot_xmax + 1;
     data_plots->RecolorManualTrack(track_id, new_color);
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    FramePlotSpace();
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1681,19 +1654,18 @@ void SirveApp::HandleTrackRemoval(int track_id)
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-    double xmax = data_plots->axis_x->max();
-    double xmin = data_plots->axis_x->min();
-    double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    UpdatePlots();
-    data_plots->set_xaxis_limits(xmin,xmax);
-    data_plots->set_yaxis_limits(ymin,ymax);
+    FramePlotSpace();
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots->RecolorManualTrack(track_id, new_color);
+    FramePlotSpace();
+}
+
+void SirveApp::FramePlotSpace()
+{
     double xmax = data_plots->axis_x->max();
     double xmin = data_plots->axis_x->min();
     double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
@@ -1825,6 +1797,10 @@ void SirveApp::LoadWorkspace()
                     QtHelpers::LaunchMessageBox(QString("Unexpected Workspace Behavior"), "Unexpected processing method in workspace, unable to proceed.");
             }
         }
+
+        video_display->annotation_list.clear();
+        video_display->EstablishStencil();
+        video_display->HideStencil();
 
         for (auto i = 0; i < workspace_vals.annotations.size(); i++)
         {
@@ -2016,6 +1992,9 @@ void SirveApp::LoadOsmData()
     menu_plot_frame_marker->setIconVisibleInMenu(false);
 
     EnableEngineeringPlotOptions();
+
+    EnableYAxisOptions(false);
+
     data_plots->SetPlotTitle(QString("EDIT CLASSIFICATION"));
 
     data_plots->InitializeIntervals(osm_frames);
@@ -2079,6 +2058,13 @@ void SirveApp::UiLoadAbirData()
         btn_get_frames->setEnabled(true);
 
         return;
+    }
+
+    if (video_display->annotation_list.size() > 0)
+    {
+        video_display->annotation_list.clear();
+        video_display->EstablishStencil();
+        video_display->HideStencil();
     }
 
     LoadAbirData(min_frame, max_frame);
@@ -3083,9 +3069,10 @@ void SirveApp::UpdatePlots()
     // Check that indices are all positive
     if (x_index >= 0 && y_index >= 0 && eng_data)
     {
-
         bool scientific_is_checked = rad_scientific->isChecked();
         bool log_is_checked = rad_log->isChecked();
+
+        // Feed the current Y-Axis Linear/Log option into the plot engineering widget
         data_plots->toggle_yaxis_log(log_is_checked);
 
         // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):
@@ -3112,9 +3099,11 @@ void SirveApp::UpdatePlots()
                 break;
         }
 
+        emit enableYAxisOptions(y_index == 0);
+
         data_plots->SetXAxisChartId(x_index);
         data_plots->SetYAxisChartId(y_index);
-        data_plots->PlotChart(yAxisChanged);
+        data_plots->PlotChart();
 
         data_plots->PlotCurrentStep(playback_controller->get_current_frame_number());
     }
@@ -3161,6 +3150,9 @@ void SirveApp::AnnotateVideo()
     standard_info.min_frame = data_plots->index_sub_plot_xmin + 1;
     standard_info.max_frame = data_plots->index_sub_plot_xmax + 1;
 
+    standard_info.x_correction = video_display->xCorrection;
+    standard_info.y_correction = video_display->yCorrection;
+
     annotate_gui = new AnnotationListDialog(video_display->annotation_list, standard_info);
 
     connect(annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
@@ -3169,8 +3161,8 @@ void SirveApp::AnnotateVideo()
     connect(annotate_gui, &AnnotationListDialog::rejected, this, &SirveApp::HandleAnnotationDialogClosed);
     connect(annotate_gui, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed);
 
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition);
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::SetStencilLocation);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition, Qt::UniqueConnection);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::SetStencilLocation, Qt::UniqueConnection);
 
     btn_add_annotations->setDisabled(true);
 
@@ -4214,7 +4206,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*SirveAppConstants::VideoDisplayWidth*SirveAppConstants::VideoDisplayHeight);
 
     ImageProcessing *ImageProcessor = new ImageProcessing();
     lbl_progress_status->setText(QString("Adaptive Noise Suppression..."));
@@ -4308,7 +4300,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
-    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*640*480);
+    double available_memory_ratio = double(availPhysMem)/(double(number_video_frames)*16*SirveAppConstants::VideoDisplayWidth*SirveAppConstants::VideoDisplayHeight);
 
     if(available_memory_ratio >=1.5){
 
@@ -4588,13 +4580,8 @@ void SirveApp::ExecuteAutoTracking()
         int index1 = data_plots->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        double xmax = data_plots->axis_x->max();
-        double xmin = data_plots->axis_x->min();
-        double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-        double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-        UpdatePlots();
-        data_plots->set_xaxis_limits(xmin,xmax);
-        data_plots->set_yaxis_limits(ymin,ymax);
+
+        FramePlotSpace();
         
         QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
         if (existing_track_control != nullptr)
@@ -4672,6 +4659,25 @@ void SirveApp::EnableEngineeringPlotOptions()
 
     cmb_plot_yaxis->setEnabled(false);
     cmb_plot_xaxis->setEnabled(false);
+}
+
+void SirveApp::EnableYAxisOptions(bool enabled)
+{
+    this->rad_log->setEnabled(enabled);
+    this->rad_linear->setEnabled(enabled);
+    this->rad_decimal->setEnabled(enabled);
+    this->rad_scientific->setEnabled(enabled);
+
+    qDebug() << "enabled" << enabled;
+    qDebug() << "------>>> enabled=" << enabled;
+
+    if (!enabled)
+    {
+        qDebug() << "TOGGLING";
+
+        data_plots->toggle_yaxis_log(false);
+        data_plots->toggle_yaxis_scientific(false);
+    }
 }
 
 void SirveApp::UpdateEpochString(QString new_epoch_string)

@@ -31,6 +31,7 @@
 
 #include <armadillo>
 
+#include "constants.h"
 #include "annotation_stencil.h"
 #include "color_scheme.h"
 #include "abir_reader.h"
@@ -90,6 +91,7 @@ public:
     void UpdateManualTrackData(std::vector<TrackFrame> track_frame_input);
 
     void AddManualTrackIdToShowLater(int id);
+    void EstablishStencil();
     void HideManualTrackId(int id);
     void ShowManualTrackId(int id);
     void RecolorManualTrack(int id, QColor color);
