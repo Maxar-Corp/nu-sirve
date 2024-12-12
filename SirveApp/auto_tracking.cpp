@@ -20,19 +20,20 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails current_processing_state, VideoDetails base_processing_state, QString new_track_file_name)
+arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame,\
+ processingState current_processing_state, VideoDetails base_processing_state_details, QString new_track_file_name)
 {
     double irradiance;
 
-    int nrows = current_processing_state.y_pixels;
-    int ncols = current_processing_state.x_pixels;
+    int nrows = current_processing_state.details.y_pixels;
+    int ncols = current_processing_state.details.x_pixels;
 
     cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
     cv::Mat frame_0_crop, frame_i_crop, filtered_frame_0_matrix_8bit_color_resize, filtered_frame_i_matrix_8bit_color_resize;
     arma::vec frame_0_vector, frame_i_vector;
 
-    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
+    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state.details, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
 
     // attenuate image noise of initial frame
     filtered_frame_0_matrix = processed_frame_0_matrix;
@@ -76,10 +77,25 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     ROI.y /= N;
     ROI.width /= N;
     ROI.height /= N;
-    // std::vector<std::vector<int>> offsets;
-    // if (current_processing_state. offsets.size()>0){
-    //     offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
-    // }
+    arma::vec framei = arma::regspace(start_frame,stop_frame);
+    arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
+
+    std::vector<std::vector<int>> offsets;
+    if (current_processing_state.offsets.size()>0){
+        offsets = current_processing_state.offsets;
+        arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
+        for (int rowi = 0; rowi < offsets.size(); rowi++){
+            offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
+        }
+        for (int rowii = 0; rowii<framei.size(); rowii++){
+            arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
+            if (!kk.is_empty()){
+                offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
+            }
+        }
+        offset_matrix2.shed_col(0);
+    }
+
     frame_0_crop = frame_0_matrix(ROI);
 
     cv::Point frame_0_point, frame_i_point;
@@ -94,9 +110,9 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     u_int indx, num_frames = stop_frame - start_frame + 1;
     arma::u64_mat output(num_frames, 14);
 
-    GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
+    GetPointXY(frame_0_point, ROI, frame_0_x, frame_0_y);
 
-    irradiance = ComputeIrradiance(start_frame, ROI, base_processing_state);          
+    irradiance = ComputeIrradiance(start_frame, ROI, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);          
 
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
@@ -116,7 +132,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         UpdateProgressBar(i);
         indx = (start_frame + i);
         string window_name_i = "Tracking... ";
-        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
+        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state.details, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
         FilterImage(prefilter, processed_frame_i_matrix, filtered_frame_i_matrix);
@@ -206,7 +222,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         }
 
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        irradiance = ComputeIrradiance(indx, ROI, base_processing_state);   
+        irradiance = ComputeIrradiance(indx, ROI, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);   
 
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
          static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
@@ -299,7 +315,7 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
 
-double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state)
+double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, int x, int y, VideoDetails base_processing_state_details)
 {
     double irradiance_val;
      
@@ -307,22 +323,25 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base
     start_indx = std::max(indx-number_median_frames,0);
     stop_indx = std::max(indx-1,0);
 
-    int nRows = base_processing_state.y_pixels;
-    int nCols = base_processing_state.x_pixels;
-    int nFrames = base_processing_state.frames_16bit.size();
+    int nRows = base_processing_state_details.y_pixels;
+    int nCols = base_processing_state_details.x_pixels;
+    int nFrames = base_processing_state_details.frames_16bit.size();
 
     arma::cube data_cube(nRows,nCols,nFrames);
 
     for (unsigned int k = 0; k < nFrames; ++k)
     {
-        data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state.frames_16bit[k]),nCols,nRows).t();   
+        data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[k]),nCols,nRows).t();   
     }
 
-    int row1 = ROI.y;
-    int row2 = ROI.y + ROI.height;
-    int col1 = ROI.x;
-    int col2 = ROI.x + ROI.width;
-
+    // int row1 = ROI.y;
+    // int row2 = ROI.y + ROI.height;
+    // int col1 = ROI.x;
+    // int col2 = ROI.x + ROI.width;
+    int row1 = y - ROI.height/2;
+    int row2 = y + ROI.height/2;
+    int col1 = x - ROI.width/2;
+    int col2 = x + ROI.width/2;
     arma::cube data_subcube = data_cube.subcube(row1,col1,start_indx,row2,col2,stop_indx);
     // int nPix = data_subcube.n_rows*data_subcube.n_cols;
     // arma::mat data_subcube_as_columns(nPix, data_subcube.n_slices);

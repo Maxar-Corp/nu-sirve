@@ -18,6 +18,7 @@
 #include "support/qthelpers.h"
 #include "tracks.h"
 #include "video_details.h"
+#include "processing_state.h"
 
 using namespace std;
 using namespace cv;
@@ -33,8 +34,9 @@ public:
     int N = 2;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails current_processing_state,VideoDetails base_processing_state, QString new_track_file_name);   
-    double ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state);
+    arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame,\
+     processingState current_processing_state, VideoDetails base_processing_state_details, QString new_track_file_name);   
+    double ComputeIrradiance(int indx, cv::Rect ROI, int x, int y, VideoDetails base_processing_state_details);
 signals:
      void signalProgress(unsigned int frameval);
 
