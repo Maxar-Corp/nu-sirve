@@ -43,6 +43,7 @@
 #include "annotation_info.h"
 #include "video_display_zoom.h"
 #include "tracks.h"
+#include "auto_tracking.h"
 
 class VideoDisplay : public QWidget
 {

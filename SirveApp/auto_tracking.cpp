@@ -93,8 +93,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
 
-    ComputeIrradiance(start_frame, ROI, base_processing_state, irradiance);          
-    // irradiance =  static_cast<uint32_t>(sum_counts_0[0]);
+    irradiance = ComputeIrradiance(start_frame, ROI, base_processing_state);          
 
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
@@ -204,8 +203,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         }
 
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        ComputeIrradiance(indx, ROI, base_processing_state, irradiance);   
-        // irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
+        irradiance = ComputeIrradiance(indx, ROI, base_processing_state);   
 
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
          static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
@@ -298,15 +296,16 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
 
-void AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state, double & irradiance_val)
+double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state)
 {
-    std::cout << "Indx: "<< indx << std::endl;
+    double irradiance_val;
+    // std::cout << "Indx: "<< indx << std::endl;
     
     int start_indx, stop_indx;
     start_indx = std::max(indx-number_median_frames,0);
     stop_indx = std::max(indx-1,0);
 
-    std::cout << "start_indx, stop_indx: "<< start_indx << " "<< stop_indx << std::endl;
+    // std::cout << "start_indx, stop_indx: "<< start_indx << " "<< stop_indx << std::endl;
 
     int nRows = base_processing_state.y_pixels;
     int nCols = base_processing_state.x_pixels;
@@ -323,16 +322,18 @@ void AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_p
     int col1 = ROI.x;
     int col2 = ROI.x + ROI.width;
 
-    std::cout << "row1, row2, col1, col2: "<< row1 << " "<< row2 <<" "<< col1 << " "<< col2 << std::endl;
+    // std::cout << "row1, row2, col1, col2: "<< row1 << " "<< row2 <<" "<< col1 << " "<< col2 << std::endl;
 
     arma::cube data_subcube = data_cube.subcube(row1,col1,start_indx,row2,col2,stop_indx);
     arma::mat data_subcube_mean = arma::mean(data_subcube,2);
     arma::mat current_frame = data_cube.slice(indx);
     arma::mat current_subframe = current_frame.submat(row1,col1,row2,col2);
-    std::cout << "Current Subframe:" << std::endl;
-    current_subframe.print();
+    // std::cout << "Current Subframe:" << std::endl;
+    // current_subframe.print();
     arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
-    std::cout << "counts_minus_mean:" << std::endl;
-    counts_minus_mean.print();
+    // std::cout << "counts_minus_mean:" << std::endl;
+    // counts_minus_mean.print();
     irradiance_val = arma::sum(counts_minus_mean.as_col());
+    return irradiance_val;
+
 }

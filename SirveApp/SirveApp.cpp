@@ -2166,7 +2166,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     this->repaint();
 
     int index0 = min_frame - 1;
-    int index1 = max_frame - 1;
+    int index1 = max_frame;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
@@ -4431,14 +4431,12 @@ void SirveApp::ExecuteAutoTracking()
     playback_controller->StopTimer();
     processingState current_processing_state = video_display->container.processing_states[video_display->container.current_idx];
     processingState base_processing_state = video_display->container.processing_states[0];
-    bool bad_pixel_state_found = false;
-
-    for (auto ii = 1; ii < video_display->container.processing_states.size(); ii++)
+  
+    for (auto ii = 0; ii < video_display->container.processing_states.size(); ii++)
     {
         processingState test_state = video_display->container.processing_states[ii];
         if (test_state.method == ProcessingMethod::replace_bad_pixels)
         {
-            bad_pixel_state_found = true;
             base_processing_state = test_state;
             break;
         }
