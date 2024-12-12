@@ -302,13 +302,10 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
 double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state)
 {
     double irradiance_val;
-    // std::cout << "Indx: "<< indx << std::endl;
-    
+     
     int start_indx, stop_indx;
     start_indx = std::max(indx-number_median_frames,0);
     stop_indx = std::max(indx-1,0);
-
-    // std::cout << "start_indx, stop_indx: "<< start_indx << " "<< stop_indx << std::endl;
 
     int nRows = base_processing_state.y_pixels;
     int nCols = base_processing_state.x_pixels;
@@ -326,28 +323,22 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base
     int col1 = ROI.x;
     int col2 = ROI.x + ROI.width;
 
-    // std::cout << "row1, row2, col1, col2: "<< row1 << " "<< row2 <<" "<< col1 << " "<< col2 << std::endl;
-
     arma::cube data_subcube = data_cube.subcube(row1,col1,start_indx,row2,col2,stop_indx);
-    int nPix = data_subcube.n_rows*data_subcube.n_cols;
-    arma::mat data_subcube_as_columns(nPix, data_subcube.n_slices);
-    for(unsigned int k = 0; k < data_subcube.n_slices; ++k)
-    {
-        data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
-    }
-    arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
-    arma::mat data_subcube_median = arma::reshape(data_subcube_as_columns_median,data_subcube.n_cols,data_subcube.n_rows).t();
-    // arma::mat data_subcube_mean = arma::mean(data_subcube,2);
+    // int nPix = data_subcube.n_rows*data_subcube.n_cols;
+    // arma::mat data_subcube_as_columns(nPix, data_subcube.n_slices);
+    // for(unsigned int k = 0; k < data_subcube.n_slices; ++k)
+    // {
+    //     data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
+    // }
+    // arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
+    // arma::mat data_subcube_median = arma::reshape(data_subcube_as_columns_median,data_subcube.n_cols,data_subcube.n_rows).t();
+    arma::mat data_subcube_mean = arma::mean(data_subcube,2);
     arma::mat current_frame = data_cube.slice(indx);
     arma::mat current_subframe = current_frame.submat(row1,col1,row2,col2);
-    // std::cout << "Current Subframe:" << std::endl;
-    // current_subframe.print();
-    // arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
-    arma::mat counts_minus_median =  current_subframe - data_subcube_median;
-    // std::cout << "counts_minus_mean:" << std::endl;
-    // counts_minus_mean.print();
-    // irradiance_val = arma::sum(counts_minus_mean.as_col());
-    irradiance_val = arma::sum(counts_minus_median.as_col());
+    arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
+    // arma::mat counts_minus_median =  current_subframe - data_subcube_median;
+    irradiance_val = arma::sum(counts_minus_mean.as_col());
+    // irradiance_val = arma::sum(counts_minus_median.as_col());
     return irradiance_val;
 
 }
