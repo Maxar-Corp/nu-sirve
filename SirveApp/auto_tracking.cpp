@@ -343,21 +343,21 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, int x, int y, Vid
     int col1 = x - ROI.width/2;
     int col2 = x + ROI.width/2;
     arma::cube data_subcube = data_cube.subcube(row1,col1,start_indx,row2,col2,stop_indx);
-    // int nPix = data_subcube.n_rows*data_subcube.n_cols;
-    // arma::mat data_subcube_as_columns(nPix, data_subcube.n_slices);
-    // for(unsigned int k = 0; k < data_subcube.n_slices; ++k)
-    // {
-    //     data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
-    // }
-    // arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
-    // arma::mat data_subcube_median = arma::reshape(data_subcube_as_columns_median,data_subcube.n_cols,data_subcube.n_rows).t();
-    arma::mat data_subcube_mean = arma::mean(data_subcube,2);
+    int nPix = data_subcube.n_rows*data_subcube.n_cols;
+    arma::mat data_subcube_as_columns(nPix, data_subcube.n_slices);
+    for(unsigned int k = 0; k < data_subcube.n_slices; ++k)
+    {
+        data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
+    }
+    arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
+    arma::mat data_subcube_median = arma::reshape(data_subcube_as_columns_median,data_subcube.n_cols,data_subcube.n_rows).t();
+    // arma::mat data_subcube_mean = arma::mean(data_subcube,2);
     arma::mat current_frame = data_cube.slice(indx);
     arma::mat current_subframe = current_frame.submat(row1,col1,row2,col2);
-    arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
-    // arma::mat counts_minus_median =  current_subframe - data_subcube_median;
-    irradiance_val = arma::sum(counts_minus_mean.as_col());
-    // irradiance_val = arma::sum(counts_minus_median.as_col());
+    // arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
+    arma::mat counts_minus_median =  current_subframe - data_subcube_median;
+    // irradiance_val = arma::sum(counts_minus_mean.as_col());
+    irradiance_val = arma::sum(counts_minus_median.as_col());
     return irradiance_val;
 
 }
