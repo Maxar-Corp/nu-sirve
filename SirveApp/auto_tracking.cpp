@@ -313,7 +313,8 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base
 
     arma::cube data_cube(nRows,nCols,nFrames);
 
-    for (unsigned int k = 0; k < nFrames; ++k) {
+    for (unsigned int k = 0; k < nFrames; ++k)
+    {
         data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state.frames_16bit[k]),nCols,nRows).t();   
     }
 
@@ -325,15 +326,25 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base
     // std::cout << "row1, row2, col1, col2: "<< row1 << " "<< row2 <<" "<< col1 << " "<< col2 << std::endl;
 
     arma::cube data_subcube = data_cube.subcube(row1,col1,start_indx,row2,col2,stop_indx);
-    arma::mat data_subcube_mean = arma::mean(data_subcube,2);
+    int nPix = data_subcube.n_rows*data_subcube.n_cols;
+    arma::mat data_subcube_as_columns(nPix, data_subcube.n_slices);
+    for(unsigned int k = 0; k < data_subcube.n_slices; ++k)
+    {
+        data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
+    }
+    arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
+    arma::mat data_subcube_median = arma::reshape(data_subcube_as_columns_median,data_subcube.n_cols,data_subcube.n_rows).t();
+    // arma::mat data_subcube_mean = arma::mean(data_subcube,2);
     arma::mat current_frame = data_cube.slice(indx);
     arma::mat current_subframe = current_frame.submat(row1,col1,row2,col2);
     // std::cout << "Current Subframe:" << std::endl;
     // current_subframe.print();
-    arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
+    // arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
+    arma::mat counts_minus_median=  current_subframe - data_subcube_median;
     // std::cout << "counts_minus_mean:" << std::endl;
     // counts_minus_mean.print();
-    irradiance_val = arma::sum(counts_minus_mean.as_col());
+    // irradiance_val = arma::sum(counts_minus_mean.as_col());
+    irradiance_val = arma::sum(counts_minus_median.as_col());
     return irradiance_val;
 
 }
