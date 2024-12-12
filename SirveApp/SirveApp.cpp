@@ -2166,7 +2166,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     this->repaint();
 
     int index0 = min_frame - 1;
-    int index1 = max_frame - 1;
+    int index1 = max_frame;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 
     video_display->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
