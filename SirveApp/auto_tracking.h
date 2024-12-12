@@ -33,7 +33,7 @@ public:
     int N = 2;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);   
+    arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails current_processing_state,VideoDetails base_processing_state, QString new_track_file_name);   
 signals:
      void signalProgress(unsigned int frameval);
 
@@ -46,8 +46,10 @@ private:
      cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels);
     void GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX,  u_int & centerY);
     void GetProcessedFrameMatrix(int indx, double clampLow, double clampHigh, VideoDetails original,  arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix);
+    void ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state, double & irradiance_val);
     int track_details_min_frame, track_details_max_frame;
     double tracking_peak_success_threshold = 0.35;
+    int number_median_frames = 30;
 };
 
 #endif

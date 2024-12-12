@@ -4429,7 +4429,22 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
 void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
-    processingState original = video_display->container.processing_states[video_display->container.current_idx];
+    processingState current_processing_state = video_display->container.processing_states[video_display->container.current_idx];
+    processingState base_processing_state = video_display->container.processing_states[0];
+    bool bad_pixel_state_found = false;
+
+    for (auto ii = 1; ii < video_display->container.processing_states.size(); ii++)
+    {
+        processingState test_state = video_display->container.processing_states[ii];
+        if (test_state.method == ProcessingMethod::replace_bad_pixels)
+        {
+            bad_pixel_state_found = true;
+            base_processing_state = test_state;
+            break;
+        }
+            
+    }
+
     AutoTracking AutoTracker;
 
     int frame0 = txt_start_frame->text().toInt();
@@ -4508,7 +4523,7 @@ void SirveApp::ExecuteAutoTracking()
         double clamp_high = txt_gain_sigma->text().toDouble();
         int threshold = 6 - cmb_autotrack_threshold->currentIndex();
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+        arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state.details, base_processing_state.details, new_track_file_name);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);

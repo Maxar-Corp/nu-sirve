@@ -70,7 +70,7 @@ private:
     ABIRData abir_data;
     arma::mat disk_avg_kernel;
 
-    static arma::mat apply_soft_threshold(arma::mat s, double tau);
+    static arma::mat apply_shrinkage_operator(arma::mat s, double tau);
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
     static arma::mat perform_thresholding(arma::mat X, double tau);
 };

@@ -20,19 +20,19 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name)
+arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame, VideoDetails current_processing_state, VideoDetails base_processing_state, QString new_track_file_name)
 {
     double irradiance;
 
-    int nrows = original.y_pixels;
-    int ncols = original.x_pixels;
+    int nrows = current_processing_state.y_pixels;
+    int ncols = current_processing_state.x_pixels;
 
     cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
     cv::Mat frame_0_crop, frame_i_crop, filtered_frame_0_matrix_8bit_color_resize, filtered_frame_i_matrix_8bit_color_resize;
     arma::vec frame_0_vector, frame_i_vector;
 
-    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, original, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
+    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
 
     // attenuate image noise of initial frame
     filtered_frame_0_matrix = processed_frame_0_matrix;
@@ -93,7 +93,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     GetPointXY(frame_0_point, ROI,frame_0_x,frame_0_y);
 
-    irradiance =  static_cast<uint32_t>(sum_counts_0[0]);
+    ComputeIrradiance(start_frame, ROI, base_processing_state, irradiance);          
+    // irradiance =  static_cast<uint32_t>(sum_counts_0[0]);
 
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
@@ -113,7 +114,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         UpdateProgressBar(i);
         indx = (start_frame + i);
         string window_name_i = "Tracking... ";
-        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, original, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
+        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
         FilterImage(prefilter, processed_frame_i_matrix, filtered_frame_i_matrix);
@@ -203,8 +204,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         }
 
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-
-        irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
+        ComputeIrradiance(indx, ROI, base_processing_state, irradiance);   
+        // irradiance =  static_cast<uint32_t>(sum_counts_i[0] - frame_crop_mean[0]);
 
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
          static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
@@ -280,12 +281,12 @@ void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & cente
     }
 }
 
-void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails original, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
+void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails current_processing_state, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
 {
     double m, s;
-    int nrows = original.y_pixels;
-    int ncols = original.x_pixels;      
-    frame_vector = arma::conv_to<arma::vec>::from(original.frames_16bit[indx]);
+    int nrows = current_processing_state.y_pixels;
+    int ncols = current_processing_state.x_pixels;      
+    frame_vector = arma::conv_to<arma::vec>::from(current_processing_state.frames_16bit[indx]);
     arma::vec processed_frame_vector = frame_vector;
     m = arma::mean(frame_vector);
     s = arma::stddev(frame_vector);
@@ -295,4 +296,43 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     processed_frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, processed_frame_vector.memptr());
     processed_frame_matrix.convertTo(processed_frame_matrix, CV_8UC1);
     frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
+}
+
+void AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base_processing_state, double & irradiance_val)
+{
+    std::cout << "Indx: "<< indx << std::endl;
+    
+    int start_indx, stop_indx;
+    start_indx = std::max(indx-number_median_frames,0);
+    stop_indx = std::max(indx-1,0);
+
+    std::cout << "start_indx, stop_indx: "<< start_indx << " "<< stop_indx << std::endl;
+
+    int nRows = base_processing_state.y_pixels;
+    int nCols = base_processing_state.x_pixels;
+    int nFrames = base_processing_state.frames_16bit.size();
+
+    arma::cube data_cube(nRows,nCols,nFrames);
+
+    for (unsigned int k = 0; k < nFrames; ++k) {
+        data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state.frames_16bit[k]),nCols,nRows).t();   
+    }
+
+    int row1 = ROI.y;
+    int row2 = ROI.y + ROI.height;
+    int col1 = ROI.x;
+    int col2 = ROI.x + ROI.width;
+
+    std::cout << "row1, row2, col1, col2: "<< row1 << " "<< row2 <<" "<< col1 << " "<< col2 << std::endl;
+
+    arma::cube data_subcube = data_cube.subcube(row1,col1,start_indx,row2,col2,stop_indx);
+    arma::mat data_subcube_mean = arma::mean(data_subcube,2);
+    arma::mat current_frame = data_cube.slice(indx);
+    arma::mat current_subframe = current_frame.submat(row1,col1,row2,col2);
+    std::cout << "Current Subframe:" << std::endl;
+    current_subframe.print();
+    arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
+    std::cout << "counts_minus_mean:" << std::endl;
+    counts_minus_mean.print();
+    irradiance_val = arma::sum(counts_minus_mean.as_col());
 }
