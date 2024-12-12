@@ -613,7 +613,8 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
-    details.irradiance =  AutoTracker.ComputeIrradiance(this->counter, ROI, base_processing_state.details);
+    cv::Rect ROI2(minx + xCorrection,miny + yCorrection,ROI_width,ROI_height);
+    details.irradiance =  AutoTracker.ComputeIrradiance(this->counter, ROI2, base_processing_state.details);
     details.ROI_x = minx + xCorrection;
     details.ROI_y = miny + yCorrection;
     details.ROI_Width = ROI_width;

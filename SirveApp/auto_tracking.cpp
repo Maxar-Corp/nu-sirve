@@ -76,7 +76,10 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     ROI.y /= N;
     ROI.width /= N;
     ROI.height /= N;
-
+    // std::vector<std::vector<int>> offsets;
+    // if (current_processing_state. offsets.size()>0){
+    //     offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+    // }
     frame_0_crop = frame_0_matrix(ROI);
 
     cv::Point frame_0_point, frame_i_point;
@@ -340,7 +343,7 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, VideoDetails base
     // std::cout << "Current Subframe:" << std::endl;
     // current_subframe.print();
     // arma::mat counts_minus_mean =  current_subframe - data_subcube_mean;
-    arma::mat counts_minus_median=  current_subframe - data_subcube_median;
+    arma::mat counts_minus_median =  current_subframe - data_subcube_median;
     // std::cout << "counts_minus_mean:" << std::endl;
     // counts_minus_mean.print();
     // irradiance_val = arma::sum(counts_minus_mean.as_col());
