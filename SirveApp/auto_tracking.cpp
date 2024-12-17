@@ -112,11 +112,15 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     GetPointXY(frame_0_point, ROI, frame_0_x, frame_0_y);
 
-    irradiance = ComputeIrradiance(start_frame, ROI, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);          
+    int height = ROI.height;
+    int width = ROI.width;
+    int height2 = height/2;
+    int width2 = width/2;
+    irradiance = ComputeIrradiance(start_frame, height2, width2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);          
 
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
-     static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
+     static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(width),static_cast<uint16_t>(height)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
 
@@ -211,8 +215,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
                 ROI.x /= N;
                 ROI.y /= N;
-                ROI.width /= N;
-                ROI.height /= N;
+                // ROI.width /= N;
+                // ROI.height /= N;
                 tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
                 frame_i_crop = frame_i_matrix(ROI);
                
@@ -222,11 +226,11 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         }
 
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        irradiance = ComputeIrradiance(indx, ROI, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);   
+        irradiance = ComputeIrradiance(indx, height2, width2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);   
 
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
          static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
-         static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
+         static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(width),static_cast<uint16_t>(height)};
         waitKey(1);
     }
     cv::destroyAllWindows();
@@ -315,7 +319,7 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
 
-double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, int x, int y, VideoDetails base_processing_state_details)
+double AutoTracking::ComputeIrradiance(int indx, int height2, int width2, int x, int y, VideoDetails base_processing_state_details)
 {
     double irradiance_val;
      
@@ -325,16 +329,15 @@ double AutoTracking::ComputeIrradiance(int indx, cv::Rect ROI, int x, int y, Vid
     int nRows = base_processing_state_details.y_pixels;
     int nCols = base_processing_state_details.x_pixels;
 
-    int row1 = y - ROI.height/2;
-    int row2 = y + ROI.height/2;
-    int col1 = x - ROI.width/2;
-    int col2 = x + ROI.width/2;
-    // uint NFrames = base_processing_state_details.frames_16bit.size();
+    int row1 = y - height2;
+    int row2 = y + height2;
+    int col1 = x - width2;
+    int col2 = x + width2;
+
     arma::cube data_cube(nCols, nRows, number_median_frames+1);
 
     for (unsigned int k = 0; k <= number_median_frames; ++k)
     {
-        // data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[std::min(start_indx+k,NFrames)]),nCols,nRows);   
         data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx+k]),nCols,nRows); 
     }
 
