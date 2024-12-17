@@ -329,10 +329,10 @@ double AutoTracking::ComputeIrradiance(int indx, int height2, int width2, int x,
     int nRows = base_processing_state_details.y_pixels;
     int nCols = base_processing_state_details.x_pixels;
 
-    int row1 = y - height2;
-    int row2 = y + height2;
-    int col1 = x - width2;
-    int col2 = x + width2;
+    int row1 = std::max(y - height2,0);
+    int row2 = std::min(y + height2,nRows);
+    int col1 = std::max(x - width2,0);
+    int col2 = std::min(x + width2,nCols);
 
     arma::cube data_cube(nCols, nRows, number_median_frames+1);
 
