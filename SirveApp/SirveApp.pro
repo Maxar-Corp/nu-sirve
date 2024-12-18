@@ -35,7 +35,6 @@ HEADERS += abir_reader.h \
             histogram_plotter.h \
             image_processing.h \
             location_input.h \
-            new_chart_view.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
             non_uniformity_correction.h \
@@ -48,7 +47,6 @@ HEADERS += abir_reader.h \
             processing_state.h \
             Section.h \
             SirveApp.h \
-            qt_plotting.h \
             track_management_widget.h \
             tracks.h \
             video_container.h \
@@ -88,7 +86,6 @@ SOURCES += abir_reader.cpp \
             image_processing.cpp \
             location_input.cpp \
             main.cpp \
-            new_chart_view.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
             non_uniformity_correction.cpp \
@@ -101,7 +98,6 @@ SOURCES += abir_reader.cpp \
             processing_state.cpp \
             Section.cpp \
             SirveApp.cpp \
-            qt_plotting.cpp \
             track_management_widget.cpp \
             tracks.cpp \
             video_container.cpp \
@@ -117,7 +113,9 @@ SOURCES += abir_reader.cpp \
 
 QT += charts widgets
 
-LIBS += "-L../5.15.2/msvc2019_64/lib/"
+LIBS += -lshell32
+
+LIBS += "-L../6.6.0/msvc2019_64/lib/"
 
 include(..\..\JKQtPlotter\lib\jkqtplotter.pri)
 include(..\..\JKQtPlotter\lib\jkqtcommon.pri)
@@ -130,10 +128,15 @@ include(..\..\JKQtPlotter\lib\jkqtmathtext.pri)
 include(..\..\JKQtPlotter\examples\libexampletools\libexampletools.pri)
 
 #To copy all the required files alongside the exe, run `nmake install`
-dlls.files = "../6.3.0/msvc2019_64/bin/Qt6Charts.dll" \
-            "../6.3.0/msvc2019_64/bin/Qt6Core.dll" \
-            "../6.3.0/msvc2019_64/bin/Qt6Gui.dll" \
-            "../6.3.0/msvc2019_64/bin/Qt6Widgets.dll" \
+dlls.files = "../6.6.0/msvc2019_64/bin/Qt6Charts.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6Core.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6Gui.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6Widgets.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6OpenGL.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6OpenGLWidgets.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6PrintSupport.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6Svg.dll" \
+            "../6.6.0/msvc2019_64/bin/Qt6Xml.dll" \
             "../fftw-3.3.5-dll64/libfftw3-3.dll" \
             "../fftw-3.3.5-dll64/libfftw3f-3.dll" \
             "../fftw-3.3.5-dll64/libfftw3l-3.dll" \
@@ -166,7 +169,7 @@ test {
         testing/test_bad_pixels.cpp \
         testing/test_video_display_zoom.cpp
 
-    dlls.files += "../5.15.2/msvc2019_64/bin/Qt5Test.dll"
+    dlls.files += "../6.6.0/msvc2019_64/bin/Qt5Test.dll"
 }
 else {
     message(Building normally)
@@ -174,7 +177,7 @@ else {
     TARGET = SirveApp
     DESTDIR = ../release
 
-    qwindows.files = "../5.15.2/msvc2019_64/plugins/platforms/qwindows.dll"
+    qwindows.files = "../6.6.0/msvc2019_64/plugins/qwindows.dll"
     qwindows.path = $${DESTDIR}/platforms
     INSTALLS += qwindows
 

@@ -16,7 +16,7 @@
 
 #ifndef EULER_H
 #define EULER_H
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
 
 #include <armadillo>
 #include <iostream>

@@ -9,7 +9,7 @@
 
 #ifndef EARTH_H
 #define EARTH_H
-#define _USE_MATH_DEFINES
+//#define _USE_MATH_DEFINES
 
 //Required Headers
 #include <armadillo>
