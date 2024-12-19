@@ -221,9 +221,10 @@ private:
     void ResetCreateTrackMinAndMaxFrames();
     void UpdateCreateTrackLabel();
     void UpdateDisplayFrame();
-
+    double ComputeIrradiance(int indx, int height, int width, int x, int y, VideoDetails & base_processing_state_details);      
     QString GetZuluTimeString(double seconds_midnight);
     QRectF GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height);
+    int number_median_frames = 30;
 };
 
 #endif // VIDEO_DISPLAY_H
