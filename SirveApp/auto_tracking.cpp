@@ -21,7 +21,7 @@ void AutoTracking::CancelOperation()
 
 // leverage OpenCV to track objects of interest
 arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame,\
- processingState current_processing_state, VideoDetails base_processing_state_details, QString new_track_file_name)
+ processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name)
 {
     double irradiance;
 
@@ -302,7 +302,7 @@ void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & cente
     }
 }
 
-void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails current_processing_state, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
+void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails & current_processing_state, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
 {
     double m, s;
     int nrows = current_processing_state.y_pixels;
@@ -319,7 +319,7 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
 
-double AutoTracking::ComputeIrradiance(int indx, int height2, int width2, int x, int y, VideoDetails base_processing_state_details)
+double AutoTracking::ComputeIrradiance(int indx, int height2, int width2, int x, int y, VideoDetails & base_processing_state_details)
 {
     double irradiance_val;
      
@@ -350,13 +350,8 @@ double AutoTracking::ComputeIrradiance(int indx, int height2, int width2, int x,
         data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
     }
     arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
-    // arma::mat data_subcube_median = arma::reshape(data_subcube_as_columns_median,data_subcube.n_rows,data_subcube.n_cols);
-    // arma::mat current_frame = data_cube.slice(number_median_frames);
-    // arma::mat current_subframe = current_frame.submat(col1,row1,col2,row2);
     arma::vec current_frame_subcube_as_column =  data_subcube.slice(number_median_frames).as_col();
-    // arma::mat counts_minus_median =  current_subframe - data_subcube_median;
-    // irradiance_val = arma::sum(counts_minus_median.as_col());
-   irradiance_val = std::round(arma::sum(current_frame_subcube_as_column - data_subcube_as_columns_median));
+    irradiance_val = std::round(arma::sum(current_frame_subcube_as_column - data_subcube_as_columns_median));
 
     return std::max(irradiance_val,0.0);
 
