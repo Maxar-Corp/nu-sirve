@@ -1907,8 +1907,6 @@ void SirveApp::LoadOsmData()
     data_plots_elevation = new EngineeringPlot(osm_frames, {"Elevation", "Frames"});
     data_plots_irradiance = new EngineeringPlot(osm_frames, {"Irradiance", "Frames"});
 
-    data_plots_azimuth->clearToolbar();
-
     plot_palette = new PlotPalette();
     plot_palette->AddPlotTab(data_plots_azimuth, {"Azimuth", "Frames"});
     plot_palette->AddPlotTab(data_plots_elevation, {"Elevation", "Frames"});
@@ -2262,8 +2260,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
 void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> params)
 {
-    QObject *sendingObject = sender();
-
     // Create and show the dialog
     QDialog *popoutDialog = new QDialog(this);
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
@@ -2300,6 +2296,8 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> par
     popoutDialog->show();
 
     connect(popoutDialog, &QDialog::finished, this, &SirveApp::ClosePopoutEngineeringPlot);
+
+    dialogPlotter->setToolbarAlwaysOn(true);
 }
 
 void SirveApp::ClosePopoutEngineeringPlot()
@@ -3139,7 +3137,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
                 trackSeries->append(0, 0);
                 trackSeries->append(0, 0);
 
-               // data_plots->chart->addSeries(trackSeries);
+                data_plots_azimuth->AddSeries(trackSeries);
             }
         }
     }

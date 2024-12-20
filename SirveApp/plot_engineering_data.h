@@ -64,6 +64,8 @@ public:
     // Returns a const reference to the column data
     const QVector<double>& getColumn(size_t index) const;
 
+    void AddSeries(QLineSeries *trackSeries);
+
     void PlotChart();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);

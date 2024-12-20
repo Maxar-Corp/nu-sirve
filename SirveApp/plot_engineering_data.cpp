@@ -32,6 +32,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
     index_sub_plot_xmax = num_frames - 1;
 
     ds = this->getDatastore();
+
+    this->setToolbarAlwaysOn(true);
 }
 
 EngineeringPlot::~EngineeringPlot()
@@ -98,8 +100,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         // autoscale the plot so the graph is contained
         this->zoomToFit();
-
-        this->setToolbarAlwaysOn(true);
 
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
