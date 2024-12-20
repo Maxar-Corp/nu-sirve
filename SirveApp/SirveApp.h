@@ -262,7 +262,7 @@ signals:
         void HandleAnnotationDialogClosed();
         void HandleProcessingStatesCleared();
 
-        void OpenPopoutEngineeringPlot(std::vector<QString> params);
+        void OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> params);
         void ClosePopoutEngineeringPlot();
 
         void HandleParamsSelected(const std::vector<QString> &strings);

@@ -30,7 +30,6 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QStr
     // store the id of the plot in a map for lookup later when managing plots
     tab_to_type[palette_tab_id] = plot_type_id;
 
-    // Add tabs to the QTabWidget
     this->QTabWidget::addTab(tab, params[0]);
 }
 
@@ -82,7 +81,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
     // What should be a simple use case for syncing plots?  How many can be synced at a given time?  What combos are allowed?
 
-    QAction *closeTabAction = contextMenu.addAction("Close Tab");
+    QAction *closeTabAction = contextMenu.addAction("Hide Tab");
 
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
@@ -91,16 +90,15 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
     // Handle selected actions
     if (selectedAction == closeTabAction) {
-        removeTab(tabIndex);
+        setTabVisible(tabIndex,false);
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
-        emit popoutPlot({Enums::plotTypeToString(PlotPalette::GetPlotTypeByTabId(tabIndex)),"Frames"});
+        emit popoutPlot(tabIndex, {Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)),"Frames"});
     }
 }
 
 void PlotPalette::HandleDesignerParamsSelected(const std::vector<QString> &strings)
 {
-    qDebug() << "forwarding";
     emit paletteParamsSelected(strings);
 }
 
@@ -117,7 +115,7 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
 
             designer->exec();
         });
-        menu.exec(event->globalPos()); // Show menu at the cursor position
+        menu.exec(event->globalPosition().toPoint()); // Show menu at the cursor position
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class
     }

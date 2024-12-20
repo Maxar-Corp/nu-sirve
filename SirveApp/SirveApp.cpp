@@ -2260,8 +2260,10 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_stop_frame->setText(QString::number(istop));
 }
 
-void SirveApp::OpenPopoutEngineeringPlot(std::vector<QString> params)
+void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> params)
 {
+    QObject *sendingObject = sender();
+
     // Create and show the dialog
     QDialog *popoutDialog = new QDialog(this);
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
@@ -2292,7 +2294,7 @@ void SirveApp::OpenPopoutEngineeringPlot(std::vector<QString> params)
 
     popoutDialogLayout->addWidget(dialogPlotter);
 
-    popoutDialog->setWindowTitle(params[0].replace('_',' '));
+    popoutDialog->setWindowTitle(params[0].replace('_',' ') + "Tab" + QString::number(tab_index));
     popoutDialog->setAttribute(Qt::WA_DeleteOnClose);
     popoutDialog->resize(plot_palette->width(), plot_palette->height());
     popoutDialog->show();
@@ -2306,7 +2308,12 @@ void SirveApp::ClosePopoutEngineeringPlot()
     QObject *sendingObject = sender();
     QDialog *dialog = qobject_cast<QDialog *>(sendingObject);
 
-    plot_palette->tabBar()->setTabVisible(Enums::getPlotTypeIndexFromString(dialog->windowTitle()), true);
+    // Find the position of the word "Tab"
+    QString title = dialog->windowTitle();
+    int tabIndex = title.indexOf("Tab");
+    QString afterTab = title.mid(tabIndex + 3).trimmed();
+
+    plot_palette->tabBar()->setTabVisible(afterTab.toInt(), true);
 
     // Without the next two lines, the plot palette's tab bar will appear 'scrunched up' when tab is restored...
     plot_palette->update();

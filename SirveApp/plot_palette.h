@@ -31,7 +31,7 @@ private:
     std::map<int, int> tab_to_type;
 
 signals:
-    void popoutPlot(std::vector<QString> params);
+    void popoutPlot(int tab_index, std::vector<QString> params);
     void popinPlot(int plotType);
     void paletteParamsSelected(const std::vector<QString> &strings);
 

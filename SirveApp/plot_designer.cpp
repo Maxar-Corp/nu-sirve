@@ -68,9 +68,6 @@ void PlotDesigner::accept() {
             quantity_pair.push_back(listWidget2->item(i)->text());
     }
 
-    qDebug() << "Sending the pair of strings that define the quantities plotted (X,Y): " << quantity_pair.data();
-
-    // Emit the signal
     emit designerParamsSelected(quantity_pair);
 
     // Call the base class accept to close the dialog
