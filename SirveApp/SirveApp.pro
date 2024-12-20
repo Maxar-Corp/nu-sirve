@@ -38,13 +38,13 @@ HEADERS += abir_reader.h \
             location_input.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
-            non_uniformity_correction.h \
             osm_reader.h \
             plot_engineering_data.h \
             popout_dialog.h \
             process_file.h \
             processing_state.h \
             Section.h \
+            shared_scientific_functions.h\
             SirveApp.h \
             track_management_widget.h \
             tracks.h \
@@ -87,13 +87,13 @@ SOURCES += abir_reader.cpp \
             main.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
-            non_uniformity_correction.cpp \
             osm_reader.cpp \
             plot_engineering_data.cpp \
             popout_dialog.cpp \
             process_file.cpp \
             processing_state.cpp \
             Section.cpp \
+            shared_scientific_functions.cpp\
             SirveApp.cpp \
             track_management_widget.cpp \
             tracks.cpp \

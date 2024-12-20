@@ -19,6 +19,7 @@
 #include "tracks.h"
 #include "video_details.h"
 #include "processing_state.h"
+#include "shared_scientific_functions.h"
 
 using namespace std;
 using namespace cv;
@@ -36,7 +37,6 @@ public:
     void UpdateProgressBar(unsigned int value);
     arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame,\
      processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
-    double ComputeIrradiance(int indx, int height, int width, int x, int y, VideoDetails & base_processing_state_details);
 signals:
      void signalProgress(unsigned int frameval);
 
@@ -52,7 +52,6 @@ private:
   
     int track_details_min_frame, track_details_max_frame;
     double tracking_peak_success_threshold = 0.35;
-    int number_median_frames = 30;
 };
 
 #endif
