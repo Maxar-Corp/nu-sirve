@@ -7,7 +7,7 @@
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
-    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FOV_X", "FOV_Y", "Frames", "Irradiance", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "Frames", "Irradiance", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -45,7 +45,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     // Create the context menu
     QMenu contextMenu;
     QCheckBox *syncCheckBox = new QCheckBox("Sync Plot", this);
-    //syncCheckBox->setStyleSheet("QCheckBox::indicator { border: 1px solid gray; width: 15px; height: 15px; background-color: rgba(245,200,125,255); }");
 
     syncCheckBox->setStyleSheet(
         "QCheckBox {"

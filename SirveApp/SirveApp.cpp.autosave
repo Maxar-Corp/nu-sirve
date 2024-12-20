@@ -2263,8 +2263,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 void SirveApp::OpenPopoutEngineeringPlot(std::vector<QString> params)
 {
     // Create and show the dialog
-    QDialog *dialog = new QDialog(this);
-    QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
+    QDialog *popoutDialog = new QDialog(this);
+    QVBoxLayout *popoutialogLayout = new QVBoxLayout(popoutDialog);
 
     // Embed the plotter in the dialog
     EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, params);
@@ -2288,14 +2288,14 @@ void SirveApp::OpenPopoutEngineeringPlot(std::vector<QString> params)
         dialogPlotter->copyStateFrom(*data_plots_irradiance);
     }
 
-    dialogLayout->addWidget(dialogPlotter);
+    popoutialogLayout->addWidget(dialogPlotter);
 
-    dialog->setWindowTitle(params[0].replace('_',' '));
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->resize(plot_palette->width(), plot_palette->height());
-    dialog->show();
+    popoutDialog->setWindowTitle(params[0].replace('_',' '));
+    popoutDialog->setAttribute(Qt::WA_DeleteOnClose);
+    popoutDialog->resize(plot_palette->width(), plot_palette->height());
+    popoutDialog->show();
 
-    connect(dialog, &QDialog::finished, this, &SirveApp::ClosePopoutEngineeringPlot);
+    connect(popoutDialog, &QDialog::finished, this, &SirveApp::ClosePopoutEngineeringPlot);
 }
 
 void SirveApp::ClosePopoutEngineeringPlot()

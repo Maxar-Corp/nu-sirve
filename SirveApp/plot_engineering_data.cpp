@@ -321,8 +321,6 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
     //         manual_track_colors[track_id] = starting_color;
     //     }
     // }
-    //There is a bug here where deleted manual tracks will never be removed from `manual_track_colors`
-    //But this has minimal impact and isn't worth the code required to solve it
 }
 
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)

@@ -57,21 +57,21 @@ void PlotDesigner::AddCheckableItemsByIndex(int index, QStringList items)
 
 void PlotDesigner::accept() {
     // Gather strings from the two list widgets
-    std::vector<QString> group1;
+    std::vector<QString> quantity_pair;
     for (int i = 0; i < listWidget1->count(); ++i) {
         if (listWidget1->item(i)->checkState() == Qt::Checked)
-            group1.push_back(listWidget1->item(i)->text());
+            quantity_pair.push_back(listWidget1->item(i)->text());
     }
 
     for (int i = 0; i < listWidget2->count(); ++i) {
         if (listWidget2->item(i)->checkState() == Qt::Checked)
-            group1.push_back(listWidget2->item(i)->text());
+            quantity_pair.push_back(listWidget2->item(i)->text());
     }
 
-    qDebug() << "Sending the strings: " << group1.data();
+    qDebug() << "Sending the pair of strings that define the quantities plotted (X,Y): " << quantity_pair.data();
 
     // Emit the signal
-    emit designerParamsSelected(group1);
+    emit designerParamsSelected(quantity_pair);
 
     // Call the base class accept to close the dialog
     QDialog::accept();
