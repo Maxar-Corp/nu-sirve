@@ -83,7 +83,7 @@ void EngineeringPlot::PlotSirveTracks()
                 }
             }
             qDebug() << "Plotting track " << track_id;
-            AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
+            AddSeriesWithColor(x_values, y_values, track_id);
         }
     }
 }
@@ -347,28 +347,46 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
     }
 }
 
-void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, QColor color)
+void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, int track_id)
 {
-    QVector<double> X(x_values.begin(), x_values.end());
-    QVector<double> Y(y_values.begin(), y_values.end());
+    QString title = "Track " + QString::number(track_id);
 
-    // make data available to JKQTPlotter by adding it to the internal datastore.
-    size_t columnX=ds->addCopiedColumn(X, "x");
-    size_t columnY=ds->addCopiedColumn(Y, "y");
+    if (! HasGraphWithTitle(title))
+    {
+        QVector<double> X(x_values.begin(), x_values.end());
+        QVector<double> Y(y_values.begin(), y_values.end());
 
-    // create a graph in the plot, which plots the dataset X/Y:
-    graph=new JKQTPXYLineGraph(this);
-    graph->setXColumn(columnX);
-    graph->setYColumn(columnY);
-    graph->setTitle(title.replace('_',' '));
+        // make data available to JKQTPlotter by adding it to the internal datastore.
+        size_t columnX=ds->addCopiedColumn(X, "x");
+        size_t columnY=ds->addCopiedColumn(Y, "y");
 
-    //graph->setSymbolSize(5);
-    graph->setSymbolLineWidth(1);
-    graph->setColor(color);
-    //graph->setSymbolColor(color);
+        // create a graph in the plot, which plots the dataset X/Y:
+        graph=new JKQTPXYLineGraph(this);
+        graph->setXColumn(columnX);
+        graph->setYColumn(columnY);
+        graph->setTitle("Track " + QString::number(track_id));
+        //graph->setSymbolSize(5);
+        graph->setSymbolLineWidth(1);
+        graph->setColor(manual_track_colors[track_id]);
+        //graph->setSymbolColor(color);
 
-    // add the graph to the plot, so it is actually displayed
-    this->addGraph(graph);
+        // add the graph to the plot, so it is actually displayed
+        this->addGraph(graph);
+    }
+}
+
+bool EngineeringPlot::HasGraphWithTitle(const QString& titleToFind) {
+    if (!plotter) {
+        return false;
+    }
+
+    for (auto* graph : this->getGraphs()) { // Iterate over all plots (graphs)
+        if (graph->getTitle() == titleToFind) { // Compare title
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)

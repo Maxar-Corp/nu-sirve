@@ -1664,7 +1664,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 
 void SirveApp::FramePlotSpace()
 {
-    UpdatePlots(data_plots_azimuth);
+    data_plots_azimuth->PlotSirveTracks();
 }
 
 void SirveApp::SaveWorkspace()

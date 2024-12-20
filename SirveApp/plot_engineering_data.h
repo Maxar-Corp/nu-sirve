@@ -66,9 +66,11 @@ public:
 
     //void AddSeries(QLineSeries *trackSeries);
 
-    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, QColor color);
+    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
+    bool HasGraphWithTitle(const QString& titleToFind);
 
     void PlotChart();
+    void PlotSirveTracks();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
@@ -116,7 +118,6 @@ private:
     void PlotFovX();
     void PlotFovY();
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
-    void PlotSirveTracks();
 
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
