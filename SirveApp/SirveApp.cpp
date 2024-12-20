@@ -1664,7 +1664,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 
 void SirveApp::FramePlotSpace()
 {
-
+    UpdatePlots(data_plots_azimuth);
 }
 
 void SirveApp::SaveWorkspace()
@@ -3108,6 +3108,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
         engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
         engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
 
+        qDebug() << "PLOTTING CHART";
         engineering_plot->PlotChart();
         engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
     }
@@ -3136,8 +3137,6 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 
                 trackSeries->append(0, 0);
                 trackSeries->append(0, 0);
-
-                data_plots_azimuth->AddSeries(trackSeries);
             }
         }
     }

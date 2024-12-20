@@ -62,6 +62,30 @@ void EngineeringPlot::PlotChart()
     }
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_params[0]);
+    PlotSirveTracks();
+}
+
+void EngineeringPlot::PlotSirveTracks()
+{
+    if (plotType == Enums::PlotType::Azimuth)
+    {
+        for (int track_id : manual_track_ids)
+        {
+            std::vector<double> x_values, y_values;
+
+            for (size_t i = 0; i < manual_track_frames.size(); i++)
+            {
+                std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
+                if (it != manual_track_frames[i].tracks.end())
+                {
+                    x_values.push_back(get_single_x_axis_value(i));
+                    y_values.push_back(it->second.azimuth);
+                }
+            }
+            qDebug() << "Plotting track " << track_id;
+            AddSeriesWithColor(x_values, y_values, manual_track_colors[track_id]);
+        }
+    }
 }
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
@@ -310,17 +334,41 @@ void EngineeringPlot::DrawTitle()
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
 {
-    // manual_track_frames = frames;
-    // manual_track_ids = track_ids;
+    manual_track_frames = frames;
+    manual_track_ids = track_ids;
 
-    // QColor starting_color = ColorScheme::get_track_colors()[0];
-    // for (auto track_id : track_ids)
-    // {
-    //     if (manual_track_colors.find(track_id) == manual_track_colors.end())
-    //     {
-    //         manual_track_colors[track_id] = starting_color;
-    //     }
-    // }
+    QColor starting_color = ColorScheme::get_track_colors()[0];
+    for (auto track_id : track_ids)
+    {
+        if (manual_track_colors.find(track_id) == manual_track_colors.end())
+        {
+            manual_track_colors[track_id] = starting_color;
+        }
+    }
+}
+
+void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, QColor color)
+{
+    QVector<double> X(x_values.begin(), x_values.end());
+    QVector<double> Y(y_values.begin(), y_values.end());
+
+    // make data available to JKQTPlotter by adding it to the internal datastore.
+    size_t columnX=ds->addCopiedColumn(X, "x");
+    size_t columnY=ds->addCopiedColumn(Y, "y");
+
+    // create a graph in the plot, which plots the dataset X/Y:
+    graph=new JKQTPXYLineGraph(this);
+    graph->setXColumn(columnX);
+    graph->setYColumn(columnY);
+    graph->setTitle(title.replace('_',' '));
+
+    //graph->setSymbolSize(5);
+    graph->setSymbolLineWidth(1);
+    graph->setColor(color);
+    //graph->setSymbolColor(color);
+
+    // add the graph to the plot, so it is actually displayed
+    this->addGraph(graph);
 }
 
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
@@ -331,7 +379,7 @@ void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 void EngineeringPlot::RecolorOsmTrack(QColor color)
 {
     // osm_track_color = new_color_str == "white" || new_color_str == "blue" ? colors.get_current_color() : QColor(new_color_str);
-    //osm_track_color = color;
+    // osm_track_color = color;
     emit updatePlots();
 }
 void EngineeringPlot::HandlePlayerButtonClick()
