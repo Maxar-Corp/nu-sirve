@@ -25,7 +25,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
     plot_primary_only = false;
     plot_current_marker = false;
 
-    x_axis_units = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));;
+    x_axis_units = plotUnit;
 
     // 'sub-plot' refers to the chart's domain
     index_sub_plot_xmin = 0;
@@ -44,7 +44,7 @@ void EngineeringPlot::PlotChart()
 
     std::function<std::vector<double>(size_t)> func_x, func_y;
 
-    x_axis_units = plotUnit;
+    //x_axis_units = plotUnit;
 
     func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
 

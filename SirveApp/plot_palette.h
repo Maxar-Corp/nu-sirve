@@ -14,9 +14,11 @@ class PlotPalette : public QTabWidget {
 
 public:
     explicit PlotPalette(QWidget *parent = nullptr);
-    void addPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params);
-
-    EngineeringPlot* get_plot(int index);
+    void AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params);
+    Enums::PlotType GetPlotTypeByTabId(int tab_id);
+    int GetUnitTypeByTabId(int tab_id);
+    //void RemoveTabFromTabMap(int tab_id);
+    //EngineeringPlot* get_plot(int index);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
@@ -25,8 +27,8 @@ private:
     void addTab();
 
     PlotDesigner *designer;
-    QList<EngineeringPlot*> plotPointers;
     QStringList quantities;
+    std::map<int, int> tab_to_type;
 
 signals:
     void popoutPlot(std::vector<QString> params);
