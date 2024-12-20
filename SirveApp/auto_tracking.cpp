@@ -99,12 +99,10 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     frame_0_crop = frame_0_matrix(ROI);
 
     cv::Point frame_0_point, frame_i_point;
-    double peak_counts_0, peak_counts_old, peak_counts_i;
-    peak_counts_old = 0;
+    double peak_counts_0, peak_counts_i, irradiance_counts_0, irradiance_counts_old, irradiance_counts_i;
     cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
     uint N_threshold_pixels_0, N_ROI_pixels_0, N_threshold_pixels_i, N_ROI_pixels_i;
     GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, frame_crop_mean, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
-    peak_counts_i = peak_counts_old;
 
     u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
     u_int indx, num_frames = stop_frame - start_frame + 1;
@@ -116,9 +114,10 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     int width = ROI.width;
     int height2 = height/2;
     int width2 = width/2;
-    irradiance = IrradianceCountsCalc::ComputeIrradiance(start_frame, height2, width2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
+    irradiance_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, height2, width2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
+    irradiance_counts_old = irradiance_counts_0;
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
-     static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance),\
+     static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance_counts_0),\
      static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(width),static_cast<uint16_t>(height)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
@@ -147,10 +146,11 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         frame_i_crop = frame_i_matrix(ROI);
    
         GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
-
-        if (ok && peak_counts_i >= tracking_peak_success_threshold * peak_counts_old)
+        GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
+        irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, height2, width2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
+        if (ok && irradiance_counts_i >= tracking_peak_success_threshold * irradiance_counts_old)
         {
-            peak_counts_old = peak_counts_i;
+            irradiance_counts_old = irradiance_counts_i;
             rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
             imshow(window_name_i, filtered_frame_i_matrix_8bit_color);
         }
@@ -214,20 +214,16 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
                 ROI.x /= N;
                 ROI.y /= N;
-                // ROI.width /= N;
-                // ROI.height /= N;
                 tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
-                frame_i_crop = frame_i_matrix(ROI);
-               
-                GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
-                peak_counts_old = peak_counts_i;
+                frame_i_crop = frame_i_matrix(ROI);              
             }
         }
-
+        GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        irradiance = IrradianceCountsCalc::ComputeIrradiance(indx, height2, width2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
+        irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, height2, width2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
+        irradiance_counts_old = irradiance_counts_i;
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
-         static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance),\
+         static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance_counts_i),\
          static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(width),static_cast<uint16_t>(height)};
         waitKey(1);
     }
