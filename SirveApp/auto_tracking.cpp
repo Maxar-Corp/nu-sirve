@@ -49,7 +49,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     cv::Rect ROI = cv::selectROI(ROI_window_name, filtered_frame_0_matrix_8bit_color_resize);
     while (true) {
         int key = cv::pollKey();
-        if (key == 13 && !ROI.empty()){ //Enter ket
+        if (key == 13 && !ROI.empty()){ //Enter key
             cv::destroyWindow(ROI_window_name);
             break;
         }
@@ -99,30 +99,30 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     frame_0_crop = frame_0_matrix(ROI);
 
     cv::Point frame_0_point, frame_i_point;
-    double peak_counts_0, peak_counts_i, irradiance_counts_0, irradiance_counts_old, irradiance_counts_i;
+    double peak_counts_0, peak_counts_i, irradiance_counts_0, irradiance_counts_old, irradiance_counts_i, sum_counts_old;
     cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
     uint N_threshold_pixels_0, N_ROI_pixels_0, N_threshold_pixels_i, N_ROI_pixels_i;
     GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, frame_crop_mean, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
-
+    // sum_counts_old = sum_counts_0[0];
     u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
     u_int indx, num_frames = stop_frame - start_frame + 1;
     arma::u64_mat output(num_frames, 14);
+    arma::running_stat<double> stats;
 
     GetPointXY(frame_0_point, ROI, frame_0_x, frame_0_y);
 
-    int height = ROI.height;
-    int width = ROI.width;
-    int height2 = height/2;
-    int width2 = width/2;
-    irradiance_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, height2, width2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
+    irradiance_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, ROI.height/2, ROI.width/2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
     irradiance_counts_old = irradiance_counts_0;
+    stats(irradiance_counts_old);
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance_counts_0),\
-     static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(width),static_cast<uint16_t>(height)};
+     static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
 
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
+    bool step_sucess = false;
+    int i = 1;
 
-    for (u_int i = 1; i < num_frames; i++)
+    while (i < num_frames)
     {
 
         if (cancel_operation)
@@ -134,6 +134,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         UpdateProgressBar(i);
         indx = (start_frame + i);
         string window_name_i = "Tracking... ";
+        string window_name_lost = "";
         GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state.details, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
@@ -147,14 +148,12 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
    
         GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, height2, width2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
-        if (ok && irradiance_counts_i >= tracking_peak_success_threshold * irradiance_counts_old)
-        {
-            irradiance_counts_old = irradiance_counts_i;
-            rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
-            imshow(window_name_i, filtered_frame_i_matrix_8bit_color);
-        }
-        else
+        irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
+        stats(irradiance_counts_old);
+        double S = stats.stddev();
+        step_sucess = (ok && abs((irradiance_counts_i - stats.mean())) <= 6*S);
+
+        if (S>0 && !step_sucess)
         {
             cv::destroyAllWindows();
             QDialog dialog;
@@ -177,18 +176,19 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
                 }
             }
             else if (response == QMessageBox::Discard)
-                {
-                    return arma::u64_mat ();
-                }
+            {
+                return arma::u64_mat ();
+            }
             else
             {
-                window_name_i = "Track Lost. " + std::to_string(indx) + " Select ROI again.";
-                ROI = selectROI(window_name_i, filtered_frame_i_matrix_8bit_color_resize);
+                window_name_lost = "Track Lost. " + std::to_string(indx) + " Select ROI again.";
+                ROI = selectROI(window_name_lost, filtered_frame_i_matrix_8bit_color_resize);
 
-                while (true) {
+                while (true)
+                {
                     int key = cv::pollKey();
-                    if (key == 13 && !ROI.empty()){ //Enter ket
-                        cv::destroyWindow(window_name_i);
+                    if (key == 13 && !ROI.empty()){ //Enter key
+                        cv::destroyWindow(window_name_lost);
                         break;
                     }
                     else if(key == 27) { // Check for Esc key press
@@ -197,7 +197,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
                         cv::destroyAllWindows();
                         QtHelpers::LaunchMessageBox("Canceled", "ROI selection canceled. Exiting without saving.");
                         return arma::u64_mat ();
-                    } else if (cv::getWindowProperty(window_name_i, cv::WND_PROP_VISIBLE) < 1) {
+                    } else if (cv::getWindowProperty(window_name_lost, cv::WND_PROP_VISIBLE) < 1) {
                         // Window has been closed
                         ROI.width = 0;
                         ROI.height = 0;
@@ -214,18 +214,27 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
                 ROI.x /= N;
                 ROI.y /= N;
+                ROI.width /= N;
+                ROI.height /= N;
                 tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
-                frame_i_crop = frame_i_matrix(ROI);              
+                frame_i_crop = frame_i_matrix(ROI);  
+                GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+                // sum_counts_old = sum_counts_i[0];
+                GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
+                irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
+                irradiance_counts_old = irradiance_counts_i;
+                step_sucess = true;
             }
         }
-        GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
-        GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, height2, width2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
-        irradiance_counts_old = irradiance_counts_i;
+
+        rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
+        cv::imshow(window_name_i, filtered_frame_i_matrix_8bit_color);
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
          static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance_counts_i),\
-         static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(width),static_cast<uint16_t>(height)};
-        waitKey(1);
+         static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
+         
+        cv::waitKey(1);
+        i+=1;
     }
     cv::destroyAllWindows();
     return output;

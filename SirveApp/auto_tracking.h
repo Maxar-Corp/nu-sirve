@@ -37,6 +37,7 @@ public:
     void UpdateProgressBar(unsigned int value);
     arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame,\
      processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
+     
 signals:
      void signalProgress(unsigned int frameval);
 
@@ -50,8 +51,7 @@ private:
     void GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX,  u_int & centerY);
     void GetProcessedFrameMatrix(int indx, double clampLow, double clampHigh, VideoDetails & original,  arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix);
   
-    int track_details_min_frame, track_details_max_frame;
-    double tracking_peak_success_threshold = 0.35;
+    double tracking_peak_success_threshold = 0.75;
 };
 
 #endif
