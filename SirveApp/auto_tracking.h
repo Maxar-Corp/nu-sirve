@@ -33,6 +33,8 @@ public:
     AutoTracking(); 
     ~AutoTracking();
     int N = 2;
+    int nrows = 480;
+    int ncols = 640;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
     arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame,\
@@ -50,8 +52,7 @@ private:
      cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels);
     void GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX,  u_int & centerY);
     void GetProcessedFrameMatrix(int indx, double clampLow, double clampHigh, VideoDetails & original,  arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix);
-  
-    double tracking_peak_success_threshold = 0.75;
+    void HandleInterruption(QMessageBox::StandardButton& response, u_int i, u_int indx, u_int num_frames, arma::u64_mat & output, cv::Rect & ROI, cv::Mat &filtered_frame_i_matrix_8bit_color_resize);
 };
 
 #endif

@@ -25,13 +25,20 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 {
     double irradiance;
 
-    int nrows = current_processing_state.details.y_pixels;
-    int ncols = current_processing_state.details.x_pixels;
-
     cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
     cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
     cv::Mat frame_0_crop, frame_i_crop, filtered_frame_0_matrix_8bit_color_resize, filtered_frame_i_matrix_8bit_color_resize;
     arma::vec frame_0_vector, frame_i_vector;
+    arma::vec framei = arma::regspace(start_frame,stop_frame);
+    arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
+    std::vector<std::vector<int>> offsets;
+    u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
+    u_int indx, num_frames = stop_frame - start_frame + 1;
+    arma::u64_mat output(num_frames, 14);
+    arma::running_stat<double> stats;
+    cv::Point frame_0_point, frame_i_point;
+    double peak_counts_0, peak_counts_i, irradiance_counts_0, irradiance_counts_old, irradiance_counts_i;
+    cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
 
     GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state.details, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
 
@@ -41,13 +48,33 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
     cv::cvtColor(filtered_frame_0_matrix, filtered_frame_0_matrix_8bit_color,cv::COLOR_GRAY2RGB);
 
-    Ptr<Tracker> tracker = TrackerMIL::create();
+    if (current_processing_state.offsets.size()>0){
+        offsets = current_processing_state.offsets;
+        arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
+        for (int rowi = 0; rowi < offsets.size(); rowi++){
+            offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
+        }
+        for (int rowii = 0; rowii<framei.size(); rowii++){
+            arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
+            if (!kk.is_empty()){
+                offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
+            }
+        }
+        offset_matrix2.shed_col(0);
+    }
+
+    uint N_threshold_pixels_0, N_ROI_pixels_0, N_threshold_pixels_i, N_ROI_pixels_i;
 
     cv::startWindowThread();
+
+    Ptr<Tracker> tracker = TrackerMIL::create();
+
     cv::resize(filtered_frame_0_matrix_8bit_color, filtered_frame_0_matrix_8bit_color_resize, cv::Size(N*ncols, N*nrows));
     string ROI_window_name = "Region of Interest (ROI) Selection - Press Escape twice to Cancel, or Select ROI then Hit Enter twice to Continue.";
     cv::Rect ROI = cv::selectROI(ROI_window_name, filtered_frame_0_matrix_8bit_color_resize);
-    while (true) {
+
+    while (true)
+    {
         int key = cv::pollKey();
         if (key == 13 && !ROI.empty()){ //Enter key
             cv::destroyWindow(ROI_window_name);
@@ -73,68 +100,63 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         cv::destroyAllWindows();
         return arma::u64_mat ();
     }
+
     ROI.x /= N;
     ROI.y /= N;
     ROI.width /= N;
     ROI.height /= N;
-    arma::vec framei = arma::regspace(start_frame,stop_frame);
-    arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
-
-    std::vector<std::vector<int>> offsets;
-    if (current_processing_state.offsets.size()>0){
-        offsets = current_processing_state.offsets;
-        arma::mat offset_matrix(offsets.size(),3,arma::fill::zeros);
-        for (int rowi = 0; rowi < offsets.size(); rowi++){
-            offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
-        }
-        for (int rowii = 0; rowii<framei.size(); rowii++){
-            arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
-            if (!kk.is_empty()){
-                offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
-            }
-        }
-        offset_matrix2.shed_col(0);
-    }
-
     frame_0_crop = frame_0_matrix(ROI);
-
-    cv::Point frame_0_point, frame_i_point;
-    double peak_counts_0, peak_counts_i, irradiance_counts_0, irradiance_counts_old, irradiance_counts_i, sum_counts_old;
-    cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
-    uint N_threshold_pixels_0, N_ROI_pixels_0, N_threshold_pixels_i, N_ROI_pixels_i;
     GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, frame_crop_mean, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
-    // sum_counts_old = sum_counts_0[0];
-    u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
-    u_int indx, num_frames = stop_frame - start_frame + 1;
-    arma::u64_mat output(num_frames, 14);
-    arma::running_stat<double> stats;
-
     GetPointXY(frame_0_point, ROI, frame_0_x, frame_0_y);
-
     irradiance_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, ROI.height/2, ROI.width/2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
     irradiance_counts_old = irradiance_counts_0;
     stats(irradiance_counts_old);
+    tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
+
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
      static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance_counts_0),\
      static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
 
-    tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
     bool step_sucess = false;
     int i = 1;
 
+    string window_name_i = "Tracking... ";
+ 
     while (i < num_frames)
     {
-
         if (cancel_operation)
         {
             cv::destroyAllWindows();
-            return arma::u64_mat ();
+            QDialog dialog;
+            dialog.setWindowTitle("Tracking Paused");
+            QMessageBox::StandardButton response = QMessageBox::question(&dialog, "Track Paused... ", "Save available track data and exit, try to continue tracking, or discard and exit?",
+                                                    QMessageBox::Save | QMessageBox::Discard | QMessageBox::Retry);
+                                                    
+            HandleInterruption(response, i, indx, num_frames, output, ROI, filtered_frame_i_matrix_8bit_color);
+            if ((response == QMessageBox::Save) || (response == QMessageBox::Discard) || output.n_elem<1)
+            {
+                return output;
+            }
+
+            ROI.x /= N;
+            ROI.y /= N;
+            ROI.width /= N;
+            ROI.height /= N;
+            frame_i_crop = frame_i_matrix(ROI);  
+            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+            GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
+            irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
+            irradiance_counts_old = irradiance_counts_i;
+            stats(irradiance_counts_old);
+            tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
+
+            step_sucess = true;
+            cancel_operation = false;
         }
 
         UpdateProgressBar(i);
         indx = (start_frame + i);
-        string window_name_i = "Tracking... ";
-        string window_name_lost = "";
+
         GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state.details, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
@@ -142,8 +164,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
 
         cv::cvtColor(filtered_frame_i_matrix, filtered_frame_i_matrix_8bit_color,cv::COLOR_GRAY2RGB);
 
-        cv::resize(filtered_frame_i_matrix_8bit_color, filtered_frame_i_matrix_8bit_color_resize, cv::Size(N*ncols, N*nrows));
         bool ok = tracker->update(filtered_frame_i_matrix_8bit_color, ROI);
+
         frame_i_crop = frame_i_matrix(ROI);
    
         GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
@@ -162,69 +184,26 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
             QMessageBox::StandardButton response = QMessageBox::question(&dialog, "Track Lost... ", "Save available track data and exit, try to continue tracking, or discard and exit?",
                                                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Retry);
             
-            if (response == QMessageBox::Save)
-            {
-                if (i>1)
-                {
-                    output.shed_rows(i,num_frames-1);
-                    return output;
-                }
-                else
-                {
-                    QtHelpers::LaunchMessageBox("Empty Track", "The track is empty and nothing was saved.");
-                    return arma::u64_mat ();
-                }
-            }
-            else if (response == QMessageBox::Discard)
-            {
-                return arma::u64_mat ();
-            }
-            else
-            {
-                window_name_lost = "Track Lost. " + std::to_string(indx) + " Select ROI again.";
-                ROI = selectROI(window_name_lost, filtered_frame_i_matrix_8bit_color_resize);
+            HandleInterruption(response, i, indx, num_frames, output, ROI, filtered_frame_i_matrix_8bit_color);
 
-                while (true)
-                {
-                    int key = cv::pollKey();
-                    if (key == 13 && !ROI.empty()){ //Enter key
-                        cv::destroyWindow(window_name_lost);
-                        break;
-                    }
-                    else if(key == 27) { // Check for Esc key press
-                        ROI.width = 0;
-                        ROI.height = 0;
-                        cv::destroyAllWindows();
-                        QtHelpers::LaunchMessageBox("Canceled", "ROI selection canceled. Exiting without saving.");
-                        return arma::u64_mat ();
-                    } else if (cv::getWindowProperty(window_name_lost, cv::WND_PROP_VISIBLE) < 1) {
-                        // Window has been closed
-                        ROI.width = 0;
-                        ROI.height = 0;
-                        break;
-                    }
-                }
-    
-                if (ROI.width == 0 || ROI.height == 0)
-                {
-                    QtHelpers::LaunchMessageBox("Invalid ROI", "There was an error in the ROI selection. Exiting without saving.");
-                    cv::destroyAllWindows();
-                    return arma::u64_mat ();
-                }
-
-                ROI.x /= N;
-                ROI.y /= N;
-                ROI.width /= N;
-                ROI.height /= N;
-                tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
-                frame_i_crop = frame_i_matrix(ROI);  
-                GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
-                // sum_counts_old = sum_counts_i[0];
-                GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
-                irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
-                irradiance_counts_old = irradiance_counts_i;
-                step_sucess = true;
+            if ((response == QMessageBox::Save) || (response == QMessageBox::Discard) || output.n_elem<1)
+            {
+                return output;
             }
+
+            ROI.x /= N;
+            ROI.y /= N;
+            ROI.width /= N;
+            ROI.height /= N;
+            frame_i_crop = frame_i_matrix(ROI);  
+            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
+            GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
+            irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
+            irradiance_counts_old = irradiance_counts_i;
+            stats(irradiance_counts_old);
+            tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
+
+            step_sucess = true;
         }
 
         rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
@@ -307,9 +286,7 @@ void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & cente
 
 void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails & current_processing_state, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
 {
-    double m, s;
-    int nrows = current_processing_state.y_pixels;
-    int ncols = current_processing_state.x_pixels;      
+    double m, s;      
     frame_vector = arma::conv_to<arma::vec>::from(current_processing_state.frames_16bit[indx]);
     arma::vec processed_frame_vector = frame_vector;
     m = arma::mean(frame_vector);
@@ -322,3 +299,58 @@ void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double cl
     frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
 
+void AutoTracking::HandleInterruption(QMessageBox::StandardButton &response, u_int i, u_int indx, u_int num_frames, arma::u64_mat & output, cv::Rect & ROI, cv::Mat &filtered_frame_matrix_8bit_color)
+{
+    
+    if (response == QMessageBox::Save)
+    {
+        if (i>1)
+        {
+            output.shed_rows(i,num_frames-1);
+        }
+        else
+        {
+            QtHelpers::LaunchMessageBox("Empty Track", "The track is empty and nothing was saved.");
+            output = arma::u64_mat();
+        }
+    }
+    else if (response == QMessageBox::Discard)
+    {
+        output = arma::u64_mat();
+    }
+    else
+    {
+        cv::Mat filtered_frame_matrix_8bit_color_resize;
+        string window_name_lost = "Track Lost or Paused. " + std::to_string(indx) + " Select ROI again.";
+        cv::resize(filtered_frame_matrix_8bit_color, filtered_frame_matrix_8bit_color_resize, cv::Size(N*ncols, N*nrows));
+        ROI = selectROI(window_name_lost, filtered_frame_matrix_8bit_color_resize);
+
+        while (true)
+        {
+            int key = cv::pollKey();
+            if (key == 13 && !ROI.empty()){ //Enter key
+                cv::destroyWindow(window_name_lost);
+                break;
+            }
+            else if(key == 27) { // Check for Esc key press
+                ROI.width = 0;
+                ROI.height = 0;
+                cv::destroyAllWindows();
+                QtHelpers::LaunchMessageBox("Canceled", "ROI selection canceled. Exiting without saving.");
+                output = arma::u64_mat();
+            } else if (cv::getWindowProperty(window_name_lost, cv::WND_PROP_VISIBLE) < 1) {
+                // Window has been closed
+                ROI.width = 0;
+                ROI.height = 0;
+                break;
+            }
+        }
+
+        if (ROI.width == 0 || ROI.height == 0)
+        {
+            QtHelpers::LaunchMessageBox("Invalid ROI", "There was an error in the ROI selection. Exiting without saving.");
+            cv::destroyAllWindows();
+            output = arma::u64_mat();
+        }
+    }
+}
