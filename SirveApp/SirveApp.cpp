@@ -1657,6 +1657,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
+    qDebug() << "coloring track " << QString::number(track_id) << " to " << new_color.name();
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots_azimuth->RecolorManualTrack(track_id, new_color);
     FramePlotSpace();

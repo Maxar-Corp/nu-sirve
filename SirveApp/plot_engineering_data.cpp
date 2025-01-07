@@ -351,47 +351,50 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
 {
     QString title = "Track " + QString::number(track_id);
 
-    if (! HasGraphWithTitle(title))
-    {
-        QVector<double> X(x_values.begin(), x_values.end());
-        QVector<double> Y(y_values.begin(), y_values.end());
+    DeleteGraphIfExists(title);
 
-        // make data available to JKQTPlotter by adding it to the internal datastore.
-        size_t columnX=ds->addCopiedColumn(X, "x");
-        size_t columnY=ds->addCopiedColumn(Y, "y");
+    QVector<double> X(x_values.begin(), x_values.end());
+    QVector<double> Y(y_values.begin(), y_values.end());
 
-        // create a graph in the plot, which plots the dataset X/Y:
-        graph=new JKQTPXYLineGraph(this);
-        graph->setXColumn(columnX);
-        graph->setYColumn(columnY);
-        graph->setTitle("Track " + QString::number(track_id));
-        //graph->setSymbolSize(5);
-        graph->setSymbolLineWidth(1);
-        graph->setColor(manual_track_colors[track_id]);
-        //graph->setSymbolColor(color);
+    // make data available to JKQTPlotter by adding it to the internal datastore.
+    size_t columnX=ds->addCopiedColumn(X, "x");
+    size_t columnY=ds->addCopiedColumn(Y, "y");
 
-        // add the graph to the plot, so it is actually displayed
-        this->addGraph(graph);
-    }
+    // create a graph in the plot, which plots the dataset X/Y:
+    graph=new JKQTPXYLineGraph(this);
+    graph->setXColumn(columnX);
+    graph->setYColumn(columnY);
+    graph->setTitle("Track " + QString::number(track_id));
+    //graph->setSymbolSize(5);
+    graph->setSymbolLineWidth(1);
+    graph->setColor(manual_track_colors[track_id]);
+    //graph->setSymbolColor(color);
+
+    // add the graph to the plot, so it is actually displayed
+    this->addGraph(graph);
 }
 
-bool EngineeringPlot::HasGraphWithTitle(const QString& titleToFind) {
-    if (!plotter) {
-        return false;
-    }
+void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
 
-    for (auto* graph : this->getGraphs()) { // Iterate over all plots (graphs)
-        if (graph->getTitle() == titleToFind) { // Compare title
-            return true;
+    int index = 0;
+    bool graph_exists = false;
+
+    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
+        QString title = (*it)->getTitle();
+        if (title == titleToFind) { // Compare title
+            graph_exists = true;
+            break;
         }
     }
 
-    return false;
+    if (graph_exists)
+        this->getGraphs().removeAt(index);
 }
 
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 {
     manual_track_colors[track_id] = new_color;
+    qDebug() << "updated manual_track_colors index " << QString::number(track_id) << " with " << new_color.name();
 }
 
 void EngineeringPlot::RecolorOsmTrack(QColor color)

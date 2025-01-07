@@ -67,7 +67,7 @@ public:
     //void AddSeries(QLineSeries *trackSeries);
 
     void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
-    bool HasGraphWithTitle(const QString& titleToFind);
+    void DeleteGraphIfExists(const QString& titleToFind);
 
     void PlotChart();
     void PlotSirveTracks();
