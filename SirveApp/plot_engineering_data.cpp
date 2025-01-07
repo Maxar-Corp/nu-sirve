@@ -380,6 +380,7 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
 
     int index = 0;
     bool graph_exists = false;
+    qDebug() << "Deleting " << titleToFind;
 
     for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
         QString title = (*it)->getTitle();

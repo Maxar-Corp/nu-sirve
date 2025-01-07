@@ -1651,6 +1651,8 @@ void SirveApp::HandleTrackRemoval(int track_id)
     int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
+    data_plots_azimuth->DeleteGraphIfExists("Track " + QString::number(track_id));
+    data_plots_azimuth->redrawPlot();
     data_plots_azimuth->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     FramePlotSpace();
 }
