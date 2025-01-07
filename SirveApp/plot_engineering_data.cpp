@@ -82,7 +82,6 @@ void EngineeringPlot::PlotSirveTracks()
                     y_values.push_back(it->second.azimuth);
                 }
             }
-            qDebug() << "Plotting track " << track_id;
             AddSeriesWithColor(x_values, y_values, track_id);
         }
     }
@@ -368,7 +367,10 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     //graph->setSymbolSize(5);
     graph->setSymbolLineWidth(1);
     graph->setColor(manual_track_colors[track_id]);
-    //graph->setSymbolColor(color);
+
+    // Streamline the line style for the graph
+    graph->setLineStyle(Qt::SolidLine);
+    graph->setSymbolType(JKQTPNoSymbol);
 
     // add the graph to the plot, so it is actually displayed
     this->addGraph(graph);
@@ -381,7 +383,7 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
 
     for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
         QString title = (*it)->getTitle();
-        if (title == titleToFind) { // Compare title
+        if (title == titleToFind) {
             graph_exists = true;
             break;
         }
@@ -394,13 +396,10 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 {
     manual_track_colors[track_id] = new_color;
-    qDebug() << "updated manual_track_colors index " << QString::number(track_id) << " with " << new_color.name();
 }
 
 void EngineeringPlot::RecolorOsmTrack(QColor color)
 {
-    // osm_track_color = new_color_str == "white" || new_color_str == "blue" ? colors.get_current_color() : QColor(new_color_str);
-    // osm_track_color = color;
     emit updatePlots();
 }
 void EngineeringPlot::HandlePlayerButtonClick()

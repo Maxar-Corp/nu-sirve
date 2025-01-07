@@ -1657,7 +1657,6 @@ void SirveApp::HandleTrackRemoval(int track_id)
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
-    qDebug() << "coloring track " << QString::number(track_id) << " to " << new_color.name();
     video_display->RecolorManualTrack(track_id, new_color);
     data_plots_azimuth->RecolorManualTrack(track_id, new_color);
     FramePlotSpace();
@@ -3097,7 +3096,6 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
     // Check that indices are all positive
     if (x_index >= 0 && y_index >= 0 && eng_data)
     {
-
         bool scientific_is_checked = rad_scientific->isChecked();
         bool log_is_checked = rad_log->isChecked();
         engineering_plot->toggle_yaxis_log(log_is_checked);
@@ -3109,7 +3107,6 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
         engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
         engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
 
-        qDebug() << "PLOTTING CHART";
         engineering_plot->PlotChart();
         engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
     }
