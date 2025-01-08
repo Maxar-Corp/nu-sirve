@@ -31,6 +31,7 @@ HEADERS += abir_reader.h \
             data_structures.h \
             engineering_data.h \
             enhanced_label.h \
+            enums.h \
             frame_player.h \
             histogram_plotter.h \
             image_processing.h \

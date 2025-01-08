@@ -86,5 +86,5 @@ WorkspaceValues Workspace::LoadState(QString workspace_name) {
     }
 
     file.close();
-    return WorkspaceValues { image_path, start_frame, end_frame, states, annotations };
+    return WorkspaceValues { image_path, start_frame, end_frame, states, annotations, classifications };
 };

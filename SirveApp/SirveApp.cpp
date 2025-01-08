@@ -1813,6 +1813,13 @@ void SirveApp::LoadWorkspace()
             Classification classification = workspace_vals.classifications[i];
 
             // Set classification to the appropriate widget, depending on its type.
+            if (classification.type == "Plot")
+            {
+                data_plots->SetPlotTitle(classification.text);
+            } else
+            {
+
+            }
         }
     }
 }
@@ -2919,6 +2926,7 @@ void SirveApp::EditPlotText()
 
         Classification classification;
         classification.text = input_text;
+        classification.type = "Plot";
         classification_list.push_back(classification);
     }
 }

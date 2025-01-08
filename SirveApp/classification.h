@@ -7,11 +7,13 @@
 class Classification
 {
     public: QString text;
+    public: QString type;
 
     QJsonObject to_json()
     {
         QJsonObject classification_object;
         classification_object.insert("text", text);
+        classification_object.insert("type", type);
 
         return classification_object;
     }
