@@ -1693,7 +1693,7 @@ void SirveApp::SaveWorkspace()
 
         if (selectedUserFilePath.length() > 0) {
             QFileInfo fileInfo(selectedUserFilePath);
-            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list, classification_list);
             lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
@@ -1806,6 +1806,13 @@ void SirveApp::LoadWorkspace()
         {
             AnnotationInfo anno = workspace_vals.annotations[i];
             video_display->annotation_list.push_back(anno);
+        }
+
+        for (auto i = 0; i < workspace_vals.classifications.size(); i++)
+        {
+            Classification classification = workspace_vals.classifications[i];
+
+            // Set classification to the appropriate widget, depending on its type.
         }
     }
 }
@@ -2909,6 +2916,10 @@ void SirveApp::EditPlotText()
     if (ok)
     {
         data_plots->SetPlotTitle(input_text);
+
+        Classification classification;
+        classification.text = input_text;
+        classification_list.push_back(classification);
     }
 }
 

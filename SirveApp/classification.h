@@ -1,0 +1,22 @@
+#pragma once
+
+#include "qjsonobject.h"
+#ifndef CLASSIFICATION_H
+#define CLASSIFICATION_H
+
+class Classification
+{
+    public: QString text;
+
+    QJsonObject to_json()
+    {
+        QJsonObject classification_object;
+        classification_object.insert("text", text);
+
+        return classification_object;
+    }
+};
+
+Classification CreateClassificationFromJson(const QJsonObject & json_obj);
+
+#endif // CLASSIFICATION_H
