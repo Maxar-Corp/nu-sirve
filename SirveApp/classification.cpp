@@ -10,18 +10,17 @@ Classification CreateClassificationFromJson(const QJsonObject & json_obj)
 }
 
 // Ensure that only one of each classification type exists on the classification list before we write out the workspace file.
-void DeleteClassificationIfExists(const QString type, std::vector<Classification> *classification_list)
+bool UpdateClassificationIfExists(const QString type, const QString text, std::vector<Classification> *classification_list)
 {
-    for (const auto& element : *classification_list) {
-        qDebug() << "found an element of type " << element.type;
+    bool object_exists = false;
 
-        // Dereference the pointer and call erase
-        classification_list->erase(
-            std::remove_if(classification_list->begin(), classification_list->end(), [&type](const Classification& c) {
-                return c.type == type;
-            }),
-            classification_list->end()
-            );
-
+    for (auto it = classification_list->begin(); it != classification_list->end(); it++) { // Iterate over all items
+        QString itemType = it->type;
+        if (itemType == type) {
+            it->text = text;
+            object_exists = true;
+        }
     }
+
+    return object_exists;
 }

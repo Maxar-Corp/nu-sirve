@@ -27,6 +27,6 @@ class Classification
 
 Classification CreateClassificationFromJson(const QJsonObject & json_obj);
 
-void DeleteClassificationIfExists(const QString type, std::vector<Classification> *classification_list);
+bool UpdateClassificationIfExists(const QString type, const QString text, std::vector<Classification> *classification_list);
 
 #endif // CLASSIFICATION_H
