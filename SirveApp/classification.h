@@ -9,6 +9,12 @@ class Classification
     public: QString text;
     public: QString type;
 
+    Classification() {}
+
+    // Constructor
+    Classification(const QString& text, const QString& type)
+        : text(text), type(type) {}
+
     QJsonObject to_json()
     {
         QJsonObject classification_object;
@@ -20,5 +26,7 @@ class Classification
 };
 
 Classification CreateClassificationFromJson(const QJsonObject & json_obj);
+
+void DeleteClassificationIfExists(const QString type, std::vector<Classification> *classification_list);
 
 #endif // CLASSIFICATION_H

@@ -1818,7 +1818,7 @@ void SirveApp::LoadWorkspace()
                 data_plots->SetPlotTitle(classification.text);
             } else
             {
-
+                video_display->UpdateBannerText(classification.text);
             }
         }
     }
@@ -2902,6 +2902,10 @@ void SirveApp::EditBannerText()
 
     video_display->UpdateBannerText(input_text);
 
+    DeleteClassificationIfExists("VideoDisplay", &classification_list);
+    Classification classification(QString(input_text), QString("VideoDisplay"));
+    classification_list.push_back(classification);
+
     // checks if banners are the same and asks user if they want them to be the same
     QString plot_banner_text = data_plots->title;
     int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
@@ -2911,6 +2915,10 @@ void SirveApp::EditBannerText()
         if (response == QMessageBox::Yes)
         {
             data_plots->SetPlotTitle(input_text);
+
+            DeleteClassificationIfExists("Plot", &classification_list);
+            Classification classification(QString(input_text), QString("Plot"));
+            classification_list.push_back(classification);
         }
     }
 }
@@ -2924,9 +2932,8 @@ void SirveApp::EditPlotText()
     {
         data_plots->SetPlotTitle(input_text);
 
-        Classification classification;
-        classification.text = input_text;
-        classification.type = "Plot";
+        DeleteClassificationIfExists("Plot", &classification_list);
+        Classification classification(QString(input_text), QString("Plot"));
         classification_list.push_back(classification);
     }
 }
