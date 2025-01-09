@@ -9,14 +9,13 @@ Classification CreateClassificationFromJson(const QJsonObject & json_obj)
     return temp;
 }
 
-// Ensure that only one of each classification type exists on the classification list before we write out the workspace file.
+// Ensure only one of each classification type exists on the classification list before we write out the workspace file.
 bool UpdateClassificationIfExists(const QString type, const QString text, std::vector<Classification> *classification_list)
 {
     bool object_exists = false;
 
-    for (auto it = classification_list->begin(); it != classification_list->end(); it++) { // Iterate over all items
-        QString itemType = it->type;
-        if (itemType == type) {
+    for (auto it = classification_list->begin(); it != classification_list->end(); it++) {
+        if (it->type == type) {
             it->text = text;
             object_exists = true;
         }

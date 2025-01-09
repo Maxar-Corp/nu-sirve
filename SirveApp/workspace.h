@@ -19,6 +19,7 @@ namespace fs = std::filesystem;
 struct WorkspaceValues {
     QString image_path;
     int start_frame, end_frame;
+    double timing_offset;
     std::vector<processingState> all_states;
     std::vector<AnnotationInfo> annotations;
     std::vector<Classification> classifications;
@@ -30,7 +31,7 @@ class Workspace {
         Workspace(QString workspace_directory);
         ~Workspace();
 
-        void SaveState(QString full_workspace_file_path, QString image_path, int start_frame, int end_frame, const std::vector<processingState> all_states, const std::vector<AnnotationInfo> annotations, std::vector<Classification> classifications);
+        void SaveState(QString full_workspace_file_path, QString image_path, int start_frame, int end_frame, double timing_offset, const std::vector<processingState> all_states, const std::vector<AnnotationInfo> annotations, std::vector<Classification> classifications);
         WorkspaceValues LoadState(QString workspace_name);
         void UpdateWorkspaceDirectory(QString workspace_directory);
 
