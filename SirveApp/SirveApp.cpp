@@ -1820,6 +1820,8 @@ void SirveApp::LoadWorkspace()
             {
                 video_display->UpdateBannerText(classification.text);
             }
+
+            classification_list.push_back(classification);
         }
 
         eng_data->set_offset_time(workspace_vals.timing_offset);
