@@ -2656,6 +2656,30 @@ void SirveApp::SaveFrame()
         playback_controller->StartTimer();
 }
 
+void SirveApp::EnableBinaryExport()
+{
+    bool ok;
+    QString input_text = QInputDialog::getText(0, "Enable Binary Export", "Enter Password", QLineEdit::Normal, "", &ok);
+
+    if (!ok)
+    {
+        return;
+    }
+    int check = QString::compare(input_text, "KateRocks", Qt::CaseSensitive);
+    if (check == 0)
+    {
+        action_export_current_frame->setEnabled(true);
+
+        action_export_frame_range->setEnabled(true);
+
+        action_export_all_frames->setEnabled(true); 
+    }
+    else
+    {
+        return;
+    }
+}
+
 void SirveApp::ExportFrame()
 {
     if(playback_controller->is_running())
@@ -2789,7 +2813,6 @@ void SirveApp::CreateMenuActions()
 
     action_load_workspace = new QAction("Load Workspace File");
     connect(action_load_workspace, &QAction::triggered, this, &SirveApp::LoadWorkspace);
-    //connect(workspace, updateWorkspaceFolder, this, &SirveApp::LoadWorkspace);
 
     action_save_workspace = new QAction("Save Workspace File");
     connect(action_save_workspace, &QAction::triggered, this, &SirveApp::SaveWorkspace);
@@ -2797,6 +2820,10 @@ void SirveApp::CreateMenuActions()
     action_change_workspace_directory = new QAction("Change Workspace Directory");
     action_change_workspace_directory->setStatusTip("Customize workspace directory so it points to your own folder.");
     connect(action_change_workspace_directory, &QAction::triggered, this, &SirveApp::ChangeWorkspaceDirectory);
+
+    action_enable_binary_export = new QAction("Enable Binary Export");
+    connect(action_enable_binary_export, &QAction::triggered, this, &SirveApp::EnableBinaryExport);
+    action_enable_binary_export->setEnabled(true);
 
     action_export_current_frame = new QAction("Export Current Frame");
     connect(action_export_current_frame, &QAction::triggered, this, &SirveApp::ExportFrame);
@@ -2832,6 +2859,7 @@ void SirveApp::CreateMenuActions()
 	menu_workspace->addAction(action_change_workspace_directory);
     menu_export = menuBar()->addMenu(tr("&Export"));
     menu_export->addAction(action_export_tracking_data);
+    menu_export->addAction(action_enable_binary_export);
     menu_export->addAction(action_export_current_frame);
 	menu_export->addAction(action_export_frame_range);
 	menu_export->addAction(action_export_all_frames);
