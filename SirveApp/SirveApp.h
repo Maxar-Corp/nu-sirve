@@ -85,7 +85,7 @@ public:
 	QGridLayout *engineering_plot_layout;
 
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
-	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
+    QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker;
 
 	// QThread thread_video, thread_timer;
 
@@ -116,7 +116,7 @@ public:
 	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
-		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
+        * btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
 		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_replace_bad_pixels,
         * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks, 
         * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation, *btn_auto_track_target;

@@ -28,8 +28,7 @@ private:
     PlotDesigner *designer;
     QStringList quantities;
     std::map<int, int> tab_to_type;
-    //std::vector<EngineeringPlot*> engineering_plot_ref;
-    EngineeringPlot* engineering_plot_ref;
+    std::vector<EngineeringPlot*> engineering_plot_ref;
 
 signals:
     void editClassification(int tab_index, QString current_value);

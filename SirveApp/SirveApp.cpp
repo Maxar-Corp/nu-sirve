@@ -46,8 +46,6 @@ SirveApp::SirveApp(QWidget *parent)
     histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
     frame_histogram_abs->setLayout(histogram_abs_layout);
 
-    qDebug() << "About to setup connections";
-
     // establish connections to all qwidgets
     setupConnections();
 
@@ -1151,10 +1149,6 @@ void SirveApp::SetupPlotFrame() {
     cmb_plot_yaxis = new QComboBox();
 
     // create buttons in the plot controls
-    btn_save_plot = new QPushButton("Save Plot");
-
-    btn_save_plot->setToolTip("Save Plot");
-
     btn_plot_menu = new QPushButton("Plot Options");
 
     QGridLayout* grid_y_axis_options_groupbox = new QGridLayout(plot_groupbox);
@@ -1168,7 +1162,6 @@ void SirveApp::SetupPlotFrame() {
     form_plot_axis_options->addRow(tr("&Y-Axis:"), cmb_plot_yaxis);
     form_plot_axis_options->addRow(tr("&X-Axis:"), cmb_plot_xaxis);
     form_plot_axis_options->addRow(tr("&"), btn_plot_menu);
-    form_plot_axis_options->addRow(tr(""), btn_save_plot);
 
     // set layout for everything below the plot
     QHBoxLayout* hlayout_widget_plots_tab_color_control = new QHBoxLayout();
@@ -1311,9 +1304,6 @@ void SirveApp::setupConnections() {
     //---------------------------------------------------------------------------
     // Connect y-axis change to function
     connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisChange);
-
-    // Connect save button functions
-    connect(btn_save_plot, &QPushButton::clicked, this, &SirveApp::SavePlot);
 
     //---------------------------------------------------------------------------
     // connect the plot radial buttons to adjust plot
@@ -2000,7 +1990,6 @@ void SirveApp::LoadOsmData()
     menu_plot_frame_marker->setIconVisibleInMenu(false);
 
     EnableEngineeringPlotOptions();
-    data_plots_azimuth->SetPlotClassification(QString("EDIT CLASSIFICATION"));
 
     UpdatePlots(data_plots_azimuth);
     UpdatePlots(data_plots_elevation);
@@ -2023,7 +2012,6 @@ void SirveApp::HandleParamsSelected(const std::vector<QString> &params)
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
 {
     // Enable plot capabilities
-    btn_save_plot->setEnabled(osm_data_status);
     btn_plot_menu->setEnabled(osm_data_status);
 
     // Enable setting of epoch
@@ -2909,17 +2897,12 @@ void SirveApp::CreateMenuActions()
     menu_plot_frame_marker->setIconVisibleInMenu(false);
     connect(menu_plot_frame_marker, &QAction::triggered, this, &SirveApp::HandlePlotCurrentFrameMarkerToggle);
 
-    //menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
-    menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
-    //connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::EditClassificationText);
-
     // ---------------------- Set Acctions to Menu --------------------
 
     plot_menu = new QMenu(this);
     plot_menu->addAction(menu_plot_all_data);
     plot_menu->addAction(menu_plot_primary);
     plot_menu->addAction(menu_plot_frame_marker);
-    plot_menu->addAction(menu_plot_edit_banner);
 
     btn_plot_menu->setMenu(plot_menu);
 
@@ -4658,7 +4641,6 @@ void SirveApp::EnableEngineeringPlotOptions()
     rad_linear->setEnabled(true);
 
     btn_plot_menu->setEnabled(true);
-    btn_save_plot->setEnabled(true);
 
     cmb_plot_yaxis->setEnabled(false);
     cmb_plot_xaxis->setEnabled(false);

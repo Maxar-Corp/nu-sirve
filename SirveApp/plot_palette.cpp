@@ -20,8 +20,8 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 
 void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
 {
-    engineering_plot_ref->getPlotter()->setPlotLabel(label);
-    engineering_plot_ref->getPlotter()->redrawPlot();
+    engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);
+    engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
 }
 
 void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params)
@@ -38,7 +38,7 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QStr
 
     this->QTabWidget::addTab(tab, params[0]);
 
-    engineering_plot_ref = engineering_plot;
+    engineering_plot_ref.push_back(engineering_plot);
 }
 
 Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
@@ -104,7 +104,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         tabBar()->setTabVisible(tabIndex, false);
         emit popoutPlot(tabIndex, {Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), "Frames"}); // TO DO: Generalize the 'Frames'
     } else if (selectedAction == editBanner) {
-        emit editClassification(tabIndex, engineering_plot_ref->getPlotter()->getPlotLabel());
+        emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
     }
 }
 
