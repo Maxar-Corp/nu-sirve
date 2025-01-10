@@ -46,6 +46,8 @@ SirveApp::SirveApp(QWidget *parent)
     histogram_abs_layout->addWidget(histogram_plot->abs_chart_view);
     frame_histogram_abs->setLayout(histogram_abs_layout);
 
+    qDebug() << "About to setup connections";
+
     // establish connections to all qwidgets
     setupConnections();
 
@@ -1968,6 +1970,7 @@ void SirveApp::LoadOsmData()
 
     // commented out old btn_popout_engineering
 
+    connect(plot_palette, &PlotPalette::editClassification, this, &SirveApp::EditClassificationText);
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
     connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
 
@@ -1997,7 +2000,7 @@ void SirveApp::LoadOsmData()
     menu_plot_frame_marker->setIconVisibleInMenu(false);
 
     EnableEngineeringPlotOptions();
-    data_plots_azimuth->SetPlotTitle(QString("EDIT CLASSIFICATION"));
+    data_plots_azimuth->SetPlotClassification(QString("EDIT CLASSIFICATION"));
 
     UpdatePlots(data_plots_azimuth);
     UpdatePlots(data_plots_elevation);
@@ -2314,6 +2317,7 @@ void SirveApp::ClosePopoutEngineeringPlot()
     QString afterTab = title.mid(tabIndex + 3).trimmed();
 
     plot_palette->tabBar()->setTabVisible(afterTab.toInt(), true);
+    plot_palette->tabBar()->setCurrentIndex(afterTab.toInt());
 
     // Without the next two lines, the plot palette's tab bar will appear 'scrunched up' when tab is restored...
     plot_palette->update();
@@ -2905,9 +2909,9 @@ void SirveApp::CreateMenuActions()
     menu_plot_frame_marker->setIconVisibleInMenu(false);
     connect(menu_plot_frame_marker, &QAction::triggered, this, &SirveApp::HandlePlotCurrentFrameMarkerToggle);
 
-    menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
+    //menu_plot_edit_banner = new QAction(tr("&Edit Banner Text"), this);
     menu_plot_edit_banner->setStatusTip(tr("Edit the banner text for the plot"));
-    connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::EditPlotText);
+    //connect(menu_plot_edit_banner, &QAction::triggered, this, &SirveApp::EditClassificationText);
 
     // ---------------------- Set Acctions to Menu --------------------
 
@@ -2933,28 +2937,25 @@ void SirveApp::EditBannerText()
 
     video_display->UpdateBannerText(input_text);
 
-    // checks if banners are the same and asks user if they want them to be the same
-    //QString plot_banner_text = data_plots->title;
-    //int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
-    //if (check != 0)
+    auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
+    if (response == QMessageBox::Yes)
     {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
-        if (response == QMessageBox::Yes)
-        {
-            data_plots_azimuth->SetPlotTitle(input_text);
-        }
+        data_plots_azimuth->SetPlotClassification(input_text);
     }
 }
 
-void SirveApp::EditPlotText()
+void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
 {
     bool ok;
-    // QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, data_plots->title, &ok);
+    QString input_text = QInputDialog::getText(0, "Plot Classification", "Input Plot Classification Text", QLineEdit::Normal, current_value, &ok);
 
-    // if (ok)
-    // {
-    //     data_plots->SetPlotTitle(input_text);
-    // }
+    if (ok)
+    {
+        // Implementing Close this way avoids the cost of inheriting QDialog and making a new signal/slot...
+        QObject *sendingObject = sender();
+        PlotPalette *palette = qobject_cast<PlotPalette *>(sendingObject);
+        palette->UpdatePlotLabel(plot_tab_index, input_text);
+    }
 }
 
 void SirveApp::ExportPlotData()

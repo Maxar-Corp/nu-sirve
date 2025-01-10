@@ -289,7 +289,7 @@ private:
     void CreateMenuActions();
     void EditColorMap();
     void EditBannerText();
-    void EditPlotText();
+    void EditClassificationText(int plot_tab_index, QString current_value);
     void ExportPlotData();
     void EditBannerColor();
     void EditOSMTrackColor();

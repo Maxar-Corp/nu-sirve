@@ -9,6 +9,7 @@
 
 EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params) : JKQTPlotter()
 {
+    plot_classification = "EDIT CLASSIFICATION";
     my_params = params;
     plotType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
     plotUnit = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));
@@ -18,8 +19,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 
     this->past_midnight = engineeringData->get_seconds_from_midnight();
     this->past_epoch = engineeringData->get_seconds_from_epoch();
-
-    //SetPlotTitle("EDIT CLASSIFICATION");
 
     plot_all_data = true;
     plot_primary_only = false;
@@ -63,6 +62,8 @@ void EngineeringPlot::PlotChart()
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_params[0]);
     PlotSirveTracks();
+
+    this->getPlotter()->setPlotLabel(plot_classification);
 }
 
 void EngineeringPlot::PlotSirveTracks()
@@ -310,25 +311,10 @@ void EngineeringPlot::toggle_xaxis_fixed_pt(bool input)
     // xaxis_is_fixed_pt = input;
 }
 
-void EngineeringPlot::SetPlotTitle(QString input_title)
+void EngineeringPlot::SetPlotClassification(QString classification)
 {
-
-    // title = input_title;
-    // DrawTitle();
-
-}
-
-void EngineeringPlot::DrawTitle()
-{
-    // QColor brush_color("black");
-    // QBrush brush(brush_color);
-
-    // QFont font("Times New Roman", 12, QFont::Bold);
-
-    // chart->setTitleBrush(brush);
-    // chart->setTitleFont(font);
-
-    // chart->setTitle(title);
+    plot_classification = classification;
+    this->plotter->setPlotLabel(plot_classification);
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
@@ -422,6 +408,17 @@ void EngineeringPlot::HandlePlayerButtonClick()
     }
 }
 
+void EngineeringPlot::EditPlotText()
+{
+    bool ok;
+    QString input_text = QInputDialog::getText(0, "Plot Header Text", "Input Plot Header Text", QLineEdit::Normal, this->getPlotter()->getPlotLabel(), &ok);
+
+    if (ok)
+    {
+        this->getPlotter()->setPlotLabel(input_text);
+    }
+}
+
 void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
 
     // Get the datastore from the source plotter
@@ -468,4 +465,6 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
 
     // Step 6: Autoscale the plot to fit the new data
     this->zoomToFit();
+
+    this->plotter->setPlotLabel(other.getPlotter()->getPlotLabel());
 }

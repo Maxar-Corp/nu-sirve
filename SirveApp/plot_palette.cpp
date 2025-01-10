@@ -18,6 +18,12 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
             this, &PlotPalette::HandleTabRightClicked);
 }
 
+void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
+{
+    engineering_plot_ref->getPlotter()->setPlotLabel(label);
+    engineering_plot_ref->getPlotter()->redrawPlot();
+}
+
 void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params)
 {
     QWidget *tab = new QWidget(this);
@@ -31,6 +37,8 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QStr
     tab_to_type[palette_tab_id] = plot_type_id;
 
     this->QTabWidget::addTab(tab, params[0]);
+
+    engineering_plot_ref = engineering_plot;
 }
 
 Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
@@ -82,6 +90,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     // What should be a simple use case for syncing plots?  How many can be synced at a given time?  What combos are allowed?
 
     QAction *closeTabAction = contextMenu.addAction("Hide Tab");
+    QAction *editBanner = contextMenu.addAction("Edit Banner");
 
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
@@ -93,7 +102,9 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         setTabVisible(tabIndex,false);
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
-        emit popoutPlot(tabIndex, {Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)),"Frames"});
+        emit popoutPlot(tabIndex, {Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), "Frames"}); // TO DO: Generalize the 'Frames'
+    } else if (selectedAction == editBanner) {
+        emit editClassification(tabIndex, engineering_plot_ref->getPlotter()->getPlotLabel());
     }
 }
 

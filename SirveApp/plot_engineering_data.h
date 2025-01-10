@@ -35,6 +35,8 @@ public:
     EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params);
     ~EngineeringPlot();
 
+    void AddTransparentLabel();
+
     QChartView *chart_view;
     ColorScheme colors;
     JKQTPDatastore* ds;
@@ -91,10 +93,11 @@ public slots:
 
     void HandlePlayerButtonClick();
     void PlotCurrentFrameline(int frameline_x);
-    void SetPlotTitle(QString input_title);
+    void SetPlotClassification(QString input_title);
 
 private:
 
+    QString plot_classification;
     double fixed_max_y;
     size_t frameLineColumnX;
     std::vector<QString> my_params;
@@ -107,7 +110,7 @@ private:
     Enums::PlotUnit x_axis_units;
     QTabWidget* tabWidget;
 
-    void DrawTitle();
+    void EditPlotText();
     void InitializeFrameLine(double x_intercept);
 
     void PlotAzimuth(size_t plot_number_tracks);

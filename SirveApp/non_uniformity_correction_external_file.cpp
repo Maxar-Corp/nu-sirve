@@ -95,7 +95,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
 
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
-    plot_data->SetPlotTitle("");
+    plot_data->SetPlotClassification("");
 
     //frame_layout->addWidget(plot_data->chart_view);
 
