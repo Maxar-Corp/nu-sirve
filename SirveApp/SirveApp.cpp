@@ -1693,7 +1693,7 @@ void SirveApp::SaveWorkspace()
 
         if (selectedUserFilePath.length() > 0) {
             QFileInfo fileInfo(selectedUserFilePath);
-            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, eng_data->get_offset_time(), video_display->container.get_processing_states(), video_display->annotation_list, classification_list);
             lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
@@ -1807,6 +1807,24 @@ void SirveApp::LoadWorkspace()
             AnnotationInfo anno = workspace_vals.annotations[i];
             video_display->annotation_list.push_back(anno);
         }
+
+        for (auto i = 0; i < workspace_vals.classifications.size(); i++)
+        {
+            Classification classification = workspace_vals.classifications[i];
+
+            // Set classification to the appropriate widget, depending on its type.
+            if (classification.type == "Plot")
+            {
+                data_plots->SetPlotTitle(classification.text);
+            } else
+            {
+                video_display->UpdateBannerText(classification.text);
+            }
+
+            classification_list.push_back(classification);
+        }
+
+        eng_data->set_offset_time(workspace_vals.timing_offset);
     }
 }
 
@@ -2916,6 +2934,12 @@ void SirveApp::EditBannerText()
 
     video_display->UpdateBannerText(input_text);
 
+    if (!UpdateClassificationIfExists("VideoDisplay", input_text, &classification_list))
+    {
+        Classification classification(QString(input_text), QString("VideoDisplay"));
+        classification_list.push_back(classification);
+    }
+
     // checks if banners are the same and asks user if they want them to be the same
     QString plot_banner_text = data_plots->title;
     int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
@@ -2925,6 +2949,12 @@ void SirveApp::EditBannerText()
         if (response == QMessageBox::Yes)
         {
             data_plots->SetPlotTitle(input_text);
+
+            if (!UpdateClassificationIfExists("Plot", input_text, &classification_list))
+            {
+                Classification classification(QString(input_text), QString("Plot"));
+                classification_list.push_back(classification);
+            }
         }
     }
 }
@@ -2937,6 +2967,12 @@ void SirveApp::EditPlotText()
     if (ok)
     {
         data_plots->SetPlotTitle(input_text);
+
+        if (!UpdateClassificationIfExists("Plot", input_text, &classification_list))
+        {
+            Classification classification(QString(input_text), QString("Plot"));
+            classification_list.push_back(classification);
+        }
     }
 }
 
@@ -4691,13 +4727,8 @@ void SirveApp::EnableYAxisOptions(bool enabled)
     this->rad_decimal->setEnabled(enabled);
     this->rad_scientific->setEnabled(enabled);
 
-    qDebug() << "enabled" << enabled;
-    qDebug() << "------>>> enabled=" << enabled;
-
     if (!enabled)
     {
-        qDebug() << "TOGGLING";
-
         data_plots->toggle_yaxis_log(false);
         data_plots->toggle_yaxis_scientific(false);
     }

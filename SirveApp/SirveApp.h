@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 
+#include "classification.h"
 #include "constants.h"
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
@@ -81,6 +82,8 @@ public:
 
 	QWidget *main_widget;
 	QGridLayout *engineering_plot_layout;
+
+    std::vector<Classification> classification_list;
 
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
 	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner, *action_show_calibration_dialog, *action_enable_binary_export;

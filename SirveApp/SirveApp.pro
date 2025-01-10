@@ -19,6 +19,7 @@ HEADERS += abir_reader.h \
             binary_file_reader.h \
             calibration_data.h \
             chart_metadata.h \
+            classification.h \
             clickable_chartview.h \
             color_correction.h \
             color_map.h \
@@ -30,6 +31,7 @@ HEADERS += abir_reader.h \
             data_structures.h \
             engineering_data.h \
             enhanced_label.h \
+            enums.h \
             frame_player.h \
             histogram_plotter.h \
             image_processing.h \
@@ -69,6 +71,7 @@ SOURCES += abir_reader.cpp \
             auto_tracking.cpp\
             binary_file_reader.cpp \
             calibration_data.cpp \
+            classification.cpp \
             clickable_chartview.cpp \
             color_correction.cpp \
             color_map.cpp \
