@@ -5,13 +5,15 @@
 #include "enums.h"
 #include "SirveApp.h"
 
-EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<QString> params) : JKQTPlotter()
 {
+    osm_frames_ref = osm_frames;
+
     plot_classification = "EDIT CLASSIFICATION";
     my_params = params;
     plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
     plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[1]));
-    num_frames = static_cast<unsigned int>(osm_frames.size());
+    num_frames = static_cast<unsigned int>(osm_frames->size());
 
     EngineeringData *engineeringData = new EngineeringData(osm_frames);
 
@@ -56,20 +58,29 @@ void EngineeringPlot::PlotChart()
 
     std::function<std::vector<double>(size_t)> func_x, func_y;
 
-    //x_axis_units = plotUnit;
-
     func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
 
     if (plotXType == Enums::PlotType::Azimuth)
     {
         func_x = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
-    } else if (plotXType == Enums::PlotType::Elevation)
+    }
+    else if (plotXType == Enums::PlotType::Boresight_Azimuth)
+    {
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_boresight_azimuth, this, std::placeholders::_1);
+    }
+    else if (plotXType == Enums::PlotType::Elevation)
+    {
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
+    }
+    else if (plotXType == Enums::PlotType::Boresight_Elevation)
     {
         func_x = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
-    } else if (plotXType == Enums::PlotType::Irradiance)
+    }
+    else if (plotXType == Enums::PlotType::Irradiance)
     {
         func_x = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
-    } else
+    }
+    else
     {
         func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
     }
@@ -77,13 +88,24 @@ void EngineeringPlot::PlotChart()
     if (plotYType == Enums::PlotType::Azimuth)
     {
         func_y = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
-    } else if (plotYType == Enums::PlotType::Elevation)
+    }
+    else if (plotYType == Enums::PlotType::Boresight_Azimuth)
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_boresight_azimuth, this, std::placeholders::_1);
+    }
+    else if (plotYType == Enums::PlotType::Boresight_Elevation)
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
+    }
+    else if (plotYType == Enums::PlotType::Elevation)
     {
         func_y = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
-    } else if (plotYType == Enums::PlotType::Irradiance)
+    }
+    else if (plotYType == Enums::PlotType::Irradiance)
     {
         func_y = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
-    } else
+    }
+    else
     {
         func_y = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
     }
@@ -203,6 +225,32 @@ std::vector<double> EngineeringPlot::get_individual_y_track_azimuth(size_t i)
         {
             y_values.push_back(track_frames[track_frame_index].details[i].azimuth);
         }
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_boresight_azimuth(size_t i)
+{
+    std::vector<double> y_values;
+    num_frames = static_cast<unsigned int>(osm_frames_ref->size());
+
+    for (size_t i = 0; i < num_frames; i++)
+    {
+        y_values.push_back(osm_frames_ref->at(i).data.az_el_boresight[0]);
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_boresight_elevation(size_t i)
+{
+    std::vector<double> y_values;
+    num_frames = static_cast<unsigned int>(osm_frames_ref->size());
+
+    for (size_t i = 0; i < num_frames; i++)
+    {
+        y_values.push_back(osm_frames_ref->at(i).data.az_el_boresight[1]);
     }
 
     return y_values;

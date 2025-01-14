@@ -13,18 +13,14 @@ public:
 
     enum PlotType {
         Azimuth,
+        Boresight_Azimuth,
+        Boresight_Elevation,
         Elevation,
         Irradiance,
         Frames,
-        Seconds_Past_Midnight,
-        Seconds_From_Epoch
+        Seconds_From_Epoch,
+        Seconds_Past_Midnight
     };
-
-    // enum PlotUnit {
-    //     Frames,
-    //     Seconds_Past_Midnight,
-    //     Seconds_From_Epoch
-    // };
 
     // Function to get an enum by index
     static PlotType getPlotTypeByIndex(int index) {

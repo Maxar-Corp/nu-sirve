@@ -20,7 +20,6 @@
 #include <vector>
 
 #include "data_structures.h"
-#include "new_chart_view.h"
 #include "enums.h"
 #include "tracks.h"
 
@@ -32,7 +31,7 @@ class EngineeringPlot : public JKQTPlotter
     Q_OBJECT
 public:
 
-    EngineeringPlot(std::vector<Frame> const &osm_frames, std::vector<QString> params);
+    EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<QString> params);
     ~EngineeringPlot();
 
     void AddTransparentLabel();
@@ -100,6 +99,8 @@ public Q_SLOTS:
 
 private:
 
+    std::vector<Frame> *osm_frames_ref;
+
     QString plot_classification;
     double fixed_max_y;
     size_t frameLineColumnX;
@@ -132,6 +133,8 @@ private:
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
+    std::vector<double> get_individual_y_track_boresight_azimuth(size_t i);
+    std::vector<double> get_individual_y_track_boresight_elevation(size_t i);
     std::vector<double> get_individual_y_track_elevation(size_t i);
     double get_max_x_axis_value();
     double get_single_x_axis_value(int x_index);

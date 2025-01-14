@@ -16,7 +16,7 @@ class EngineeringData : public	QWidget
 {
 	Q_OBJECT;
 	public:
-        EngineeringData(const std::vector<Frame> & osm_frames);
+        EngineeringData(std::vector<Frame> *osm_frames);
         ~EngineeringData();
 
 		double get_offset_time();
@@ -36,7 +36,7 @@ class EngineeringData : public	QWidget
 		std::vector<double>julian_date, seconds_from_midnight, seconds_from_epoch;
 		std::vector<PlottingFrameData> frame_data;
 		
-		void extract_engineering_data(const std::vector<Frame> & osm_frames);
+        void extract_engineering_data(std::vector<Frame> *osm_frames);
 };
 
 #endif

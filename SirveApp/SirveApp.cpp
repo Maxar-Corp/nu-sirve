@@ -1894,12 +1894,12 @@ void SirveApp::LoadOsmData()
         txt_stop_frame->setStyleSheet(orange_styleSheet);
     }
 
-    eng_data = new EngineeringData(osm_frames);
+    eng_data = new EngineeringData(&osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    data_plots_azimuth = new EngineeringPlot(osm_frames, {"Azimuth", "Frames"});
-    data_plots_elevation = new EngineeringPlot(osm_frames, {"Elevation", "Frames"});
-    data_plots_irradiance = new EngineeringPlot(osm_frames, {"Irradiance", "Frames"});
+    data_plots_azimuth = new EngineeringPlot(&osm_frames, {"Azimuth", "Frames"});
+    data_plots_elevation = new EngineeringPlot(&osm_frames, {"Elevation", "Frames"});
+    data_plots_irradiance = new EngineeringPlot(&osm_frames, {"Irradiance", "Frames"});
 
     plot_palette = new PlotPalette();
     plot_palette->AddPlotTab(data_plots_azimuth, {"Azimuth", "Frames"});
@@ -2003,7 +2003,7 @@ void SirveApp::LoadOsmData()
 // Receives plot configuration parameters from the the plot designer, forwarded by plot palette:
 void SirveApp::HandleParamsSelected(const std::vector<QString> &params)
 {
-    EngineeringPlot *data_plots = new EngineeringPlot(osm_frames, params);
+    EngineeringPlot *data_plots = new EngineeringPlot(&osm_frames, params);
     data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
     UpdatePlots(data_plots);
     plot_palette->AddPlotTab(data_plots, params);
@@ -2258,7 +2258,7 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> par
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
 
     // Embed the plotter in the dialog
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, params);
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, params);
 
     // need a better way to derive the plot identity besides using the tab index, since not 1:1
     // could use a list of pointers to engineering plots, housed in the plot palette ...

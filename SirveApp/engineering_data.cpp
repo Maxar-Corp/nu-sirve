@@ -1,6 +1,6 @@
 #include "engineering_data.h"
 
-EngineeringData::EngineeringData(const std::vector<Frame> & osm_frames)
+EngineeringData::EngineeringData(std::vector<Frame> * osm_frames)
 {
 	extract_engineering_data(osm_frames);
 	timing_offset = 0;
@@ -124,23 +124,23 @@ std::vector<PlottingFrameData> EngineeringData::get_subset_plotting_frame_data(i
 	return subset_data;
 }
 
-void EngineeringData::extract_engineering_data(const std::vector<Frame> & osm_frames)
+void EngineeringData::extract_engineering_data(std::vector<Frame> *osm_frames)
 {
-	for (unsigned int i = 0; i < osm_frames.size(); i++) {
+    for (unsigned int i = 0; i < osm_frames->size(); i++) {
 
 		PlottingFrameData temp;
 
 		// ----------------------------------------------------------------------------------------
 		// Get Az-El of sensor and primary target
-		temp.azimuth_sensor = osm_frames[i].data.az_el_boresight[0];
-		temp.elevation_sensor = osm_frames[i].data.az_el_boresight[1];
-		temp.julian_date = osm_frames[i].data.julian_date;
-		temp.seconds_past_midnight = osm_frames[i].data.seconds_past_midnight;
+        temp.azimuth_sensor = osm_frames->at(i).data.az_el_boresight[0];
+        temp.elevation_sensor = osm_frames->at(i).data.az_el_boresight[1];
+        temp.julian_date = osm_frames->at(i).data.julian_date;
+        temp.seconds_past_midnight = osm_frames->at(i).data.seconds_past_midnight;
 
 		frame_data.push_back(temp);
-		julian_date.push_back(osm_frames[i].data.julian_date);
-		seconds_from_midnight.push_back(osm_frames[i].data.seconds_past_midnight);
-		seconds_from_epoch.push_back(osm_frames[i].data.seconds_past_midnight);
+        julian_date.push_back(osm_frames->at(i).data.julian_date);
+        seconds_from_midnight.push_back(osm_frames->at(i).data.seconds_past_midnight);
+        seconds_from_epoch.push_back(osm_frames->at(i).data.seconds_past_midnight);
 	}
 
 	if (julian_date.size() > 0){
