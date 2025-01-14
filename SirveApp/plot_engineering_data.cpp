@@ -1,8 +1,6 @@
 #include <QPushButton>
 #include <QLegendMarker>
 #include <functional>
-
-#include "plot_engineering_data.h"
 #include "plot_engineering_data.h"
 #include "enums.h"
 #include "SirveApp.h"
@@ -11,8 +9,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 {
     plot_classification = "EDIT CLASSIFICATION";
     my_params = params;
-    plotType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
-    plotUnit = Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(params[1]));
+    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
+    plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[1]));
     num_frames = static_cast<unsigned int>(osm_frames.size());
 
     EngineeringData *engineeringData = new EngineeringData(osm_frames);
@@ -24,7 +22,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
     plot_primary_only = false;
     plot_current_marker = false;
 
-    x_axis_units = plotUnit;
+    x_axis_units = plotXType;
 
     // 'sub-plot' refers to the chart's domain
     index_sub_plot_xmin = 0;
@@ -62,15 +60,32 @@ void EngineeringPlot::PlotChart()
 
     func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
 
-    if (plotType == Enums::PlotType::Azimuth)
+    if (plotXType == Enums::PlotType::Azimuth)
     {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
-    } else if (plotType == Enums::PlotType::Elevation)
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
+    } else if (plotXType == Enums::PlotType::Elevation)
     {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+    } else if (plotXType == Enums::PlotType::Irradiance)
+    {
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
     } else
     {
+        func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
+    }
+
+    if (plotYType == Enums::PlotType::Azimuth)
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
+    } else if (plotYType == Enums::PlotType::Elevation)
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+    } else if (plotYType == Enums::PlotType::Irradiance)
+    {
         func_y = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
+    } else
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
     }
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_params[0]);
@@ -81,7 +96,7 @@ void EngineeringPlot::PlotChart()
 
 void EngineeringPlot::PlotSirveTracks()
 {
-    if (plotType == Enums::PlotType::Azimuth)
+    if (plotYType == Enums::PlotType::Azimuth)
     {
         for (int track_id : manual_track_ids)
         {
@@ -207,24 +222,24 @@ std::vector<double> EngineeringPlot::get_individual_y_track_elevation(size_t i)
     return y_values;
 }
 
-void EngineeringPlot::set_xaxis_units(Enums::PlotUnit unit_choice)
-{
-    x_axis_units = unit_choice;
-    switch (x_axis_units)
-    {
-    case Enums::Frames:
-        x_title = "Frame #";
-        break;
-    case Enums::Seconds_Past_Midnight:
-        x_title = "Seconds Past Midnight";
-        break;
-    case Enums::Seconds_From_Epoch:
-        x_title = "Seconds Past Epoch";
-        break;
-    default:
-        break;
-    }
-}
+// void EngineeringPlot::set_xaxis_units(Enums::PlotUnit unit_choice)
+// {
+//     x_axis_units = unit_choice;
+//     switch (x_axis_units)
+//     {
+//     case Enums::Frames:
+//         x_title = "Frame #";
+//         break;
+//     case Enums::Seconds_Past_Midnight:
+//         x_title = "Seconds Past Midnight";
+//         break;
+//     case Enums::Seconds_From_Epoch:
+//         x_title = "Seconds Past Epoch";
+//         break;
+//     default:
+//         break;
+//     }
+// }
 
 std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
 {

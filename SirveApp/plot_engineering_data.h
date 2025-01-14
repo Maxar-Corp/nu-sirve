@@ -53,8 +53,8 @@ public:
     std::vector<double> boresight_az, boresight_el;
 
     JKQTPXYLineGraph* graph;
-    Enums::PlotType plotType;
-    Enums::PlotUnit plotUnit;
+    Enums::PlotType plotYType;
+    Enums::PlotType plotXType;
 
     void copyStateFrom(const EngineeringPlot &other);
 
@@ -81,7 +81,7 @@ public:
     void toggle_yaxis_scientific(bool input);
     void toggle_xaxis_fixed_pt(bool input);
 
-    void set_xaxis_units(Enums::PlotUnit unit_choice);
+    //void set_xaxis_units(Enums::PlotUnit unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     std::vector<QString> get_params();
 
@@ -111,7 +111,7 @@ private:
     int number_of_tracks;
     std::vector<PlottingTrackFrame> track_frames;
     bool show_frame_line;
-    Enums::PlotUnit x_axis_units;
+    Enums::PlotType x_axis_units;
     QTabWidget* tabWidget;
 
     QAction* actToggleFrameLine;

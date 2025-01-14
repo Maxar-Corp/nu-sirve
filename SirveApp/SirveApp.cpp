@@ -3091,7 +3091,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 
         // For y-axis, use fixed-point precision for 'seconds past' options only ('frame' option is first combo box option):
         engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
-        engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
+        //engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
 
         engineering_plot->PlotChart();
         engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
