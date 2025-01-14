@@ -28,5 +28,6 @@
         <file>icons/skip-next.png</file>
         <file>icons/skip-previous.png</file>
         <file>icons/stop.png</file>
+        <file>icons/jkqtp_frameline.png</file>
     </qresource>
 </RCC>

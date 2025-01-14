@@ -32,7 +32,20 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, std::vect
 
     ds = this->getDatastore();
 
+    show_frame_line = true;
+
+    actToggleFrameLine=new QAction(QIcon(":icons/jkqtp_frameline.png"), tr("Toggle Frame Line"), this);
+    actToggleFrameLine->setToolTip(tr("Toggle the frame line for this plot"));
+
+    toolbar->addAction(this->getActionToggleFrameLine());
+
+    connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
+
     this->setToolbarAlwaysOn(true);
+}
+
+QAction *EngineeringPlot::getActionToggleFrameLine() const {
+    return this->actToggleFrameLine;
 }
 
 EngineeringPlot::~EngineeringPlot()
@@ -287,7 +300,7 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
 
 void EngineeringPlot::PlotCurrentFrameline(int frame)
 {
-    if (plot_current_marker)
+    if (plot_current_marker && show_frame_line)
     {
         int frameline_x = frame + index_sub_plot_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
         QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
@@ -315,6 +328,13 @@ void EngineeringPlot::SetPlotClassification(QString classification)
 {
     plot_classification = classification;
     this->plotter->setPlotLabel(plot_classification);
+}
+
+void EngineeringPlot::ToggleFrameLine()
+{
+    show_frame_line = ! show_frame_line;
+    this->getGraphs().at(1)->setVisible(show_frame_line);
+    emit this->plotter->plotUpdated();
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
@@ -386,6 +406,7 @@ void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 }
 
 void EngineeringPlot::RecolorOsmTrack(QColor color)
+
 {
     emit updatePlots();
 }

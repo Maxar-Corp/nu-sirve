@@ -95,6 +95,9 @@ public slots:
     void PlotCurrentFrameline(int frameline_x);
     void SetPlotClassification(QString input_title);
 
+public Q_SLOTS:
+    void ToggleFrameLine();
+
 private:
 
     QString plot_classification;
@@ -107,8 +110,12 @@ private:
     unsigned int num_frames;
     int number_of_tracks;
     std::vector<PlottingTrackFrame> track_frames;
+    bool show_frame_line;
     Enums::PlotUnit x_axis_units;
     QTabWidget* tabWidget;
+
+    QAction* actToggleFrameLine;
+    QAction* getActionToggleFrameLine() const;
 
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);
