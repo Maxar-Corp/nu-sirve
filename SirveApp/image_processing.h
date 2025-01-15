@@ -51,7 +51,7 @@ public:
 	std::vector<std::vector<uint16_t>> DeinterlaceOpenCVPhaseCorrelation(std::vector<Frame> osm_frames,VideoDetails & original);
     std::vector<uint16_t> DeinterlacePhaseCorrelationCurrent(int current_frame,  int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit);
 
-    std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames,\
+    std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int OSM_track_id, int manual_track_id, std::vector<TrackFrame> osmFrames,\
         std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);
 
     std::vector<std::vector<uint16_t>> CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets);

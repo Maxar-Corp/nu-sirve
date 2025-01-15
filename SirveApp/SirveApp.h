@@ -335,7 +335,7 @@ private:
     void ApplyDeinterlacing(int processing_state_idx);
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyDeinterlacingCurrent();
-    void CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
+    void CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, int manual_track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
