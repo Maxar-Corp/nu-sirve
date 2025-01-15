@@ -1987,7 +1987,6 @@ void SirveApp::LoadOsmData()
     // Reset setting engineering plot defaults
     menu_plot_all_data->setIconVisibleInMenu(true);
     menu_plot_primary->setIconVisibleInMenu(false);
-    menu_plot_frame_marker->setIconVisibleInMenu(false);
 
     EnableEngineeringPlotOptions();
 
@@ -2631,14 +2630,6 @@ void SirveApp::HandlePlotPrimaryOnlyToggle()
     //UpdatePlots();
 }
 
-void SirveApp::HandlePlotCurrentFrameMarkerToggle()
-{
-    data_plots_azimuth->plot_current_marker = !data_plots_azimuth->plot_current_marker;
-    menu_plot_frame_marker->setIconVisibleInMenu(data_plots_azimuth->plot_current_marker);
-
-    //UpdatePlots();
-}
-
 void SirveApp::SetDataTimingOffset()
 {
     if (!eng_data)
@@ -2891,18 +2882,11 @@ void SirveApp::CreateMenuActions()
     menu_plot_primary->setIconVisibleInMenu(false);
     connect(menu_plot_primary, &QAction::triggered, this, &SirveApp::HandlePlotPrimaryOnlyToggle);
 
-    menu_plot_frame_marker = new QAction(tr("&Plot Marker for Current Frame"), this);
-    menu_plot_frame_marker->setIcon(on);
-    menu_plot_frame_marker->setStatusTip(tr("Plot marker to show current video frame"));
-    menu_plot_frame_marker->setIconVisibleInMenu(false);
-    connect(menu_plot_frame_marker, &QAction::triggered, this, &SirveApp::HandlePlotCurrentFrameMarkerToggle);
-
     // ---------------------- Set Acctions to Menu --------------------
 
     plot_menu = new QMenu(this);
     plot_menu->addAction(menu_plot_all_data);
     plot_menu->addAction(menu_plot_primary);
-    plot_menu->addAction(menu_plot_frame_marker);
 
     btn_plot_menu->setMenu(plot_menu);
 

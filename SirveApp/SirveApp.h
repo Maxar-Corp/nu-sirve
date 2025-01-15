@@ -85,7 +85,7 @@ public:
 	QGridLayout *engineering_plot_layout;
 
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
-    QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker;
+    QAction *menu_plot_all_data, *menu_plot_primary;
 
 	// QThread thread_video, thread_timer;
 
@@ -232,7 +232,6 @@ signals:
 
         void HandlePlotFullDataToggle();
         void HandlePlotPrimaryOnlyToggle();
-        void HandlePlotCurrentFrameMarkerToggle();
         void HandleXAxisOptionChange();
    
         void SetDataTimingOffset();

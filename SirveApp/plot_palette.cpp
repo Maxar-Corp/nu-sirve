@@ -91,6 +91,9 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
     QAction *closeTabAction = contextMenu.addAction("Hide Tab");
     QAction *editBanner = contextMenu.addAction("Edit Banner");
+    QMenu *plotOptions = contextMenu.addMenu("Plot Options");
+    QAction *plotOptions1 = plotOptions->addAction("Linear/Log");
+    QAction *plotOptions2 = plotOptions->addAction("Decial/Scientific");
 
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
@@ -105,6 +108,12 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         emit popoutPlot(tabIndex, {Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), "Frames"}); // TO DO: Generalize the 'Frames'
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
+    } else if (selectedAction == plotOptions1) {
+        engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(true);
+        double xScale = engineering_plot_ref.at(tabIndex)->getPlotter()->getAxisAspectRatio();
+        qDebug() << "xScale=" << xScale;
+        engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
+        // TODO: Refine this ^^^ so it zooms to where you left off.
     }
 }
 
