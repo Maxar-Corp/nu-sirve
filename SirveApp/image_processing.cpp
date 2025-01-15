@@ -783,6 +783,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                     xOffset = osmFrames[framei].tracks[track_id].centroid_x;
                     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                    cont_search = false;
                 }
             }
             else //Search for first track
@@ -839,6 +840,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                     xOffset = manualFrames[framei].tracks[track_id].centroid_x - xOffset_correction;
                     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                    cont_search = false;
                 }
             }
             else //Search for first track
