@@ -51,7 +51,6 @@ SirveApp::SirveApp(QWidget *parent)
 
     HandleRelativeHistogramToggle(false);
     ToggleVideoPlaybackOptions(false);
-    EnableEngineeringPlotOptions();
 
     CreateMenuActions();
 
@@ -1137,47 +1136,19 @@ void SirveApp::SetupPlotFrame() {
     rad_linear = new QRadioButton("Linear");
 
     //QButtonGroup data_plot_yformat, data_plot_yloglinear;
-    data_plot_yformat = new QButtonGroup();
-    data_plot_yloglinear = new QButtonGroup();
-    data_plot_yformat->addButton(rad_decimal);
-    data_plot_yformat->addButton(rad_scientific);
-    data_plot_yloglinear->addButton(rad_log);
-    data_plot_yloglinear->addButton(rad_linear);
-
-    // create comboboxes and add options
-    cmb_plot_xaxis = new QComboBox();
-    cmb_plot_yaxis = new QComboBox();
-
-    // create buttons in the plot controls
-    btn_plot_menu = new QPushButton("Plot Options");
-
-    QGridLayout* grid_y_axis_options_groupbox = new QGridLayout(plot_groupbox);
-    grid_y_axis_options_groupbox->addWidget(rad_linear, 0, 0);
-    grid_y_axis_options_groupbox->addWidget(rad_log, 1, 0);
-    grid_y_axis_options_groupbox->addWidget(rad_decimal, 0, 1);
-    grid_y_axis_options_groupbox->addWidget(rad_scientific, 1, 1);
-
-    // set layout for combo boxes
-    QFormLayout *form_plot_axis_options = new QFormLayout;
-    form_plot_axis_options->addRow(tr("&Y-Axis:"), cmb_plot_yaxis);
-    form_plot_axis_options->addRow(tr("&X-Axis:"), cmb_plot_xaxis);
-    form_plot_axis_options->addRow(tr("&"), btn_plot_menu);
-
-    // set layout for everything below the plot
-    QHBoxLayout* hlayout_widget_plots_tab_color_control = new QHBoxLayout();
-    hlayout_widget_plots_tab_color_control->insertStretch(0,0);
-    hlayout_widget_plots_tab_color_control->addLayout(form_plot_axis_options);
-    hlayout_widget_plots_tab_color_control->addWidget(plot_groupbox);
-    hlayout_widget_plots_tab_color_control->insertStretch(-1, 0);  // inserts spacer and stretch at end of layout
-    // plot_groupbox->setMinimumWidth(333);
-    plot_groupbox->setEnabled(false);
+    // data_plot_yformat = new QButtonGroup();
+    // data_plot_yloglinear = new QButtonGroup();
+    // data_plot_yformat->addButton(rad_decimal);
+    // data_plot_yformat->addButton(rad_scientific);
+    // data_plot_yloglinear->addButton(rad_log);
+    // data_plot_yloglinear->addButton(rad_linear);
 
     // set layout for engineering plots tab
     QWidget* widget_plots_tab_color = new QWidget();
     QVBoxLayout* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
 
     vlayout_widget_plots_tab_color->addWidget(frame_plots);
-    vlayout_widget_plots_tab_color->addLayout(hlayout_widget_plots_tab_color_control);
+    //vlayout_widget_plots_tab_color->addLayout(hlayout_widget_plots_tab_color_control);
 
     // ------------------------------------------------------------------------
     // Add all to tab widget
@@ -1303,7 +1274,7 @@ void SirveApp::setupConnections() {
 
     //---------------------------------------------------------------------------
     // Connect y-axis change to function
-    connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisChange);
+    //connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisChange);
 
     //---------------------------------------------------------------------------
     // connect the plot radial buttons to adjust plot
@@ -1349,14 +1320,14 @@ void SirveApp::HandleExternalFileToggle()
 
 void SirveApp::HandleYAxisChange()
 {
-    if(cmb_plot_yaxis->currentIndex()==0){
-        rad_scientific->setChecked(true);
-    }
-    else{
-        rad_decimal->setChecked(true);
-    }
-    yAxisChanged=true;
-    //UpdatePlots();
+    // if(cmb_plot_yaxis->currentIndex()==0){
+    //     rad_scientific->setChecked(true);
+    // }
+    // else{
+    //     rad_decimal->setChecked(true);
+    // }
+    // yAxisChanged=true;
+    // //UpdatePlots();
 }
 
 void SirveApp::HandleXAxisOptionChange()
@@ -1988,7 +1959,8 @@ void SirveApp::LoadOsmData()
     menu_plot_all_data->setIconVisibleInMenu(true);
     menu_plot_primary->setIconVisibleInMenu(false);
 
-    EnableEngineeringPlotOptions();
+    // Enable Engineering Plot Options, among other things ...
+    tab_plots->setCurrentIndex(1);
 
     UpdatePlots(data_plots_azimuth);
     UpdatePlots(data_plots_elevation);
@@ -2011,7 +1983,7 @@ void SirveApp::HandleParamsSelected(const std::vector<QString> &params)
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
 {
     // Enable plot capabilities
-    btn_plot_menu->setEnabled(osm_data_status);
+    //btn_plot_menu->setEnabled(osm_data_status);
 
     // Enable setting of epoch
     dt_epoch->setEnabled(osm_data_status);
@@ -2023,12 +1995,12 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     txt_stop_frame->setEnabled(osm_data_status);
 
     plot_groupbox->setEnabled(osm_data_status);
-    cmb_plot_yaxis->setEnabled(osm_data_status);
-    cmb_plot_xaxis->setEnabled(osm_data_status);
+    //cmb_plot_yaxis->setEnabled(osm_data_status);
+    //cmb_plot_xaxis->setEnabled(osm_data_status);
 
     osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
 
-    connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
+    //connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
 }
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
@@ -2888,7 +2860,7 @@ void SirveApp::CreateMenuActions()
     plot_menu->addAction(menu_plot_all_data);
     plot_menu->addAction(menu_plot_primary);
 
-    btn_plot_menu->setMenu(plot_menu);
+    //btn_plot_menu->setMenu(plot_menu);
 
 }
 
@@ -3060,21 +3032,21 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
     // Index 1 - Azimuth
     // Index 2 - Elevation
 
-    int x_index = cmb_plot_xaxis->currentIndex();
-    int y_index = cmb_plot_yaxis->currentIndex();
+    // int x_index = cmb_plot_xaxis->currentIndex();
+    // int y_index = cmb_plot_yaxis->currentIndex();
 
     // Check that indices are all positive
-    if (x_index >= 0 && y_index >= 0 && eng_data)
+    if (eng_data)
     {
-        bool scientific_is_checked = rad_scientific->isChecked();
-        bool log_is_checked = rad_log->isChecked();
-        engineering_plot->toggle_yaxis_log(log_is_checked);
+        //bool scientific_is_checked = rad_scientific->isChecked();
+        //bool log_is_checked = rad_log->isChecked();
+        //engineering_plot->toggle_yaxis_log(log_is_checked);
 
         // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):
-        engineering_plot->toggle_yaxis_scientific(scientific_is_checked && cmb_plot_yaxis->currentIndex() == 0 );
+        //engineering_plot->toggle_yaxis_scientific(scientific_is_checked && cmb_plot_yaxis->currentIndex() == 0 );
 
         // For y-axis, use fixed-point precision for 'seconds past' options only ('frame' option is first combo box option):
-        engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
+        //engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
         //engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
 
         engineering_plot->PlotChart();
@@ -4588,48 +4560,6 @@ void SirveApp::ToggleVideoPlaybackOptions(bool input)
     }
 }
 
-void SirveApp::EnableEngineeringPlotOptions()
-{
-    tab_plots->setCurrentIndex(1);
-
-    rad_linear->setChecked(true);
-    rad_linear->setChecked(true);
-
-    cmb_plot_xaxis->clear();
-    cmb_plot_xaxis->setFixedWidth(150);
-    cmb_plot_xaxis->setEnabled(true);
-    cmb_plot_xaxis->addItem(QString("Frames"));
-    cmb_plot_xaxis->addItem(QString("Seconds from Midnight"));
-    cmb_plot_xaxis->addItem(QString("Seconds from Epoch"));
-    cmb_plot_xaxis->setCurrentIndex(0);
-
-    cmb_plot_yaxis->clear();
-    cmb_plot_yaxis->setEnabled(true);
-    cmb_plot_yaxis->setFixedWidth(150);
-    cmb_plot_yaxis->addItem(QString("ROI Counts"));
-    cmb_plot_yaxis->addItem(QString("Azimuth"));
-    cmb_plot_yaxis->addItem(QString("Elevation"));
-    cmb_plot_yaxis->addItem(QString("IFOV - X"));
-    cmb_plot_yaxis->addItem(QString("IFOV - Y"));
-    cmb_plot_yaxis->addItem(QString("Boresight Azimuth"));
-    cmb_plot_yaxis->addItem(QString("Boresight Elevation"));
-    cmb_plot_yaxis->setCurrentIndex(2);
-
-
-    // ------------------------------------------ Set Plot Options ------------------------------------------
-
-    rad_decimal->setEnabled(true);
-    rad_scientific->setEnabled(true);
-
-    rad_log->setEnabled(true);
-    rad_linear->setEnabled(true);
-
-    btn_plot_menu->setEnabled(true);
-
-    cmb_plot_yaxis->setEnabled(false);
-    cmb_plot_xaxis->setEnabled(false);
-}
-
 void SirveApp::UpdateEpochString(QString new_epoch_string)
 {
 
@@ -4709,14 +4639,6 @@ bool SirveApp::VerifyFrameSelection(int min_frame, int max_frame)
         QtHelpers::LaunchMessageBox(QString("Bad Data Entered"), "Start frame is greater than the end frame");
         return false;
     }
-
-    int frame_stop = data_plots_azimuth->full_plot_xmax + 1;
-
-    // if (max_frame > frame_stop)
-    // {
-    //     QtHelpers::LaunchMessageBox(QString("Outside of Data Range"), "Data must be within valid range (1-" + QString::number(frame_stop) + ")");
-    //     return false;
-    // }
 
     return true;
 }

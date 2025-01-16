@@ -126,12 +126,12 @@ public:
     QGroupBox *grpbox_load_frames_area, *grpbox_progressbar_area, *plot_groupbox;
     QProgressBar * progress_bar_main;
 
-	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
+    QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
 	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
 	QFrame* frame_plots;
 	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
-	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
+    QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
     QRadioButton * rad_autotrack_feature_weighted_centroid,  *rad_autotrack_feature_centroid, * rad_autotrack_feature_peak;
 	QCheckBox* chk_show_OSM_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
 	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
@@ -346,7 +346,6 @@ private:
     void ResetEngineeringDataAndSliderGUIs();
     void HandleAutoTrackStartChangeInput();
     void HandleAutoTrackStopChangeInput();
-    void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
     void HandleCreateTrackClick();
     void HandleFinishCreateTrackClick();
