@@ -743,7 +743,7 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
     return current_frame_16bit;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString trackTypePriority, VideoDetails & original, int OSM_track_id, int manual_track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -756,56 +756,41 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
     std::vector<TrackFrame> trackFrames = manualFrames;
-    
+    bool cont_search;
+    int i;
+
     // Recenter the cube, frame by frame, for both non-OSM ('manual') tracks, and for the OSM track (track_id==0).
-    if (track_id > 0)
+    for (int framei = 0; framei < num_video_frames; framei++)
     {
-        for (int framei = 0; framei < num_video_frames; framei++){
-            UpdateProgressBar(framei);
-            QCoreApplication::processEvents();
-            if (cancel_operation)
-            {
-                return std::vector<std::vector<uint16_t>>();
-            }
-            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
-            if (OSMPriority==0){
-                trackFrames = osmFrames;
-                yOffset_correction = 0;
-                xOffset_correction = 0;
-            }
-            if (trackFrames[framei].tracks.find(track_id) != trackFrames[framei].tracks.end())
-            {
-                yOffset = trackFrames[framei].tracks[track_id].centroid_y - yOffset_correction;
-                xOffset = trackFrames[framei].tracks[track_id].centroid_x - xOffset_correction;
-                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
-                track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-            }
-            else
-            {
-                frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame.t().as_col()));
-            }
-        }
-    }
-    else
-    {
-        for (int framei = 0; framei < num_video_frames; framei++)
+        UpdateProgressBar(framei);
+        QCoreApplication::processEvents();
+        if (cancel_operation)
         {
-            UpdateProgressBar(framei);
-            QCoreApplication::processEvents();
-            if (cancel_operation)
+            return std::vector<std::vector<uint16_t>>();
+        }
+
+        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+        output = frame;
+   
+        if(OSMPriority==0) //OSM tracks have priority
+        { 
+            cont_search = true;
+            if(OSM_track_id>0) //Specific track id
             {
-                return std::vector<std::vector<uint16_t>>();
-            }
-
-            frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
-            output = frame;
-            bool cont_search = true;
-            int i = 0;
-
-            if(OSMPriority==0){
-                if(osmFrames[framei].tracks.size()>0)
+                if (osmFrames[framei].tracks[OSM_track_id].centroid_x != NULL)
                 {
+                    yOffset = osmFrames[framei].tracks[OSM_track_id].centroid_y;
+                    xOffset = osmFrames[framei].tracks[OSM_track_id].centroid_x;
+                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                    cont_search = false;
+                }
+            }
+            else //Search for first track
+            {
+                i = 0;  
+                if(osmFrames[framei].tracks.size()>0)
+                { 
                     while (cont_search && i < osmFrames[framei].tracks.size())
                     {
                         if (osmFrames[framei].tracks[i].centroid_x != NULL)
@@ -816,32 +801,69 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                             track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
-                        else{
-                            i+=1;
-                        }
-                    }
-                }
-                if(cont_search && manualFrames[framei].tracks.size()>0 && findAnyTrack)
-                {
-                    i = 0;
-                    while (cont_search && i < manualFrames[framei].tracks.size())
-                    {
-                        if (manualFrames[framei].tracks[i].centroid_x != NULL)
+                        else
                         {
-                            yOffset = manualFrames[framei].tracks[i].centroid_y - yOffset_correction;
-                            xOffset = manualFrames[framei].tracks[i].centroid_x - xOffset_correction;
-                            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                            cont_search = false;
-                        }
-                        else{
                             i+=1;
                         }
                     }
                 }
             }
-            else{
-               if(manualFrames[framei].tracks.size()>0)
+            if(cont_search && findAnyTrack) //Now search for manual tracks
+            {
+                if(manual_track_id>0) //Specific track id
+                {
+                    if (manualFrames[framei].tracks[manual_track_id].centroid_x != NULL)
+                    {
+                        yOffset = manualFrames[framei].tracks[manual_track_id].centroid_y - yOffset_correction;
+                        xOffset = manualFrames[framei].tracks[manual_track_id].centroid_x - xOffset_correction;
+                        output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                        track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                        cont_search = false;
+                    }
+                }
+                else
+                {
+                    if(manualFrames[framei].tracks.size()>0)  
+                    {
+                        i = 0;
+                        cont_search = true;
+                        while (cont_search && i < manualFrames[framei].tracks.size())
+                        {
+                            if (manualFrames[framei].tracks[i].centroid_x != NULL)
+                            {
+                                yOffset = manualFrames[framei].tracks[i].centroid_y - yOffset_correction;
+                                xOffset = manualFrames[framei].tracks[i].centroid_x - xOffset_correction;
+                                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                                track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                                cont_search = false;
+                            }
+                            else
+                            {
+                                i+=1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else //Manual Tracks have priority
+        {
+            cont_search = true;
+            if(manual_track_id>0) //Specific track id
+            {
+                if (manualFrames[framei].tracks[manual_track_id].centroid_x != NULL)
+                {
+                    yOffset = manualFrames[framei].tracks[manual_track_id].centroid_y - yOffset_correction;
+                    xOffset = manualFrames[framei].tracks[manual_track_id].centroid_x - xOffset_correction;
+                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                    cont_search = false;
+                }
+            }
+            else //Search for first track
+            {
+                i = 0;
+                if(manualFrames[framei].tracks.size()>0)
                 {
                     while (cont_search && i < manualFrames[framei].tracks.size())
                     {
@@ -852,32 +874,50 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                             track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
-                        else{
-                            i+=1;
-                        }
-                    }
-                }
-                if(cont_search && osmFrames[framei].tracks.size()>0 && findAnyTrack)
-                {
-                    i = 0;
-                    while (cont_search && i < osmFrames[framei].tracks.size())
+                        else
                         {
-                        if (osmFrames[framei].tracks[i].centroid_x != NULL){
-                            yOffset = osmFrames[framei].tracks[i].centroid_y;
-                            xOffset = osmFrames[framei].tracks[i].centroid_x;
-                            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                            cont_search = false;
-                        }
-                        else{
                             i+=1;
                         }
                     }
                 }
             }
-            frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));   
-        }                       
-    }
+            if(cont_search && findAnyTrack) // Now search for OSM tracks
+            {
+                if(OSM_track_id>0) //Specific track id
+                {
+                    if (osmFrames[framei].tracks[OSM_track_id].centroid_x != NULL)
+                    {
+                        yOffset = osmFrames[framei].tracks[OSM_track_id].centroid_y;
+                        xOffset = osmFrames[framei].tracks[OSM_track_id].centroid_x;
+                        output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                        track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                        cont_search = false;
+                    }
+                }
+                else{
+                    i = 0;
+                    if (osmFrames[framei].tracks.size()>0)
+                    {
+                        while (cont_search && i < osmFrames[framei].tracks.size())
+                        {
+                            if (osmFrames[framei].tracks[i].centroid_x != NULL){
+                                yOffset = osmFrames[framei].tracks[i].centroid_y;
+                                xOffset = osmFrames[framei].tracks[i].centroid_x;
+                                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+                                track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+                                cont_search = false;
+                            }
+                            else
+                            {
+                                i+=1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));   
+    }                       
 
     return frames_out;
 }

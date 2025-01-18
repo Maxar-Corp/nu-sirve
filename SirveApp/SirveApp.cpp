@@ -3836,28 +3836,33 @@ void SirveApp::ApplyDeinterlacingCurrent()
 
 void SirveApp::ExecuteCenterOnTracks()
 {
-    int track_id;
+    int OSM_track_id, manual_track_id;
     boolean findAnyTrack = false;
     QString trackFeaturePriority;
     bool continueTF = true;
-    if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
-        if (cmb_OSM_track_IDs->currentIndex()==0){
-            track_id = -1;
-        }
-        else{
-            track_id = cmb_OSM_track_IDs->currentText().toInt();
-        }
+
+    if (cmb_OSM_track_IDs->currentIndex()==0){
+        OSM_track_id = -1;
+    }
+    else{
+        OSM_track_id = cmb_OSM_track_IDs->currentText().toInt();
+    }
+
+    if (cmb_manual_track_IDs->currentIndex()==0){
+        manual_track_id = -1;
+    }
+    else{
+        manual_track_id = cmb_manual_track_IDs->currentText().toInt();
+    }
+
+    if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){  
         trackFeaturePriority = "OSM";
     }
-    else if(cmb_track_centering_priority->currentIndex()==1 || cmb_track_centering_priority->currentIndex()==3){
-        if (cmb_manual_track_IDs->currentIndex()==0){
-            track_id = -1;
-        }
-        else{
-            track_id = cmb_manual_track_IDs->currentText().toInt();
-        }
+
+    if(cmb_track_centering_priority->currentIndex()==1 || cmb_track_centering_priority->currentIndex()==3){
         trackFeaturePriority = "Manual";
     }
+
     if(cmb_track_centering_priority->currentIndex()==2 || cmb_track_centering_priority->currentIndex()==3){
         findAnyTrack = true;
     }
@@ -3871,11 +3876,11 @@ void SirveApp::ExecuteCenterOnTracks()
     }
     if (continueTF)
     { 
-        CenterOnTracks(trackFeaturePriority, track_id, track_centered_offsets, findAnyTrack, source_state_idx);
+        CenterOnTracks(trackFeaturePriority, OSM_track_id, manual_track_id, track_centered_offsets, findAnyTrack, source_state_idx);
     }
 }
 
-void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
+void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, int manual_track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
 {
     int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
 
@@ -3887,7 +3892,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
     std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
     std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
-    video_display->container.processing_states[endi].track_id = track_id;
+    // video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
         video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
     }
@@ -3903,7 +3908,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
     if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
         video_display->container.processing_states[endi].offsets = track_centered_offsets;
