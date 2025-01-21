@@ -349,8 +349,8 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     QVector<double> yData = {0, this->fixed_max_y};
 
     // Make data available to JKQTPlotter by adding it to the internal datastore.
-    frameLineColumnX = ds->addCopiedColumn(xData, "x");
-    size_t frameLineColumnY = ds->addCopiedColumn(yData, "y");
+    frameLineColumnX = ds->addCopiedColumn(xData, "frameline_X");
+    size_t frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");
 
     // Create the line graph and set its data
     JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
