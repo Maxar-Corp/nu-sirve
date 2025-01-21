@@ -544,6 +544,11 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
 
         // Add the new graph to the destination plot
         this->addGraph(dstGraph);
+
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
+        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
+        this->getYAxis()->setLabelFontSize(10); // large x-axis label
+        this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
     }
 
     // Step 6: Autoscale the plot to fit the new data
