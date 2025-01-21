@@ -1868,9 +1868,9 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(&osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    data_plots_azimuth = new EngineeringPlot(&osm_frames, {"Azimuth", "Frames"});
-    data_plots_elevation = new EngineeringPlot(&osm_frames, {"Elevation", "Frames"});
-    data_plots_irradiance = new EngineeringPlot(&osm_frames, {"Irradiance", "Frames"});
+    data_plots_azimuth = new EngineeringPlot(&osm_frames, {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    data_plots_elevation = new EngineeringPlot(&osm_frames, {Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    data_plots_irradiance = new EngineeringPlot(&osm_frames, {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     plot_palette = new PlotPalette();
     plot_palette->AddPlotTab(data_plots_azimuth, {"Azimuth", "Frames"});
@@ -1972,12 +1972,12 @@ void SirveApp::LoadOsmData()
 
 
 // Receives plot configuration parameters from the the plot designer, forwarded by plot palette:
-void SirveApp::HandleParamsSelected(const std::vector<QString> &params)
+void SirveApp::HandleParamsSelected(std::vector<Quantity> &quantities)
 {
-    EngineeringPlot *data_plots = new EngineeringPlot(&osm_frames, params);
+    EngineeringPlot *data_plots = new EngineeringPlot(&osm_frames, quantities);
     data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
     UpdatePlots(data_plots);
-    plot_palette->AddPlotTab(data_plots, params);
+    plot_palette->AddPlotTab(data_plots, {quantities.at(0).getName(), quantities.at(1).getName()});
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
@@ -2222,26 +2222,26 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_stop_frame->setText(QString::number(istop));
 }
 
-void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> params)
+void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<Quantity> quantities)
 {
     // Create and show the dialog
     QDialog *popoutDialog = new QDialog(this);
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
 
     // Embed the plotter in the dialog
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, params);
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, quantities);
 
     // need a better way to derive the plot identity besides using the tab index, since not 1:1
     // could use a list of pointers to engineering plots, housed in the plot palette ...
     // IDEA: use a simple mapping to identify the plot type and plot unit from the index of the plot tab
 
-    if (plot_palette->GetPlotTypeByTabId(Enums::getPlotTypeIndexFromString(params[0])) == Enums::PlotType::Azimuth)
+    if (plot_palette->GetPlotTypeByTabId(Enums::getPlotTypeIndexFromString(quantities.at(0).getName())) == Enums::PlotType::Azimuth)
     {
         dialogPlotter->copyStateFrom(*data_plots_azimuth);
 
         // syncronize by default (for now)
         data_plots_elevation->synchronizeXToMaster(dialogPlotter);
-    } else if (plot_palette->GetPlotTypeByTabId(Enums::getPlotTypeIndexFromString(params[0])) == Enums::PlotType::Elevation)
+    } else if (plot_palette->GetPlotTypeByTabId(Enums::getPlotTypeIndexFromString(quantities.at(0).getName())) == Enums::PlotType::Elevation)
     {
         dialogPlotter->copyStateFrom(*data_plots_elevation);
 
@@ -2254,7 +2254,7 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> par
 
     popoutDialogLayout->addWidget(dialogPlotter);
 
-    popoutDialog->setWindowTitle(params[0].replace('_',' ') + "Tab" + QString::number(tab_index));
+    popoutDialog->setWindowTitle(quantities.at(0).getName().replace('_',' ') + "Tab" + QString::number(tab_index));
     popoutDialog->setAttribute(Qt::WA_DeleteOnClose);
     popoutDialog->resize(plot_palette->width(), plot_palette->height());
     popoutDialog->show();

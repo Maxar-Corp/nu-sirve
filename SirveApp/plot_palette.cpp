@@ -93,6 +93,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     QAction *editBanner = contextMenu.addAction("Edit Banner");
     QMenu *plotOptions = contextMenu.addMenu("Plot Options ");
     QAction *plotOptions1 = plotOptions->addAction("Linear/Log");
+
     //QAction *plotOptions2 = plotOptions->addAction("Decimal/Scientific");
 
     // Show the menu at the cursor position
@@ -105,7 +106,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         setTabVisible(tabIndex,false);
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
-        emit popoutPlot(tabIndex, {Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), "Frames"}); // TO DO: Generalize the 'Frames'
+        emit popoutPlot(tabIndex, {Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)}); // TO DO: Generalize the 'Frames'
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
     } else if (selectedAction == plotOptions1) {
@@ -118,9 +119,9 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     }
 }
 
-void PlotPalette::HandleDesignerParamsSelected(const std::vector<QString> &strings)
+void PlotPalette::HandleDesignerParamsSelected(std::vector<Quantity> &quantities)
 {
-    emit paletteParamsSelected(strings);
+    emit paletteParamsSelected(quantities);
 }
 
 void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)

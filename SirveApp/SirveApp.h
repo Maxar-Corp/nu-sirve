@@ -261,10 +261,10 @@ signals:
         void HandleAnnotationDialogClosed();
         void HandleProcessingStatesCleared();
 
-        void OpenPopoutEngineeringPlot(int tab_index, std::vector<QString> params);
+        void OpenPopoutEngineeringPlot(int tab_index, std::vector<Quantity> quantities);
         void ClosePopoutEngineeringPlot();
 
-        void HandleParamsSelected(const std::vector<QString> &strings);
+        void HandleParamsSelected(std::vector<Quantity> &quantities);
 
 private:
 	ColorMap video_colors;

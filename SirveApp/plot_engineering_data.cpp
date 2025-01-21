@@ -5,14 +5,14 @@
 #include "enums.h"
 #include "SirveApp.h"
 
-EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<QString> params) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<Quantity> quantities) : JKQTPlotter()
 {
     osm_frames_ref = osm_frames;
 
     plot_classification = "EDIT CLASSIFICATION";
-    my_params = params;
-    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[0]));
-    plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(params[1]));
+    my_quantities = quantities;
+    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(0).getName()));
+    plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(1).getName()));
     num_frames = static_cast<unsigned int>(osm_frames->size());
 
     EngineeringData *engineeringData = new EngineeringData(osm_frames);
@@ -110,7 +110,7 @@ void EngineeringPlot::PlotChart()
         func_y = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
     }
 
-    PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_params[0]);
+    PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
     PlotSirveTracks();
 
     this->getPlotter()->setPlotLabel(plot_classification);
@@ -149,8 +149,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         QVector<double> Y(y_values.begin(), y_values.end());
 
         // make data available to JKQTPlotter by adding it to the internal datastore.
-        size_t columnX=ds->addCopiedColumn(X, "x");
-        size_t columnY=ds->addCopiedColumn(Y, "y");
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
         // create a graph in the plot, which plots the dataset X/Y:
         graph=new JKQTPXYLineGraph(this);
@@ -166,9 +166,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         // add the graph to the plot, so it is actually displayed
         this->addGraph(graph);
 
-        // set some axis properties (we use LaTeX for nice equation rendering)
-        this->getXAxis()->setAxisLabel(my_params[1].replace('_', ' '));
-        this->getYAxis()->setAxisLabel(my_params[0].replace('_', ' '));
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
+        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
@@ -338,9 +337,9 @@ double EngineeringPlot::get_max_x_axis_value()
     }
 }
 
-std::vector<QString> EngineeringPlot::get_params()
+std::vector<Quantity> EngineeringPlot::get_params()
 {
-    return my_params;
+    return my_quantities;
 }
 
 void EngineeringPlot::InitializeFrameLine(double frameline_x)

@@ -22,6 +22,7 @@
 #include "data_structures.h"
 #include "enums.h"
 #include "tracks.h"
+#include "quantity.h"
 
 #include "jkqtplotter/jkqtplotter.h"
 #include "jkqtplotter/graphs/jkqtplines.h"
@@ -31,7 +32,7 @@ class EngineeringPlot : public JKQTPlotter
     Q_OBJECT
 public:
 
-    EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<QString> params);
+    EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<Quantity> quantities);
     ~EngineeringPlot();
 
     void AddTransparentLabel();
@@ -82,7 +83,7 @@ public:
 
     //void set_xaxis_units(Enums::PlotUnit unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
-    std::vector<QString> get_params();
+    std::vector<Quantity> get_params();
 
 signals:
     void changeMotionStatus(bool status);
@@ -104,7 +105,7 @@ private:
     QString plot_classification;
     double fixed_max_y;
     size_t frameLineColumnX;
-    std::vector<QString> my_params;
+    std::vector<Quantity> my_quantities;
     std::map<int, QColor> manual_track_colors;
     std::vector<ManualPlottingTrackFrame> manual_track_frames;
     std::set<int> manual_track_ids;

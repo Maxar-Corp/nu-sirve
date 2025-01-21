@@ -32,15 +32,15 @@ private:
 
 signals:
     void editClassification(int tab_index, QString current_value);
-    void popoutPlot(int tab_index, std::vector<QString> params);
+    void popoutPlot(int tab_index, std::vector<Quantity> quantities);
     void popinPlot(int plotType);
-    void paletteParamsSelected(const std::vector<QString> &strings);
+    void paletteParamsSelected(std::vector<Quantity> &quantities);
 
 private slots:
     void HandleTabRightClicked(const QPoint &pos);
 
 public slots:
-    void HandleDesignerParamsSelected(const std::vector<QString> &strings);
+    void HandleDesignerParamsSelected(std::vector<Quantity> &quantities);
 
 };
 

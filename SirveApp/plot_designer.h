@@ -1,7 +1,9 @@
 #ifndef PLOT_DESIGNER_H
 #define PLOT_DESIGNER_H
 
+#include "qcombobox.h"
 #include "qlistwidget.h"
+#include "quantity.h"
 #include <QWidget>
 #include <QDialog>
 
@@ -18,7 +20,7 @@ public:
     void AddCheckableItemsByIndex(int index, QStringList items);
 
 signals:
-    void designerParamsSelected(const std::vector<QString> &strings);
+    void designerParamsSelected(std::vector<Quantity> &quantities);
 
 public slots:
     void accept() override;
@@ -32,6 +34,9 @@ private:
 
     QListWidget *listWidget1;
     QListWidget *listWidget2;
+
+    QComboBox *unitsBox1;
+    QComboBox *unitsBox2;
 
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
 };

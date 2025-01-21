@@ -6,19 +6,31 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include "enums.h"
 #include "plot_designer.h"
-#include "qlineedit.h"
+#include "qcombobox.h"
 #include "qlistwidget.h"
+#include "quantity.h"
+
+void populateComboBox(QComboBox* comboBox) {
+    for (int i = 0; i <= static_cast<int>(Enums::PlotUnit::None); ++i) {
+        Enums::PlotUnit value = static_cast<Enums::PlotUnit>(i);
+        comboBox->addItem(Enums::plotUnitToString(Enums::getPlotUnitTypeByIndex(i)), QVariant::fromValue(value));
+    }
+}
 
 PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Plot Designer");
 
     // Create the editable textboxes with placeholder text
-    QLineEdit *editBox1 = new QLineEdit(this);
-    editBox1->setPlaceholderText("Enter Y-Axis Label...");
+    unitsBox1 = new QComboBox(this);
+    unitsBox1->setPlaceholderText("Choose Y-Axis Units...");
 
-    QLineEdit *editBox2 = new QLineEdit(this);
-    editBox2->setPlaceholderText("Enter X-Axis Label...");
+    unitsBox2 = new QComboBox(this);
+    unitsBox2->setPlaceholderText("Choose X-Axis Units...");
+
+    populateComboBox(unitsBox1);
+    populateComboBox(unitsBox2);
 
     // Create the list widgets
     listWidget1 = new QListWidget(this);
@@ -30,9 +42,9 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
 
     // Layout the widgets
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(editBox1);
+    layout->addWidget(unitsBox1);
     layout->addWidget(listWidget1);
-    layout->addWidget(editBox2);
+    layout->addWidget(unitsBox2);
     layout->addWidget(listWidget2);
     layout->addWidget(closeButton);
 
@@ -57,15 +69,15 @@ void PlotDesigner::AddCheckableItemsByIndex(int index, QStringList items)
 
 void PlotDesigner::accept() {
     // Gather strings from the two list widgets
-    std::vector<QString> quantity_pair;
+    std::vector<Quantity> quantity_pair;
     for (int i = 0; i < listWidget1->count(); ++i) {
         if (listWidget1->item(i)->checkState() == Qt::Checked)
-            quantity_pair.push_back(listWidget1->item(i)->text());
+            quantity_pair.push_back(Quantity(listWidget1->item(i)->text(), Enums::getPlotUnitTypeByIndex(unitsBox1->currentIndex())));
     }
 
     for (int i = 0; i < listWidget2->count(); ++i) {
         if (listWidget2->item(i)->checkState() == Qt::Checked)
-            quantity_pair.push_back(listWidget2->item(i)->text());
+            quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitTypeByIndex(unitsBox2->currentIndex())));
     }
 
     emit designerParamsSelected(quantity_pair);
