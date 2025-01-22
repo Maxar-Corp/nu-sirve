@@ -2,7 +2,7 @@
 
 OSMReader::OSMReader()
 {
-	location_from_file = false;
+    location_from_file = false;
 }
 
 OSMReader::~OSMReader()
@@ -11,41 +11,41 @@ OSMReader::~OSMReader()
 
 std::vector<Frame> OSMReader::ReadOsmFileData(QString path)
 {
-	QByteArray array = path.toLocal8Bit();
-	const char* buffer = array.constData();
-	
-    return LoadFrameVectors(buffer, false);
+    QByteArray array = path.toLocal8Bit();
+    const char* buffer = array.constData();
+
+    return LoadFrameVectors(buffer, true);
 }
 
 std::vector<Frame> OSMReader::LoadFrameVectors(const char *file_path, bool input_combine_tracks)
 {
-	std::vector<Frame> data = std::vector<Frame>();
+    std::vector<Frame> data = std::vector<Frame>();
 
     errno_t err = fopen_s(&fp, file_path, "rb");
 
-	if (err != 0) {
-		return data;
-	}
+    if (err != 0) {
+        return data;
+    }
 
-	frame_time.clear();
+    frame_time.clear();
 
-	uint32_t num_messages = 0;
-	num_messages = FindMessageNumber();
-	data = LoadData(num_messages, input_combine_tracks);
+    uint32_t num_messages = 0;
+    num_messages = FindMessageNumber();
+    data = LoadData(num_messages, input_combine_tracks);
     fclose(fp);
 
-	if (data.size() < num_messages) {
-		return std::vector<Frame>();
-	}
+    // if (data.size() < num_messages) {
+    //     return std::vector<Frame>();
+    // }
 
-	location_from_file = false;
+    location_from_file = false;
 
     return data;
 }
 
 uint32_t OSMReader::FindMessageNumber()
 {
-	uint32_t num_messages = 0;
+    uint32_t num_messages = 0;
     int number_iterations = 0;
     long int seek_position, current_p, current_p1, current_p2;
     size_t status_code;
@@ -59,15 +59,15 @@ uint32_t OSMReader::FindMessageNumber()
         if (status_code == num_header_values && header[2]) {
             num_messages++;
 
-			current_p = ftell(fp);
+            current_p = ftell(fp);
             seek_position = 92 - 24;
             status_code = fseek(fp, seek_position, SEEK_CUR);
 
-			current_p1 = ftell(fp);
+            current_p1 = ftell(fp);
             uint32_t data[2];
             status_code = ReadMultipleValues(data, true);
-			
-			current_p2 = ftell(fp);
+
+            current_p2 = ftell(fp);
             double value = data[0] + data[1] * 1e-6;
             frame_time.push_back(value);
 
@@ -82,81 +82,67 @@ uint32_t OSMReader::FindMessageNumber()
         number_iterations++;
     }
 
-	return num_messages;
+    return num_messages;
 }
 
 std::vector<Frame> OSMReader::LoadData(uint32_t num_messages, bool combine_tracks)
 {
-	std::vector<Frame> data = std::vector<Frame>();
+    std::vector<Frame> data = std::vector<Frame>();
 
     if (combine_tracks) {
-		arma::vec frame_time_vec(frame_time);
-		arma::vec diff = arma::diff(frame_time_vec);
-		arma::uvec index = arma::find(diff != 0);
-		data.reserve(index.n_elem);
+        arma::vec frame_time_vec(frame_time);
+        arma::vec diff = arma::diff(frame_time_vec);
+        arma::uvec index = arma::find(diff != 0);
+        data.reserve(index.n_elem);
     }
     else {
-		data.reserve(num_messages);
+        data.reserve(num_messages);
     }
 
     fseek(fp, 0, SEEK_SET);
 
     for (int i = 0; i < num_messages; i++)
     {
+
+        Frame current_frame;
+
+        current_frame.msg_header = ReadMessageHeader();
+        if (current_frame.msg_header.size < 0)
+            return std::vector<Frame>();
+
+        current_frame.frame_header = ReadFrameHeader();
+        current_frame.data = ReadFrameData();
+
+        if (current_frame.data.ecf.size() == 0)
+            return std::vector<Frame>();
+
         bool valid_step = i == 0 || frame_time[i] - frame_time[i - 1] != 0 || !combine_tracks;
         if (valid_step) {
-
-            Frame current_frame;
-
-            current_frame.msg_header = ReadMessageHeader();
-			if (current_frame.msg_header.size < 0)
-				return std::vector<Frame>();
-
-
-            current_frame.frame_header = ReadFrameHeader();
-            current_frame.data = ReadFrameData();
-
-			if (current_frame.data.ecf.size() == 0)
-				return std::vector<Frame>();
-			
             data.push_back(current_frame);
         }
         else
         {
-			AddTrackToLastFrame(data);
+            if (data.size() >= 1) {
+                data[data.size() - 1].data.num_tracks += 1;
+                data[data.size() - 1].data.track_data.push_back(current_frame.data.track_data[0]); // Change the next-to-last element
+            }
         }
     }
 
-	return data;
-}
-
-void OSMReader::AddTrackToLastFrame(std::vector<Frame> &data)
-{
-    //TODO: Verify that adding a track to last frame works correctly.
-
-    Frame last_frame = data.back();
-    uint32_t start_track_index = last_frame.data.num_tracks;
-
-    last_frame.data.num_tracks += ReadValue<uint32_t>(true);
-
-    for (uint32_t j = start_track_index; j < last_frame.data.num_tracks; j++)
-    {
-		TrackData current_track = GetTrackData(last_frame.data);
-        last_frame.data.track_data.push_back(current_track);
-    }
+    return data;
 }
 
 std::vector<double> OSMReader::CalculateLatLonAltVector(std::vector<double> ecf)
 {
-	
-	arma::vec ecf_vector(ecf);
-	ecf_vector = ecf_vector / 1000;
 
-	arma::vec lla = earth::ECFtoLLA(ecf_vector.subvec(0, 2));
+    arma::vec ecf_vector(ecf);
+    ecf_vector = ecf_vector / 1000;
 
-	std::vector<double> out = arma::conv_to<std::vector<double>>::from(lla);
-	out[2] *= 1000;
-	return out;
+    arma::vec lla = earth::ECFtoLLA(ecf_vector.subvec(0, 2));
+
+    std::vector<double> out = arma::conv_to<std::vector<double>>::from(lla);
+    out[2] *= 1000;
+    return out;
 }
 
 MessageHeader OSMReader::ReadMessageHeader()
@@ -165,13 +151,13 @@ MessageHeader OSMReader::ReadMessageHeader()
     uint64_t nano_seconds = ReadValue<uint64_t>();
     uint64_t tsize = ReadValue<uint64_t>();
 
-	MessageHeader current_message;
+    MessageHeader current_message;
     if (tsize < kSMALL_NUMBER)
-	{
-		current_message.size = -1;
-		return current_message;
+    {
+        current_message.size = -1;
+        return current_message;
     }
-   
+
     current_message.seconds = seconds + nano_seconds * 1e-9;
     current_message.size = tsize;
 
@@ -214,44 +200,44 @@ FrameData OSMReader::ReadFrameData()
     data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
 
     data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
-	double modified_julian_date = data.julian_date + 0.5;
-	int midnight_julian = std::floor(modified_julian_date);
-	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
+    double modified_julian_date = data.julian_date + 0.5;
+    int midnight_julian = std::floor(modified_julian_date);
+    data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
 
     data.mrp = ReadMultipleDoubleValues(3, true);
     data.mrp_cov_rand = ReadMultipleDoubleValues(6, true);
     data.mrp_cov_bias = ReadMultipleDoubleValues(6, true);
 
-	//-----------------------------------------------------------------------------------------------------------------
-	data.ecf = ReadMultipleDoubleValues(6, true);
+    //-----------------------------------------------------------------------------------------------------------------
+    data.ecf = ReadMultipleDoubleValues(6, true);
 
     double sum = data.ecf[0] + data.ecf[1] + data.ecf[2] + data.ecf[3] + data.ecf[4] + data.ecf[5];
 
-	if (sum < kSMALL_NUMBER)
-	{
-		if (location_from_file)
-		{
-			data.ecf = file_ecef_vector;
-		}
-		else
-		{
-			LocationInput get_location_file;
-			auto response = get_location_file.exec();
-			location_from_file = true;
-			
-			if (response && get_location_file.path_set)
-			{
-				file_ecef_vector = get_location_file.GetECEFVector();
-			}
-			else
-			{
-				FrameData bad_input;
-				location_from_file = false;
-				return bad_input;
-			}
-		}
-	}
-	//-----------------------------------------------------------------------------------------------------------------
+    if (sum < kSMALL_NUMBER)
+    {
+        if (location_from_file)
+        {
+            data.ecf = file_ecef_vector;
+        }
+        else
+        {
+            LocationInput get_location_file;
+            auto response = get_location_file.exec();
+            location_from_file = true;
+
+            if (response && get_location_file.path_set)
+            {
+                file_ecef_vector = get_location_file.GetECEFVector();
+            }
+            else
+            {
+                FrameData bad_input;
+                location_from_file = false;
+                return bad_input;
+            }
+        }
+    }
+    //-----------------------------------------------------------------------------------------------------------------
 
     data.lla = CalculateLatLonAltVector(data.ecf);
 
@@ -260,13 +246,13 @@ FrameData OSMReader::ReadFrameData()
     data.i_fov_x = ReadValue<double>(true);
     data.i_fov_y = ReadValue<double>(true);
     data.num_tracks = ReadValue<uint32_t>(true);
-	
+
     std::vector<double> az_el_boresight = CalculateAzimuthElevation(0, 0, data);
-	data.az_el_boresight = az_el_boresight;
+    data.az_el_boresight = az_el_boresight;
 
     for (uint32_t j = 0; j < data.num_tracks; j++)
     {
-		TrackData current_track = GetTrackData(data);
+        TrackData current_track = GetTrackData(data);
         data.track_data.push_back(current_track);
     }
 
@@ -277,7 +263,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
 {
     TrackData current_track;
 
-	current_track.track_id = ReadValue<uint32_t>(true);
+    current_track.track_id = ReadValue<uint32_t>(true);
     current_track.sensor_type = ReadValue<uint32_t>(true);
 
     uint32_t num_bands = ReadValue<uint32_t>(true);
@@ -330,7 +316,7 @@ TrackData OSMReader::GetTrackData(FrameData & input)
     current_track.centroid_variance_y = ReadValue<double>(true);
 
     std::vector<double> az_el_track = CalculateAzimuthElevation(current_track.centroid_x, current_track.centroid_y, input);
-	current_track.az_el_track = az_el_track;
+    current_track.az_el_track = az_el_track;
 
     current_track.covariance = ReadValue<double>(true);
 
@@ -342,85 +328,85 @@ TrackData OSMReader::GetTrackData(FrameData & input)
 
 std::vector<double> OSMReader::CalculateDirectionCosineMatrix(std::vector<double> input)
 {
-	
-	arma::vec mr(input);
 
-	double sig = 1. - arma::accu(arma::square(mr));
-	double norm = 1. / std::pow(1 - sig, 2);
-	double sig2 = std::pow(sig, 2);
+    arma::vec mr(input);
 
-	double mr02, mr12, mr22;
-	mr02 = mr(0) * mr(0);
-	mr12 = mr(1) * mr(1);
-	mr22 = mr(2) * mr(2);
-	
-	
-	arma::mat dcos(3, 3);
-	dcos(0, 0) = 4 * (mr02 - mr12 - mr22) + sig2;
-	dcos(0, 1) = 8 * mr(0)*mr(1) + 4 * mr(2)*sig;
-	dcos(0, 2) = 8 * mr(0)*mr(2) - 4 * mr(1)*sig;
+    double sig = 1. - arma::accu(arma::square(mr));
+    double norm = 1. / std::pow(1 - sig, 2);
+    double sig2 = std::pow(sig, 2);
 
-	dcos(1, 0) = 8 * mr(0)*mr(1) - 4 * mr(2)*sig;
-	dcos(1, 1) = 4 * (-mr02 + mr12 - mr22) + sig2;
-	dcos(1, 2) = 8 * mr(1)*mr(2) + 4 * mr(0)*sig;
+    double mr02, mr12, mr22;
+    mr02 = mr(0) * mr(0);
+    mr12 = mr(1) * mr(1);
+    mr22 = mr(2) * mr(2);
 
-	dcos(2, 0) = 8 * mr(0)*mr(2) + 4 * mr(1)*sig;
-	dcos(2, 1) = 8 * mr(1)*mr(2) - 4 * mr(0)*sig;
-	dcos(2, 2) = 4 * (-mr02 - mr12 + mr22) + sig2;
 
-	dcos = norm * dcos;
+    arma::mat dcos(3, 3);
+    dcos(0, 0) = 4 * (mr02 - mr12 - mr22) + sig2;
+    dcos(0, 1) = 8 * mr(0)*mr(1) + 4 * mr(2)*sig;
+    dcos(0, 2) = 8 * mr(0)*mr(2) - 4 * mr(1)*sig;
 
-	//sig = 1 - mr'*mr;
-	//norm = 1 / (1 + mr'*mr)^2;
-	//dcos = norm * [4 * (mr(1) ^ 2 - mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(1)*mr(2) + 4 * mr(3)*sig     8 * mr(1)*mr(3) - 4 * mr(2)*sig
-	//	8 * mr(1)*mr(2) - 4 * mr(3)*sig         4 * (-mr(1) ^ 2 + mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(2)*mr(3) + 4 * mr(1)*sig
-	//	8 * mr(1)*mr(3) + 4 * mr(2)*sig         8 * mr(2)*mr(3) - 4 * mr(1)*sig            4 * (-mr(1) ^ 2 - mr(2) ^ 2 + mr(3) ^ 2) + sig ^ 2];
-	
-	arma::vec temp = arma::conv_to<arma::vec>::from(arma::vectorise(dcos));
-	std::vector<double> out = arma::conv_to<std::vector<double>>::from(temp);
+    dcos(1, 0) = 8 * mr(0)*mr(1) - 4 * mr(2)*sig;
+    dcos(1, 1) = 4 * (-mr02 + mr12 - mr22) + sig2;
+    dcos(1, 2) = 8 * mr(1)*mr(2) + 4 * mr(0)*sig;
 
-	return out;
+    dcos(2, 0) = 8 * mr(0)*mr(2) + 4 * mr(1)*sig;
+    dcos(2, 1) = 8 * mr(1)*mr(2) - 4 * mr(0)*sig;
+    dcos(2, 2) = 4 * (-mr02 - mr12 + mr22) + sig2;
+
+    dcos = norm * dcos;
+
+    //sig = 1 - mr'*mr;
+    //norm = 1 / (1 + mr'*mr)^2;
+    //dcos = norm * [4 * (mr(1) ^ 2 - mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(1)*mr(2) + 4 * mr(3)*sig     8 * mr(1)*mr(3) - 4 * mr(2)*sig
+    //	8 * mr(1)*mr(2) - 4 * mr(3)*sig         4 * (-mr(1) ^ 2 + mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(2)*mr(3) + 4 * mr(1)*sig
+    //	8 * mr(1)*mr(3) + 4 * mr(2)*sig         8 * mr(2)*mr(3) - 4 * mr(1)*sig            4 * (-mr(1) ^ 2 - mr(2) ^ 2 + mr(3) ^ 2) + sig ^ 2];
+
+    arma::vec temp = arma::conv_to<arma::vec>::from(arma::vectorise(dcos));
+    std::vector<double> out = arma::conv_to<std::vector<double>>::from(temp);
+
+    return out;
 }
 
 std::vector<double> OSMReader::CalculateAzimuthElevation(int x_pixel, int y_pixel, FrameData & input)
 {
-	std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y, false);
-	return results;
+    std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm, input.i_fov_x, input.i_fov_y, false);
+    return results;
 }
 
 double OSMReader::CalculateGpsUtcJulianDate(double offset_gps_seconds)
 {
-	
-	//Load leap seconds file organized as year, month, day
-	arma::mat leap_seconds_matrix;
-	leap_seconds_matrix.load("config/year_month_leap_seconds.txt", arma::raw_ascii);
 
-	//Store leap seconds as julian date
-	int num_entries = leap_seconds_matrix.n_rows;
-	arma::vec julian_date_leap_seconds(num_entries);
+    //Load leap seconds file organized as year, month, day
+    arma::mat leap_seconds_matrix;
+    leap_seconds_matrix.load("config/year_month_leap_seconds.txt", arma::raw_ascii);
 
-	//Convert dates that leap seconds occurred to julian dates
-	for(int i = 0;  i < num_entries; i++)
-	{
-		double julian_date = jtime::JulianDate(leap_seconds_matrix(i, 0), leap_seconds_matrix(i, 1), leap_seconds_matrix(i, 2), 0, 0, 0);
-		julian_date_leap_seconds(i) = julian_date;
-	}
+    //Store leap seconds as julian date
+    int num_entries = leap_seconds_matrix.n_rows;
+    arma::vec julian_date_leap_seconds(num_entries);
 
-	// The last date that UTC and GPS time were aligned
-	double base = jtime::JulianDate(1980, 1, 6, 0, 0, 0);
-	arma::vec modified_julian_date_leap_seconds = julian_date_leap_seconds - base;
+    //Convert dates that leap seconds occurred to julian dates
+    for(int i = 0;  i < num_entries; i++)
+    {
+        double julian_date = jtime::JulianDate(leap_seconds_matrix(i, 0), leap_seconds_matrix(i, 1), leap_seconds_matrix(i, 2), 0, 0, 0);
+        julian_date_leap_seconds(i) = julian_date;
+    }
 
-	// Find the number of leap seconds for a given date
-	arma::uvec index_number_leap_seconds = arma::find(offset_gps_seconds / 86400. >= modified_julian_date_leap_seconds);
-	unsigned int number_leap_seconds = index_number_leap_seconds.n_rows;
+    // The last date that UTC and GPS time were aligned
+    double base = jtime::JulianDate(1980, 1, 6, 0, 0, 0);
+    arma::vec modified_julian_date_leap_seconds = julian_date_leap_seconds - base;
 
-	// Adjust gps time
-	double day_offset = (offset_gps_seconds - number_leap_seconds) / 86400.;
+    // Find the number of leap seconds for a given date
+    arma::uvec index_number_leap_seconds = arma::find(offset_gps_seconds / 86400. >= modified_julian_date_leap_seconds);
+    unsigned int number_leap_seconds = index_number_leap_seconds.n_rows;
 
-	// Establish utc julian date
-	double utc_julian_date = base + day_offset;
+    // Adjust gps time
+    double day_offset = (offset_gps_seconds - number_leap_seconds) / 86400.;
 
-	//arma::vec check = jtime::DateTime(utc_julian_date);
-	
-	return utc_julian_date;
+    // Establish utc julian date
+    double utc_julian_date = base + day_offset;
+
+    //arma::vec check = jtime::DateTime(utc_julian_date);
+
+    return utc_julian_date;
 }

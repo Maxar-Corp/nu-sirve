@@ -36,8 +36,6 @@ private:
 	std::vector<double> file_ecef_vector;
 	std::vector<double> frame_time;
 
-    void AddTrackToLastFrame(std::vector<Frame> &data);
-
     std::vector<double> CalculateAzimuthElevation(int x_pixel, int y_pixel, FrameData & input);
     std::vector<double> CalculateDirectionCosineMatrix(std::vector<double> input);
     double CalculateGpsUtcJulianDate(double offset_gps_seconds);
