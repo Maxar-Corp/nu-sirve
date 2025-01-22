@@ -116,11 +116,15 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
 
-        std::vector<Quantity> quantity;
-        quantity.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
-        quantity.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
+        qDebug() << "tabIndex = " << tabIndex;
+        qDebug() << "PlotUnitByTabId = " << GetPlotUnitByTabId(tabIndex);
+        qDebug() << "PlotTypeByTabId = " << GetPlotTypeByTabId(tabIndex);
 
-        emit popoutPlot(tabIndex, quantity);
+        std::vector<Quantity> quantities;
+        quantities.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
+        quantities.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
+
+        emit popoutPlot(tabIndex, quantities);
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
     } else if (selectedAction == plotOptions1) {

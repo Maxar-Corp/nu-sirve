@@ -2231,13 +2231,13 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<Quantity> qu
     // could use a list of pointers to engineering plots, housed in the plot palette ...
     // IDEA: use a simple mapping to identify the plot type and plot unit from the index of the plot tab
 
-    if (plot_palette->GetPlotTypeByTabId(Enums::getPlotTypeIndexFromString(quantities.at(0).getName())) == Enums::PlotType::Azimuth)
+    if (Enums::getPlotTypeIndexFromString(quantities.at(0).getName()) == Enums::PlotType::Azimuth)
     {
         dialogPlotter->copyStateFrom(*data_plots_azimuth);
 
         // syncronize by default (for now)
         data_plots_elevation->synchronizeXToMaster(dialogPlotter);
-    } else if (plot_palette->GetPlotTypeByTabId(Enums::getPlotTypeIndexFromString(quantities.at(0).getName())) == Enums::PlotType::Elevation)
+    } else if (Enums::getPlotTypeIndexFromString(quantities.at(0).getName()) == Enums::PlotType::Elevation)
     {
         dialogPlotter->copyStateFrom(*data_plots_elevation);
 
