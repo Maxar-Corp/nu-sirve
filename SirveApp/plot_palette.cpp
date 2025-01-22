@@ -3,6 +3,7 @@
 #include "qcheckbox.h"
 #include "qlineedit.h"
 #include "qmenu.h"
+#include "quantity.h"
 #include "qwidgetaction.h"
 
 #include <map>
@@ -24,19 +25,24 @@ void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
     engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
 }
 
-void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QString> params)
+void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities)
 {
     QWidget *tab = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(tab);
     layout->addWidget(engineering_plot);
 
-    int plot_type_id = Enums::getPlotTypeIndexFromString(params[0]);
+    int plot_type_id = Enums::getPlotTypeIndexFromString(quantities[0].getName());
+    Enums::PlotUnit plot_unit = quantities[0].getUnit();
+
+    qDebug() << "plot_unit=" << Enums::plotUnitToString(plot_unit);
+
     int palette_tab_id = this->tabBar()->count();
 
-    // store the id of the plot in a map for lookup later when managing plots
+    // store the id and unit of the plot in a map for lookups later when managing plots
     tab_to_type[palette_tab_id] = plot_type_id;
+    tab_to_unit[palette_tab_id] = plot_unit;
 
-    this->QTabWidget::addTab(tab, params[0]);
+    this->QTabWidget::addTab(tab, quantities[0].getName());
 
     engineering_plot_ref.push_back(engineering_plot);
 }
@@ -44,6 +50,11 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<QStr
 Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
 {
     return Enums::getPlotTypeByIndex(tab_to_type[tab_id]);
+}
+
+Enums::PlotUnit PlotPalette::GetPlotUnitByTabId(int tab_id)
+{
+    return Enums::getPlotUnitByIndex(tab_to_unit[tab_id]);
 }
 
 void PlotPalette::HandleTabRightClicked(const QPoint &pos)
@@ -94,8 +105,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     QMenu *plotOptions = contextMenu.addMenu("Plot Options ");
     QAction *plotOptions1 = plotOptions->addAction("Linear/Log");
 
-    //QAction *plotOptions2 = plotOptions->addAction("Decimal/Scientific");
-
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
     if (!selectedAction)
@@ -106,7 +115,12 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         setTabVisible(tabIndex,false);
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
-        emit popoutPlot(tabIndex, {Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)}); // TO DO: Generalize the 'Frames'
+
+        std::vector<Quantity> quantity;
+        quantity.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
+        quantity.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
+
+        emit popoutPlot(tabIndex, quantity);
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
     } else if (selectedAction == plotOptions1) {

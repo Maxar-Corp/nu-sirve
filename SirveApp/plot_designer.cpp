@@ -15,7 +15,7 @@
 void populateComboBox(QComboBox* comboBox) {
     for (int i = 0; i <= static_cast<int>(Enums::PlotUnit::None); ++i) {
         Enums::PlotUnit value = static_cast<Enums::PlotUnit>(i);
-        comboBox->addItem(Enums::plotUnitToString(Enums::getPlotUnitTypeByIndex(i)), QVariant::fromValue(value));
+        comboBox->addItem(Enums::plotUnitToString(Enums::getPlotUnitByIndex(i)), QVariant::fromValue(value));
     }
 }
 
@@ -72,12 +72,12 @@ void PlotDesigner::accept() {
     std::vector<Quantity> quantity_pair;
     for (int i = 0; i < listWidget1->count(); ++i) {
         if (listWidget1->item(i)->checkState() == Qt::Checked)
-            quantity_pair.push_back(Quantity(listWidget1->item(i)->text(), Enums::getPlotUnitTypeByIndex(unitsBox1->currentIndex())));
+            quantity_pair.push_back(Quantity(listWidget1->item(i)->text(), Enums::getPlotUnitByIndex(unitsBox1->currentIndex())));
     }
 
     for (int i = 0; i < listWidget2->count(); ++i) {
         if (listWidget2->item(i)->checkState() == Qt::Checked)
-            quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitTypeByIndex(unitsBox2->currentIndex())));
+            quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitByIndex(unitsBox2->currentIndex())));
     }
 
     emit designerParamsSelected(quantity_pair);

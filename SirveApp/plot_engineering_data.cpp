@@ -269,25 +269,6 @@ std::vector<double> EngineeringPlot::get_individual_y_track_elevation(size_t i)
     return y_values;
 }
 
-// void EngineeringPlot::set_xaxis_units(Enums::PlotUnit unit_choice)
-// {
-//     x_axis_units = unit_choice;
-//     switch (x_axis_units)
-//     {
-//     case Enums::Frames:
-//         x_title = "Frame #";
-//         break;
-//     case Enums::Seconds_Past_Midnight:
-//         x_title = "Seconds Past Midnight";
-//         break;
-//     case Enums::Seconds_From_Epoch:
-//         x_title = "Seconds Past Epoch";
-//         break;
-//     default:
-//         break;
-//     }
-// }
-
 std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
 {
     switch (x_axis_units)
@@ -520,8 +501,8 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
     QVector<double> srcYData = srcDatastore->getData(1, &name1);
 
     // Step 3: Add the copied columns to the destination datastore (ds)
-    size_t dstXColumn = ds->addCopiedColumn(srcXData, "x");  // Add X data to destination datastore (ds)
-    size_t dstYColumn = ds->addCopiedColumn(srcYData, "y");  // Add Y data to destination datastore (ds)
+    size_t dstXColumn = ds->addCopiedColumn(srcXData, Enums::plotTypeToString(plotXType));  // Add X data to destination datastore (ds)
+    size_t dstYColumn = ds->addCopiedColumn(srcYData, Enums::plotTypeToString(plotYType));  // Add Y data to destination datastore (ds)
 
     // Step 4: Copy the graph configuration from the source to the destination plot
     this->clearGraphs();  // Clear existing graphs in the destination plotter
@@ -545,8 +526,11 @@ void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
         // Add the new graph to the destination plot
         this->addGraph(dstGraph);
 
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
-        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
+        qDebug() << other.get_my_quantities()[1].getUnit();
+        qDebug() << other.get_my_quantities()[0].getUnit();
+
+        this->getXAxis()->setAxisLabel(other.get_my_quantities()[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(other.get_my_quantities()[1].getUnit()) + ") ");
+        this->getYAxis()->setAxisLabel(other.get_my_quantities()[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(other.get_my_quantities()[0].getUnit()) + ") ");
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
     }

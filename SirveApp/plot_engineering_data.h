@@ -63,6 +63,10 @@ public:
         return ds;
     }
 
+    std::vector<Quantity> get_my_quantities() const {
+        return my_quantities;
+    }
+
     // Returns a const reference to the column data
     const QVector<double>& getColumn(size_t index) const;
 

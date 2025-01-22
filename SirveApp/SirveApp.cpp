@@ -1873,17 +1873,13 @@ void SirveApp::LoadOsmData()
     data_plots_irradiance = new EngineeringPlot(&osm_frames, {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     plot_palette = new PlotPalette();
-    plot_palette->AddPlotTab(data_plots_azimuth, {"Azimuth", "Frames"});
-    plot_palette->AddPlotTab(data_plots_elevation, {"Elevation", "Frames"});
-    plot_palette->AddPlotTab(data_plots_irradiance, {"Irradiance", "Frames"});
+    plot_palette->AddPlotTab(data_plots_azimuth, {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    plot_palette->AddPlotTab(data_plots_elevation, {Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    plot_palette->AddPlotTab(data_plots_irradiance, {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     osmDataLoaded = true;
 
-    // connect(btn_pause, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(btn_play, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(btn_reverse, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(btn_next_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(btn_prev_frame, &QPushButton::clicked, data_plots_azimuth, &EngineeringPlot::HandlePlayerButtonClick);
+    // Old VCR button connectors commented out.
 
     connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
@@ -1977,7 +1973,7 @@ void SirveApp::HandleParamsSelected(std::vector<Quantity> &quantities)
     EngineeringPlot *data_plots = new EngineeringPlot(&osm_frames, quantities);
     data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
     UpdatePlots(data_plots);
-    plot_palette->AddPlotTab(data_plots, {quantities.at(0).getName(), quantities.at(1).getName()});
+    plot_palette->AddPlotTab(data_plots, quantities);
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
@@ -3022,33 +3018,8 @@ void SirveApp::edit_bad_pixel_color()
 
 void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 {
-    // x - axis
-    // Index 0 - Frames
-    // Index 1 - Seconds from Midnight
-    // Index 2 - Seconds from Epoch
-
-    // y - axis
-    // Index 0 - Irradiance
-    // Index 1 - Azimuth
-    // Index 2 - Elevation
-
-    // int x_index = cmb_plot_xaxis->currentIndex();
-    // int y_index = cmb_plot_yaxis->currentIndex();
-
-    // Check that indices are all positive
     if (eng_data)
     {
-        //bool scientific_is_checked = rad_scientific->isChecked();
-        //bool log_is_checked = rad_log->isChecked();
-        //engineering_plot->toggle_yaxis_log(log_is_checked);
-
-        // For x-axis, use scientific notation here for 'irradiance' only (irradiance option is first combo box option):
-        //engineering_plot->toggle_yaxis_scientific(scientific_is_checked && cmb_plot_yaxis->currentIndex() == 0 );
-
-        // For y-axis, use fixed-point precision for 'seconds past' options only ('frame' option is first combo box option):
-        //engineering_plot->toggle_xaxis_fixed_pt(cmb_plot_xaxis->currentIndex() != 0);
-        //engineering_plot->set_xaxis_units(Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(engineering_plot->get_params()[1])));
-
         engineering_plot->PlotChart();
         engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
     }
