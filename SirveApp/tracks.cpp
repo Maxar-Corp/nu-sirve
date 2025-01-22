@@ -60,7 +60,7 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
         track_engineering_data[i].i_fov_y = osm_file_frames[i].data.i_fov_y;
 
         int number_tracks = osm_file_frames[i].data.num_tracks;
-
+        
         for (int track_index = 0; track_index < number_tracks; track_index++)
         {
             //This is the "ideal" representation of a track

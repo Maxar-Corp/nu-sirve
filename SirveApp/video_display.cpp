@@ -558,10 +558,22 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
-
+    // AutoTracking AutoTracker;
     std::vector<uint16_t> frame_std_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].begin(),
            this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].end()};  
-
+    
+    processingState & base_processing_state = this->container.processing_states[0];
+  
+    for (auto ii = 0; ii < this->container.processing_states.size(); ii++)
+    {
+        processingState & test_state = this->container.processing_states[ii];
+        if (test_state.method == ProcessingMethod::replace_bad_pixels)
+        {
+            base_processing_state = test_state;
+            break;
+        }
+            
+    }
     int nrows = this->container.processing_states[this->container.current_idx].details.y_pixels;
     int ncols = this->container.processing_states[this->container.current_idx].details.x_pixels;       
 
@@ -601,7 +613,9 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
-    details.irradiance =  static_cast<uint32_t>(sum_counts[0]);
+    cv::Rect ROI2(minx + xCorrection,miny + yCorrection,ROI_width,ROI_height);
+    VideoDetails & base_processing_state_details =  base_processing_state.details;
+    details.irradiance =  IrradianceCountsCalc::ComputeIrradiance(this->counter, ROI_height/2, ROI_width/2, details.centroid_x, details.centroid_y, base_processing_state_details);
     details.ROI_x = minx + xCorrection;
     details.ROI_y = miny + yCorrection;
     details.ROI_Width = ROI_width;

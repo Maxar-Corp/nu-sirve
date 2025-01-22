@@ -43,6 +43,8 @@
 #include "annotation_info.h"
 #include "video_display_zoom.h"
 #include "tracks.h"
+#include "auto_tracking.h"
+#include "shared_scientific_functions.h"
 
 class VideoDisplay : public QWidget
 {
@@ -219,8 +221,7 @@ private:
     void HandleFrameAdvanceAmtEntry(const QString &text);
     void ResetCreateTrackMinAndMaxFrames();
     void UpdateCreateTrackLabel();
-    void UpdateDisplayFrame();
-
+    void UpdateDisplayFrame();     
     QString GetZuluTimeString(double seconds_midnight);
     QRectF GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height);
 };

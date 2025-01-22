@@ -14,7 +14,6 @@
 #include "video_container.h"
 #include "video_details.h"
 #include "process_file.h"
-#include "non_uniformity_correction.h"
 #include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"

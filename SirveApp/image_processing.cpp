@@ -157,7 +157,6 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length
         frame_data.col(i) = arma::conv_to<arma::vec>::from(input_pixels[i]);
     }
 
-    arma::mat frame_data_t = frame_data.t();
     arma::mat MAD(num_pixels, num_video_frames);
     arma::mat moving_median(num_pixels, num_video_frames); 
     arma::umat OUTL(num_pixels, num_video_frames);
@@ -378,8 +377,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
     int start_frame_new = abs(start_frame)+N2;
 
     for (int i = 0; i < num_video_frames; i++) {
-        // UpdateProgressBar(std::round(i/3));
-		// QCoreApplication::processEvents();
         frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
         if (cancel_operation)
 		{
@@ -387,13 +384,11 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 		}
     }
 
-    // int j0 = round(num_video_frames/3);
     arma::rowvec M = arma::max(frame_data,0);
 
 	arma::mat moving_median(num_pixels, num_video_frames);
 	for (int j = 0; j < num_video_frames; j++)
 	{
-        // UpdateProgressBar(std::round(j0 + j/3));
         UpdateProgressBar(std::round(j));
 		QCoreApplication::processEvents();
         if (cancel_operation)
@@ -408,11 +403,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 
 	frame_data -= arma::shift(moving_median,-start_frame,1);
 	arma::vec frame_vector(num_pixels,1);
-    // int k0 = round(2*num_video_frames/3);
 	std::vector<std::vector<uint16_t>> frames_out;
     for (int k = 0; k < num_video_frames; k++){	
-        // UpdateProgressBar(std::round(k0 + k/3));
-        // QCoreApplication::processEvents();
         if (cancel_operation)
         {
             return std::vector<std::vector<uint16_t>>();
@@ -477,7 +469,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDe
 			return std::vector<std::vector<uint16_t>>();
 		}
         L = perform_thresholding(M - S - muinv*Y, mu);
-        S = apply_soft_threshold(M - L + muinv*Y, lambda_mu);
+        S = apply_shrinkage_operator(M - L + muinv*Y, lambda_mu);
         Y = Y + mu*(M - L - S);
         minimization_quantity = arma::norm(M - L - S,"fro");
         if(minimization_quantity <= convg_val){
@@ -513,13 +505,13 @@ arma::mat ImageProcessing::perform_thresholding(arma::mat X, double tau)
     arma::mat V;
     arma::svd_econ(U,s,V,X);
     arma::mat S = arma::diagmat(s);
-    arma::mat ST = apply_soft_threshold(S ,tau);
+    arma::mat ST = apply_shrinkage_operator(S ,tau);
     arma:: mat D = U * ST * V.t();
 
     return D;
 }
 
-arma::mat ImageProcessing::apply_soft_threshold(arma::mat s, double tau)
+arma::mat ImageProcessing::apply_shrinkage_operator(arma::mat s, double tau)
 {
     arma::mat z(s);
     arma::mat st = arma::sign(s) % arma::max(arma::abs(s)-tau, z.zeros());
