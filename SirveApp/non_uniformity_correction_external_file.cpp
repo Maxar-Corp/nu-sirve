@@ -99,16 +99,12 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
 
     //frame_layout->addWidget(plot_data->chart_view);
 
-    plot_data->toggle_yaxis_log(true);
-    //plot_data->PlotChart(false);
-
     btn_load_frames->setEnabled(true);    
     
 }
 
 void ExternalNUCInformationWidget::getFrames()
 {
-    
     // get total number of frames
     int num_messages = osm_frames.size();
 

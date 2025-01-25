@@ -1135,14 +1135,6 @@ void SirveApp::SetupPlotFrame() {
     rad_log = new QRadioButton("Log");
     rad_linear = new QRadioButton("Linear");
 
-    //QButtonGroup data_plot_yformat, data_plot_yloglinear;
-    // data_plot_yformat = new QButtonGroup();
-    // data_plot_yloglinear = new QButtonGroup();
-    // data_plot_yformat->addButton(rad_decimal);
-    // data_plot_yformat->addButton(rad_scientific);
-    // data_plot_yloglinear->addButton(rad_log);
-    // data_plot_yloglinear->addButton(rad_linear);
-
     // set layout for engineering plots tab
     QWidget* widget_plots_tab_color = new QWidget();
     QVBoxLayout* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
@@ -1317,34 +1309,6 @@ void SirveApp::HandleExternalFileToggle()
         txt_FNS_start_frame->setEnabled(true);
     }
 }
-
-void SirveApp::HandleYAxisChange()
-{
-    // if(cmb_plot_yaxis->currentIndex()==0){
-    //     rad_scientific->setChecked(true);
-    // }
-    // else{
-    //     rad_decimal->setChecked(true);
-    // }
-    // yAxisChanged=true;
-    // //UpdatePlots();
-}
-
-void SirveApp::HandleXAxisOptionChange()
-{
-    // if (data_plots != NULL)
-    // {
-    //     double ymax = data_plots->yaxis_is_log ? data_plots->axis_ylog->max() : data_plots->axis_y->max();
-    //     double ymin = data_plots->yaxis_is_log ? data_plots->axis_ylog->min() : data_plots->axis_y->min();
-    //     UpdatePlots();
-
-    //     if (ymin > 0 && ymax > 0)
-    //     {
-    //         data_plots->set_yaxis_limits(ymin, ymax);
-    //     }
-    // }
-}
-
 
 void SirveApp::ImportTracks()
 {

@@ -352,21 +352,6 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
     }
 }
 
-void EngineeringPlot::toggle_yaxis_log(bool input)
-{
-    // yaxis_is_log = input;
-}
-
-void EngineeringPlot::toggle_yaxis_scientific(bool input)
-{
-    // yaxis_is_scientific = input;
-}
-
-void EngineeringPlot::toggle_xaxis_fixed_pt(bool input)
-{
-    // xaxis_is_fixed_pt = input;
-}
-
 void EngineeringPlot::SetPlotClassification(QString classification)
 {
     plot_classification = classification;

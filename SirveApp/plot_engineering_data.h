@@ -81,10 +81,6 @@ public:
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
 
-    void toggle_yaxis_log(bool input);
-    void toggle_yaxis_scientific(bool input);
-    void toggle_xaxis_fixed_pt(bool input);
-
     //void set_xaxis_units(Enums::PlotUnit unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     std::vector<Quantity> get_params();

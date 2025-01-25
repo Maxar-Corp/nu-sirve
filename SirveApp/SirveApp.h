@@ -232,7 +232,6 @@ signals:
 
         void HandlePlotFullDataToggle();
         void HandlePlotPrimaryOnlyToggle();
-        void HandleXAxisOptionChange();
    
         void SetDataTimingOffset();
         void ChangeWorkspaceDirectory();
@@ -294,7 +293,6 @@ private:
     void EditOSMTrackColor();
 	void edit_bad_pixel_color();
 	void handle_outlier_processing_change();
-    void HandleYAxisChange();
     void HandleExternalFileToggle();
     void HandleBadPixelRawToggle();
     void AnnotateVideo();
