@@ -151,6 +151,8 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
             designer->AddCheckableItemsByIndex(0, quantities);
             designer->AddCheckableItemsByIndex(1, quantities);
 
+            designer->SetDefaultUnits();
+
             connect(designer, &PlotDesigner::designerParamsSelected, this, &PlotPalette::HandleDesignerParamsSelected);
 
             designer->exec();

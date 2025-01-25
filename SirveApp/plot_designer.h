@@ -18,6 +18,7 @@ public:
     explicit PlotDesigner(QWidget *parent = nullptr);
 
     void AddCheckableItemsByIndex(int index, QStringList items);
+    void SetDefaultUnits();
 
 signals:
     void designerParamsSelected(std::vector<Quantity> &quantities);

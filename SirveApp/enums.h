@@ -32,7 +32,7 @@ public:
 
     // Function to get an enum by index
     static PlotType getPlotTypeByIndex(int index) {
-        if (index < 0 || index >= static_cast<int>(PlotType::Frames) + 1) {
+        if (index < 0 || index >= static_cast<int>(PlotType::Seconds_Past_Midnight) + 1) {
             throw std::out_of_range("Index out of range for PlotType enum");
         }
         return static_cast<PlotType>(index);

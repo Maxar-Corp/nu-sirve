@@ -67,6 +67,11 @@ void PlotDesigner::AddCheckableItemsByIndex(int index, QStringList items)
         AddCheckableItems(listWidget2, items);
 }
 
+void PlotDesigner::SetDefaultUnits() {
+    unitsBox1->setCurrentIndex(unitsBox1->count() - 1);
+    unitsBox2->setCurrentIndex(unitsBox2->count() - 1);
+}
+
 void PlotDesigner::accept() {
     // Gather strings from the two list widgets
     std::vector<Quantity> quantity_pair;
