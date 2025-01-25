@@ -22,7 +22,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<Qua
 
     plot_all_data = true;
     plot_primary_only = false;
-    plot_current_marker = false;
+    plot_current_marker = true;
 
     x_axis_units = plotXType;
 

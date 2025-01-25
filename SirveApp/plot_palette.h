@@ -22,6 +22,8 @@ public:
     int GetUnitTypeByTabId(int tab_id);
     void UpdatePlotLabel(int tab_id, QString label);
 
+    void RouteFramelineUpdate(int frameline_x);
+
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 

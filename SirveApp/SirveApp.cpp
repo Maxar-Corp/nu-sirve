@@ -2124,7 +2124,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     //menu_plot_frame_marker->setIconVisibleInMenu(true);
 
     // Update frame marker on engineering plot
-    connect(playback_controller, &FramePlayer::frameSelected, plot_palette->GetEngineeringPlotReference(0), &EngineeringPlot::PlotCurrentFrameline);
+    connect(playback_controller, &FramePlayer::frameSelected, plot_palette, &PlotPalette::RouteFramelineUpdate);
    // connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);
@@ -2275,7 +2275,7 @@ void SirveApp::HandlePopoutVideoClosed()
 
 void SirveApp::HandleZoomAfterSlider()
 {
-    data_plots_azimuth->PlotCurrentFrameline(playback_controller->get_current_frame_number());
+    //data_plots_azimuth->PlotCurrentFrameline(playback_controller->get_current_frame_number());
 }
 
 void SirveApp::StartStopVideoRecording()
