@@ -70,8 +70,6 @@ public:
     // Returns a const reference to the column data
     const QVector<double>& getColumn(size_t index) const;
 
-    //void AddSeries(QLineSeries *trackSeries);
-
     void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
     void DeleteGraphIfExists(const QString& titleToFind);
 
@@ -81,7 +79,6 @@ public:
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
 
-    //void set_xaxis_units(Enums::PlotUnit unit_choice);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     std::vector<Quantity> get_params();
 
@@ -121,14 +118,6 @@ private:
 
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);
-
-    void PlotAzimuth(size_t plot_number_tracks);
-    void PlotBoresightAzimuth();
-    void PlotBoresightElevation();
-    void PlotElevation(size_t plot_number_tracks);
-
-    void PlotFovX();
-    void PlotFovY();
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
 
     std::vector<double> get_individual_x_track(size_t i);
