@@ -1832,14 +1832,15 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(&osm_frames);
     track_info = new TrackInformation(osm_frames);
 
+    // TODO:  Remove data_plots_azimuth from here, leaving it for now, so as to address the fancy plot sync feature later.
     data_plots_azimuth = new EngineeringPlot(&osm_frames, {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    data_plots_elevation = new EngineeringPlot(&osm_frames, {Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    data_plots_irradiance = new EngineeringPlot(&osm_frames, {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     plot_palette = new PlotPalette();
-    plot_palette->AddPlotTab(data_plots_azimuth, {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    plot_palette->AddPlotTab(data_plots_elevation, {Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    plot_palette->AddPlotTab(data_plots_irradiance, {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
+
+    //  Set up new plots as we do in the plot designer class:
+    HandleParamsSelected({Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    HandleParamsSelected({Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    HandleParamsSelected({Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     osmDataLoaded = true;
 
@@ -1856,17 +1857,8 @@ void SirveApp::LoadOsmData()
     }
 
     data_plots_azimuth->past_midnight = eng_data->get_seconds_from_midnight();
-    data_plots_azimuth->past_epoch = eng_data->get_seconds_from_epoch();
-
-    data_plots_elevation->past_midnight = eng_data->get_seconds_from_midnight();
-    data_plots_elevation->past_epoch = eng_data->get_seconds_from_epoch();
-
-    data_plots_irradiance->past_midnight = eng_data->get_seconds_from_midnight();
-    data_plots_irradiance->past_epoch = eng_data->get_seconds_from_epoch();
 
     data_plots_azimuth->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
-    data_plots_elevation->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
-    data_plots_irradiance->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
 
     //--------------------------------------------------------------------------------
 
@@ -1923,16 +1915,15 @@ void SirveApp::LoadOsmData()
     tab_plots->setCurrentIndex(1);
 
     UpdatePlots(data_plots_azimuth);
-    UpdatePlots(data_plots_elevation);
-    UpdatePlots(data_plots_irradiance);
+    //UpdatePlots(data_plots_elevation);
+    //UpdatePlots(data_plots_irradiance);
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
 }
 
-
 // Receives plot configuration parameters from the the plot designer, forwarded by plot palette:
-void SirveApp::HandleParamsSelected(std::vector<Quantity> &quantities)
+void SirveApp::HandleParamsSelected(const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plots = new EngineeringPlot(&osm_frames, quantities);
     data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
@@ -2133,7 +2124,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     //menu_plot_frame_marker->setIconVisibleInMenu(true);
 
     // Update frame marker on engineering plot
-    connect(playback_controller, &FramePlayer::frameSelected, data_plots_azimuth, &EngineeringPlot::PlotCurrentFrameline);
+    connect(playback_controller, &FramePlayer::frameSelected, plot_palette->GetEngineeringPlotReference(0), &EngineeringPlot::PlotCurrentFrameline);
    // connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
 
     playback_controller->set_initial_speed_index(10);
@@ -2190,27 +2181,9 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<Quantity> qu
 
     // Embed the plotter in the dialog
     EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, quantities);
+    dialogPlotter->copyStateFrom(*plot_palette->GetEngineeringPlotReference(tab_index));
 
-    // need a better way to derive the plot identity besides using the tab index, since not 1:1
-    // could use a list of pointers to engineering plots, housed in the plot palette ...
-    // IDEA: use a simple mapping to identify the plot type and plot unit from the index of the plot tab
-
-    if (Enums::getPlotTypeIndexFromString(quantities.at(0).getName()) == Enums::PlotType::Azimuth)
-    {
-        dialogPlotter->copyStateFrom(*data_plots_azimuth);
-
-        // syncronize by default (for now)
-        data_plots_elevation->synchronizeXToMaster(dialogPlotter);
-    } else if (Enums::getPlotTypeIndexFromString(quantities.at(0).getName()) == Enums::PlotType::Elevation)
-    {
-        dialogPlotter->copyStateFrom(*data_plots_elevation);
-
-        // syncronize by default (for now)
-        data_plots_azimuth->synchronizeXToMaster(dialogPlotter);
-    } else
-    {
-        dialogPlotter->copyStateFrom(*data_plots_irradiance);
-    }
+    // TODO: Implement synchronization on a better-designed infra.
 
     popoutDialogLayout->addWidget(dialogPlotter);
 

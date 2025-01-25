@@ -152,8 +152,8 @@ public:
 	VideoDisplay *video_display;
     PlotPalette *plot_palette;
     EngineeringPlot *data_plots_azimuth;
-    EngineeringPlot *data_plots_elevation;
-    EngineeringPlot *data_plots_irradiance;
+    //EngineeringPlot *data_plots_elevation;
+    //EngineeringPlot *data_plots_irradiance;
 	EngineeringData *eng_data;
 	TrackInformation *track_info;
 	TrackManagementWidget *tm_widget;
@@ -263,7 +263,7 @@ signals:
         void OpenPopoutEngineeringPlot(int tab_index, std::vector<Quantity> quantities);
         void ClosePopoutEngineeringPlot();
 
-        void HandleParamsSelected(std::vector<Quantity> &quantities);
+        void HandleParamsSelected(const std::vector<Quantity> &quantities);
 
 private:
 	ColorMap video_colors;

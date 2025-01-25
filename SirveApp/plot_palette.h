@@ -16,6 +16,7 @@ class PlotPalette : public QTabWidget {
 public:
     explicit PlotPalette(QWidget *parent = nullptr);
     void AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities);
+    EngineeringPlot *GetEngineeringPlotReference(int tab_id);
     Enums::PlotType GetPlotTypeByTabId(int tab_id);
     Enums::PlotUnit GetPlotUnitByTabId(int tab_id);
     int GetUnitTypeByTabId(int tab_id);

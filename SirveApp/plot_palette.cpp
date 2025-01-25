@@ -19,6 +19,11 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
             this, &PlotPalette::HandleTabRightClicked);
 }
 
+EngineeringPlot *PlotPalette::GetEngineeringPlotReference(int tab_id)
+{
+    return engineering_plot_ref.at(tab_id);
+}
+
 void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
 {
     engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);

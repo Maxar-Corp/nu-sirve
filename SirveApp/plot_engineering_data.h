@@ -56,7 +56,7 @@ public:
     Enums::PlotType plotYType;
     Enums::PlotType plotXType;
 
-    void copyStateFrom(const EngineeringPlot &other);
+    void copyStateFrom(EngineeringPlot &other);
 
     // Correctly marked as const
     JKQTPDatastore* get_data_store() const {

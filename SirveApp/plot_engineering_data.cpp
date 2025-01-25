@@ -468,7 +468,7 @@ void EngineeringPlot::EditPlotText()
     }
 }
 
-void EngineeringPlot::copyStateFrom(const EngineeringPlot &other) {
+void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
 
     // Get the datastore from the source plotter
     JKQTPDatastore* srcDatastore = other.get_data_store();
