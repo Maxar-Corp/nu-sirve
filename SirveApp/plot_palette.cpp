@@ -57,6 +57,21 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quan
     engineering_plot_ref.push_back(engineering_plot);
 }
 
+void PlotPalette::PlotSirveTracks(int plot_id, Enums::PlotType plot_type)
+{
+    engineering_plot_ref.at(plot_id)->PlotSirveTracks();
+}
+
+void PlotPalette::RecolorManualTrack(int plot_id, int track_id, QColor new_color)
+{
+    engineering_plot_ref.at(plot_id)->RecolorManualTrack(track_id, new_color);
+}
+
+void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+{
+    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+}
+
 Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
 {
     return Enums::getPlotTypeByIndex(tab_to_type[tab_id]);

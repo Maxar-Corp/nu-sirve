@@ -20,8 +20,10 @@ public:
     Enums::PlotType GetPlotTypeByTabId(int tab_id);
     Enums::PlotUnit GetPlotUnitByTabId(int tab_id);
     int GetUnitTypeByTabId(int tab_id);
+    void PlotSirveTracks(int plot_id, Enums::PlotType plot_type);
+    void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
+    void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void UpdatePlotLabel(int tab_id, QString label);
-
     void RouteFramelineUpdate(int frameline_x);
 
 protected:

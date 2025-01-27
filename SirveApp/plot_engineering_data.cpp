@@ -407,6 +407,8 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     graph->setLineStyle(Qt::SolidLine);
     graph->setSymbolType(JKQTPNoSymbol);
 
+    qDebug() << "adding graph .. # x = " << x_values.size() << "# y = " << y_values.size();
+
     // add the graph to the plot, so it is actually displayed
     this->addGraph(graph);
 }

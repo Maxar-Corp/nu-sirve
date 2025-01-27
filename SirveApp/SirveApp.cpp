@@ -1357,7 +1357,7 @@ void SirveApp::ImportTracks()
                 int index0 = data_plots_azimuth->index_sub_plot_xmin;
                 int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
                 video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-                data_plots_azimuth->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+                plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
                 FramePlotSpace();
             }
         }
@@ -1383,7 +1383,7 @@ void SirveApp::ImportTracks()
             int index0 = data_plots_azimuth->index_sub_plot_xmin;
             int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
             video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            data_plots_azimuth->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
             FramePlotSpace();
         }
 
@@ -1505,7 +1505,7 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = data_plots_azimuth->index_sub_plot_xmin;
         int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        data_plots_azimuth->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
         FramePlotSpace();
 
@@ -1551,14 +1551,14 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     video_display->HideManualTrackId(track_id);
     int index0 = data_plots_azimuth->index_sub_plot_xmin;
     int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
-    data_plots_azimuth->RecolorManualTrack(track_id, new_color);
+    plot_palette->RecolorManualTrack(0, track_id, new_color);
     FramePlotSpace();
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, QColor new_color)
 {
     video_display->ShowManualTrackId(track_id);
-    data_plots_azimuth->RecolorManualTrack(track_id, new_color);
+    plot_palette->RecolorManualTrack(0, track_id, new_color);
     FramePlotSpace();
 }
 
@@ -1580,20 +1580,20 @@ void SirveApp::HandleTrackRemoval(int track_id)
     video_display->DeleteManualTrack(track_id);
     data_plots_azimuth->DeleteGraphIfExists("Track " + QString::number(track_id));
     data_plots_azimuth->redrawPlot();
-    data_plots_azimuth->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+    plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     FramePlotSpace();
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
-    data_plots_azimuth->RecolorManualTrack(track_id, new_color);
+    plot_palette->RecolorManualTrack(0, track_id, new_color);
     FramePlotSpace();
 }
 
 void SirveApp::FramePlotSpace()
 {
-    data_plots_azimuth->PlotSirveTracks();
+    plot_palette->PlotSirveTracks(0, Enums::Azimuth);
 }
 
 void SirveApp::SaveWorkspace()
@@ -4429,7 +4429,7 @@ void SirveApp::ExecuteAutoTracking()
         int index0 = data_plots_azimuth->index_sub_plot_xmin;
         int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        data_plots_azimuth->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
         FramePlotSpace();
         
