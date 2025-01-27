@@ -67,6 +67,11 @@ void PlotPalette::RecolorManualTrack(int plot_id, int track_id, QColor new_color
     engineering_plot_ref.at(plot_id)->RecolorManualTrack(track_id, new_color);
 }
 
+void PlotPalette::RedrawPlot(int plot_id)
+{
+    engineering_plot_ref.at(plot_id)->redrawPlot();
+}
+
 void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
 {
     engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
@@ -80,6 +85,11 @@ Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
 Enums::PlotUnit PlotPalette::GetPlotUnitByTabId(int tab_id)
 {
     return Enums::getPlotUnitByIndex(tab_to_unit[tab_id]);
+}
+
+void PlotPalette::DeleteGraphIfExists(int plot_id, int track_id)
+{
+    engineering_plot_ref.at(plot_id)->DeleteGraphIfExists("Track " + QString::number(track_id));
 }
 
 void PlotPalette::HandleTabRightClicked(const QPoint &pos)

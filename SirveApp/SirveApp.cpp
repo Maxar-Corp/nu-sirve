@@ -1578,8 +1578,9 @@ void SirveApp::HandleTrackRemoval(int track_id)
     int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
-    data_plots_azimuth->DeleteGraphIfExists("Track " + QString::number(track_id));
-    data_plots_azimuth->redrawPlot();
+
+    plot_palette->DeleteGraphIfExists(0, track_id);
+    plot_palette->RedrawPlot(0);
     plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     FramePlotSpace();
 }
@@ -2175,17 +2176,11 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
 void SirveApp::OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::vector<Quantity> quantities)
 {
-    // Create and show the dialog
     QDialog *popoutDialog = new QDialog(this);
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
-
-    // Embed the plotter in the dialog
     EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, plotTitle, quantities);
-    dialogPlotter->copyStateFrom(*plot_palette->GetEngineeringPlotReference(tab_index));
 
-    // TODO: Implement synchronization on a better-designed infra.
-
-    popoutDialogLayout->addWidget(dialogPlotter);
+    popoutDialogLayout->addWidget(plot_palette->GetEngineeringPlotReference(tab_index));
 
     popoutDialog->setWindowTitle((*plot_palette->GetEngineeringPlotReference(tab_index)).get_plot_title() + "Tab" + QString::number(tab_index));
     popoutDialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2208,10 +2203,14 @@ void SirveApp::ClosePopoutEngineeringPlot()
     int tabIndex = title.indexOf("Tab");
     QString afterTab = title.mid(tabIndex + 3).trimmed();
 
-    plot_palette->tabBar()->setTabVisible(afterTab.toInt(), true);
-    plot_palette->tabBar()->setCurrentIndex(afterTab.toInt());
+    bool ok;
+    int plotIndex = afterTab.toInt(&ok);  // Converts the string to an int
 
-    // Without the next two lines, the plot palette's tab bar will appear 'scrunched up' when tab is restored...
+    QWidget* tabWidgetContent = plot_palette->widget(plotIndex);
+    tabWidgetContent->layout()->addWidget(plot_palette->GetEngineeringPlotReference(plotIndex));
+
+    plot_palette->tabBar()->setTabVisible(plotIndex, true);
+    plot_palette->tabBar()->setCurrentIndex(plotIndex);
     plot_palette->update();
     plot_palette->adjustSize();
 }

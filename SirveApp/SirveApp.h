@@ -151,9 +151,9 @@ public:
 
 	VideoDisplay *video_display;
     PlotPalette *plot_palette;
+
     EngineeringPlot *data_plots_azimuth;
-    //EngineeringPlot *data_plots_elevation;
-    //EngineeringPlot *data_plots_irradiance;
+
 	EngineeringData *eng_data;
 	TrackInformation *track_info;
 	TrackManagementWidget *tm_widget;
