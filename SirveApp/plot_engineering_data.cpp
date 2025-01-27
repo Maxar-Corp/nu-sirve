@@ -5,10 +5,11 @@
 #include "enums.h"
 #include "SirveApp.h"
 
-EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<Quantity> quantities) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_title, std::vector<Quantity> quantities) : JKQTPlotter()
 {
     osm_frames_ref = osm_frames;
 
+    plotTitle = plot_title;
     plot_classification = "EDIT CLASSIFICATION";
     my_quantities = quantities;
     plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(0).getName()));
@@ -524,4 +525,9 @@ void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
     this->zoomToFit();
 
     this->plotter->setPlotLabel(other.getPlotter()->getPlotLabel());
+}
+
+QString EngineeringPlot::get_plot_title()
+{
+    return plotTitle;
 }

@@ -32,7 +32,7 @@ class EngineeringPlot : public JKQTPlotter
     Q_OBJECT
 public:
 
-    EngineeringPlot(std::vector<Frame> *osm_frames, std::vector<Quantity> quantities);
+    EngineeringPlot(std::vector<Frame> *osm_frames, QString plotTitle, std::vector<Quantity> quantities);
     ~EngineeringPlot();
 
     void AddTransparentLabel();
@@ -41,7 +41,7 @@ public:
     ColorScheme colors;
     JKQTPDatastore* ds;
 
-    QString x_title, y_title, title;
+    QString x_title, y_title, plotTitle;
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only, plot_current_marker;
@@ -81,6 +81,9 @@ public:
 
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     std::vector<Quantity> get_params();
+    QString get_plot_title();
+    int get_palette_tab_index();
+    void set_palette_index();
 
 signals:
     void changeMotionStatus(bool status);
@@ -108,6 +111,7 @@ private:
     std::set<int> manual_track_ids;
     unsigned int num_frames;
     int number_of_tracks;
+    int palette_tab_index;
     std::vector<PlottingTrackFrame> track_frames;
     bool show_frame_line;
     Enums::PlotType x_axis_units;

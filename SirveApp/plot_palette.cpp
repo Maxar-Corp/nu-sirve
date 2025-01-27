@@ -52,7 +52,7 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quan
     tab_to_type[palette_tab_id] = plot_type_id;
     tab_to_unit[palette_tab_id] = plot_unit;
 
-    this->QTabWidget::addTab(tab, quantities[0].getName());
+    this->QTabWidget::addTab(tab, engineering_plot->get_plot_title());
 
     engineering_plot_ref.push_back(engineering_plot);
 }
@@ -134,7 +134,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         quantities.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
         quantities.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
 
-        emit popoutPlot(tabIndex, quantities);
+        emit popoutPlot(tabIndex, "title", quantities);
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
     } else if (selectedAction == plotOptions1) {
@@ -147,9 +147,9 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     }
 }
 
-void PlotPalette::HandleDesignerParamsSelected(std::vector<Quantity> &quantities)
+void PlotPalette::HandleDesignerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities)
 {
-    emit paletteParamsSelected(quantities);
+    emit paletteParamsSelected(plotTitle, quantities);
 }
 
 void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)

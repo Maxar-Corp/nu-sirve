@@ -1833,14 +1833,14 @@ void SirveApp::LoadOsmData()
     track_info = new TrackInformation(osm_frames);
 
     // TODO:  Remove data_plots_azimuth from here, leaving it for now, so as to address the fancy plot sync feature later.
-    data_plots_azimuth = new EngineeringPlot(&osm_frames, {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    data_plots_azimuth = new EngineeringPlot(&osm_frames, "Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
 
     plot_palette = new PlotPalette();
 
     //  Set up new plots as we do in the plot designer class:
-    HandleParamsSelected({Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    HandleParamsSelected({Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    HandleParamsSelected({Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
+    HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
+    HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     osmDataLoaded = true;
 
@@ -1923,12 +1923,12 @@ void SirveApp::LoadOsmData()
 }
 
 // Receives plot configuration parameters from the the plot designer, forwarded by plot palette:
-void SirveApp::HandleParamsSelected(const std::vector<Quantity> &quantities)
+void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
-    EngineeringPlot *data_plots = new EngineeringPlot(&osm_frames, quantities);
-    data_plots->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
-    UpdatePlots(data_plots);
-    plot_palette->AddPlotTab(data_plots, quantities);
+    EngineeringPlot *data_plot = new EngineeringPlot(&osm_frames, plotTitle, quantities);
+    data_plot->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    UpdatePlots(data_plot);
+    plot_palette->AddPlotTab(data_plot, quantities);
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
@@ -2173,21 +2173,21 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_FNS_stop_frame->setText(QString::number(istop));
 }
 
-void SirveApp::OpenPopoutEngineeringPlot(int tab_index, std::vector<Quantity> quantities)
+void SirveApp::OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::vector<Quantity> quantities)
 {
     // Create and show the dialog
     QDialog *popoutDialog = new QDialog(this);
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
 
     // Embed the plotter in the dialog
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, quantities);
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, plotTitle, quantities);
     dialogPlotter->copyStateFrom(*plot_palette->GetEngineeringPlotReference(tab_index));
 
     // TODO: Implement synchronization on a better-designed infra.
 
     popoutDialogLayout->addWidget(dialogPlotter);
 
-    popoutDialog->setWindowTitle(quantities.at(0).getName().replace('_',' ') + "Tab" + QString::number(tab_index));
+    popoutDialog->setWindowTitle((*plot_palette->GetEngineeringPlotReference(tab_index)).get_plot_title() + "Tab" + QString::number(tab_index));
     popoutDialog->setAttribute(Qt::WA_DeleteOnClose);
     popoutDialog->resize(plot_palette->width(), plot_palette->height());
     popoutDialog->show();

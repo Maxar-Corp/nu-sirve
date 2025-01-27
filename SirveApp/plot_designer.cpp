@@ -9,6 +9,7 @@
 #include "enums.h"
 #include "plot_designer.h"
 #include "qcombobox.h"
+#include "qlineedit.h"
 #include "qlistwidget.h"
 #include "quantity.h"
 
@@ -21,6 +22,9 @@ void populateComboBox(QComboBox* comboBox) {
 
 PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Plot Designer");
+
+    plotTitle = new QLineEdit(this);
+    plotTitle->setPlaceholderText("Give your plot a title...");
 
     // Create the editable textboxes with placeholder text
     unitsBox1 = new QComboBox(this);
@@ -42,10 +46,11 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
 
     // Layout the widgets
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(unitsBox1);
+    layout->addWidget(plotTitle);
     layout->addWidget(listWidget1);
-    layout->addWidget(unitsBox2);
+    layout->addWidget(unitsBox1);
     layout->addWidget(listWidget2);
+    layout->addWidget(unitsBox2);
     layout->addWidget(closeButton);
 
     setLayout(layout);
@@ -85,7 +90,7 @@ void PlotDesigner::accept() {
             quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitByIndex(unitsBox2->currentIndex())));
     }
 
-    emit designerParamsSelected(quantity_pair);
+    emit designerParamsSelected(plotTitle->text(), quantity_pair);
 
     // Call the base class accept to close the dialog
     QDialog::accept();

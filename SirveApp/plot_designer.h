@@ -21,7 +21,7 @@ public:
     void SetDefaultUnits();
 
 signals:
-    void designerParamsSelected(std::vector<Quantity> &quantities);
+    void designerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);
 
 public slots:
     void accept() override;
@@ -29,6 +29,7 @@ public slots:
 private:
     QLabel *label1;       // Label for the first group
     QLabel *label2;       // Label for the second group
+    QLineEdit *plotTitle;
     QTextEdit *textEdit1; // Multiline box for the first group
     QTextEdit *textEdit2; // Multiline box for the second group
     QPushButton *closeButton; // Close button
