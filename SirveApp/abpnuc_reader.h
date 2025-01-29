@@ -20,8 +20,8 @@
 struct ABPNUCFrame
 {
 	int frame_number;
-	uint ir_temperature, tec_temperature_x100, tec_temperature_t1_x100, tec_temperature_t2_x100, tec_temperature_t3_x100,
-		nuc_environment, measured_det_cal_factor, scene_mean_t1, scene_mean_t2, scene_mean_t3, scene_mean;
+	uint ir_temperature, nuc_environment, measured_det_cal_factor;
+	int32_t tec_temperature_x100, tec_temperature_t1_x100, tec_temperature_t2_x100, tec_temperature_t3_x100, scene_mean_t1, scene_mean_t2, scene_mean_t3, scene_mean;
 
 	double frame_time, seconds, ambient, afocal1, afocal2, ir_atherm, ir_integration_time_usec, detector_temperature;
 
