@@ -437,10 +437,10 @@ void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 }
 
 void EngineeringPlot::RecolorOsmTrack(QColor color)
-
 {
     emit updatePlots();
 }
+
 void EngineeringPlot::HandlePlayerButtonClick()
 {
     QPushButton *button = qobject_cast<QPushButton*>(sender());

@@ -30,7 +30,7 @@ public:
     void RouteFramelineUpdate(int frameline_x);
 
 protected:
-    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent (QMouseEvent *event) override;
 
 private:
     void addTab();
@@ -43,6 +43,7 @@ private:
 
 signals:
     void editClassification(int tab_index, QString current_value);
+    void plotFocusChanged(int tab_index);
     void popoutPlot(int tab_index, QString plotTitle, std::vector<Quantity> &quantities);
     void popinPlot(int plotType);
     void paletteParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);

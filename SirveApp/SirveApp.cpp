@@ -66,7 +66,7 @@ SirveApp::~SirveApp() {
     delete video_display;
     delete playback_controller;
     delete eng_data;
-    delete data_plots_azimuth;
+    delete data_plots_focus;
     // thread_video.terminate();
     // thread_timer.terminate();
 }
@@ -1263,20 +1263,6 @@ void SirveApp::setupConnections() {
 
     //Enable saving frame
     connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::SaveFrame);
-
-    //---------------------------------------------------------------------------
-    // Connect y-axis change to function
-    //connect(cmb_plot_yaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleYAxisChange);
-
-    //---------------------------------------------------------------------------
-    // connect the plot radial buttons to adjust plot
-
-    //connect(rad_log, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-    //connect(rad_decimal, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-    //connect(rad_linear, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-    //connect(rad_scientific, &QRadioButton::toggled, this, &SirveApp::UpdatePlots);
-
-    //---------------------------------------------------------------------------
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
 }
 
@@ -1354,8 +1340,8 @@ void SirveApp::ImportTracks()
                 } 
                 track_info->AddManualTracks(result.frames);
 
-                int index0 = data_plots_azimuth->index_sub_plot_xmin;
-                int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
+                int index0 = data_plots_focus->index_sub_plot_xmin;
+                int index1 = data_plots_focus->index_sub_plot_xmax + 1;
                 video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
                 plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
                 FramePlotSpace();
@@ -1380,8 +1366,8 @@ void SirveApp::ImportTracks()
                 const QFileInfo info(file_selection);
                 lbl_track_description->setText(info.fileName());
             } 
-            int index0 = data_plots_azimuth->index_sub_plot_xmin;
-            int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
+            int index0 = data_plots_focus->index_sub_plot_xmin;
+            int index1 = data_plots_focus->index_sub_plot_xmax + 1;
             video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
             plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
             FramePlotSpace();
@@ -1502,8 +1488,8 @@ void SirveApp::HandleFinishCreateTrackClick()
         video_display->AddManualTrackIdToShowLater(currently_editing_or_creating_track_id);
         track_info->AddCreatedManualTrack(currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
 
-        int index0 = data_plots_azimuth->index_sub_plot_xmin;
-        int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
+        int index0 = data_plots_focus->index_sub_plot_xmin;
+        int index1 = data_plots_focus->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
@@ -1549,8 +1535,8 @@ void SirveApp::HandleHideManualTrackId(int track_id)
 {
     QColor new_color(0,0,0,0);
     video_display->HideManualTrackId(track_id);
-    int index0 = data_plots_azimuth->index_sub_plot_xmin;
-    int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
+    int index0 = data_plots_focus->index_sub_plot_xmin;
+    int index1 = data_plots_focus->index_sub_plot_xmax + 1;
     plot_palette->RecolorManualTrack(0, track_id, new_color);
     FramePlotSpace();
 }
@@ -1574,8 +1560,8 @@ void SirveApp::HandleTrackRemoval(int track_id)
     } 
     track_info->RemoveManualTrackPlotting(track_id);
     track_info->RemoveManualTrackImage(track_id);
-    int index0 = data_plots_azimuth->index_sub_plot_xmin;
-    int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
+    int index0 = data_plots_focus->index_sub_plot_xmin;
+    int index1 = data_plots_focus->index_sub_plot_xmax + 1;
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
 
@@ -1594,7 +1580,8 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 
 void SirveApp::FramePlotSpace()
 {
-    plot_palette->PlotSirveTracks(0, Enums::Azimuth);
+    for (int tab_index = 0; tab_index < 1; tab_index++)
+        plot_palette->PlotSirveTracks(tab_index, Enums::Azimuth);
 }
 
 void SirveApp::SaveWorkspace()
@@ -1607,15 +1594,15 @@ void SirveApp::SaveWorkspace()
         QDate today = QDate::currentDate();
         QTime currentTime = QTime::currentTime();
         QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-        QString start_frame = QString::number(data_plots_azimuth->index_sub_plot_xmin + 1);
-        QString stop_frame = QString::number(data_plots_azimuth->index_sub_plot_xmax + 1);
+        QString start_frame = QString::number(data_plots_focus->index_sub_plot_xmin + 1);
+        QString stop_frame = QString::number(data_plots_focus->index_sub_plot_xmax + 1);
         QString initial_name = abpimage_file_base_name + "_" + start_frame + "-"+ stop_frame + "_" + formattedDate;
 
         QString selectedUserFilePath = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + initial_name, tr("Workspace Files *.json"));
 
         if (selectedUserFilePath.length() > 0) {
             QFileInfo fileInfo(selectedUserFilePath);
-            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots_azimuth->index_sub_plot_xmin + 1, data_plots_azimuth->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots_focus->index_sub_plot_xmin + 1, data_plots_focus->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
             lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
@@ -1815,7 +1802,7 @@ void SirveApp::LoadOsmData()
         // delete objects with existing data within them
         delete eng_data;
         delete track_info;
-        delete data_plots_azimuth;
+        delete data_plots_focus;
         delete engineering_plot_layout;
 
         video_display->container.ClearProcessingStates();
@@ -1834,7 +1821,6 @@ void SirveApp::LoadOsmData()
     track_info = new TrackInformation(osm_frames);
 
     // TODO:  Remove data_plots_azimuth from here, leaving it for now, so as to address the fancy plot sync feature later.
-    data_plots_azimuth = new EngineeringPlot(&osm_frames, "Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
 
     plot_palette = new PlotPalette();
 
@@ -1842,6 +1828,8 @@ void SirveApp::LoadOsmData()
     HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
     HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
     HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
+
+    data_plots_focus = plot_palette->GetEngineeringPlotReference(0);
 
     osmDataLoaded = true;
 
@@ -1857,9 +1845,9 @@ void SirveApp::LoadOsmData()
         QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
     }
 
-    data_plots_azimuth->past_midnight = eng_data->get_seconds_from_midnight();
+    data_plots_focus->past_midnight = eng_data->get_seconds_from_midnight();
 
-    data_plots_azimuth->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    data_plots_focus->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
 
     //--------------------------------------------------------------------------------
 
@@ -1888,6 +1876,10 @@ void SirveApp::LoadOsmData()
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
     connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
 
+    //connect(plot_palette, &PlotPalette::plotFocusChanged, this, &SirveApp::HandlePlotFocusChanged);
+
+    connect(plot_palette, &PlotPalette::currentChanged, this, &SirveApp::HandlePlotFocusChanged);
+
     engineering_plot_layout->addWidget(plot_palette);
 
     frame_plots->setLayout(engineering_plot_layout);
@@ -1915,7 +1907,7 @@ void SirveApp::LoadOsmData()
     // Enable Engineering Plot Options, among other things ...
     tab_plots->setCurrentIndex(1);
 
-    UpdatePlots(data_plots_azimuth);
+    UpdatePlots(data_plots_focus);
     //UpdatePlots(data_plots_elevation);
     //UpdatePlots(data_plots_irradiance);
     UpdateGuiPostDataLoad(osmDataLoaded);
@@ -2114,14 +2106,14 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     UpdateGlobalFrameVector();
 
     // Reset engineering plots with new sub plot indices
-    data_plots_azimuth->index_sub_plot_xmin = min_frame - 1;
-    data_plots_azimuth->index_sub_plot_xmax = max_frame - 1;
-    data_plots_azimuth->getXAxis()->setRange(min_frame, max_frame);
+    data_plots_focus->index_sub_plot_xmin = min_frame - 1;
+    data_plots_focus->index_sub_plot_xmax = max_frame - 1;
+    data_plots_focus->getXAxis()->setRange(min_frame, max_frame);
 
     // These next few lines should be deprecated
-    data_plots_azimuth->plot_all_data = false;
+    data_plots_focus->plot_all_data = false;
     //menu_plot_all_data->setIconVisibleInMenu(false);
-    data_plots_azimuth->plot_current_marker = true;
+    data_plots_focus->plot_current_marker = true;
     //menu_plot_frame_marker->setIconVisibleInMenu(true);
 
     // Update frame marker on engineering plot
@@ -2213,6 +2205,11 @@ void SirveApp::ClosePopoutEngineeringPlot()
     plot_palette->tabBar()->setCurrentIndex(plotIndex);
     plot_palette->update();
     plot_palette->adjustSize();
+}
+
+void SirveApp::HandlePlotFocusChanged(int tab_index)
+{
+    plot_palette->RouteFramelineUpdate(this->playback_controller->get_current_frame_number());
 }
 
 void SirveApp::HandleProgressUpdate(int percent)
@@ -2520,16 +2517,16 @@ void SirveApp::ResetColorCorrection()
 
 void SirveApp::HandlePlotFullDataToggle()
 {
-    data_plots_azimuth->plot_all_data = !data_plots_azimuth->plot_all_data;
-    menu_plot_all_data->setIconVisibleInMenu(data_plots_azimuth->plot_all_data);
+    data_plots_focus->plot_all_data = !data_plots_focus->plot_all_data;
+    menu_plot_all_data->setIconVisibleInMenu(data_plots_focus->plot_all_data);
 
     //UpdatePlots();
 }
 
 void SirveApp::HandlePlotPrimaryOnlyToggle()
 {
-    data_plots_azimuth->plot_primary_only = !data_plots_azimuth->plot_primary_only;
-    menu_plot_primary->setIconVisibleInMenu(data_plots_azimuth->plot_primary_only);
+    data_plots_focus->plot_primary_only = !data_plots_focus->plot_primary_only;
+    menu_plot_primary->setIconVisibleInMenu(data_plots_focus->plot_primary_only);
 
     //UpdatePlots();
 }
@@ -2544,11 +2541,11 @@ void SirveApp::SetDataTimingOffset()
     if (ok) {
         eng_data->set_offset_time(d);
 
-        data_plots_azimuth->past_midnight = eng_data->get_seconds_from_midnight();
-        data_plots_azimuth->past_epoch = eng_data->get_seconds_from_epoch();
+        data_plots_focus->past_midnight = eng_data->get_seconds_from_midnight();
+        data_plots_focus->past_epoch = eng_data->get_seconds_from_epoch();
 
-        int index0 = data_plots_azimuth->index_sub_plot_xmin;
-        int index1 = data_plots_azimuth->index_sub_plot_xmax;
+        int index0 = data_plots_focus->index_sub_plot_xmin;
+        int index1 = data_plots_focus->index_sub_plot_xmax;
 
         std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
         video_display->UpdateFrameData(temp);
@@ -2606,7 +2603,7 @@ void SirveApp::ExportFrame()
     QDate today = QDate::currentDate();
     QTime currentTime = QTime::currentTime();;
     QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-    QString current_frame = QString::number(video_display->counter + data_plots_azimuth->index_sub_plot_xmin + 1);
+    QString current_frame = QString::number(video_display->counter + data_plots_focus->index_sub_plot_xmin + 1);
     QString initial_name = abpimage_file_base_name + "_Frame_" + current_frame + "_" + formattedDate;
 
     QString savefile_name = QFileDialog::getSaveFileName(this, tr("Save File Name"), config_values.workspace_folder + "/" + initial_name, tr("Data files *.bin"));
@@ -2656,7 +2653,7 @@ void SirveApp::ExportFrameRange()
         int startframe = start_frame.toInt() - 1;
         int endframe = end_frame.toInt() - 1;
         int num_video_frames = endframe - startframe + 1;
-        int start_framei = startframe - data_plots_azimuth->index_sub_plot_xmin;
+        int start_framei = startframe - data_plots_focus->index_sub_plot_xmin;
         int end_framei = start_framei + num_video_frames - 1;
         arma::u32_cube frame_cube(nRows,nCols,num_video_frames);
         int k = 0;
@@ -2811,7 +2808,7 @@ void SirveApp::EditBannerText()
     auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
     if (response == QMessageBox::Yes)
     {
-        data_plots_azimuth->SetPlotClassification(input_text);
+        data_plots_focus->SetPlotClassification(input_text);
     }
 }
 
@@ -2863,8 +2860,8 @@ void SirveApp::ExportPlotData()
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
     }
     else {
-        min_frame = data_plots_azimuth->index_sub_plot_xmin;
-        max_frame = data_plots_azimuth->index_sub_plot_xmax;
+        min_frame = data_plots_focus->index_sub_plot_xmin;
+        max_frame = data_plots_focus->index_sub_plot_xmax;
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
     }
@@ -2997,8 +2994,8 @@ void SirveApp::AnnotateVideo()
     standard_info.x_pixels = video_display->image_x;
     standard_info.y_pixels = video_display->image_y;
 
-    standard_info.min_frame = data_plots_azimuth->index_sub_plot_xmin + 1;
-    standard_info.max_frame = data_plots_azimuth->index_sub_plot_xmax + 1;
+    standard_info.min_frame = data_plots_focus->index_sub_plot_xmin + 1;
+    standard_info.max_frame = data_plots_focus->index_sub_plot_xmax + 1;
 
     standard_info.x_correction = video_display->xCorrection;
     standard_info.y_correction = video_display->yCorrection;
@@ -3081,8 +3078,8 @@ void SirveApp::ApplyEpochTime()
     epoch_jdate = jtime::JulianDate(year, month, day, hr, min, sec);
     eng_data->update_epoch_time(epoch_jdate);
 
-    data_plots_azimuth->past_epoch = eng_data->get_seconds_from_epoch();
-    UpdatePlots(data_plots_azimuth);
+    data_plots_focus->past_epoch = eng_data->get_seconds_from_epoch();
+    UpdatePlots(data_plots_focus);
 }
 
 void SirveApp::HandleBadPixelReplacement()
@@ -4021,7 +4018,7 @@ void SirveApp::ExecuteAdaptiveNoiseSuppression()
     //-----------------------------------------------------------------------------------------------
     // get user selected frames for suppression
 
-    int delta_frames = data_plots_azimuth->index_sub_plot_xmax - data_plots_azimuth->index_sub_plot_xmin;
+    int delta_frames = data_plots_focus->index_sub_plot_xmax - data_plots_focus->index_sub_plot_xmin;
 
     int relative_start_frame = txt_ANS_offset_frames->text().toInt();
     int number_of_frames = txt_ANS_number_frames->text().toInt();
@@ -4385,6 +4382,7 @@ void SirveApp::ExecuteAutoTracking()
 
     if (!autotrack.empty()){
 
+        qDebug() << "Not empty";
         autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
 
         TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
@@ -4401,6 +4399,7 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
 
+        qDebug() << "Checkpoint 2";
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
         for ( int track_id : result.track_ids )
         {
@@ -4425,9 +4424,13 @@ void SirveApp::ExecuteAutoTracking()
             }
         }
 
-        int index0 = data_plots_azimuth->index_sub_plot_xmin;
-        int index1 = data_plots_azimuth->index_sub_plot_xmax + 1;
+        int index0 = data_plots_focus->index_sub_plot_xmin;
+        int index1 = data_plots_focus->index_sub_plot_xmax + 1;
+        qDebug() << "index0=" << index0;
+        qDebug() << "index1=" << index1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+
+        qDebug() << "GOT HERE ... UpdateManualPlottingTrackFrames";
         plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
         FramePlotSpace();

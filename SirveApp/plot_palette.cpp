@@ -15,8 +15,7 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(tabBar(), &QTabBar::customContextMenuRequested,
-            this, &PlotPalette::HandleTabRightClicked);
+    connect(tabBar(), &QTabBar::customContextMenuRequested, this, &PlotPalette::HandleTabRightClicked);
 }
 
 EngineeringPlot *PlotPalette::GetEngineeringPlotReference(int tab_id)
@@ -176,6 +175,7 @@ void PlotPalette::HandleDesignerParamsSelected(QString plotTitle, std::vector<Qu
 {
     emit paletteParamsSelected(plotTitle, quantities);
 }
+
 
 void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
 {

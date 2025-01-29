@@ -152,7 +152,7 @@ public:
 	VideoDisplay *video_display;
     PlotPalette *plot_palette;
 
-    EngineeringPlot *data_plots_azimuth;
+    EngineeringPlot *data_plots_focus;
 
 	EngineeringData *eng_data;
 	TrackInformation *track_info;
@@ -250,6 +250,7 @@ signals:
         void HandleOsmTracksToggle();
         void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
         void HandlePlayerStateChanged(bool status);
+        void HandlePlotFocusChanged(int tab_index);
         void HandleProcessingStateRemoval(ProcessingMethod method, int index);
         void HandlePopoutVideoClosed();
         void HandlePopoutHistogramClosed();
