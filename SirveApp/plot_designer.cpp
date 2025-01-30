@@ -26,7 +26,6 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     plotTitle = new QLineEdit(this);
     plotTitle->setPlaceholderText("Give your plot a title...");
 
-    // Create the editable textboxes with placeholder text
     unitsBox1 = new QComboBox(this);
     unitsBox1->setPlaceholderText("Choose Y-Axis Units...");
 

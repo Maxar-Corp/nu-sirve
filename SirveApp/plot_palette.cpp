@@ -43,8 +43,6 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quan
     int plot_type_id = Enums::getPlotTypeIndexFromString(quantities[0].getName());
     Enums::PlotUnit plot_unit = quantities[0].getUnit();
 
-    qDebug() << "plot_unit=" << Enums::plotUnitToString(plot_unit);
-
     int palette_tab_id = this->tabBar()->count();
 
     // store the id and unit of the plot in a map for lookups later when managing plots

@@ -51,7 +51,6 @@ SirveApp::SirveApp(QWidget *parent)
 
     HandleRelativeHistogramToggle(false);
     ToggleVideoPlaybackOptions(false);
-
     CreateMenuActions();
 
     this->resize(0, 0);
@@ -1491,7 +1490,7 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = data_plots_focus->index_sub_plot_xmin;
         int index1 = data_plots_focus->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-       // plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
         for (int i = 0; i < plot_palette->tabBar()->count(); i++)
         {
@@ -1584,7 +1583,10 @@ void SirveApp::HandleTrackRemoval(int track_id)
 void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 {
     video_display->RecolorManualTrack(track_id, new_color);
-    plot_palette->RecolorManualTrack(0, track_id, new_color);
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, new_color);
+    }
     FramePlotSpace();
 }
 
@@ -1884,7 +1886,6 @@ void SirveApp::LoadOsmData()
     connect(plot_palette, &PlotPalette::editClassification, this, &SirveApp::EditClassificationText);
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
     connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
-
     //connect(plot_palette, &PlotPalette::plotFocusChanged, this, &SirveApp::HandlePlotFocusChanged);
 
     connect(plot_palette, &PlotPalette::currentChanged, this, &SirveApp::HandlePlotFocusChanged);
@@ -1913,12 +1914,8 @@ void SirveApp::LoadOsmData()
     menu_plot_all_data->setIconVisibleInMenu(true);
     menu_plot_primary->setIconVisibleInMenu(false);
 
-    // Enable Engineering Plot Options, among other things ...
     tab_plots->setCurrentIndex(1);
 
-    UpdatePlots(data_plots_focus);
-    //UpdatePlots(data_plots_elevation);
-    //UpdatePlots(data_plots_irradiance);
     UpdateGuiPostDataLoad(osmDataLoaded);
 
     return;
@@ -2023,8 +2020,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setTextVisible(true);
     progress_bar_main->setRange(0,100);
-
-    qDebug() << "TASK 1";
 
     // Task 1:
     progress_bar_main->setValue(0);
@@ -4391,7 +4386,6 @@ void SirveApp::ExecuteAutoTracking()
 
     if (!autotrack.empty()){
 
-        qDebug() << "Not empty";
         autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
 
         TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
@@ -4408,7 +4402,6 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
 
-        qDebug() << "Checkpoint 2";
         std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
         for ( int track_id : result.track_ids )
         {
@@ -4438,8 +4431,6 @@ void SirveApp::ExecuteAutoTracking()
         qDebug() << "index0=" << index0;
         qDebug() << "index1=" << index1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-
-        qDebug() << "GOT HERE ... UpdateManualPlottingTrackFrames";
 
         for (int i = 0; i < plot_palette->tabBar()->count(); i++)
         {

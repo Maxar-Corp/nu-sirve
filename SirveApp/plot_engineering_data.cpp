@@ -132,15 +132,12 @@ void EngineeringPlot::PlotSirveTracks()
 
                 if (my_quantities.at(0).getName() == "Azimuth")
                 {
-                    qDebug() << "Plotting AZIMUTH";
                     y_values.push_back(it->second.azimuth);
                 } else if (my_quantities.at(0).getName() == "Elevation")
                 {
-                    qDebug() << "Plotting ELEVATION";
                     y_values.push_back(it->second.elevation);
                 } else
                 {
-                    qDebug() << "Plotting IRRADIANCE";
                     y_values.push_back(it->second.irradiance);
                 }
             }
@@ -417,8 +414,6 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     graph->setLineStyle(Qt::SolidLine);
     graph->setSymbolType(JKQTPNoSymbol);
 
-    qDebug() << "adding graph .. # x = " << x_values.size() << "# y = " << y_values.size();
-
     // add the graph to the plot, so it is actually displayed
     this->addGraph(graph);
 }
@@ -427,7 +422,6 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
 
     int index = 0;
     bool graph_exists = false;
-    qDebug() << "Deleting " << titleToFind;
 
     for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
         QString title = (*it)->getTitle();
@@ -523,9 +517,6 @@ void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
 
         // Add the new graph to the destination plot
         this->addGraph(dstGraph);
-
-        qDebug() << other.get_my_quantities()[1].getUnit();
-        qDebug() << other.get_my_quantities()[0].getUnit();
 
         this->getXAxis()->setAxisLabel(other.get_my_quantities()[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(other.get_my_quantities()[1].getUnit()) + ") ");
         this->getYAxis()->setAxisLabel(other.get_my_quantities()[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(other.get_my_quantities()[0].getUnit()) + ") ");
