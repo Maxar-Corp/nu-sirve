@@ -1491,7 +1491,12 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = data_plots_focus->index_sub_plot_xmin;
         int index1 = data_plots_focus->index_sub_plot_xmax + 1;
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+       // plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+
+        for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+        {
+            plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        }
 
         FramePlotSpace();
 
@@ -1565,9 +1570,14 @@ void SirveApp::HandleTrackRemoval(int track_id)
     video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_display->DeleteManualTrack(track_id);
 
-    plot_palette->DeleteGraphIfExists(0, track_id);
-    plot_palette->RedrawPlot(0);
-    plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+    // WARNING: This should be amended later to adjust for tabs that have been hidden by the user:
+    for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+    {
+        plot_palette->DeleteGraphIfExists(i, track_id);
+        plot_palette->RedrawPlot(i);
+        plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+    }
+
     FramePlotSpace();
 }
 
@@ -1580,8 +1590,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, QColor new_color)
 
 void SirveApp::FramePlotSpace()
 {
-    for (int tab_index = 0; tab_index < 1; tab_index++)
-        plot_palette->PlotSirveTracks(tab_index, Enums::Azimuth);
+    plot_palette->PlotAllSirveTracks();
 }
 
 void SirveApp::SaveWorkspace()
@@ -4431,7 +4440,11 @@ void SirveApp::ExecuteAutoTracking()
         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
         qDebug() << "GOT HERE ... UpdateManualPlottingTrackFrames";
-        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+
+        for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+        {
+            plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        }
 
         FramePlotSpace();
         

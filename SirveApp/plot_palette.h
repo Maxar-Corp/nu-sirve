@@ -22,7 +22,7 @@ public:
     int GetUnitTypeByTabId(int tab_id);
 
     void DeleteGraphIfExists(int plot_id, int track_id);
-    void PlotSirveTracks(int plot_id, Enums::PlotType plot_type);
+    void PlotAllSirveTracks();
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
     void RedrawPlot(int plot_id);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);

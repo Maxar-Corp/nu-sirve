@@ -119,23 +119,33 @@ void EngineeringPlot::PlotChart()
 
 void EngineeringPlot::PlotSirveTracks()
 {
-    if (plotYType == Enums::PlotType::Azimuth)
+    for (int track_id : manual_track_ids)
     {
-        for (int track_id : manual_track_ids)
-        {
-            std::vector<double> x_values, y_values;
+        std::vector<double> x_values, y_values;
 
-            for (size_t i = 0; i < manual_track_frames.size(); i++)
+        for (size_t i = 0; i < manual_track_frames.size(); i++)
+        {
+            std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
+            if (it != manual_track_frames[i].tracks.end())
             {
-                std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
-                if (it != manual_track_frames[i].tracks.end())
+                x_values.push_back(get_single_x_axis_value(i));
+
+                if (my_quantities.at(0).getName() == "Azimuth")
                 {
-                    x_values.push_back(get_single_x_axis_value(i));
+                    qDebug() << "Plotting AZIMUTH";
                     y_values.push_back(it->second.azimuth);
+                } else if (my_quantities.at(0).getName() == "Elevation")
+                {
+                    qDebug() << "Plotting ELEVATION";
+                    y_values.push_back(it->second.elevation);
+                } else
+                {
+                    qDebug() << "Plotting IRRADIANCE";
+                    y_values.push_back(it->second.irradiance);
                 }
             }
-            AddSeriesWithColor(x_values, y_values, track_id);
         }
+        AddSeriesWithColor(x_values, y_values, track_id);
     }
 }
 
