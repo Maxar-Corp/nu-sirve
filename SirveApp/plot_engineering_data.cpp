@@ -5,6 +5,11 @@
 #include "enums.h"
 #include "SirveApp.h"
 
+
+double EngineeringPlot::clamp(double value, double minVal, double maxVal) {
+    return std::max(minVal, std::min(value, maxVal));
+}
+
 EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_title, std::vector<Quantity> quantities) : JKQTPlotter()
 {
     osm_frames_ref = osm_frames;
@@ -27,7 +32,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_ti
 
     x_axis_units = plotXType;
 
-    // 'sub-plot' refers to the chart's domain
+    // Here, 'sub_plot' refers to the user-selected frame range
     index_sub_plot_xmin = 0;
     index_sub_plot_xmax = num_frames - 1;
 
@@ -115,6 +120,8 @@ void EngineeringPlot::PlotChart()
     PlotSirveTracks();
 
     this->getPlotter()->setPlotLabel(plot_classification);
+
+    DefinePlotSubInterval();
 }
 
 void EngineeringPlot::PlotSirveTracks()
@@ -126,7 +133,7 @@ void EngineeringPlot::PlotSirveTracks()
         for (size_t i = 0; i < manual_track_frames.size(); i++)
         {
             std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
-            if (it != manual_track_frames[i].tracks.end())
+            if (it != manual_track_frames[i].tracks.end() && i > 100 && i < 600)
             {
                 x_values.push_back(get_single_x_axis_value(i));
 
@@ -152,6 +159,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
     {
         std::vector<double> x_values = get_x_func(track_index);
         std::vector<double> y_values = get_y_func(track_index);
+
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
@@ -184,8 +192,15 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
+
         InitializeFrameLine(index_sub_plot_xmin + 0);
     }
+}
+
+
+
+bool EngineeringPlot::frame_in_range(int index){
+    return index >= sub_plot_xmin && index <= sub_plot_xmax;
 }
 
 void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
@@ -401,21 +416,33 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     size_t columnX=ds->addCopiedColumn(X, "x");
     size_t columnY=ds->addCopiedColumn(Y, "y");
 
-    // create a graph in the plot, which plots the dataset X/Y:
     graph=new JKQTPXYLineGraph(this);
+
     graph->setXColumn(columnX);
     graph->setYColumn(columnY);
     graph->setTitle("Track " + QString::number(track_id));
-    //graph->setSymbolSize(5);
     graph->setSymbolLineWidth(1);
     graph->setColor(manual_track_colors[track_id]);
-
-    // Streamline the line style for the graph
     graph->setLineStyle(Qt::SolidLine);
     graph->setSymbolType(JKQTPNoSymbol);
 
-    // add the graph to the plot, so it is actually displayed
     this->addGraph(graph);
+}
+
+void EngineeringPlot::SetPlotSubInterval(int min, int max)
+{
+    JKQTBasePlotter* plotter = this->getPlotter();  // Get the base plotter
+    if (plotter) {
+        plotter->getXAxis()->setMin(min);
+        plotter->getXAxis()->setMax(max);
+        plotter->redrawPlot();
+    }
+}
+
+void EngineeringPlot::DefinePlotSubInterval()
+{
+    sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
+    sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
 }
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
@@ -435,6 +462,12 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
         this->getGraphs().removeAt(index);
 }
 
+void EngineeringPlot::DefineFullPlotInterval()
+{
+    full_plot_xmin = get_single_x_axis_value(0);
+    full_plot_xmax = get_max_x_axis_value();
+}
+
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 {
     manual_track_colors[track_id] = new_color;
@@ -443,6 +476,15 @@ void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 void EngineeringPlot::RecolorOsmTrack(QColor color)
 {
     emit updatePlots();
+}
+
+void EngineeringPlot::ToggleUseSubInterval()
+{
+    use_subinterval = ! use_subinterval;
+
+    qDebug() << "use_subinterval = " << use_subinterval;
+
+    use_subinterval ? SetPlotSubInterval(sub_plot_xmin, sub_plot_xmax) : SetPlotSubInterval(full_plot_xmin, full_plot_xmax);
 }
 
 void EngineeringPlot::HandlePlayerButtonClick()
@@ -533,4 +575,14 @@ void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
 QString EngineeringPlot::get_plot_title()
 {
     return plotTitle;
+}
+
+int EngineeringPlot::get_subinterval_min()
+{
+    return this->getXAxis()->getMin();
+}
+
+int EngineeringPlot::get_subinterval_max()
+{
+    return this->getXAxis()->getMax();
 }

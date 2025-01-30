@@ -151,10 +151,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
 
-        qDebug() << "tabIndex = " << tabIndex;
-        qDebug() << "PlotUnitByTabId = " << GetPlotUnitByTabId(tabIndex);
-        qDebug() << "PlotTypeByTabId = " << GetPlotTypeByTabId(tabIndex);
-
         std::vector<Quantity> quantities;
         quantities.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
         quantities.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
@@ -193,6 +189,11 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
 
             designer->exec();
         });
+
+        menu.addAction("Toggle Plot All Data", [this]() {
+            emit toggleUseSubInterval();
+        });
+
         menu.exec(event->globalPosition().toPoint()); // Show menu at the cursor position
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class

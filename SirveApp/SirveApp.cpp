@@ -1831,8 +1831,6 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(&osm_frames);
     track_info = new TrackInformation(osm_frames);
 
-    // TODO:  Remove data_plots_azimuth from here, leaving it for now, so as to address the fancy plot sync feature later.
-
     plot_palette = new PlotPalette();
 
     //  Set up new plots as we do in the plot designer class:
@@ -1886,7 +1884,7 @@ void SirveApp::LoadOsmData()
     connect(plot_palette, &PlotPalette::editClassification, this, &SirveApp::EditClassificationText);
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
     connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
-    //connect(plot_palette, &PlotPalette::plotFocusChanged, this, &SirveApp::HandlePlotFocusChanged);
+    connect(plot_palette, &PlotPalette::toggleUseSubInterval, this, &SirveApp::HandlePlotFullDataToggle);
 
     connect(plot_palette, &PlotPalette::currentChanged, this, &SirveApp::HandlePlotFocusChanged);
 
@@ -1915,6 +1913,11 @@ void SirveApp::LoadOsmData()
     menu_plot_primary->setIconVisibleInMenu(false);
 
     tab_plots->setCurrentIndex(1);
+
+    for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+    {
+        plot_palette->GetEngineeringPlotReference(i)->DefineFullPlotInterval();
+    }
 
     UpdateGuiPostDataLoad(osmDataLoaded);
 
@@ -2109,13 +2112,21 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
 
-    // Reset engineering plots with new sub plot indices
+    // Define new data range across all plots (and charts)
     data_plots_focus->index_sub_plot_xmin = min_frame - 1;
     data_plots_focus->index_sub_plot_xmax = max_frame - 1;
     data_plots_focus->getXAxis()->setRange(min_frame, max_frame);
 
+    for (int i= 0; i < plot_palette->tabBar()->count(); i++)
+    {
+        plot_palette->GetEngineeringPlotReference(i)->SetPlotSubInterval(min_frame, max_frame);
+        plot_palette->GetEngineeringPlotReference(i)->sub_plot_xmin = min_frame - 1;
+        plot_palette->GetEngineeringPlotReference(i)->sub_plot_xmax = max_frame - 1;
+        plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval();
+    }
+
     // These next few lines should be deprecated
-    data_plots_focus->plot_all_data = false;
+    //data_plots_focus->plot_all_data = false;
     //menu_plot_all_data->setIconVisibleInMenu(false);
     data_plots_focus->plot_current_marker = true;
     //menu_plot_frame_marker->setIconVisibleInMenu(true);
@@ -2518,13 +2529,12 @@ void SirveApp::ResetColorCorrection()
     chk_relative_histogram->setChecked(false);
 }
 
-
 void SirveApp::HandlePlotFullDataToggle()
 {
-    data_plots_focus->plot_all_data = !data_plots_focus->plot_all_data;
-    menu_plot_all_data->setIconVisibleInMenu(data_plots_focus->plot_all_data);
-
-    //UpdatePlots();
+    for (int i= 0; i < plot_palette->tabBar()->count(); i++)
+    {
+        plot_palette->GetEngineeringPlotReference(i)->ToggleUseSubInterval();
+    }
 }
 
 void SirveApp::HandlePlotPrimaryOnlyToggle()
@@ -2779,7 +2789,6 @@ void SirveApp::CreateMenuActions()
     menu_plot_all_data->setIcon(on);
     menu_plot_all_data->setStatusTip(tr("Plot all data from OSM file"));
     menu_plot_all_data->setIconVisibleInMenu(true);
-    connect(menu_plot_all_data, &QAction::triggered, this, &SirveApp::HandlePlotFullDataToggle);
 
     menu_plot_primary = new QAction(tr("&Plot Primary Data Only"), this);
     menu_plot_primary->setIcon(on);

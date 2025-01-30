@@ -67,22 +67,34 @@ public:
         return my_quantities;
     }
 
+    double clamp(double value, double minVal, double maxVal);
+
     // Returns a const reference to the column data
     const QVector<double>& getColumn(size_t index) const;
 
     void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
+    void SetPlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
+
+    void DefineFullPlotInterval();
+    void DefinePlotSubInterval();
 
     void PlotChart();
     void PlotSirveTracks();
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
+    void ToggleUseSubInterval();
 
-    void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+    bool frame_in_range(int frame_index);
+
     std::vector<Quantity> get_params();
     QString get_plot_title();
     int get_palette_tab_index();
+    int get_subinterval_min();
+    int get_subinterval_max();
+
+    void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     void set_palette_index();
 
 signals:
@@ -119,6 +131,8 @@ private:
 
     QAction* actToggleFrameLine;
     QAction* getActionToggleFrameLine() const;
+
+    bool use_subinterval = false;
 
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);

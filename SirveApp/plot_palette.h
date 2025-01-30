@@ -47,6 +47,7 @@ signals:
     void popoutPlot(int tab_index, QString plotTitle, std::vector<Quantity> &quantities);
     void popinPlot(int plotType);
     void paletteParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);
+    void toggleUseSubInterval();
 
 private slots:
     void HandleTabRightClicked(const QPoint &pos);
