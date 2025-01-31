@@ -55,10 +55,10 @@ void ABPNUCData::ReadABPNUCFile()
         temp.frame_number = ReadValue<uint32_t>();
         temp.frame_time = ReadValue<double>();
         temp.ir_temperature = ReadValue<uint32_t>();
-        temp.tec_temperature_x100 = ReadValue<uint32_t>();
-        temp.tec_temperature_t1_x100 = ReadValue<uint32_t>();
-        temp.tec_temperature_t2_x100 = ReadValue<uint32_t>();
-        temp.tec_temperature_t3_x100 = ReadValue<uint32_t>();
+        temp.tec_temperature_x100 = ReadValue<int32_t>();
+        temp.tec_temperature_t1_x100 = ReadValue<int32_t>();
+        temp.tec_temperature_t2_x100 = ReadValue<int32_t>();
+        temp.tec_temperature_t3_x100 = ReadValue<int32_t>();
         temp.ambient = ReadValue<float>();
         temp.afocal1 = ReadValue<float>();
         temp.afocal2 = ReadValue<float>();
@@ -70,10 +70,10 @@ void ABPNUCData::ReadABPNUCFile()
         temp.detector_temperature = ReadValue<double>();
         temp.nuc_environment = ReadValue<uint32_t>();
         temp.measured_det_cal_factor = ReadValue<uint32_t>();
-        temp.scene_mean_t2 = ReadValue<uint32_t>();
-        temp.scene_mean_t1 = ReadValue<uint32_t>();
-        temp.scene_mean_t3 = ReadValue<uint32_t>();
-        temp.scene_mean = ReadValue<uint32_t>();
+        temp.scene_mean_t2 = ReadValue<int32_t>();
+        temp.scene_mean_t1 = ReadValue<int32_t>();
+        temp.scene_mean_t3 = ReadValue<int32_t>();
+        temp.scene_mean = ReadValue<int32_t>();
 
         // add new abpnuc frame and add to frame counter
         data.push_back(temp);
