@@ -120,8 +120,6 @@ void EngineeringPlot::PlotChart()
     PlotSirveTracks();
 
     this->getPlotter()->setPlotLabel(plot_classification);
-
-    DefinePlotSubInterval();
 }
 
 void EngineeringPlot::PlotSirveTracks()
@@ -164,11 +162,9 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
 
-        // make data available to JKQTPlotter by adding it to the internal datastore.
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        // create a graph in the plot, which plots the dataset X/Y:
         graph=new JKQTPXYLineGraph(this);
         graph->setXColumn(columnX);
         graph->setYColumn(columnY);
@@ -179,7 +175,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         graph->setColor(colors.get_current_color());
         graph->setSymbolColor(QColor::fromRgb(255,20,20));
 
-        // add the graph to the plot, so it is actually displayed
         this->addGraph(graph);
 
         this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
@@ -187,7 +182,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
-        // autoscale the plot so the graph is contained
         this->zoomToFit();
 
         // get the upper bound for drawing the frame line
@@ -348,15 +342,12 @@ std::vector<Quantity> EngineeringPlot::get_params()
 
 void EngineeringPlot::InitializeFrameLine(double frameline_x)
 {
-    // Define data points for the line
     QVector<double> xData = {frameline_x, frameline_x};
     QVector<double> yData = {0, this->fixed_max_y};
 
-    // Make data available to JKQTPlotter by adding it to the internal datastore.
     frameLineColumnX = ds->addCopiedColumn(xData, "frameline_X");
     size_t frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");
 
-    // Create the line graph and set its data
     JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
     lineGraph->setXColumn(frameLineColumnX);
     lineGraph->setYColumn(frameLineColumnY);
@@ -412,7 +403,6 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     QVector<double> X(x_values.begin(), x_values.end());
     QVector<double> Y(y_values.begin(), y_values.end());
 
-    // make data available to JKQTPlotter by adding it to the internal datastore.
     size_t columnX=ds->addCopiedColumn(X, "x");
     size_t columnY=ds->addCopiedColumn(Y, "y");
 
@@ -429,9 +419,9 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     this->addGraph(graph);
 }
 
-void EngineeringPlot::SetPlotSubInterval(int min, int max)
+void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 {
-    JKQTBasePlotter* plotter = this->getPlotter();  // Get the base plotter
+    JKQTBasePlotter* plotter = this->getPlotter();
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
@@ -439,10 +429,11 @@ void EngineeringPlot::SetPlotSubInterval(int min, int max)
     }
 }
 
-void EngineeringPlot::DefinePlotSubInterval()
+void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 {
-    sub_plot_xmin = get_single_x_axis_value(index_sub_plot_xmin);
-    sub_plot_xmax = get_single_x_axis_value(index_sub_plot_xmax);
+    sub_plot_xmin = min;
+    sub_plot_xmax = max;
+    use_subinterval = true;
 }
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
@@ -481,10 +472,7 @@ void EngineeringPlot::RecolorOsmTrack(QColor color)
 void EngineeringPlot::ToggleUseSubInterval()
 {
     use_subinterval = ! use_subinterval;
-
-    qDebug() << "use_subinterval = " << use_subinterval;
-
-    use_subinterval ? SetPlotSubInterval(sub_plot_xmin, sub_plot_xmax) : SetPlotSubInterval(full_plot_xmin, full_plot_xmax);
+    use_subinterval ? SetPlotterXAxisMinMax(sub_plot_xmin, sub_plot_xmax) : SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax);
 }
 
 void EngineeringPlot::HandlePlayerButtonClick()
@@ -517,31 +505,23 @@ void EngineeringPlot::EditPlotText()
     }
 }
 
-void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
-
-    // Get the datastore from the source plotter
+void EngineeringPlot::copyStateFrom(EngineeringPlot &other)
+{
     JKQTPDatastore* srcDatastore = other.get_data_store();
 
-    // Step 1: Clear existing data in the destination datastore
     ds->clear();
-
-    // Step 2: Access the data for X and Y columns from the source datastore
-    // Assuming getColumnData (or a similar method) is available instead of getColumn
 
     QString name0 = srcDatastore->getColumnName(0);
     QString name1 = srcDatastore->getColumnName(1);
 
-    QVector<double> srcXData = srcDatastore->getData(0, &name0);  // Get X data from source datastore
+    QVector<double> srcXData = srcDatastore->getData(0, &name0);
     QVector<double> srcYData = srcDatastore->getData(1, &name1);
 
-    // Step 3: Add the copied columns to the destination datastore (ds)
-    size_t dstXColumn = ds->addCopiedColumn(srcXData, Enums::plotTypeToString(plotXType));  // Add X data to destination datastore (ds)
-    size_t dstYColumn = ds->addCopiedColumn(srcYData, Enums::plotTypeToString(plotYType));  // Add Y data to destination datastore (ds)
+    size_t dstXColumn = ds->addCopiedColumn(srcXData, Enums::plotTypeToString(plotXType));
+    size_t dstYColumn = ds->addCopiedColumn(srcYData, Enums::plotTypeToString(plotYType));
 
-    // Step 4: Copy the graph configuration from the source to the destination plot
-    this->clearGraphs();  // Clear existing graphs in the destination plotter
+    this->clearGraphs();
 
-    // Step 5: Create a new graph for the destination plotter
     auto* srcGraph = dynamic_cast<JKQTPXYLineGraph*>(other.graph);  // Get the first graph from the source
     if (srcGraph) {
         auto* dstGraph = new JKQTPXYLineGraph(this);  // Create a new graph in the destination plotter
@@ -550,14 +530,13 @@ void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
         dstGraph->setXColumn(dstXColumn);
         dstGraph->setYColumn(dstYColumn);
 
-        // Copy other properties from the source graph
         dstGraph->setTitle(srcGraph->getTitle());
         dstGraph->setSymbolSize(srcGraph->getSymbolSize());
         dstGraph->setSymbolLineWidth(srcGraph->getSymbolLineWidth());
         dstGraph->setColor(srcGraph->getLineColor());
         dstGraph->setSymbolColor(srcGraph->getSymbolColor());
 
-        // Add the new graph to the destination plot
+        // Add new graph to the destination plot
         this->addGraph(dstGraph);
 
         this->getXAxis()->setAxisLabel(other.get_my_quantities()[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(other.get_my_quantities()[1].getUnit()) + ") ");
@@ -566,7 +545,6 @@ void EngineeringPlot::copyStateFrom(EngineeringPlot &other) {
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
     }
 
-    // Step 6: Autoscale the plot to fit the new data
     this->zoomToFit();
 
     this->plotter->setPlotLabel(other.getPlotter()->getPlotLabel());

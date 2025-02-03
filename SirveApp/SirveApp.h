@@ -152,7 +152,7 @@ public:
 	VideoDisplay *video_display;
     PlotPalette *plot_palette;
 
-    EngineeringPlot *data_plots_focus;
+    //EngineeringPlot *data_plots_focus;
 
 	EngineeringData *eng_data;
 	TrackInformation *track_info;

@@ -73,11 +73,11 @@ public:
     const QVector<double>& getColumn(size_t index) const;
 
     void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
-    void SetPlotSubInterval(int min, int max);
+    void SetPlotterXAxisMinMax(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
 
     void DefineFullPlotInterval();
-    void DefinePlotSubInterval();
+    void DefinePlotSubInterval(int min, int max);
 
     void PlotChart();
     void PlotSirveTracks();
