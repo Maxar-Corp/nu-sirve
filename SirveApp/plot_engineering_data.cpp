@@ -609,10 +609,10 @@ double EngineeringPlots::get_max_x_axis_value()
 void EngineeringPlots::CreateCurrentMarker()
 {
     current_frame_marker = new QLineSeries();
-    current_frame_marker->setName("Red Line");
+    current_frame_marker->setName("Frame Line");
 
     QPen pen;
-    pen.setColor(colors.get_color(2));
+    pen.setColor(QColor(100,100,100));
     pen.setStyle(Qt::SolidLine);
     pen.setWidth(3);
 
@@ -802,7 +802,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
     } else
     {
         if (this->is_frameline_moving) {
-            clearSeriesByName("Red Line");
+            clearSeriesByName("Frame Line");
             newchart->update();
         }
 

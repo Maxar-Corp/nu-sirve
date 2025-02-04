@@ -268,19 +268,19 @@ void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::
         cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_temp_point);
         frame_point = frame_temp_point;
     }
-
 }
 
 void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
 {
-    if (input_point.x > 0 && input_point.y > 0){
-        centerX = round(input_point.x + ROI.x);
-        centerY = round(input_point.y + ROI.y);
+    if (input_point.x > 0 && input_point.y > 0)
+    {
+        centerX = ceil((input_point.x + ROI.x)*1000.)/1000.;
+        centerY = ceil((input_point.y + ROI.y)*1000.)/1000.;
     }
     else
     {
-        centerX = round(ROI.x + 0.5 * ROI.width);
-        centerY = round(ROI.y + 0.5 * ROI.height);
+        centerX = ceil((ROI.x + 0.5 * ROI.width)*1000.)/1000.;
+        centerY = ceil((ROI.y + 0.5 * ROI.height)*1000.)/1000.;
     }
 }
 
