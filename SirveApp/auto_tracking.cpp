@@ -85,7 +85,7 @@ arma::s32_mat AutoTracking::SingleTracker(
     cv::resize(filtered_frame_0_matrix_8bit_color, filtered_frame_0_matrix_8bit_color_resize, cv::Size(N*ncols, N*nrows));
     string ROI_window_name = "Region of Interest (ROI) Selection - Press Escape twice to Cancel, or Select ROI then Hit Enter twice to Continue.";
     cv::namedWindow(ROI_window_name, cv::WINDOW_AUTOSIZE);
-    cv::moveWindow(ROI_window_name, 100, 100);  // Move window to (100,100) coordinates
+    cv::moveWindow(ROI_window_name, 50, 50);  // Move window to (50,50) coordinates
     cv::Rect ROI = cv::selectROI(ROI_window_name, filtered_frame_0_matrix_8bit_color_resize);
 
     while (true)

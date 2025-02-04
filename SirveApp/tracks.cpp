@@ -212,7 +212,7 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
 
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
-    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, PeakCounts, SumCounts, SumROICounts, NThresholdPixels, NROIPixels,Irradiance,ROI_x,ROI_y,ROI_Width,ROI_Height";
+    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, PeakCounts, SumCounts, SumROICounts, NThresholdPixels, NROIPixels,ROI Counts,ROI_x,ROI_y,ROI_Width,ROI_Height";
     file.write(csv_line0.toUtf8());
     file.write("\n");
     RemoveManualTrackPlotting(track_id);
@@ -233,9 +233,9 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
             QString csv_line =
              QString::number(track_id) + ","
              + QString::number(i+1) + ","
-             + QString::number(track_details.frame_time,'f',6) + ","
-             + QString::number(track_details.julian_date,'f',6) + ","
-             + QString::number(track_details.second_past_midnight,'f',6) + ","
+             + QString::number(track_details.frame_time,'f',9) + ","
+             + QString::number(track_details.julian_date,'f',9) + ","
+             + QString::number(track_details.second_past_midnight,'f',9) + ","
              + QString::number(track_details.timing_offset) + ","
              + QString::number(track_details.centroid_x_boresight+1) + ","
              + QString::number(track_details.centroid_y_boresight+1) + ","
