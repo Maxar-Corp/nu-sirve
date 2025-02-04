@@ -431,6 +431,8 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 
 void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 {
+    index_sub_plot_xmin = min; // for the frameline offset
+
     sub_plot_xmin = min;
     sub_plot_xmax = max;
     use_subinterval = true;
