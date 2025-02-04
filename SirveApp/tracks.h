@@ -16,8 +16,16 @@
 #include "support/az_el_calculation.h"
 
 struct TrackDetails {
+    double frame_time;
+    double julian_date;
+    double second_past_midnight;
+    double timing_offset;
     int centroid_x;
     int centroid_y;
+    int centroid_x_boresight;
+    int centroid_y_boresight;
+    double az;
+    double el;
     int peak_counts;
     int sum_counts;
     int sum_ROI_counts;
@@ -79,7 +87,7 @@ class TrackInformation {
         void RemoveManualTrack(int track_id);
         void RemoveManualTrackPlotting(int track_id);
         void RemoveManualTrackImage(int track_id);
-        void AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
+        void AddCreatedManualTrack(std::vector<PlottingFrameData> frame_data,int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
         std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
         std::vector<std::optional<TrackDetails>> GetEmptyTrack();
 

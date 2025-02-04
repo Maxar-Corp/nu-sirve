@@ -73,7 +73,6 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
             osm_track_ids.insert(track_id);
             osm_frames[i].tracks[track_id] = td;
 
-
             //This is a "combined" track representation that I'm only keeping around because I'm not smart enough to replace it yet
             //Across frames, it treats the first track as track 0, the second as track 1, etc.
             //In the future, we'll want to change this and the plotting code to stop merging tracks
@@ -206,14 +205,14 @@ void TrackInformation::RemoveManualTrackImage(int track_id)
     }
 }
 
-void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
+void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
 {
     //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
     manual_track_ids.insert(track_id);
 
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
-    QString csv_line0 = "TrackID,Frame,X,Y,PeakCounts,SumCounts,SumROICounts,NThresholdPixels,NROIPixels,Irradiance,ROI_x,ROI_y,ROI_Width,ROI_Height";
+    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, PeakCounts, SumCounts, SumROICounts, NThresholdPixels, NROIPixels,Irradiance,ROI_x,ROI_y,ROI_Width,ROI_Height";
     file.write(csv_line0.toUtf8());
     file.write("\n");
     RemoveManualTrackPlotting(track_id);
@@ -224,27 +223,40 @@ void TrackInformation::AddCreatedManualTrack(int track_id, const std::vector<std
         {
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
-
-            QString csv_line =\
-             QString::number(track_id) + ","\
-             + QString::number(i+1) + ","\
-             + QString::number(track_details.centroid_x+1) + ","\
-             + QString::number(track_details.centroid_y+1) + ","\
-             + QString::number(track_details.peak_counts) + ","\
-             + QString::number(track_details.sum_counts) + ","\
-             + QString::number(track_details.sum_ROI_counts) + ","\
-             + QString::number(track_details.N_threshold_pixels) + ","\
-             + QString::number(track_details.N_ROI_pixels) + ","\
-             + QString::number(track_details.irradiance) + ","\
-             + QString::number(track_details.ROI_x+1) + ","\
-             + QString::number(track_details.ROI_y+1) + ","\
-             + QString::number(track_details.ROI_Width) + ","\
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.irradiance);
+            track_details.frame_time = frame_data[i].frame_time;
+            track_details.julian_date = frame_data[i].julian_date;
+            track_details.second_past_midnight = frame_data[i].seconds_past_midnight;
+            track_details.timing_offset = osm_frames[i].tracks[0].timing_offset;
+            track_details.az = manual_plotting_frames[i].tracks[track_id].azimuth;
+            track_details.el = manual_plotting_frames[i].tracks[track_id].elevation;
+            QString csv_line =
+             QString::number(track_id) + ","
+             + QString::number(i+1) + ","
+             + QString::number(track_details.frame_time,'f',6) + ","
+             + QString::number(track_details.julian_date,'f',6) + ","
+             + QString::number(track_details.second_past_midnight,'f',6) + ","
+             + QString::number(track_details.timing_offset) + ","
+             + QString::number(track_details.centroid_x_boresight+1) + ","
+             + QString::number(track_details.centroid_y_boresight+1) + ","
+             + QString::number(track_details.centroid_x+1) + ","
+             + QString::number(track_details.centroid_y+1) + ","
+             + QString::number(track_details.az) + ","
+             + QString::number(track_details.el) + ","
+             + QString::number(track_details.peak_counts) + ","
+             + QString::number(track_details.sum_counts) + ","
+             + QString::number(track_details.sum_ROI_counts) + ","
+             + QString::number(track_details.N_threshold_pixels) + ","
+             + QString::number(track_details.N_ROI_pixels) + ","
+             + QString::number(track_details.irradiance) + ","
+             + QString::number(track_details.ROI_x+1) + ","
+             + QString::number(track_details.ROI_y+1) + ","
+             + QString::number(track_details.ROI_Width) + ","
              + QString::number(track_details.ROI_Height);
 
             file.write(csv_line.toUtf8());
             file.write("\n");
 
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.irradiance);
             manual_plotting_frames[i].tracks[track_id].irradiance = track_details.irradiance;
             manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
             manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
@@ -375,6 +387,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
 ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double irradiance)
 {
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
+    
     struct ManualPlottingTrackDetails details;
 	
 	bool adjust_frame_ref = true;
