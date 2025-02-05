@@ -15,46 +15,49 @@ class PlotPalette : public QTabWidget {
 
 public:
     explicit PlotPalette(QWidget *parent = nullptr);
+
     void AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities);
+    void AddPoppedTabIndex(int tab_index);
+    void DeleteGraphIfExists(int plot_id, int track_id);
+
     EngineeringPlot *GetEngineeringPlotReference(int tab_id);
     Enums::PlotType GetPlotTypeByTabId(int tab_id);
     Enums::PlotUnit GetPlotUnitByTabId(int tab_id);
-    int GetUnitTypeByTabId(int tab_id);
 
-    void DeleteGraphIfExists(int plot_id, int track_id);
+    int GetUnitTypeByTabId(int tab_id);
     void PlotAllSirveTracks();
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
     void RedrawPlot(int plot_id);
+    void RemovePoppedTabIndex(int tab_index);
+    void RouteFramelineUpdate(int frameline_x);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void UpdatePlotLabel(int tab_id, QString label);
-    void RouteFramelineUpdate(int frameline_x);
 
 protected:
     void mouseDoubleClickEvent (QMouseEvent *event) override;
 
 private:
-    void addTab();
 
     PlotDesigner *designer;
+    std::vector<EngineeringPlot*> engineering_plot_ref;
+    std::vector<int> popped_tabs;
     QStringList quantities;
     std::map<int, int> tab_to_type;
     std::map<int, int> tab_to_unit;
-    std::vector<EngineeringPlot*> engineering_plot_ref;
 
 signals:
     void editClassification(int tab_index, QString current_value);
-    void plotFocusChanged(int tab_index);
-    void popoutPlot(int tab_index, QString plotTitle, std::vector<Quantity> &quantities);
-    void popinPlot(int plotType);
     void paletteParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);
+    void plotFocusChanged(int tab_index);
+    void popinPlot(int plotType);
+    void popoutPlot(int tab_index, QString plotTitle, std::vector<Quantity> &quantities);
     void toggleUseSubInterval();
-
-private slots:
-    void HandleTabRightClicked(const QPoint &pos);
 
 public slots:
     void HandleDesignerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);
 
+private slots:
+    void HandleTabRightClicked(const QPoint &pos);
 };
 
 #endif // PLOT_PALETTE_H

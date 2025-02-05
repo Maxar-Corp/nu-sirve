@@ -27,12 +27,12 @@ public slots:
     void accept() override;
 
 private:
-    QLabel *label1;       // Label for the first group
-    QLabel *label2;       // Label for the second group
+    QLabel *label1;
+    QLabel *label2;
     QLineEdit *plotTitle;
-    QTextEdit *textEdit1; // Multiline box for the first group
-    QTextEdit *textEdit2; // Multiline box for the second group
-    QPushButton *closeButton; // Close button
+    QTextEdit *textEdit1;
+    QTextEdit *textEdit2;
+    QPushButton *closeButton;
 
     QListWidget *listWidget1;
     QListWidget *listWidget2;

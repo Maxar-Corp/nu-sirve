@@ -191,9 +191,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
     }
 }
 
-
-
-bool EngineeringPlot::frame_in_range(int index){
+bool EngineeringPlot::frame_in_range(int index)
+{
     return index >= sub_plot_xmin && index <= sub_plot_xmax;
 }
 
@@ -438,7 +437,8 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     use_subinterval = true;
 }
 
-void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind) {
+void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
+{
 
     int index = 0;
     bool graph_exists = false;

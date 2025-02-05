@@ -18,22 +18,6 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
     connect(tabBar(), &QTabBar::customContextMenuRequested, this, &PlotPalette::HandleTabRightClicked);
 }
 
-EngineeringPlot *PlotPalette::GetEngineeringPlotReference(int tab_id)
-{
-    return engineering_plot_ref.at(tab_id);
-}
-
-void PlotPalette::RouteFramelineUpdate(int frame)
-{
-    engineering_plot_ref.at(currentIndex())->PlotCurrentFrameline(frame);
-}
-
-void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
-{
-    engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);
-    engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
-}
-
 void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities)
 {
     QWidget *tab = new QWidget(this);
@@ -54,27 +38,19 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quan
     engineering_plot_ref.push_back(engineering_plot);
 }
 
-void PlotPalette::PlotAllSirveTracks()
+void PlotPalette::AddPoppedTabIndex(int tab_index)
 {
-    for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
-    {
-        engineering_plot_ref.at(plot_id)->PlotSirveTracks();
-    }
+    popped_tabs.push_back(tab_index);
 }
 
-void PlotPalette::RecolorManualTrack(int plot_id, int track_id, QColor new_color)
+void PlotPalette::DeleteGraphIfExists(int plot_id, int track_id)
 {
-    engineering_plot_ref.at(plot_id)->RecolorManualTrack(track_id, new_color);
+    engineering_plot_ref.at(plot_id)->DeleteGraphIfExists("Track " + QString::number(track_id));
 }
 
-void PlotPalette::RedrawPlot(int plot_id)
+EngineeringPlot *PlotPalette::GetEngineeringPlotReference(int tab_id)
 {
-    engineering_plot_ref.at(plot_id)->redrawPlot();
-}
-
-void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
-{
-    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+    return engineering_plot_ref.at(tab_id);
 }
 
 Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
@@ -87,9 +63,9 @@ Enums::PlotUnit PlotPalette::GetPlotUnitByTabId(int tab_id)
     return Enums::getPlotUnitByIndex(tab_to_unit[tab_id]);
 }
 
-void PlotPalette::DeleteGraphIfExists(int plot_id, int track_id)
+void PlotPalette::HandleDesignerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities)
 {
-    engineering_plot_ref.at(plot_id)->DeleteGraphIfExists("Track " + QString::number(track_id));
+    emit paletteParamsSelected(plotTitle, quantities);
 }
 
 void PlotPalette::HandleTabRightClicked(const QPoint &pos)
@@ -162,17 +138,10 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         bool yAxisIsLogarithmic = engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->getLogAxis();
         qDebug() << "yAxisIsLogarithmic=" << yAxisIsLogarithmic;
         engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
-        double xScale = engineering_plot_ref.at(tabIndex)->getPlotter()->getAxisAspectRatio();
         engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
         // TODO: Refine this ^^^ so it zooms to where you left off.
     }
 }
-
-void PlotPalette::HandleDesignerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities)
-{
-    emit paletteParamsSelected(plotTitle, quantities);
-}
-
 
 void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
 {
@@ -198,4 +167,49 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class
     }
+}
+
+void PlotPalette::PlotAllSirveTracks()
+{
+    for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
+    {
+        engineering_plot_ref.at(plot_id)->PlotSirveTracks();
+    }
+}
+
+void PlotPalette::RecolorManualTrack(int plot_id, int track_id, QColor new_color)
+{
+    engineering_plot_ref.at(plot_id)->RecolorManualTrack(track_id, new_color);
+}
+
+void PlotPalette::RedrawPlot(int plot_id)
+{
+    engineering_plot_ref.at(plot_id)->redrawPlot();
+}
+
+void PlotPalette::RemovePoppedTabIndex(int tab_index)
+{
+    popped_tabs.erase(std::remove(popped_tabs.begin(), popped_tabs.end(), tab_index), popped_tabs.end());
+}
+
+void PlotPalette::RouteFramelineUpdate(int frame)
+{
+    for (int tab_index : popped_tabs)
+    {
+        engineering_plot_ref.at(tab_index)->PlotCurrentFrameline(frame);
+    }
+
+    // Qt guarantees the value of currentIndex() is not an element of popped_tabs.
+    engineering_plot_ref.at(currentIndex())->PlotCurrentFrameline(frame);
+}
+
+void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+{
+    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+}
+
+void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
+{
+    engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);
+    engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
 }

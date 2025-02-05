@@ -2182,6 +2182,8 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::
     connect(popoutDialog, &QDialog::finished, this, &SirveApp::ClosePopoutEngineeringPlot);
 
     dialogPlotter->setToolbarAlwaysOn(true);
+
+    plot_palette->AddPoppedTabIndex(tab_index);
 }
 
 void SirveApp::ClosePopoutEngineeringPlot()
@@ -2196,15 +2198,16 @@ void SirveApp::ClosePopoutEngineeringPlot()
     QString afterTab = title.mid(tabIndex + 3).trimmed();
 
     bool ok;
-    int plotIndex = afterTab.toInt(&ok);  // Converts the string to an int
+    int tab_index = afterTab.toInt(&ok);  // Converts the string to an int
 
-    QWidget* tabWidgetContent = plot_palette->widget(plotIndex);
-    tabWidgetContent->layout()->addWidget(plot_palette->GetEngineeringPlotReference(plotIndex));
+    QWidget* tabWidgetContent = plot_palette->widget(tab_index);
+    tabWidgetContent->layout()->addWidget(plot_palette->GetEngineeringPlotReference(tab_index));
 
-    plot_palette->tabBar()->setTabVisible(plotIndex, true);
-    plot_palette->tabBar()->setCurrentIndex(plotIndex);
+    plot_palette->tabBar()->setTabVisible(tab_index, true);
+    plot_palette->tabBar()->setCurrentIndex(tab_index);
     plot_palette->update();
     plot_palette->adjustSize();
+    plot_palette->RemovePoppedTabIndex(tab_index);
 }
 
 void SirveApp::HandlePlotFocusChanged(int tab_index)
