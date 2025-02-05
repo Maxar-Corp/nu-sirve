@@ -159,9 +159,12 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
             designer->exec();
         });
 
-        menu.addAction("Toggle Plot All Data", [this]() {
-            emit toggleUseSubInterval();
-        });
+        if (abir_data_loaded)
+        {
+            menu.addAction("Toggle Plot All Data", [this]() {
+                emit toggleUseSubInterval();
+            });
+        }
 
         menu.exec(event->globalPosition().toPoint()); // Show menu at the cursor position
     } else {
@@ -201,6 +204,11 @@ void PlotPalette::RouteFramelineUpdate(int frame)
 
     // Qt guarantees the value of currentIndex() is not an element of popped_tabs.
     engineering_plot_ref.at(currentIndex())->PlotCurrentFrameline(frame);
+}
+
+void PlotPalette::SetAbirDataLoaded(bool osm_data_loaded)
+{
+    this->abir_data_loaded = osm_data_loaded;
 }
 
 void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)

@@ -2006,6 +2006,8 @@ void SirveApp::UiLoadAbirData()
 
     LoadAbirData(min_frame, max_frame);
     lbl_workspace_name->setText("Workspace File: ");
+
+    plot_palette->SetAbirDataLoaded(true);
 }
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)

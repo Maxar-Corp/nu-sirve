@@ -30,6 +30,7 @@ public:
     void RedrawPlot(int plot_id);
     void RemovePoppedTabIndex(int tab_index);
     void RouteFramelineUpdate(int frameline_x);
+    void SetAbirDataLoaded(bool abir_data_loaded);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void UpdatePlotLabel(int tab_id, QString label);
 
@@ -44,6 +45,7 @@ private:
     QStringList quantities;
     std::map<int, int> tab_to_type;
     std::map<int, int> tab_to_unit;
+    bool abir_data_loaded = false;
 
 signals:
     void editClassification(int tab_index, QString current_value);
