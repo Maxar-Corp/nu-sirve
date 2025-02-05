@@ -1922,12 +1922,23 @@ void SirveApp::LoadOsmData()
     return;
 }
 
-// Receives plot configuration parameters from the the plot designer, forwarded by plot palette:
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plot = new EngineeringPlot(&osm_frames, plotTitle, quantities);
     data_plot->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
     UpdatePlots(data_plot);
+
+    int tab_count = plot_palette->tabBar()->count();
+    if (tab_count > 0)
+    {
+        data_plot->set_use_subinterval(plot_palette->GetEngineeringPlotReference(0)->get_use_subinterval());
+        if (data_plot->get_use_subinterval()){
+            data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
+                                            plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
+        }
+        data_plot->DefineFullPlotInterval();
+    }
+
     plot_palette->AddPlotTab(data_plot, quantities);
 }
 

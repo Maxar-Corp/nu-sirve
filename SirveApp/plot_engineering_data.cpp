@@ -202,6 +202,16 @@ void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> 
     number_of_tracks = num_unique;
 }
 
+bool EngineeringPlot::get_use_subinterval()
+{
+    return use_subinterval;
+}
+
+void EngineeringPlot::set_use_subinterval(bool use_subinterval)
+{
+    this->use_subinterval = use_subinterval;
+}
+
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
 {
     std::vector<double> x_values;

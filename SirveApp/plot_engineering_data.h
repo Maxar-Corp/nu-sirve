@@ -97,6 +97,9 @@ public:
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     void set_palette_index();
 
+    bool get_use_subinterval();
+    void set_use_subinterval(bool use_subinterval);
+
 signals:
     void changeMotionStatus(bool status);
     void updatePlots();
