@@ -48,6 +48,7 @@ HEADERS += abir_reader.h \
             Section.h \
             SirveApp.h \
             quantity.h \
+            single_check_list.h \
             track_management_widget.h \
             tracks.h \
             video_container.h \
@@ -100,6 +101,7 @@ SOURCES += abir_reader.cpp \
             Section.cpp \
             SirveApp.cpp \
             quantity.cpp \
+            single_check_list.cpp \
             track_management_widget.cpp \
             tracks.cpp \
             video_container.cpp \

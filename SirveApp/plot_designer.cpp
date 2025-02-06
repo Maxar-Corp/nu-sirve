@@ -12,6 +12,7 @@
 #include "qlineedit.h"
 #include "qlistwidget.h"
 #include "quantity.h"
+#include "single_check_list.h"
 
 void populateComboBox(QComboBox* comboBox) {
     for (int i = 0; i <= static_cast<int>(Enums::PlotUnit::None); ++i) {
@@ -36,8 +37,8 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     populateComboBox(unitsBox2);
 
     // Create the list widgets
-    listWidget1 = new QListWidget(this);
-    listWidget2 = new QListWidget(this);
+    listWidget1 = new SingleCheckList(this);
+    listWidget2 = new SingleCheckList(this);
 
     // Create the buttons
     QPushButton *closeButton = new QPushButton("Close", this);
