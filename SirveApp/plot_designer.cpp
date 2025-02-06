@@ -8,6 +8,7 @@
 
 #include "enums.h"
 #include "plot_designer.h"
+#include "support/qthelpers.h"
 #include "qcombobox.h"
 #include "qlineedit.h"
 #include "qlistwidget.h"
@@ -64,6 +65,19 @@ void PlotDesigner::AddCheckableItems(QListWidget *listWidget, const QStringList 
     }
 }
 
+bool PlotDesigner::AnyItemChecked(QListWidget *listWidget)
+{
+    bool anyChecked = false;
+    for (int i = 0; i < listWidget->count(); ++i) {
+        QListWidgetItem *item = listWidget->item(i);
+        if (item && item->checkState() == Qt::Checked) {
+            anyChecked = true;
+            break; // No need to check further
+        }
+    }
+    return anyChecked;
+}
+
 void PlotDesigner::AddCheckableItemsByIndex(int index, QStringList items)
 {
     if (index == 0)
@@ -88,6 +102,21 @@ void PlotDesigner::accept() {
     for (int i = 0; i < listWidget2->count(); ++i) {
         if (listWidget2->item(i)->checkState() == Qt::Checked)
             quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitByIndex(unitsBox2->currentIndex())));
+    }
+
+    if (plotTitle->text().size() < 1) {
+        QtHelpers::LaunchMessageBox(QString("Invalid title."), "Title must be at least one character.");
+        return;
+    }
+
+    if (! AnyItemChecked(listWidget1)) {
+        QtHelpers::LaunchMessageBox(QString("Invalid quantity type."), "You must select one quantity type for the Y axis.");
+        return;
+    }
+
+    if (! AnyItemChecked(listWidget2)) {
+        QtHelpers::LaunchMessageBox(QString("Invalid quantity type."), "You must select one quantity type for the X axis.");
+        return;
     }
 
     emit designerParamsSelected(plotTitle->text(), quantity_pair);

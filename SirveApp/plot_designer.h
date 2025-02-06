@@ -41,6 +41,7 @@ private:
     QComboBox *unitsBox2;
 
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
+    bool AnyItemChecked(QListWidget *listWidget);
 };
 
 #endif // PLOT_DESIGNER_H
