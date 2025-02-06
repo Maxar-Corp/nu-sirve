@@ -1877,13 +1877,9 @@ void SirveApp::LoadOsmData()
 
     engineering_plot_layout = new QGridLayout();
 
-    // commented out old btn_popout_engineering
-
     connect(plot_palette, &PlotPalette::editClassification, this, &SirveApp::EditClassificationText);
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
-    //connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
     connect(plot_palette, &PlotPalette::toggleUseSubInterval, this, &SirveApp::HandlePlotFullDataToggle);
-
     connect(plot_palette, &PlotPalette::currentChanged, this, &SirveApp::HandlePlotFocusChanged);
 
     engineering_plot_layout->addWidget(plot_palette);
@@ -1935,6 +1931,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         if (data_plot->get_use_subinterval()){
             data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
                                             plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
+            data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
+                                             plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
         }
         data_plot->DefineFullPlotInterval();
     }

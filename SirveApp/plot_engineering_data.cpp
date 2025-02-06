@@ -5,11 +5,6 @@
 #include "enums.h"
 #include "SirveApp.h"
 
-
-double EngineeringPlot::clamp(double value, double minVal, double maxVal) {
-    return std::max(minVal, std::min(value, maxVal));
-}
-
 EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_title, std::vector<Quantity> quantities) : JKQTPlotter()
 {
     osm_frames_ref = osm_frames;
@@ -43,14 +38,14 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_ti
     actToggleFrameLine=new QAction(QIcon(":icons/jkqtp_frameline.png"), tr("Toggle Frame Line"), this);
     actToggleFrameLine->setToolTip(tr("Toggle the frame line for this plot"));
 
-    toolbar->addAction(this->getActionToggleFrameLine());
+    toolbar->addAction(this->get_action_toggle_frameline());
 
     connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
 
     this->setToolbarAlwaysOn(true);
 }
 
-QAction *EngineeringPlot::getActionToggleFrameLine() const {
+QAction *EngineeringPlot::get_action_toggle_frameline() const {
     return this->actToggleFrameLine;
 }
 
@@ -189,11 +184,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         InitializeFrameLine(index_sub_plot_xmin + 0);
     }
-}
-
-bool EngineeringPlot::frame_in_range(int index)
-{
-    return index >= sub_plot_xmin && index <= sub_plot_xmax;
 }
 
 void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)

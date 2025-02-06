@@ -58,7 +58,21 @@ public:
 
     void copyStateFrom(EngineeringPlot &other);
 
-    // Correctly marked as const
+    const QVector<double>& getColumn(size_t index) const;
+
+    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
+    void DefineFullPlotInterval();
+    void DefinePlotSubInterval(int min, int max);
+    void DeleteGraphIfExists(const QString& titleToFind);
+
+    void PlotChart();
+    void PlotSirveTracks();
+    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
+    void RecolorManualTrack(int track_id, QColor new_color);
+    void RecolorOsmTrack(QColor new_color);
+    void SetPlotterXAxisMinMax(int min, int max);
+    void ToggleUseSubInterval();
+
     JKQTPDatastore* get_data_store() const {
         return ds;
     }
@@ -66,27 +80,6 @@ public:
     std::vector<Quantity> get_my_quantities() const {
         return my_quantities;
     }
-
-    double clamp(double value, double minVal, double maxVal);
-
-    // Returns a const reference to the column data
-    const QVector<double>& getColumn(size_t index) const;
-
-    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
-    void SetPlotterXAxisMinMax(int min, int max);
-    void DeleteGraphIfExists(const QString& titleToFind);
-
-    void DefineFullPlotInterval();
-    void DefinePlotSubInterval(int min, int max);
-
-    void PlotChart();
-    void PlotSirveTracks();
-    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
-    void RecolorManualTrack(int track_id, QColor new_color);
-    void RecolorOsmTrack(QColor new_color);
-    void ToggleUseSubInterval();
-
-    bool frame_in_range(int frame_index);
 
     std::vector<Quantity> get_params();
     QString get_plot_title();
@@ -115,9 +108,7 @@ public Q_SLOTS:
 
 private:
 
-    std::vector<Frame> *osm_frames_ref;
-
-    QString plot_classification;
+    QAction* actToggleFrameLine;
     double fixed_max_y;
     size_t frameLineColumnX;
     std::vector<Quantity> my_quantities;
@@ -126,21 +117,20 @@ private:
     std::set<int> manual_track_ids;
     unsigned int num_frames;
     int number_of_tracks;
+    std::vector<Frame> *osm_frames_ref;
     int palette_tab_index;
-    std::vector<PlottingTrackFrame> track_frames;
+    QString plot_classification;
     bool show_frame_line;
-    Enums::PlotType x_axis_units;
     QTabWidget* tabWidget;
-
-    QAction* actToggleFrameLine;
-    QAction* getActionToggleFrameLine() const;
-
     bool use_subinterval = false;
+    std::vector<PlottingTrackFrame> track_frames;
+    Enums::PlotType x_axis_units;
 
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
 
+    QAction* get_action_toggle_frameline() const;
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
