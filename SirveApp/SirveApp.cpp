@@ -1881,7 +1881,7 @@ void SirveApp::LoadOsmData()
 
     connect(plot_palette, &PlotPalette::editClassification, this, &SirveApp::EditClassificationText);
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
-    connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
+    //connect(plot_palette, &PlotPalette::popinPlot, this, &SirveApp::ClosePopoutEngineeringPlot);
     connect(plot_palette, &PlotPalette::toggleUseSubInterval, this, &SirveApp::HandlePlotFullDataToggle);
 
     connect(plot_palette, &PlotPalette::currentChanged, this, &SirveApp::HandlePlotFocusChanged);
@@ -2211,7 +2211,7 @@ void SirveApp::ClosePopoutEngineeringPlot()
     QString afterTab = title.mid(tabIndex + 3).trimmed();
 
     bool ok;
-    int tab_index = afterTab.toInt(&ok);  // Converts the string to an int
+    int tab_index = afterTab.toInt(&ok);
 
     QWidget* tabWidgetContent = plot_palette->widget(tab_index);
     tabWidgetContent->layout()->addWidget(plot_palette->GetEngineeringPlotReference(tab_index));
