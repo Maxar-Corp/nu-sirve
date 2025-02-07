@@ -20,27 +20,51 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string trackFeature, uint frame0, int start_frame, int stop_frame,\
- processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name)
+arma::u64_mat AutoTracking::SingleTracker(
+                                u_int track_id,
+                                double clamp_low,
+                                double clamp_high,
+                                int threshold,
+                                string prefilter,
+                                string trackFeature,
+                                uint frame0,
+                                int start_frame,
+                                int stop_frame,
+                                processingState & current_processing_state,
+                                VideoDetails & base_processing_state_details,
+                                QString new_track_file_name
+                                )
 {
-    double irradiance;
+    cv::Scalar filtered_mean_i, filtered_sigma_i, frame_crop_mean;
 
-    cv::Scalar filtered_meani, filtered_stdi, frame_crop_mean;
-    cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix, filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
-    cv::Mat frame_0_crop, frame_i_crop, filtered_frame_0_matrix_8bit_color_resize, filtered_frame_i_matrix_8bit_color_resize;
-    arma::vec frame_0_vector, frame_i_vector;
-    arma::vec framei = arma::regspace(start_frame,stop_frame);
-    arma::mat offset_matrix2(framei.n_elem,3,arma::fill::zeros);
-    std::vector<std::vector<int>> offsets;
-    u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
-    u_int indx, num_frames = stop_frame - start_frame + 1;
-    arma::u64_mat output(num_frames, 14);
-    arma::running_stat<double> stats;
-    cv::Point frame_0_point, frame_i_point;
-    double peak_counts_0, peak_counts_i, irradiance_counts_0, irradiance_counts_old, irradiance_counts_i;
     cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
 
-    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state.details, frame_0_vector, frame_0_matrix, processed_frame_0_matrix);
+    cv::Mat frame_0_matrix, frame_i_matrix, processed_frame_0_matrix, processed_frame_i_matrix, filtered_frame_0_matrix,
+            filtered_frame_i_matrix, frame_matrix_filtered_8bit, filtered_frame_0_matrix_8bit_color, filtered_frame_i_matrix_8bit_color;
+
+    cv::Mat frame_0_crop, frame_i_crop, filtered_frame_0_matrix_8bit_color_resize, filtered_frame_i_matrix_8bit_color_resize;
+
+    arma::vec frame_0_vector, frame_i_vector;
+
+    arma::vec frame_indices = arma::regspace(start_frame,stop_frame);
+
+    arma::mat offset_matrix2(frame_indices.n_elem,3,arma::fill::zeros);
+
+    std::vector<std::vector<int>> offsets;
+
+    u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
+
+    u_int indx, num_frames = stop_frame - start_frame + 1;
+
+    arma::u64_mat output(num_frames, 14);
+
+    arma::running_stat<double> stats;
+
+    cv::Point frame_0_point, frame_i_point;
+
+    double peak_counts_0, peak_counts_i, adjusted_integrated_counts_0, adjusted_integrated_counts_old, adjusted_integrated_counts_i;
+
+    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state.details, frame_0_matrix, processed_frame_0_matrix);
 
     // attenuate image noise of initial frame
     filtered_frame_0_matrix = processed_frame_0_matrix;
@@ -54,8 +78,8 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         for (int rowi = 0; rowi < offsets.size(); rowi++){
             offset_matrix.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
         }
-        for (int rowii = 0; rowii<framei.size(); rowii++){
-            arma::uvec kk = arma::find(offset_matrix.col(0) == framei(rowii) + 1,0,"first");
+        for (int rowii = 0; rowii<frame_indices.size(); rowii++){
+            arma::uvec kk = arma::find(offset_matrix.col(0) == frame_indices(rowii) + 1,0,"first");
             if (!kk.is_empty()){
                 offset_matrix2.row(rowii) = offset_matrix.row(kk(0));
             }
@@ -108,13 +132,13 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
     frame_0_crop = frame_0_matrix(ROI);
     GetTrackFeatureData(trackFeature, threshold, frame_0_crop, frame_0_point, frame_crop_mean, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, N_ROI_pixels_0);
     GetPointXY(frame_0_point, ROI, frame_0_x, frame_0_y);
-    irradiance_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, ROI.height/2, ROI.width/2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
-    irradiance_counts_old = irradiance_counts_0;
-    stats(irradiance_counts_old);
+    adjusted_integrated_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, ROI.height/2, ROI.width/2, frame_0_x + offset_matrix2(0,0), frame_0_y + offset_matrix2(0,1), base_processing_state_details);
+    adjusted_integrated_counts_old = adjusted_integrated_counts_0;
+    stats(adjusted_integrated_counts_old);
     tracker->init(filtered_frame_0_matrix_8bit_color,ROI);
 
     output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),\
-     static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(irradiance_counts_0),\
+     static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, N_ROI_pixels_0, static_cast<uint64_t>(adjusted_integrated_counts_0),\
      static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
 
     bool step_sucess = false;
@@ -145,9 +169,9 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
             frame_i_crop = frame_i_matrix(ROI);  
             GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
             GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
-            irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
-            irradiance_counts_old = irradiance_counts_i;
-            stats(irradiance_counts_old);
+            adjusted_integrated_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
+            adjusted_integrated_counts_old = adjusted_integrated_counts_i;
+            stats(adjusted_integrated_counts_old);
             tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
 
             step_sucess = true;
@@ -157,7 +181,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         UpdateProgressBar(i);
         indx = (start_frame + i);
 
-        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state.details, frame_i_vector, frame_i_matrix, processed_frame_i_matrix);
+        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state.details, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
         FilterImage(prefilter, processed_frame_i_matrix, filtered_frame_i_matrix);
@@ -170,10 +194,10 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
    
         GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
         GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
-        stats(irradiance_counts_old);
+        adjusted_integrated_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y+ offset_matrix2(i,1), base_processing_state_details);
+        stats(adjusted_integrated_counts_old);
         double S = stats.stddev();
-        step_sucess = (ok && abs((irradiance_counts_i - stats.mean())) <= 6*S);
+        step_sucess = (ok && abs((adjusted_integrated_counts_i - stats.mean())) <= 6*S);
 
         if (S>0 && !step_sucess)
         {
@@ -198,9 +222,9 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
             frame_i_crop = frame_i_matrix(ROI);  
             GetTrackFeatureData(trackFeature, threshold, frame_i_crop, frame_i_point, frame_crop_mean, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, N_ROI_pixels_i);
             GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
-            irradiance_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
-            irradiance_counts_old = irradiance_counts_i;
-            stats(irradiance_counts_old);
+            adjusted_integrated_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offset_matrix2(i,0), frame_i_y + offset_matrix2(i,1), base_processing_state_details);       
+            adjusted_integrated_counts_old = adjusted_integrated_counts_i;
+            stats(adjusted_integrated_counts_old);
             tracker->init(filtered_frame_i_matrix_8bit_color, ROI);
 
             step_sucess = true;
@@ -209,7 +233,7 @@ arma::u64_mat AutoTracking::SingleTracker(u_int track_id, double clamp_low, doub
         rectangle(filtered_frame_i_matrix_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
         cv::imshow(window_name_i, filtered_frame_i_matrix_8bit_color);
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),\
-         static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(irradiance_counts_i),\
+         static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,N_ROI_pixels_i, static_cast<uint64_t>(adjusted_integrated_counts_i),\
          static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
          
         cv::waitKey(1);
@@ -232,8 +256,7 @@ void AutoTracking::FilterImage(string prefilter, cv::Mat & processed_frame_0_mat
     }
 }
 
-void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point, cv::Scalar frame_crop_mean,\
-  double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels)
+void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point, cv::Scalar frame_crop_mean, double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels)
 {
     cv::Mat frame_crop_threshold;
     cv::Scalar frame_crop_sigma;
@@ -284,19 +307,21 @@ void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & cente
     }
 }
 
-void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails & current_processing_state, arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
+void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails & current_processing_state, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
 {
-    double m, s;      
-    frame_vector = arma::conv_to<arma::vec>::from(current_processing_state.frames_16bit[indx]);
-    arma::vec processed_frame_vector = frame_vector;
-    m = arma::mean(frame_vector);
-    s = arma::stddev(frame_vector);
-    processed_frame_vector.clamp(m - clamp_low*s, m + clamp_high*s);
-    processed_frame_vector = processed_frame_vector - processed_frame_vector.min();
-    processed_frame_vector = 255*processed_frame_vector/processed_frame_vector.max();
-    processed_frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, processed_frame_vector.memptr());
+    cv::Scalar m, s;   
+    double minVal, maxVal;   
+    std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
+    cv::Mat tmp(nrows, ncols, CV_16UC1, frame_vector.data());
+    frame_matrix = tmp;
+    frame_matrix.convertTo(processed_frame_matrix, CV_16SC1);
+    cv::meanStdDev(frame_matrix, m, s);
+    int low_clamp = m[0] - clamp_low*s[0];
+    int high_clamp = m[0] + clamp_high*s[0];
+    processed_frame_matrix = cv::min(cv::max(frame_matrix, low_clamp), high_clamp);
+    processed_frame_matrix = processed_frame_matrix - low_clamp;
+    processed_frame_matrix = 255*processed_frame_matrix/(high_clamp - low_clamp);
     processed_frame_matrix.convertTo(processed_frame_matrix, CV_8UC1);
-    frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
 }
 
 void AutoTracking::HandleInterruption(QMessageBox::StandardButton &response, u_int i, u_int indx, u_int num_frames, arma::u64_mat & output, cv::Rect & ROI, cv::Mat &filtered_frame_matrix_8bit_color)
