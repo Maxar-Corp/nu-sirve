@@ -22,8 +22,8 @@ void AutoTracking::CancelOperation()
 // leverage OpenCV to track objects of interest
 arma::u64_mat AutoTracking::SingleTracker(
                                 u_int track_id,
-                                double clamp_low,
-                                double clamp_high,
+                                double clamp_low_coeff,
+                                double clamp_high_coeff,
                                 int threshold,
                                 string prefilter,
                                 string trackFeature,
@@ -64,7 +64,7 @@ arma::u64_mat AutoTracking::SingleTracker(
 
     double peak_counts_0, peak_counts_i, adjusted_integrated_counts_0, adjusted_integrated_counts_old, adjusted_integrated_counts_i;
 
-    GetProcessedFrameMatrix(start_frame, clamp_low, clamp_high, current_processing_state.details, frame_0_matrix, processed_frame_0_matrix);
+    GetProcessedFrameMatrix(start_frame, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, frame_0_matrix, processed_frame_0_matrix);
 
     // attenuate image noise of initial frame
     filtered_frame_0_matrix = processed_frame_0_matrix;
@@ -181,7 +181,7 @@ arma::u64_mat AutoTracking::SingleTracker(
         UpdateProgressBar(i);
         indx = (start_frame + i);
 
-        GetProcessedFrameMatrix(indx, clamp_low, clamp_high, current_processing_state.details, frame_i_matrix, processed_frame_i_matrix);
+        GetProcessedFrameMatrix(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, frame_i_matrix, processed_frame_i_matrix);
 
         filtered_frame_i_matrix = processed_frame_i_matrix;
         FilterImage(prefilter, processed_frame_i_matrix, filtered_frame_i_matrix);
@@ -256,7 +256,7 @@ void AutoTracking::FilterImage(string prefilter, cv::Mat & processed_frame_0_mat
     }
 }
 
-void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point, cv::Scalar frame_crop_mean, double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels)
+void  AutoTracking::GetTrackFeatureData(string trackFeature, int threshold, cv::Mat & frame_crop, cv::Point & frame_point, cv::Scalar frame_crop_mean, double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels)
 {
     cv::Mat frame_crop_threshold;
     cv::Scalar frame_crop_sigma;
@@ -307,20 +307,19 @@ void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & cente
     }
 }
 
-void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low, double clamp_high, VideoDetails & current_processing_state, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
+void AutoTracking::GetProcessedFrameMatrix(int indx, double clamp_low_coeff, double clamp_high_coeff, VideoDetails & current_processing_state, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix)
 {
-    cv::Scalar m, s;   
-    double minVal, maxVal;   
+    cv::Scalar m, s;    
     std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
     cv::Mat tmp(nrows, ncols, CV_16UC1, frame_vector.data());
     frame_matrix = tmp;
     frame_matrix.convertTo(processed_frame_matrix, CV_16SC1);
     cv::meanStdDev(frame_matrix, m, s);
-    int low_clamp = m[0] - clamp_low*s[0];
-    int high_clamp = m[0] + clamp_high*s[0];
-    processed_frame_matrix = cv::min(cv::max(frame_matrix, low_clamp), high_clamp);
-    processed_frame_matrix = processed_frame_matrix - low_clamp;
-    processed_frame_matrix = 255*processed_frame_matrix/(high_clamp - low_clamp);
+    int clamp_low = m[0] - clamp_low_coeff*s[0];
+    int clamp_high = m[0] + clamp_high_coeff*s[0];
+    processed_frame_matrix = cv::min(cv::max(frame_matrix, clamp_low), clamp_high);
+    processed_frame_matrix = processed_frame_matrix - clamp_low;
+    processed_frame_matrix = 255*processed_frame_matrix/(clamp_high - clamp_low);
     processed_frame_matrix.convertTo(processed_frame_matrix, CV_8UC1);
 }
 
