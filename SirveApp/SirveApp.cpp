@@ -3767,7 +3767,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
-    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames,video_display->container.processing_states[source_state_idx].details);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(video_display->container.processing_states[source_state_idx].details);
 
     if(video_display->container.processing_states[endi].details.frames_16bit.size()>0){
 
