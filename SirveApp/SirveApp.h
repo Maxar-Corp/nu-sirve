@@ -264,6 +264,7 @@ signals:
         void OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::vector<Quantity> quantities);
         void ClosePopoutEngineeringPlot();
 
+        // This next line should override that found in branch main, version 5.15.2:
         void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
 
 private:

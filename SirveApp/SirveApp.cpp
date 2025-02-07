@@ -3303,7 +3303,6 @@ void SirveApp::ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,in
 
 void SirveApp::ReceiveNewGoodPixels(std::vector<unsigned int> pixels)
 {
-    bool isReplacedBadPixelState = false;
     int source_state_idx = video_display->container.processing_states[video_display->container.current_idx].source_state_ID;
     int current_state_idx = video_display->container.processing_states[video_display->container.current_idx].state_ID;
     ProcessingMethod method = video_display->container.processing_states[video_display->container.current_idx].method;
@@ -3743,8 +3742,7 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
     video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
     int endi = video_display->container.processing_states.size()-1;
     int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
-    int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
-    int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
+
     video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
         video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
@@ -3877,26 +3875,12 @@ void SirveApp::HandleOsmTracksToggle()
         QStringList color_options = ColorScheme::get_track_colors();
         QColor color = color_options[cmb_OSM_track_color->currentIndex()];
         video_display->HandleTrackerColorUpdate(color);
-        // double xmax = data_plots->axis_x->max();
-        // double xmin = data_plots->axis_x->min();
-        // double ymax = data_plots->axis_y->max();
-        // double ymin = data_plots->axis_y->min();
-        // data_plots->RecolorOsmTrack(color);
-        // data_plots->set_xaxis_limits(xmin,xmax);
-        // data_plots->set_yaxis_limits(ymin,ymax);
     }
     else
     {
         cmb_OSM_track_color->setEnabled(false);
         QColor color = QColor(0,0,0,0);
         video_display->HandleTrackerColorUpdate(color);
-        // double xmax = data_plots->axis_x->max();
-        // double xmin = data_plots->axis_x->min();
-        // double ymax = data_plots->axis_y->max();
-        // double ymin = data_plots->axis_y->min();
-        // data_plots->RecolorOsmTrack(color);
-        // data_plots->set_xaxis_limits(xmin,xmax);
-        // data_plots->set_yaxis_limits(ymin,ymax);
     }
 }
 
