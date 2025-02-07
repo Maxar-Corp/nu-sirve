@@ -4,6 +4,11 @@ ImageProcessing::ImageProcessing()
     frameval = 0;
 
     cancel_operation = false;
+
+    min_deinterlace_dist = 1.5;
+    max_deinterlace_dist = 40;
+    deinterlace_kernel_size = 3;
+
 }
 
 ImageProcessing::~ImageProcessing() {
@@ -632,7 +637,7 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
     frame_vector /= frame_vector.max();
 }
 
-std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrelation(std::vector<Frame> osm_frames,VideoDetails & original)
+std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrelation(VideoDetails & original)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -661,25 +666,28 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrela
         odd_frame = frame.cols(odd_rows);
         even_frame = frame.cols(even_rows);
 
-        cv::Mat source( nRows2,nCols, CV_64FC1, even_frame.memptr() );
+        cv::Mat source( nRows2, nCols, CV_64FC1, even_frame.memptr() );
         cv::Mat source_blurred;
-        cv::GaussianBlur(source, source_blurred, cv::Size(3, 3), 0);
-        cv::Mat target( nRows2,nCols, CV_64FC1, odd_frame.memptr() );
+        cv::GaussianBlur(source, source_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
+        cv::Mat target( nRows2, nCols, CV_64FC1, odd_frame.memptr() );
         cv::Mat target_blurred;
-        cv::GaussianBlur(target, target_blurred, cv::Size(3, 3), 0);
+        cv::GaussianBlur(target, target_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
         cv::Point2d shift = cv::phaseCorrelate(target_blurred,source_blurred);
         if(shift == shift)
         {
             yOffset = shift.y;
             xOffset = shift.x;
             double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-            if(d < 40 && d >1.5)
+            if (d < max_deinterlace_dist && d > min_deinterlace_dist)
             {
-                cv::Mat H = (cv::Mat_<float>(2, 3) << 1.0, 0.0, -shift.x, 0.0, 1.0, -shift.y);
+                cv::Mat H = (cv::Mat_<float>(2, 3) << 1.0, 0.0, -shift.x/2, 0.0, 1.0, -shift.y/2);
                 cv::Mat res;
-                warpAffine(source, res, H, target_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
+                warpAffine(source, res, H, target_blurred.size(), cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
+                cv::Mat H2 = (cv::Mat_<float>(2, 3) << 1.0, 0.0, shift.x/2, 0.0, 1.0, shift.y/2);
+                cv::Mat res2;
+                warpAffine(target, res2, H2, source_blurred.size(), cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
                 arma::mat arma_mat_source( reinterpret_cast<double*>(res.data), res.cols, res.rows );
-                arma::mat arma_mat_target( reinterpret_cast<double*>(target.data), target.cols,target.rows );
+                arma::mat arma_mat_target( reinterpret_cast<double*>(res2.data), res2.cols, res2.rows );
                 output.cols(odd_rows) = arma_mat_target;
                 output.cols(even_rows) = arma_mat_source;
             }
@@ -708,23 +716,26 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
 
     cv::Mat source( nRows2,nCols, CV_64FC1, even_frame.memptr() );
     cv::Mat source_blurred;
-    cv::GaussianBlur(source, source_blurred, cv::Size(3, 3), 0);
+    cv::GaussianBlur(source, source_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
     cv::Mat target( nRows2,nCols, CV_64FC1, odd_frame.memptr() );
     cv::Mat target_blurred;
-    cv::GaussianBlur(target, target_blurred, cv::Size(3, 3), 0);
+    cv::GaussianBlur(target, target_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
     cv::Point2d shift = cv::phaseCorrelate(target_blurred,source_blurred);
     if(shift == shift)
     {
         yOffset = shift.y;
         xOffset = shift.x;
         double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        if(d < 40 && d >1.5)
+        if (d < max_deinterlace_dist && d > min_deinterlace_dist)
         {
-            cv::Mat H = (cv::Mat_<float>(2, 3) << 1.0, 0.0, -shift.x, 0.0, 1.0, -shift.y);
+            cv::Mat H = (cv::Mat_<float>(2, 3) << 1.0, 0.0, -shift.x/2, 0.0, 1.0, -shift.y/2);
             cv::Mat res;
             warpAffine(source, res, H, target_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
+            cv::Mat H2 = (cv::Mat_<float>(2, 3) << 1.0, 0.0, shift.x/2, 0.0, 1.0, shift.y/2);
+            cv::Mat res2;
+            warpAffine(target, res2, H2, source_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
             arma::mat arma_mat_source( reinterpret_cast<double*>(res.data), res.cols, res.rows );
-            arma::mat arma_mat_target( reinterpret_cast<double*>(target.data), target.cols,target.rows );
+            arma::mat arma_mat_target( reinterpret_cast<double*>(res2.data), res2.cols, res2.rows );
             output.cols(odd_rows) = arma_mat_target;
             output.cols(even_rows) = arma_mat_source;
         }
