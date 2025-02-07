@@ -140,7 +140,7 @@ arma::u64_mat AutoTracking::SingleTracker(
 
         rectangle(filtered_frame_i_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
         cv::namedWindow(window_name_i, cv::WINDOW_AUTOSIZE);
-        cv::moveWindow(window_name_i, 500, 50);  // Move window to (500,50) coordinates
+        cv::moveWindow(window_name_i, 1000, 50);  // Move window to (1000,50) coordinates
         cv::imshow(window_name_i, filtered_frame_i_8bit_color);
         output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,Num_NonZero_ROI_Pixels_i, static_cast<uint64_t>(adjusted_integrated_counts_i), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
          
@@ -237,7 +237,7 @@ void AutoTracking::InitializeTracking(
             GetValidROI(window_name_lost, ROI, filtered_frame_8bit_color_resize, output);
         }
     }
-    if (!ROI.empty())
+    if (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0))
     {
         ROI.x /= N;
         ROI.y /= N;
@@ -247,6 +247,14 @@ void AutoTracking::InitializeTracking(
         base_frame_crop = base_frame(ROI);
         tracker->init(filtered_frame_8bit_color,ROI);
         cancel_operation = false;
+    }
+    else
+    {
+        QtHelpers::LaunchMessageBox("Invalid ROI", "There was an error in the ROI selection. Exiting without saving.");
+        cv::destroyAllWindows();
+        cancel_operation = true;
+        output = arma::u64_mat();
+        return;
     }
 }
 
@@ -267,7 +275,7 @@ void AutoTracking::GetValidROI(string window_name, cv::Rect & ROI, cv::Mat & fil
             ROI.width = 0;
             ROI.height = 0;
             cv::destroyAllWindows();
-            QtHelpers::LaunchMessageBox("Canceled", "ROI selection canceled. Exiting without saving.");
+            QtHelpers::LaunchMessageBox("Cancelled", "ROI selection Cancelled. Exiting without saving.");
             cancel_operation = true;
             output = arma::u64_mat();
         } else if (cv::getWindowProperty(window_name, cv::WND_PROP_VISIBLE) < 1) {
@@ -277,14 +285,8 @@ void AutoTracking::GetValidROI(string window_name, cv::Rect & ROI, cv::Mat & fil
             break;
         }
     }
+    return;
 
-    if (ROI.width == 0 || ROI.height == 0)
-    {
-        QtHelpers::LaunchMessageBox("Invalid ROI", "There was an error in the ROI selection. Exiting without saving.");
-        cv::destroyAllWindows();
-        cancel_operation = true;
-        output = arma::u64_mat();
-    }
 }
 
 void  AutoTracking::GetTrackFeatureData(
@@ -302,7 +304,6 @@ void  AutoTracking::GetTrackFeatureData(
 {
     cv::Scalar frame_crop_mean, frame_crop_sigma, base_frame_crop_mean, base_frame_crop_sigma;
  
-    // cv::meanStdDev(base_frame_crop, base_frame_crop_mean, base_frame_crop_sigma);
     cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
 
     cv::Mat frame_crop_threshold, frame_crop_threshold_binary, base_frame_crop_threshold;
