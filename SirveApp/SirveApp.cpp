@@ -1575,7 +1575,7 @@ void SirveApp::HandleFinishCreateTrackClick()
 
         tm_widget->AddTrackControl(currently_editing_or_creating_track_id);
         video_display->AddManualTrackIdToShowLater(currently_editing_or_creating_track_id);
-        track_info->AddCreatedManualTrack(currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
+        track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
 
         int index0 = data_plots->index_sub_plot_xmin;
         int index1 = data_plots->index_sub_plot_xmax + 1;
@@ -4590,7 +4590,7 @@ void SirveApp::ExecuteAutoTracking()
         double clamp_high = txt_gain_sigma->text().toDouble();
         int threshold = 6 - cmb_autotrack_threshold->currentIndex();
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
@@ -4607,14 +4607,11 @@ void SirveApp::ExecuteAutoTracking()
                 }
             }
             offset_matrix2.shed_col(0);
-            arma::mat offset_matrix3 = offset_matrix2;
-            offset_matrix2.insert_cols(0,2);
-            offset_matrix2.insert_cols(offset_matrix2.n_cols,6);
-            arma::mat offset_matrix4 = arma::join_rows(offset_matrix2,offset_matrix3);
-            offset_matrix4.insert_cols(offset_matrix4.n_cols,2);
+            offset_matrix2.insert_cols(0,4);
+            offset_matrix2.insert_cols(offset_matrix2.n_cols,10);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
-            autotrack_d += offset_matrix4;
-            autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
+            autotrack_d += offset_matrix2;
+            autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
         }
 
         if (!autotrack.empty()){
@@ -4622,24 +4619,26 @@ void SirveApp::ExecuteAutoTracking()
             TrackDetails details;
             for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
-                details.centroid_x = autotrack(rowii,2);
-                details.centroid_y = autotrack(rowii,3);
-                details.peak_counts = autotrack(rowii,4);
-                details.sum_counts = autotrack(rowii,5);
-                details.sum_ROI_counts = autotrack(rowii,6);
-                details.N_threshold_pixels = autotrack(rowii,7);
-                details.N_ROI_pixels = autotrack(rowii,8);
-                details.irradiance =  autotrack(rowii,9);
-                details.ROI_x = autotrack(rowii,10);
-                details.ROI_y = autotrack(rowii,11);
-                details.ROI_Width = autotrack(rowii,12);
-                details.ROI_Height = autotrack(rowii,13);
+                details.centroid_x_boresight = autotrack(rowii,2);
+                details.centroid_y_boresight = autotrack(rowii,3);
+                details.centroid_x = autotrack(rowii,4);
+                details.centroid_y = autotrack(rowii,5);
+                details.peak_counts = autotrack(rowii,6);
+                details.sum_counts = autotrack(rowii,7);
+                details.sum_ROI_counts = autotrack(rowii,8);
+                details.N_threshold_pixels = autotrack(rowii,9);
+                details.N_ROI_pixels = autotrack(rowii,10);
+                details.irradiance =  autotrack(rowii,11);
+                details.ROI_x = autotrack(rowii,12);
+                details.ROI_y = autotrack(rowii,13);
+                details.ROI_Width = autotrack(rowii,14);
+                details.ROI_Height = autotrack(rowii,15);
                 track_details[autotrack(rowii,1)-1] = details;
             }
 
             tm_widget->AddTrackControl(track_id);
             video_display->AddManualTrackIdToShowLater(track_id);
-            track_info->AddCreatedManualTrack(track_id, track_details, new_track_file_name);
+            track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
 
             int index0 = data_plots->index_sub_plot_xmin;
             int index1 = data_plots->index_sub_plot_xmax + 1;
