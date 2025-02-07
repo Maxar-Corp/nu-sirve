@@ -309,7 +309,7 @@ void  AutoTracking::GetTrackFeatureData(
 
     sum_ROI_counts = cv::sum(base_frame_crop);
     Num_NonZero_ROI_Pixels = cv::countNonZero(base_frame_crop > 0);
-    cv::minMaxLoc(base_frame_crop, NULL, &peak_counts, NULL, NULL);
+    cv::minMaxLoc(base_frame_crop, NULL, &peak_counts, NULL, & frame_point);
     cv::inRange(frame_crop, 0, frame_crop_mean[0]+threshold*frame_crop_sigma[0],frame_crop_threshold_binary);
     base_frame_crop.copyTo(base_frame_crop_threshold, frame_crop_threshold_binary);
     sum_counts = cv::sum(base_frame_crop_threshold);
@@ -326,10 +326,6 @@ void  AutoTracking::GetTrackFeatureData(
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
         frame_point = frame_temp_point;
     }
-    else{
-        cv::minMaxLoc(base_frame_crop, NULL, &peak_counts, NULL, &frame_point);
-    }
-
 }
 
 void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
