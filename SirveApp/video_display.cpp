@@ -608,12 +608,13 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         details.centroid_x = round(x2 + xCorrection + ROI.x);
         details.centroid_y = round(y2 + yCorrection + ROI.y);
     }
+    details.centroid_x_boresight = details.centroid_x - SirveAppConstants::VideoDisplayWidth/2;
+    details.centroid_y_boresight = details.centroid_y - SirveAppConstants::VideoDisplayHeight/2;
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
-    cv::Rect ROI2(minx + xCorrection,miny + yCorrection,ROI_width,ROI_height);
     VideoDetails & base_processing_state_details =  base_processing_state.details;
     details.irradiance =  IrradianceCountsCalc::ComputeIrradiance(this->counter, ROI_height/2, ROI_width/2, details.centroid_x, details.centroid_y, base_processing_state_details);
     details.ROI_x = minx + xCorrection;
