@@ -1321,13 +1321,13 @@ void SirveApp::ImportTracks()
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     for ( int track_id : result.track_ids )
     {
+        video_display->AddManualTrackIdToShowLater(track_id);
+        tm_widget->AddTrackControl(track_id);
         if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
         {
             auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "Warning: Overwriting track ID: " + QString::number(track_id));
             if (response == QMessageBox::Yes)
             {
-                video_display->AddManualTrackIdToShowLater(track_id);
-                tm_widget->AddTrackControl(track_id);
                 QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
                 if (existing_track_control != nullptr)
                 {
@@ -1340,14 +1340,15 @@ void SirveApp::ImportTracks()
                 int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
                 video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-                plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+                for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+                {
+                    plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+                }
                 FramePlotSpace();
             }
         }
         else
         {
-            video_display->AddManualTrackIdToShowLater(track_id);
-            tm_widget->AddTrackControl(track_id);
             track_info->AddManualTracks(result.frames);
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
@@ -1366,7 +1367,10 @@ void SirveApp::ImportTracks()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
             int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
             video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+            {
+                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            }
             FramePlotSpace();
         }
 
