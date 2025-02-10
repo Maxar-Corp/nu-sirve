@@ -66,7 +66,7 @@ arma::u64_mat AutoTracking::SingleTracker(
     Ptr<Tracker> tracker = TrackerMIL::create();
 
     bool valid_ROI, step_success;
-    cv::Rect ROI, bbox;
+    cv::Rect ROI;
 
     int i = 0;
     indx = (start_frame + i);
@@ -407,10 +407,13 @@ void AutoTracking::TrackingStep(
     bool ok = tracker->update(display_frame, ROI);
     frame_crop = frame(ROI);
     raw_frame_crop = raw_frame(ROI);
-    GetTrackFeatureData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
-    GetPointXY(frame_point, ROI, frame_x, frame_y);
     arma::mat offsets = offsets_matrix.row(i);
     FindBlobExtent(frame_crop, ROI, bbox, offsets);
+    frame_crop = frame(bbox);
+    raw_frame_crop = raw_frame(bbox);
+    GetTrackFeatureData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
+    GetPointXY(frame_point, bbox, frame_x, frame_y);
+
     adjusted_integrated_counts = IrradianceCountsCalc::ComputeIrradiance(indx, bbox, base_processing_state_details);
     stats(adjusted_integrated_counts_old);
     S = stats.stddev();
@@ -464,7 +467,7 @@ void  AutoTracking::GetTrackFeatureData(
     frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
     imshow("Thresholded ROI",frame_crop_threshold_resize);
     cv::moveWindow("Thresholded ROI", 700, 50);
-    
+
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){   
         // frame_crop.copyTo(frame_crop_threshold,frame_crop_threshold_binary);
         cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
@@ -532,6 +535,7 @@ void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rec
         cv::resize(output, output_resize2, cv::Size(M*output.cols, M*output.rows));
         cv::imshow("Blob Extent", output_resize2);
         cv::moveWindow("Blob Extent", 1400, 50);
+        
         bbox.x = ROI.x + bbox.x + offsets(0,0);
         bbox.y = ROI.y + bbox.y + offsets(0,1);
 
