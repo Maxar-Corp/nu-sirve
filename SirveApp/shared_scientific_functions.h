@@ -7,7 +7,7 @@
 
 namespace IrradianceCountsCalc
 {
-    double ComputeIrradiance(int indx, int height2, int width2, int x, int y, VideoDetails & base_processing_state_details);
+    double ComputeIrradiance(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details);
 };
 
 #endif

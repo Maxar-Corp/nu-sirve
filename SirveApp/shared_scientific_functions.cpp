@@ -1,6 +1,6 @@
 #include "shared_scientific_functions.h"
 
-double IrradianceCountsCalc::ComputeIrradiance(int indx, int height2, int width2, int x, int y, VideoDetails & base_processing_state_details)
+double IrradianceCountsCalc::ComputeIrradiance(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details)
 {
     int number_median_frames = 30;
     double irradiance_val;
@@ -8,13 +8,13 @@ double IrradianceCountsCalc::ComputeIrradiance(int indx, int height2, int width2
     int start_indx;
     start_indx = std::max(indx - number_median_frames,0);
 
-    int nRows = base_processing_state_details.y_pixels;
-    int nCols = base_processing_state_details.x_pixels;
+    int nRows = SirveAppConstants::VideoDisplayHeight;
+    int nCols = SirveAppConstants::VideoDisplayWidth;
 
-    int row1 = std::max(y - height2,0);
-    int row2 = std::min(y + height2,nRows);
-    int col1 = std::max(x - width2,0);
-    int col2 = std::min(x + width2,nCols);
+    int row1 = std::max(boundingBox.y,0);
+    int row2 = std::min(boundingBox.y + boundingBox.height, nCols);
+    int col1 = std::max(boundingBox.x,0);
+    int col2 = std::min(boundingBox.x + boundingBox.width, nRows);
 
     arma::cube data_cube(nCols, nRows, number_median_frames+1);
 

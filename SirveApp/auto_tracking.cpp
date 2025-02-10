@@ -35,18 +35,15 @@ arma::u64_mat AutoTracking::SingleTracker(
                                 QString new_track_file_name
                                 )
 {
-    cv::Scalar filtered_mean_i, filtered_sigma_i;
+    double peak_counts, S;
 
-    cv::Scalar sum_counts_0, sum_ROI_counts_0, sum_counts_i, sum_ROI_counts_i;
+    cv::Scalar sum_counts, sum_ROI_counts;
 
-    cv::Mat frame_0, frame_i, base_frame_0, base_frame_i, processed_frame_0, processed_frame_i, filtered_frame_0,
-            filtered_frame_i, frame_filtered_8bit, filtered_frame_0_8bit_color, filtered_frame_i_8bit_color, filtered_frame_i_8bit_color_clean;
+    cv::Mat frame, raw_frame, display_frame, clean_display_frame;
 
-    cv::Mat frame_0_crop, frame_i_crop, base_frame_0_crop, base_frame_i_crop, filtered_frame_0_8bit_color_resize, filtered_frame_i_8bit_color_resize;
+    cv::Mat frame_crop, raw_frame_crop, display_frame_resize;
 
-    arma::vec frame_0_vector, frame_i_vector;
-
-    u_int frame_0_x, frame_0_y, frame_i_x, frame_i_y;
+    arma::vec frame_vector;
 
     u_int indx, num_frames = stop_frame - start_frame + 1;
 
@@ -56,54 +53,121 @@ arma::u64_mat AutoTracking::SingleTracker(
 
     arma::mat offsets_matrix;
 
-    cv::Point frame_0_point, frame_i_point;
+    cv::Point frame_point;
 
-    double peak_counts_0, peak_counts_i, adjusted_integrated_counts_0, adjusted_integrated_counts_old, adjusted_integrated_counts_i;
-
-    uint N_threshold_pixels_0, Num_NonZero_ROI_Pixels_0, N_threshold_pixels_i, Num_NonZero_ROI_Pixels_i;
+    uint N_threshold_pixels, Num_NonZero_ROI_Pixels;
 
     string choice;
 
-    CreateOffsetMatrix(start_frame,stop_frame, current_processing_state, offsets_matrix);
+    CreateOffsetMatrix(start_frame ,stop_frame, current_processing_state, offsets_matrix);
 
     cv::startWindowThread();
 
     Ptr<Tracker> tracker = TrackerMIL::create();
 
-    bool valid_ROI;
-    cv::Rect ROI;
+    bool valid_ROI, step_success;
+    cv::Rect ROI, bbox;
 
     int i = 0;
     indx = (start_frame + i);
 
-    GetFrameRepresentations(start_frame, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame_0, processed_frame_0, base_frame_0);
-    FilterImage(prefilter, processed_frame_0, filtered_frame_0_8bit_color, filtered_frame_i_8bit_color_clean); 
-    InitializeTracking(false, i, indx, num_frames, output, ROI, filtered_frame_i_8bit_color_clean, frame_0, frame_0_crop, base_frame_0, base_frame_0_crop, tracker, choice);
-    CheckROI(ROI, valid_ROI);
+    InitializeTracking(
+                        false,
+                        i,
+                        indx,
+                        num_frames,
+                        clamp_low_coeff,
+                        clamp_high_coeff,
+                        current_processing_state.details,
+                        base_processing_state_details,
+                        prefilter,
+                        display_frame,
+                        clean_display_frame,
+                        ROI,
+                        valid_ROI,
+                        frame,
+                        frame_crop,
+                        raw_frame,
+                        raw_frame_crop,
+                        tracker,
+                        choice,
+                        stats
+                    );
+
+
     if (!valid_ROI || choice == "Discard")
     {
         output = arma::u64_mat();
         return output;
     }
-    GetTrackFeatureData(trackFeature, threshold, frame_0_crop, base_frame_0_crop, frame_0_point, peak_counts_0, sum_counts_0, sum_ROI_counts_0, N_threshold_pixels_0, Num_NonZero_ROI_Pixels_0);
-    GetPointXY(frame_0_point, ROI, frame_0_x, frame_0_y);
-    adjusted_integrated_counts_0 = IrradianceCountsCalc::ComputeIrradiance(start_frame, ROI.height/2, ROI.width/2, frame_0_x + offsets_matrix(0,0), frame_0_y + offsets_matrix(0,1), base_processing_state_details);
-    adjusted_integrated_counts_old = adjusted_integrated_counts_0;
-    stats(adjusted_integrated_counts_old);
 
-    output.row(0) = {track_id, frame0, frame_0_x, frame_0_y, static_cast<uint16_t>(peak_counts_0),static_cast<uint32_t>(sum_counts_0[0]), static_cast<uint32_t>(sum_ROI_counts_0[0]), N_threshold_pixels_0, Num_NonZero_ROI_Pixels_0, static_cast<uint64_t>(adjusted_integrated_counts_0), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
-
-    bool step_success = false;
-
-    string window_name_i = "Tracking... ";
- 
     while (i < num_frames)
     {
+
         UpdateProgressBar(i);
 
-        if (cancel_operation)
-        {                                 
-            InitializeTracking(true, i, indx, num_frames, output, ROI, filtered_frame_i_8bit_color_clean, frame_i, frame_i_crop, base_frame_i, base_frame_i_crop, tracker, choice);
+        TrackingStep(
+                    i,
+                    indx,
+                    track_id,
+                    frame0,
+                    clamp_low_coeff,
+                    clamp_high_coeff,
+                    current_processing_state,
+                    base_processing_state_details,
+                    prefilter,
+                    tracker,
+                    trackFeature,
+                    display_frame,
+                    clean_display_frame,
+                    threshold,
+                    ROI,
+                    frame,                           
+                    frame_crop,
+                    raw_frame,
+                    raw_frame_crop,
+                    frame_point,
+                    stats,
+                    step_success,
+                    S,
+                    peak_counts,
+                    sum_counts,
+                    sum_ROI_counts,
+                    N_threshold_pixels,
+                    Num_NonZero_ROI_Pixels,
+                    offsets_matrix,
+                    output
+                    );
+
+        
+        i+=1;
+        indx = (start_frame + i);
+        if ((S>0 && !step_success) || (cancel_operation))
+        {
+            i -=1;
+            indx -=1;
+            InitializeTracking(
+                                true,
+                                i,
+                                indx,
+                                num_frames,
+                                clamp_low_coeff,
+                                clamp_high_coeff,
+                                current_processing_state.details,
+                                base_processing_state_details,
+                                prefilter,
+                                display_frame,
+                                clean_display_frame,
+                                ROI,
+                                valid_ROI,
+                                frame,
+                                frame_crop,
+                                raw_frame,
+                                raw_frame_crop,
+                                tracker,
+                                choice,
+                                stats
+                            );
             CheckROI(ROI, valid_ROI);
             if (!valid_ROI || choice == "Discard")
             {
@@ -115,59 +179,24 @@ arma::u64_mat AutoTracking::SingleTracker(
                 output.shed_rows(i,num_frames-1);
                 return output;
             }
-            step_success = true;
         }
-
-        indx = (start_frame + i);
-
-        GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame_i, processed_frame_i, base_frame_i);
-        FilterImage(prefilter, processed_frame_i, filtered_frame_i_8bit_color, filtered_frame_i_8bit_color_clean);
-        bool ok = tracker->update(filtered_frame_i_8bit_color, ROI);
-        frame_i_crop = frame_i(ROI);
-        base_frame_i_crop = base_frame_i(ROI);
-        GetTrackFeatureData(trackFeature, threshold, frame_i_crop, base_frame_i_crop, frame_i_point, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, Num_NonZero_ROI_Pixels_i);
-        GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);
-        adjusted_integrated_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offsets_matrix(i,0), frame_i_y+ offsets_matrix(i,1), base_processing_state_details);
-        stats(adjusted_integrated_counts_old);
-        double S = stats.stddev();
-        step_success = (ok && abs((adjusted_integrated_counts_i - stats.mean())) <= 6*S);
-
-        if (S>0 && !step_success)
-        {
-            InitializeTracking(true, i, indx, num_frames, output, ROI, filtered_frame_i_8bit_color_clean, frame_i, frame_i_crop, base_frame_i, base_frame_i_crop, tracker, choice);
-            CheckROI(ROI, valid_ROI);
-            if (!valid_ROI || choice == "Discard")
-            {
-                output = arma::u64_mat();
-                return output;
-            }
-            else if (choice == "Save")
-            {
-                return output;
-            }
-            GetTrackFeatureData(trackFeature, threshold, frame_i_crop, base_frame_i_crop, frame_i_point, peak_counts_i, sum_counts_i, sum_ROI_counts_i, N_threshold_pixels_i, Num_NonZero_ROI_Pixels_i);
-            GetPointXY(frame_i_point, ROI, frame_i_x, frame_i_y);  
-            adjusted_integrated_counts_i = IrradianceCountsCalc::ComputeIrradiance(indx, ROI.height/2, ROI.width/2, frame_i_x + offsets_matrix(i,0), frame_i_y + offsets_matrix(i,1), base_processing_state_details);       
-            adjusted_integrated_counts_old = adjusted_integrated_counts_i;
-            stats(adjusted_integrated_counts_old);
-
-            step_success = true;
-        }
-
-        rectangle(filtered_frame_i_8bit_color, ROI, cv::Scalar( 0, 0, 255 ), 2);
-        cv::namedWindow(window_name_i, cv::WINDOW_AUTOSIZE);
-        cv::moveWindow(window_name_i, 1000, 50);  // Move window to (1000,50) coordinates
-        cv::imshow(window_name_i, filtered_frame_i_8bit_color);
-        output.row(i) = {track_id, frame0 + i, frame_i_x ,frame_i_y, static_cast<uint16_t>(peak_counts_i),static_cast<uint32_t>(sum_counts_i[0]),static_cast<uint32_t>(sum_ROI_counts_i[0]),N_threshold_pixels_i,Num_NonZero_ROI_Pixels_i, static_cast<uint64_t>(adjusted_integrated_counts_i), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
-         
-        cv::waitKey(1);
-        i+=1;
     }
     cv::destroyAllWindows();
     return output;
 }
 
-void AutoTracking::GetFrameRepresentations(int indx, double clamp_low_coeff, double clamp_high_coeff, VideoDetails & current_processing_state, VideoDetails & base_processing_details, cv::Mat & frame, cv::Mat & processed_frame, cv::Mat & base_frame)
+void AutoTracking::GetFrameRepresentations(
+                                            int indx,
+                                            double clamp_low_coeff,
+                                            double clamp_high_coeff,
+                                            VideoDetails & current_processing_state,
+                                            VideoDetails & base_processing_details,
+                                            cv::Mat & frame,
+                                            string prefilter,
+                                            cv::Mat & display_frame,
+                                            cv::Mat & clean_display_frame,
+                                            cv::Mat & raw_frame
+                                        )
 {
     cv::Scalar m, s;    
     std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
@@ -176,31 +205,31 @@ void AutoTracking::GetFrameRepresentations(int indx, double clamp_low_coeff, dou
     cv::meanStdDev(frame, m, s);
     int clamp_low = m[0] - clamp_low_coeff*s[0];
     int clamp_high = m[0] + clamp_high_coeff*s[0];
-    processed_frame = cv::min(cv::max(frame, clamp_low), clamp_high);
-    processed_frame = processed_frame - clamp_low;
-    processed_frame = 255*processed_frame/(clamp_high - clamp_low);
-    processed_frame.convertTo(processed_frame, CV_8UC1);
+    display_frame = cv::min(cv::max(frame, clamp_low), clamp_high);
+    display_frame = display_frame - clamp_low;
+    display_frame = 255*display_frame/(clamp_high - clamp_low);
+    display_frame.convertTo(display_frame, cv::COLOR_GRAY2BGR);
 
-    std::vector<uint16_t> base_frame_vector = base_processing_details.frames_16bit[indx];
-    cv::Mat tmp2(nrows, ncols, CV_16UC1, base_frame_vector.data());
-    tmp2.convertTo(base_frame, CV_32FC1);  
+    std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
+    cv::Mat tmp2(nrows, ncols, CV_16UC1, raw_frame_vector.data());
+    tmp2.convertTo(raw_frame, CV_32FC1);  
+
+    FilterImage(prefilter, display_frame, clean_display_frame);
 }
 
-void AutoTracking::FilterImage(string prefilter, cv::Mat & input_frame, cv::Mat & output_frame, cv::Mat & output_frame_clean)
+void AutoTracking::FilterImage(string prefilter, cv::Mat & display_frame, cv::Mat & clean_display_frame)
 {
-  output_frame = input_frame;
   if(prefilter=="GAUSSIAN"){
-        cv::GaussianBlur(input_frame, output_frame, cv::Size(5,5), 0);
+        cv::GaussianBlur(display_frame, display_frame, cv::Size(5,5), 0);
     }
     else if(prefilter=="MEDIAN"){
-        cv::medianBlur(input_frame, output_frame, 5);      
+        cv::medianBlur(display_frame, display_frame, 5);      
     }
     else if(prefilter=="NLMEANS"){
-        cv::fastNlMeansDenoising(input_frame, output_frame);
+        cv::fastNlMeansDenoising(display_frame, display_frame);
     }
-    cv::Mat output_frame_tmp = output_frame;
-    cv::cvtColor(output_frame, output_frame,cv::COLOR_GRAY2RGB);
-    cv::cvtColor(output_frame_tmp, output_frame_clean,cv::COLOR_GRAY2RGB);
+    cv::cvtColor(display_frame, display_frame,cv::COLOR_GRAY2RGB);
+    clean_display_frame = display_frame.clone();
 }
 
 void AutoTracking::InitializeTracking(
@@ -208,23 +237,44 @@ void AutoTracking::InitializeTracking(
                                     u_int i,
                                     u_int indx,
                                     u_int num_frames,
-                                    arma::u64_mat & output,
+                                    double clamp_low_coeff,
+                                    double clamp_high_coeff,
+                                    VideoDetails & current_processing_state,
+                                    VideoDetails & base_processing_details,
+                                    string prefilter,
+                                    cv::Mat & display_frame,
+                                    cv::Mat & clean_display_frame,
                                     cv::Rect & ROI,
-                                    cv::Mat & filtered_frame_8bit_color,
+                                    bool & valid_ROI,
                                     cv::Mat & frame,
                                     cv::Mat & frame_crop,
-                                    cv::Mat & base_frame,
-                                    cv::Mat & base_frame_crop,
+                                    cv::Mat & raw_frame,
+                                    cv::Mat & raw_frame_crop,
                                     Ptr<Tracker> tracker,
-                                    string & choice
+                                    string & choice,
+                                    arma::running_stat<double> & stats
                                     )
 {
-    cv::Mat filtered_frame_8bit_color_resize;
+    cv::Mat display_frame_resize;
+
+    GetFrameRepresentations(
+                        indx,
+                        clamp_low_coeff,
+                        clamp_high_coeff,
+                        current_processing_state,
+                        base_processing_details,
+                        frame,
+                        prefilter,
+                        display_frame,
+                        clean_display_frame,
+                        raw_frame
+                    );
+
     if (!isRestart)
     {
-        cv::resize(filtered_frame_8bit_color, filtered_frame_8bit_color_resize, cv::Size(N*ncols, N*nrows));
+        cv::resize(display_frame, display_frame_resize, cv::Size(N*ncols, N*nrows));
         string ROI_window_name = "Region of Interest (ROI) Selection - Press Escape twice to Cancel, or Select ROI then Hit Enter twice to Continue.";
-        GetROI(ROI_window_name, ROI, filtered_frame_8bit_color_resize, output);
+        GetROI(ROI_window_name, ROI, display_frame_resize);
         choice = "Continue";
     }
     else
@@ -253,30 +303,32 @@ void AutoTracking::InitializeTracking(
         else
         {
             string window_name_lost = "Track Paused or Lost. " + std::to_string(indx) + " Select ROI again.";
-            cv::resize(filtered_frame_8bit_color, filtered_frame_8bit_color_resize, cv::Size(N*ncols, N*nrows));
-            GetROI(window_name_lost, ROI, filtered_frame_8bit_color_resize, output);
+            cv::resize(display_frame, display_frame_resize, cv::Size(N*ncols, N*nrows));
+            GetROI(window_name_lost, ROI, display_frame_resize);
             choice = "Continue";
         }
     }
-    if (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0))
+    CheckROI(ROI, valid_ROI);
+    if (valid_ROI)
     {
         ROI.x /= N;
         ROI.y /= N;
         ROI.width /= N;
         ROI.height /= N;
         frame_crop = frame(ROI);
-        base_frame_crop = base_frame(ROI);
-        tracker->init(filtered_frame_8bit_color,ROI);
+        raw_frame_crop = raw_frame(ROI);
+        tracker->init(display_frame,ROI);
         cancel_operation = false;
+        stats.reset();
     }
 
 }
 
-void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize, arma::u64_mat & output)
+void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_frame_resize)
 {
     cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
     cv::moveWindow(window_name, 50, 50);  // Move window to (50,50) coordinates
-    ROI = cv::selectROI(window_name, filtered_frame_8bit_color_resize);
+    ROI = cv::selectROI(window_name, display_frame_resize);  
 
     while (true)
     {
@@ -291,7 +343,6 @@ void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered
             cv::destroyAllWindows();
             QtHelpers::LaunchMessageBox("Cancelled", "ROI selection Cancelled. Exiting without saving.");
             cancel_operation = true;
-            output = arma::u64_mat();
             break;
         } else if (cv::getWindowProperty(window_name, cv::WND_PROP_VISIBLE) < 1) {
             // Window has been closed
@@ -302,11 +353,85 @@ void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered
     }
 }
 
+
+void AutoTracking::TrackingStep(
+                                int i,
+                                int indx,
+                                uint track_id,
+                                uint frame0,
+                                double clamp_low_coeff,
+                                double clamp_high_coeff,
+                                processingState & current_processing_state,
+                                VideoDetails & base_processing_state_details,
+                                string & prefilter,
+                                Ptr<Tracker> & tracker,
+                                string trackFeature,
+                                cv::Mat & display_frame,
+                                cv::Mat & clean_display_frame,
+                                int threshold,
+                                cv::Rect & ROI,
+                                cv::Mat & frame,                           
+                                cv::Mat & frame_crop,
+                                cv::Mat & raw_frame,
+                                cv::Mat & raw_frame_crop,
+                                cv::Point & frame_point,
+                                arma::running_stat<double> &stats,
+                                bool & step_success,
+                                double & S,
+                                double & peak_counts,
+                                cv::Scalar & sum_counts,
+                                cv::Scalar & sum_ROI_counts,
+                                uint & N_threshold_pixels,
+                                uint & Num_NonZero_ROI_Pixels,
+                                arma::mat & offsets_matrix,
+                                arma::u64_mat & output
+                                )
+{
+    u_int frame_x, frame_y, peak_count;
+    double adjusted_integrated_counts, adjusted_integrated_counts_old = 0.0;
+    
+    cv::Rect bbox;
+
+    GetFrameRepresentations(
+        indx,
+        clamp_low_coeff,
+        clamp_high_coeff,
+        current_processing_state.details,
+        base_processing_state_details,
+        frame,
+        prefilter,
+        display_frame,
+        clean_display_frame,
+        raw_frame
+    );
+
+    bool ok = tracker->update(display_frame, ROI);
+    frame_crop = frame(ROI);
+    raw_frame_crop = raw_frame(ROI);
+    GetTrackFeatureData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
+    GetPointXY(frame_point, ROI, frame_x, frame_y);
+    arma::mat offsets = offsets_matrix.row(i);
+    FindBlobExtent(frame_crop, ROI, bbox, offsets);
+    adjusted_integrated_counts = IrradianceCountsCalc::ComputeIrradiance(indx, bbox, base_processing_state_details);
+    stats(adjusted_integrated_counts_old);
+    S = stats.stddev();
+    step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 6*S);
+
+    string window_name = "Tracking... ";
+    rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
+    rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
+    cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
+    cv::moveWindow(window_name, 1000, 50);  // Move window to (1000,50) coordinates
+    cv::imshow(window_name, display_frame);     
+    cv::waitKey(1);
+    output.row(i) = {track_id, frame0 + i, frame_x ,frame_y, static_cast<uint16_t>(peak_counts),static_cast<uint32_t>(sum_counts[0]),static_cast<uint32_t>(sum_ROI_counts[0]),N_threshold_pixels,Num_NonZero_ROI_Pixels, static_cast<uint64_t>(adjusted_integrated_counts), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
+}
+
 void  AutoTracking::GetTrackFeatureData(
                                         string trackFeature,
                                         int threshold,
                                         cv::Mat & frame_crop,
-                                        cv::Mat & base_frame_crop,
+                                        cv::Mat & raw_frame_crop,
                                         cv::Point & frame_point,
                                         double & peak_counts,
                                         cv::Scalar & sum_counts,
@@ -315,20 +440,21 @@ void  AutoTracking::GetTrackFeatureData(
                                         uint & Num_NonZero_ROI_Pixels
                                         )
 {
-    cv::Scalar frame_crop_mean, frame_crop_sigma, base_frame_crop_mean, base_frame_crop_sigma;
+    cv::Scalar frame_crop_mean, frame_crop_sigma, raw_frame_crop_mean, raw_frame_crop_sigma;
  
     cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
 
-    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, base_frame_crop_threshold;
+    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, raw_frame_crop_threshold;
 
-    sum_ROI_counts = cv::sum(base_frame_crop);
-    Num_NonZero_ROI_Pixels = cv::countNonZero(base_frame_crop > 0);
-    cv::minMaxLoc(base_frame_crop, NULL, &peak_counts, NULL, NULL);
+    sum_ROI_counts = cv::sum(raw_frame_crop);
+    Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
+    cv::minMaxLoc(raw_frame_crop, NULL, &peak_counts, NULL, NULL);
     cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
-    cv::inRange(frame_crop, 0, frame_crop_mean[0]+threshold*frame_crop_sigma[0],frame_crop_threshold_binary);
-    base_frame_crop.copyTo(base_frame_crop_threshold, frame_crop_threshold_binary);
-    sum_counts = cv::sum(base_frame_crop_threshold);
-    N_threshold_pixels = cv::countNonZero(base_frame_crop_threshold > 0);
+    cv::threshold(frame_crop, frame_crop_threshold_binary, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
+    frame_crop_threshold_binary.convertTo(frame_crop_threshold_binary, CV_8U);
+    raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold_binary);
+    sum_counts = cv::sum(raw_frame_crop_threshold);
+    N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
 
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){   
         frame_crop.copyTo(frame_crop_threshold,frame_crop_threshold_binary);
@@ -345,8 +471,74 @@ void  AutoTracking::GetTrackFeatureData(
 
 void AutoTracking::CheckROI(cv::Rect & ROI, bool & valid_ROI)
 {
-    valid_ROI = (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0));
-       
+    valid_ROI = (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0));    
+}
+
+void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets)
+{
+    int M = 20;
+
+     // Create binary mask where intensity drops below threshold
+    cv::Mat temp_image, mask, input_image_resize, mask_resize;
+    cv::Mat output, output_resize, output_resize2;
+    cv::Scalar m,s; 
+    // input_image.convertTo(temp_image,cv::COLOR_GRAY2BGR);
+    input_image.convertTo(temp_image,CV_32FC1);
+    cv::meanStdDev(temp_image, m, s);
+    int clamp_low = m[0] - 3*s[0];
+    int clamp_high = m[0] + 3*s[0];
+    temp_image = cv::min(cv::max(temp_image, clamp_low), clamp_high);
+    temp_image = temp_image - clamp_low;
+    temp_image = 255*temp_image/(clamp_high - clamp_low);
+    temp_image.convertTo(temp_image, CV_8UC1);
+
+    double minVal, maxVal;
+    cv::minMaxLoc(temp_image, &minVal, &maxVal);
+    double thresholdVal = maxVal * 0.5;
+    cv::resize(temp_image, input_image_resize, cv::Size(M*input_image.cols, M*input_image.rows));
+    // imshow("input_image_resize",input_image_resize);
+    cv::threshold(temp_image, mask, thresholdVal, 255, cv::THRESH_BINARY);
+    mask.convertTo(mask, CV_8U);
+    // cv::resize(mask, mask_resize, cv::Size(M*mask.cols, M*mask.rows));
+    // imshow("mask_resize",mask_resize);
+    
+    // Find contours of the blob
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::findContours(mask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    // Ensure at least one contour is found
+    if (!contours.empty()) {
+        // Find the largest outer contour by area
+        std::vector<cv::Point> largestContour = contours[0];
+        for (const auto& contour : contours) {
+            if (cv::contourArea(contour) > cv::contourArea(largestContour)) {
+                largestContour = contour;
+            }
+        }
+
+        // Get the bounding rectangle
+        bbox = cv::boundingRect(largestContour);
+
+        // Draw the bounding rectangle
+        output = temp_image.clone();
+        cv::cvtColor(output, output, cv::COLOR_GRAY2BGR);
+        cv::rectangle(output, bbox, cv::Scalar(0, 255, 0), 1);
+        // cv::resize(output, output_resize, cv::Size(M*output.cols, M*output.rows));
+        // imshow("output_resize",output_resize);
+          
+        cv::resize(output, output_resize2, cv::Size(M*output.cols, M*output.rows));
+        cv::imshow("Blob Extent", output_resize2);
+        bbox.x = ROI.x + bbox.x + offsets(0,0);
+        bbox.y = ROI.y + bbox.y + offsets(0,1);
+
+        // cv::waitKey(0);
+    } else {
+        std::cerr << "No contours found!" << std::endl;
+        bbox = ROI;
+        bbox.x += offsets(0,0);
+        bbox.y += offsets(0,1);
+    }
 }
 
 void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
