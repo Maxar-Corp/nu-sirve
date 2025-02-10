@@ -326,10 +326,9 @@ void AutoTracking::InitializeTracking(
 
 void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_frame_resize)
 {
-    cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
-    cv::moveWindow(window_name, 50, 50);  // Move window to (50,50) coordinates
+    // cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
     ROI = cv::selectROI(window_name, display_frame_resize);  
-
+    cv::moveWindow(window_name, 50, 50);  
     while (true)
     {
         int key = cv::pollKey();
@@ -420,9 +419,9 @@ void AutoTracking::TrackingStep(
     string window_name = "Tracking... ";
     rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
     rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
-    cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
-    cv::moveWindow(window_name, 1000, 50);  // Move window to (1000,50) coordinates
+    // cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
     cv::imshow(window_name, display_frame);     
+    cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
     output.row(i) = {track_id, frame0 + i, frame_x ,frame_y, static_cast<uint16_t>(peak_counts),static_cast<uint32_t>(sum_counts[0]),static_cast<uint32_t>(sum_ROI_counts[0]),N_threshold_pixels,Num_NonZero_ROI_Pixels, static_cast<uint64_t>(adjusted_integrated_counts), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
 }
@@ -444,20 +443,30 @@ void  AutoTracking::GetTrackFeatureData(
  
     cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
 
-    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, raw_frame_crop_threshold;
+    cv::Mat frame_crop_threshold, frame_crop_threshold_resize, frame_crop_threshold_binary, raw_frame_crop_threshold;
 
     sum_ROI_counts = cv::sum(raw_frame_crop);
     Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
-    cv::minMaxLoc(raw_frame_crop, NULL, &peak_counts, NULL, NULL);
+    cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL);
     cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
-    cv::threshold(frame_crop, frame_crop_threshold_binary, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
-    frame_crop_threshold_binary.convertTo(frame_crop_threshold_binary, CV_8U);
+    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
+    frame_crop_threshold.convertTo(frame_crop_threshold_binary, CV_8U);
     raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold_binary);
+    
     sum_counts = cv::sum(raw_frame_crop_threshold);
     N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
-
+    
+    double maxval;
+    cv::minMaxLoc(frame_crop_threshold, NULL, & maxval, NULL, NULL);
+    frame_crop_threshold /= maxval;
+    frame_crop_threshold *= 255;
+    cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(10*frame_crop_threshold.cols, 10*frame_crop_threshold.rows));
+    frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
+    imshow("Thresholded ROI",frame_crop_threshold_resize);
+    cv::moveWindow("Thresholded ROI", 700, 50);
+    
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){   
-        frame_crop.copyTo(frame_crop_threshold,frame_crop_threshold_binary);
+        // frame_crop.copyTo(frame_crop_threshold,frame_crop_threshold_binary);
         cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
         frame_point = frame_temp_point;
@@ -479,10 +488,9 @@ void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rec
     int M = 20;
 
      // Create binary mask where intensity drops below threshold
-    cv::Mat temp_image, mask, input_image_resize, mask_resize;
+    cv::Mat temp_image, mask;
     cv::Mat output, output_resize, output_resize2;
     cv::Scalar m,s; 
-    // input_image.convertTo(temp_image,cv::COLOR_GRAY2BGR);
     input_image.convertTo(temp_image,CV_32FC1);
     cv::meanStdDev(temp_image, m, s);
     int clamp_low = m[0] - 3*s[0];
@@ -495,12 +503,8 @@ void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rec
     double minVal, maxVal;
     cv::minMaxLoc(temp_image, &minVal, &maxVal);
     double thresholdVal = maxVal * 0.5;
-    cv::resize(temp_image, input_image_resize, cv::Size(M*input_image.cols, M*input_image.rows));
-    // imshow("input_image_resize",input_image_resize);
     cv::threshold(temp_image, mask, thresholdVal, 255, cv::THRESH_BINARY);
     mask.convertTo(mask, CV_8U);
-    // cv::resize(mask, mask_resize, cv::Size(M*mask.cols, M*mask.rows));
-    // imshow("mask_resize",mask_resize);
     
     // Find contours of the blob
     std::vector<std::vector<cv::Point>> contours;
@@ -524,11 +528,10 @@ void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rec
         output = temp_image.clone();
         cv::cvtColor(output, output, cv::COLOR_GRAY2BGR);
         cv::rectangle(output, bbox, cv::Scalar(0, 255, 0), 1);
-        // cv::resize(output, output_resize, cv::Size(M*output.cols, M*output.rows));
-        // imshow("output_resize",output_resize);
           
         cv::resize(output, output_resize2, cv::Size(M*output.cols, M*output.rows));
         cv::imshow("Blob Extent", output_resize2);
+        cv::moveWindow("Blob Extent", 1400, 50);
         bbox.x = ROI.x + bbox.x + offsets(0,0);
         bbox.y = ROI.y + bbox.y + offsets(0,1);
 
