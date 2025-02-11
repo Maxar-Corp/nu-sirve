@@ -615,7 +615,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.N_ROI_pixels = N_ROI_pixels;
     cv::Rect ROI2(minx + xCorrection,miny + yCorrection,ROI_width,ROI_height);
     VideoDetails & base_processing_state_details =  base_processing_state.details;
-    details.irradiance =  IrradianceCountsCalc::ComputeIrradiance(this->counter, ROI, base_processing_state_details);
+    details.irradiance =  SharedTrackingFunctions::GetAdjustedCounts(this->counter, ROI, base_processing_state_details);
     details.ROI_x = minx + xCorrection;
     details.ROI_y = miny + yCorrection;
     details.ROI_Width = ROI_width;

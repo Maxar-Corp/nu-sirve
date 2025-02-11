@@ -33,6 +33,7 @@
 #include "SirveApp.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
+#include "shared_tracking_functions.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>

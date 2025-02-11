@@ -46,7 +46,7 @@ HEADERS += abir_reader.h \
             process_file.h \
             processing_state.h \
             Section.h \
-            shared_scientific_functions.h\
+            shared_tracking_functions.h\
             SirveApp.h \
             track_management_widget.h \
             tracks.h \
@@ -96,7 +96,7 @@ SOURCES += abir_reader.cpp \
             process_file.cpp \
             processing_state.cpp \
             Section.cpp \
-            shared_scientific_functions.cpp\
+            shared_tracking_functions.cpp\
             SirveApp.cpp \
             track_management_widget.cpp \
             tracks.cpp \

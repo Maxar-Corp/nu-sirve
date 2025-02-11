@@ -19,7 +19,7 @@
 #include "tracks.h"
 #include "video_details.h"
 #include "processing_state.h"
-#include "shared_scientific_functions.h"
+#include "shared_tracking_functions.h"
 #include "constants.h"
 
 using namespace std;
@@ -120,7 +120,6 @@ private:
                     );
     void GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize);
     void CheckROI(cv::Rect & ROI, bool & valid_ROI);
-    void FindBlobExtent(cv::Mat & input_image, int threshold, cv::Rect & ROI, cv::Rect & bbox);
 };
 
 #endif

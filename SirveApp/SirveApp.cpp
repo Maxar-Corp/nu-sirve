@@ -874,7 +874,6 @@ QWidget* SirveApp::SetupTracksTab(){
     track_management_scroll_area->setWidget(tm_widget);
     track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vlayout_workspace->addWidget(track_management_scroll_area);
-    // vlayout_workspace->insertStretch(3,0);
     vlayout_workspace->insertStretch(-1,0);
     vlayout_workspace->insertStretch(0,0);
 	QStringList colors = ColorScheme::get_track_colors();
@@ -939,7 +938,7 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_auto_track_control->addItem(vspacer_item20);
     vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
     vlayout_auto_track_control->insertStretch(-1,0);
-    
+
     vlayout_tab_workspace->addWidget(grpbox_autotrack);
     vlayout_tab_workspace->insertStretch(0,0);
     vlayout_tab_workspace->addLayout(vlayout_workspace);

@@ -44,7 +44,7 @@
 #include "video_display_zoom.h"
 #include "tracks.h"
 #include "auto_tracking.h"
-#include "shared_scientific_functions.h"
+#include "shared_tracking_functions.h"
 
 class VideoDisplay : public QWidget
 {
