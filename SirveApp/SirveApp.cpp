@@ -847,8 +847,6 @@ QWidget* SirveApp::SetupTracksTab(){
     QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
     QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
     QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
-    // btn_auto_track_target = new QPushButton("Auto Tracker");
-    // connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     txt_auto_track_start_frame = new QLineEdit("1");
     txt_auto_track_start_frame->setFixedWidth(60);
     txt_auto_track_stop_frame = new QLineEdit("");
@@ -868,7 +866,6 @@ QWidget* SirveApp::SetupTracksTab(){
     form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
     QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
     vlayout_auto_track->addLayout(form_auto_track_frame_limits);
-    // vlayout_auto_track->addWidget(btn_auto_track_target);
 
     tm_widget = new TrackManagementWidget(widget_tab_tracks);
     QScrollArea *track_management_scroll_area = new QScrollArea();
@@ -3913,7 +3910,8 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
 
     video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
-    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0)
+    {
         video_display->container.processing_states[endi].offsets = track_centered_offsets;
         video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
@@ -3928,6 +3926,9 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
+        arma::mat offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0,number_video_frames-1,video_display->container.processing_states[endi], offsets_matrix);
+        video_display->container.processing_states[endi].offsets_matrix = offsets_matrix;
 
         // update state gui status
         std::string result;
@@ -3992,6 +3993,9 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
+        arma::mat offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0,number_video_frames-1,video_display->container.processing_states[endi], offsets_matrix);
+        video_display->container.processing_states[endi].offsets_matrix = offsets_matrix;
 
         // update state gui status
         std::string result;
@@ -4063,6 +4067,9 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
+        arma::mat offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0,number_video_frames-1,video_display->container.processing_states[endi], offsets_matrix);
+        video_display->container.processing_states[endi].offsets_matrix = offsets_matrix;
 
         // update state gui status
         std::string result;
@@ -5062,12 +5069,12 @@ void SirveApp::UpdateGlobalFrameVector()
 
     std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
     std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
-    std::vector<std::vector<int>> offsets;
-    if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
-        offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+    arma::mat offsets_matrix(video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size(),3,arma::fill::zeros);
+    if (!video_display->container.processing_states[video_display->container.current_idx].offsets_matrix.empty()){
+        offsets_matrix = video_display->container.processing_states[video_display->container.current_idx].offsets_matrix;
     }
 
-    video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets);
+    video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets_matrix);
 }
 
 void SirveApp::GetAboutTimeStamp()

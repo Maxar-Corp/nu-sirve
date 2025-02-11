@@ -595,28 +595,18 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
+    int nrows = SirveAppConstants::VideoDisplayHeight;
+    int ncols = SirveAppConstants::VideoDisplayWidth; 
+    int ROI_dim = txt_ROI_dim->text().toInt();
+    double clamp_low_coeff  = 3;
+    double clamp_high_coeff  = 3;
     uint indx = this->counter;
 
-    // std::vector<uint16_t> frame_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].begin(),
-    //        this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].end()};  
+    cv::Mat frame, display_frame, clean_display_frame, raw_frame;
+    cv::Rect bbox;
     
     processingState & base_processing_state = this->container.processing_states[0];
     processingState & current_processing_state = this->container.processing_states[this->container.current_idx];
-
-    arma::mat offset_matrix(1,3,arma::fill::zeros);
-    if ( offsets.size() > 0 ){
-        for (int rowi = 0; rowi< offsets.size(); rowi++){
-            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
-        }
-        offset_matrix.shed_row(0);
-        arma::uvec ind = arma::find(offset_matrix.col(0) - 1 == counter);
-        if (ind.n_elem>0){
-            int ri = ind(0);
-            xCorrection = offsets[ri][1];
-            yCorrection = offsets[ri][2];
-        }
-    }
-  
     for (auto ii = 0; ii < this->container.processing_states.size(); ii++)
     {
         processingState & test_state = this->container.processing_states[ii];
@@ -627,15 +617,10 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         }
             
     }
-    int nrows = SirveAppConstants::VideoDisplayHeight;
-    int ncols = SirveAppConstants::VideoDisplayWidth; 
-    int ROI_dim = txt_ROI_dim->text().toInt();
-
-    double clamp_low_coeff  = 3;
-    double clamp_high_coeff  = 3;
-    cv::Mat frame, display_frame, clean_display_frame, raw_frame;
-    cv::Rect bbox;
-
+    int current_frame_num = starting_frame_number + indx;
+    xCorrection = offsets_matrix(indx,0);
+    yCorrection = offsets_matrix(indx,1);
+  
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
 
     uint minx = std::max(0,static_cast<int>(x)-ROI_dim/2);
@@ -677,7 +662,6 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.ROI_y = miny + yCorrection;
     details.ROI_Width = ROI_width;
     details.ROI_Height = ROI_height;
-    int current_frame_num = starting_frame_number + counter;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
     {
         track_details_min_frame = current_frame_num;
@@ -811,13 +795,13 @@ void VideoDisplay::ClearPinpoints()
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted,std::vector<std::vector<int>> offsets0)
+void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted,arma::mat offsets_matrix0)
 {
     original_frame_vector = original;
     display_ready_converted_values = converted;
     xCorrection = 0;
     yCorrection = 0;
-    offsets = offsets0;
+    offsets_matrix = offsets_matrix0;
     UpdateDisplayFrame();
 }
 
@@ -840,20 +824,10 @@ void VideoDisplay::UpdateDisplayFrame()
 
     // Convert image back to RGB to facilitate use of the colors
     frame = frame.convertToFormat(QImage::Format_RGB888);
+    uint indx = this->counter;
 
-    arma::mat offset_matrix(1,3,arma::fill::zeros);
-    if ( offsets.size() > 0 ){
-        for (int rowi = 0; rowi< offsets.size(); rowi++){
-            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
-        }
-        offset_matrix.shed_row(0);
-        arma::uvec ind = arma::find(offset_matrix.col(0) - 1 == counter);
-        if (ind.n_elem>0){
-            int ri = ind(0);
-            xCorrection = offsets[ri][1];
-            yCorrection = offsets[ri][2];
-        }
-    }
+    xCorrection = offsets_matrix(indx,0);
+    yCorrection = offsets_matrix(indx,1);
 
     if (should_show_bad_pixels && current_idx!=-1)
     {

@@ -7,6 +7,7 @@
 #include <QString>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <armadillo>
 
 enum struct ProcessingMethod
 {
@@ -57,6 +58,7 @@ struct processingState {
     int frame_stack_num_frames;
 
 	std::vector<std::vector<int>> offsets;
+    arma::mat offsets_matrix;
 
     int track_id;
     bool find_any_tracks;

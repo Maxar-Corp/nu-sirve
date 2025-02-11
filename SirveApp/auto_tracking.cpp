@@ -59,7 +59,7 @@ arma::u64_mat AutoTracking::SingleTracker(
 
     string choice;
 
-    SharedTrackingFunctions::CreateOffsetMatrix(start_frame ,stop_frame, current_processing_state, offsets_matrix);
+    SharedTrackingFunctions::CreateOffsetMatrix(start_frame, stop_frame, current_processing_state, offsets_matrix);
 
     cv::startWindowThread();
 

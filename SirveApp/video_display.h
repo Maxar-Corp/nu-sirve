@@ -61,7 +61,7 @@ public:
 
 	unsigned int counter;
     QPoint hover_pt;
-	std::vector<std::vector<int>> offsets;
+	arma::mat offsets_matrix;
 	int xCorrection = 0;
     int yCorrection = 0;
     int current_idx;
@@ -156,7 +156,7 @@ public slots:
 
     void UndoZoom();
 
-    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, std::vector<std::vector<int>> offsets);
+    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, arma::mat offsets_matrix);
     void UpdateBannerText(QString input_banner_text);
     void UpdateBannerColor(QString input_color);
 
