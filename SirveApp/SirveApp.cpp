@@ -835,12 +835,36 @@ QWidget* SirveApp::SetupTracksTab(){
     hlayout_workspace->setAlignment(Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_track, Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_create_track_message);
-    // hlayout_workspace->insertStretch(0,0);
-    // hlayout_workspace->insertStretch(-1,0);
     hlayout_workspace->addWidget(btn_create_track,Qt::AlignLeft);
     hlayout_workspace->addWidget(btn_finish_create_track,Qt::AlignLeft);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
     vlayout_workspace->addLayout(hlayout_workspace);
+
+    QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
+    QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
+    QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
+    btn_auto_track_target = new QPushButton("Auto Tracker");
+    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
+    txt_auto_track_start_frame = new QLineEdit("1");
+    txt_auto_track_start_frame->setFixedWidth(60);
+    txt_auto_track_stop_frame = new QLineEdit("");
+    txt_auto_track_stop_frame->setFixedWidth(60);
+    QFormLayout *form_auto_track_frame_limits = new QFormLayout;
+    form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
+    form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
+    cmb_autotrack_threshold = new QComboBox;
+    cmb_autotrack_threshold->addItem("6 dB");
+    cmb_autotrack_threshold->addItem("5 dB");
+    cmb_autotrack_threshold->addItem("4 dB");
+    cmb_autotrack_threshold->addItem("3 dB");
+    cmb_autotrack_threshold->addItem("2 dB");
+    cmb_autotrack_threshold->addItem("1 dB");
+    cmb_autotrack_threshold->setCurrentIndex(0);
+    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
+    form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
+    QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
+    vlayout_auto_track->addLayout(form_auto_track_frame_limits);
+    vlayout_auto_track->addWidget(btn_auto_track_target);
 
     tm_widget = new TrackManagementWidget(widget_tab_tracks);
     QScrollArea *track_management_scroll_area = new QScrollArea();
@@ -867,33 +891,6 @@ QWidget* SirveApp::SetupTracksTab(){
     hlayout_OSM_track_display->addWidget(cmb_OSM_track_color);
     hlayout_OSM_track_display->insertStretch(-1,0);
     hlayout_OSM_track_display->insertStretch(0,0);
-
-    QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
-    QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
-    QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
-    btn_auto_track_target = new QPushButton("Auto Tracker");
-    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
-    txt_auto_track_start_frame = new QLineEdit("1");
-    txt_auto_track_start_frame->setFixedWidth(60);
-    txt_auto_track_stop_frame = new QLineEdit("");
-    txt_auto_track_stop_frame->setFixedWidth(60);
-    QFormLayout *form_auto_track_frame_limits = new QFormLayout;
-    form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
-    form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
-    cmb_autotrack_threshold = new QComboBox;
-    cmb_autotrack_threshold->addItem("6 Sigma");
-    cmb_autotrack_threshold->addItem("5 Sigma");
-    cmb_autotrack_threshold->addItem("4 Sigma");
-    cmb_autotrack_threshold->addItem("3 Sigma");
-    cmb_autotrack_threshold->addItem("2 Sigma");
-    cmb_autotrack_threshold->addItem("1 Sigma");
-    cmb_autotrack_threshold->addItem("0 Sigma");
-    cmb_autotrack_threshold->setCurrentIndex(3);
-    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
-    form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
-    QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
-    vlayout_auto_track->addLayout( form_auto_track_frame_limits);
-    vlayout_auto_track->addWidget(btn_auto_track_target);
 
     QGroupBox* grpbox_autotrack_filters = new QGroupBox("Pre Filter Options");
     QGridLayout *grid_autotrack_filters = new QGridLayout(grpbox_autotrack_filters);
@@ -943,8 +940,9 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
     vlayout_auto_track_control->insertStretch(-1,0);
     
-    vlayout_tab_workspace->addLayout(vlayout_workspace);
     vlayout_tab_workspace->addWidget(grpbox_autotrack);
+    vlayout_tab_workspace->insertStretch(0,0);
+    vlayout_tab_workspace->addLayout(vlayout_workspace);
     vlayout_tab_workspace->addWidget(grpbox_OSM_track_display);
     vlayout_tab_workspace->insertStretch(-1, 0);
 
