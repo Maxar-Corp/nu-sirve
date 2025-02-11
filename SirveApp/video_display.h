@@ -67,7 +67,9 @@ public:
     int current_idx;
     int counter_record, video_frame_number;
     bool record_frame;
-    int threshold = 3;
+    int threshold = 6;
+    std::string trackFeature = "PEAK";
+    std::string prefilter = "NONE";
     cv::VideoWriter video;
 
     std::vector<AnnotationInfo> annotation_list;
@@ -133,6 +135,8 @@ public slots:
     void DisplayManualBox(QPoint pt);
     void SetSelectCentroidBtn(bool status);
     void GetThreshold(int threshold_in);
+    void onTrackFeatureRadioButtonClicked(int id);
+    void onFilterRadioButtonClicked(int id);
     void ClearPinpoints();
     void GetCurrentIdx(int current_idx_new);
 

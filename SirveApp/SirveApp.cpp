@@ -837,14 +837,18 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_workspace->addWidget(lbl_create_track_message);
     hlayout_workspace->addWidget(btn_create_track,Qt::AlignLeft);
     hlayout_workspace->addWidget(btn_finish_create_track,Qt::AlignLeft);
+    btn_auto_track_target = new QPushButton("Auto Tracker");
+    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
+    hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
+    hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
     QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
     QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
     QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
-    btn_auto_track_target = new QPushButton("Auto Tracker");
-    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
+    // btn_auto_track_target = new QPushButton("Auto Tracker");
+    // connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     txt_auto_track_start_frame = new QLineEdit("1");
     txt_auto_track_start_frame->setFixedWidth(60);
     txt_auto_track_stop_frame = new QLineEdit("");
@@ -864,7 +868,7 @@ QWidget* SirveApp::SetupTracksTab(){
     form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
     QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
     vlayout_auto_track->addLayout(form_auto_track_frame_limits);
-    vlayout_auto_track->addWidget(btn_auto_track_target);
+    // vlayout_auto_track->addWidget(btn_auto_track_target);
 
     tm_widget = new TrackManagementWidget(widget_tab_tracks);
     QScrollArea *track_management_scroll_area = new QScrollArea();
@@ -901,10 +905,11 @@ QWidget* SirveApp::SetupTracksTab(){
     QSpacerItem *vspacer_item20 = new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum);
     
     QButtonGroup * buttongrp_autotrack_filters = new QButtonGroup();
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_none);
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_gaussian);
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_median);
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_nlmeans);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_none,1);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_gaussian,2);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_median,3);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_nlmeans,4);
+    connect(buttongrp_autotrack_filters, &QButtonGroup::idClicked, this->video_display, &VideoDisplay::onFilterRadioButtonClicked);
   
     grid_autotrack_filters->addWidget(rad_autotrack_filter_none,1,0);
     grid_autotrack_filters->addWidget(rad_autotrack_filter_gaussian,1,1);
@@ -920,9 +925,10 @@ QWidget* SirveApp::SetupTracksTab(){
     rad_autotrack_feature_peak = new QRadioButton("Peak");
 
     QButtonGroup * buttongrp_autotrack_feature = new QButtonGroup();
-    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_weighted_centroid);
-    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_centroid);
-    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_peak);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_weighted_centroid,1);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_centroid,2);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_peak,3);
+    connect(buttongrp_autotrack_feature, &QButtonGroup::idClicked, this->video_display, &VideoDisplay::onTrackFeatureRadioButtonClicked);
 
     grid_autotrack_feature->addWidget(rad_autotrack_feature_weighted_centroid,1,0);
     grid_autotrack_feature->addWidget(rad_autotrack_feature_centroid,2,0);

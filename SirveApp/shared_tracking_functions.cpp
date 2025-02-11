@@ -103,3 +103,99 @@ void SharedTrackingFunctions::FindTargetExtent(cv::Mat &  display_image, int thr
         bbox = ROI;
     }
 }
+
+void SharedTrackingFunctions::GetTrackPointData(string &trackFeature, int & threshold, cv::Mat & frame_crop, cv::Mat & raw_frame_crop, cv::Point & frame_point,double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,uint & Num_NonZero_ROI_Pixels)
+{
+    cv::Scalar raw_frame_crop_mean, raw_frame_crop_sigma;
+
+    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, raw_frame_crop_threshold;
+    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
+    sum_ROI_counts = cv::sum(raw_frame_crop);
+    Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
+    cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL);
+
+    raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold_binary);
+
+    sum_counts = cv::sum(raw_frame_crop_threshold);
+    N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
+
+    if(trackFeature == "INTENSITY_WEIGHTED_CENTROID")
+    {   
+        cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
+        cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
+        frame_point = frame_temp_point;
+    }
+    else if (trackFeature == "CENTROID")
+    {
+        cv::Moments frame_moments = cv::moments(frame_crop_threshold_binary,true);
+        cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
+        frame_point = frame_temp_point;
+    }
+}
+
+void SharedTrackingFunctions::CheckROI(cv::Rect & ROI, bool & valid_ROI)
+{
+    valid_ROI = (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0));    
+}
+
+void SharedTrackingFunctions::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
+{
+    if (input_point.x > 0 && input_point.y > 0){
+    centerX = round(input_point.x + ROI.x);
+    centerY = round(input_point.y + ROI.y);
+    }
+    else
+    {
+    centerX = round(ROI.x + 0.5 * ROI.width);
+    centerY = round(ROI.y + 0.5 * ROI.height);
+    }
+}
+
+void SharedTrackingFunctions::GetFrameRepresentations(
+                                                        uint & indx,
+                                                        double & clamp_low_coeff,
+                                                        double & clamp_high_coeff,
+                                                        VideoDetails & current_processing_state,
+                                                        VideoDetails & base_processing_details,
+                                                        cv::Mat & frame,
+                                                        string & prefilter,
+                                                        cv::Mat & display_frame,
+                                                        cv::Mat & clean_display_frame,
+                                                        cv::Mat & raw_frame
+                                                    )
+{
+    int numRows = SirveAppConstants::VideoDisplayHeight;
+    int numCols = SirveAppConstants::VideoDisplayWidth; 
+    cv::Scalar m, s;    
+    std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
+    cv::Mat tmp(numRows, numCols, CV_16UC1, frame_vector.data());
+    tmp.convertTo(frame,CV_32FC1);
+    cv::meanStdDev(frame, m, s);
+    int clamp_low = m[0] - clamp_low_coeff*s[0];
+    int clamp_high = m[0] + clamp_high_coeff*s[0];
+    display_frame = cv::min(cv::max(frame, clamp_low), clamp_high);
+    display_frame = display_frame - clamp_low;
+    display_frame = 255*display_frame/(clamp_high - clamp_low);
+    display_frame.convertTo(display_frame, cv::COLOR_GRAY2BGR);
+
+    std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
+    cv::Mat tmp2(numRows, numCols, CV_16UC1, raw_frame_vector.data());
+    tmp2.convertTo(raw_frame, CV_32FC1);  
+
+    FilterImage(prefilter, display_frame, clean_display_frame);
+}
+
+void SharedTrackingFunctions::FilterImage(string & prefilter, cv::Mat & display_frame, cv::Mat & clean_display_frame)
+{
+    if(prefilter=="GAUSSIAN"){
+        cv::GaussianBlur(display_frame, display_frame, cv::Size(5,5), 0);
+    }
+    else if(prefilter=="MEDIAN"){
+        cv::medianBlur(display_frame, display_frame, 5);      
+    }
+    else if(prefilter=="NLMEANS"){
+        cv::fastNlMeansDenoising(display_frame, display_frame);
+    }
+    cv::cvtColor(display_frame, display_frame,cv::COLOR_GRAY2RGB);
+    clean_display_frame = display_frame.clone();
+}

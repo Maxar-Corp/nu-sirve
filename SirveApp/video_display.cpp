@@ -84,6 +84,42 @@ void VideoDisplay::SetSelectCentroidBtn(bool status)
     }
 }
 
+void VideoDisplay::onTrackFeatureRadioButtonClicked(int id)
+{
+    if (id==1)
+    {
+        trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    }
+    if (id==2)
+    {
+        trackFeature = "CENTROID";
+    }
+    if (id==3)
+    {
+        trackFeature = "PEAK";
+    }
+
+}
+void VideoDisplay::onFilterRadioButtonClicked(int id)
+{
+    if (id==1)
+    {
+        prefilter = "NONE";
+    }
+    if (id==2)
+    {
+        prefilter = "GAUSSIAN";
+    }
+    if (id==3)
+    {
+        prefilter = "MEDIAN";
+    }
+    if (id==4)
+    {
+        prefilter = "NLMEANS";
+    }
+}
+
 void VideoDisplay::GetCurrentIdx(int current_idx_new)
 {
     if (current_idx_new == -1)
@@ -145,11 +181,11 @@ void VideoDisplay::SetupCreateTrackControls()
 
     chk_show_crosshair = new QCheckBox("Show Crosshair");
     chk_show_crosshair->setChecked(true);
-    chk_snap_to_peak = new QCheckBox("Snap to Peak");
-    chk_snap_to_peak->setChecked(true);
+    chk_snap_to_feature = new QCheckBox("Snap to Feature");
+    chk_snap_to_feature->setChecked(true);
     QVBoxLayout *vlayout_crosshair = new QVBoxLayout;
     vlayout_crosshair->addWidget(chk_show_crosshair);
-    vlayout_crosshair->addWidget(chk_snap_to_peak);
+    vlayout_crosshair->addWidget(chk_snap_to_feature);
 
     chk_auto_advance_frame = new QCheckBox("Auto Advance");
     QFormLayout *form_frame_advance_increment = new QFormLayout;
@@ -286,6 +322,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
 void VideoDisplay::ExitSelectTrackCentroidMode() {
     btn_select_track_centroid->setChecked(false);
     lbl_image_canvas->unsetCursor();
+    cv::destroyAllWindows();
 }
 
 void VideoDisplay::HandleBtnPinpoint(bool checked)
@@ -558,11 +595,13 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
-    // AutoTracking AutoTracker;
-    std::vector<uint16_t> frame_std_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].begin(),
-           this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].end()};  
+    uint indx = this->counter;
+
+    std::vector<uint16_t> frame_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].begin(),
+           this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].end()};  
     
     processingState & base_processing_state = this->container.processing_states[0];
+    processingState & current_processing_state = this->container.processing_states[this->container.current_idx];
   
     for (auto ii = 0; ii < this->container.processing_states.size(); ii++)
     {
@@ -574,45 +613,52 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         }
             
     }
-    int nrows = this->container.processing_states[this->container.current_idx].details.y_pixels;
-    int ncols = this->container.processing_states[this->container.current_idx].details.x_pixels;       
-
-    arma::vec frame_vector = arma::conv_to<arma::vec>::from(frame_std_vector);
-    cv::Mat frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
+    int nrows = SirveAppConstants::VideoDisplayHeight;
+    int ncols = SirveAppConstants::VideoDisplayWidth; 
     int ROI_dim = txt_ROI_dim->text().toInt();
+
+    double clamp_low_coeff  = 3;
+    double clamp_high_coeff  = 3;
+    cv::Mat frame, display_frame, clean_display_frame, raw_frame;
+    cv::Rect bbox;
+
+    SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
+
     uint minx = std::max(0,static_cast<int>(x)-ROI_dim/2);
     uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
     uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
-
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
-    cv::Mat frame_crop = frame_matrix(ROI);
-    cv::Mat frame_crop_threshold;
-    cv::Scalar frame_crop_mean, frame_crop_sigma;
-    cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
-    cv::Scalar sum_ROI_counts = cv::sum(frame_crop);
-    int N_ROI_pixels = cv::countNonZero(frame_crop > 0);
+    cv::Mat frame_crop = frame(ROI);
+    cv::Mat raw_frame_crop = raw_frame(ROI);
+    SharedTrackingFunctions::FindTargetExtent(frame_crop, threshold, ROI, bbox);
+    cv::Rect bbox_offset;
+    bbox_offset = bbox;
+    bbox_offset.x += xCorrection;
+    bbox_offset.y += yCorrection;
+    frame_crop = frame(bbox_offset);
+    raw_frame_crop = raw_frame(bbox);
     cv::Point frame_point;
-    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
-    cv::Scalar sum_counts = cv::sum(frame_crop_threshold);
-    int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
     double peak_counts;
-    int x2 = x;
-    int y2 = y;
-    details.centroid_x = round(x2 + xCorrection);
-    details.centroid_y = round(y2 + yCorrection);
-    cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_point); 
-    if (chk_snap_to_peak->isChecked()){  
-        x2 = frame_point.x;
-        y2 = frame_point.y;
-        details.centroid_x = round(x2 + xCorrection + ROI.x);
-        details.centroid_y = round(y2 + yCorrection + ROI.y);
+    cv::Scalar sum_counts, sum_ROI_counts;
+    uint N_threshold_pixels, N_ROI_Pixels;
+    uint frame_x, frame_y;
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, N_ROI_Pixels);
+    SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
+
+    double adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_offset, base_processing_state.details);
+
+    details.centroid_x = round(x + xCorrection);
+    details.centroid_y = round(y + yCorrection);
+    if (chk_snap_to_feature->isChecked()){  
+        details.centroid_x = round(frame_x);
+        details.centroid_y = round(frame_y);
     }
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
-    details.N_ROI_pixels = N_ROI_pixels;
+    details.N_ROI_pixels = N_ROI_Pixels;
     cv::Rect ROI2(minx + xCorrection,miny + yCorrection,ROI_width,ROI_height);
     VideoDetails & base_processing_state_details =  base_processing_state.details;
     details.irradiance =  SharedTrackingFunctions::GetAdjustedCounts(this->counter, ROI, base_processing_state_details);

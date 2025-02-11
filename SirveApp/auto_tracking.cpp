@@ -28,8 +28,8 @@ arma::u64_mat AutoTracking::SingleTracker(
                                 string prefilter,
                                 string trackFeature,
                                 uint frame0,
-                                int start_frame,
-                                int stop_frame,
+                                uint start_frame,
+                                uint stop_frame,
                                 processingState & current_processing_state,
                                 VideoDetails & base_processing_state_details,
                                 QString new_track_file_name
@@ -168,7 +168,7 @@ arma::u64_mat AutoTracking::SingleTracker(
                                 choice,
                                 stats
                             );
-            CheckROI(ROI, valid_ROI);
+            SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
             if (!valid_ROI || choice == "Discard")
             {
                 output = arma::u64_mat();
@@ -183,53 +183,6 @@ arma::u64_mat AutoTracking::SingleTracker(
     }
     cv::destroyAllWindows();
     return output;
-}
-
-void AutoTracking::GetFrameRepresentations(
-                                            int indx,
-                                            double clamp_low_coeff,
-                                            double clamp_high_coeff,
-                                            VideoDetails & current_processing_state,
-                                            VideoDetails & base_processing_details,
-                                            cv::Mat & frame,
-                                            string prefilter,
-                                            cv::Mat & display_frame,
-                                            cv::Mat & clean_display_frame,
-                                            cv::Mat & raw_frame
-                                        )
-{
-    cv::Scalar m, s;    
-    std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
-    cv::Mat tmp(nrows, ncols, CV_16UC1, frame_vector.data());
-    tmp.convertTo(frame,CV_32FC1);
-    cv::meanStdDev(frame, m, s);
-    int clamp_low = m[0] - clamp_low_coeff*s[0];
-    int clamp_high = m[0] + clamp_high_coeff*s[0];
-    display_frame = cv::min(cv::max(frame, clamp_low), clamp_high);
-    display_frame = display_frame - clamp_low;
-    display_frame = 255*display_frame/(clamp_high - clamp_low);
-    display_frame.convertTo(display_frame, cv::COLOR_GRAY2BGR);
-
-    std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
-    cv::Mat tmp2(nrows, ncols, CV_16UC1, raw_frame_vector.data());
-    tmp2.convertTo(raw_frame, CV_32FC1);  
-
-    FilterImage(prefilter, display_frame, clean_display_frame);
-}
-
-void AutoTracking::FilterImage(string prefilter, cv::Mat & display_frame, cv::Mat & clean_display_frame)
-{
-  if(prefilter=="GAUSSIAN"){
-        cv::GaussianBlur(display_frame, display_frame, cv::Size(5,5), 0);
-    }
-    else if(prefilter=="MEDIAN"){
-        cv::medianBlur(display_frame, display_frame, 5);      
-    }
-    else if(prefilter=="NLMEANS"){
-        cv::fastNlMeansDenoising(display_frame, display_frame);
-    }
-    cv::cvtColor(display_frame, display_frame,cv::COLOR_GRAY2RGB);
-    clean_display_frame = display_frame.clone();
 }
 
 void AutoTracking::InitializeTracking(
@@ -257,7 +210,7 @@ void AutoTracking::InitializeTracking(
 {
     cv::Mat display_frame_resize;
 
-    GetFrameRepresentations(
+    SharedTrackingFunctions::GetFrameRepresentations(
                         indx,
                         clamp_low_coeff,
                         clamp_high_coeff,
@@ -308,7 +261,7 @@ void AutoTracking::InitializeTracking(
             choice = "Continue";
         }
     }
-    CheckROI(ROI, valid_ROI);
+    SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
     if (valid_ROI)
     {
         ROI.x /= N;
@@ -326,7 +279,6 @@ void AutoTracking::InitializeTracking(
 
 void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_frame_resize)
 {
-    // cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
     ROI = cv::selectROI(window_name, display_frame_resize);  
     cv::moveWindow(window_name, 50, 50);  
     while (true)
@@ -354,27 +306,27 @@ void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_
 
 
 void AutoTracking::TrackingStep(
-                                int i,
-                                int indx,
-                                uint track_id,
-                                uint frame0,
-                                double clamp_low_coeff,
-                                double clamp_high_coeff,
+                                int & i,
+                                uint & indx,
+                                uint & track_id,
+                                uint & frame0,
+                                double & clamp_low_coeff,
+                                double & clamp_high_coeff,
                                 processingState & current_processing_state,
                                 VideoDetails & base_processing_state_details,
                                 string & prefilter,
                                 Ptr<Tracker> & tracker,
-                                string trackFeature,
+                                string & trackFeature,
                                 cv::Mat & display_frame,
                                 cv::Mat & clean_display_frame,
-                                int threshold,
+                                int & threshold,
                                 cv::Rect & ROI,
                                 cv::Mat & frame,                           
                                 cv::Mat & frame_crop,
                                 cv::Mat & raw_frame,
                                 cv::Mat & raw_frame_crop,
                                 cv::Point & frame_point,
-                                arma::running_stat<double> &stats,
+                                arma::running_stat<double> & stats,
                                 bool & step_success,
                                 double & S,
                                 double & peak_counts,
@@ -391,18 +343,18 @@ void AutoTracking::TrackingStep(
     
     cv::Rect bbox;
 
-    GetFrameRepresentations(
-        indx,
-        clamp_low_coeff,
-        clamp_high_coeff,
-        current_processing_state.details,
-        base_processing_state_details,
-        frame,
-        prefilter,
-        display_frame,
-        clean_display_frame,
-        raw_frame
-    );
+    SharedTrackingFunctions::GetFrameRepresentations(
+                                                    indx,
+                                                    clamp_low_coeff,
+                                                    clamp_high_coeff,
+                                                    current_processing_state.details,
+                                                    base_processing_state_details,
+                                                    frame,
+                                                    prefilter,
+                                                    display_frame,
+                                                    clean_display_frame,
+                                                    raw_frame
+                                                    );
 
     bool ok = tracker->update(display_frame, ROI);
     frame_crop = frame(ROI);
@@ -414,8 +366,8 @@ void AutoTracking::TrackingStep(
     bbox_offset.y += offsets_matrix(i,1);
     frame_crop = frame(bbox_offset);
     raw_frame_crop = raw_frame(bbox);
-    GetTrackFeatureData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
-    GetPointXY(frame_point, bbox, frame_x, frame_y);
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
+    SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
     adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_offset, base_processing_state_details);
     stats(adjusted_integrated_counts_old);
@@ -430,63 +382,6 @@ void AutoTracking::TrackingStep(
     cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
     output.row(i) = {track_id, frame0 + i, frame_x ,frame_y, static_cast<uint16_t>(peak_counts),static_cast<uint32_t>(sum_counts[0]),static_cast<uint32_t>(sum_ROI_counts[0]),N_threshold_pixels,Num_NonZero_ROI_Pixels, static_cast<uint64_t>(adjusted_integrated_counts), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
-}
-
-void  AutoTracking::GetTrackFeatureData(
-                                        string trackFeature,
-                                        int threshold,
-                                        cv::Mat & frame_crop,
-                                        cv::Mat & raw_frame_crop,
-                                        cv::Point & frame_point,
-                                        double & peak_counts,
-                                        cv::Scalar & sum_counts,
-                                        cv::Scalar & sum_ROI_counts,
-                                        uint & N_threshold_pixels,
-                                        uint & Num_NonZero_ROI_Pixels
-                                        )
-{
-    cv::Scalar raw_frame_crop_mean, raw_frame_crop_sigma;
- 
-    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, raw_frame_crop_threshold;
-    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
-    sum_ROI_counts = cv::sum(raw_frame_crop);
-    Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
-    cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL);
-
-    raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold_binary);
-    
-    sum_counts = cv::sum(raw_frame_crop_threshold);
-    N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
-
-    if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){   
-        // frame_crop.copyTo(frame_crop_threshold,frame_crop_threshold_binary);
-        cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
-        cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
-        frame_point = frame_temp_point;
-    }
-    else if (trackFeature == "CENTROID"){
-        cv::Moments frame_moments = cv::moments(frame_crop_threshold_binary,true);
-        cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
-        frame_point = frame_temp_point;
-    }
-}
-
-void AutoTracking::CheckROI(cv::Rect & ROI, bool & valid_ROI)
-{
-    valid_ROI = (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0));    
-}
-
-void AutoTracking::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
-{
-    if (input_point.x > 0 && input_point.y > 0){
-        centerX = round(input_point.x + ROI.x);
-        centerY = round(input_point.y + ROI.y);
-    }
-    else
-    {
-        centerX = round(ROI.x + 0.5 * ROI.width);
-        centerY = round(ROI.y + 0.5 * ROI.height);
-    }
 }
 
 void AutoTracking::CreateOffsetMatrix(int start_frame, int stop_frame, processingState & state_details, arma::mat & offsets_matrix)
