@@ -120,7 +120,7 @@ private:
                     );
     void GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize);
     void CheckROI(cv::Rect & ROI, bool & valid_ROI);
-    void FindBlobExtent(cv::Mat & base_frame_crop, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets);
+    void FindBlobExtent(cv::Mat & input_image, int threshold, cv::Rect & ROI, cv::Rect & bbox);
 };
 
 #endif

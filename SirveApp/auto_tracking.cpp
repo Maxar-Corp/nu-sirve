@@ -407,14 +407,17 @@ void AutoTracking::TrackingStep(
     bool ok = tracker->update(display_frame, ROI);
     frame_crop = frame(ROI);
     raw_frame_crop = raw_frame(ROI);
-    arma::mat offsets = offsets_matrix.row(i);
-    FindBlobExtent(frame_crop, ROI, bbox, offsets);
-    frame_crop = frame(bbox);
+    FindBlobExtent(frame_crop, threshold, ROI, bbox);
+    cv::Rect bbox_offset;
+    bbox_offset = bbox;
+    bbox_offset.x += offsets_matrix(i,0);
+    bbox_offset.y += offsets_matrix(i,1);
+    frame_crop = frame(bbox_offset);
     raw_frame_crop = raw_frame(bbox);
     GetTrackFeatureData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
     GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-    adjusted_integrated_counts = IrradianceCountsCalc::ComputeIrradiance(indx, bbox, base_processing_state_details);
+    adjusted_integrated_counts = IrradianceCountsCalc::ComputeIrradiance(indx, bbox_offset, base_processing_state_details);
     stats(adjusted_integrated_counts_old);
     S = stats.stddev();
     step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 6*S);
@@ -422,7 +425,7 @@ void AutoTracking::TrackingStep(
     string window_name = "Tracking... ";
     rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
     rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
-    // cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
+
     cv::imshow(window_name, display_frame);     
     cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
@@ -442,31 +445,18 @@ void  AutoTracking::GetTrackFeatureData(
                                         uint & Num_NonZero_ROI_Pixels
                                         )
 {
-    cv::Scalar frame_crop_mean, frame_crop_sigma, raw_frame_crop_mean, raw_frame_crop_sigma;
+    cv::Scalar raw_frame_crop_mean, raw_frame_crop_sigma;
  
-    cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
-
-    cv::Mat frame_crop_threshold, frame_crop_threshold_resize, frame_crop_threshold_binary, raw_frame_crop_threshold;
-
+    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, raw_frame_crop_threshold;
+    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
     sum_ROI_counts = cv::sum(raw_frame_crop);
     Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
     cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL);
-    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
-    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
-    frame_crop_threshold.convertTo(frame_crop_threshold_binary, CV_8U);
+
     raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold_binary);
     
     sum_counts = cv::sum(raw_frame_crop_threshold);
     N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
-    
-    double maxval;
-    cv::minMaxLoc(frame_crop_threshold, NULL, & maxval, NULL, NULL);
-    frame_crop_threshold /= maxval;
-    frame_crop_threshold *= 255;
-    cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(10*frame_crop_threshold.cols, 10*frame_crop_threshold.rows));
-    frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
-    imshow("Thresholded ROI",frame_crop_threshold_resize);
-    cv::moveWindow("Thresholded ROI", 700, 50);
 
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID"){   
         // frame_crop.copyTo(frame_crop_threshold,frame_crop_threshold_binary);
@@ -486,15 +476,18 @@ void AutoTracking::CheckROI(cv::Rect & ROI, bool & valid_ROI)
     valid_ROI = (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0));    
 }
 
-void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets)
+void AutoTracking::FindBlobExtent(cv::Mat &  display_image, int threshold, cv::Rect & ROI, cv::Rect & bbox)
 {
     int M = 20;
 
-     // Create binary mask where intensity drops below threshold
-    cv::Mat temp_image, mask;
-    cv::Mat output, output_resize, output_resize2;
+    cv::Mat mask;
+    cv::Mat temp_image, output_image, output_image_resize, display_image_resize, display_image_threshold, display_image_threshold_resize;
+    cv::Scalar display_image_mean, display_image_sigma;
     cv::Scalar m,s; 
-    input_image.convertTo(temp_image,CV_32FC1);
+    
+    double  minVal, maxVal, minVal2, maxVal2, threshold_val;
+
+    temp_image = display_image.clone();
     cv::meanStdDev(temp_image, m, s);
     int clamp_low = m[0] - 3*s[0];
     int clamp_high = m[0] + 3*s[0];
@@ -503,16 +496,18 @@ void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rec
     temp_image = 255*temp_image/(clamp_high - clamp_low);
     temp_image.convertTo(temp_image, CV_8UC1);
 
-    double minVal, maxVal;
-    cv::minMaxLoc(temp_image, &minVal, &maxVal);
-    double thresholdVal = maxVal * 0.5;
-    cv::threshold(temp_image, mask, thresholdVal, 255, cv::THRESH_BINARY);
-    mask.convertTo(mask, CV_8U);
-    
+    cv::minMaxLoc(temp_image, & minVal, & maxVal);
+    threshold_val = maxVal * std::pow(10,-threshold/20.);
+    cv::threshold(temp_image, display_image_threshold, threshold_val, 255, cv::THRESH_TOZERO);
+    cv::resize(display_image_threshold, display_image_threshold_resize, cv::Size(10*display_image_threshold.cols, 10*display_image_threshold.rows));
+    display_image_threshold_resize.convertTo(display_image_threshold_resize, cv::COLOR_GRAY2BGR);
+    imshow("Thresholded ROI",display_image_threshold_resize);
+    cv::moveWindow("Thresholded ROI", 700, 50);
+
     // Find contours of the blob
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(mask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(display_image_threshold, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     // Ensure at least one contour is found
     if (!contours.empty()) {
@@ -528,23 +523,21 @@ void AutoTracking::FindBlobExtent(cv::Mat & input_image, cv::Rect & ROI, cv::Rec
         bbox = cv::boundingRect(largestContour);
 
         // Draw the bounding rectangle
-        output = temp_image.clone();
-        cv::cvtColor(output, output, cv::COLOR_GRAY2BGR);
-        cv::rectangle(output, bbox, cv::Scalar(0, 255, 0), 1);
+        output_image = temp_image.clone();
+        cv::cvtColor(output_image, output_image, cv::COLOR_GRAY2BGR);
+        cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);
           
-        cv::resize(output, output_resize2, cv::Size(M*output.cols, M*output.rows));
-        cv::imshow("Blob Extent", output_resize2);
+        cv::resize(output_image, output_image_resize, cv::Size(M*output_image.cols, M*output_image.rows));
+        cv::imshow("Blob Extent",output_image_resize);
         cv::moveWindow("Blob Extent", 1400, 50);
-        
-        bbox.x = ROI.x + bbox.x + offsets(0,0);
-        bbox.y = ROI.y + bbox.y + offsets(0,1);
+
+        bbox.x = ROI.x + bbox.x;
+        bbox.y = ROI.y + bbox.y;
 
         // cv::waitKey(0);
     } else {
         std::cerr << "No contours found!" << std::endl;
         bbox = ROI;
-        bbox.x += offsets(0,0);
-        bbox.y += offsets(0,1);
     }
 }
 
