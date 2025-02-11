@@ -597,11 +597,25 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     TrackDetails details;
     uint indx = this->counter;
 
-    std::vector<uint16_t> frame_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].begin(),
-           this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].end()};  
+    // std::vector<uint16_t> frame_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].begin(),
+    //        this->container.processing_states[this->container.current_idx].details.frames_16bit[indx].end()};  
     
     processingState & base_processing_state = this->container.processing_states[0];
     processingState & current_processing_state = this->container.processing_states[this->container.current_idx];
+
+    arma::mat offset_matrix(1,3,arma::fill::zeros);
+    if ( offsets.size() > 0 ){
+        for (int rowi = 0; rowi< offsets.size(); rowi++){
+            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
+        }
+        offset_matrix.shed_row(0);
+        arma::uvec ind = arma::find(offset_matrix.col(0) - 1 == counter);
+        if (ind.n_elem>0){
+            int ri = ind(0);
+            xCorrection = offsets[ri][1];
+            yCorrection = offsets[ri][2];
+        }
+    }
   
     for (auto ii = 0; ii < this->container.processing_states.size(); ii++)
     {
@@ -646,22 +660,19 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, N_ROI_Pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-    double adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_offset, base_processing_state.details);
+    details.irradiance = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_offset, base_processing_state.details);
 
     details.centroid_x = round(x + xCorrection);
     details.centroid_y = round(y + yCorrection);
     if (chk_snap_to_feature->isChecked()){  
-        details.centroid_x = round(frame_x);
-        details.centroid_y = round(frame_y);
+        details.centroid_x = round(frame_x + xCorrection);
+        details.centroid_y = round(frame_y + yCorrection);
     }
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_Pixels;
-    cv::Rect ROI2(minx + xCorrection,miny + yCorrection,ROI_width,ROI_height);
-    VideoDetails & base_processing_state_details =  base_processing_state.details;
-    details.irradiance =  SharedTrackingFunctions::GetAdjustedCounts(this->counter, ROI, base_processing_state_details);
     details.ROI_x = minx + xCorrection;
     details.ROI_y = miny + yCorrection;
     details.ROI_Width = ROI_width;

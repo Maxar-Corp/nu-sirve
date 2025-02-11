@@ -174,7 +174,7 @@ private:
 
     QLabel *lbl_create_track;
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
-    QCheckBox  *chk_auto_advance_frame, *chk_snap_to_peak, *chk_show_crosshair;
+    QCheckBox  *chk_auto_advance_frame, *chk_snap_to_feature, *chk_show_crosshair;
     QLineEdit *txt_frame_advance_amt,  *txt_ROI_dim;
     QGroupBox *grp_create_track;
     QVBoxLayout* vlayout_create_track;

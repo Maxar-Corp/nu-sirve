@@ -199,3 +199,25 @@ void SharedTrackingFunctions::FilterImage(string & prefilter, cv::Mat & display_
     cv::cvtColor(display_frame, display_frame,cv::COLOR_GRAY2RGB);
     clean_display_frame = display_frame.clone();
 }
+
+void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, processingState & state_details, arma::mat & offsets_matrix)
+{
+    arma::vec frame_indices = arma::regspace(start_frame,stop_frame);
+
+    offsets_matrix.set_size(frame_indices.n_elem,3);
+    offsets_matrix.fill(0);
+
+    std::vector<std::vector<int>> offsets = state_details.offsets;
+
+    arma::mat offsets_matrix_tmp(offsets.size(),3,arma::fill::zeros);
+    for (int rowi = 0; rowi < offsets.size(); rowi++){
+        offsets_matrix_tmp.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
+    }
+    for (int rowii = 0; rowii<frame_indices.size(); rowii++){
+        arma::uvec kk = arma::find(offsets_matrix_tmp.col(0) == frame_indices(rowii) + 1,0,"first");
+        if (!kk.is_empty()){
+            offsets_matrix.row(rowii) = offsets_matrix_tmp.row(kk(0));
+        }
+    }
+    offsets_matrix.shed_col(0);
+}

@@ -59,7 +59,7 @@ arma::u64_mat AutoTracking::SingleTracker(
 
     string choice;
 
-    CreateOffsetMatrix(start_frame ,stop_frame, current_processing_state, offsets_matrix);
+    SharedTrackingFunctions::CreateOffsetMatrix(start_frame ,stop_frame, current_processing_state, offsets_matrix);
 
     cv::startWindowThread();
 
@@ -384,24 +384,3 @@ void AutoTracking::TrackingStep(
     output.row(i) = {track_id, frame0 + i, frame_x ,frame_y, static_cast<uint16_t>(peak_counts),static_cast<uint32_t>(sum_counts[0]),static_cast<uint32_t>(sum_ROI_counts[0]),N_threshold_pixels,Num_NonZero_ROI_Pixels, static_cast<uint64_t>(adjusted_integrated_counts), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
 }
 
-void AutoTracking::CreateOffsetMatrix(int start_frame, int stop_frame, processingState & state_details, arma::mat & offsets_matrix)
-{
-    arma::vec frame_indices = arma::regspace(start_frame,stop_frame);
-
-    offsets_matrix.set_size(frame_indices.n_elem,3);
-    offsets_matrix.fill(0);
-
-    std::vector<std::vector<int>> offsets = state_details.offsets;
-
-    arma::mat offsets_matrix_tmp(offsets.size(),3,arma::fill::zeros);
-    for (int rowi = 0; rowi < offsets.size(); rowi++){
-        offsets_matrix_tmp.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
-    }
-    for (int rowii = 0; rowii<frame_indices.size(); rowii++){
-        arma::uvec kk = arma::find(offsets_matrix_tmp.col(0) == frame_indices(rowii) + 1,0,"first");
-        if (!kk.is_empty()){
-            offsets_matrix.row(rowii) = offsets_matrix_tmp.row(kk(0));
-        }
-    }
-    offsets_matrix.shed_col(0);
-}

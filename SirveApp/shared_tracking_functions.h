@@ -20,6 +20,7 @@ namespace SharedTrackingFunctions
     void GetTrackPointData(std::string & trackFeature, int & threshold, cv::Mat & frame_crop, cv::Mat & base_frame_crop, cv::Point & frame_point, double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels, uint & N_ROI_pixels);
     void GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX,  u_int & centerY);
     void CheckROI(cv::Rect & ROI, bool & valid_ROI);
+    void CreateOffsetMatrix(int start_frame, int stop_frame, processingState & state_details, arma::mat & offsets_matrix);
 };
 
 #endif
