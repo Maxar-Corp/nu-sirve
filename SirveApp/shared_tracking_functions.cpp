@@ -39,38 +39,40 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 
 }
 
-void SharedTrackingFunctions::FindTargetExtent(cv::Mat &  display_image, int threshold, cv::Rect & ROI, cv::Rect & bbox)
+void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered)
 {
     int M = 20;
 
     cv::Mat mask;
-    cv::Mat temp_image, output_image, output_image_resize, display_image_resize, display_image_threshold, display_image_threshold_resize;
-    cv::Scalar display_image_mean, display_image_sigma;
+    cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
+    cv::Scalar frame_crop_mean, frame_crop_sigma;
     cv::Scalar m,s; 
     
-    double  minVal, maxVal, minVal2, maxVal2, threshold_val;
+    double minVal, maxVal, threshold_val;
 
-    temp_image = display_image.clone();
-    cv::meanStdDev(temp_image, m, s);
-    int clamp_low = m[0] - 3*s[0];
-    int clamp_high = m[0] + 3*s[0];
-    temp_image = cv::min(cv::max(temp_image, clamp_low), clamp_high);
-    temp_image = temp_image - clamp_low;
-    temp_image = 255*temp_image/(clamp_high - clamp_low);
-    temp_image.convertTo(temp_image, CV_8UC1);
+    cv::Mat frame_crop = frame(ROI);
 
-    cv::minMaxLoc(temp_image, & minVal, & maxVal);
-    threshold_val = maxVal * std::pow(10,-threshold/20.);
-    cv::threshold(temp_image, display_image_threshold, threshold_val, 255, cv::THRESH_TOZERO);
-    cv::resize(display_image_threshold, display_image_threshold_resize, cv::Size(10*display_image_threshold.cols, 10*display_image_threshold.rows));
-    display_image_threshold_resize.convertTo(display_image_threshold_resize, cv::COLOR_GRAY2BGR);
-    imshow("Thresholded ROI",display_image_threshold_resize);
+    cv::meanStdDev(frame_crop, m, s);
+    int clamp_low = m[0] - clamp_low_coeff*s[0];
+    int clamp_high = m[0] + clamp_high_coeff*s[0];
+    temp_image = cv::min(cv::max(frame, clamp_low), clamp_high);
+    cv::normalize(temp_image, temp_image, 0, 255, cv::NORM_MINMAX, CV_8U);
+
+    temp_image = temp_image(ROI);
+    threshold_val = 255. * std::pow(10,-threshold/20.);
+    frame_crop_threshold = temp_image;
+    cv::threshold(temp_image, frame_crop_threshold, threshold_val, 255, cv::THRESH_TOZERO);   
+    frame_crop_threshold.convertTo(frame_crop_threshold,CV_8U);
+
+    cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(10*frame_crop_threshold.cols, 10*frame_crop_threshold.rows));
+    frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
+    imshow("Thresholded ROI",frame_crop_threshold_resize);
     cv::moveWindow("Thresholded ROI", 700, 50);
 
     // Find contours of the blob
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
-    cv::findContours(display_image_threshold, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(frame_crop_threshold, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     // Ensure at least one contour is found
     if (!contours.empty()) {
@@ -91,9 +93,9 @@ void SharedTrackingFunctions::FindTargetExtent(cv::Mat &  display_image, int thr
         cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);
           
         cv::resize(output_image, output_image_resize, cv::Size(M*output_image.cols, M*output_image.rows));
-        cv::imshow("Blob Extent",output_image_resize);
-        cv::moveWindow("Blob Extent", 1400, 50);
-
+        cv::imshow("Target Extent",output_image_resize);
+        cv::moveWindow("Target Extent", 1400, 50);
+        frame_crop_threshold = frame_crop_threshold(bbox);
         bbox.x = ROI.x + bbox.x;
         bbox.y = ROI.y + bbox.y;
 
@@ -102,20 +104,31 @@ void SharedTrackingFunctions::FindTargetExtent(cv::Mat &  display_image, int thr
         std::cerr << "No contours found!" << std::endl;
         bbox = ROI;
     }
+    //If frame is centered, finds the corresponding bbox in the original frame
+    bbox_uncentered = bbox;
+    bbox_uncentered.x += (offsets_matrix(i,0));
+    bbox_uncentered.y += (offsets_matrix(i,1));
 }
 
-void SharedTrackingFunctions::GetTrackPointData(string &trackFeature, int & threshold, cv::Mat & frame_crop, cv::Mat & raw_frame_crop, cv::Point & frame_point,double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,uint & Num_NonZero_ROI_Pixels)
+void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, int & threshold, cv::Mat & frame_crop, cv::Mat & raw_frame_crop, cv::Mat & frame_crop_threshold, cv::Point & frame_point, double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,uint & Num_NonZero_ROI_Pixels)
 {
     cv::Scalar raw_frame_crop_mean, raw_frame_crop_sigma;
+    cv::Mat frame_crop_threshold_binary, raw_frame_crop_threshold;
 
-    cv::Mat frame_crop_threshold, frame_crop_threshold_binary, raw_frame_crop_threshold;
-    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point);
+    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point); //Gets location of peak point in processed cropped frame
+    
     sum_ROI_counts = cv::sum(raw_frame_crop);
     Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
-    cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL);
+    cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL); //Get max value in original raw data
 
-    raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold_binary);
-
+    if (!cv::countNonZero(frame_crop_threshold)==0)
+    {
+        raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold); //Copies the region defined by the thresholded processed frame from the raw frame to raw_frame_crop_threshold
+    }
+    else
+    {
+        raw_frame_crop_threshold = raw_frame_crop.clone();
+    }
     sum_counts = cv::sum(raw_frame_crop_threshold);
     N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
 
@@ -131,6 +144,7 @@ void SharedTrackingFunctions::GetTrackPointData(string &trackFeature, int & thre
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
         frame_point = frame_temp_point;
     }
+    //Returns the frame point in the cropped image frame
 }
 
 void SharedTrackingFunctions::CheckROI(cv::Rect & ROI, bool & valid_ROI)
@@ -140,14 +154,15 @@ void SharedTrackingFunctions::CheckROI(cv::Rect & ROI, bool & valid_ROI)
 
 void SharedTrackingFunctions::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
 {
-    if (input_point.x > 0 && input_point.y > 0){
-    centerX = round(input_point.x + ROI.x);
-    centerY = round(input_point.y + ROI.y);
+    if (input_point.x > 0 && input_point.y > 0)
+    {
+        centerX = round(1000.0 *(input_point.x + ROI.x)/1000.0);
+        centerY = round(1000.0 *(input_point.y + ROI.y)/1000.0);
     }
     else
     {
-    centerX = round(ROI.x + 0.5 * ROI.width);
-    centerY = round(ROI.y + 0.5 * ROI.height);
+        centerX = round(1000.0 *(ROI.x + 0.5 * ROI.width)/1000.0);
+        centerY = round(1000.0 *(ROI.y + 0.5 * ROI.height)/1000.0);
     }
 }
 
@@ -168,14 +183,14 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     int numCols = SirveAppConstants::VideoDisplayWidth; 
     cv::Scalar m, s;    
     std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
-    cv::Mat tmp(numRows, numCols, CV_16UC1, frame_vector.data());
+    cv::Mat tmp(numRows, numCols, CV_16UC1, frame_vector.data()); 
     tmp.convertTo(frame,CV_32FC1);
+
     cv::meanStdDev(frame, m, s);
     int clamp_low = m[0] - clamp_low_coeff*s[0];
     int clamp_high = m[0] + clamp_high_coeff*s[0];
     display_frame = cv::min(cv::max(frame, clamp_low), clamp_high);
-    display_frame = display_frame - clamp_low;
-    display_frame = 255*display_frame/(clamp_high - clamp_low);
+    cv::normalize(display_frame, display_frame, 0, 255, cv::NORM_MINMAX, CV_8U);
     display_frame.convertTo(display_frame, cv::COLOR_GRAY2BGR);
 
     std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
@@ -203,7 +218,6 @@ void SharedTrackingFunctions::FilterImage(string & prefilter, cv::Mat & display_
 void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, processingState & state_details, arma::mat & offsets_matrix)
 {
     arma::vec frame_indices = arma::regspace(start_frame,stop_frame);
-    // std::vector<double> frame_indices_data(frame_indices.begin(), frame_indices.end());
 
     offsets_matrix.set_size(frame_indices.n_elem,3);
     offsets_matrix.fill(0);
@@ -214,16 +228,13 @@ void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame
     for (int rowi = 0; rowi < offsets.size(); rowi++){
         offsets_matrix_tmp.row(rowi) = arma::conv_to<arma::rowvec>::from(offsets[rowi]);
     }
-    // std::vector<double> offsets_matrix_tmp_data(offsets_matrix_tmp.begin(), offsets_matrix_tmp.end());
 
     for (int rowii = 0; rowii<frame_indices.size(); rowii++){
         arma::uvec kk = arma::find(offsets_matrix_tmp.col(0) == frame_indices(rowii) + 1,0,"first");
-        // std::vector<uint> kk_data(kk.begin(), kk.end());
 
         if (!kk.is_empty()){
             offsets_matrix.row(rowii) = offsets_matrix_tmp.row(kk(0));
         }
     }
     offsets_matrix.shed_col(0);
-    // std::vector<double> mat_data(offsets_matrix.begin(), offsets_matrix.end());
 }

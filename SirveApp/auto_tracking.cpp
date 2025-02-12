@@ -338,38 +338,24 @@ void AutoTracking::TrackingStep(
                                 arma::u64_mat & output
                                 )
 {
-    u_int frame_x, frame_y, peak_count;
+    u_int frame_x, frame_y;
     double adjusted_integrated_counts, adjusted_integrated_counts_old = 0.0;
     
-    cv::Rect bbox;
-
-    SharedTrackingFunctions::GetFrameRepresentations(
-                                                    indx,
-                                                    clamp_low_coeff,
-                                                    clamp_high_coeff,
-                                                    current_processing_state.details,
-                                                    base_processing_state_details,
-                                                    frame,
-                                                    prefilter,
-                                                    display_frame,
-                                                    clean_display_frame,
-                                                    raw_frame
-                                                    );
+    SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
 
     bool ok = tracker->update(display_frame, ROI);
-    frame_crop = frame(ROI);
-    raw_frame_crop = raw_frame(ROI);
-    SharedTrackingFunctions::FindTargetExtent(frame_crop, threshold, ROI, bbox);
-    cv::Rect bbox_offset;
-    bbox_offset = bbox;
-    bbox_offset.x += offsets_matrix(i,0);
-    bbox_offset.y += offsets_matrix(i,1);
-    frame_crop = frame(bbox_offset);
-    raw_frame_crop = raw_frame(bbox);
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
+    cv::Mat frame_crop_threshold;
+    cv::Rect bbox = ROI;
+    cv::Rect bbox_uncentered = bbox;
+    SharedTrackingFunctions::FindTargetExtent(i, clamp_low_coeff, clamp_high_coeff, frame, threshold, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered); //Returns absolute position of bbox within frame
+
+    frame_crop = frame(bbox);
+    raw_frame_crop = raw_frame(bbox_uncentered);
+
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-    adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_offset, base_processing_state_details);
+    adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
     stats(adjusted_integrated_counts_old);
     S = stats.stddev();
     step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 6*S);
@@ -377,6 +363,8 @@ void AutoTracking::TrackingStep(
     string window_name = "Tracking... ";
     rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
     rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
+    cv::Point point(frame_x, frame_y);
+    cv::circle(display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
 
     cv::imshow(window_name, display_frame);     
     cv::moveWindow(window_name, 50, 50); 

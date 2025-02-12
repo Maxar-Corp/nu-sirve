@@ -347,7 +347,6 @@ private:
     void CloseProgressArea();
     void ResetEngineeringDataAndSliderGUIs();
     void HandleAutoTrackStartChangeInput();
-    void HandleAutoTrackStopChangeInput();
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
     void HandleCreateTrackClick();

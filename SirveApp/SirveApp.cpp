@@ -821,7 +821,7 @@ QWidget* SirveApp::SetupTracksTab(){
 
     QWidget* widget_tab_tracks = new QWidget(tab_menu);
     QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_tracks);
-    QLabel *lbl_track = new QLabel("Manual Track Management");
+    QLabel *lbl_track = new QLabel("User Defined Tracks");
     lbl_create_track_message = new QLabel("");
     btn_create_track = new QPushButton("Create Track");
     btn_create_track->setFixedWidth(100);
@@ -2247,7 +2247,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_start_frame->setText(QString::number(min_frame));
     txt_auto_track_stop_frame->setText(QString::number(max_frame));
     connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
-    connect(txt_auto_track_stop_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStopChangeInput);
 
     ToggleVideoPlaybackOptions(true);
     UpdateGuiPostFrameRangeLoad(true);
@@ -3821,7 +3820,7 @@ void SirveApp::ApplyDeinterlacingCurrent()
     int nRows = original.details.y_pixels;
     int nCols = original.details.x_pixels;
 
-    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = ImageProcessor->DeinterlacePhaseCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
+    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = ImageProcessor->DeinterlacePhaseCorrelationCurrent(framei, current_frame_16bit);
     lbl_progress_status->setText(QString(""));
     UpdateGlobalFrameVector();
 
@@ -4985,16 +4984,6 @@ void SirveApp::HandleAutoTrackStartChangeInput()
     }
 }
 
-void SirveApp::HandleAutoTrackStopChangeInput()
-{
-    unsigned int new_frame_number = txt_auto_track_stop_frame->text().toUInt();
-    if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
-        video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
-        slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
-        UpdateGlobalFrameVector();
-    }
-}
-
 void SirveApp::HandleFrameNumberChangeInput()
 {
     unsigned int new_frame_number = txt_goto_frame->text().toUInt();
@@ -5008,6 +4997,7 @@ void SirveApp::HandleFrameNumberChangeInput()
 void SirveApp::HandleFrameNumberChange(unsigned int new_frame_number)
 {
     video_display->ViewFrame(new_frame_number);
+    txt_auto_track_start_frame->setText(QString::number((new_frame_number + txt_start_frame->text().toInt())));
     UpdateGlobalFrameVector();
 }
 
