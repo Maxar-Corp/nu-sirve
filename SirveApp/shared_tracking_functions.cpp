@@ -50,9 +50,9 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
     cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
     cv::Scalar frame_crop_mean, frame_crop_sigma;
-    cv::Scalar m,s; 
+    cv::Scalar m, s; 
     
-    double minVal, maxVal, threshold_val;
+    double threshold_val;
 
     cv::Mat frame_crop = frame(ROI);
 

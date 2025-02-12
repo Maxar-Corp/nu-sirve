@@ -640,6 +640,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrela
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
+
     for (int framei = 0; framei < num_video_frames; framei++)
     {
         UpdateProgressBar(framei);
@@ -648,8 +649,8 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrela
 		{
 			return std::vector<std::vector<uint16_t>>();
 		}
-
-        frames_out.push_back(DeinterlacePhaseCorrelationCurrent(framei, original.frames_16bit[framei]));
+        std::vector<uint16_t> frame = original.frames_16bit[framei];
+        frames_out.push_back(DeinterlacePhaseCorrelationCurrent(framei, frame));
     }
 
     return frames_out;
@@ -671,13 +672,18 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
     odd_frame = frame.cols(odd_rows);
     even_frame = frame.cols(even_rows);
 
-    cv::Mat source( nRows2,nCols, CV_64FC1, even_frame.memptr() );
+    cv::Mat source( nRows2, nCols, CV_64FC1, even_frame.memptr() );
     cv::Mat source_blurred;
     cv::GaussianBlur(source, source_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
-    cv::Mat target( nRows2,nCols, CV_64FC1, odd_frame.memptr() );
+    double maxval;
+    cv::minMaxLoc(source_blurred, NULL, &maxval, NULL, NULL);
+    cv::threshold(source_blurred, source_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
+    cv::Mat target( nRows2, nCols, CV_64FC1, odd_frame.memptr() );
     cv::Mat target_blurred;
     cv::GaussianBlur(target, target_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
-    cv::Point2d shift = cv::phaseCorrelate(target_blurred,source_blurred);
+    cv::minMaxLoc(target_blurred, NULL, &maxval, NULL, NULL);
+    cv::threshold(target_blurred, target_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
+    cv::Point2d shift = cv::phaseCorrelate(target_blurred, source_blurred);
     if(shift == shift)
     {
         yOffset = shift.y;
