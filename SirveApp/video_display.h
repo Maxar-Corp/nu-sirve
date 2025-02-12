@@ -67,9 +67,11 @@ public:
     int current_idx;
     int counter_record, video_frame_number;
     bool record_frame;
-    int threshold = 6;
-    std::string trackFeature = "PEAK";
-    std::string prefilter = "NONE";
+    int threshold;
+    double clamp_low_coeff;
+    double clamp_high_coeff;
+    std::string trackFeature;
+    std::string prefilter;
     cv::VideoWriter video;
 
     std::vector<AnnotationInfo> annotation_list;
@@ -110,7 +112,7 @@ public:
     void ToggleActionCalculateRadiance(bool status);
     void ToggleOsmTracks(bool input);
 
-    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details);
+    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold, double clamp_low_coeff, double clamp_high_coeff, std::string trackFeature, std::string prefilter);
     const std::vector<std::optional<TrackDetails>> & GetCreatedTrackDetails();
     void ExitTrackCreationMode();
 

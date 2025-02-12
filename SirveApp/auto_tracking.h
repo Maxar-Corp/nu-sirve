@@ -33,12 +33,12 @@ public:
 
     AutoTracking(); 
     ~AutoTracking();
-    int N = 2;
+    int image_scale_factor = 2;
     int nrows = SirveAppConstants::VideoDisplayHeight;
     int ncols = SirveAppConstants::VideoDisplayWidth;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string tracktype, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
+    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
      
 signals:
      void signalProgress(unsigned int frameval);

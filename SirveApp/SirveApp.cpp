@@ -1470,6 +1470,27 @@ void SirveApp::HandleCreateTrackClick()
     bool ok;
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = 0;
+    string prefilter = "NONE";
+    if (rad_autotrack_filter_gaussian->isChecked()){
+        prefilter = "GAUSSIAN";
+    }
+    else if(rad_autotrack_filter_median->isChecked()){
+        prefilter = "MEDIAN";
+    }
+    else if(rad_autotrack_filter_nlmeans->isChecked()){
+        prefilter = "NLMEANS";
+    }
+    string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    if (rad_autotrack_feature_centroid->isChecked()){
+        trackFeature = "CENTROID";
+    }
+    else if(rad_autotrack_feature_peak->isChecked()){
+        trackFeature = "peak";
+    }
+
+    double clamp_low_coeff = txt_lift_sigma->text().toDouble();
+    double clamp_high_coeff = txt_gain_sigma->text().toDouble();
+    int threshold = 6 - cmb_autotrack_threshold->currentIndex();
     if (previous_manual_track_ids.size()>0){
         maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
     }
@@ -1491,14 +1512,15 @@ void SirveApp::HandleCreateTrackClick()
             } 
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
-            video_display->EnterTrackCreationMode(existing_track_details);
+
+            video_display->EnterTrackCreationMode(existing_track_details, threshold, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
     {
         std::vector<std::optional<TrackDetails>> empty_track_details = track_info->GetEmptyTrack();
         PrepareForTrackCreation(track_id);
-        video_display->EnterTrackCreationMode(empty_track_details);
+        video_display->EnterTrackCreationMode(empty_track_details,  threshold, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
     }
 }
 
@@ -4523,6 +4545,28 @@ void SirveApp::ExecuteAutoTracking()
 
     AutoTracking AutoTracker;
 
+    string prefilter = "NONE";
+    if (rad_autotrack_filter_gaussian->isChecked()){
+        prefilter = "GAUSSIAN";
+    }
+    else if(rad_autotrack_filter_median->isChecked()){
+        prefilter = "MEDIAN";
+    }
+    else if(rad_autotrack_filter_nlmeans->isChecked()){
+        prefilter = "NLMEANS";
+    }
+    string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    if (rad_autotrack_feature_centroid->isChecked()){
+        trackFeature = "CENTROID";
+    }
+    else if(rad_autotrack_feature_peak->isChecked()){
+        trackFeature = "peak";
+    }
+
+    double clamp_low_coeff = txt_lift_sigma->text().toDouble();
+    double clamp_high_coeff = txt_gain_sigma->text().toDouble();
+    int threshold = 6 - cmb_autotrack_threshold->currentIndex();
+
     int frame0 = txt_start_frame->text().toInt();
     
     uint start_frame = txt_auto_track_start_frame->text().toInt();
@@ -4560,7 +4604,7 @@ void SirveApp::ExecuteAutoTracking()
         {
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
-            video_display->EnterTrackCreationMode(existing_track_details);
+            video_display->EnterTrackCreationMode(existing_track_details, threshold, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
@@ -4577,29 +4621,8 @@ void SirveApp::ExecuteAutoTracking()
             CloseProgressArea();
             return;
         }
-        string prefilter = "NONE";
-        if (rad_autotrack_filter_gaussian->isChecked()){
-            prefilter = "GAUSSIAN";
-        }
-        else if(rad_autotrack_filter_median->isChecked()){
-            prefilter = "MEDIAN";
-        }
-        else if(rad_autotrack_filter_nlmeans->isChecked()){
-            prefilter = "NLMEANS";
-        }
-        string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
-        if (rad_autotrack_feature_centroid->isChecked()){
-            trackFeature = "CENTROID";
-        }
-        else if(rad_autotrack_feature_peak->isChecked()){
-            trackFeature = "peak";
-        }
-
-        double clamp_low = txt_lift_sigma->text().toDouble();
-        double clamp_high = txt_gain_sigma->text().toDouble();
-        int threshold = 6 - cmb_autotrack_threshold->currentIndex();
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
@@ -4993,10 +5016,24 @@ void SirveApp::HandleFrameNumberChangeInput()
     }
 }
 
-void SirveApp::HandleFrameNumberChange(unsigned int new_frame_number)
+void SirveApp::HandleFrameNumberChange(unsigned int new_frame_index)
 {
-    video_display->ViewFrame(new_frame_number);
-    txt_auto_track_start_frame->setText(QString::number((new_frame_number + txt_start_frame->text().toInt())));
+    int num_video_frames = video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size();
+    video_display->ViewFrame(new_frame_index);
+    int new_auto_track_start, current_auto_track_start = txt_auto_track_start_frame->text().toInt();
+    int new_auto_track_stop, current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
+    int current_frame_number = new_frame_index + txt_start_frame->text().toInt();
+    int min_frame = txt_start_frame->text().toInt();
+    int max_frame = min_frame + num_video_frames - 1;
+
+    txt_auto_track_start_frame->setText(QString::number(current_frame_number));
+    if (current_frame_number >= current_auto_track_stop)
+    {
+        new_auto_track_stop = std::min(static_cast<double>(current_frame_number+1), static_cast<double>(max_frame));
+        txt_auto_track_stop_frame->setText(QString::number(new_auto_track_stop));
+        current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
+    }
+
     UpdateGlobalFrameVector();
 }
 

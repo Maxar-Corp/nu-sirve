@@ -445,10 +445,16 @@ void VideoDisplay::ToggleActionCalculateRadiance(bool status)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details)
+void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold_in, double clamp_low_coeff_in, double clamp_high_coeff_in, std::string trackFeature_in, std::string prefilter_in)
 {
     track_details = starting_track_details;
     in_track_creation_mode = true;
+
+    threshold = threshold_in;
+    clamp_low_coeff = clamp_high_coeff_in;
+    clamp_high_coeff = clamp_high_coeff_in;
+    trackFeature = trackFeature_in;
+    prefilter = prefilter_in;
 
     btn_select_track_centroid->setChecked(true);
     HandleBtnSelectTrackCentroid(true);
@@ -598,8 +604,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     int nrows = SirveAppConstants::VideoDisplayHeight;
     int ncols = SirveAppConstants::VideoDisplayWidth; 
     int ROI_dim = txt_ROI_dim->text().toInt();
-    double clamp_low_coeff  = 3;
-    double clamp_high_coeff  = 3;
+
     uint indx = this->counter;
 
     cv::Mat frame, display_frame, clean_display_frame, raw_frame;

@@ -226,8 +226,9 @@ void AutoTracking::InitializeTracking(
 
     if (!isRestart)
     {
-        cv::resize(display_frame, display_frame_resize, cv::Size(N*ncols, N*nrows));
+        cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
         string ROI_window_name = "Region of Interest (ROI) Selection - Press Escape twice to Cancel, or Select ROI then Hit Enter twice to Continue.";
+        cv::namedWindow(ROI_window_name, cv::WINDOW_NORMAL);
         GetROI(ROI_window_name, ROI, display_frame_resize);
         choice = "Continue";
     }
@@ -256,8 +257,9 @@ void AutoTracking::InitializeTracking(
         }
         else
         {
+            cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
             string window_name_lost = "Track Paused or Lost. " + std::to_string(indx) + " Select ROI again.";
-            cv::resize(display_frame, display_frame_resize, cv::Size(N*ncols, N*nrows));
+            cv::namedWindow(window_name_lost, cv::WINDOW_NORMAL);
             GetROI(window_name_lost, ROI, display_frame_resize);
             choice = "Continue";
         }
@@ -265,10 +267,10 @@ void AutoTracking::InitializeTracking(
     SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
     if (valid_ROI)
     {
-        ROI.x /= N;
-        ROI.y /= N;
-        ROI.width /= N;
-        ROI.height /= N;
+        ROI.x /= image_scale_factor;
+        ROI.y /= image_scale_factor;
+        ROI.width /= image_scale_factor;
+        ROI.height /= image_scale_factor;
         frame_crop = frame(ROI);
         raw_frame_crop = raw_frame(ROI);
         tracker->init(display_frame,ROI);
