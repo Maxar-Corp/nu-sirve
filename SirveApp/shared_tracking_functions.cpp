@@ -156,7 +156,7 @@ void SharedTrackingFunctions::CheckROI(cv::Rect & ROI, bool & valid_ROI)
     valid_ROI = (!ROI.empty() && !(ROI.width == 0 || ROI.height == 0));    
 }
 
-void SharedTrackingFunctions::GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX, u_int & centerY)
+void SharedTrackingFunctions::GetPointXY(cv::Point input_point, cv::Rect ROI,int & centerX,int & centerY)
 {
     if (input_point.x > 0 && input_point.y > 0)
     {

@@ -675,14 +675,14 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
     cv::Mat source( nRows2, nCols, CV_64FC1, even_frame.memptr() );
     cv::Mat source_blurred;
     cv::GaussianBlur(source, source_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
-    double maxval;
-    cv::minMaxLoc(source_blurred, NULL, &maxval, NULL, NULL);
-    cv::threshold(source_blurred, source_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
+    // double maxval;
+    // cv::minMaxLoc(source_blurred, NULL, &maxval, NULL, NULL);
+    // cv::threshold(source_blurred, source_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
     cv::Mat target( nRows2, nCols, CV_64FC1, odd_frame.memptr() );
     cv::Mat target_blurred;
     cv::GaussianBlur(target, target_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
-    cv::minMaxLoc(target_blurred, NULL, &maxval, NULL, NULL);
-    cv::threshold(target_blurred, target_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
+    // cv::minMaxLoc(target_blurred, NULL, &maxval, NULL, NULL);
+    // cv::threshold(target_blurred, target_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
     cv::Point2d shift = cv::phaseCorrelate(target_blurred, source_blurred);
     if(shift == shift)
     {

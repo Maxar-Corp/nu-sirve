@@ -38,7 +38,7 @@ public:
     int ncols = SirveAppConstants::VideoDisplayWidth;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::u64_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string tracktype, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
+    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string tracktype, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
      
 signals:
      void signalProgress(unsigned int frameval);
@@ -72,38 +72,38 @@ private:
                         );
  
     void TrackingStep(
-                    int & i,
-                    uint & indx,
-                    uint & track_id,
-                    uint & frame0,
-                    double & clamp_low_coeff,
-                    double & clamp_high_coeff,
-                    processingState & current_processing_state,
-                    VideoDetails & base_processing_state_details,
-                    string & prefilter,
-                    Ptr<Tracker> & tracker,
-                    string & trackFeature,
-                    cv::Mat & display_frame,
-                    cv::Mat & clean_display_frame,
-                    int & threshold,
-                    cv::Rect & ROI,
-                    cv::Mat & frame,                           
-                    cv::Mat & frame_crop,
-                    cv::Mat & raw_frame,
-                    cv::Mat & raw_frame_crop,
-                    cv::Point & frame_point,
-                    arma::running_stat<double> & stats,
-                    bool & step_success,
-                    double & S,
-                    double & peak_counts,
-                    cv::Scalar & sum_counts,
-                    cv::Scalar & sum_ROI_counts,
-                    uint & N_threshold_pixels,
-                    uint & Num_NonZero_ROI_Pixels,
-                    arma::mat & offsets_matrix,
-                    arma::u64_mat & output,
-                    double & adjusted_integrated_counts_old
-                    );
+                        int & i,
+                        uint & indx,
+                        uint & track_id,
+                        uint & frame0,
+                        double & clamp_low_coeff,
+                        double & clamp_high_coeff,
+                        processingState & current_processing_state,
+                        VideoDetails & base_processing_state_details,
+                        string & prefilter,
+                        Ptr<Tracker> & tracker,
+                        string & trackFeature,
+                        cv::Mat & display_frame,
+                        cv::Mat & clean_display_frame,
+                        int & threshold,
+                        cv::Rect & ROI,
+                        cv::Mat & frame,                           
+                        cv::Mat & frame_crop,
+                        cv::Mat & raw_frame,
+                        cv::Mat & raw_frame_crop,
+                        cv::Point & frame_point,
+                        arma::running_stat<double> & stats,
+                        bool & step_success,
+                        double & S,
+                        double & peak_counts,
+                        cv::Scalar & sum_counts,
+                        cv::Scalar & sum_ROI_counts,
+                        uint & N_threshold_pixels,
+                        uint & Num_NonZero_ROI_Pixels,
+                        arma::mat & offsets_matrix,
+                        arma::s32_mat & output,
+                        double & adjusted_integrated_counts_old
+                        );
 
     void GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize);
 };
