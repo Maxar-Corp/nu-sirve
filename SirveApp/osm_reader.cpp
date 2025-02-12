@@ -47,13 +47,14 @@ uint32_t OSMReader::FindMessageNumber()
 {
     uint32_t num_messages = 0;
     int number_iterations = 0;
-    long int seek_position, current_p, current_p1, current_p2;
+    long int seek_position, current_p, current_p1;
     size_t status_code;
 
     while (true && number_iterations < kMAX_NUMBER_ITERATIONS)
     {
         const int num_header_values = 3;
         uint64_t header[num_header_values];
+
         status_code = ReadMultipleValues(header);
 
         if (status_code == num_header_values && header[2]) {
@@ -67,7 +68,6 @@ uint32_t OSMReader::FindMessageNumber()
             uint32_t data[2];
             status_code = ReadMultipleValues(data, true);
 
-            current_p2 = ftell(fp);
             double value = data[0] + data[1] * 1e-6;
             frame_time.push_back(value);
 
@@ -167,6 +167,7 @@ MessageHeader OSMReader::ReadMessageHeader()
 FrameHeader OSMReader::ReadFrameHeader()
 {
     FrameHeader fh;
+
     fh.authorization = ReadValue<uint64_t>(true);
     fh.classification = ReadValue<uint32_t>(true);
     fh.type = ReadValue<uint32_t>(true);
@@ -181,6 +182,7 @@ FrameHeader OSMReader::ReadFrameHeader()
     fh.time_generated_seconds = frame_seconds + frame_micro_seconds * 1e-6;
 
     fh.transaction_id = ReadValue<uint32_t>(true);
+
     fh.ack_req_indicator = ReadValue<uint32_t>(true);
     fh.ack_response = ReadValue<uint32_t>(true);
     fh.cant_pro_reason = ReadValue<uint32_t>(true);
@@ -197,13 +199,14 @@ FrameData OSMReader::ReadFrameData()
     data.task_id = ReadValue<uint32_t>(true);
     uint32_t osm_seconds = ReadValue<uint32_t>(true);
     uint32_t osm_micro_seconds = ReadValue<uint32_t>(true);
-    data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
 
+    data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
     data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
+
     double modified_julian_date = data.julian_date + 0.5;
     int midnight_julian = std::floor(modified_julian_date);
+  
     data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
-
     data.mrp = ReadMultipleDoubleValues(3, true);
     data.mrp_cov_rand = ReadMultipleDoubleValues(6, true);
     data.mrp_cov_bias = ReadMultipleDoubleValues(6, true);
@@ -249,6 +252,8 @@ FrameData OSMReader::ReadFrameData()
 
     std::vector<double> az_el_boresight = CalculateAzimuthElevation(0, 0, data);
     data.az_el_boresight = az_el_boresight;
+
+    qDebug() << "AZ EL BORESIGHT: " << data.az_el_boresight;
 
     for (uint32_t j = 0; j < data.num_tracks; j++)
     {
@@ -328,7 +333,6 @@ TrackData OSMReader::GetTrackData(FrameData & input)
 
 std::vector<double> OSMReader::CalculateDirectionCosineMatrix(std::vector<double> input)
 {
-
     arma::vec mr(input);
 
     double sig = 1. - arma::accu(arma::square(mr));
@@ -355,12 +359,6 @@ std::vector<double> OSMReader::CalculateDirectionCosineMatrix(std::vector<double
     dcos(2, 2) = 4 * (-mr02 - mr12 + mr22) + sig2;
 
     dcos = norm * dcos;
-
-    //sig = 1 - mr'*mr;
-    //norm = 1 / (1 + mr'*mr)^2;
-    //dcos = norm * [4 * (mr(1) ^ 2 - mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(1)*mr(2) + 4 * mr(3)*sig     8 * mr(1)*mr(3) - 4 * mr(2)*sig
-    //	8 * mr(1)*mr(2) - 4 * mr(3)*sig         4 * (-mr(1) ^ 2 + mr(2) ^ 2 - mr(3) ^ 2) + sig ^ 2   8 * mr(2)*mr(3) + 4 * mr(1)*sig
-    //	8 * mr(1)*mr(3) + 4 * mr(2)*sig         8 * mr(2)*mr(3) - 4 * mr(1)*sig            4 * (-mr(1) ^ 2 - mr(2) ^ 2 + mr(3) ^ 2) + sig ^ 2];
 
     arma::vec temp = arma::conv_to<arma::vec>::from(arma::vectorise(dcos));
     std::vector<double> out = arma::conv_to<std::vector<double>>::from(temp);
