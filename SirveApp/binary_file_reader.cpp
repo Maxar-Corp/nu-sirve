@@ -70,14 +70,8 @@ T BinaryFileReader::ReadValue(bool convert_endian) {
         return out[0];
     }
 
-    //qDebug() << "About to call...";
-
     T data[1];
     size_t result = ReadMultipleValues(data, convert_endian);
-
-    //qDebug() << "GOT HERE 4";
-    //qDebug() << "result = " << result;
-    //qDebug() << data[0];
 
     return data[0];
 }
@@ -111,8 +105,6 @@ void printBytes(const T* data, size_t size) {
         // Append each byte as a two-digit hexadecimal number
         byteString.append(QString("%1 ").arg(byteData[i], 2, 16, QChar('0')).toUpper());
     }
-
-    //qDebug() << byteString.trimmed(); // Output the bytes
 }
 
 template <typename T>
@@ -121,13 +113,9 @@ size_t BinaryFileReader::ReadMultipleValues(T& data, bool bigendian, uint64_t fo
         throw std::invalid_argument("Null pointer provided for data or stream.");
     }
 
-    // Calculate the total size of the array
     size_t total_bytes = sizeof(data);
-    //qDebug() << "total_bytes=" << total_bytes;
     const uint64_t bytes_per_element = sizeof(data[0]);
-    //qDebug() << "bytes_per_element=" << bytes_per_element;
     uint64_t num_elements = total_bytes / bytes_per_element;
-    //qDebug() << "num_elements=" << num_elements;
 
     if (force_num_elements > 0) {
         num_elements = force_num_elements;
@@ -137,16 +125,7 @@ size_t BinaryFileReader::ReadMultipleValues(T& data, bool bigendian, uint64_t fo
         throw std::invalid_argument("Total bytes is less than the size of one element.");
     }
 
-    //qDebug() << "Initially, data is this: " << data;
-    //printBytes(data, num_elements);
-
-    // Read the data using fread
     size_t read_count = fread(data, bytes_per_element, num_elements, fp);
-
-    //qDebug() << "read_count=" << read_count;
-
-    //printBytes(data, num_elements);
-    //qDebug() << "done";
 
     if (read_count != num_elements) {
         throw std::runtime_error("Failed to read the expected number of elements from the stream.");

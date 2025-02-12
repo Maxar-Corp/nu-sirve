@@ -52,36 +52,27 @@ uint32_t OSMReader::FindMessageNumber()
 
     while (true && number_iterations < kMAX_NUMBER_ITERATIONS)
     {
-        qDebug() << "Finding Message Header for ITERATION " << number_iterations;
-
         const int num_header_values = 3;
         uint64_t header[num_header_values];
 
         status_code = ReadMultipleValues(header);
 
-        qDebug() << status_code;
-        qDebug() << header[0] << header[1] << header[2];
-
         if (status_code == num_header_values && header[2]) {
             num_messages++;
 
 			current_p = ftell(fp);
-            //qDebug() << "current_p = " << current_p;
             seek_position = 92 - 24;
             status_code = fseek(fp, seek_position, SEEK_CUR);
 
 			current_p1 = ftell(fp);
-            //qDebug() << "current_p1 = " << current_p1;
             uint32_t data[2];
             status_code = ReadMultipleValues(data, true);
-            //qDebug() << data[0] << data[1];
 
 			current_p2 = ftell(fp);
             double value = data[0] + data[1] * 1e-6;
             frame_time.push_back(value);
 
             seek_position = header[2] - 76;
-            //qDebug() << "Seek_position=" << seek_position;
             status_code = fseek(fp, seek_position, SEEK_CUR);
         }
         else
@@ -113,8 +104,6 @@ std::vector<Frame> OSMReader::LoadData(uint32_t num_messages, bool combine_track
 
     for (int i = 0; i < num_messages; i++)
     {
-        qDebug() << "Reading MESSAGE " << i << " ---------------------------------------------------";
-
         bool valid_step = i == 0 || frame_time[i] - frame_time[i - 1] != 0 || !combine_tracks;
         if (valid_step) {
 
@@ -174,13 +163,8 @@ std::vector<double> OSMReader::CalculateLatLonAltVector(std::vector<double> ecf)
 MessageHeader OSMReader::ReadMessageHeader()
 {
     uint64_t seconds = ReadValue<uint64_t>();
-    qDebug() << "MessageHeader seconds = " << seconds;
-
     uint64_t nano_seconds = ReadValue<uint64_t>();
-    qDebug() << "MessageHeader nano_seconds = " << nano_seconds;
-
     uint64_t tsize = ReadValue<uint64_t>();
-    qDebug() << "MessageHeader tsize = " << tsize;
 
 	MessageHeader current_message;
     if (tsize < kSMALL_NUMBER)
@@ -198,12 +182,9 @@ MessageHeader OSMReader::ReadMessageHeader()
 FrameHeader OSMReader::ReadFrameHeader()
 {
     FrameHeader fh;
+
     fh.authorization = ReadValue<uint64_t>(true);
-    qDebug() << "fh.authorization" << fh.authorization;
-
     fh.classification = ReadValue<uint32_t>(true);
-    qDebug() << "fh.classification" << fh.classification;
-
     fh.type = ReadValue<uint32_t>(true);
     fh.priority = ReadValue<uint32_t>(true);
     fh.oper_indicator = ReadValue<uint32_t>(true);
@@ -216,15 +197,12 @@ FrameHeader OSMReader::ReadFrameHeader()
     fh.time_generated_seconds = frame_seconds + frame_micro_seconds * 1e-6;
 
     fh.transaction_id = ReadValue<uint32_t>(true);
-    qDebug() << "fh.transaction_id" << fh.transaction_id;
 
     fh.ack_req_indicator = ReadValue<uint32_t>(true);
     fh.ack_response = ReadValue<uint32_t>(true);
     fh.cant_pro_reason = ReadValue<uint32_t>(true);
     fh.message_length = ReadValue<uint32_t>(true);
     fh.software_version = ReadValue<uint32_t>(true);
-
-    qDebug() << "fh.software_version" << fh.software_version;
 
     return fh;
 }
@@ -234,27 +212,17 @@ FrameData OSMReader::ReadFrameData()
     FrameData data;
 
     data.task_id = ReadValue<uint32_t>(true);
-    qDebug() << "task_id = " << data.task_id;
-
     uint32_t osm_seconds = ReadValue<uint32_t>(true);
-    qDebug() << "osm_seconds = " << osm_seconds;
-
     uint32_t osm_micro_seconds = ReadValue<uint32_t>(true);
 
     data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
-    qDebug() << "data.frametime = " << data.frametime;
-
     data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
-    qDebug() << "data.julian_date = " << data.julian_date;
 
 	double modified_julian_date = data.julian_date + 0.5;
 	int midnight_julian = std::floor(modified_julian_date);
+
 	data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
-    qDebug() << "data.seconds_past_midnight = " << data.seconds_past_midnight;
-
     data.mrp = ReadMultipleDoubleValues(3, true);
-    qDebug() << "data.mrp = " << data.mrp;
-
     data.mrp_cov_rand = ReadMultipleDoubleValues(6, true);
     data.mrp_cov_bias = ReadMultipleDoubleValues(6, true);
 
