@@ -20,20 +20,20 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::u64_mat AutoTracking::SingleTracker(
-                                u_int track_id,
-                                double clamp_low_coeff,
-                                double clamp_high_coeff,
-                                int threshold,
-                                string prefilter,
-                                string trackFeature,
-                                uint frame0,
-                                uint start_frame,
-                                uint stop_frame,
-                                processingState & current_processing_state,
-                                VideoDetails & base_processing_state_details,
-                                QString new_track_file_name
-                                )
+arma::s32_mat AutoTracking::SingleTracker( 
+                                     u_int track_id,
+                                    double clamp_low_coeff,
+                                    double clamp_high_coeff,
+                                    int threshold,
+                                    string prefilter,
+                                    string trackFeature,
+                                    uint frame0,
+                                    uint start_frame,
+                                    uint stop_frame,
+                                    processingState & current_processing_state,
+                                    VideoDetails & base_processing_state_details,
+                                    QString new_track_file_name
+                                    )
 {
     double peak_counts, S, adjusted_integrated_counts_old = 0;
 
@@ -47,7 +47,7 @@ arma::u64_mat AutoTracking::SingleTracker(
 
     u_int indx, num_frames = stop_frame - start_frame + 1;
 
-    arma::u64_mat output(num_frames, 14);
+    arma::s32_mat output(num_frames, 16);
     
     arma::running_stat<double> stats;
 
@@ -97,7 +97,7 @@ arma::u64_mat AutoTracking::SingleTracker(
 
     if (!valid_ROI || choice == "Discard")
     {
-        output = arma::u64_mat();
+        output = arma::s32_mat();
         return output;
     }
 
@@ -172,7 +172,7 @@ arma::u64_mat AutoTracking::SingleTracker(
             SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
             if (!valid_ROI || choice == "Discard")
             {
-                output = arma::u64_mat();
+                output = arma::s32_mat();
                 return output;
             }
             else if (choice == "Save")
@@ -336,11 +336,11 @@ void AutoTracking::TrackingStep(
                                 uint & N_threshold_pixels,
                                 uint & Num_NonZero_ROI_Pixels,
                                 arma::mat & offsets_matrix,
-                                arma::u64_mat & output,
+                                arma::s32_mat & output,
                                 double & adjusted_integrated_counts_old
                                 )
 {
-    u_int frame_x, frame_y;
+    int frame_x, frame_y;
     double adjusted_integrated_counts;
    
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
@@ -373,6 +373,23 @@ void AutoTracking::TrackingStep(
     cv::imshow(window_name, display_frame);     
     cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
-    output.row(i) = {track_id, frame0 + i, frame_x ,frame_y, static_cast<uint16_t>(peak_counts),static_cast<uint32_t>(sum_counts[0]),static_cast<uint32_t>(sum_ROI_counts[0]),N_threshold_pixels,Num_NonZero_ROI_Pixels, static_cast<uint64_t>(adjusted_integrated_counts), static_cast<uint16_t>(ROI.x),static_cast<uint16_t>(ROI.y),static_cast<uint16_t>(ROI.width),static_cast<uint16_t>(ROI.height)};
+    output.row(i) =  {
+                    static_cast<uint16_t>(track_id),
+                    static_cast<uint16_t>(frame0 + i),
+                    frame_x - nrows/2,
+                    frame_y - ncols/2,
+                    frame_x,
+                    frame_y,
+                    static_cast<uint16_t>(peak_counts),
+                    static_cast<int32_t>(sum_counts[0]),
+                    static_cast<int32_t>(sum_ROI_counts[0]),
+                    static_cast<int32_t>(N_threshold_pixels),
+                    static_cast<int32_t>(Num_NonZero_ROI_Pixels),
+                    static_cast<int32_t>(adjusted_integrated_counts),
+                    static_cast<uint16_t>(ROI.x),
+                    static_cast<uint16_t>(ROI.y),
+                    static_cast<uint16_t>(ROI.width),
+                    static_cast<uint16_t>(ROI.height)
+                    };
 }
 

@@ -624,7 +624,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     double peak_counts;
     cv::Scalar sum_counts, sum_ROI_counts;
     uint N_threshold_pixels, N_ROI_Pixels;
-    uint frame_x, frame_y;
+    int frame_x, frame_y;
 
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
 
@@ -634,23 +634,6 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
     cv::Mat frame_crop_threshold;
-    cv::Rect bbox = ROI;
-    cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered);
-    cv::Mat frame_crop = frame(bbox);
-    cv::Mat raw_frame_crop = raw_frame(bbox_uncentered);
-
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, N_ROI_Pixels);
-    SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
-
-    details.irradiance = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
-
-    details.centroid_x = round(x + xCorrection);
-    details.centroid_y = round(y + yCorrection);
-    if (chk_snap_to_feature->isChecked()){  
-        details.centroid_x = round(frame_x + xCorrection);
-        details.centroid_y = round(frame_y + yCorrection);
-    }
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
