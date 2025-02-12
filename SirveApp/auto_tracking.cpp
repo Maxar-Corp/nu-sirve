@@ -35,7 +35,7 @@ arma::u64_mat AutoTracking::SingleTracker(
                                 QString new_track_file_name
                                 )
 {
-    double peak_counts, S;
+    double peak_counts, S, adjusted_integrated_counts_old = 0;
 
     cv::Scalar sum_counts, sum_ROI_counts;
 
@@ -136,7 +136,8 @@ arma::u64_mat AutoTracking::SingleTracker(
                     N_threshold_pixels,
                     Num_NonZero_ROI_Pixels,
                     offsets_matrix,
-                    output
+                    output,
+                    adjusted_integrated_counts_old
                     );
 
         
@@ -335,15 +336,17 @@ void AutoTracking::TrackingStep(
                                 uint & N_threshold_pixels,
                                 uint & Num_NonZero_ROI_Pixels,
                                 arma::mat & offsets_matrix,
-                                arma::u64_mat & output
+                                arma::u64_mat & output,
+                                double & adjusted_integrated_counts_old
                                 )
 {
     u_int frame_x, frame_y;
-    double adjusted_integrated_counts, adjusted_integrated_counts_old = 0.0;
-    
+    double adjusted_integrated_counts;
+   
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
 
     bool ok = tracker->update(display_frame, ROI);
+
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
@@ -354,11 +357,12 @@ void AutoTracking::TrackingStep(
 
     SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
-
+    
     adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
+    adjusted_integrated_counts_old = adjusted_integrated_counts;
     stats(adjusted_integrated_counts_old);
     S = stats.stddev();
-    step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 6*S);
+    step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 3*S);
 
     string window_name = "Tracking... ";
     rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);

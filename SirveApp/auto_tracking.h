@@ -101,7 +101,8 @@ private:
                     uint & N_threshold_pixels,
                     uint & Num_NonZero_ROI_Pixels,
                     arma::mat & offsets_matrix,
-                    arma::u64_mat & output
+                    arma::u64_mat & output,
+                    double & adjusted_integrated_counts_old
                     );
 
     void GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize);
