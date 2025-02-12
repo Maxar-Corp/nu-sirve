@@ -27,10 +27,10 @@ std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, 
 
 	arma::vec los_ned = a_ecf_to_ned * cam_to_ecf * los;
 
-	double rtd = 180 / std::_Pi;
+	double rtd = 180.0 / std::_Pi;
 
-	double los_az = rtd * std::atan2(los_ned[1], los_ned[0]);
-	double los_el = rtd * std::atan2(-los_ned[2], std::sqrt(los_ned[0] * los_ned[0] + los_ned[1] * los_ned[1]));
+	double los_az = std::ceil(rtd * std::atan2(los_ned[1], los_ned[0])*1000.0)/1000.0;
+	double los_el = std::ceil(rtd * std::atan2(-los_ned[2], std::sqrt(los_ned[0] * los_ned[0] + los_ned[1] * los_ned[1]))*1000.0)/1000.0;
 
 	if (los_az < 0)
 		los_az += 360;

@@ -33,6 +33,9 @@ public:
     ImageProcessing();
     ~ImageProcessing();
 
+    double min_deinterlace_dist;
+    double max_deinterlace_dist;
+    int deinterlace_kernel_size;
     int frameval;
     bool cancel_operation;
 
@@ -48,10 +51,10 @@ public:
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, VideoDetails & original);
     std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice);
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
-	std::vector<std::vector<uint16_t>> DeinterlaceOpenCVPhaseCorrelation(std::vector<Frame> osm_frames,VideoDetails & original);
+	std::vector<std::vector<uint16_t>> DeinterlaceOpenCVPhaseCorrelation(VideoDetails & original);
     std::vector<uint16_t> DeinterlacePhaseCorrelationCurrent(int current_frame,  int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit);
 
-    std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int track_id, std::vector<TrackFrame> osmFrames,\
+    std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int OSM_track_id, int manual_track_id, std::vector<TrackFrame> osmFrames,\
         std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);
 
     std::vector<std::vector<uint16_t>> CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets);
@@ -70,7 +73,7 @@ private:
     ABIRData abir_data;
     arma::mat disk_avg_kernel;
 
-    static arma::mat apply_soft_threshold(arma::mat s, double tau);
+    static arma::mat apply_shrinkage_operator(arma::mat s, double tau);
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
     static arma::mat perform_thresholding(arma::mat X, double tau);
 };

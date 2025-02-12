@@ -8,7 +8,9 @@ INCLUDEPATH += .
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++17
+#CONFIG += c++17 \
+#            console
+CONFIG += c++17 
 
 HEADERS += abir_reader.h \
             abpnuc_reader.h \
@@ -19,6 +21,7 @@ HEADERS += abir_reader.h \
             binary_file_reader.h \
             calibration_data.h \
             chart_metadata.h \
+            classification.h \
             clickable_chartview.h \
             color_correction.h \
             color_map.h \
@@ -30,19 +33,20 @@ HEADERS += abir_reader.h \
             data_structures.h \
             engineering_data.h \
             enhanced_label.h \
+            enums.h \
             frame_player.h \
             histogram_plotter.h \
             image_processing.h \
             location_input.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
-            non_uniformity_correction.h \
             osm_reader.h \
             plot_engineering_data.h \
             popout_dialog.h \
             process_file.h \
             processing_state.h \
             Section.h \
+            shared_scientific_functions.h\
             SirveApp.h \
             track_management_widget.h \
             tracks.h \
@@ -69,6 +73,7 @@ SOURCES += abir_reader.cpp \
             auto_tracking.cpp\
             binary_file_reader.cpp \
             calibration_data.cpp \
+            classification.cpp \
             clickable_chartview.cpp \
             color_correction.cpp \
             color_map.cpp \
@@ -85,13 +90,13 @@ SOURCES += abir_reader.cpp \
             main.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
-            non_uniformity_correction.cpp \
             osm_reader.cpp \
             plot_engineering_data.cpp \
             popout_dialog.cpp \
             process_file.cpp \
             processing_state.cpp \
             Section.cpp \
+            shared_scientific_functions.cpp\
             SirveApp.cpp \
             track_management_widget.cpp \
             tracks.cpp \

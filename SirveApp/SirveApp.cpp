@@ -1056,10 +1056,10 @@ void SirveApp::SetupVideoFrame(){
     btn_zoom->setIcon(QIcon(":/icons/magnify.png"));
     btn_zoom->setCheckable(true);
 
-    // btn_calculate_radiance = new QPushButton();
-    // btn_calculate_radiance->resize(button_video_width, button_video_height);
-    // btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
-    // btn_calculate_radiance->setCheckable(true);
+    btn_calculate_radiance = new QPushButton();
+    btn_calculate_radiance->resize(button_video_width, button_video_height);
+    btn_calculate_radiance->setIcon(QIcon(":/icons/signal.png"));
+    btn_calculate_radiance->setCheckable(true);
 
     btn_popout_video = new QPushButton();
     btn_popout_video->setFixedWidth(button_video_width);
@@ -1084,6 +1084,7 @@ void SirveApp::SetupVideoFrame(){
     hlayout_video_buttons->addWidget(btn_frame_save);
     hlayout_video_buttons->addWidget(btn_frame_record);
     hlayout_video_buttons->addWidget(btn_zoom);
+    hlayout_video_buttons->addWidget(btn_calculate_radiance);
     hlayout_video_buttons->addWidget(btn_popout_video);
     hlayout_video_buttons->addLayout(formLayout);
     hlayout_video_buttons->addWidget(btn_prev_frame);
@@ -1271,7 +1272,7 @@ void SirveApp::setupConnections() {
     connect(btn_slow_back, &QPushButton::clicked, this, &SirveApp::UpdateFps);
 
     connect(btn_zoom, &QPushButton::clicked, this, &SirveApp::HandleZoomOnVideoToggle);
-    // connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::HandleCalculationOnVideoToggle);
+    connect(btn_calculate_radiance, &QPushButton::clicked, this, &SirveApp::HandleCalculationOnVideoToggle);
     connect(video_display, &VideoDisplay::clearMouseButtons, this, &SirveApp::ClearZoomAndCalculationButtons);
 
     connect(btn_popout_video, &QPushButton::clicked, this, &SirveApp::HandlePopoutVideoClick);
@@ -1574,7 +1575,7 @@ void SirveApp::HandleFinishCreateTrackClick()
 
         tm_widget->AddTrackControl(currently_editing_or_creating_track_id);
         video_display->AddManualTrackIdToShowLater(currently_editing_or_creating_track_id);
-        track_info->AddCreatedManualTrack(currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
+        track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
 
         int index0 = data_plots->index_sub_plot_xmin;
         int index1 = data_plots->index_sub_plot_xmax + 1;
@@ -1692,7 +1693,7 @@ void SirveApp::SaveWorkspace()
 
         if (selectedUserFilePath.length() > 0) {
             QFileInfo fileInfo(selectedUserFilePath);
-            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, video_display->container.get_processing_states(), video_display->annotation_list);
+            workspace->SaveState(selectedUserFilePath, abp_file_metadata.image_path, data_plots->index_sub_plot_xmin + 1, data_plots->index_sub_plot_xmax + 1, eng_data->get_offset_time(), video_display->container.get_processing_states(), video_display->annotation_list, classification_list);
             lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
@@ -1806,6 +1807,24 @@ void SirveApp::LoadWorkspace()
             AnnotationInfo anno = workspace_vals.annotations[i];
             video_display->annotation_list.push_back(anno);
         }
+
+        for (auto i = 0; i < workspace_vals.classifications.size(); i++)
+        {
+            Classification classification = workspace_vals.classifications[i];
+
+            // Set classification to the appropriate widget, depending on its type.
+            if (classification.type == "Plot")
+            {
+                data_plots->SetPlotTitle(classification.text);
+            } else
+            {
+                video_display->UpdateBannerText(classification.text);
+            }
+
+            classification_list.push_back(classification);
+        }
+
+        eng_data->set_offset_time(workspace_vals.timing_offset);
     }
 }
 
@@ -1965,8 +1984,8 @@ void SirveApp::LoadOsmData()
     engineering_plot_layout->addWidget(data_plots->chart_view);
     frame_plots->setLayout(engineering_plot_layout);
 
-    // btn_calculate_radiance->setChecked(false);
-    // btn_calculate_radiance->setEnabled(false);
+    btn_calculate_radiance->setChecked(false);
+    btn_calculate_radiance->setEnabled(false);
     chk_highlight_bad_pixels->setChecked(false);
     chk_highlight_bad_pixels->setEnabled(false);
 
@@ -2387,7 +2406,7 @@ void SirveApp::HandleZoomOnVideoToggle() {
     if (status_zoom_btn)
     {
         video_display->ToggleActionZoom(true);
-        // btn_calculate_radiance->setChecked(false);
+        btn_calculate_radiance->setChecked(false);
     }
     else {
         video_display->ToggleActionZoom(false);
@@ -2396,25 +2415,25 @@ void SirveApp::HandleZoomOnVideoToggle() {
 }
 
 
-// void SirveApp::HandleCalculationOnVideoToggle()
-// {
+void SirveApp::HandleCalculationOnVideoToggle()
+{
 
-//     bool status_calculation_btn = btn_calculate_radiance->isChecked();
+    bool status_calculation_btn = btn_calculate_radiance->isChecked();
 
-//     if (status_calculation_btn) {
+    if (status_calculation_btn) {
 
-//         video_display->ToggleActionCalculateRadiance(true);
-//         btn_zoom->setChecked(false);
-//     }
-//     else {
-//         video_display->ToggleActionCalculateRadiance(false);
-//     }
-// }
+        video_display->ToggleActionCalculateRadiance(true);
+        btn_zoom->setChecked(false);
+    }
+    else {
+        video_display->ToggleActionCalculateRadiance(false);
+    }
+}
 
 void SirveApp::ClearZoomAndCalculationButtons()
 {
     btn_zoom->setChecked(false);
-    // btn_calculate_radiance->setChecked(false);
+    btn_calculate_radiance->setChecked(false);
 }
 
 void SirveApp::UpdateFps()
@@ -2655,6 +2674,30 @@ void SirveApp::SaveFrame()
         playback_controller->StartTimer();
 }
 
+void SirveApp::EnableBinaryExport()
+{
+    bool ok;
+    QString input_text = QInputDialog::getText(0, "Enable Binary Export", "Enter Password", QLineEdit::Normal, "", &ok);
+
+    if (!ok)
+    {
+        return;
+    }
+    int check = QString::compare(input_text, "KateRocks", Qt::CaseSensitive);
+    if (check == 0)
+    {
+        action_export_current_frame->setEnabled(true);
+
+        action_export_frame_range->setEnabled(true);
+
+        action_export_all_frames->setEnabled(true); 
+    }
+    else
+    {
+        return;
+    }
+}
+
 void SirveApp::ExportFrame()
 {
     if(playback_controller->is_running())
@@ -2779,13 +2822,15 @@ void SirveApp::CreateMenuActions()
     action_load_OSM->setStatusTip("Load OSM abpimage file");
     connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
 
+    action_show_calibration_dialog = new QAction("Setup Calibration");
+    connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
+
     action_close = new QAction("Close");
     action_close->setStatusTip("Close main window");
     connect(action_close, &QAction::triggered, this, &SirveApp::CloseWindow);
 
     action_load_workspace = new QAction("Load Workspace File");
     connect(action_load_workspace, &QAction::triggered, this, &SirveApp::LoadWorkspace);
-    //connect(workspace, updateWorkspaceFolder, this, &SirveApp::LoadWorkspace);
 
     action_save_workspace = new QAction("Save Workspace File");
     connect(action_save_workspace, &QAction::triggered, this, &SirveApp::SaveWorkspace);
@@ -2793,6 +2838,10 @@ void SirveApp::CreateMenuActions()
     action_change_workspace_directory = new QAction("Change Workspace Directory");
     action_change_workspace_directory->setStatusTip("Customize workspace directory so it points to your own folder.");
     connect(action_change_workspace_directory, &QAction::triggered, this, &SirveApp::ChangeWorkspaceDirectory);
+
+    action_enable_binary_export = new QAction("Enable Binary Export");
+    connect(action_enable_binary_export, &QAction::triggered, this, &SirveApp::EnableBinaryExport);
+    action_enable_binary_export->setEnabled(true);
 
     action_export_current_frame = new QAction("Export Current Frame");
     connect(action_export_current_frame, &QAction::triggered, this, &SirveApp::ExportFrame);
@@ -2819,6 +2868,8 @@ void SirveApp::CreateMenuActions()
 
 	file_menu = menuBar()->addMenu(tr("&File"));
 	file_menu->addAction(action_load_OSM);
+    file_menu->addAction(action_show_calibration_dialog);
+
 	file_menu->addAction(action_close);
 	menu_workspace = menuBar()->addMenu(tr("&Workspace"));
 	menu_workspace->addAction(action_load_workspace);
@@ -2826,6 +2877,7 @@ void SirveApp::CreateMenuActions()
 	menu_workspace->addAction(action_change_workspace_directory);
     menu_export = menuBar()->addMenu(tr("&Export"));
     menu_export->addAction(action_export_tracking_data);
+    menu_export->addAction(action_enable_binary_export);
     menu_export->addAction(action_export_current_frame);
 	menu_export->addAction(action_export_frame_range);
 	menu_export->addAction(action_export_all_frames);
@@ -2882,6 +2934,12 @@ void SirveApp::EditBannerText()
 
     video_display->UpdateBannerText(input_text);
 
+    if (!UpdateClassificationIfExists("VideoDisplay", input_text, &classification_list))
+    {
+        Classification classification(QString(input_text), QString("VideoDisplay"));
+        classification_list.push_back(classification);
+    }
+
     // checks if banners are the same and asks user if they want them to be the same
     QString plot_banner_text = data_plots->title;
     int check = QString::compare(input_text, plot_banner_text, Qt::CaseSensitive);
@@ -2891,6 +2949,12 @@ void SirveApp::EditBannerText()
         if (response == QMessageBox::Yes)
         {
             data_plots->SetPlotTitle(input_text);
+
+            if (!UpdateClassificationIfExists("Plot", input_text, &classification_list))
+            {
+                Classification classification(QString(input_text), QString("Plot"));
+                classification_list.push_back(classification);
+            }
         }
     }
 }
@@ -2903,7 +2967,29 @@ void SirveApp::EditPlotText()
     if (ok)
     {
         data_plots->SetPlotTitle(input_text);
+
+        if (!UpdateClassificationIfExists("Plot", input_text, &classification_list))
+        {
+            Classification classification(QString(input_text), QString("Plot"));
+            classification_list.push_back(classification);
+        }
     }
+}
+
+void SirveApp::ShowCalibrationDialog()
+{
+	CalibrationDialog calibrate_dialog(calibration_model);
+	
+	auto response = calibrate_dialog.exec();
+
+	if (response == 0) {
+
+		return;
+	}
+
+	calibration_model = calibrate_dialog.model;
+	video_display->SetCalibrationModel(calibrate_dialog.model);
+	btn_calculate_radiance->setEnabled(true);
 }
 
 void SirveApp::ExportPlotData()
@@ -2911,7 +2997,7 @@ void SirveApp::ExportPlotData()
     QString start_frame = txt_start_frame->text();
     QString stop_frame = txt_stop_frame->text();
     QStringList items;
-    items << "Export All Data" << "Export Only Selected Data";
+    items << "Export Only Selected Data" << "Export All Data" ;
 
     bool ok;
     QString item = QInputDialog::getItem(this, "Export Data", "Select Data to Export", items, 0, false, &ok);
@@ -2940,8 +3026,8 @@ void SirveApp::ExportPlotData()
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
     }
     else {
-        min_frame = data_plots->index_sub_plot_xmin;
-        max_frame = data_plots->index_sub_plot_xmax;
+        min_frame = data_plots->index_sub_plot_xmin + 1;
+        max_frame = data_plots->index_sub_plot_xmax + 1;
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
     }
@@ -3681,7 +3767,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
     
-    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames,video_display->container.processing_states[source_state_idx].details);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(video_display->container.processing_states[source_state_idx].details);
 
     if(video_display->container.processing_states[endi].details.frames_16bit.size()>0){
 
@@ -3750,28 +3836,33 @@ void SirveApp::ApplyDeinterlacingCurrent()
 
 void SirveApp::ExecuteCenterOnTracks()
 {
-    int track_id;
+    int OSM_track_id, manual_track_id;
     boolean findAnyTrack = false;
     QString trackFeaturePriority;
     bool continueTF = true;
-    if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){
-        if (cmb_OSM_track_IDs->currentIndex()==0){
-            track_id = -1;
-        }
-        else{
-            track_id = cmb_OSM_track_IDs->currentText().toInt();
-        }
+
+    if (cmb_OSM_track_IDs->currentIndex()==0){
+        OSM_track_id = -1;
+    }
+    else{
+        OSM_track_id = cmb_OSM_track_IDs->currentText().toInt();
+    }
+
+    if (cmb_manual_track_IDs->currentIndex()==0){
+        manual_track_id = -1;
+    }
+    else{
+        manual_track_id = cmb_manual_track_IDs->currentText().toInt();
+    }
+
+    if (cmb_track_centering_priority->currentIndex()==0 || cmb_track_centering_priority->currentIndex()==2){  
         trackFeaturePriority = "OSM";
     }
-    else if(cmb_track_centering_priority->currentIndex()==1 || cmb_track_centering_priority->currentIndex()==3){
-        if (cmb_manual_track_IDs->currentIndex()==0){
-            track_id = -1;
-        }
-        else{
-            track_id = cmb_manual_track_IDs->currentText().toInt();
-        }
+
+    if(cmb_track_centering_priority->currentIndex()==1 || cmb_track_centering_priority->currentIndex()==3){
         trackFeaturePriority = "Manual";
     }
+
     if(cmb_track_centering_priority->currentIndex()==2 || cmb_track_centering_priority->currentIndex()==3){
         findAnyTrack = true;
     }
@@ -3785,11 +3876,11 @@ void SirveApp::ExecuteCenterOnTracks()
     }
     if (continueTF)
     { 
-        CenterOnTracks(trackFeaturePriority, track_id, track_centered_offsets, findAnyTrack, source_state_idx);
+        CenterOnTracks(trackFeaturePriority, OSM_track_id, manual_track_id, track_centered_offsets, findAnyTrack, source_state_idx);
     }
 }
 
-void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
+void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, int manual_track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
 {
     int OSMPriority = QString::compare(trackFeaturePriority,"OSM",Qt::CaseInsensitive);
 
@@ -3801,7 +3892,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
     std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
     std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
-    video_display->container.processing_states[endi].track_id = track_id;
+    // video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
         video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
     }
@@ -3817,7 +3908,7 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int track_id, std::v
     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
 
-    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
+    video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
     if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
         video_display->container.processing_states[endi].offsets = track_centered_offsets;
@@ -4407,7 +4498,20 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
 void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
-    processingState original = video_display->container.processing_states[video_display->container.current_idx];
+    processingState current_processing_state = video_display->container.processing_states[video_display->container.current_idx];
+    processingState base_processing_state = video_display->container.processing_states[0];
+  
+    for (auto ii = 0; ii < video_display->container.processing_states.size(); ii++)
+    {
+        processingState test_state = video_display->container.processing_states[ii];
+        if (test_state.method == ProcessingMethod::replace_bad_pixels)
+        {
+            base_processing_state = test_state;
+            break;
+        }
+            
+    }
+
     AutoTracking AutoTracker;
 
     int frame0 = txt_start_frame->text().toInt();
@@ -4442,7 +4546,7 @@ void SirveApp::ExecuteAutoTracking()
     }
     if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
     {
-        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
+        auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
         if (response == QMessageBox::Yes)
         {
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
@@ -4485,7 +4589,8 @@ void SirveApp::ExecuteAutoTracking()
         double clamp_low = txt_lift_sigma->text().toDouble();
         double clamp_high = txt_gain_sigma->text().toDouble();
         int threshold = 6 - cmb_autotrack_threshold->currentIndex();
-        arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
+        std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
@@ -4502,75 +4607,68 @@ void SirveApp::ExecuteAutoTracking()
                 }
             }
             offset_matrix2.shed_col(0);
-            arma::mat offset_matrix3 = offset_matrix2;
-            offset_matrix2.insert_cols(0,2);
-            offset_matrix2.insert_cols(offset_matrix2.n_cols,6);
-            arma::mat offset_matrix4 = arma::join_rows(offset_matrix2,offset_matrix3);
-            offset_matrix4.insert_cols(offset_matrix4.n_cols,2);
+            offset_matrix2.insert_cols(0,4);
+            offset_matrix2.insert_cols(offset_matrix2.n_cols,10);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
-            autotrack_d += offset_matrix4;
-            autotrack = arma::conv_to<arma::u64_mat>::from(autotrack_d);
+            autotrack_d += offset_matrix2;
+            autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
         }
 
-    if (!autotrack.empty()){
+        if (!autotrack.empty()){
 
-        autotrack.save(new_track_file_name.toStdString(), arma::csv_ascii);
-
-        TrackFileReadResult result = track_info->ReadTracksFromFile(new_track_file_name);
-
-        if (QString::compare(result.error_string, "", Qt::CaseInsensitive) != 0)
-        {
-            QtHelpers::LaunchMessageBox("Issue Reading Tracks", result.error_string);
-            return;
-        }
-
-        if (result.track_ids.find(currently_editing_or_creating_track_id) != result.track_ids.end())
-        {
-            QtHelpers::LaunchMessageBox("Forbidden", "You are not allowed to import a track with the same manual track ID that is currently being created or edited.");
-            return;
-        }
-
-        std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-        for ( int track_id : result.track_ids )
-        {
-            if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end()){
-                auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "Warning: Overwriting track ID: " + QString::number(track_id));
-                if (!response == QMessageBox::Yes)
-                {
-                    return;
-                }
-            }
-            else
+            TrackDetails details;
+            for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
-                video_display->AddManualTrackIdToShowLater(track_id);
-                tm_widget->AddTrackControl(track_id);
-                track_info->AddManualTracks(result.frames);  
-                cmb_manual_track_IDs->clear();
-                cmb_manual_track_IDs->addItem("Primary");
-                std::set<int> track_ids = track_info->get_manual_track_ids();
-                for ( int track_id : track_ids ){
-                    cmb_manual_track_IDs->addItem(QString::number(track_id));
-                }          
+                details.centroid_x_boresight = autotrack(rowii,2);
+                details.centroid_y_boresight = autotrack(rowii,3);
+                details.centroid_x = autotrack(rowii,4);
+                details.centroid_y = autotrack(rowii,5);
+                details.peak_counts = autotrack(rowii,6);
+                details.sum_counts = autotrack(rowii,7);
+                details.sum_ROI_counts = autotrack(rowii,8);
+                details.N_threshold_pixels = autotrack(rowii,9);
+                details.N_ROI_pixels = autotrack(rowii,10);
+                details.irradiance =  autotrack(rowii,11);
+                details.ROI_x = autotrack(rowii,12);
+                details.ROI_y = autotrack(rowii,13);
+                details.ROI_Width = autotrack(rowii,14);
+                details.ROI_Height = autotrack(rowii,15);
+                track_details[autotrack(rowii,1)-1] = details;
             }
-        }
 
-        int index0 = data_plots->index_sub_plot_xmin;
-        int index1 = data_plots->index_sub_plot_xmax + 1;
-        video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            tm_widget->AddTrackControl(track_id);
+            video_display->AddManualTrackIdToShowLater(track_id);
+            track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
 
-        FramePlotSpace();
-        
-        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-        if (existing_track_control != nullptr)
+            int index0 = data_plots->index_sub_plot_xmin;
+            int index1 = data_plots->index_sub_plot_xmax + 1;
+            video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+            data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+
+            FramePlotSpace();
+
+            cmb_manual_track_IDs->clear();
+            cmb_manual_track_IDs->addItem("Primary");
+            std::set<int> track_ids = track_info->get_manual_track_ids();
+            for ( int track_id : track_ids )
+            {
+                cmb_manual_track_IDs->addItem(QString::number(track_id));
+            }
+
+            QStringList color_options = ColorScheme::get_track_colors();
+            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            if (existing_track_control != nullptr)
             {
                 QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
                 const QFileInfo info(new_track_file_name);
                 lbl_track_description->setText(info.fileName());
-            }    
+                int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
+                HandleManualTrackRecoloring(track_id, color_options[ind]);
+            }  
         }
-    }
+
     CloseProgressArea();
+    }
 }
 
 void SirveApp::ToggleVideoPlaybackOptions(bool input)

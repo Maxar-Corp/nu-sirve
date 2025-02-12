@@ -50,7 +50,6 @@ void VideoDisplay::EstablishStencil()
 
     connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
     connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
-    connect(lbl_image_canvas, &EnhancedLabel::cursorInImage, this, &VideoDisplay::SetSelectCentroidBtn);
 }
 
 
@@ -78,7 +77,7 @@ void VideoDisplay::SetSelectCentroidBtn(bool status)
             cursor_in_image = true;
         }
         else if (!status){
-            btn_select_track_centroid->setChecked(false);
+            // btn_select_track_centroid->setChecked(false);
             cursor_in_image = false;
         }
         UpdateDisplayFrame();
@@ -360,7 +359,6 @@ void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
 
 void VideoDisplay::HandleTrackerColorUpdate(QColor new_color)
 {
-    // QColor new_color(input_color);
     OSM_track_color = new_color;
 
     UpdateDisplayFrame();
@@ -560,10 +558,22 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
-
+    // AutoTracking AutoTracker;
     std::vector<uint16_t> frame_std_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].begin(),
            this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].end()};  
-
+    
+    processingState & base_processing_state = this->container.processing_states[0];
+  
+    for (auto ii = 0; ii < this->container.processing_states.size(); ii++)
+    {
+        processingState & test_state = this->container.processing_states[ii];
+        if (test_state.method == ProcessingMethod::replace_bad_pixels)
+        {
+            base_processing_state = test_state;
+            break;
+        }
+            
+    }
     int nrows = this->container.processing_states[this->container.current_idx].details.y_pixels;
     int ncols = this->container.processing_states[this->container.current_idx].details.x_pixels;       
 
@@ -598,12 +608,15 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         details.centroid_x = round(x2 + xCorrection + ROI.x);
         details.centroid_y = round(y2 + yCorrection + ROI.y);
     }
+    details.centroid_x_boresight = details.centroid_x - SirveAppConstants::VideoDisplayWidth/2;
+    details.centroid_y_boresight = details.centroid_y - SirveAppConstants::VideoDisplayHeight/2;
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
     details.N_threshold_pixels = N_threshold_pixels;
     details.N_ROI_pixels = N_ROI_pixels;
-    details.irradiance =  static_cast<uint32_t>(sum_counts[0]);
+    VideoDetails & base_processing_state_details =  base_processing_state.details;
+    details.irradiance =  IrradianceCountsCalc::ComputeIrradiance(this->counter, ROI_height/2, ROI_width/2, details.centroid_x, details.centroid_y, base_processing_state_details);
     details.ROI_x = minx + xCorrection;
     details.ROI_y = miny + yCorrection;
     details.ROI_Width = ROI_width;
@@ -866,7 +879,7 @@ void VideoDisplay::UpdateDisplayFrame()
             lbl_image_canvas->setCursor(Qt::BlankCursor);
             QPoint top_left(new_x - std::round(ROI_box_size/2.), new_y - std::round(ROI_box_size/2.));
             QPoint bottom_right(new_x + std::round(ROI_box_size/2.), new_y + std::round(ROI_box_size/2.));
-            qDebug() << top_left << bottom_right;
+
             QRect manual_ROI_rectangle(top_left, bottom_right);
             manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
@@ -991,7 +1004,7 @@ void VideoDisplay::UpdateDisplayFrame()
              if (new_y_center > image_y){
                 new_y_center = new_y_center - image_y;
             }
-            QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center, new_y_center, marker_size, marker_width, marker_height);
+            QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center-1, new_y_center-1, marker_size, marker_width, marker_height);
             if (osm_track_marker.isNull())
                 continue;
             osm_track_marker_painter.drawRect(osm_track_marker);
@@ -1107,9 +1120,9 @@ void VideoDisplay::UpdateDisplayFrame()
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
-            QString max_value = QString::number(measurements[0]) + " W/m^2/sr";
-            QString avg_value = QString::number(measurements[1]) + " W/m^2/sr";
-            QString sum_value = QString::number(measurements[2]) + " W/m^2/sr";
+            QString max_value = QString::number(measurements[0]) + " uW/cm^2-sr";
+            QString avg_value = QString::number(measurements[1]) + " uW/cm^2-sr";
+            QString sum_value = QString::number(measurements[2]) + " uW/cm^2-sr";
 
             QString calculation_text = "***** Beta Calculation *****\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
@@ -1408,6 +1421,8 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 
  void VideoDisplay::DisplayManualBox(QPoint pt)
  {
-    hover_pt = pt;
-    UpdateDisplayFrame();
+    if (in_track_creation_mode){
+        hover_pt = pt;
+        UpdateDisplayFrame();
+    }
  }

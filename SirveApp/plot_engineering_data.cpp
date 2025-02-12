@@ -129,13 +129,8 @@ void EngineeringPlots::SetXAxisChartId(int xaxis_chart_id)
 
 void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
 {
-    qDebug() << "SetYAxisChartId";
-
     bool yAxisLogLinearChanged = yaxis_is_log != old_yaxis_is_log;
     bool yAxisDecimalScientificChanged = yaxis_is_scientific != old_yaxis_is_scientific;
-
-    qDebug() << "yAxisLogLinearChanged" << yAxisLogLinearChanged;
-    qDebug() << "yAxisDecimalScientificChanged" << yAxisDecimalScientificChanged;
 
     // If the chart type has changed,
     if ((current_chart_id != yaxis_chart_id) || yAxisDecimalScientificChanged || yAxisLogLinearChanged)
@@ -156,8 +151,6 @@ void EngineeringPlots::SetYAxisChartId(int yaxis_chart_id)
                 chartState.scale_factor_miny = axisY->min() / chart_y_maxes[current_chart_id];
             }
         }
-
-        qDebug() << chartState;
 
         this->chart_view->set_chart_state(chartState);
 
@@ -616,10 +609,10 @@ double EngineeringPlots::get_max_x_axis_value()
 void EngineeringPlots::CreateCurrentMarker()
 {
     current_frame_marker = new QLineSeries();
-    current_frame_marker->setName("Red Line");
+    current_frame_marker->setName("Frame Line");
 
     QPen pen;
-    pen.setColor(colors.get_color(2));
+    pen.setColor(QColor(100,100,100));
     pen.setStyle(Qt::SolidLine);
     pen.setWidth(3);
 
@@ -634,15 +627,11 @@ void EngineeringPlots::CreateCurrentMarker()
 void EngineeringPlots::toggle_yaxis_log(bool input)
 {
     yaxis_is_log = input;
-
-    qDebug() << "yaxis_is_log=" << yaxis_is_log;
 }
 
 void EngineeringPlots::toggle_yaxis_scientific(bool input)
 {
     yaxis_is_scientific = input;
-
-    qDebug() << "yaxis_is_scientific=" << yaxis_is_scientific;
 }
 
 void EngineeringPlots::toggle_xaxis_fixed_pt(bool input)
@@ -813,7 +802,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
     } else
     {
         if (this->is_frameline_moving) {
-            clearSeriesByName("Red Line");
+            clearSeriesByName("Frame Line");
             newchart->update();
         }
 
@@ -888,8 +877,6 @@ QtPlotting::~QtPlotting()
 
 void QtPlotting::StartNewChart()
 {
-    qDebug() << "StartNewChart";
-
     delete axis_x;
     axis_x = new QValueAxis();
     axis_x->setTitleText("x");
@@ -928,8 +915,6 @@ void QtPlotting::StartNewChart()
     }
 
     chart->addAxis(axis_x, Qt::AlignBottom);
-
-    qDebug() << "yaxis_is_log" << yaxis_is_log;
 
     if (yaxis_is_log)
     {

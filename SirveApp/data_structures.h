@@ -69,7 +69,7 @@ struct VideoInfo {
 };
 
 struct PlottingFrameData {
-	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight;
+	double azimuth_sensor, elevation_sensor, julian_date, seconds_past_midnight, timing_offset, frame_time;
 };
 
 #endif

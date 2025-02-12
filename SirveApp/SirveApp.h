@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 
+#include "classification.h"
 #include "constants.h"
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
@@ -13,7 +14,6 @@
 #include "video_container.h"
 #include "video_details.h"
 #include "process_file.h"
-#include "non_uniformity_correction.h"
 #include "annotation_info.h"
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
@@ -82,8 +82,10 @@ public:
 	QWidget *main_widget;
 	QGridLayout *engineering_plot_layout;
 
+    std::vector<Classification> classification_list;
+
 	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
-	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner;
+	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner, *action_show_calibration_dialog, *action_enable_binary_export;
 
 	// QThread thread_video, thread_timer;
 
@@ -148,6 +150,7 @@ public:
 	----------------------------------------------------------------------------------------------- */
 
 	VideoDisplay *video_display;
+    AutoTracking *auto_tracking;
 	EngineeringPlots *data_plots;
 	EngineeringData *eng_data;
 	TrackInformation *track_info;
@@ -256,9 +259,9 @@ signals:
         void HandlePopoutEngineeringClosed();
         void HandleProgressUpdate(int percent);
         void HandleZoomAfterSlider();
-
+        void HandleCalculationOnVideoToggle();
         void HandleAnnotationDialogClosed();
-        
+        void ShowCalibrationDialog();
         void SirveApp::HandleProcessingStatesCleared();
         void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
 
@@ -331,11 +334,12 @@ private:
     void ApplyDeinterlacing(int processing_state_idx);
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyDeinterlacingCurrent();
-    void CenterOnTracks(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
+    void CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, int manual_track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
     void CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx);
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
     void ExportFrame();
+    void EnableBinaryExport(); 
     void ExportFrameRange();
     void ExportAllFrames();
     void OpenProgressArea(QString message, int N);

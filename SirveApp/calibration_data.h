@@ -132,7 +132,6 @@ private:
     void DrawAxes();
 
     ImportFrames FindOsmFrames();
-    double CalculateBlackBodyRadiance(double wavelength, double temperature);
     arma::mat AverageMultipleFrames(std::vector<std::vector<uint16_t>>& frames);
 
     bool CheckPath(QString path);
@@ -140,8 +139,8 @@ private:
     bool CheckFilterFile(QString path);
 
     arma::vec CalculateTotalFilterResponse();
-    double CalculateTrapezoidalArea(arma::vec x, arma::vec y);
-    arma::vec CalculatePlankEquation(double temperature);
+    double TrapezoidalIntegration(arma::vec x, arma::vec Y);
+    arma::vec CalculatePlanckEquation(double temperature);
 
     void verifyCalibrationValues();
     void closeWindow();
