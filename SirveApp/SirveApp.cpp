@@ -5027,6 +5027,11 @@ void SirveApp::HandleFrameNumberChange(unsigned int new_frame_index)
     int max_frame = min_frame + num_video_frames - 1;
 
     txt_auto_track_start_frame->setText(QString::number(current_frame_number));
+    if ((current_frame_number >= current_auto_track_start) && ((txt_auto_track_stop_frame->text().toInt() - txt_auto_track_start_frame->text().toInt())<2))
+    {
+        txt_auto_track_stop_frame->setText(QString::number(std::min(static_cast<double>(current_frame_number+1), static_cast<double>(max_frame))));
+        current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
+    }
     if (current_frame_number >= current_auto_track_stop)
     {
         new_auto_track_stop = std::min(static_cast<double>(current_frame_number+1), static_cast<double>(max_frame));
