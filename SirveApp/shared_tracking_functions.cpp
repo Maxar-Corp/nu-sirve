@@ -1,5 +1,35 @@
 #include "shared_tracking_functions.h"
 
+
+std::vector<double> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details, double frame_integration_time, CalibrationData & model)
+{
+    std::vector<double> measurements = {0,0,0};
+    int nRows = SirveAppConstants::VideoDisplayHeight;
+    int nCols = SirveAppConstants::VideoDisplayWidth;
+
+    int row1 = std::max(boundingBox.y,0);
+    int row2 = std::min(boundingBox.y + boundingBox.height, nCols);
+    int col1 = std::max(boundingBox.x,0);
+    int col2 = std::min(boundingBox.x + boundingBox.width, nRows);
+
+    arma::mat original_mat_frame = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[indx]),nCols,nRows).t(); 
+
+    bool valid_indices = ((col2>col1) && (row2>row1) && (col1>0) && (col2>0) && (row1>0) && (row2>0));
+
+    arma::mat counts;
+
+    if (valid_indices)
+    {
+        counts = original_mat_frame.submat(row1, col1, row1+boundingBox.height, col1+boundingBox.width);
+    }
+    if (model.calibration_available)
+    {
+        measurements = model.MeasureIrradiance(row1, col1, row1+boundingBox.height, col1+boundingBox.width, counts, frame_integration_time);
+    }
+
+    return measurements;
+}
+
 double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details)
 {
     int number_median_frames = 30;
@@ -137,7 +167,7 @@ void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, int & thr
     number_pixels = cv::countNonZero(raw_frame_bbox_threshold > 0);
     cv::meanStdDev(raw_frame_bbox_threshold, mean, sigma);
     mean_counts = mean[0];
-    
+
     frame_bbox_threshold_binary.setTo(255,raw_frame_bbox_threshold !=0);
 
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID")

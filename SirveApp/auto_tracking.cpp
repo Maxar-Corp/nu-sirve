@@ -32,7 +32,9 @@ arma::s32_mat AutoTracking::SingleTracker(
                                     uint stop_frame,
                                     processingState & current_processing_state,
                                     VideoDetails & base_processing_state_details,
-                                    QString new_track_file_name
+                                    std::vector<ABIR_Frame>& input_frame_header,
+                                    QString new_track_file_name,
+                                    CalibrationData & calibration_model
                                     )
 {
     double peak_counts, S, adjusted_integrated_counts_old = 0, mean_counts;
@@ -114,6 +116,7 @@ arma::s32_mat AutoTracking::SingleTracker(
                     clamp_high_coeff,
                     current_processing_state,
                     base_processing_state_details,
+                    input_frame_header,
                     prefilter,
                     tracker,
                     trackFeature,
@@ -135,7 +138,8 @@ arma::s32_mat AutoTracking::SingleTracker(
                     number_pixels,
                     offsets_matrix,
                     output,
-                    adjusted_integrated_counts_old
+                    adjusted_integrated_counts_old,
+                    calibration_model
                     );
 
         
@@ -314,6 +318,7 @@ void AutoTracking::TrackingStep(
                                 double & clamp_high_coeff,
                                 processingState & current_processing_state,
                                 VideoDetails & base_processing_state_details,
+                                std::vector<ABIR_Frame>& input_frame_header,
                                 string & prefilter,
                                 Ptr<Tracker> & tracker,
                                 string & trackFeature,
@@ -335,7 +340,8 @@ void AutoTracking::TrackingStep(
                                 uint & number_pixels,
                                 arma::mat & offsets_matrix,
                                 arma::s32_mat & output,
-                                double & adjusted_integrated_counts_old
+                                double & adjusted_integrated_counts_old,
+                                CalibrationData & calibration_model
                                 )
 {
     int frame_x, frame_y;
@@ -363,6 +369,9 @@ void AutoTracking::TrackingStep(
     S = stats.stddev();
     step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 3*S);
 
+    double frame_integration_time = input_frame_header[indx].header.int_time;
+    std::vector<double> measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
+
     string window_name = "Tracking... ";
     rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
     rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
@@ -388,9 +397,9 @@ void AutoTracking::TrackingStep(
                     static_cast<int32_t>(mean_counts),
                     static_cast<int32_t>(sum_counts[0]),
                     static_cast<int32_t>(adjusted_integrated_counts),
-                    static_cast<int32_t>(peak_irradiance),
-                    static_cast<int32_t>(mean_irradiance),
-                    static_cast<int32_t>(sum_irradiance),
+                    static_cast<int32_t>(measurements[0]),
+                    static_cast<int32_t>(measurements[1]),
+                    static_cast<int32_t>(measurements[2]),
                     static_cast<int32_t>(integrated_adjusted_irradiance),
                     static_cast<uint16_t>(bbox_uncentered.x),
                     static_cast<uint16_t>(bbox_uncentered.y),
@@ -399,3 +408,7 @@ void AutoTracking::TrackingStep(
                     };
 }
 
+void AutoTracking::SetCalibrationModel(CalibrationData input)
+{
+    model = input;
+}

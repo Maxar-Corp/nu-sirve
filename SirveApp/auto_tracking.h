@@ -21,7 +21,8 @@
 #include "processing_state.h"
 #include "shared_tracking_functions.h"
 #include "constants.h"
-
+#include "abir_reader.h"
+#include "calibration_data.h"
 using namespace std;
 using namespace cv;
 
@@ -38,8 +39,8 @@ public:
     int ncols = SirveAppConstants::VideoDisplayWidth;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, QString new_track_file_name);   
-     
+    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIR_Frame>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);   
+    void SetCalibrationModel(CalibrationData input);
 signals:
      void signalProgress(unsigned int frameval);
 
@@ -47,6 +48,8 @@ public slots:
     void CancelOperation();
 
 private:
+    CalibrationData model;    
+
     void CreateOffsetMatrix(int start_frame, int stop_frame, processingState & current_processing_state, arma::mat & offsets);
     void InitializeTracking(         
                             bool isRestart,
@@ -79,6 +82,7 @@ private:
                         double & clamp_high_coeff,
                         processingState & current_processing_state,
                         VideoDetails & base_processing_state_details,
+                        std::vector<ABIR_Frame>& input_frame_header,
                         string & prefilter,
                         Ptr<Tracker> & tracker,
                         string & trackFeature,
@@ -100,7 +104,8 @@ private:
                         uint & number_pixels,
                         arma::mat & offsets_matrix,
                         arma::s32_mat & output,
-                        double & adjusted_integrated_counts_old
+                        double & adjusted_integrated_counts_old,
+                        CalibrationData & calibration_model
                         );
 
     void GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize);

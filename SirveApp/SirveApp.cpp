@@ -2220,7 +2220,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     video_display->InitializeFrameData(min_frame, temp, file_processor->abir_data.ir_data);
-    DeleteAbirData();
+    // DeleteAbirData();
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
 
@@ -4622,7 +4622,9 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
+        std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
+
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, frame_headers, new_track_file_name, calibration_model);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);

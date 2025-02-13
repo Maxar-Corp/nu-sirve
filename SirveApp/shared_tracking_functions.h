@@ -10,9 +10,11 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/photo.hpp>
+#include "calibration_data.h"
 
 namespace SharedTrackingFunctions
 {
+    std::vector<double> CalculateIrradiance(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details, double frame_integration_time, CalibrationData & calibration_model);
     double GetAdjustedCounts(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details);
     void FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered);
     void GetFrameRepresentations(uint & indx, double & clamp_low_coeff, double & clamp_high_coeff, VideoDetails & current_processing_state_details, VideoDetails & base_processing_state_details, cv::Mat & frame, std::string & prefilter, cv::Mat & display_frame, cv::Mat & clean_display_frame, cv::Mat & raw_frame);
