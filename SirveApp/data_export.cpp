@@ -24,7 +24,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
     double frame_time, julian_date, seconds_past_midnight, azimuth, elevation, timing_offset;
 
 	// export header
-    myfile << "Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Data Type, Track ID, Azimuth (deg), Elevation (deg), Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Sensor Counts" << std::endl;
+    myfile << "Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Data Type, Track ID, Azimuth (deg), Elevation (deg), Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Integrated Adjusted Counts" << std::endl;
 
 	for (unsigned int i = initial_frame; i < final_frame; i++)
 	{
@@ -50,7 +50,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             centroid_y_boresight = (track_data[i].details[j].centroid.centroid_y);
             centroid_x = (track_data[i].details[j].centroid.centroid_x + 320);
             centroid_y = (track_data[i].details[j].centroid.centroid_y + 240);
-            counts = (track_data[i].details[j].irradiance);
+            counts = (track_data[i].details[j].integrated_adjusted_counts);
 
             myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
         }
@@ -66,7 +66,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             centroid_x = (track.second.centroid.centroid_x);
             centroid_y = (track.second.centroid.centroid_y);
 
-            counts = (track.second.irradiance);
+            counts = (track.second.integrated_adjusted_counts);
 
             myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
         }

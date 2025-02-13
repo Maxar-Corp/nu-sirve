@@ -35,19 +35,19 @@ arma::s32_mat AutoTracking::SingleTracker(
                                     QString new_track_file_name
                                     )
 {
-    double peak_counts, S, adjusted_integrated_counts_old = 0;
+    double peak_counts, S, adjusted_integrated_counts_old = 0, mean_counts;
 
-    cv::Scalar sum_counts, sum_ROI_counts;
+    cv::Scalar sum_counts;
 
     cv::Mat frame, raw_frame, display_frame, clean_display_frame;
 
-    cv::Mat frame_crop, raw_frame_crop, display_frame_resize;
+    cv::Mat frame_crop, frame_bbox, raw_frame_bbox, display_frame_resize;
 
     arma::vec frame_vector;
 
     u_int indx, num_frames = stop_frame - start_frame + 1;
 
-    arma::s32_mat output(num_frames, 16);
+    arma::s32_mat output(num_frames, 19);
     
     arma::running_stat<double> stats;
 
@@ -55,7 +55,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     cv::Point frame_point;
 
-    uint N_threshold_pixels, Num_NonZero_ROI_Pixels;
+    uint number_pixels, Num_NonZero_ROI_Pixels;
 
     string choice;
 
@@ -88,7 +88,6 @@ arma::s32_mat AutoTracking::SingleTracker(
                         frame,
                         frame_crop,
                         raw_frame,
-                        raw_frame_crop,
                         tracker,
                         choice,
                         stats
@@ -125,16 +124,15 @@ arma::s32_mat AutoTracking::SingleTracker(
                     frame,                           
                     frame_crop,
                     raw_frame,
-                    raw_frame_crop,
+                    raw_frame_bbox,
                     frame_point,
                     stats,
                     step_success,
                     S,
                     peak_counts,
+                    mean_counts,
                     sum_counts,
-                    sum_ROI_counts,
-                    N_threshold_pixels,
-                    Num_NonZero_ROI_Pixels,
+                    number_pixels,
                     offsets_matrix,
                     output,
                     adjusted_integrated_counts_old
@@ -164,7 +162,6 @@ arma::s32_mat AutoTracking::SingleTracker(
                                 frame,
                                 frame_crop,
                                 raw_frame,
-                                raw_frame_crop,
                                 tracker,
                                 choice,
                                 stats
@@ -203,7 +200,6 @@ void AutoTracking::InitializeTracking(
                                     cv::Mat & frame,
                                     cv::Mat & frame_crop,
                                     cv::Mat & raw_frame,
-                                    cv::Mat & raw_frame_crop,
                                     Ptr<Tracker> tracker,
                                     string & choice,
                                     arma::running_stat<double> & stats
@@ -228,7 +224,7 @@ void AutoTracking::InitializeTracking(
     {
         cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
         string ROI_window_name = "Region of Interest (ROI) Selection - Press Escape twice to Cancel, or Select ROI then Hit Enter twice to Continue.";
-        cv::namedWindow(ROI_window_name, cv::WINDOW_NORMAL);
+        // cv::namedWindow(ROI_window_name, cv::WINDOW_NORMAL);
         GetROI(ROI_window_name, ROI, display_frame_resize);
         choice = "Continue";
     }
@@ -259,12 +255,14 @@ void AutoTracking::InitializeTracking(
         {
             cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
             string window_name_lost = "Track Paused or Lost. " + std::to_string(indx) + " Select ROI again.";
-            cv::namedWindow(window_name_lost, cv::WINDOW_NORMAL);
+            // cv::namedWindow(window_name_lost, cv::WINDOW_NORMAL);
             GetROI(window_name_lost, ROI, display_frame_resize);
             choice = "Continue";
         }
     }
+
     SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
+
     if (valid_ROI)
     {
         ROI.x /= image_scale_factor;
@@ -272,7 +270,6 @@ void AutoTracking::InitializeTracking(
         ROI.width /= image_scale_factor;
         ROI.height /= image_scale_factor;
         frame_crop = frame(ROI);
-        raw_frame_crop = raw_frame(ROI);
         tracker->init(display_frame,ROI);
         cancel_operation = false;
         stats.reset();
@@ -327,16 +324,15 @@ void AutoTracking::TrackingStep(
                                 cv::Mat & frame,                           
                                 cv::Mat & frame_crop,
                                 cv::Mat & raw_frame,
-                                cv::Mat & raw_frame_crop,
+                                cv::Mat & raw_frame_bbox,
                                 cv::Point & frame_point,
                                 arma::running_stat<double> & stats,
                                 bool & step_success,
                                 double & S,
                                 double & peak_counts,
+                                double & mean_counts,
                                 cv::Scalar & sum_counts,
-                                cv::Scalar & sum_ROI_counts,
-                                uint & N_threshold_pixels,
-                                uint & Num_NonZero_ROI_Pixels,
+                                uint & number_pixels,
                                 arma::mat & offsets_matrix,
                                 arma::s32_mat & output,
                                 double & adjusted_integrated_counts_old
@@ -354,10 +350,11 @@ void AutoTracking::TrackingStep(
     cv::Rect bbox_uncentered = bbox;
     SharedTrackingFunctions::FindTargetExtent(i, clamp_low_coeff, clamp_high_coeff, frame, threshold, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered); //Returns absolute position of bbox within frame
 
-    frame_crop = frame(bbox);
-    raw_frame_crop = raw_frame(bbox_uncentered);
+    cv::Mat frame_bbox = frame(bbox);
+    raw_frame_bbox = raw_frame(bbox_uncentered);
 
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, Num_NonZero_ROI_Pixels);
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_bbox, raw_frame_bbox, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
+
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
     
     adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
@@ -375,6 +372,10 @@ void AutoTracking::TrackingStep(
     cv::imshow(window_name, display_frame);     
     cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
+    uint32_t peak_irradiance = 0;
+    uint32_t mean_irradiance = 0;
+    uint32_t sum_irradiance = 0;
+    uint32_t integrated_adjusted_irradiance = 0;
     output.row(i) =  {
                     static_cast<uint16_t>(track_id),
                     static_cast<uint16_t>(frame0 + i),
@@ -382,16 +383,19 @@ void AutoTracking::TrackingStep(
                     frame_y - ncols/2,
                     frame_x,
                     frame_y,
+                    static_cast<int32_t>(number_pixels),
                     static_cast<uint16_t>(peak_counts),
+                    static_cast<int32_t>(mean_counts),
                     static_cast<int32_t>(sum_counts[0]),
-                    static_cast<int32_t>(sum_ROI_counts[0]),
-                    static_cast<int32_t>(N_threshold_pixels),
-                    static_cast<int32_t>(Num_NonZero_ROI_Pixels),
                     static_cast<int32_t>(adjusted_integrated_counts),
-                    static_cast<uint16_t>(ROI.x),
-                    static_cast<uint16_t>(ROI.y),
-                    static_cast<uint16_t>(ROI.width),
-                    static_cast<uint16_t>(ROI.height)
+                    static_cast<int32_t>(peak_irradiance),
+                    static_cast<int32_t>(mean_irradiance),
+                    static_cast<int32_t>(sum_irradiance),
+                    static_cast<int32_t>(integrated_adjusted_irradiance),
+                    static_cast<uint16_t>(bbox_uncentered.x),
+                    static_cast<uint16_t>(bbox_uncentered.y),
+                    static_cast<uint16_t>(bbox_uncentered.width),
+                    static_cast<uint16_t>(bbox_uncentered.height)
                     };
 }
 

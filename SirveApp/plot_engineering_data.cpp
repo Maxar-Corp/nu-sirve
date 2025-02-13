@@ -195,7 +195,7 @@ void EngineeringPlots::PlotChart()
     {
     case 0:
         y_title = QString("ROI Counts");
-        PlotIrradiance(plot_number_tracks);
+        PlotIntegratedAdjustedCounts(plot_number_tracks);
         break;
     case 1:
         y_title = QString("Azimuth (deg)");
@@ -422,7 +422,7 @@ void EngineeringPlots::PlotElevation(size_t plot_number_tracks)
         DefineChartProperties(sub_plot_xmin, sub_plot_xmax, 0, 90);
 }
 
-void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
+void EngineeringPlots::PlotIntegratedAdjustedCounts(size_t plot_number_tracks)
 {
     std::vector<double> y_points;
 
@@ -433,7 +433,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
         series->setName("OSM Data");
 
         std::vector<double> x_values = get_individual_x_track(i);
-        std::vector<double> y_values = get_individual_y_track_irradiance(i);
+        std::vector<double> y_values = get_individual_y_track_integrated_adjusted_counts(i);
 
         AddSeries(series, x_values, y_values, true);;
 
@@ -450,7 +450,7 @@ void EngineeringPlots::PlotIrradiance(size_t plot_number_tracks)
             if (it != manual_track_frames[i].tracks.end())
             {
                 x_values.push_back(get_single_x_axis_value(i));
-                y_values.push_back(it->second.irradiance);
+                y_values.push_back(it->second.integrated_adjusted_counts);
             }
         }
 
@@ -487,14 +487,14 @@ std::vector<double> EngineeringPlots::get_individual_x_track(size_t i)
     return x_values;
 }
 
-std::vector<double> EngineeringPlots::get_individual_y_track_irradiance(size_t i)
+std::vector<double> EngineeringPlots::get_individual_y_track_integrated_adjusted_counts(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
     {
         if (i < track_frames[track_frame_index].details.size())
         {
-            y_values.push_back(track_frames[track_frame_index].details[i].irradiance);
+            y_values.push_back(track_frames[track_frame_index].details[i].integrated_adjusted_counts);
         }
     }
 

@@ -70,6 +70,7 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
 
     cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(10*frame_crop_threshold.cols, 10*frame_crop_threshold.rows));
     frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
+    cv::namedWindow("Thresholded ROI", cv::WINDOW_NORMAL);
     imshow("Thresholded ROI",frame_crop_threshold_resize);
     cv::moveWindow("Thresholded ROI", 700, 50);
 
@@ -97,6 +98,7 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
         cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);
           
         cv::resize(output_image, output_image_resize, cv::Size(M*output_image.cols, M*output_image.rows));
+        cv::namedWindow("Target Extent", cv::WINDOW_NORMAL);
         cv::imshow("Target Extent",output_image_resize);
         cv::moveWindow("Target Extent", 1400, 50);
         frame_crop_threshold = frame_crop_threshold(bbox);
@@ -114,37 +116,39 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
     bbox_uncentered.y += (offsets_matrix(i,1));
 }
 
-void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, int & threshold, cv::Mat & frame_crop, cv::Mat & raw_frame_crop, cv::Mat & frame_crop_threshold, cv::Point & frame_point, double & peak_counts, cv::Scalar & sum_counts, cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,uint & Num_NonZero_ROI_Pixels)
+void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, int & threshold, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
 {
-    cv::Scalar raw_frame_crop_mean, raw_frame_crop_sigma;
-    cv::Mat frame_crop_threshold_binary, raw_frame_crop_threshold;
+    cv::Scalar raw_frame_bbox_mean, raw_frame_bbox_sigma, mean, sigma;
+    cv::Mat frame_bbox_threshold_binary, raw_frame_bbox_threshold;
 
-    cv::minMaxLoc(frame_crop, NULL, NULL, NULL, & frame_point); //Gets location of peak point in processed cropped frame
+    cv::minMaxLoc(frame_bbox, NULL, NULL, NULL, & frame_point); //Gets location of peak point in processed cropped frame
     
-    sum_ROI_counts = cv::sum(raw_frame_crop);
-    Num_NonZero_ROI_Pixels = cv::countNonZero(raw_frame_crop > 0);
-    cv::minMaxLoc(raw_frame_crop, NULL, & peak_counts, NULL, NULL); //Get max value in original raw data
+    cv::minMaxLoc(raw_frame_bbox, NULL, & peak_counts, NULL, NULL); //Get max value in original raw data
 
-    if (!cv::countNonZero(frame_crop_threshold)==0)
+    if (!cv::countNonZero(frame_bbox_threshold)==0)
     {
-        raw_frame_crop.copyTo(raw_frame_crop_threshold, frame_crop_threshold); //Copies the region defined by the thresholded processed frame from the raw frame to raw_frame_crop_threshold
+        raw_frame_bbox.copyTo(raw_frame_bbox_threshold, frame_bbox_threshold); //Copies the region defined by the thresholded processed frame from the raw frame to raw_frame_bbox_threshold
     }
     else
     {
-        raw_frame_crop_threshold = raw_frame_crop.clone();
+        raw_frame_bbox_threshold = raw_frame_bbox.clone();
     }
-    sum_counts = cv::sum(raw_frame_crop_threshold);
-    N_threshold_pixels = cv::countNonZero(raw_frame_crop_threshold > 0);
+    sum_counts = cv::sum(raw_frame_bbox_threshold);
+    number_pixels = cv::countNonZero(raw_frame_bbox_threshold > 0);
+    cv::meanStdDev(raw_frame_bbox_threshold, mean, sigma);
+    mean_counts = mean[0];
+    
+    frame_bbox_threshold_binary.setTo(255,raw_frame_bbox_threshold !=0);
 
     if(trackFeature == "INTENSITY_WEIGHTED_CENTROID")
     {   
-        cv::Moments frame_moments = cv::moments(frame_crop_threshold,false);
+        cv::Moments frame_moments = cv::moments(raw_frame_bbox_threshold,false);
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
         frame_point = frame_temp_point;
     }
     else if (trackFeature == "CENTROID")
     {
-        cv::Moments frame_moments = cv::moments(frame_crop_threshold_binary,true);
+        cv::Moments frame_moments = cv::moments(frame_bbox_threshold_binary,true);
         cv::Point frame_temp_point(frame_moments.m10/frame_moments.m00, frame_moments.m01/frame_moments.m00);
         frame_point = frame_temp_point;
     }

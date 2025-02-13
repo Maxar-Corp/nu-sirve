@@ -4655,16 +4655,19 @@ void SirveApp::ExecuteAutoTracking()
                 details.centroid_y_boresight = autotrack(rowii,3);
                 details.centroid_x = autotrack(rowii,4);
                 details.centroid_y = autotrack(rowii,5);
-                details.peak_counts = autotrack(rowii,6);
-                details.sum_counts = autotrack(rowii,7);
-                details.sum_ROI_counts = autotrack(rowii,8);
-                details.N_threshold_pixels = autotrack(rowii,9);
-                details.N_ROI_pixels = autotrack(rowii,10);
-                details.irradiance =  autotrack(rowii,11);
-                details.ROI_x = autotrack(rowii,12);
-                details.ROI_y = autotrack(rowii,13);
-                details.ROI_Width = autotrack(rowii,14);
-                details.ROI_Height = autotrack(rowii,15);
+                details.number_pixels = autotrack(rowii,6);
+                details.peak_counts = autotrack(rowii,7);
+                details.mean_counts = autotrack(rowii,8);
+                details.sum_counts = autotrack(rowii,9);
+                details.integrated_adjusted_counts =  autotrack(rowii,10);
+                details.peak_irradiance = autotrack(rowii,11);
+                details.mean_irradiance = autotrack(rowii,12);
+                details.sum_irradiance = autotrack(rowii,13);
+                details.integrated_adjusted_irradiance = autotrack(rowii,14);
+                details.bbox_x = autotrack(rowii,15);
+                details.bbox_y = autotrack(rowii,16);
+                details.bbox_width = autotrack(rowii,17);
+                details.bbox_height = autotrack(rowii,18);
                 track_details[autotrack(rowii,1)-1] = details;
             }
 
@@ -4744,7 +4747,7 @@ void SirveApp::EnableEngineeringPlotOptions()
     cmb_plot_yaxis->clear();
     cmb_plot_yaxis->setEnabled(true);
     cmb_plot_yaxis->setFixedWidth(150);
-    cmb_plot_yaxis->addItem(QString("ROI Counts"));
+    cmb_plot_yaxis->addItem(QString("Adjusted Integrated Counts"));
     cmb_plot_yaxis->addItem(QString("Azimuth"));
     cmb_plot_yaxis->addItem(QString("Elevation"));
     cmb_plot_yaxis->addItem(QString("IFOV - X"));

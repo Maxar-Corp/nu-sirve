@@ -451,7 +451,7 @@ void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails
     in_track_creation_mode = true;
 
     threshold = threshold_in;
-    clamp_low_coeff = clamp_high_coeff_in;
+    clamp_low_coeff = clamp_low_coeff_in;
     clamp_high_coeff = clamp_high_coeff_in;
     trackFeature = trackFeature_in;
     prefilter = prefilter_in;
@@ -626,9 +626,9 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     yCorrection = offsets_matrix(indx,1);
 
     cv::Point frame_point;
-    double peak_counts;
+    double peak_counts, mean_counts;
     cv::Scalar sum_counts, sum_ROI_counts;
-    uint N_threshold_pixels, N_ROI_Pixels;
+    uint number_pixels;
     int frame_x, frame_y;
 
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
@@ -645,10 +645,10 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Mat frame_crop = frame(bbox);
     cv::Mat raw_frame_crop = raw_frame(bbox_uncentered);
 
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, sum_counts, sum_ROI_counts, N_threshold_pixels, N_ROI_Pixels);
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-    details.irradiance = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
+    details.integrated_adjusted_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
 
     details.centroid_x = round(x + xCorrection);
     details.centroid_y = round(y + yCorrection);
@@ -660,13 +660,11 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.centroid_y_boresight = details.centroid_y - SirveAppConstants::VideoDisplayHeight/2;
     details.peak_counts = peak_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
-    details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
-    details.N_threshold_pixels = N_threshold_pixels;
-    details.N_ROI_pixels = N_ROI_Pixels;
-    details.ROI_x = minx + xCorrection;
-    details.ROI_y = miny + yCorrection;
-    details.ROI_Width = ROI_width;
-    details.ROI_Height = ROI_height;
+    details.number_pixels = number_pixels;
+    details.bbox_x = bbox_uncentered.x + xCorrection;
+    details.bbox_y = bbox_uncentered.y + yCorrection;
+    details.bbox_width = bbox_uncentered.width;
+    details.bbox_height = bbox_uncentered.height;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
     {
         track_details_min_frame = current_frame_num;
