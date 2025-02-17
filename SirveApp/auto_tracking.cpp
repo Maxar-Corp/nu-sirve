@@ -25,6 +25,7 @@ arma::s32_mat AutoTracking::SingleTracker(
                                     double clamp_low_coeff,
                                     double clamp_high_coeff,
                                     int threshold,
+                                    int bbox_buffer_pixels,
                                     string prefilter,
                                     string trackFeature,
                                     uint frame0,
@@ -122,6 +123,7 @@ arma::s32_mat AutoTracking::SingleTracker(
                     display_frame,
                     clean_display_frame,
                     threshold,
+                    bbox_buffer_pixels,
                     ROI,
                     frame,                           
                     raw_frame,
@@ -321,6 +323,7 @@ void AutoTracking::TrackingStep(
                                 cv::Mat & display_frame,
                                 cv::Mat & clean_display_frame,
                                 int & threshold,
+                                int & bbox_buffer_pixels,
                                 cv::Rect & ROI,
                                 cv::Mat & frame,                           
                                 cv::Mat & raw_frame,
@@ -349,7 +352,7 @@ void AutoTracking::TrackingStep(
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(i, clamp_low_coeff, clamp_high_coeff, frame, threshold, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered); //Returns absolute position of bbox within frame
+    SharedTrackingFunctions::FindTargetExtent(i, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered); //Returns absolute position of bbox within frame
 
     cv::Mat frame_bbox = frame(bbox);
     raw_frame_bbox = raw_frame(bbox_uncentered);

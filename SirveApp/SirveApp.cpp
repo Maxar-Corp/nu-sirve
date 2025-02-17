@@ -852,6 +852,8 @@ QWidget* SirveApp::SetupTracksTab(){
     txt_auto_track_stop_frame = new QLineEdit("");
     txt_auto_track_stop_frame->setFixedWidth(60);
     txt_pixel_buffer = new QLineEdit("0");
+    QIntValidator *validator = new QIntValidator(0, 10, this);
+    txt_pixel_buffer->setValidator(validator);
     txt_auto_track_stop_frame->setFixedWidth(60);
     QFormLayout *form_auto_track_frame_limits = new QFormLayout;
     form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
@@ -1479,6 +1481,7 @@ void SirveApp::ImportTracks()
 void SirveApp::HandleCreateTrackClick()
 {
     bool ok;
+    int bbox_buffer_pixels = txt_pixel_buffer->text().toInt();
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = 0;
     string prefilter = "NONE";
@@ -1524,14 +1527,14 @@ void SirveApp::HandleCreateTrackClick()
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
 
-            video_display->EnterTrackCreationMode(existing_track_details, threshold, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
+            video_display->EnterTrackCreationMode(existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
     {
         std::vector<std::optional<TrackDetails>> empty_track_details = track_info->GetEmptyTrack();
         PrepareForTrackCreation(track_id);
-        video_display->EnterTrackCreationMode(empty_track_details,  threshold, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
+        video_display->EnterTrackCreationMode(empty_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
     }
 }
 
@@ -4577,7 +4580,7 @@ void SirveApp::ExecuteAutoTracking()
     double clamp_low_coeff = txt_lift_sigma->text().toDouble();
     double clamp_high_coeff = txt_gain_sigma->text().toDouble();
     int threshold = cmb_autotrack_threshold->itemData(cmb_autotrack_threshold->currentIndex(),Qt::UserRole).toInt();
-
+    int bbox_buffer_pixels = txt_pixel_buffer->text().toInt();
     int frame0 = txt_start_frame->text().toInt();
     
     uint start_frame = txt_auto_track_start_frame->text().toInt();
@@ -4615,7 +4618,7 @@ void SirveApp::ExecuteAutoTracking()
         {
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
-            video_display->EnterTrackCreationMode(existing_track_details, threshold, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
+            video_display->EnterTrackCreationMode(existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
@@ -4635,7 +4638,7 @@ void SirveApp::ExecuteAutoTracking()
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
 
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, frame_headers, new_track_file_name, calibration_model);
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, frame_headers, new_track_file_name, calibration_model);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);

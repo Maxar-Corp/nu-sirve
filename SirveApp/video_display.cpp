@@ -445,7 +445,7 @@ void VideoDisplay::ToggleActionCalculateRadiance(bool status)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold_in, double clamp_low_coeff_in, double clamp_high_coeff_in, std::string trackFeature_in, std::string prefilter_in)
+void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold_in, int bbox_buffer_pixels_in, double clamp_low_coeff_in, double clamp_high_coeff_in, std::string trackFeature_in, std::string prefilter_in)
 {
     track_details = starting_track_details;
     in_track_creation_mode = true;
@@ -455,6 +455,7 @@ void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails
     clamp_high_coeff = clamp_high_coeff_in;
     trackFeature = trackFeature_in;
     prefilter = prefilter_in;
+    bbox_buffer_pixels = bbox_buffer_pixels_in;
 
     btn_select_track_centroid->setChecked(true);
     HandleBtnSelectTrackCentroid(true);
@@ -641,7 +642,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered);
+    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered);
     cv::Mat frame_crop = frame(bbox);
     cv::Mat raw_frame_crop = raw_frame(bbox_uncentered);
 

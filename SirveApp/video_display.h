@@ -64,6 +64,7 @@ public:
 	arma::mat offsets_matrix;
 	int xCorrection = 0;
     int yCorrection = 0;
+    int bbox_buffer_pixels;
     int current_idx;
     int counter_record, video_frame_number;
     bool record_frame;
@@ -112,7 +113,7 @@ public:
     void ToggleActionCalculateRadiance(bool status);
     void ToggleOsmTracks(bool input);
 
-    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold, double clamp_low_coeff, double clamp_high_coeff, std::string trackFeature, std::string prefilter);
+    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold, int bbox_buffer_pixels, double clamp_low_coeff, double clamp_high_coeff, std::string trackFeature, std::string prefilter);
     const std::vector<std::optional<TrackDetails>> & GetCreatedTrackDetails();
     void ExitTrackCreationMode();
 

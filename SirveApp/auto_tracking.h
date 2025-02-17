@@ -39,7 +39,7 @@ public:
     int ncols = SirveAppConstants::VideoDisplayWidth;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIR_Frame>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);   
+    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIR_Frame>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);   
     void SetCalibrationModel(CalibrationData input);
 signals:
      void signalProgress(unsigned int frameval);
@@ -88,6 +88,7 @@ private:
                         cv::Mat & display_frame,
                         cv::Mat & clean_display_frame,
                         int & threshold,
+                        int & bbox_buffer_pixels,
                         cv::Rect & ROI,
                         cv::Mat & frame,                           
                         cv::Mat & raw_frame,

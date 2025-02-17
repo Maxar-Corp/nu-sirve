@@ -73,9 +73,11 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 
 }
 
-void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered)
+void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered)
 {
     int M = 20;
+    int nrows = SirveAppConstants::VideoDisplayHeight;
+    int ncols = SirveAppConstants::VideoDisplayWidth;
 
     cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
@@ -121,6 +123,11 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
 
         // Get the bounding rectangle
         bbox = cv::boundingRect(largestContour);
+
+        bbox.x = max(bbox.x - bbox_buffer_pixels, 0);
+        bbox.width = min((bbox.width + 2*bbox_buffer_pixels), ROI.width - (bbox.x + bbox.width));
+        bbox.y = max(bbox.y - bbox_buffer_pixels, 0);
+        bbox.height = min((bbox.height + 2*bbox_buffer_pixels), ROI.height - (bbox.y + bbox.height));
 
         // Draw the bounding rectangle
         output_image = temp_image.clone();
