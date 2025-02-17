@@ -114,7 +114,7 @@ public:
 	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_accumulator_offset;
 	QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
+	QLineEdit *txt_pixel_buffer, *txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
 	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
 		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
 		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
@@ -190,81 +190,88 @@ signals:
         void directorySelected(QString directory);
         void enableYAxisOptions(bool enabled);
         void updateVideoDisplayPinpointControls(bool status);
+        void itemDataSelected(QVariant data);
 
-	public slots:
+public slots:
 
-        void SetLiftAndGain(double lift, double gain);
-        void HandleHistogramClick(double x0, double x1);
-        void HandleAutoLiftGainCheck(int state);
-        void HandleLiftSliderToggled();
-        void HandleGainSliderToggled();
+    void SetLiftAndGain(double lift, double gain);
+    void HandleHistogramClick(double x0, double x1);
+    void HandleAutoLiftGainCheck(int state);
+    void HandleLiftSliderToggled();
+    void HandleGainSliderToggled();
 
-        void EnableYAxisOptions(bool enabled);
+    void EnableYAxisOptions(bool enabled);
 
-        void SaveWorkspace();
-        void LoadWorkspace();
-        void ImportTracks();
-        void HandleTrackRemoval(int track_id);
-        void HandleManualTrackRecoloring(int track_id, QColor color);
-        void HandleHideManualTrackId(int track_id);
-        void HandleShowManualTrackId(int track_id, QColor color);
+    void SaveWorkspace();
+    void LoadWorkspace();
+    void ImportTracks();
+    void HandleTrackRemoval(int track_id);
+    void HandleManualTrackRecoloring(int track_id, QColor color);
+    void HandleHideManualTrackId(int track_id);
+    void HandleShowManualTrackId(int track_id, QColor color);
 
-        void HandleAbpFileSelected();
-        bool ValidateAbpFiles(QString path_to_image_file);
-        void UiLoadAbirData();
-        void ExecuteAdaptiveNoiseSuppression();
-        void ExecuteDeinterlace();
-        void ExecuteDeinterlaceCurrent();
-        void ExecuteCenterOnTracks();
-        void ExecuteCenterOnBrightest();
-        void ExecuteFrameStacking();
-        void ExecuteFixedNoiseSuppression();
-        void ExecuteRPCPNoiseSuppression();
-        void ExecuteAccumulatorNoiseSuppression();
-        void ExecuteAutoTracking();
-        void HandleFrameNumberChangeInput();
+    void HandleAbpFileSelected();
+    bool ValidateAbpFiles(QString path_to_image_file);
+    void UiLoadAbirData();
+    void ExecuteAdaptiveNoiseSuppression();
+    void ExecuteDeinterlace();
+    void ExecuteDeinterlaceCurrent();
+    void ExecuteCenterOnTracks();
+    void ExecuteCenterOnBrightest();
+    void ExecuteFrameStacking();
+    void ExecuteFixedNoiseSuppression();
+    void ExecuteRPCPNoiseSuppression();
+    void ExecuteAccumulatorNoiseSuppression();
+    void ExecuteAutoTracking();
+    void HandleFrameNumberChangeInput();
 
-        void StartStopVideoRecording();
-        void HandleZoomOnVideoToggle();
-        void HandleProcessingNewStateSelected();
-        void ClearZoomAndCalculationButtons();
+    void StartStopVideoRecording();
+    void HandleZoomOnVideoToggle();
+    void HandleProcessingNewStateSelected();
+    void ClearZoomAndCalculationButtons();
 
-        void UpdateFps();
-        void ResetColorCorrection();
+    void UpdateFps();
+    void ResetColorCorrection();
 
-        void HandlePlotFullDataToggle();
-        void HandlePlotPrimaryOnlyToggle();
-        void HandlePlotCurrentFrameMarkerToggle();
-        void HandleXAxisOptionChange();
-   
-        void SetDataTimingOffset();
-        void ChangeWorkspaceDirectory();
-        void CloseWindow();
+    void HandlePlotFullDataToggle();
+    void HandlePlotPrimaryOnlyToggle();
+    void HandlePlotCurrentFrameMarkerToggle();
+    void HandleXAxisOptionChange();
 
-        void SavePlot();
-        void SaveFrame();
-        void HandleRelativeHistogramToggle(bool input);
-        void ApplyEpochTime();
-        void ApplyFixedNoiseSuppressionFromExternalFile();
-        void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
-        void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
-        void ReceiveProgressBarUpdate(int percent);
+    void SetDataTimingOffset();
+    void ChangeWorkspaceDirectory();
+    void CloseWindow();
 
-        void HandleFrameChange();
-        void HandleOsmTracksToggle();
-        void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
-        void HandlePlayerStateChanged(bool status);
-        void HandleProcessingStateRemoval(ProcessingMethod method, int index);
-        void HandlePopoutVideoClosed();
-        void HandlePopoutHistogramClosed();
-        void HandlePopoutEngineeringClosed();
-        void HandleProgressUpdate(int percent);
-        void HandleZoomAfterSlider();
-        void HandleCalculationOnVideoToggle();
-        void HandleAnnotationDialogClosed();
-        void ShowCalibrationDialog();
-        void SirveApp::HandleProcessingStatesCleared();
-        void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+    void SavePlot();
+    void SaveFrame();
+    void HandleRelativeHistogramToggle(bool input);
+    void ApplyEpochTime();
+    void ApplyFixedNoiseSuppressionFromExternalFile();
+    void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
+    void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
+    void ReceiveProgressBarUpdate(int percent);
+
+    void HandleFrameChange();
+    void HandleOsmTracksToggle();
+    void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
+    void HandlePlayerStateChanged(bool status);
+    void HandleProcessingStateRemoval(ProcessingMethod method, int index);
+    void HandlePopoutVideoClosed();
+    void HandlePopoutHistogramClosed();
+    void HandlePopoutEngineeringClosed();
+    void HandleProgressUpdate(int percent);
+    void HandleZoomAfterSlider();
+    void HandleCalculationOnVideoToggle();
+    void HandleAnnotationDialogClosed();
+    void ShowCalibrationDialog();
+    void SirveApp::HandleProcessingStatesCleared();
+    void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+
+private slots:
+    void onThresholdComboBoxIndexChanged(int index) {
+        QVariant data = cmb_autotrack_threshold->itemData(index);
+        emit itemDataSelected(data); // Emit signal to pass data to another class
+    }
 
 private:
 	ColorMap video_colors;

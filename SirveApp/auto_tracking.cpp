@@ -57,7 +57,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     cv::Point frame_point;
 
-    uint number_pixels, Num_NonZero_ROI_Pixels;
+    uint number_pixels;
 
     string choice;
 
@@ -77,7 +77,6 @@ arma::s32_mat AutoTracking::SingleTracker(
                         false,
                         i,
                         indx,
-                        num_frames,
                         clamp_low_coeff,
                         clamp_high_coeff,
                         current_processing_state.details,
@@ -125,7 +124,6 @@ arma::s32_mat AutoTracking::SingleTracker(
                     threshold,
                     ROI,
                     frame,                           
-                    frame_crop,
                     raw_frame,
                     raw_frame_bbox,
                     frame_point,
@@ -153,7 +151,6 @@ arma::s32_mat AutoTracking::SingleTracker(
                                 true,
                                 i,
                                 indx,
-                                num_frames,
                                 clamp_low_coeff,
                                 clamp_high_coeff,
                                 current_processing_state.details,
@@ -191,7 +188,6 @@ void AutoTracking::InitializeTracking(
                                     bool isRestart,
                                     u_int i,
                                     u_int indx,
-                                    u_int num_frames,
                                     double clamp_low_coeff,
                                     double clamp_high_coeff,
                                     VideoDetails & current_processing_state,
@@ -327,7 +323,6 @@ void AutoTracking::TrackingStep(
                                 int & threshold,
                                 cv::Rect & ROI,
                                 cv::Mat & frame,                           
-                                cv::Mat & frame_crop,
                                 cv::Mat & raw_frame,
                                 cv::Mat & raw_frame_bbox,
                                 cv::Point & frame_point,
@@ -381,9 +376,6 @@ void AutoTracking::TrackingStep(
     cv::imshow(window_name, display_frame);     
     cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
-    uint32_t peak_irradiance = 0;
-    uint32_t mean_irradiance = 0;
-    uint32_t sum_irradiance = 0;
     uint32_t integrated_adjusted_irradiance = 0;
     output.row(i) =  {
                     static_cast<uint16_t>(track_id),

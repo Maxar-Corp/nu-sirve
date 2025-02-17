@@ -136,7 +136,7 @@ signals:
 public slots:
     void DisplayManualBox(QPoint pt);
     void SetSelectCentroidBtn(bool status);
-    void GetThreshold(int threshold_in);
+    void GetThreshold(QVariant data);
     void onTrackFeatureRadioButtonClicked(int id);
     void onFilterRadioButtonClicked(int id);
     void ClearPinpoints();

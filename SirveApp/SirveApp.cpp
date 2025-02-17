@@ -570,7 +570,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	cmb_bad_pixel_color = new QComboBox();
 	cmb_bad_pixel_color->setFixedWidth(100);
 	cmb_bad_pixel_color->addItems(colors);
-	cmb_bad_pixel_color->setCurrentIndex(2);
+	cmb_bad_pixel_color->setCurrentIndex(5);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
     QFormLayout *form_highlight_bad_pixels = new QFormLayout;
     form_highlight_bad_pixels->addRow(tr("&Color"),cmb_bad_pixel_color);
@@ -844,26 +844,37 @@ QWidget* SirveApp::SetupTracksTab(){
     hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
-    QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
+    QGroupBox * grpbox_autotrack = new QGroupBox("Tracking Parameters");
     QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
     QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
     txt_auto_track_start_frame = new QLineEdit("1");
     txt_auto_track_start_frame->setFixedWidth(60);
     txt_auto_track_stop_frame = new QLineEdit("");
     txt_auto_track_stop_frame->setFixedWidth(60);
+    txt_pixel_buffer = new QLineEdit("0");
+    txt_auto_track_stop_frame->setFixedWidth(60);
     QFormLayout *form_auto_track_frame_limits = new QFormLayout;
     form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
     form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
     cmb_autotrack_threshold = new QComboBox;
-    cmb_autotrack_threshold->addItem("6 dB");
-    cmb_autotrack_threshold->addItem("5 dB");
-    cmb_autotrack_threshold->addItem("4 dB");
-    cmb_autotrack_threshold->addItem("3 dB");
-    cmb_autotrack_threshold->addItem("2 dB");
-    cmb_autotrack_threshold->addItem("1 dB");
-    cmb_autotrack_threshold->setCurrentIndex(0);
-    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
+    cmb_autotrack_threshold->addItem("10 dB",10);
+    cmb_autotrack_threshold->addItem("9 dB",9);
+    cmb_autotrack_threshold->addItem("8 dB",8);
+    cmb_autotrack_threshold->addItem("7 dB",7);
+    cmb_autotrack_threshold->addItem("6 dB",6);
+    cmb_autotrack_threshold->addItem("5 dB",5);
+    cmb_autotrack_threshold->addItem("4 dB",4);
+    cmb_autotrack_threshold->addItem("3 dB",3);
+    cmb_autotrack_threshold->addItem("2 dB",2);
+    cmb_autotrack_threshold->addItem("1 dB",1);
+    cmb_autotrack_threshold->setCurrentIndex(4);
+    // connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
+
+    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), this, &SirveApp::onThresholdComboBoxIndexChanged);
+    connect(this,&SirveApp::itemDataSelected, this->video_display, &VideoDisplay::GetThreshold);
+
     form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
+    form_auto_track_frame_limits->addRow(tr("&Pixel Buffer:"), txt_pixel_buffer);
     QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
     vlayout_auto_track->addLayout(form_auto_track_frame_limits);
 
@@ -883,7 +894,7 @@ QWidget* SirveApp::SetupTracksTab(){
     cmb_OSM_track_color = new QComboBox();
     cmb_OSM_track_color->addItems(colors);
     cmb_OSM_track_color->setEnabled(true);
-    cmb_OSM_track_color->setCurrentIndex(4);
+    cmb_OSM_track_color->setCurrentIndex(2);
 
     QGroupBox * grpbox_OSM_track_display = new QGroupBox;
     QHBoxLayout *hlayout_OSM_track_display = new QHBoxLayout(grpbox_OSM_track_display);
@@ -1490,7 +1501,7 @@ void SirveApp::HandleCreateTrackClick()
 
     double clamp_low_coeff = txt_lift_sigma->text().toDouble();
     double clamp_high_coeff = txt_gain_sigma->text().toDouble();
-    int threshold = 6 - cmb_autotrack_threshold->currentIndex();
+    int threshold = cmb_autotrack_threshold->itemData(cmb_autotrack_threshold->currentIndex(),Qt::UserRole).toInt();
     if (previous_manual_track_ids.size()>0){
         maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
     }
@@ -2267,7 +2278,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_start_frame->setValidator(validator);
     txt_auto_track_stop_frame->setValidator(validator);
     txt_auto_track_start_frame->setText(QString::number(min_frame));
-    txt_auto_track_stop_frame->setText(QString::number(max_frame));
+    txt_auto_track_stop_frame->setText(QString::number(min_frame + 1));
     connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
 
     ToggleVideoPlaybackOptions(true);
@@ -4565,7 +4576,7 @@ void SirveApp::ExecuteAutoTracking()
 
     double clamp_low_coeff = txt_lift_sigma->text().toDouble();
     double clamp_high_coeff = txt_gain_sigma->text().toDouble();
-    int threshold = 6 - cmb_autotrack_threshold->currentIndex();
+    int threshold = cmb_autotrack_threshold->itemData(cmb_autotrack_threshold->currentIndex(),Qt::UserRole).toInt();
 
     int frame0 = txt_start_frame->text().toInt();
     
@@ -4661,11 +4672,11 @@ void SirveApp::ExecuteAutoTracking()
                 details.peak_counts = autotrack(rowii,7);
                 details.mean_counts = autotrack(rowii,8);
                 details.sum_counts = autotrack(rowii,9);
-                details.integrated_adjusted_counts =  autotrack(rowii,10);
+                details.sum_relative_counts =  autotrack(rowii,10);
                 details.peak_irradiance = autotrack(rowii,11);
                 details.mean_irradiance = autotrack(rowii,12);
                 details.sum_irradiance = autotrack(rowii,13);
-                details.integrated_adjusted_irradiance = autotrack(rowii,14);
+                details.sum_relative_irradiance = autotrack(rowii,14);
                 details.bbox_x = autotrack(rowii,15);
                 details.bbox_y = autotrack(rowii,16);
                 details.bbox_width = autotrack(rowii,17);
@@ -4749,7 +4760,7 @@ void SirveApp::EnableEngineeringPlotOptions()
     cmb_plot_yaxis->clear();
     cmb_plot_yaxis->setEnabled(true);
     cmb_plot_yaxis->setFixedWidth(150);
-    cmb_plot_yaxis->addItem(QString("Adjusted Integrated Counts"));
+    cmb_plot_yaxis->addItem(QString("Sum Relative Counts"));
     cmb_plot_yaxis->addItem(QString("Azimuth"));
     cmb_plot_yaxis->addItem(QString("Elevation"));
     cmb_plot_yaxis->addItem(QString("IFOV - X"));

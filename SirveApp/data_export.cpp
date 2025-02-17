@@ -50,7 +50,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             centroid_y_boresight = (track_data[i].details[j].centroid.centroid_y);
             centroid_x = (track_data[i].details[j].centroid.centroid_x + 320);
             centroid_y = (track_data[i].details[j].centroid.centroid_y + 240);
-            counts = (track_data[i].details[j].integrated_adjusted_counts);
+            counts = (track_data[i].details[j].sum_relative_counts);
 
             myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
         }
@@ -66,7 +66,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             centroid_x = (track.second.centroid.centroid_x);
             centroid_y = (track.second.centroid.centroid_y);
 
-            counts = (track.second.integrated_adjusted_counts);
+            counts = (track.second.sum_relative_counts);
 
             myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
         }

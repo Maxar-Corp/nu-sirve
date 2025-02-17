@@ -181,14 +181,14 @@ private:
 
     void PlotAzimuth(size_t plot_number_tracks);
     void PlotElevation(size_t plot_number_tracks);
-    void PlotIntegratedAdjustedCounts(size_t plot_number_tracks);
+    void PlotSumRelativeCounts(size_t plot_number_tracks);
     void PlotFovX();
     void PlotFovY();
     void PlotBoresightAzimuth();
     void PlotBoresightElevation();
 
     std::vector<double> get_individual_x_track(size_t i);
-    std::vector<double> get_individual_y_track_integrated_adjusted_counts(size_t i);
+    std::vector<double> get_individual_y_track_sum_relative_counts(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_elevation(size_t i);
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);

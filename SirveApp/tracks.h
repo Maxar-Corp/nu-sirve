@@ -30,11 +30,11 @@ struct TrackDetails {
     int sum_counts;
     int mean_counts;
     int number_pixels;
-    double integrated_adjusted_counts;
+    double sum_relative_counts;
     double peak_irradiance;
     double mean_irradiance;
     double sum_irradiance;
-    double integrated_adjusted_irradiance;
+    double sum_relative_irradiance;
     int bbox_x;
     int bbox_y;
     int bbox_width;
@@ -44,7 +44,7 @@ struct TrackDetails {
 struct PlottingTrackDetails {
     int track_id;
     TrackDetails centroid;
-    double integrated_adjusted_counts;
+    double sum_relative_counts;
     double azimuth;
     double elevation;
 };
@@ -53,7 +53,7 @@ struct ManualPlottingTrackDetails {
     TrackDetails centroid;
     double azimuth;
     double elevation;
-    double integrated_adjusted_counts;
+    double sum_relative_counts;
 };
 
 struct ManualPlottingTrackFrame {
@@ -109,7 +109,7 @@ class TrackInformation {
 
     private:
         TrackInformation();
-        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double integrated_adjusted_counts);
+        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts);
 
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;

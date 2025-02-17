@@ -79,7 +79,7 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
             PlottingTrackDetails ptd;
 
             //Note: This line assumes that there is only a single ir band, code will need updated if this changes
-            ptd.integrated_adjusted_counts = osm_file_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
+            ptd.sum_relative_counts = osm_file_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
 			ptd.azimuth = osm_file_frames[i].data.track_data[track_index].az_el_track[0];
 			ptd.elevation = osm_file_frames[i].data.track_data[track_index].az_el_track[1];
             ptd.centroid.centroid_x = td.centroid_x;
@@ -169,10 +169,10 @@ void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
             int track_id = trackData.first;
             manual_track_ids.insert(track_id);
             manual_frames[i].tracks[track_id] = trackData.second;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x-1, trackData.second.centroid_y-1, trackData.second.integrated_adjusted_counts);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x-1, trackData.second.centroid_y-1, trackData.second.sum_relative_counts);
             manual_image_frames[i].tracks[track_id].centroid_x = trackData.second.centroid_x-1;
             manual_image_frames[i].tracks[track_id].centroid_y = trackData.second.centroid_y-1;
-            manual_plotting_frames[i].tracks[track_id].integrated_adjusted_counts = trackData.second.integrated_adjusted_counts;
+            manual_plotting_frames[i].tracks[track_id].sum_relative_counts = trackData.second.sum_relative_counts;
         }
     }
 }
@@ -212,7 +212,7 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
 
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
-    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts,  Adjusted Integrated Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, Integrated Adjusted Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
+    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts, Sum Relative Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, Sum Relative Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
     file.write(csv_line0.toUtf8());
     file.write("\n");
     RemoveManualTrackPlotting(track_id);
@@ -223,7 +223,7 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
         {
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.integrated_adjusted_counts);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.sum_relative_counts);
             track_details.frame_time = frame_data[i].frame_time;
             track_details.julian_date = frame_data[i].julian_date;
             track_details.second_past_midnight = frame_data[i].seconds_past_midnight;
@@ -248,11 +248,11 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
              + QString::number(track_details.peak_counts) + ","
              + QString::number(track_details.mean_counts) + ","
              + QString::number(track_details.sum_counts) + ","
-             + QString::number(track_details.integrated_adjusted_counts) + ","
+             + QString::number(track_details.sum_relative_counts) + ","
              + QString::number(track_details.peak_irradiance) + ","
              + QString::number(track_details.mean_irradiance) + ","
              + QString::number(track_details.sum_irradiance) + ","
-             + QString::number(track_details.integrated_adjusted_irradiance) + ","
+             + QString::number(track_details.sum_relative_irradiance) + ","
              + QString::number(track_details.bbox_x+1) + ","
              + QString::number(track_details.bbox_y+1) + ","
              + QString::number(track_details.bbox_width) + ","
@@ -261,10 +261,10 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
             file.write(csv_line.toUtf8());
             file.write("\n");
 
-            manual_plotting_frames[i].tracks[track_id].integrated_adjusted_counts = track_details.integrated_adjusted_counts;
+            manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
             manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
             manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
-            manual_image_frames[i].tracks[track_id].integrated_adjusted_counts = track_details.integrated_adjusted_counts;
+            manual_image_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
         }
     }
 
@@ -360,16 +360,16 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             if (!ok) throw std::runtime_error("Track Mean Counts");
             int sum_counts = cells[15].toInt(&ok);
             if (!ok) throw std::runtime_error("Track Sum Counts");
-            int integrated_adjusted_counts = cells[16].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track Integrated Adjusted Counts");  
+            int sum_relative_counts = cells[16].toInt(&ok);
+            if (!ok) throw std::runtime_error("Track Sum Relative Counts");  
             int peak_irradiance = cells[17].toDouble(&ok);
             if (!ok) throw std::runtime_error("Track Peak Irradiace");  
             int mean_irradiance = cells[18].toDouble(&ok);
             if (!ok) throw std::runtime_error("Track Mean Irradiace"); 
             int sum_irradiance = cells[19].toDouble(&ok);
             if (!ok) throw std::runtime_error("Track Sum Irradiace"); 
-            int integrated_adjusted_irradiance = cells[20].toDouble(&ok);
-            if (!ok) throw std::runtime_error("Track Integrated Adjusted Irradiance"); 
+            int sum_relative_irradiance = cells[20].toDouble(&ok);
+            if (!ok) throw std::runtime_error("Track Sum Relative Irradiance"); 
             int bbox_x = cells[21].toInt(&ok);
             if (!ok) throw std::runtime_error("BBOX X");     
             int bbox_y = cells[22].toInt(&ok);
@@ -395,11 +395,11 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             td.peak_counts = peak_counts;
             td.sum_counts = sum_counts;
             td.mean_counts = mean_counts;
-            td.integrated_adjusted_counts = integrated_adjusted_counts;
+            td.sum_relative_counts = sum_relative_counts;
             td.peak_irradiance = peak_irradiance;
             td.mean_irradiance = mean_irradiance;
             td.sum_irradiance = sum_irradiance;
-            td.integrated_adjusted_irradiance = integrated_adjusted_irradiance;
+            td.sum_relative_irradiance = sum_relative_irradiance;
             td.bbox_x = bbox_x;
             td.bbox_y = bbox_y;
             td.bbox_width = bbox_width;
@@ -421,7 +421,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
 }
 
-ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double integrated_adjusted_counts)
+ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts)
 {
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
     
@@ -452,7 +452,7 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
 
     details.centroid.centroid_x = centroid_x+1;
     details.centroid.centroid_y = centroid_y+1;
-    details.integrated_adjusted_counts = integrated_adjusted_counts;
+    details.sum_relative_counts = sum_relative_counts;
 
     return details;
 }

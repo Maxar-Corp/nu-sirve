@@ -129,9 +129,9 @@ void VideoDisplay::GetCurrentIdx(int current_idx_new)
 	current_idx = current_idx_new;
 }
 
-void VideoDisplay::GetThreshold(int threshold_in)
+void VideoDisplay::GetThreshold(QVariant data)
 {
-   threshold = 6 - threshold_in;
+    threshold = data.toInt();
 }
 
 void VideoDisplay::InitializeToggles()
@@ -648,7 +648,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-    details.integrated_adjusted_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
+    details.sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
 
     details.centroid_x = round(x + xCorrection);
     details.centroid_y = round(y + yCorrection);
