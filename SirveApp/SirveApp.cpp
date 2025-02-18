@@ -4656,7 +4656,7 @@ void SirveApp::ExecuteAutoTracking()
             }
             offset_matrix2.shed_col(0);
             offset_matrix2.insert_cols(0,4);
-            offset_matrix2.insert_cols(offset_matrix2.n_cols,10);
+            offset_matrix2.insert_cols(offset_matrix2.n_cols,12);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
             autotrack_d += offset_matrix2;
             autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
@@ -4679,11 +4679,10 @@ void SirveApp::ExecuteAutoTracking()
                 details.peak_irradiance = autotrack(rowii,11);
                 details.mean_irradiance = autotrack(rowii,12);
                 details.sum_irradiance = autotrack(rowii,13);
-                details.sum_relative_irradiance = autotrack(rowii,14);
-                details.bbox_x = autotrack(rowii,15);
-                details.bbox_y = autotrack(rowii,16);
-                details.bbox_width = autotrack(rowii,17);
-                details.bbox_height = autotrack(rowii,18);
+                details.bbox_x = autotrack(rowii,14);
+                details.bbox_y = autotrack(rowii,15);
+                details.bbox_width = autotrack(rowii,16);
+                details.bbox_height = autotrack(rowii,17);
                 track_details[autotrack(rowii,1)-1] = details;
             }
 
@@ -5039,7 +5038,7 @@ void SirveApp::HandleFrameNumberChange(unsigned int new_frame_index)
 {
     int num_video_frames = video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size();
     video_display->ViewFrame(new_frame_index);
-    int new_auto_track_start, current_auto_track_start = txt_auto_track_start_frame->text().toInt();
+    int current_auto_track_start = txt_auto_track_start_frame->text().toInt();
     int new_auto_track_stop, current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
     int current_frame_number = new_frame_index + txt_start_frame->text().toInt();
     int min_frame = txt_start_frame->text().toInt();

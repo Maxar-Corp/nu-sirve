@@ -38,7 +38,7 @@ arma::s32_mat AutoTracking::SingleTracker(
                                     CalibrationData & calibration_model
                                     )
 {
-    double peak_counts, S, adjusted_integrated_counts_old = 0, mean_counts;
+    double peak_counts, SIGMA, sum_relative_counts__old = 0, mean_counts;
 
     cv::Scalar sum_counts;
 
@@ -50,7 +50,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     u_int indx, num_frames = stop_frame - start_frame + 1;
 
-    arma::s32_mat output(num_frames, 19);
+    arma::s32_mat output(num_frames, 18);
     
     arma::running_stat<double> stats;
 
@@ -131,24 +131,24 @@ arma::s32_mat AutoTracking::SingleTracker(
                     frame_point,
                     stats,
                     step_success,
-                    S,
+                    SIGMA,
                     peak_counts,
                     mean_counts,
                     sum_counts,
                     number_pixels,
                     offsets_matrix,
                     output,
-                    adjusted_integrated_counts_old,
+                    sum_relative_counts__old,
                     calibration_model
                     );
 
         
         i+=1;
         indx = (start_frame + i);
-        if ((S>0 && !step_success) || (cancel_operation))
+        if ((SIGMA>0 && !step_success) || (cancel_operation))
         {
-            i -=1;
-            indx -=1;
+            i -= 1;
+            indx -= 1;
             InitializeTracking(
                                 true,
                                 i,
@@ -331,20 +331,21 @@ void AutoTracking::TrackingStep(
                                 cv::Point & frame_point,
                                 arma::running_stat<double> & stats,
                                 bool & step_success,
-                                double & S,
+                                double & SIGMA,
                                 double & peak_counts,
                                 double & mean_counts,
                                 cv::Scalar & sum_counts,
                                 uint & number_pixels,
                                 arma::mat & offsets_matrix,
                                 arma::s32_mat & output,
-                                double & adjusted_integrated_counts_old,
+                                double & sum_relative_counts__old,
                                 CalibrationData & calibration_model
                                 )
 {
     int frame_x, frame_y;
-    double adjusted_integrated_counts;
-   
+
+    double sum_relative_counts;
+
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
 
     bool ok = tracker->update(display_frame, ROI);
@@ -357,19 +358,23 @@ void AutoTracking::TrackingStep(
     cv::Mat frame_bbox = frame(bbox);
     raw_frame_bbox = raw_frame(bbox_uncentered);
 
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_bbox, raw_frame_bbox, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, frame_bbox, raw_frame_bbox, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
 
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
-    
-    adjusted_integrated_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
-    adjusted_integrated_counts_old = adjusted_integrated_counts;
-    stats(adjusted_integrated_counts_old);
-    S = stats.stddev();
-    step_success = (ok && abs((adjusted_integrated_counts - stats.mean())) <= 3*S);
 
     double frame_integration_time = input_frame_header[indx].header.int_time;
-    std::vector<double> measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
 
+    sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
+    sum_relative_counts__old = sum_relative_counts;
+    stats(sum_relative_counts__old);
+    SIGMA = stats.stddev();
+    step_success = (ok && abs((sum_relative_counts - stats.mean())) <= step_success_coefficient*SIGMA);
+
+    std::vector<double> measurements = {0,0,0};
+    if (calibration_model.calibration_available)
+    {
+        measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
+    }
     string window_name = "Tracking... ";
     rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
     rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
@@ -379,7 +384,7 @@ void AutoTracking::TrackingStep(
     cv::imshow(window_name, display_frame);     
     cv::moveWindow(window_name, 50, 50); 
     cv::waitKey(1);
-    uint32_t integrated_adjusted_irradiance = 0;
+
     output.row(i) =  {
                     static_cast<uint16_t>(track_id),
                     static_cast<uint16_t>(frame0 + i),
@@ -391,11 +396,10 @@ void AutoTracking::TrackingStep(
                     static_cast<uint16_t>(peak_counts),
                     static_cast<int32_t>(mean_counts),
                     static_cast<int32_t>(sum_counts[0]),
-                    static_cast<int32_t>(adjusted_integrated_counts),
+                    static_cast<int32_t>(sum_relative_counts),
                     static_cast<int32_t>(measurements[0]),
                     static_cast<int32_t>(measurements[1]),
                     static_cast<int32_t>(measurements[2]),
-                    static_cast<int32_t>(integrated_adjusted_irradiance),
                     static_cast<uint16_t>(bbox_uncentered.x),
                     static_cast<uint16_t>(bbox_uncentered.y),
                     static_cast<uint16_t>(bbox_uncentered.width),

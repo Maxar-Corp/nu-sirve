@@ -212,7 +212,7 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
 
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
-    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts, Sum Relative Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, Sum Relative Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
+    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts, Sum Relative Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
     file.write(csv_line0.toUtf8());
     file.write("\n");
     RemoveManualTrackPlotting(track_id);
@@ -252,7 +252,6 @@ void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> fram
              + QString::number(track_details.peak_irradiance) + ","
              + QString::number(track_details.mean_irradiance) + ","
              + QString::number(track_details.sum_irradiance) + ","
-             + QString::number(track_details.sum_relative_irradiance) + ","
              + QString::number(track_details.bbox_x+1) + ","
              + QString::number(track_details.bbox_y+1) + ","
              + QString::number(track_details.bbox_width) + ","
@@ -368,15 +367,13 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             if (!ok) throw std::runtime_error("Track Mean Irradiace"); 
             int sum_irradiance = cells[19].toDouble(&ok);
             if (!ok) throw std::runtime_error("Track Sum Irradiace"); 
-            int sum_relative_irradiance = cells[20].toDouble(&ok);
-            if (!ok) throw std::runtime_error("Track Sum Relative Irradiance"); 
-            int bbox_x = cells[21].toInt(&ok);
+            int bbox_x = cells[20].toInt(&ok);
             if (!ok) throw std::runtime_error("BBOX X");     
-            int bbox_y = cells[22].toInt(&ok);
+            int bbox_y = cells[21].toInt(&ok);
             if (!ok) throw std::runtime_error("BBOX Y");     
-            int bbox_width = cells[23].toInt(&ok);
+            int bbox_width = cells[22].toInt(&ok);
             if (!ok) throw std::runtime_error("BBOX Width");  
-            int bbox_height = cells[24].toInt(&ok);
+            int bbox_height = cells[23].toInt(&ok);
             if (!ok) throw std::runtime_error("BBOX Height");      
             if (frame_number < 0 || frame_number > num_frames) throw std::runtime_error("Invalid frame number");
 
@@ -399,7 +396,6 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             td.peak_irradiance = peak_irradiance;
             td.mean_irradiance = mean_irradiance;
             td.sum_irradiance = sum_irradiance;
-            td.sum_relative_irradiance = sum_relative_irradiance;
             td.bbox_x = bbox_x;
             td.bbox_y = bbox_y;
             td.bbox_width = bbox_width;

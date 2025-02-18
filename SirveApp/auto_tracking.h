@@ -35,6 +35,7 @@ public:
     AutoTracking(); 
     ~AutoTracking();
     int image_scale_factor = 2;
+    int step_success_coefficient = 3;
     int nrows = SirveAppConstants::VideoDisplayHeight;
     int ncols = SirveAppConstants::VideoDisplayWidth;
     bool cancel_operation;

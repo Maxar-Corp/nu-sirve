@@ -628,7 +628,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     cv::Point frame_point;
     double peak_counts, mean_counts;
-    cv::Scalar sum_counts, sum_ROI_counts;
+    cv::Scalar sum_counts;
     uint number_pixels;
     int frame_x, frame_y;
 
@@ -646,11 +646,18 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Mat frame_crop = frame(bbox);
     cv::Mat raw_frame_crop = raw_frame(bbox_uncentered);
 
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, threshold, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
+    
+    double frame_integration_time = frame_headers[counter].header.int_time;
+    std::vector<double> measurements = {0,0,0};
+    if (model.calibration_available)
+    {
+         measurements = SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state.details, frame_integration_time, model);
+    }
+    double sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
 
-    details.sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
-
+    details.sum_relative_counts = sum_relative_counts;
     details.centroid_x = round(x + xCorrection);
     details.centroid_y = round(y + yCorrection);
     if (chk_snap_to_feature->isChecked()){  
@@ -659,9 +666,13 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     }
     details.centroid_x_boresight = details.centroid_x - SirveAppConstants::VideoDisplayWidth/2;
     details.centroid_y_boresight = details.centroid_y - SirveAppConstants::VideoDisplayHeight/2;
-    details.peak_counts = peak_counts;
-    details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
     details.number_pixels = number_pixels;
+    details.peak_counts = peak_counts;
+    details.mean_counts = mean_counts;
+    details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
+    details.peak_irradiance = measurements[0];
+    details.mean_irradiance = measurements[1];
+    details.sum_irradiance = measurements[2];
     details.bbox_x = bbox_uncentered.x + xCorrection;
     details.bbox_y = bbox_uncentered.y + yCorrection;
     details.bbox_width = bbox_uncentered.width;
