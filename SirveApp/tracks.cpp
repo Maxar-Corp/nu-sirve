@@ -116,8 +116,8 @@ std::vector<TrackFrame> TrackInformation::get_osm_frames(int start_index, int en
 
 std::vector<TrackFrame> TrackInformation::get_manual_frames(int start_index, int end_index)
 {
-	std::vector<TrackFrame>::const_iterator first = manual_image_frames.begin() + start_index;
-	std::vector<TrackFrame>::const_iterator last = manual_image_frames.begin() + end_index;
+	std::vector<TrackFrame>::const_iterator first = manual_frames.begin() + start_index;
+	std::vector<TrackFrame>::const_iterator last = manual_frames.begin() + end_index;
 
     std::vector<TrackFrame> subset(first, last);
 
