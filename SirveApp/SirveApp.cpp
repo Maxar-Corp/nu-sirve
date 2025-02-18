@@ -3927,7 +3927,6 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
     std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
     std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
-    // video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
         video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
     }
@@ -3945,6 +3944,8 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
 
     video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
+    int track_id;
+
     if (video_display->container.processing_states[endi].details.frames_16bit.size()>0)
     {
         video_display->container.processing_states[endi].offsets = track_centered_offsets;
@@ -3956,6 +3957,18 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
         video_display->container.processing_states[endi].details.max_value = maxVal;
+
+        int OSMPriority = QString::compare(trackFeaturePriority, "OSM", Qt::CaseInsensitive);
+        if (OSMPriority == 0)
+        {
+            track_id = OSM_track_id;
+        }
+        else
+        {
+            track_id = manual_track_id; 
+        }
+        
+        video_display->container.processing_states[endi].track_id = track_id;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
