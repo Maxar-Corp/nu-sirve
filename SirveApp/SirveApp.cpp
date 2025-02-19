@@ -2189,6 +2189,9 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::
 
     popoutDialogLayout->addWidget(plot_palette->GetEngineeringPlotReference(tab_index));
 
+    if (tab_index != 0)
+        plot_palette->GetEngineeringPlotReference(tab_index)->synchronizeXToMaster(plot_palette->GetEngineeringPlotReference(0));
+
     popoutDialog->setWindowTitle((*plot_palette->GetEngineeringPlotReference(tab_index)).get_plot_title() + "Tab" + QString::number(tab_index));
     popoutDialog->setAttribute(Qt::WA_DeleteOnClose);
     popoutDialog->resize(plot_palette->width(), plot_palette->height());
