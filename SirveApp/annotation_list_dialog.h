@@ -24,12 +24,15 @@ public:
     void repopulate_list();
     void closeEvent(QCloseEvent *event) override;
 
+    QPushButton *btn_ok;
+
 signals:
     void annotationListUpdated();
     void hideAnnotationStencil();
     void positionChanged(QPoint location);
     void showAnnotationStencil();
     void updateAnnotationStencil(AnnotationInfo data);
+
 
 public slots:
 
@@ -44,7 +47,7 @@ private:
 
     QLabel *lbl_annotations, *lbl_description;
     QListWidget *lst_annotations;
-    QPushButton *btn_ok, *btn_edit, *btn_new, *btn_delete;
+    QPushButton *btn_edit, *btn_new, *btn_delete;
     VideoDisplay *current_video;
 
     QString *myText;

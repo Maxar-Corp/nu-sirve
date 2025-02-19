@@ -42,7 +42,7 @@ void AnnotationListDialog::ShowAnnotation(int index)
         output = "Annotation: " + d.text + "\n\n";
         output += "X Pixel: " + QString::number(d.x_pixel) + "\t Y Pixel: " + QString::number(d.y_pixel) + " \n\n";
         output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n\n";
-        output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nNum Frames: " + QString::number(d.num_frames) + " \n";
+        output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nFrame Stop: " + QString::number(d.frame_stop) + " \n";
     }
     else {
         output = "";
@@ -119,7 +119,7 @@ void AnnotationListDialog::add()
     new_data.x_pixel = 50;
     new_data.y_pixel = 50;
     new_data.frame_start = base_data.min_frame;
-    new_data.num_frames = base_data.max_frame - base_data.min_frame + 1;
+    new_data.frame_stop = base_data.max_frame;
     new_data.text = "Add Text";
 
     // set attributes for checking data
@@ -231,7 +231,7 @@ void AnnotationListDialog::UpdateStencilPosition(QPoint position)
         output = "Annotation: " + d.text + "\n\n";
         output += "X Pixel: " + QString::number(adjPos.x()) + "\t Y Pixel: " + QString::number(adjPos.y()) + " \n\n";
         output += "Font Size: " + QString::number(d.font_size) + "\t Color: " + d.color + "\n\n";
-        output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nNum Frames: " + QString::number(d.num_frames) + " \n";
+        output += "Frame Start: " + QString::number(d.frame_start) + "\t \n\nFrame Stop: " + QString::number(d.frame_stop) + " \n";
 
         lbl_description->setText(output);
 

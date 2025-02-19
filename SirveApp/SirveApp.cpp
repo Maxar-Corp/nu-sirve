@@ -67,9 +67,6 @@ SirveApp::~SirveApp() {
     delete video_display;
     delete playback_controller;
     delete eng_data;
-    delete data_plots;
-    // thread_video.terminate();
-    // thread_timer.terminate();
 }
 
 void SirveApp::SetupUi() {
