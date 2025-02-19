@@ -72,6 +72,8 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered)
 {
     int resize_factor = 10;
+    int nRows = SirveAppConstants::VideoDisplayHeight;
+    int nCols = SirveAppConstants::VideoDisplayWidth;
 
     cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
@@ -144,7 +146,11 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
     //If frame is centered, finds the corresponding bbox in the original frame
     bbox_uncentered = bbox;
     bbox_uncentered.x += (offsets_matrix(i,0));
+    bbox_uncentered.x = std::min(bbox_uncentered.x,nCols - bbox_uncentered.width);
+    bbox_uncentered.x = std::max(bbox_uncentered.x,0);
     bbox_uncentered.y += (offsets_matrix(i,1));
+    bbox_uncentered.y = std::min(bbox_uncentered.y,nRows - bbox_uncentered.height);
+    bbox_uncentered.y = std::max(bbox_uncentered.y,0);
 }
 
 void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)

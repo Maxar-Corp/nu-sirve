@@ -78,6 +78,7 @@ arma::s32_mat AutoTracking::SingleTracker(
                         false,
                         i,
                         indx,
+                        frame0,
                         clamp_low_coeff,
                         clamp_high_coeff,
                         current_processing_state.details,
@@ -153,6 +154,7 @@ arma::s32_mat AutoTracking::SingleTracker(
                                 true,
                                 i,
                                 indx,
+                                frame0,
                                 clamp_low_coeff,
                                 clamp_high_coeff,
                                 current_processing_state.details,
@@ -190,6 +192,7 @@ void AutoTracking::InitializeTracking(
                                     bool isRestart,
                                     u_int i,
                                     u_int indx,
+                                    u_int frame0,
                                     double clamp_low_coeff,
                                     double clamp_high_coeff,
                                     VideoDetails & current_processing_state,
@@ -256,7 +259,7 @@ void AutoTracking::InitializeTracking(
         else
         {
             cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
-            string window_name_lost = "Track Paused or Lost. " + std::to_string(indx) + " Select ROI again.";
+            string window_name_lost = "Track Paused or Lost at frame " + std::to_string(indx+frame0) + " Select ROI again.";
             // cv::namedWindow(window_name_lost, cv::WINDOW_NORMAL);
             GetROI(window_name_lost, ROI, display_frame_resize);
             choice = "Continue";

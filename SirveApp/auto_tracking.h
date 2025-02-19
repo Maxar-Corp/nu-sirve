@@ -56,6 +56,7 @@ private:
                             bool isRestart,
                             u_int i,
                             u_int indx,
+                            u_int frame0,
                             double clamp_low_coeff,
                             double clamp_high_coeff,
                             VideoDetails & current_processing_state_details,
