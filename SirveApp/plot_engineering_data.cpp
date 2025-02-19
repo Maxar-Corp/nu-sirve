@@ -53,79 +53,54 @@ EngineeringPlot::~EngineeringPlot()
 {
 }
 
+FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
+{
+    std::function<std::vector<double>(size_t)> func;
+
+    if (type == Enums::PlotType::Azimuth)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Boresight_Azimuth)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_azimuth, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Elevation)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::FovX)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_fov_x, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::FovY)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_fov_y, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Boresight_Elevation)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Irradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
+    }
+    else
+    {
+        func = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
+    }
+
+    return func;
+}
+
 void EngineeringPlot::PlotChart()
 {
     int plot_number_tracks = 1;
 
     std::function<std::vector<double>(size_t)> func_x, func_y;
 
-    func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
-
-    if (plotXType == Enums::PlotType::Azimuth)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
-    }
-    else if (plotXType == Enums::PlotType::Boresight_Azimuth)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_boresight_azimuth, this, std::placeholders::_1);
-    }
-    else if (plotXType == Enums::PlotType::Elevation)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
-    }
-    else if (plotXType == Enums::PlotType::FovX)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_fov_x, this, std::placeholders::_1);
-    }
-    else if (plotXType == Enums::PlotType::FovY)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_fov_y, this, std::placeholders::_1);
-    }
-    else if (plotXType == Enums::PlotType::Boresight_Elevation)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
-    }
-    else if (plotXType == Enums::PlotType::Irradiance)
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
-    }
-    else
-    {
-        func_x = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
-    }
-
-    if (plotYType == Enums::PlotType::Azimuth)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_azimuth, this, std::placeholders::_1);
-    }
-    else if (plotYType == Enums::PlotType::Boresight_Azimuth)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_boresight_azimuth, this, std::placeholders::_1);
-    }
-    else if (plotYType == Enums::PlotType::Boresight_Elevation)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
-    }
-    else if (plotYType == Enums::PlotType::Elevation)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
-    }
-    else if (plotYType == Enums::PlotType::FovX)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_fov_x, this, std::placeholders::_1);
-    }
-    else if (plotYType == Enums::PlotType::FovY)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_fov_y, this, std::placeholders::_1);
-    }
-    else if (plotYType == Enums::PlotType::Irradiance)
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
-    }
-    else
-    {
-        func_y = std::bind(&EngineeringPlot::get_individual_x_track, this, std::placeholders::_1);
-    }
+    func_x = DeriveFunctionPointers(plotXType);
+    func_y = DeriveFunctionPointers(plotYType);
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
     PlotSirveTracks();

@@ -27,6 +27,8 @@
 #include "jkqtplotter/jkqtplotter.h"
 #include "jkqtplotter/graphs/jkqtplines.h"
 
+using FuncType = std::function<std::vector<double>(size_t)>;
+
 class EngineeringPlot : public JKQTPlotter
 {
     Q_OBJECT
@@ -92,6 +94,8 @@ public:
 
     bool get_use_subinterval();
     void set_use_subinterval(bool use_subinterval);
+
+    FuncType DeriveFunctionPointers(Enums::PlotType type);
 
 signals:
     void changeMotionStatus(bool status);
