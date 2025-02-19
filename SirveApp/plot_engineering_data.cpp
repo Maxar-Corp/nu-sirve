@@ -73,6 +73,14 @@ void EngineeringPlot::PlotChart()
     {
         func_x = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
     }
+    else if (plotXType == Enums::PlotType::FovX)
+    {
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_fov_x, this, std::placeholders::_1);
+    }
+    else if (plotXType == Enums::PlotType::FovY)
+    {
+        func_x = std::bind(&EngineeringPlot::get_individual_y_track_fov_y, this, std::placeholders::_1);
+    }
     else if (plotXType == Enums::PlotType::Boresight_Elevation)
     {
         func_x = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
@@ -101,6 +109,14 @@ void EngineeringPlot::PlotChart()
     else if (plotYType == Enums::PlotType::Elevation)
     {
         func_y = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+    }
+    else if (plotYType == Enums::PlotType::FovX)
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_fov_x, this, std::placeholders::_1);
+    }
+    else if (plotYType == Enums::PlotType::FovY)
+    {
+        func_y = std::bind(&EngineeringPlot::get_individual_y_track_fov_y, this, std::placeholders::_1);
     }
     else if (plotYType == Enums::PlotType::Irradiance)
     {
@@ -280,6 +296,32 @@ std::vector<double> EngineeringPlot::get_individual_y_track_elevation(size_t i)
         {
             y_values.push_back(track_frames[track_frame_index].details[i].elevation);
         }
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_fov_x(size_t i)
+{
+    std::vector<double> y_values;
+    num_frames = static_cast<unsigned int>(osm_frames_ref->size());
+
+    for (size_t i = 0; i < num_frames; i++)
+    {
+        y_values.push_back(osm_frames_ref->at(i).data.i_fov_x * 1e6);
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_fov_y(size_t i)
+{
+    std::vector<double> y_values;
+    num_frames = static_cast<unsigned int>(osm_frames_ref->size());
+
+    for (size_t i = 0; i < num_frames; i++)
+    {
+        y_values.push_back(osm_frames_ref->at(i).data.i_fov_y * 1e6);
     }
 
     return y_values;

@@ -16,6 +16,8 @@ public:
         Boresight_Azimuth,
         Boresight_Elevation,
         Elevation,
+        FovX,
+        FovY,
         Irradiance,
         Frames,
         Seconds_From_Epoch,

@@ -137,6 +137,8 @@ private:
     std::vector<double> get_individual_y_track_boresight_azimuth(size_t i);
     std::vector<double> get_individual_y_track_boresight_elevation(size_t i);
     std::vector<double> get_individual_y_track_elevation(size_t i);
+    std::vector<double> get_individual_y_track_fov_x(size_t i);
+    std::vector<double> get_individual_y_track_fov_y(size_t i);
     double get_max_x_axis_value();
     double get_single_x_axis_value(int x_index);
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
