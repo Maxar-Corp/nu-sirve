@@ -21,7 +21,7 @@ void AutoTracking::CancelOperation()
 
 // leverage OpenCV to track objects of interest
 arma::s32_mat AutoTracking::SingleTracker( 
-                                     u_int track_id,
+                                    u_int track_id,
                                     double clamp_low_coeff,
                                     double clamp_high_coeff,
                                     int threshold,
