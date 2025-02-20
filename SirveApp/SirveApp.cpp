@@ -3214,25 +3214,26 @@ void SirveApp::AnnotateVideo()
     standard_info.x_correction = video_display->xCorrection;
     standard_info.y_correction = video_display->yCorrection;
 
-    annotate_gui = new AnnotationListDialog(video_display->annotation_list, standard_info);
+    annotation_dialog = new AnnotationListDialog(video_display->annotation_list, standard_info);
 
-    connect(annotate_gui, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
-    connect(annotate_gui, &AnnotationListDialog::hideAnnotationStencil, video_display, &VideoDisplay::HideStencil);
-    connect(annotate_gui, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::InitializeStencilData);
-    connect(annotate_gui, &AnnotationListDialog::rejected, this, &SirveApp::HandleAnnotationDialogClosed);
-    connect(annotate_gui, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed);
+    connect(annotation_dialog, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
+    connect(annotation_dialog, &AnnotationListDialog::hideAnnotationStencil, video_display, &VideoDisplay::HideStencil);
+    connect(annotation_dialog, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::InitializeStencilData);
+    connect(annotation_dialog, &AnnotationListDialog::rejected, this, &SirveApp::HandleAnnotationDialogClosed);
+    connect(annotation_dialog, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed);
 
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotate_gui, &AnnotationListDialog::UpdateStencilPosition, Qt::UniqueConnection);
-    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotate_gui, &AnnotationListDialog::SetStencilLocation, Qt::UniqueConnection);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotation_dialog, &AnnotationListDialog::UpdateStencilPosition, Qt::UniqueConnection);
+    connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotation_dialog, &AnnotationListDialog::SetStencilLocation, Qt::UniqueConnection);
 
     btn_add_annotations->setDisabled(true);
 
-    annotate_gui->show();
+    annotation_dialog->show();
 }
 
 void SirveApp::HandleAnnotationDialogClosed()
 {
     btn_add_annotations->setDisabled(false);
+    annotation_dialog = nullptr;
 }
 
 int SirveApp::ConvertFrameNumberTextToInt(QString input)
@@ -5076,3 +5077,12 @@ void SirveApp::GetAboutTimeStamp()
         }
 
 }
+
+void SirveApp::closeEvent(QCloseEvent *event) {
+    if (annotation_dialog) {
+        // Simulate pressing the OK button
+        annotation_dialog->accept();  // This will trigger the connected slot for OK
+    }
+    event->accept();  // Proceed with closing the main window
+}
+
