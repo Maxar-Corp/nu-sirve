@@ -164,10 +164,13 @@ if(WIN32)
     install(FILES "${OPENBLAS_DLL}" $<TARGET_RUNTIME_DLLS:SirveApp> TYPE BIN)
 
     # Build the windeployqt command
-    set(WINDEPLOYQT_COMMAND "${QT5_WINDEPLOYQT}" "--no-translations" "--no-system-d3d-compiler" "--no-compiler-runtime"
-            "--no-opengl-sw" "--no-libraries")
+    set(WINDEPLOYQT_COMMAND "${QT5_WINDEPLOYQT}" "--no-translations" "--no-system-d3d-compiler" "--no-opengl-sw")
 
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Release" OR ${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
+    if(NOT SIRVE_INSTALL_VC_REDIST)
+        list(APPEND WINDEPLOYQT_COMMAND "--no-compiler-runtime" "--no-libraries")
+    endif()
+
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "" OR "${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
         list(APPEND WINDEPLOYQT_COMMAND "--release")
     elseif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         list(APPEND WINDEPLOYQT_COMMAND "--debug")
@@ -183,6 +186,10 @@ if(WIN32)
     )
 
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/platforms" TYPE BIN)
+
+    if(SERVE_INSTALL_VC_REDIST)
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vc_redist.x64.exe" TYPE BIN)
+    endif()
 
     # TODO: These do not appear to be necessary, maybe remove them?
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/iconengines" TYPE BIN)

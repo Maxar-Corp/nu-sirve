@@ -9,6 +9,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(SIRVE_INSTALL_VC_REDIST "Install Visual C++ Redistributable with the application" ON)
+
 set(Qt5_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/5.15.2/msvc2019_64/" CACHE PATH "Qt5 installation directory")
 set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/opencv/build/x64/vc16/lib" CACHE PATH "OpenCV installation directory")
 set(FFTW_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/fftw-3.3.5-dll64" CACHE PATH "FFTW installation directory")

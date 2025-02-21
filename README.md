@@ -6,11 +6,15 @@ Note that SIRVE is fully goverment-owned software.
 
 ## Installing/Building SIRVE for Execution and Release
 
-See the [full installation requirements README](docs/INSTALLATION.md) for detailed installation instructions.
+See the [full installation requirements README](docs/INSTALLATION.md) or the 
+[CMake Installation Instructions](docs/INSTALLATION_CMake.md)for detailed 
+installation instructions.
 
 ## Building SIRVE for Debug Mode and Debug Instructions
 
-See the [debug instructions README](docs/DEBUG.md) for detailed debugging information.
+See the [debug instructions README](docs/DEBUG.md) for detailed debugging information. 
+Note that you don't need to do anything special to build SIRVE in Debug mode
+if you're using the CMake build system.
 
 ## Running Tests in SIRVE
 
