@@ -108,21 +108,9 @@ tar xvf armadillo-12.2.0.tar.xz
 ### FFTW
 
 FFTW is already included in the SIRVE project, so you don't need to install it.
-However you have to create the `.lib` "import" libraries using the `lib.exe`
-program. The instructions for doing this are available on the 
-[FFTW Installation on Windows](https://www.fftw.org/install/windows.html) page.
 
-The necessary steps are:
-
-* Open a Visual Studio 2019 Developer Command Prompt.
-* navigate to your `path\to\SIRVE\fftw-3.3.10-dll64` directory.
-* Run the following commands:
-
-```cmd
-lib /def:libfftw3-3.def
-lib /def:libfftw3f-3.def
-lib /def:libfftw3l-3.def
-```
+The instructions on how to get the FFTW headers and libraries for Windows are 
+here: [FFTW Installation on Windows](https://www.fftw.org/install/windows.html).
 
 ## Building SIRVE
 
