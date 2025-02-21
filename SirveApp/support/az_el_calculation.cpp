@@ -1,5 +1,8 @@
 #include "az_el_calculation.h"
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {
 	if (adjust_frame_ref)
@@ -27,7 +30,7 @@ std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, 
 
 	arma::vec los_ned = a_ecf_to_ned * cam_to_ecf * los;
 
-	double rtd = 180.0 / std::_Pi;
+    double rtd = 180.0 / M_PI;
 
 	double los_az = std::ceil(rtd * std::atan2(los_ned[1], los_ned[0])*1000.0)/1000.0;
 	double los_el = std::ceil(rtd * std::atan2(-los_ned[2], std::sqrt(los_ned[0] * los_ned[0] + los_ned[1] * los_ned[1]))*1000.0)/1000.0;
