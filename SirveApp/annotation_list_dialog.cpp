@@ -275,12 +275,11 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
     this->activateWindow();
 }
 
-
-void AnnotationListDialog::closeEvent(QCloseEvent *event) {
-    // Ignore the close event to prevent the dialog from closing
-    event->ignore();
+void AnnotationListDialog::closeEvent(QCloseEvent *event) {  // Emit the closed signal when the user closes the dialog
+    emit ok();
 }
 
 void AnnotationListDialog::OnDialogRejected() {
     emit hideAnnotationStencil();
 }
+

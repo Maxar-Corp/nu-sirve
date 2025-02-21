@@ -22,9 +22,11 @@ public:
 
     void ShowAnnotation(int index);
     void repopulate_list();
-    void closeEvent(QCloseEvent *event) override;
 
     QPushButton *btn_ok;
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 signals:
     void annotationListUpdated();

@@ -3219,8 +3219,7 @@ void SirveApp::AnnotateVideo()
     connect(annotation_dialog, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
     connect(annotation_dialog, &AnnotationListDialog::hideAnnotationStencil, video_display, &VideoDisplay::HideStencil);
     connect(annotation_dialog, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::InitializeStencilData);
-    connect(annotation_dialog, &AnnotationListDialog::rejected, this, &SirveApp::HandleAnnotationDialogClosed);
-    connect(annotation_dialog, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed);
+    connect(annotation_dialog, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed); // Ok
 
     connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotation_dialog, &AnnotationListDialog::UpdateStencilPosition, Qt::UniqueConnection);
     connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotation_dialog, &AnnotationListDialog::SetStencilLocation, Qt::UniqueConnection);
