@@ -1169,7 +1169,7 @@ void VideoDisplay::UpdateDisplayFrame()
             QString avg_value = QString::number(measurements[1]) + " uW/cm^2-sr";
             QString sum_value = QString::number(measurements[2]) + " uW/cm^2-sr";
 
-            QString calculation_text = "***** Beta Calculation *****\n";
+            QString calculation_text = "     **** Beta Calc.: ****\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
             calculation_text.append("Avg Pixel: " + avg_value + "\n");
             calculation_text.append("Total: " + sum_value);
