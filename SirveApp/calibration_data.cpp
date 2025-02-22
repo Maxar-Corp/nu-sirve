@@ -688,6 +688,7 @@ void CalibrationDialog::verifyCalibrationValues()
 		model.setup_model(m, b);
 		model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2, integration_time);
 
+        QMessageBox::information(0, "Calibration Values Verified", "You may now use the Wi-Fi button on the video player control.");
 		done(QDialog::Accepted);
 	}
 	else {
