@@ -36,9 +36,8 @@ public slots:
 
     void ColorChanged(const QString &text);
     void FontSizeChanged(const QString &text);
-    void FrameStartChanged();
+    void FrameStartStopChanged();
     void LocationChanged(QPoint location);
-    void NumberOfFramesChanged();
     void TextChanged();
 
 private:
@@ -49,9 +48,9 @@ private:
 
 	QList<QString> colors, sizes;
 	QComboBox *cmb_colors, *cmb_size;
-    QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_num_frames;
+    QLineEdit *txt_annotation, *txt_x_loc, *txt_y_loc, *txt_frame_start, *txt_frame_stop;
 
-    QLabel *lbl_frame_start, *lbl_num_frames, *lbl_color, *lbl_size, *lbl_message;
+    QLabel *lbl_frame_start, *lbl_frame_stop, *lbl_color, *lbl_size, *lbl_message;
 
 	QGridLayout *mainLayout;	
 

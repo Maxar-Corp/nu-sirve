@@ -139,7 +139,7 @@ public:
 
     QStackedWidget *stck_noise_suppresssion_methods;
  
-    AnnotationListDialog *annotate_gui;
+    AnnotationListDialog *annotation_dialog = nullptr;
 
     QStatusBar *status_bar;
     QLabel *lbl_goto_frame, *lbl_status_start_frame, *lbl_status_stop_frame, *lbl_loaded_frames, *lbl_workspace_name, *lbl_workspace_name_field, *lbl_current_workspace_folder_field;
@@ -180,90 +180,10 @@ public:
 
 	void RefreshChartSpace(int track_id, QColor new_color);
 
-void FramePlotSpace();
+    void FramePlotSpace();
 
-signals:
-        void changeBanner(QString banner_text);
-        void changeBannerColor(QString color);
-        void changeTrackerColor(QString color);
-        void directorySelected(QString directory);
-        void enableYAxisOptions(bool enabled);
-        void updateVideoDisplayPinpointControls(bool status);
-
-	public slots:
-
-        void SetLiftAndGain(double lift, double gain);
-        void HandleHistogramClick(double x0, double x1);
-        void HandleAutoLiftGainCheck(int state);
-        void HandleLiftSliderToggled();
-        void HandleGainSliderToggled();
-
-        void EnableYAxisOptions(bool enabled);
-
-        void SaveWorkspace();
-        void LoadWorkspace();
-        void ImportTracks();
-        void HandleTrackRemoval(int track_id);
-        void HandleManualTrackRecoloring(int track_id, QColor color);
-        void HandleHideManualTrackId(int track_id);
-        void HandleShowManualTrackId(int track_id, QColor color);
-
-        void HandleAbpFileSelected();
-        bool ValidateAbpFiles(QString path_to_image_file);
-        void UiLoadAbirData();
-        void ExecuteAdaptiveNoiseSuppression();
-        void ExecuteDeinterlace();
-        void ExecuteDeinterlaceCurrent();
-        void ExecuteCenterOnTracks();
-        void ExecuteCenterOnBrightest();
-        void ExecuteFrameStacking();
-        void ExecuteFixedNoiseSuppression();
-        void ExecuteRPCPNoiseSuppression();
-        void ExecuteAccumulatorNoiseSuppression();
-        void ExecuteAutoTracking();
-        void HandleFrameNumberChangeInput();
-
-        void StartStopVideoRecording();
-        void HandleZoomOnVideoToggle();
-        void HandleProcessingNewStateSelected();
-        void ClearZoomAndCalculationButtons();
-
-        void UpdateFps();
-        void ResetColorCorrection();
-
-        void HandlePlotFullDataToggle();
-        void HandlePlotPrimaryOnlyToggle();
-        void HandlePlotCurrentFrameMarkerToggle();
-        void HandleXAxisOptionChange();
-   
-        void SetDataTimingOffset();
-        void ChangeWorkspaceDirectory();
-        void CloseWindow();
-
-        void SavePlot();
-        void SaveFrame();
-        void HandleRelativeHistogramToggle(bool input);
-        void ApplyEpochTime();
-        void ApplyFixedNoiseSuppressionFromExternalFile();
-        void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
-        void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
-        void ReceiveProgressBarUpdate(int percent);
-
-        void HandleFrameChange();
-        void HandleOsmTracksToggle();
-        void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
-        void HandlePlayerStateChanged(bool status);
-        void HandleProcessingStateRemoval(ProcessingMethod method, int index);
-        void HandlePopoutVideoClosed();
-        void HandlePopoutHistogramClosed();
-        void HandlePopoutEngineeringClosed();
-        void HandleProgressUpdate(int percent);
-        void HandleZoomAfterSlider();
-        void HandleCalculationOnVideoToggle();
-        void HandleAnnotationDialogClosed();
-        void ShowCalibrationDialog();
-        void SirveApp::HandleProcessingStatesCleared();
-        void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
 	ColorMap video_colors;
@@ -367,4 +287,88 @@ private:
     QString abpimage_file_base_name;
 
     void GetAboutTimeStamp();
+
+signals:
+    void changeBanner(QString banner_text);
+    void changeBannerColor(QString color);
+    void changeTrackerColor(QString color);
+    void directorySelected(QString directory);
+    void enableYAxisOptions(bool enabled);
+    void updateVideoDisplayPinpointControls(bool status);
+
+public slots:
+
+    void SetLiftAndGain(double lift, double gain);
+    void HandleHistogramClick(double x0, double x1);
+    void HandleAutoLiftGainCheck(int state);
+    void HandleLiftSliderToggled();
+    void HandleGainSliderToggled();
+
+    void EnableYAxisOptions(bool enabled);
+
+    void SaveWorkspace();
+    void LoadWorkspace();
+    void ImportTracks();
+    void HandleTrackRemoval(int track_id);
+    void HandleManualTrackRecoloring(int track_id, QColor color);
+    void HandleHideManualTrackId(int track_id);
+    void HandleShowManualTrackId(int track_id, QColor color);
+
+    void HandleAbpFileSelected();
+    bool ValidateAbpFiles(QString path_to_image_file);
+    void UiLoadAbirData();
+    void ExecuteAdaptiveNoiseSuppression();
+    void ExecuteDeinterlace();
+    void ExecuteDeinterlaceCurrent();
+    void ExecuteCenterOnTracks();
+    void ExecuteCenterOnBrightest();
+    void ExecuteFrameStacking();
+    void ExecuteFixedNoiseSuppression();
+    void ExecuteRPCPNoiseSuppression();
+    void ExecuteAccumulatorNoiseSuppression();
+    void ExecuteAutoTracking();
+    void HandleFrameNumberChangeInput();
+
+    void StartStopVideoRecording();
+    void HandleZoomOnVideoToggle();
+    void HandleProcessingNewStateSelected();
+    void ClearZoomAndCalculationButtons();
+
+    void UpdateFps();
+    void ResetColorCorrection();
+
+    void HandlePlotFullDataToggle();
+    void HandlePlotPrimaryOnlyToggle();
+    void HandlePlotCurrentFrameMarkerToggle();
+    void HandleXAxisOptionChange();
+
+    void SetDataTimingOffset();
+    void ChangeWorkspaceDirectory();
+    void CloseWindow();
+
+    void SavePlot();
+    void SaveFrame();
+    void HandleRelativeHistogramToggle(bool input);
+    void ApplyEpochTime();
+    void ApplyFixedNoiseSuppressionFromExternalFile();
+    void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
+    void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
+    void ReceiveProgressBarUpdate(int percent);
+
+    void HandleFrameChange();
+    void HandleOsmTracksToggle();
+    void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
+    void HandlePlayerStateChanged(bool status);
+    void HandleProcessingStateRemoval(ProcessingMethod method, int index);
+    void HandlePopoutVideoClosed();
+    void HandlePopoutHistogramClosed();
+    void HandlePopoutEngineeringClosed();
+    void HandleProgressUpdate(int percent);
+    void HandleZoomAfterSlider();
+    void HandleCalculationOnVideoToggle();
+    void HandleAnnotationDialogClosed();
+    void ShowCalibrationDialog();
+    void SirveApp::HandleProcessingStatesCleared();
+    void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+
 };

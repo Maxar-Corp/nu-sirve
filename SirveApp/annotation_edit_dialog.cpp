@@ -14,7 +14,7 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QString btn_tex
 	// set initial values for text edit boxes
 	txt_annotation->setText(data.text);
 	txt_frame_start->setText(QString::number(data.frame_start));
-	txt_num_frames->setText(QString::number(data.num_frames));
+    txt_frame_stop->setText(QString::number(data.frame_stop));
 	txt_x_loc->setText(QString::number(data.x_pixel));
 	txt_y_loc->setText(QString::number(data.y_pixel));
 
@@ -27,8 +27,8 @@ AnnotationEditDialog::AnnotationEditDialog(AnnotationInfo &data, QString btn_tex
 
 	// set connections
 	connect(txt_annotation, &QLineEdit::editingFinished, this, &AnnotationEditDialog::TextChanged);
-	connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartChanged);
-	connect(txt_num_frames, &QLineEdit::editingFinished, this, &AnnotationEditDialog::NumberOfFramesChanged);
+    connect(txt_frame_start, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartStopChanged);
+    connect(txt_frame_stop, &QLineEdit::editingFinished, this, &AnnotationEditDialog::FrameStartStopChanged);
 
     connect(cmb_colors, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::ColorChanged);
 	connect(cmb_size, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), this, &AnnotationEditDialog::FontSizeChanged);
@@ -46,13 +46,13 @@ AnnotationEditDialog::~AnnotationEditDialog()
 	delete txt_x_loc;
 	delete txt_y_loc;
 	delete txt_frame_start;
-	delete txt_num_frames;
+    delete txt_frame_stop;
 	
 	delete btn_add;
 	delete btn_cancel;
 
 	delete lbl_frame_start;
-	delete lbl_num_frames;
+    delete lbl_frame_stop;
 	delete lbl_color;
 	delete lbl_size; 
 
@@ -83,68 +83,42 @@ void AnnotationEditDialog::TextChanged() {
 	emit annotationChanged();
 }
 
-void AnnotationEditDialog::FrameStartChanged() {
-	
-	// gets text
-	QString input = txt_frame_start->text();
-	
-	//checks for numeric data
-	bool is_numeric = check_numeric_value(input);
-	if (is_numeric) {
+void AnnotationEditDialog::FrameStartStopChanged() {
 
-		int new_value = get_numeric_value(input);
-		
-		// if new value is great than min frame and less than max frame, then sets the value
-		if (new_value >= min_frame && new_value <= max_frame) {
-			current_data->frame_start = new_value;
-		}
-		else
-		{
-			// if exceeds min/max, then reset to minimum frame
-			current_data->num_frames = min_frame;
-			txt_frame_start->setText(QString::number(min_frame));
+    QLineEdit *textBox = qobject_cast<QLineEdit*>(sender());
 
-			emit annotationChanged();
-		}
-	}
-	else
-	{
-		QString msg("Input for starting frame is non-numeric");
-        DisplayError(msg);
-		txt_frame_start->setFocus();
-	}
+    if (textBox) {
 
-}
+        // gets text
+        QString input = textBox->text();
+        QString text_box_name = textBox->objectName();
 
-void AnnotationEditDialog::NumberOfFramesChanged()
-{
-	// gets text
-	QString input = txt_num_frames->text();
-	
-	//checks for numeric data
-	bool is_numeric = check_numeric_value(input);
-	if (is_numeric) {
+        //checks for numeric data
+        bool is_numeric = check_numeric_value(input);
+        if (is_numeric) {
 
-		int new_value = get_numeric_value(input);
+            int new_value = get_numeric_value(input);
 
-		// if number of frames exceeds maximum frames, then sets the value to max allowable
-		if (current_data->frame_start + new_value < max_frame) {
-			current_data->num_frames = get_numeric_value(input);
-		}
-		else
-		{
-			// if exceeds max, then reset to maximum frame
-			current_data->num_frames = max_frame - min_frame;
-			txt_num_frames->setText(QString::number(max_frame - min_frame));
-		}
+            // if new value is great than min frame and less than max frame, then sets the value
+            if (new_value >= min_frame && new_value <= max_frame) {
 
-		emit annotationChanged();
-	}
-	else
-	{
-		QString msg("Input for number of frames is non-numeric");
-        DisplayError(msg);
-	}
+                QString::compare(text_box_name, "txt_frame_start", Qt::CaseSensitive) == 0 ?
+                    current_data->frame_start = new_value : current_data->frame_stop = new_value;;
+                emit annotationChanged();
+            } else
+            {
+                QString msg("Input for starting frame is out of range.");
+                DisplayError(msg);
+                txt_frame_start->setFocus();
+            }
+        }
+        else
+        {
+            QString msg("Input for starting frame is non-numeric");
+            DisplayError(msg);
+            txt_frame_start->setFocus();
+        }
+    }
 }
 
 void AnnotationEditDialog::LocationChanged(QPoint location)
@@ -201,7 +175,7 @@ void AnnotationEditDialog::InitializeGui(QString btn_text)
 
 	// define objects
 	lbl_frame_start = new QLabel(tr("First Frame"));
-	lbl_num_frames = new QLabel(tr("# of Frames"));
+    lbl_frame_stop = new QLabel(tr("Last Frame"));
 	lbl_color = new QLabel(tr("Color"));
 	lbl_size = new QLabel(tr("Font Size (pt)"));
 
@@ -210,7 +184,9 @@ void AnnotationEditDialog::InitializeGui(QString btn_text)
 
 	txt_annotation = new QLineEdit(tr("Insert Text Here"));
 	txt_frame_start = new QLineEdit(tr("1"));
-	txt_num_frames = new QLineEdit(tr("1000"));
+    txt_frame_start->setObjectName("txt_frame_start");
+    txt_frame_stop = new QLineEdit(tr("1000"));
+    txt_frame_stop->setObjectName(("txt_frame_stop"));
 	txt_x_loc = new QLineEdit(tr("0"));
 	txt_y_loc = new QLineEdit(tr("0"));
 
@@ -230,9 +206,9 @@ void AnnotationEditDialog::InitializeGui(QString btn_text)
     mainLayout->addWidget(cmb_size, 2, 0);
     mainLayout->addWidget(cmb_colors, 2, 1);
     mainLayout->addWidget(lbl_frame_start, 3, 0);
-    mainLayout->addWidget(lbl_num_frames, 3, 1);
+    mainLayout->addWidget(lbl_frame_stop, 3, 1);
     mainLayout->addWidget(txt_frame_start, 4, 0);
-    mainLayout->addWidget(txt_num_frames, 4, 1);
+    mainLayout->addWidget(txt_frame_stop, 4, 1);
 
     mainLayout->addWidget(lbl_message, 5, 0);
 
