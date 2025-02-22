@@ -69,7 +69,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 
 }
 
-void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered)
+void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
 {
     int resize_factor = 10;
     int nRows = SirveAppConstants::VideoDisplayHeight;
@@ -98,9 +98,8 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
 
     cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(1.5*resize_factor*frame_crop_threshold.cols, 1.5*resize_factor*frame_crop_threshold.rows));
     frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
-    // cv::namedWindow("Thresholded ROI", cv::WINDOW_NORMAL);
     imshow("Thresholded ROI",frame_crop_threshold_resize);
-    cv::moveWindow("Thresholded ROI", 700, 50);
+    cv::moveWindow("Thresholded ROI", extent_window_x, extent_window_y);
 
     // Find contours of the blob
     std::vector<std::vector<cv::Point>> contours;
@@ -133,7 +132,7 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
         cv::resize(output_image, output_image_resize, cv::Size(resize_factor*output_image.cols, resize_factor*output_image.rows));
         cv::namedWindow("Target Extent", cv::WINDOW_NORMAL);
         cv::imshow("Target Extent",output_image_resize);
-        cv::moveWindow("Target Extent", 1200, 50);
+        cv::moveWindow("Target Extent", extent_window_x, extent_window_y + 1.5*resize_factor*frame_crop_threshold.rows + 50);
         frame_crop_threshold = frame_crop_threshold(bbox);
         bbox.x = ROI.x + bbox.x;
         bbox.y = ROI.y + bbox.y;
@@ -220,6 +219,7 @@ void SharedTrackingFunctions::GetFrameRepresentations(
                                                         cv::Mat & frame,
                                                         string & prefilter,
                                                         cv::Mat & display_frame,
+                                                        cv::Mat & raw_display_frame,
                                                         cv::Mat & clean_display_frame,
                                                         cv::Mat & raw_frame
                                                     )
@@ -241,6 +241,13 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
     cv::Mat tmp2(numRows, numCols, CV_16UC1, raw_frame_vector.data());
     tmp2.convertTo(raw_frame, CV_32FC1);  
+
+    cv::meanStdDev(raw_frame, mean, sigma);
+    clamp_low = mean[0] - clamp_low_coeff*sigma[0];
+    clamp_high = mean[0] + clamp_high_coeff*sigma[0];
+    raw_display_frame = cv::min(cv::max(raw_frame, clamp_low), clamp_high);
+    cv::normalize(raw_display_frame, raw_display_frame, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::cvtColor(raw_display_frame, raw_display_frame, cv::COLOR_GRAY2RGB);
 
     FilterImage(prefilter, display_frame, clean_display_frame);
 }

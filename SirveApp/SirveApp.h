@@ -166,6 +166,9 @@ public:
     void SetupVideoFrame();
     void SetupPlotFrame();
     void setupConnections();
+    QPoint getWindowPosition() const; 
+    QSize getWindowSize() const;
+    QSize screenResolution;
 
     void ToggleVideoPlaybackOptions(bool input);
     bool VerifyFrameSelection(int min_frame, int max_frame);

@@ -23,6 +23,7 @@
 #include "constants.h"
 #include "abir_reader.h"
 #include "calibration_data.h"
+
 using namespace std;
 using namespace cv;
 
@@ -38,10 +39,14 @@ public:
     int step_success_coefficient = 3;
     int nrows = SirveAppConstants::VideoDisplayHeight;
     int ncols = SirveAppConstants::VideoDisplayWidth;
+    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
-    arma::s32_mat SingleTracker(u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIR_Frame>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);   
+    cv::Mat raw_display_frame;
+    arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIR_Frame>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);   
     void SetCalibrationModel(CalibrationData input);
+
 signals:
      void signalProgress(unsigned int frameval);
 
@@ -63,6 +68,7 @@ private:
                             VideoDetails & base_processing_state_details,
                             string prefilter,
                             cv::Mat & display_frame,
+                            cv::Mat & raw_display_frame,
                             cv::Mat & clean_display_frame,
                             cv::Rect & ROI,
                             bool &valid_ROI,
@@ -88,6 +94,7 @@ private:
                         Ptr<Tracker> & tracker,
                         string & trackFeature,
                         cv::Mat & display_frame,
+                        cv::Mat & raw_display_frame,
                         cv::Mat & clean_display_frame,
                         int & threshold,
                         int & bbox_buffer_pixels,
