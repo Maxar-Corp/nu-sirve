@@ -67,9 +67,6 @@ SirveApp::~SirveApp() {
     delete video_display;
     delete playback_controller;
     delete eng_data;
-    delete data_plots;
-    // thread_video.terminate();
-    // thread_timer.terminate();
 }
 
 void SirveApp::SetupUi() {
@@ -3253,8 +3250,7 @@ void SirveApp::AnnotateVideo()
     connect(annotation_dialog, &AnnotationListDialog::showAnnotationStencil, video_display, &VideoDisplay::ShowStencil);
     connect(annotation_dialog, &AnnotationListDialog::hideAnnotationStencil, video_display, &VideoDisplay::HideStencil);
     connect(annotation_dialog, &AnnotationListDialog::updateAnnotationStencil, video_display, &VideoDisplay::InitializeStencilData);
-    connect(annotation_dialog, &AnnotationListDialog::rejected, this, &SirveApp::HandleAnnotationDialogClosed);
-    connect(annotation_dialog, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed);
+    connect(annotation_dialog, &AnnotationListDialog::accepted, this, &SirveApp::HandleAnnotationDialogClosed); // Ok
 
     connect(video_display->annotation_stencil, &AnnotationStencil::mouseMoved, annotation_dialog, &AnnotationListDialog::UpdateStencilPosition, Qt::UniqueConnection);
     connect(video_display->annotation_stencil, &AnnotationStencil::mouseReleased, annotation_dialog, &AnnotationListDialog::SetStencilLocation, Qt::UniqueConnection);
@@ -3267,6 +3263,7 @@ void SirveApp::AnnotateVideo()
 void SirveApp::HandleAnnotationDialogClosed()
 {
     btn_add_annotations->setDisabled(false);
+    annotation_dialog = nullptr;
 }
 
 int SirveApp::ConvertFrameNumberTextToInt(QString input)
@@ -5158,3 +5155,12 @@ void SirveApp::GetAboutTimeStamp()
         }
 
 }
+
+void SirveApp::closeEvent(QCloseEvent *event) {
+    if (annotation_dialog) {
+        // Simulate pressing the OK button
+        annotation_dialog->accept();  // This will trigger the connected slot for OK
+    }
+    event->accept();  // Proceed with closing the main window
+}
+

@@ -8,7 +8,7 @@ AnnotationInfo CreateAnnotationInfoFromJson(const QJsonObject & json_obj)
     temp.x_pixel = json_obj.value("x_pixel").toInt();
     temp.y_pixel = json_obj.value("y_pixel").toInt();
     temp.frame_start = json_obj.value("frame_start").toInt();
-    temp.num_frames = json_obj.value("num_frames").toInt();
+    temp.frame_stop = json_obj.value("frame_stop").toInt();
     temp.font_size = json_obj.value("font_size").toInt();
     temp.min_frame = json_obj.value("min_frame").toInt();
     temp.max_frame = json_obj.value("max_frame").toInt();

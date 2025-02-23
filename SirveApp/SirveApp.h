@@ -139,7 +139,6 @@ public:
     QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
     QStackedWidget *stck_noise_suppresssion_methods;
-
     AnnotationListDialog *annotation_dialog = nullptr;
 
     QStatusBar *status_bar;
@@ -294,8 +293,9 @@ signals:
     void changeTrackerColor(QString color);
     void directorySelected(QString directory);
     void enableYAxisOptions(bool enabled);
-    void updateVideoDisplayPinpointControls(bool status);
+    void updateVideoDisplayPinpointControls(bool status)
     void itemDataSelected(QVariant data);
+
 
 public slots:
 
@@ -372,9 +372,9 @@ public slots:
     void SirveApp::HandleProcessingStatesCleared();
     void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
 
-private slots:
     void onThresholdComboBoxIndexChanged(int index) {
         QVariant data = cmb_autotrack_threshold->itemData(index);
         emit itemDataSelected(data); // Emit signal to pass data to another class
     }
+
 };

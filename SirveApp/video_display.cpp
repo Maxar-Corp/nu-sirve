@@ -1229,7 +1229,7 @@ void VideoDisplay::DrawAnnotations()
             // get frame information
             AnnotationInfo a = annotation_list[i];
             unsigned int initial_frame_annotation = a.frame_start - a.min_frame;
-            unsigned int last_frame_annotation = initial_frame_annotation + a.num_frames;
+            unsigned int last_frame_annotation = initial_frame_annotation + ((a.frame_stop - a.frame_start)+1);
 
             // check that current frame is within bounds
             if (counter >= initial_frame_annotation && counter < last_frame_annotation) {
