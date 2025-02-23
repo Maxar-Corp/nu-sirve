@@ -183,6 +183,9 @@ public:
 
     void FramePlotSpace();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     ColorMap video_colors;
     ColorMapDisplay *color_map_display;

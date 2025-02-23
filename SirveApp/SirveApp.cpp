@@ -5135,9 +5135,19 @@ void SirveApp::UpdateGlobalFrameVector()
     video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets_matrix);
 }
 
+void SirveApp::closeEvent(QCloseEvent *event) {
+    if (annotation_dialog) {
+        // Simulate pressing the OK button
+        annotation_dialog->accept();  // This will trigger the connected slot for OK
+    }
+    cv::destroyAllWindows();
+
+    event->accept();  // Proceed with closing the main window
+}
+
 void SirveApp::GetAboutTimeStamp()
 {
-    HMODULE hModule = GetModuleHandle(NULL);  // Get handle to current module (the .exe itself)
+    HMODULE hModule = GetModuleHandle(NULL);  // Get handle to current module (the .e`xe itself)
         if (hModule) {
             PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
             PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((BYTE*)pDosHeader + pDosHeader->e_lfanew);
