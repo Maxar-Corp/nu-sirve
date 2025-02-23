@@ -9,6 +9,7 @@ backedup/*
 tests/
 build/*
 SirveApp/build/*
+build*/
 
 ## Ignore Qt Creator Files
 *.idx
