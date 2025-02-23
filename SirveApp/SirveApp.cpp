@@ -567,7 +567,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	cmb_bad_pixel_color = new QComboBox();
 	cmb_bad_pixel_color->setFixedWidth(100);
 	cmb_bad_pixel_color->addItems(colors);
-	cmb_bad_pixel_color->setCurrentIndex(2);
+	cmb_bad_pixel_color->setCurrentIndex(5);
 	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
     QFormLayout *form_highlight_bad_pixels = new QFormLayout;
     form_highlight_bad_pixels->addRow(tr("&Color"),cmb_bad_pixel_color);
@@ -818,7 +818,7 @@ QWidget* SirveApp::SetupTracksTab(){
 
     QWidget* widget_tab_tracks = new QWidget(tab_menu);
     QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_tracks);
-    QLabel *lbl_track = new QLabel("Manual Track Management");
+    QLabel *lbl_track = new QLabel("User Defined Tracks");
     lbl_create_track_message = new QLabel("");
     btn_create_track = new QPushButton("Create Track");
     btn_create_track->setFixedWidth(100);
@@ -832,12 +832,50 @@ QWidget* SirveApp::SetupTracksTab(){
     hlayout_workspace->setAlignment(Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_track, Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_create_track_message);
-    // hlayout_workspace->insertStretch(0,0);
-    // hlayout_workspace->insertStretch(-1,0);
     hlayout_workspace->addWidget(btn_create_track,Qt::AlignLeft);
     hlayout_workspace->addWidget(btn_finish_create_track,Qt::AlignLeft);
+    btn_auto_track_target = new QPushButton("Auto Tracker");
+    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
+    hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
+    hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
+
+    QGroupBox * grpbox_autotrack = new QGroupBox("Tracking Parameters");
+    QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
+    QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
+    txt_auto_track_start_frame = new QLineEdit("1");
+    txt_auto_track_start_frame->setFixedWidth(60);
+    txt_auto_track_stop_frame = new QLineEdit("");
+    txt_auto_track_stop_frame->setFixedWidth(60);
+    txt_pixel_buffer = new QLineEdit("0");
+    QIntValidator *validator = new QIntValidator(0, 10, this);
+    txt_pixel_buffer->setValidator(validator);
+    txt_auto_track_stop_frame->setFixedWidth(60);
+    QFormLayout *form_auto_track_frame_limits = new QFormLayout;
+    form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
+    form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
+    cmb_autotrack_threshold = new QComboBox;
+    cmb_autotrack_threshold->addItem("10 dB",10);
+    cmb_autotrack_threshold->addItem("9 dB",9);
+    cmb_autotrack_threshold->addItem("8 dB",8);
+    cmb_autotrack_threshold->addItem("7 dB",7);
+    cmb_autotrack_threshold->addItem("6 dB",6);
+    cmb_autotrack_threshold->addItem("5 dB",5);
+    cmb_autotrack_threshold->addItem("4 dB",4);
+    cmb_autotrack_threshold->addItem("3 dB",3);
+    cmb_autotrack_threshold->addItem("2 dB",2);
+    cmb_autotrack_threshold->addItem("1 dB",1);
+    cmb_autotrack_threshold->setCurrentIndex(4);
+    // connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
+
+    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), this, &SirveApp::onThresholdComboBoxIndexChanged);
+    connect(this,&SirveApp::itemDataSelected, this->video_display, &VideoDisplay::GetThreshold);
+
+    form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
+    form_auto_track_frame_limits->addRow(tr("&Pixel Buffer:"), txt_pixel_buffer);
+    QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
+    vlayout_auto_track->addLayout(form_auto_track_frame_limits);
 
     tm_widget = new TrackManagementWidget(widget_tab_tracks);
     QScrollArea *track_management_scroll_area = new QScrollArea();
@@ -847,7 +885,6 @@ QWidget* SirveApp::SetupTracksTab(){
     track_management_scroll_area->setWidget(tm_widget);
     track_management_scroll_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vlayout_workspace->addWidget(track_management_scroll_area);
-    // vlayout_workspace->insertStretch(3,0);
     vlayout_workspace->insertStretch(-1,0);
     vlayout_workspace->insertStretch(0,0);
 	QStringList colors = ColorScheme::get_track_colors();
@@ -856,7 +893,7 @@ QWidget* SirveApp::SetupTracksTab(){
     cmb_OSM_track_color = new QComboBox();
     cmb_OSM_track_color->addItems(colors);
     cmb_OSM_track_color->setEnabled(true);
-    cmb_OSM_track_color->setCurrentIndex(4);
+    cmb_OSM_track_color->setCurrentIndex(2);
 
     QGroupBox * grpbox_OSM_track_display = new QGroupBox;
     QHBoxLayout *hlayout_OSM_track_display = new QHBoxLayout(grpbox_OSM_track_display);
@@ -864,33 +901,6 @@ QWidget* SirveApp::SetupTracksTab(){
     hlayout_OSM_track_display->addWidget(cmb_OSM_track_color);
     hlayout_OSM_track_display->insertStretch(-1,0);
     hlayout_OSM_track_display->insertStretch(0,0);
-
-    QGroupBox * grpbox_autotrack = new QGroupBox("Auto Tracking");
-    QVBoxLayout *vlayout_auto_track_control = new QVBoxLayout(grpbox_autotrack);
-    QHBoxLayout *hlayout_auto_track_control = new QHBoxLayout;
-    btn_auto_track_target = new QPushButton("Auto Tracker");
-    connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
-    txt_auto_track_start_frame = new QLineEdit("1");
-    txt_auto_track_start_frame->setFixedWidth(60);
-    txt_auto_track_stop_frame = new QLineEdit("");
-    txt_auto_track_stop_frame->setFixedWidth(60);
-    QFormLayout *form_auto_track_frame_limits = new QFormLayout;
-    form_auto_track_frame_limits->addRow(tr("&Frame Start:"), txt_auto_track_start_frame);
-    form_auto_track_frame_limits->addRow(tr("&Frame Stop:"), txt_auto_track_stop_frame);
-    cmb_autotrack_threshold = new QComboBox;
-    cmb_autotrack_threshold->addItem("6 Sigma");
-    cmb_autotrack_threshold->addItem("5 Sigma");
-    cmb_autotrack_threshold->addItem("4 Sigma");
-    cmb_autotrack_threshold->addItem("3 Sigma");
-    cmb_autotrack_threshold->addItem("2 Sigma");
-    cmb_autotrack_threshold->addItem("1 Sigma");
-    cmb_autotrack_threshold->addItem("0 Sigma");
-    cmb_autotrack_threshold->setCurrentIndex(3);
-    connect(cmb_autotrack_threshold, qOverload<int>(&QComboBox::currentIndexChanged), video_display, &VideoDisplay::GetThreshold);
-    form_auto_track_frame_limits->addRow(tr("&Threshold:"), cmb_autotrack_threshold);
-    QVBoxLayout *vlayout_auto_track = new QVBoxLayout;
-    vlayout_auto_track->addLayout( form_auto_track_frame_limits);
-    vlayout_auto_track->addWidget(btn_auto_track_target);
 
     QGroupBox* grpbox_autotrack_filters = new QGroupBox("Pre Filter Options");
     QGridLayout *grid_autotrack_filters = new QGridLayout(grpbox_autotrack_filters);
@@ -902,10 +912,11 @@ QWidget* SirveApp::SetupTracksTab(){
     QSpacerItem *vspacer_item20 = new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum);
     
     QButtonGroup * buttongrp_autotrack_filters = new QButtonGroup();
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_none);
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_gaussian);
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_median);
-    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_nlmeans);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_none,1);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_gaussian,2);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_median,3);
+    buttongrp_autotrack_filters->addButton(rad_autotrack_filter_nlmeans,4);
+    connect(buttongrp_autotrack_filters, &QButtonGroup::idClicked, this->video_display, &VideoDisplay::onFilterRadioButtonClicked);
   
     grid_autotrack_filters->addWidget(rad_autotrack_filter_none,1,0);
     grid_autotrack_filters->addWidget(rad_autotrack_filter_gaussian,1,1);
@@ -921,9 +932,10 @@ QWidget* SirveApp::SetupTracksTab(){
     rad_autotrack_feature_peak = new QRadioButton("Peak");
 
     QButtonGroup * buttongrp_autotrack_feature = new QButtonGroup();
-    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_weighted_centroid);
-    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_centroid);
-    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_peak);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_weighted_centroid,1);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_centroid,2);
+    buttongrp_autotrack_feature->addButton(rad_autotrack_feature_peak,3);
+    connect(buttongrp_autotrack_feature, &QButtonGroup::idClicked, this->video_display, &VideoDisplay::onTrackFeatureRadioButtonClicked);
 
     grid_autotrack_feature->addWidget(rad_autotrack_feature_weighted_centroid,1,0);
     grid_autotrack_feature->addWidget(rad_autotrack_feature_centroid,2,0);
@@ -939,9 +951,10 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_auto_track_control->addItem(vspacer_item20);
     vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
     vlayout_auto_track_control->insertStretch(-1,0);
-    
-    vlayout_tab_workspace->addLayout(vlayout_workspace);
+
     vlayout_tab_workspace->addWidget(grpbox_autotrack);
+    vlayout_tab_workspace->insertStretch(0,0);
+    vlayout_tab_workspace->addLayout(vlayout_workspace);
     vlayout_tab_workspace->addWidget(grpbox_OSM_track_display);
     vlayout_tab_workspace->insertStretch(-1, 0);
 
@@ -1465,8 +1478,30 @@ void SirveApp::ImportTracks()
 void SirveApp::HandleCreateTrackClick()
 {
     bool ok;
+    int bbox_buffer_pixels = txt_pixel_buffer->text().toInt();
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = 0;
+    string prefilter = "NONE";
+    if (rad_autotrack_filter_gaussian->isChecked()){
+        prefilter = "GAUSSIAN";
+    }
+    else if(rad_autotrack_filter_median->isChecked()){
+        prefilter = "MEDIAN";
+    }
+    else if(rad_autotrack_filter_nlmeans->isChecked()){
+        prefilter = "NLMEANS";
+    }
+    string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    if (rad_autotrack_feature_centroid->isChecked()){
+        trackFeature = "CENTROID";
+    }
+    else if(rad_autotrack_feature_peak->isChecked()){
+        trackFeature = "peak";
+    }
+
+    double clamp_low_coeff = txt_lift_sigma->text().toDouble();
+    double clamp_high_coeff = txt_gain_sigma->text().toDouble();
+    int threshold = cmb_autotrack_threshold->itemData(cmb_autotrack_threshold->currentIndex(),Qt::UserRole).toInt();
     if (previous_manual_track_ids.size()>0){
         maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
     }
@@ -1488,14 +1523,15 @@ void SirveApp::HandleCreateTrackClick()
             } 
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
-            video_display->EnterTrackCreationMode(existing_track_details);
+
+            video_display->EnterTrackCreationMode(existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
     {
         std::vector<std::optional<TrackDetails>> empty_track_details = track_info->GetEmptyTrack();
         PrepareForTrackCreation(track_id);
-        video_display->EnterTrackCreationMode(empty_track_details);
+        video_display->EnterTrackCreationMode(empty_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
     }
 }
 
@@ -2047,15 +2083,10 @@ void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
 {
     btn_popout_video->setEnabled(frame_range_status);
     txt_goto_frame->setEnabled(frame_range_status);
-
-    // Enable plot popout only
     btn_popout_histogram->setEnabled(frame_range_status);
+    action_show_calibration_dialog->setEnabled(frame_range_status);
 
     frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
-
-    // action_export_current_frame->setEnabled(frame_range_status);
-    // action_export_frame_range->setEnabled(frame_range_status);
-    // action_export_all_frames->setEnabled(frame_range_status);
 
     // Enable the video pinpoint capabilities, which are
     // privately held within the video display class
@@ -2195,7 +2226,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     video_display->InitializeFrameData(min_frame, temp, file_processor->abir_data.ir_data);
-    DeleteAbirData();
+    // DeleteAbirData();
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
 
@@ -2242,9 +2273,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_start_frame->setValidator(validator);
     txt_auto_track_stop_frame->setValidator(validator);
     txt_auto_track_start_frame->setText(QString::number(min_frame));
-    txt_auto_track_stop_frame->setText(QString::number(max_frame));
+    txt_auto_track_stop_frame->setText(QString::number(min_frame + 1));
     connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
-    connect(txt_auto_track_stop_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStopChangeInput);
 
     ToggleVideoPlaybackOptions(true);
     UpdateGuiPostFrameRangeLoad(true);
@@ -2821,6 +2851,7 @@ void SirveApp::CreateMenuActions()
 
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
+    action_show_calibration_dialog->setEnabled(false);
 
     action_close = new QAction("Close");
     action_close->setStatusTip("Close main window");
@@ -3818,7 +3849,7 @@ void SirveApp::ApplyDeinterlacingCurrent()
     int nRows = original.details.y_pixels;
     int nCols = original.details.x_pixels;
 
-    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = ImageProcessor->DeinterlacePhaseCorrelationCurrent(framei, nRows, nCols, current_frame_16bit);
+    video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit[video_display->counter] = ImageProcessor->DeinterlacePhaseCorrelationCurrent(framei, current_frame_16bit);
     lbl_progress_status->setText(QString(""));
     UpdateGlobalFrameVector();
 
@@ -3889,7 +3920,6 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
     std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
     std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
-    // video_display->container.processing_states[endi].track_id = track_id;
     if (OSMPriority==0){
         video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
     }
@@ -3907,7 +3937,10 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
 
     video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->CenterOnTracks(trackFeaturePriority, video_display->container.processing_states[source_state_idx].details, OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
-    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
+    int track_id;
+
+    if (video_display->container.processing_states[endi].details.frames_16bit.size()>0)
+    {
         video_display->container.processing_states[endi].offsets = track_centered_offsets;
         video_display->container.processing_states[endi].source_state_ID = source_state_idx;
 
@@ -3917,11 +3950,26 @@ void SirveApp::CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, in
             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
         }
         video_display->container.processing_states[endi].details.max_value = maxVal;
+
+        int OSMPriority = QString::compare(trackFeaturePriority, "OSM", Qt::CaseInsensitive);
+        if (OSMPriority == 0)
+        {
+            track_id = OSM_track_id;
+        }
+        else
+        {
+            track_id = manual_track_id; 
+        }
+        
+        video_display->container.processing_states[endi].track_id = track_id;
         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
+        arma::mat offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0,number_video_frames-1,video_display->container.processing_states[endi], offsets_matrix);
+        video_display->container.processing_states[endi].offsets_matrix = offsets_matrix;
 
         // update state gui status
         std::string result;
@@ -3986,6 +4034,9 @@ void SirveApp::CenterOnOffsets(QString trackFeaturePriority, int track_id, std::
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
+        arma::mat offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0,number_video_frames-1,video_display->container.processing_states[endi], offsets_matrix);
+        video_display->container.processing_states[endi].offsets_matrix = offsets_matrix;
 
         // update state gui status
         std::string result;
@@ -4057,6 +4108,9 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
+        arma::mat offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0,number_video_frames-1,video_display->container.processing_states[endi], offsets_matrix);
+        video_display->container.processing_states[endi].offsets_matrix = offsets_matrix;
 
         // update state gui status
         std::string result;
@@ -4511,6 +4565,28 @@ void SirveApp::ExecuteAutoTracking()
 
     AutoTracking AutoTracker;
 
+    string prefilter = "NONE";
+    if (rad_autotrack_filter_gaussian->isChecked()){
+        prefilter = "GAUSSIAN";
+    }
+    else if(rad_autotrack_filter_median->isChecked()){
+        prefilter = "MEDIAN";
+    }
+    else if(rad_autotrack_filter_nlmeans->isChecked()){
+        prefilter = "NLMEANS";
+    }
+    string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    if (rad_autotrack_feature_centroid->isChecked()){
+        trackFeature = "CENTROID";
+    }
+    else if(rad_autotrack_feature_peak->isChecked()){
+        trackFeature = "peak";
+    }
+
+    double clamp_low_coeff = txt_lift_sigma->text().toDouble();
+    double clamp_high_coeff = txt_gain_sigma->text().toDouble();
+    int threshold = cmb_autotrack_threshold->itemData(cmb_autotrack_threshold->currentIndex(),Qt::UserRole).toInt();
+    int bbox_buffer_pixels = txt_pixel_buffer->text().toInt();
     int frame0 = txt_start_frame->text().toInt();
     
     uint start_frame = txt_auto_track_start_frame->text().toInt();
@@ -4548,7 +4624,7 @@ void SirveApp::ExecuteAutoTracking()
         {
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
-            video_display->EnterTrackCreationMode(existing_track_details);
+            video_display->EnterTrackCreationMode(existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
@@ -4565,29 +4641,10 @@ void SirveApp::ExecuteAutoTracking()
             CloseProgressArea();
             return;
         }
-        string prefilter = "NONE";
-        if (rad_autotrack_filter_gaussian->isChecked()){
-            prefilter = "GAUSSIAN";
-        }
-        else if(rad_autotrack_filter_median->isChecked()){
-            prefilter = "MEDIAN";
-        }
-        else if(rad_autotrack_filter_nlmeans->isChecked()){
-            prefilter = "NLMEANS";
-        }
-        string trackFeature = "INTENSITY_WEIGHTED_CENTROID";
-        if (rad_autotrack_feature_centroid->isChecked()){
-            trackFeature = "CENTROID";
-        }
-        else if(rad_autotrack_feature_peak->isChecked()){
-            trackFeature = "peak";
-        }
-
-        double clamp_low = txt_lift_sigma->text().toDouble();
-        double clamp_high = txt_gain_sigma->text().toDouble();
-        int threshold = 6 - cmb_autotrack_threshold->currentIndex();
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, new_track_file_name);
+        std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
+
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, frame_headers, new_track_file_name, calibration_model);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
@@ -4605,7 +4662,7 @@ void SirveApp::ExecuteAutoTracking()
             }
             offset_matrix2.shed_col(0);
             offset_matrix2.insert_cols(0,4);
-            offset_matrix2.insert_cols(offset_matrix2.n_cols,10);
+            offset_matrix2.insert_cols(offset_matrix2.n_cols,12);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
             autotrack_d += offset_matrix2;
             autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
@@ -4620,16 +4677,18 @@ void SirveApp::ExecuteAutoTracking()
                 details.centroid_y_boresight = autotrack(rowii,3);
                 details.centroid_x = autotrack(rowii,4);
                 details.centroid_y = autotrack(rowii,5);
-                details.peak_counts = autotrack(rowii,6);
-                details.sum_counts = autotrack(rowii,7);
-                details.sum_ROI_counts = autotrack(rowii,8);
-                details.N_threshold_pixels = autotrack(rowii,9);
-                details.N_ROI_pixels = autotrack(rowii,10);
-                details.irradiance =  autotrack(rowii,11);
-                details.ROI_x = autotrack(rowii,12);
-                details.ROI_y = autotrack(rowii,13);
-                details.ROI_Width = autotrack(rowii,14);
-                details.ROI_Height = autotrack(rowii,15);
+                details.number_pixels = autotrack(rowii,6);
+                details.peak_counts = autotrack(rowii,7);
+                details.mean_counts = autotrack(rowii,8);
+                details.sum_counts = autotrack(rowii,9);
+                details.sum_relative_counts =  autotrack(rowii,10);
+                details.peak_irradiance = autotrack(rowii,11);
+                details.mean_irradiance = autotrack(rowii,12);
+                details.sum_irradiance = autotrack(rowii,13);
+                details.bbox_x = autotrack(rowii,14);
+                details.bbox_y = autotrack(rowii,15);
+                details.bbox_width = autotrack(rowii,16);
+                details.bbox_height = autotrack(rowii,17);
                 track_details[autotrack(rowii,1)-1] = details;
             }
 
@@ -4709,7 +4768,7 @@ void SirveApp::EnableEngineeringPlotOptions()
     cmb_plot_yaxis->clear();
     cmb_plot_yaxis->setEnabled(true);
     cmb_plot_yaxis->setFixedWidth(150);
-    cmb_plot_yaxis->addItem(QString("ROI Counts"));
+    cmb_plot_yaxis->addItem(QString("Sum Relative Counts"));
     cmb_plot_yaxis->addItem(QString("Azimuth"));
     cmb_plot_yaxis->addItem(QString("Elevation"));
     cmb_plot_yaxis->addItem(QString("IFOV - X"));
@@ -4971,16 +5030,6 @@ void SirveApp::HandleAutoTrackStartChangeInput()
     }
 }
 
-void SirveApp::HandleAutoTrackStopChangeInput()
-{
-    unsigned int new_frame_number = txt_auto_track_stop_frame->text().toUInt();
-    if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
-        video_display->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
-        slider_video->setValue(new_frame_number-txt_start_frame->text().toInt());
-        UpdateGlobalFrameVector();
-    }
-}
-
 void SirveApp::HandleFrameNumberChangeInput()
 {
     unsigned int new_frame_number = txt_goto_frame->text().toUInt();
@@ -4991,9 +5040,29 @@ void SirveApp::HandleFrameNumberChangeInput()
     }
 }
 
-void SirveApp::HandleFrameNumberChange(unsigned int new_frame_number)
+void SirveApp::HandleFrameNumberChange(unsigned int new_frame_index)
 {
-    video_display->ViewFrame(new_frame_number);
+    int num_video_frames = video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size();
+    video_display->ViewFrame(new_frame_index);
+    int current_auto_track_start = txt_auto_track_start_frame->text().toInt();
+    int new_auto_track_stop, current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
+    int current_frame_number = new_frame_index + txt_start_frame->text().toInt();
+    int min_frame = txt_start_frame->text().toInt();
+    int max_frame = min_frame + num_video_frames - 1;
+
+    txt_auto_track_start_frame->setText(QString::number(current_frame_number));
+    if ((current_frame_number >= current_auto_track_start) && ((txt_auto_track_stop_frame->text().toInt() - txt_auto_track_start_frame->text().toInt())<2))
+    {
+        txt_auto_track_stop_frame->setText(QString::number(std::min(static_cast<double>(current_frame_number+1), static_cast<double>(max_frame))));
+        current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
+    }
+    if (current_frame_number >= current_auto_track_stop)
+    {
+        new_auto_track_stop = std::min(static_cast<double>(current_frame_number+1), static_cast<double>(max_frame));
+        txt_auto_track_stop_frame->setText(QString::number(new_auto_track_stop));
+        current_auto_track_stop = txt_auto_track_stop_frame->text().toInt();
+    }
+
     UpdateGlobalFrameVector();
 }
 
@@ -5055,17 +5124,27 @@ void SirveApp::UpdateGlobalFrameVector()
 
     std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
     std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
-    std::vector<std::vector<int>> offsets;
-    if (video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
-        offsets = video_display->container.processing_states[video_display->container.current_idx].offsets;
+    arma::mat offsets_matrix(video_display->container.processing_states[video_display->container.current_idx].details.frames_16bit.size(),3,arma::fill::zeros);
+    if (!video_display->container.processing_states[video_display->container.current_idx].offsets_matrix.empty()){
+        offsets_matrix = video_display->container.processing_states[video_display->container.current_idx].offsets_matrix;
     }
 
-    video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets);
+    video_display->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets_matrix);
+}
+
+void SirveApp::closeEvent(QCloseEvent *event) {
+    if (annotation_dialog) {
+        // Simulate pressing the OK button
+        annotation_dialog->accept();  // This will trigger the connected slot for OK
+    }
+    cv::destroyAllWindows();
+
+    event->accept();  // Proceed with closing the main window
 }
 
 void SirveApp::GetAboutTimeStamp()
 {
-    HMODULE hModule = GetModuleHandle(NULL);  // Get handle to current module (the .exe itself)
+    HMODULE hModule = GetModuleHandle(NULL);  // Get handle to current module (the .e`xe itself)
         if (hModule) {
             PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
             PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((BYTE*)pDosHeader + pDosHeader->e_lfanew);

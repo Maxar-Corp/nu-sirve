@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     }
 
     SirveApp app;
+    app.move(10,10);
     app.show();
 
     qDebug() << "Dimensions of Sirve: Width=" << app.size().width() << " Height=" << app.size().height();

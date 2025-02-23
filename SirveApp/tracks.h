@@ -20,28 +20,31 @@ struct TrackDetails {
     double julian_date;
     double second_past_midnight;
     double timing_offset;
-    int centroid_x;
-    int centroid_y;
     int centroid_x_boresight;
     int centroid_y_boresight;
+    int centroid_x;
+    int centroid_y;
     double az;
     double el;
     int peak_counts;
     int sum_counts;
-    int sum_ROI_counts;
-    int N_ROI_pixels;
-    int N_threshold_pixels;
-    double irradiance;
-    int ROI_x;
-    int ROI_y;
-    int ROI_Width;
-    int ROI_Height;
+    int mean_counts;
+    int number_pixels;
+    double sum_relative_counts;
+    double peak_irradiance;
+    double mean_irradiance;
+    double sum_irradiance;
+    double sum_relative_irradiance;
+    int bbox_x;
+    int bbox_y;
+    int bbox_width;
+    int bbox_height;
 };
 
 struct PlottingTrackDetails {
     int track_id;
     TrackDetails centroid;
-    double irradiance;
+    double sum_relative_counts;
     double azimuth;
     double elevation;
 };
@@ -50,7 +53,7 @@ struct ManualPlottingTrackDetails {
     TrackDetails centroid;
     double azimuth;
     double elevation;
-    double irradiance;
+    double sum_relative_counts;
 };
 
 struct ManualPlottingTrackFrame {
@@ -106,7 +109,7 @@ class TrackInformation {
 
     private:
         TrackInformation();
-        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double irradiance);
+        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts);
 
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;

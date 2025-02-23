@@ -23,6 +23,7 @@
 #include "abir_reader.h"
 #include "tracks.h"
 #include "video_details.h"
+#include "constants.h"
 
 class  ImageProcessing : public QObject
 {
@@ -38,6 +39,9 @@ public:
     int deinterlace_kernel_size;
     int frameval;
     bool cancel_operation;
+    int nRows = SirveAppConstants::VideoDisplayHeight;
+    int nRows2 = nRows/2;
+    int nCols = SirveAppConstants::VideoDisplayWidth;
 
     void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indeces, int width_pixels);
     void UpdateProgressBar(unsigned int value);
@@ -52,7 +56,7 @@ public:
     std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice);
     std::vector<std::vector<uint16_t>> RPCPNoiseSuppression(VideoDetails & original);
 	std::vector<std::vector<uint16_t>> DeinterlaceOpenCVPhaseCorrelation(VideoDetails & original);
-    std::vector<uint16_t> DeinterlacePhaseCorrelationCurrent(int current_frame,  int nRows, int nCols, std::vector<uint16_t> & current_frame_16bit);
+    std::vector<uint16_t> DeinterlacePhaseCorrelationCurrent(int current_frame, std::vector<uint16_t> & current_frame_16bit);
 
     std::vector<std::vector<uint16_t>> CenterOnTracks(QString trackTypePriority, VideoDetails & original, int OSM_track_id, int manual_track_id, std::vector<TrackFrame> osmFrames,\
         std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);

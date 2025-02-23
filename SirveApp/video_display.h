@@ -44,7 +44,7 @@
 #include "video_display_zoom.h"
 #include "tracks.h"
 #include "auto_tracking.h"
-#include "shared_scientific_functions.h"
+#include "shared_tracking_functions.h"
 
 class VideoDisplay : public QWidget
 {
@@ -61,13 +61,18 @@ public:
 
 	unsigned int counter;
     QPoint hover_pt;
-	std::vector<std::vector<int>> offsets;
+	arma::mat offsets_matrix;
 	int xCorrection = 0;
     int yCorrection = 0;
+    int bbox_buffer_pixels;
     int current_idx;
     int counter_record, video_frame_number;
     bool record_frame;
-    int threshold = 3;
+    int threshold;
+    double clamp_low_coeff;
+    double clamp_high_coeff;
+    std::string trackFeature;
+    std::string prefilter;
     cv::VideoWriter video;
 
     std::vector<AnnotationInfo> annotation_list;
@@ -108,7 +113,7 @@ public:
     void ToggleActionCalculateRadiance(bool status);
     void ToggleOsmTracks(bool input);
 
-    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details);
+    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold, int bbox_buffer_pixels, double clamp_low_coeff, double clamp_high_coeff, std::string trackFeature, std::string prefilter);
     const std::vector<std::optional<TrackDetails>> & GetCreatedTrackDetails();
     void ExitTrackCreationMode();
 
@@ -132,7 +137,9 @@ signals:
 public slots:
     void DisplayManualBox(QPoint pt);
     void SetSelectCentroidBtn(bool status);
-    void GetThreshold(int threshold_in);
+    void GetThreshold(QVariant data);
+    void onTrackFeatureRadioButtonClicked(int id);
+    void onFilterRadioButtonClicked(int id);
     void ClearPinpoints();
     void GetCurrentIdx(int current_idx_new);
 
@@ -152,7 +159,7 @@ public slots:
 
     void UndoZoom();
 
-    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, std::vector<std::vector<int>> offsets);
+    void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, arma::mat offsets_matrix);
     void UpdateBannerText(QString input_banner_text);
     void UpdateBannerColor(QString input_color);
 
@@ -170,7 +177,7 @@ private:
 
     QLabel *lbl_create_track;
     QPushButton *btn_select_track_centroid, *btn_clear_track_centroid;
-    QCheckBox  *chk_auto_advance_frame, *chk_snap_to_peak, *chk_show_crosshair;
+    QCheckBox  *chk_auto_advance_frame, *chk_snap_to_feature, *chk_show_crosshair;
     QLineEdit *txt_frame_advance_amt,  *txt_ROI_dim;
     QGroupBox *grp_create_track;
     QVBoxLayout* vlayout_create_track;

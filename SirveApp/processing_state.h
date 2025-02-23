@@ -7,6 +7,7 @@
 #include <QString>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <armadillo>
 
 enum struct ProcessingMethod
 {
@@ -57,6 +58,7 @@ struct processingState {
     int frame_stack_num_frames;
 
 	std::vector<std::vector<int>> offsets;
+    arma::mat offsets_matrix;
 
     int track_id;
     bool find_any_tracks;
@@ -125,7 +127,7 @@ struct processingState {
             case ProcessingMethod::center_on_OSM:{
                 QString trackid;
                 if (track_id <0){
-                    trackid = "Primary Track";
+                    trackid = "Primary";
                 }
                 else{
                     trackid = QString::number(track_id);
@@ -133,14 +135,14 @@ struct processingState {
                 QString boolString = find_any_tracks ? "true" : "false";
                 return "Centered on OSM\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                     +"Process steps: " + process_steps +"\n"\
-                    +"Centered on OSM: " + trackid + ". Find any tracks set to " + boolString +".\n"\
+                    +"Centered on OSM Track: " + trackid + ". Find any tracks set to " + boolString +".\n"\
                     +"State steps: " + state_steps;
                 break;
             }
             case ProcessingMethod::center_on_manual:{
                 QString trackid;
                 if (track_id <0){
-                    trackid = "Primary Track";
+                    trackid = "Primary";
                 }
                 else{
                     trackid = QString::number(track_id);
@@ -148,7 +150,7 @@ struct processingState {
                 QString boolString = find_any_tracks ? "true" : "false";
                 return "Centered on Manual\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                     +"Process steps: " + process_steps +"\n"\
-                    +"Centered on OSM: " + trackid + ". Find any tracks set to " + boolString +".\n"\
+                    +"Centered on Manual Track: " + trackid + ". Find any tracks set to " + boolString +".\n"\
                     +"State steps: " + state_steps;
                 break;
             }

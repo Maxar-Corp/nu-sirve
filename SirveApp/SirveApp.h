@@ -33,6 +33,7 @@
 #include "SirveApp.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
+#include "shared_tracking_functions.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>
@@ -64,81 +65,80 @@
 
 class SirveApp : public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
 
     SirveApp(QWidget *parent = Q_NULLPTR);
     ~SirveApp();
 
-	//Variables
-	OSMReader osm_reader;
-	std::vector<Frame> osm_frames;
-	AbpFileMetadata abp_file_metadata;
+    //Variables
+    OSMReader osm_reader;
+    std::vector<Frame> osm_frames;
+    AbpFileMetadata abp_file_metadata;
     Workspace *workspace;
 
     ABIRDataResult *abir_data_result;
 
-	QWidget *main_widget;
-	QGridLayout *engineering_plot_layout;
+    QWidget *main_widget;
+    QGridLayout *engineering_plot_layout;
 
     std::vector<Classification> classification_list;
 
-	QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
-	QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner, *action_show_calibration_dialog, *action_enable_binary_export;
+    QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
+    QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner, *action_show_calibration_dialog, *action_enable_binary_export;
 
-	// QThread thread_video, thread_timer;
+    // QThread thread_video, thread_timer;
 
-	FramePlayer *playback_controller;
-	QMenu *menu, *plot_menu;
+    FramePlayer *playback_controller;
+    QMenu *menu, *plot_menu;
 
-	/* --------------------------------------------------------------------------------------------
-	Qt Elements for user interface
-	----------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------
+    Qt Elements for user interface
+    ----------------------------------------------------------------------------------------------- */
 
-	QString orange_styleSheet = "color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;";
+    QString orange_styleSheet = "color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;";
 
-	QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
+    QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
     QString orange_button_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
-	QTabWidget* tab_menu, * tab_plots;
-	QDateTimeEdit* dt_epoch;
-	QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *lbl_bad_pixel_color, *lbl_current_workspace_folder;
+    QTabWidget* tab_menu, * tab_plots;
+    QDateTimeEdit* dt_epoch;
+    QLabel * lbl_file_name, *lbl_lift_value, *lbl_gain_value, *lbl_max_frames, *lbl_fps, *lbl_current_epoch, *lbl_adaptive_noise_suppression, *lbl_bad_pixel_color, *lbl_current_workspace_folder;
 
-	QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
-	QLabel *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
+    QLabel *lbl_adaptive_noise_suppression_status, *lbl_fixed_suppression, *lbl_bad_pixel_count, * lbl_create_track_message;
+    QLabel *lbl_min_count_val, *lbl_max_count_val, *label_lift, *label_gain;
     QLabel *lbl_progress_status, *lbl_processing_description, *lbl_min_scale_value, *lbl_max_scale_value;
     QScrollArea *scrollarea_processing_description;
-	QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_accumulator_offset;
-	QSlider* slider_lift, * slider_gain, * slider_video;
+    QLineEdit* txt_lift_sigma, * txt_gain_sigma, *txt_frame_stack_Nframes, *txt_accumulator_offset;
+    QSlider* slider_lift, * slider_gain, * slider_video;
 
-	QLineEdit* txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
-	QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
-		* btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
-		* btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
-		* btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_replace_bad_pixels,
-        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks, 
+    QLineEdit *txt_pixel_buffer, *txt_start_frame, *txt_stop_frame, *txt_moving_median_N, *txt_bad_pixel_start_frame, *txt_bad_pixel_stop_frame, *txt_ANS_number_frames, *txt_ANS_offset_frames, * txt_FNS_start_frame, * txt_FNS_stop_frame;
+    QPushButton* btn_get_frames, * btn_load_osm, * btn_copy_directory, * btn_apply_epoch, * btn_reset_color_correction, * btn_ANS, * btn_FNS,
+        * btn_calibration_dialog, * btn_deinterlace, * btn_deinterlace_current_frame, * btn_play, * btn_slow_back, * btn_fast_forward, * btn_prev_frame, * btn_next_frame, * btn_video_menu,
+        * btn_pause, * btn_reverse, * btn_frame_save, * btn_frame_record, * btn_save_plot, * btn_plot_menu, * btn_zoom, *btn_calculate_radiance,
+        * btn_workspace_load, * btn_workspace_save, * btn_undo_step, * btn_popout_video, * btn_popout_histogram, * btn_popout_engineering, * btn_replace_bad_pixels,
+        * btn_import_tracks, * btn_create_track, * btn_finish_create_track, *btn_center_on_tracks,
         * btn_center_on_brightest, *btn_frame_stack, *btn_RPCP, *btn_cancel_operation, *btn_auto_track_target;
 
-	QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
-	QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_image_shift, *grpbox_status_area, *grpbox_image_processing;
+    QCheckBox * chk_auto_lift_gain, * chk_relative_histogram, * chk_plot_primary_data, * chk_plot_show_line, * chk_plot_full_data, * chk_hide_shadow, * chk_FNS_external_file;
+    QGroupBox * grpbox_auto_lift_gain, *grpbox_image_controls, *grpbox_colormap, *grpbox_overlay_controls, *grpbox_bad_pixels_correction, *grpbox_FNS_processing, *grpbox_ANS_processing, *grpbox_image_shift, *grpbox_status_area, *grpbox_image_processing;
     QGroupBox *grpbox_load_frames_area, *grpbox_progressbar_area, *plot_groupbox;
     QProgressBar * progress_bar_main;
 
-	QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
+    QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
-	QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
-	QFrame* frame_plots;
-	QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
-	QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
+    QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
+    QFrame* frame_plots;
+    QRadioButton* rad_decimal, * rad_linear, * rad_scientific, * rad_log, *rad_scale_by_frame, *rad_scale_by_cube, *rad_autotrack_filter_none, *rad_autotrack_filter_gaussian, *rad_autotrack_filter_median, *rad_autotrack_filter_nlmeans;
+    QButtonGroup *data_plot_yformat, *data_plot_yloglinear;
     QRadioButton * rad_autotrack_feature_weighted_centroid,  *rad_autotrack_feature_centroid, * rad_autotrack_feature_peak;
-	QCheckBox* chk_show_OSM_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
-	QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
-	QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
+    QCheckBox* chk_show_OSM_tracks, *chk_sensor_track_data, *chk_show_time, *chk_highlight_bad_pixels, *chk_deinterlace_confirmation;
+    QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
+    QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
     QStackedWidget *stck_noise_suppresssion_methods;
- 
     AnnotationListDialog *annotation_dialog = nullptr;
 
     QStatusBar *status_bar;
@@ -146,16 +146,16 @@ public:
     QCheckBox *chk_bad_pixels_from_original;
     QLineEdit *txt_goto_frame, *txt_auto_track_start_frame, *txt_auto_track_stop_frame, *txt_accumulator_weight;
 
-	/* --------------------------------------------------------------------------------------------
-	----------------------------------------------------------------------------------------------- */
+    /* --------------------------------------------------------------------------------------------
+    ----------------------------------------------------------------------------------------------- */
 
-	VideoDisplay *video_display;
+    VideoDisplay *video_display;
     AutoTracking *auto_tracking;
-	EngineeringPlots *data_plots;
-	EngineeringData *eng_data;
-	TrackInformation *track_info;
-	TrackManagementWidget *tm_widget;
-	bool record_video;
+    EngineeringPlots *data_plots;
+    EngineeringData *eng_data;
+    TrackInformation *track_info;
+    TrackManagementWidget *tm_widget;
+    bool record_video;
 
     void SetupUi();
 
@@ -178,7 +178,7 @@ public:
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
 
-	void RefreshChartSpace(int track_id, QColor new_color);
+    void RefreshChartSpace(int track_id, QColor new_color);
 
     void FramePlotSpace();
 
@@ -186,23 +186,23 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-	ColorMap video_colors;
-	ColorMapDisplay *color_map_display;
+    ColorMap video_colors;
+    ColorMapDisplay *color_map_display;
 
-	QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
-	QClipboard *clipboard;
+    QVBoxLayout *histogram_abs_layout, *vlayout_tab_histogram;
+    QClipboard *clipboard;
 
     ProcessFile *file_processor;
 
-	PopoutDialog *popout_video;
-	PopoutDialog *popout_histogram;
-	PopoutDialog *popout_engineering;
+    PopoutDialog *popout_video;
+    PopoutDialog *popout_histogram;
+    PopoutDialog *popout_engineering;
 
-	HistogramLinePlot *histogram_plot;
+    HistogramLinePlot *histogram_plot;
 
-	ConfigValues config_values;
+    ConfigValues config_values;
 
-	int currently_editing_or_creating_track_id;
+    int currently_editing_or_creating_track_id;
 
     void CreateMenuActions();
     void EditColorMap();
@@ -211,8 +211,8 @@ private:
     void ExportPlotData();
     void EditBannerColor();
     void EditOSMTrackColor();
-	void edit_bad_pixel_color();
-	void handle_outlier_processing_change();
+    void edit_bad_pixel_color();
+    void handle_outlier_processing_change();
     void HandleYAxisChange();
     void HandleExternalFileToggle();
     void HandleBadPixelRawToggle();
@@ -237,7 +237,7 @@ private:
 
     int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
     int ConvertFrameNumberTextToInt(QString input);
-	CalibrationData calibration_model;
+    CalibrationData calibration_model;
 
     void LoadOsmData();
 
@@ -247,7 +247,7 @@ private:
 
     void HandleBadPixelReplacement();
     void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
-    
+
     void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
     void ApplyRPCPNoiseSuppression(int processing_state_idx);
@@ -259,14 +259,13 @@ private:
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
     void FrameStacking(int num_frames, int processing_state_idx);
     void ExportFrame();
-    void EnableBinaryExport(); 
+    void EnableBinaryExport();
     void ExportFrameRange();
     void ExportAllFrames();
     void OpenProgressArea(QString message, int N);
     void CloseProgressArea();
     void ResetEngineeringDataAndSliderGUIs();
     void HandleAutoTrackStartChangeInput();
-    void HandleAutoTrackStopChangeInput();
     void EnableEngineeringPlotOptions();
     void ExitTrackCreationMode();
     void HandleCreateTrackClick();
@@ -294,7 +293,9 @@ signals:
     void changeTrackerColor(QString color);
     void directorySelected(QString directory);
     void enableYAxisOptions(bool enabled);
-    void updateVideoDisplayPinpointControls(bool status);
+    void updateVideoDisplayPinpointControls(bool status)
+    void itemDataSelected(QVariant data);
+
 
 public slots:
 
@@ -370,5 +371,10 @@ public slots:
     void ShowCalibrationDialog();
     void SirveApp::HandleProcessingStatesCleared();
     void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+
+    void onThresholdComboBoxIndexChanged(int index) {
+        QVariant data = cmb_autotrack_threshold->itemData(index);
+        emit itemDataSelected(data); // Emit signal to pass data to another class
+    }
 
 };

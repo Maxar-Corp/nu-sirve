@@ -84,6 +84,42 @@ void VideoDisplay::SetSelectCentroidBtn(bool status)
     }
 }
 
+void VideoDisplay::onTrackFeatureRadioButtonClicked(int id)
+{
+    if (id==1)
+    {
+        trackFeature = "INTENSITY_WEIGHTED_CENTROID";
+    }
+    if (id==2)
+    {
+        trackFeature = "CENTROID";
+    }
+    if (id==3)
+    {
+        trackFeature = "PEAK";
+    }
+
+}
+void VideoDisplay::onFilterRadioButtonClicked(int id)
+{
+    if (id==1)
+    {
+        prefilter = "NONE";
+    }
+    if (id==2)
+    {
+        prefilter = "GAUSSIAN";
+    }
+    if (id==3)
+    {
+        prefilter = "MEDIAN";
+    }
+    if (id==4)
+    {
+        prefilter = "NLMEANS";
+    }
+}
+
 void VideoDisplay::GetCurrentIdx(int current_idx_new)
 {
     if (current_idx_new == -1)
@@ -93,9 +129,9 @@ void VideoDisplay::GetCurrentIdx(int current_idx_new)
 	current_idx = current_idx_new;
 }
 
-void VideoDisplay::GetThreshold(int threshold_in)
+void VideoDisplay::GetThreshold(QVariant data)
 {
-   threshold = 6 - threshold_in;
+    threshold = data.toInt();
 }
 
 void VideoDisplay::InitializeToggles()
@@ -145,11 +181,11 @@ void VideoDisplay::SetupCreateTrackControls()
 
     chk_show_crosshair = new QCheckBox("Show Crosshair");
     chk_show_crosshair->setChecked(true);
-    chk_snap_to_peak = new QCheckBox("Snap to Peak");
-    chk_snap_to_peak->setChecked(true);
+    chk_snap_to_feature = new QCheckBox("Snap to Feature");
+    chk_snap_to_feature->setChecked(true);
     QVBoxLayout *vlayout_crosshair = new QVBoxLayout;
     vlayout_crosshair->addWidget(chk_show_crosshair);
-    vlayout_crosshair->addWidget(chk_snap_to_peak);
+    vlayout_crosshair->addWidget(chk_snap_to_feature);
 
     chk_auto_advance_frame = new QCheckBox("Auto Advance");
     QFormLayout *form_frame_advance_increment = new QFormLayout;
@@ -286,6 +322,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
 void VideoDisplay::ExitSelectTrackCentroidMode() {
     btn_select_track_centroid->setChecked(false);
     lbl_image_canvas->unsetCursor();
+    cv::destroyAllWindows();
 }
 
 void VideoDisplay::HandleBtnPinpoint(bool checked)
@@ -408,10 +445,17 @@ void VideoDisplay::ToggleActionCalculateRadiance(bool status)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details)
+void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold_in, int bbox_buffer_pixels_in, double clamp_low_coeff_in, double clamp_high_coeff_in, std::string trackFeature_in, std::string prefilter_in)
 {
     track_details = starting_track_details;
     in_track_creation_mode = true;
+
+    threshold = threshold_in;
+    clamp_low_coeff = clamp_low_coeff_in;
+    clamp_high_coeff = clamp_high_coeff_in;
+    trackFeature = trackFeature_in;
+    prefilter = prefilter_in;
+    bbox_buffer_pixels = bbox_buffer_pixels_in;
 
     btn_select_track_centroid->setChecked(true);
     HandleBtnSelectTrackCentroid(true);
@@ -558,12 +602,16 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     TrackDetails details;
-    // AutoTracking AutoTracker;
-    std::vector<uint16_t> frame_std_vector = {this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].begin(),
-           this->container.processing_states[this->container.current_idx].details.frames_16bit[this->counter].end()};  
+    int nrows = SirveAppConstants::VideoDisplayHeight;
+    int ncols = SirveAppConstants::VideoDisplayWidth; 
+    int ROI_dim = txt_ROI_dim->text().toInt();
+
+    uint indx = this->counter;
+
+    cv::Mat frame, display_frame, clean_display_frame, raw_frame;
     
     processingState & base_processing_state = this->container.processing_states[0];
-  
+    processingState & current_processing_state = this->container.processing_states[this->container.current_idx];
     for (auto ii = 0; ii < this->container.processing_states.size(); ii++)
     {
         processingState & test_state = this->container.processing_states[ii];
@@ -574,54 +622,61 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         }
             
     }
-    int nrows = this->container.processing_states[this->container.current_idx].details.y_pixels;
-    int ncols = this->container.processing_states[this->container.current_idx].details.x_pixels;       
+    int current_frame_num = starting_frame_number + indx;
+    xCorrection = offsets_matrix(indx,0);
+    yCorrection = offsets_matrix(indx,1);
 
-    arma::vec frame_vector = arma::conv_to<arma::vec>::from(frame_std_vector);
-    cv::Mat frame_matrix = cv::Mat(nrows, ncols, CV_64FC1, frame_vector.memptr());
-    int ROI_dim = txt_ROI_dim->text().toInt();
+    cv::Point frame_point;
+    double peak_counts, mean_counts;
+    cv::Scalar sum_counts;
+    uint number_pixels;
+    int frame_x, frame_y;
+
+    SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
+
     uint minx = std::max(0,static_cast<int>(x)-ROI_dim/2);
     uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
     uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
     uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
-
     cv::Rect ROI(minx,miny,ROI_width,ROI_height);
-    cv::Mat frame_crop = frame_matrix(ROI);
     cv::Mat frame_crop_threshold;
-    cv::Scalar frame_crop_mean, frame_crop_sigma;
-    cv::meanStdDev(frame_crop, frame_crop_mean, frame_crop_sigma);
-    cv::Scalar sum_ROI_counts = cv::sum(frame_crop);
-    int N_ROI_pixels = cv::countNonZero(frame_crop > 0);
-    cv::Point frame_point;
-    cv::threshold(frame_crop, frame_crop_threshold, frame_crop_mean[0]+threshold*frame_crop_sigma[0], NULL, cv::THRESH_TOZERO);
-    cv::Scalar sum_counts = cv::sum(frame_crop_threshold);
-    int N_threshold_pixels = cv::countNonZero(frame_crop_threshold > 0);
-    double peak_counts;
-    int x2 = x;
-    int y2 = y;
-    details.centroid_x = round(x2 + xCorrection);
-    details.centroid_y = round(y2 + yCorrection);
-    cv::minMaxLoc(frame_crop_threshold, NULL, &peak_counts, NULL, &frame_point); 
-    if (chk_snap_to_peak->isChecked()){  
-        x2 = frame_point.x;
-        y2 = frame_point.y;
-        details.centroid_x = round(x2 + xCorrection + ROI.x);
-        details.centroid_y = round(y2 + yCorrection + ROI.y);
+    cv::Rect bbox = ROI;
+    cv::Rect bbox_uncentered = bbox;
+    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered);
+    cv::Mat frame_crop = frame(bbox);
+    cv::Mat raw_frame_crop = raw_frame(bbox_uncentered);
+
+    SharedTrackingFunctions::GetTrackPointData(trackFeature, frame_crop, raw_frame_crop, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
+    SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
+    
+    double frame_integration_time = frame_headers[counter].header.int_time;
+    std::vector<double> measurements = {0,0,0};
+    if (model.calibration_available)
+    {
+         measurements = SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state.details, frame_integration_time, model);
+    }
+    double sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state.details);
+
+    details.sum_relative_counts = sum_relative_counts;
+    details.centroid_x = round(x + xCorrection);
+    details.centroid_y = round(y + yCorrection);
+    if (chk_snap_to_feature->isChecked()){  
+        details.centroid_x = round(frame_x + xCorrection);
+        details.centroid_y = round(frame_y + yCorrection);
     }
     details.centroid_x_boresight = details.centroid_x - SirveAppConstants::VideoDisplayWidth/2;
     details.centroid_y_boresight = details.centroid_y - SirveAppConstants::VideoDisplayHeight/2;
+    details.number_pixels = number_pixels;
     details.peak_counts = peak_counts;
+    details.mean_counts = mean_counts;
     details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
-    details.sum_ROI_counts = static_cast<uint32_t>(sum_ROI_counts[0]);
-    details.N_threshold_pixels = N_threshold_pixels;
-    details.N_ROI_pixels = N_ROI_pixels;
-    VideoDetails & base_processing_state_details =  base_processing_state.details;
-    details.irradiance =  IrradianceCountsCalc::ComputeIrradiance(this->counter, ROI_height/2, ROI_width/2, details.centroid_x, details.centroid_y, base_processing_state_details);
-    details.ROI_x = minx + xCorrection;
-    details.ROI_y = miny + yCorrection;
-    details.ROI_Width = ROI_width;
-    details.ROI_Height = ROI_height;
-    int current_frame_num = starting_frame_number + counter;
+    details.peak_irradiance = measurements[0];
+    details.mean_irradiance = measurements[1];
+    details.sum_irradiance = measurements[2];
+    details.bbox_x = bbox_uncentered.x + xCorrection;
+    details.bbox_y = bbox_uncentered.y + yCorrection;
+    details.bbox_width = bbox_uncentered.width;
+    details.bbox_height = bbox_uncentered.height;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame)
     {
         track_details_min_frame = current_frame_num;
@@ -755,13 +810,13 @@ void VideoDisplay::ClearPinpoints()
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted,std::vector<std::vector<int>> offsets0)
+void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted,arma::mat offsets_matrix0)
 {
     original_frame_vector = original;
     display_ready_converted_values = converted;
     xCorrection = 0;
     yCorrection = 0;
-    offsets = offsets0;
+    offsets_matrix = offsets_matrix0;
     UpdateDisplayFrame();
 }
 
@@ -784,20 +839,10 @@ void VideoDisplay::UpdateDisplayFrame()
 
     // Convert image back to RGB to facilitate use of the colors
     frame = frame.convertToFormat(QImage::Format_RGB888);
+    uint indx = this->counter;
 
-    arma::mat offset_matrix(1,3,arma::fill::zeros);
-    if ( offsets.size() > 0 ){
-        for (int rowi = 0; rowi< offsets.size(); rowi++){
-            offset_matrix.insert_rows(offset_matrix.n_rows,arma::conv_to<arma::rowvec>::from(offsets[rowi]));
-        }
-        offset_matrix.shed_row(0);
-        arma::uvec ind = arma::find(offset_matrix.col(0) - 1 == counter);
-        if (ind.n_elem>0){
-            int ri = ind(0);
-            xCorrection = offsets[ri][1];
-            yCorrection = offsets[ri][2];
-        }
-    }
+    xCorrection = offsets_matrix(indx,0);
+    yCorrection = offsets_matrix(indx,1);
 
     if (should_show_bad_pixels && current_idx!=-1)
     {
@@ -831,10 +876,10 @@ void VideoDisplay::UpdateDisplayFrame()
 
         if (pinpoint_idx < original_frame_vector.size())
         {
-            int irradiance_value = original_frame_vector[pinpoint_idx];
+            int counts_value = original_frame_vector[pinpoint_idx];
             int pinpoint_x = pinpoint_idx % image_x;
             int pinpoint_y = pinpoint_idx / image_x;
-            pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(irradiance_value);
+            pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " + QString::number(counts_value);
             if ( std::find(container.processing_states[current_idx].replaced_pixels.begin(), container.processing_states[current_idx].replaced_pixels.end(), pinpoint_idx) != container.processing_states[current_idx].replaced_pixels.end() )
             {
                 pinpoint_text += " * (adjusted, bad pixel)";
@@ -1124,7 +1169,7 @@ void VideoDisplay::UpdateDisplayFrame()
             QString avg_value = QString::number(measurements[1]) + " uW/cm^2-sr";
             QString sum_value = QString::number(measurements[2]) + " uW/cm^2-sr";
 
-            QString calculation_text = "***** Beta Calculation *****\n";
+            QString calculation_text = "     **** Beta Calc.: ****\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
             calculation_text.append("Avg Pixel: " + avg_value + "\n");
             calculation_text.append("Total: " + sum_value);
