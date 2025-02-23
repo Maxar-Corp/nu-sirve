@@ -293,7 +293,7 @@ signals:
     void changeTrackerColor(QString color);
     void directorySelected(QString directory);
     void enableYAxisOptions(bool enabled);
-    void updateVideoDisplayPinpointControls(bool status)
+    void updateVideoDisplayPinpointControls(bool status);
     void itemDataSelected(QVariant data);
 
 

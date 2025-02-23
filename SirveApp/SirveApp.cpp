@@ -5156,11 +5156,4 @@ void SirveApp::GetAboutTimeStamp()
 
 }
 
-void SirveApp::closeEvent(QCloseEvent *event) {
-    if (annotation_dialog) {
-        // Simulate pressing the OK button
-        annotation_dialog->accept();  // This will trigger the connected slot for OK
-    }
-    event->accept();  // Proceed with closing the main window
-}
 
