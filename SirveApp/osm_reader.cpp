@@ -253,8 +253,6 @@ FrameData OSMReader::ReadFrameData()
     std::vector<double> az_el_boresight = CalculateAzimuthElevation(0, 0, data);
     data.az_el_boresight = az_el_boresight;
 
-    qDebug() << "AZ EL BORESIGHT: " << data.az_el_boresight;
-
     for (uint32_t j = 0; j < data.num_tracks; j++)
     {
         TrackData current_track = GetTrackData(data);
