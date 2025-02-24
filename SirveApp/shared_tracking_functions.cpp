@@ -145,11 +145,31 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
     //If frame is centered, finds the corresponding bbox in the original frame
     bbox_uncentered = bbox;
     bbox_uncentered.x += (offsets_matrix(i,0));
-    bbox_uncentered.x = std::min(bbox_uncentered.x,nCols - bbox_uncentered.width);
-    bbox_uncentered.x = std::max(bbox_uncentered.x,0);
+    if (bbox_uncentered.x<0)
+    {
+        bbox_uncentered.x += nCols;
+    }
+    if (bbox_uncentered.x>nCols)
+    {
+        bbox_uncentered.x -= nCols;
+    }
     bbox_uncentered.y += (offsets_matrix(i,1));
-    bbox_uncentered.y = std::min(bbox_uncentered.y,nRows - bbox_uncentered.height);
-    bbox_uncentered.y = std::max(bbox_uncentered.y,0);
+    if (bbox_uncentered.y<0)
+    {
+        bbox_uncentered.y += nRows;
+    }
+    if (bbox_uncentered.y>nRows)
+    {
+        bbox_uncentered.y -= nRows;
+    }
+    if (bbox_uncentered.x + bbox_uncentered.width >= nCols)
+    {
+        bbox_uncentered.width = std::max(nCols - bbox_uncentered.x,1);
+    }
+    if (bbox_uncentered.y + bbox_uncentered.height >= nRows)
+    {
+        bbox_uncentered.height = std::max(nRows - bbox_uncentered.y,1);
+    }
 }
 
 void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
@@ -161,7 +181,7 @@ void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, cv::Mat &
     
     cv::minMaxLoc(raw_frame_bbox, NULL, & peak_counts, NULL, NULL); //Get max value in original raw data
 
-    if (!(cv::countNonZero(frame_bbox_threshold)==0))
+    if (cv::countNonZero(frame_bbox_threshold)>0)
     {
         raw_frame_bbox.copyTo(raw_frame_bbox_threshold, frame_bbox_threshold); //Copies the region defined by the thresholded processed frame from the raw frame to raw_frame_bbox_threshold
     }

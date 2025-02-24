@@ -205,7 +205,8 @@ arma::s32_mat AutoTracking::SingleTracker(
             }
             else if (choice == "Save")
             {
-                output.shed_rows(i,num_frames-1);
+                i+=1;
+                output.shed_rows(i,output.n_rows-1);
                 return output;
             }
         }
@@ -388,60 +389,91 @@ void AutoTracking::TrackingStep(
 
     cv::Mat frame_bbox = frame(bbox);
     raw_frame_bbox = raw_frame(bbox_uncentered);
-
-    SharedTrackingFunctions::GetTrackPointData(trackFeature, frame_bbox, raw_frame_bbox, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
-
-    SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
-
-    double frame_integration_time = input_frame_header[indx].header.int_time;
-
-    sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
-    sum_relative_counts__old = sum_relative_counts;
-    stats(sum_relative_counts__old);
-    SIGMA = stats.stddev();
-    step_success = (ok && abs((sum_relative_counts - stats.mean())) <= step_success_coefficient*SIGMA);
-
-    std::vector<double> measurements = {0,0,0};
-    if (calibration_model.calibration_available)
+    if (bbox_uncentered.size() == bbox.size())
     {
-        measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
+
+        SharedTrackingFunctions::GetTrackPointData(trackFeature, frame_bbox, raw_frame_bbox, frame_crop_threshold, frame_point, peak_counts, mean_counts, sum_counts, number_pixels);
+
+        SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
+
+        double frame_integration_time = input_frame_header[indx].header.int_time;
+
+        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
+        sum_relative_counts__old = sum_relative_counts;
+        stats(sum_relative_counts__old);
+        SIGMA = stats.stddev();
+        step_success = (ok && abs((sum_relative_counts - stats.mean())) <= step_success_coefficient*SIGMA);
+
+        std::vector<double> measurements = {0,0,0};
+        if (calibration_model.calibration_available)
+        {
+            measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
+        }
+
+        string window_name = "Tracking... ";
+        rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
+        rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
+        cv::Point point(frame_x, frame_y);
+        cv::circle(display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
+        cv::imshow(window_name, display_frame);    
+        cv::moveWindow(window_name, tracking_window_x, tracking_window_y); 
+
+        string raw_window_name = "Raw Data Tracking... ";
+        bool bbox_uncentered_valid = (bbox_uncentered.x>0 && (bbox_uncentered.x+bbox_uncentered.width)<ncols && bbox_uncentered.y>0 && (bbox_uncentered.y+bbox_uncentered.height)<nrows); 
+        if (bbox_uncentered_valid)
+        {
+            rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 0, 0, 255 ), 1);
+        }
+        cv::imshow(raw_window_name, raw_display_frame); 
+        cv::moveWindow(raw_window_name, raw_window_x, raw_window_y); 
+
+        cv::waitKey(1);
+
+        output.row(i) =  {
+                            static_cast<uint16_t>(track_id),
+                            static_cast<uint16_t>(frame0 + i),
+                            frame_x - nrows/2,
+                            frame_y - ncols/2,
+                            frame_x,
+                            frame_y,
+                            static_cast<int32_t>(number_pixels),
+                            static_cast<uint16_t>(peak_counts),
+                            static_cast<int32_t>(mean_counts),
+                            static_cast<int32_t>(sum_counts[0]),
+                            static_cast<int32_t>(sum_relative_counts),
+                            static_cast<int32_t>(measurements[0]),
+                            static_cast<int32_t>(measurements[1]),
+                            static_cast<int32_t>(measurements[2]),
+                            static_cast<uint16_t>(bbox_uncentered.x),
+                            static_cast<uint16_t>(bbox_uncentered.y),
+                            static_cast<uint16_t>(bbox_uncentered.width),
+                            static_cast<uint16_t>(bbox_uncentered.height)
+                        };
     }
-
-    string window_name = "Tracking... ";
-    rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
-    rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
-    cv::Point point(frame_x, frame_y);
-    cv::circle(display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
-    cv::imshow(window_name, display_frame);    
-    cv::moveWindow(window_name, tracking_window_x, tracking_window_y); 
-
-    string raw_window_name = "Raw Data Tracking... ";
-    rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 0, 0, 255 ), 1);
-    cv::imshow(raw_window_name, raw_display_frame); 
-    cv::moveWindow(raw_window_name, raw_window_x, raw_window_y); 
-
-    cv::waitKey(1);
-
-    output.row(i) =  {
-                        static_cast<uint16_t>(track_id),
-                        static_cast<uint16_t>(frame0 + i),
-                        frame_x - nrows/2,
-                        frame_y - ncols/2,
-                        frame_x,
-                        frame_y,
-                        static_cast<int32_t>(number_pixels),
-                        static_cast<uint16_t>(peak_counts),
-                        static_cast<int32_t>(mean_counts),
-                        static_cast<int32_t>(sum_counts[0]),
-                        static_cast<int32_t>(sum_relative_counts),
-                        static_cast<int32_t>(measurements[0]),
-                        static_cast<int32_t>(measurements[1]),
-                        static_cast<int32_t>(measurements[2]),
-                        static_cast<uint16_t>(bbox_uncentered.x),
-                        static_cast<uint16_t>(bbox_uncentered.y),
-                        static_cast<uint16_t>(bbox_uncentered.width),
-                        static_cast<uint16_t>(bbox_uncentered.height)
-                    };
+    else
+    {
+        step_success = false;   
+        output.row(i) =  {
+            static_cast<uint16_t>(track_id),
+            static_cast<uint16_t>(frame0 + i),
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        };
+    }
 }
 
 void AutoTracking::SetCalibrationModel(CalibrationData input)

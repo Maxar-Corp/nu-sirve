@@ -4708,6 +4708,7 @@ void SirveApp::ExecuteAutoTracking()
                 details.bbox_y = autotrack(rowii,15);
                 details.bbox_width = autotrack(rowii,16);
                 details.bbox_height = autotrack(rowii,17);
+                int testi = autotrack(rowii,1)-1;
                 track_details[autotrack(rowii,1)-1] = details;
             }
 
