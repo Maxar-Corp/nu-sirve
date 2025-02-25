@@ -40,6 +40,9 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent) 
     EstablishStencil();
 
     connect(lbl_image_canvas, &EnhancedLabel::hoverPoint, this, &VideoDisplay::DisplayManualBox);
+
+    QScreen *screen = QApplication::primaryScreen();
+    screenResolution = screen->size();
 }
 
 void VideoDisplay::EstablishStencil()
@@ -445,7 +448,7 @@ void VideoDisplay::ToggleActionCalculateRadiance(bool status)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold_in, int bbox_buffer_pixels_in, double clamp_low_coeff_in, double clamp_high_coeff_in, std::string trackFeature_in, std::string prefilter_in)
+void VideoDisplay::EnterTrackCreationMode(QPoint appPos, std::vector<std::optional<TrackDetails>> starting_track_details, int threshold_in, int bbox_buffer_pixels_in, double clamp_low_coeff_in, double clamp_high_coeff_in, std::string trackFeature_in, std::string prefilter_in)
 {
     track_details = starting_track_details;
     in_track_creation_mode = true;
@@ -463,7 +466,10 @@ void VideoDisplay::EnterTrackCreationMode(std::vector<std::optional<TrackDetails
     chk_auto_advance_frame->setChecked(true);
 
     ResetCreateTrackMinAndMaxFrames();
-    grp_create_track->setHidden(false);
+    grp_create_track->setHidden(false);      
+    
+    SirveApp_x = appPos.x();
+    SirveApp_y = appPos.y();
 
 }
 
@@ -601,6 +607,18 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
 
 void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
+
+    Display_res_x = screenResolution.width();
+    Display_res_y = screenResolution.height();
+
+    extent_window_x = 10;
+    extent_window_y = SirveApp_y;
+    if (Display_res_x > 1920)
+    {
+        extent_window_x = std::max(SirveApp_x - 450, extent_window_x);
+    }
+
+
     TrackDetails details;
     int nrows = SirveAppConstants::VideoDisplayHeight;
     int ncols = SirveAppConstants::VideoDisplayWidth; 
@@ -608,7 +626,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     uint indx = this->counter;
 
-    cv::Mat frame, display_frame, clean_display_frame, raw_frame;
+    cv::Mat frame, display_frame, clean_display_frame, raw_frame, raw_display_frame;
     
     processingState & base_processing_state = this->container.processing_states[0];
     processingState & current_processing_state = this->container.processing_states[this->container.current_idx];
@@ -632,7 +650,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     uint number_pixels;
     int frame_x, frame_y;
 
-    SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, clean_display_frame, raw_frame);
+    SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state.details, frame, prefilter, display_frame, raw_display_frame, clean_display_frame, raw_frame);
 
     uint minx = std::max(0,static_cast<int>(x)-ROI_dim/2);
     uint miny = std::max(0,static_cast<int>(y)-ROI_dim/2);
@@ -642,7 +660,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered);
+    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y);
     cv::Mat frame_crop = frame(bbox);
     cv::Mat raw_frame_crop = raw_frame(bbox_uncentered);
 
