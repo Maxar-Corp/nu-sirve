@@ -47,7 +47,20 @@ int main(int argc, char *argv[])
     }
 
     SirveApp app;
-    app.move(10,10);
+    
+    QScreen *screen = QApplication::primaryScreen();
+
+    QSize resolution = screen->size();
+
+    if (resolution.width() <= 1920)
+    {
+        app.move(10,10);
+    }
+    else
+    {
+        app.move((resolution.width() - app.size().width())/2,(resolution.height() - app.size().height())/2);
+    }
+
     app.show();
 
     qDebug() << "Dimensions of Sirve: Width=" << app.size().width() << " Height=" << app.size().height();

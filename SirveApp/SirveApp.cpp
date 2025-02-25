@@ -5,6 +5,8 @@ SirveApp::SirveApp(QWidget *parent)
 {
     //GetAboutTimeStamp();
 
+    QScreen *screen = QApplication::primaryScreen();
+
     config_values = configReaderWriter::ExtractWorkspaceConfigValues();
 
     workspace = new Workspace(config_values.workspace_folder);
@@ -56,7 +58,7 @@ SirveApp::SirveApp(QWidget *parent)
     CreateMenuActions();
 
     this->resize(0, 0);
-
+    screenResolution = screen->size();
     osmDataLoaded = false;
     UpdateGuiPostDataLoad(osmDataLoaded);
 
@@ -67,6 +69,14 @@ SirveApp::~SirveApp() {
     delete video_display;
     delete playback_controller;
     delete eng_data;
+}
+
+QPoint SirveApp::getWindowPosition() const {
+    return this->pos();  // Get the current position of the window
+}
+
+QSize SirveApp::getWindowSize() const {
+    return this->size();  // Get the current size of the window
 }
 
 void SirveApp::SetupUi() {
@@ -820,8 +830,8 @@ QWidget* SirveApp::SetupTracksTab(){
     QVBoxLayout* vlayout_tab_workspace = new QVBoxLayout(widget_tab_tracks);
     QLabel *lbl_track = new QLabel("User Defined Tracks");
     lbl_create_track_message = new QLabel("");
-    btn_create_track = new QPushButton("Create Track");
-    btn_create_track->setFixedWidth(100);
+    btn_create_track = new QPushButton("Create Manual Track");
+    btn_create_track->setFixedWidth(160);
     btn_finish_create_track = new QPushButton("Finish");
     btn_finish_create_track->setHidden(true);
     btn_finish_create_track->setFixedWidth(100);
@@ -1478,6 +1488,7 @@ void SirveApp::ImportTracks()
 void SirveApp::HandleCreateTrackClick()
 {
     bool ok;
+    QPoint appPos = this->getWindowPosition();
     int bbox_buffer_pixels = txt_pixel_buffer->text().toInt();
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     int maxID = 0;
@@ -1524,14 +1535,14 @@ void SirveApp::HandleCreateTrackClick()
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
 
-            video_display->EnterTrackCreationMode(existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
+            video_display->EnterTrackCreationMode(appPos,existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
     {
         std::vector<std::optional<TrackDetails>> empty_track_details = track_info->GetEmptyTrack();
         PrepareForTrackCreation(track_id);
-        video_display->EnterTrackCreationMode(empty_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
+        video_display->EnterTrackCreationMode(appPos,empty_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
     }
 }
 
@@ -4549,6 +4560,7 @@ void SirveApp::ApplyAccumulatorNoiseSuppression(double weight, int offset, bool 
 void SirveApp::ExecuteAutoTracking()
 {
     playback_controller->StopTimer();
+    QPoint appPos = this->getWindowPosition();
     processingState current_processing_state = video_display->container.processing_states[video_display->container.current_idx];
     processingState base_processing_state = video_display->container.processing_states[0];
   
@@ -4624,7 +4636,7 @@ void SirveApp::ExecuteAutoTracking()
         {
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
-            video_display->EnterTrackCreationMode(existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
+            video_display->EnterTrackCreationMode(appPos,existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
         }
     }
     else
@@ -4643,8 +4655,8 @@ void SirveApp::ExecuteAutoTracking()
         }
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
-
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, frame_headers, new_track_file_name, calibration_model);
+        QPoint appPos = this->getWindowPosition();
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state.details, frame_headers, new_track_file_name, calibration_model);
         
         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
             arma::vec framei = arma::regspace(start_frame_i,start_frame_i + autotrack.n_rows - 1);
@@ -4689,6 +4701,7 @@ void SirveApp::ExecuteAutoTracking()
                 details.bbox_y = autotrack(rowii,15);
                 details.bbox_width = autotrack(rowii,16);
                 details.bbox_height = autotrack(rowii,17);
+                int testi = autotrack(rowii,1)-1;
                 track_details[autotrack(rowii,1)-1] = details;
             }
 

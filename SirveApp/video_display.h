@@ -71,6 +71,9 @@ public:
     int threshold;
     double clamp_low_coeff;
     double clamp_high_coeff;
+    int extent_window_x, extent_window_y;
+    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    QSize screenResolution;
     std::string trackFeature;
     std::string prefilter;
     cv::VideoWriter video;
@@ -113,7 +116,7 @@ public:
     void ToggleActionCalculateRadiance(bool status);
     void ToggleOsmTracks(bool input);
 
-    void EnterTrackCreationMode(std::vector<std::optional<TrackDetails>> starting_track_details, int threshold, int bbox_buffer_pixels, double clamp_low_coeff, double clamp_high_coeff, std::string trackFeature, std::string prefilter);
+    void EnterTrackCreationMode(QPoint appPos, std::vector<std::optional<TrackDetails>> starting_track_details, int threshold, int bbox_buffer_pixels, double clamp_low_coeff, double clamp_high_coeff, std::string trackFeature, std::string prefilter);
     const std::vector<std::optional<TrackDetails>> & GetCreatedTrackDetails();
     void ExitTrackCreationMode();
 
