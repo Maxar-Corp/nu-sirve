@@ -72,35 +72,36 @@ public:
     SirveApp(QWidget *parent = Q_NULLPTR);
     ~SirveApp();
 
-    //Variables
-    OSMReader osm_reader;
-    std::vector<Frame> osm_frames;
-    AbpFileMetadata abp_file_metadata;
-    Workspace *workspace;
-
+    /* --------------------------------------------------------------------------------------------
+        Key component & supporting status variables
+    ----------------------------------------------------------------------------------------------- */
     ABIRDataResult *abir_data_result;
-
-    QWidget *main_widget;
-    QGridLayout *engineering_plot_layout;
-
+    QString abpimage_file_base_name;
+    AbpFileMetadata abp_file_metadata;
+    AutoTracking *auto_tracking;
     std::vector<Classification> classification_list;
-
-    QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
-    QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner, *action_show_calibration_dialog, *action_enable_binary_export;
-
-    // QThread thread_video, thread_timer;
-
+    EngineeringPlots *data_plots;
+    EngineeringData *eng_data;
+    QWidget *main_widget;
+    bool osmDataLoaded;
+    std::vector<Frame> osm_frames;
+    OSMReader osm_reader;
     FramePlayer *playback_controller;
-    QMenu *menu, *plot_menu;
+    bool record_video;
+    QSize screenResolution;
+    TrackManagementWidget *tm_widget;
+    TrackInformation *track_info;
+    VideoDisplay *video_display;
+    Workspace *workspace;
+    bool yAxisChanged = false;
 
     /* --------------------------------------------------------------------------------------------
-    Qt Elements for user interface
+        Qt elements for user interface
     ----------------------------------------------------------------------------------------------- */
+    QGridLayout *engineering_plot_layout;
 
     QString orange_styleSheet = "color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;";
-
     QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
-
     QString orange_button_styleSheet = "color: black; background-color: #fbb31a; font-weight: bold;";
 
     QTabWidget* tab_menu, * tab_plots;
@@ -127,7 +128,7 @@ public:
     QGroupBox *grpbox_load_frames_area, *grpbox_progressbar_area, *plot_groupbox;
     QProgressBar * progress_bar_main;
 
-    QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, * cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
+    QComboBox* cmb_deinterlace_options, * cmb_plot_yaxis, * cmb_plot_xaxis, *cmb_color_maps, * cmb_processing_states, * cmb_bad_pixels_type, *cmb_outlier_processing_type, *cmb_outlier_processing_sensitivity, *cmb_bad_pixel_color, *cmb_shadow_threshold;
     QComboBox * cmb_OSM_track_IDs, * cmb_manual_track_IDs, *cmb_track_centering_priority;
     QFrame* frame_video_player, *frame_histogram_rel, *frame_histogram_abs;
     QFrame* frame_plots;
@@ -138,6 +139,10 @@ public:
     QComboBox* cmb_text_color, *cmb_OSM_track_color, *cmb_primary_tracker_color, *cmb_autotrack_threshold;
     QPushButton* btn_change_banner_text, * btn_add_annotations, *btn_delete_state, *btn_accumulator;
 
+    QMenu *menu, *plot_menu;
+    QAction *menu_add_banner, *menu_add_primary_data, *menu_sensor_boresight, *menu_osm, *menu_change_color_tracker, *menu_change_color_banner, *menu_change_color_map, *menu_annotate;
+    QAction *menu_plot_all_data, *menu_plot_primary, *menu_plot_frame_marker, *menu_plot_edit_banner, *action_show_calibration_dialog, *action_enable_binary_export;
+
     QStackedWidget *stck_noise_suppresssion_methods;
     AnnotationListDialog *annotation_dialog = nullptr;
 
@@ -146,44 +151,33 @@ public:
     QCheckBox *chk_bad_pixels_from_original;
     QLineEdit *txt_goto_frame, *txt_auto_track_start_frame, *txt_auto_track_stop_frame, *txt_accumulator_weight;
 
+
     /* --------------------------------------------------------------------------------------------
+        Setup & Basic Frontend Operations
     ----------------------------------------------------------------------------------------------- */
 
-    VideoDisplay *video_display;
-    AutoTracking *auto_tracking;
-    EngineeringPlots *data_plots;
-    EngineeringData *eng_data;
-    TrackInformation *track_info;
-    TrackManagementWidget *tm_widget;
-    bool record_video;
+    QString CreateEpochString(std::vector<double> new_epoch);
+    void    DisplayOriginalEpoch(QString new_epoch_string);
+    void    FramePlotSpace();
+    QPoint  GetWindowPosition() const;
+    QSize   GetWindowSize() const;
+    void    RefreshChartSpace(int track_id, QColor new_color);
 
-    void SetupUi();
-
-    QWidget* SetupColorCorrectionTab();
-    QWidget* SetupTracksTab();
-    QWidget* SetupProcessingTab();
-    void SetupVideoFrame();
-    void SetupPlotFrame();
-    void setupConnections();
-    QPoint getWindowPosition() const; 
-    QSize getWindowSize() const;
-    QSize screenResolution;
+    QWidget*    SetupColorCorrectionTab();
+    void        SetupConnections();
+    void        SetupPlotFrame();
+    QWidget*    SetupProcessingTab();
+    QWidget*    SetupTracksTab();
+    void        SetupUi();
+    void        SetupVideoFrame();
+    QSize 	    ScreenResolution;
 
     void ToggleVideoPlaybackOptions(bool input);
-    bool VerifyFrameSelection(int min_frame, int max_frame);
     void UpdateEpochString(QString new_epoch_string);
-    void DisplayOriginalEpoch(QString new_epoch_string);
-    QString CreateEpochString(std::vector<double> new_epoch);
-
-    bool osmDataLoaded;
-    bool yAxisChanged = false;
-    void UpdatePlots();
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
-
-    void RefreshChartSpace(int track_id, QColor new_color);
-
-    void FramePlotSpace();
+    void UpdatePlots();
+    bool VerifyFrameSelection(int min_frame, int max_frame);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -207,88 +201,82 @@ private:
 
     int currently_editing_or_creating_track_id;
 
-    void CreateMenuActions();
-    void EditColorMap();
-    void EditBannerText();
-    void EditPlotText();
-    void ExportPlotData();
-    void EditBannerColor();
-    void EditOSMTrackColor();
-    void edit_bad_pixel_color();
-    void handle_outlier_processing_change();
-    void HandleYAxisChange();
-    void HandleExternalFileToggle();
-    void HandleBadPixelRawToggle();
-    void AnnotateVideo();
-
-    void HandlePopoutVideoClick(bool checked);
-    void OpenPopoutVideoDisplay();
-
-    void HandlePopoutHistogramClick(bool checked);
-    void OpenPopoutHistogramPlot();
-
-    void HandlePopoutEngineeringClick(bool checked);
-    void OpenPopoutEngineeringPlot();
-    void ProvideInformationAbout();
-
-    void ResizeUi();
-
     QMenu *file_menu, *menu_workspace, *menu_export, *menu_settings, *menu_about;
     QAction *action_about, *action_close, *action_set_timing_offset, *action_change_workspace_directory, *action_load_OSM, * action_load_frames;
     QAction *action_load_workspace, *action_save_workspace, *action_export_current_frame, *action_export_frame_range, *action_export_tracking_data;
     QAction * action_export_all_frames;
 
-    int GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
-    int ConvertFrameNumberTextToInt(QString input);
     CalibrationData calibration_model;
 
-    void LoadOsmData();
-
-    void DeleteAbirData();
-    void LoadAbirData(int start_frame, int stop_frame);
     void AllocateAbirData(int start_frame, int stop_frame);
+    void AnnotateVideo();
 
-    void HandleBadPixelReplacement();
-    void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
-
-    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
-    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
-    void ApplyRPCPNoiseSuppression(int processing_state_idx);
-    void ApplyDeinterlacing(int processing_state_idx);
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
+    void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
+    void ApplyDeinterlacing(int processing_state_idx);
     void ApplyDeinterlacingCurrent();
-    void CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, int manual_track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
-    void CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx);
+    void ApplyFixedNoiseSuppression(QString image_path, QString file_path, unsigned int frame0, unsigned int min_frame, unsigned int max_frame, int processing_state_idx);
+    void ApplyRPCPNoiseSuppression(int processing_state_idx);
+
     void CenterOnBrightest(std::vector<std::vector<int>> & brightest_centered_offsets, int processing_state_idx);
-    void FrameStacking(int num_frames, int processing_state_idx);
-    void ExportFrame();
-    void EnableBinaryExport();
-    void ExportFrameRange();
-    void ExportAllFrames();
-    void OpenProgressArea(QString message, int N);
-    void CloseProgressArea();
-    void ResetEngineeringDataAndSliderGUIs();
-    void HandleAutoTrackStartChangeInput();
-    void EnableEngineeringPlotOptions();
-    void ExitTrackCreationMode();
-    void HandleCreateTrackClick();
-    void HandleFinishCreateTrackClick();
-    void PrepareForTrackCreation(int track_id);
-
-    void HandleFrameNumberChange(unsigned int new_frame_number);
-
-    void UpdateGlobalFrameVector();
-
-    void DeleteState();
+    void CenterOnOffsets(QString trackFeaturePriority, int track_id, std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx);
+    void CenterOnTracks(QString trackFeaturePriority, int OSM_track_id, int manual_track_id, std::vector<std::vector<int>> & track_centered_offsets,boolean findAnyTrack, int processing_state_idx);
 
     bool CheckCurrentStateisNoiseSuppressed(int source_state_idx);
+    void CloseProgressArea();
+    int  ConvertFrameNumberTextToInt(QString input);
+    void CreateMenuActions();
+    void DeleteAbirData();
+    void DeleteState();
 
+    void EditBadPixelColor();
+    void EditBannerColor();
+    void EditBannerText();
+    void EditColorMap();
+    void EditOSMTrackColor();
+    void EditPlotText();
+
+    void EnableBinaryExport();
+    void EnableEngineeringPlotOptions();
+    void ExitTrackCreationMode();
+
+    void ExportAllFrames();
+    void ExportFrame();
+    void ExportFrameRange();
+    void ExportPlotData();
+
+    void FrameStacking(int num_frames, int processing_state_idx);
+    void GetAboutTimeStamp();
+    int  GetCurrentColorIndex(QVector<QString> colors, QColor input_color);
     std::vector<unsigned int> GetUniqueIntegerVector(std::vector<unsigned int> A);
     std::vector<unsigned int> GetUniqueUnionIntegerVector(std::vector<unsigned int> A, std::vector<unsigned int> B);
 
-    QString abpimage_file_base_name;
+    void HandleAutoTrackStartChangeInput();
+    void HandleBadPixelRawToggle();
+    void HandleBadPixelReplacement();
+    void HandleCreateTrackClick();
+    void HandleExternalFileToggle();
+    void HandleFinishCreateTrackClick();
+    void HandleFrameNumberChange(unsigned int new_frame_number);
+    void HandleOutlierProcessingChange();
+    void HandlePopoutEngineeringClick(bool checked);
+    void HandlePopoutHistogramClick(bool checked);
+    void HandlePopoutVideoClick(bool checked);
+    void HandleYAxisChange();
 
-    void GetAboutTimeStamp();
+    void LoadAbirData(int start_frame, int stop_frame);
+    void LoadOsmData();
+
+    void OpenPopoutEngineeringPlot();
+    void OpenPopoutHistogramPlot();
+    void OpenPopoutVideoDisplay();
+    void OpenProgressArea(QString message, int N);
+    void PrepareForTrackCreation(int track_id);
+    void ProvideInformationAbout();
+    void ReplaceBadPixels(std::vector<unsigned int> & pixels_to_replace,int source_state_ind);
+    void ResetEngineeringDataAndSliderGUIs();
+    void ResizeUi();
+    void UpdateGlobalFrameVector();
 
 signals:
     void changeBanner(QString banner_text);
@@ -296,88 +284,82 @@ signals:
     void changeTrackerColor(QString color);
     void directorySelected(QString directory);
     void enableYAxisOptions(bool enabled);
-    void updateVideoDisplayPinpointControls(bool status);
     void itemDataSelected(QVariant data);
-
+    void updateVideoDisplayPinpointControls(bool status);
 
 public slots:
 
-    void SetLiftAndGain(double lift, double gain);
-    void HandleHistogramClick(double x0, double x1);
-    void HandleAutoLiftGainCheck(int state);
-    void HandleLiftSliderToggled();
-    void HandleGainSliderToggled();
-
-    void EnableYAxisOptions(bool enabled);
-
-    void SaveWorkspace();
-    void LoadWorkspace();
-    void ImportTracks();
-    void HandleTrackRemoval(int track_id);
-    void HandleManualTrackRecoloring(int track_id, QColor color);
-    void HandleHideManualTrackId(int track_id);
-    void HandleShowManualTrackId(int track_id, QColor color);
-
-    void HandleAbpFileSelected();
-    bool ValidateAbpFiles(QString path_to_image_file);
-    void UiLoadAbirData();
-    void ExecuteAdaptiveNoiseSuppression();
-    void ExecuteDeinterlace();
-    void ExecuteDeinterlaceCurrent();
-    void ExecuteCenterOnTracks();
-    void ExecuteCenterOnBrightest();
-    void ExecuteFrameStacking();
-    void ExecuteFixedNoiseSuppression();
-    void ExecuteRPCPNoiseSuppression();
-    void ExecuteAccumulatorNoiseSuppression();
-    void ExecuteAutoTracking();
-    void HandleFrameNumberChangeInput();
-
-    void StartStopVideoRecording();
-    void HandleZoomOnVideoToggle();
-    void HandleProcessingNewStateSelected();
-    void ClearZoomAndCalculationButtons();
-
-    void UpdateFps();
-    void ResetColorCorrection();
-
-    void HandlePlotFullDataToggle();
-    void HandlePlotPrimaryOnlyToggle();
-    void HandlePlotCurrentFrameMarkerToggle();
-    void HandleXAxisOptionChange();
-
-    void SetDataTimingOffset();
-    void ChangeWorkspaceDirectory();
-    void CloseWindow();
-
-    void SavePlot();
-    void SaveFrame();
-    void HandleRelativeHistogramToggle(bool input);
     void ApplyEpochTime();
     void ApplyFixedNoiseSuppressionFromExternalFile();
+    void ChangeWorkspaceDirectory();
+    void ClearZoomAndCalculationButtons();
+    void CloseWindow();
+    void EnableYAxisOptions(bool enabled);
+
+    void ExecuteAccumulatorNoiseSuppression();
+    void ExecuteAdaptiveNoiseSuppression();
+    void ExecuteAutoTracking();
+    void ExecuteCenterOnBrightest();
+    void ExecuteCenterOnTracks();
+    void ExecuteDeinterlace();
+    void ExecuteDeinterlaceCurrent();
+    void ExecuteFixedNoiseSuppression();
+    void ExecuteFrameStacking();
+    void ExecuteRPCPNoiseSuppression();
+
+    void HandleAbpFileSelected();
+    void HandleAnnotationDialogClosed();
+    void HandleAutoLiftGainCheck(int state);
+    void HandleCalculationOnVideoToggle();
+    void HandleFrameChange();
+    void HandleFrameNumberChangeInput();
+    void HandleGainSliderToggled();
+    void HandleHideManualTrackId(int track_id);
+    void HandleHistogramClick(double x0, double x1);
+    void HandleLiftSliderToggled();
+    void HandleManualTrackRecoloring(int track_id, QColor color);
+    void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
+    void HandleOsmTracksToggle();
+    void HandlePlayerStateChanged(bool status);
+    void HandlePlotCurrentFrameMarkerToggle();
+    void HandlePlotFullDataToggle();
+    void HandlePlotPrimaryOnlyToggle();
+    void HandlePopoutEngineeringClosed();
+    void HandlePopoutHistogramClosed();
+    void HandlePopoutVideoClosed();
+    void HandleProcessingNewStateSelected();
+    void HandleProcessingStateRemoval(ProcessingMethod method, int index);
+    void HandleProcessingStatesCleared();
+    void HandleProgressUpdate(int percent);
+    void HandleRelativeHistogramToggle(bool input);
+    void HandleShowManualTrackId(int track_id, QColor color);
+    void HandleTrackRemoval(int track_id);
+    void HandleXAxisOptionChange();
+    void HandleZoomAfterSlider();
+    void HandleZoomOnVideoToggle();
+
+    void ImportTracks();
+    void LoadWorkspace();
     void ReceiveNewBadPixels(std::vector<unsigned int> new_pixels);
     void ReceiveNewGoodPixels(std::vector<unsigned int> pixels);
     void ReceiveProgressBarUpdate(int percent);
+    void ResetColorCorrection();
 
-    void HandleFrameChange();
-    void HandleOsmTracksToggle();
-    void HandleNewProcessingState(QString state_name, QString combobox_state_name, int index);
-    void HandlePlayerStateChanged(bool status);
-    void HandleProcessingStateRemoval(ProcessingMethod method, int index);
-    void HandlePopoutVideoClosed();
-    void HandlePopoutHistogramClosed();
-    void HandlePopoutEngineeringClosed();
-    void HandleProgressUpdate(int percent);
-    void HandleZoomAfterSlider();
-    void HandleCalculationOnVideoToggle();
-    void HandleAnnotationDialogClosed();
+    void SaveFrame();
+    void SavePlot();
+    void SaveWorkspace();
+
+    void SetDataTimingOffset();
+    void SetLiftAndGain(double lift, double gain);
     void ShowCalibrationDialog();
-    void SirveApp::HandleProcessingStatesCleared();
-    void SirveApp::HandleWorkspaceDirChanged(QString workspaceDirectory);
+
+    void StartStopVideoRecording();
+    void UiLoadAbirData();
+    void UpdateFps();
+    bool ValidateAbpFiles(QString path_to_image_file);
 
     void onThresholdComboBoxIndexChanged(int index) {
         QVariant data = cmb_autotrack_threshold->itemData(index);
         emit itemDataSelected(data); // Emit signal to pass data to another class
     }
-
 };
