@@ -140,6 +140,7 @@ void EnhancedLabel::hoverEnter(QHoverEvent * event)
 
 void EnhancedLabel::hoverLeave(QHoverEvent * event)
 {
+    // qDebug() << Q_FUNC_INFO << event->type();
 	emit cursorInImage(false);
 }
 

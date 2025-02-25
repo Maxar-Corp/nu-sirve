@@ -97,9 +97,13 @@ namespace configReaderWriter {
 
         QString current_path = QDir::currentPath();
 
+        qDebug() << "Current Path: " << current_path;
+
         std::string baseFolder = LocateConfigFileFolder(current_path.toStdString(), CONFIG_FOLDER);
 
         QString filePath = QString::fromStdString(baseFolder) + "/" + CONFIG_FOLDER + "/" + QString(CONFIG_FILE);
+
+        qDebug() << "File Path: " << filePath;
 
         WriteJsonObjectToFile(config_data, filePath);
     }
