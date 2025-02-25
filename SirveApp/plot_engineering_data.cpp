@@ -228,17 +228,11 @@ void EngineeringPlots::PlotChart()
 
     if (this->chart_view->is_zoomed)
     {
-        qDebug() << "ZOOMED";
         // We're on a new chart. Apply the min/max values to the axes:
         ChartState chartState = this->chart_view->get_chart_state();
 
-        qDebug() << chartState;
-        qDebug() << "Setting Axes";
-
         QValueAxis *axisX = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisX());
         QValueAxis *axisY = qobject_cast<QValueAxis*>(this->chart_view->chart()->axisY());
-
-        qDebug() << "axisX" << axisX;
 
         if (axisX) {
             qreal interval_span = chart_x_intervals[current_unit_id].second - chart_x_intervals[current_unit_id].first;
@@ -249,13 +243,9 @@ void EngineeringPlots::PlotChart()
 
         if (yaxis_is_log) {
             axis_ylog->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
-            qDebug() << "axis_ylog min: " << axis_ylog->min() << " , axis_ylog max: " << axis_ylog->max();
         } else {
             axisY->setRange(chart_y_maxes[current_chart_id] * chartState.scale_factor_miny, chart_y_maxes[current_chart_id] * chartState.scale_factor_maxy);
-            qDebug() << "axisY min: " << axisY->min() << " , axisY max: " << axisY->max();
         }
-
-        qDebug() << "DONE";
     }
 }
 

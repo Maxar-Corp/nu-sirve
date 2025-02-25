@@ -49,7 +49,7 @@ SirveApp::SirveApp(QWidget *parent)
     frame_histogram_abs->setLayout(histogram_abs_layout);
 
     // establish connections to all qwidgets
-    setupConnections();
+    SetupConnections();
 
     HandleRelativeHistogramToggle(false);
     ToggleVideoPlaybackOptions(false);
@@ -536,7 +536,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	cmb_outlier_processing_type = new QComboBox();
 	cmb_outlier_processing_type->addItem("Median");
 	cmb_outlier_processing_type->addItem("Moving Median");
-	connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
+    connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::HandleOutlierProcessingChange);
 
     cmb_outlier_processing_sensitivity = new QComboBox();
 	cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
@@ -578,7 +578,7 @@ QWidget* SirveApp::SetupProcessingTab() {
 	cmb_bad_pixel_color->setFixedWidth(100);
 	cmb_bad_pixel_color->addItems(colors);
 	cmb_bad_pixel_color->setCurrentIndex(5);
-	connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
+    connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::EditBadPixelColor);
     QFormLayout *form_highlight_bad_pixels = new QFormLayout;
     form_highlight_bad_pixels->addRow(tr("&Color"),cmb_bad_pixel_color);
 
@@ -1218,7 +1218,7 @@ void SirveApp::SetupPlotFrame() {
     tab_plots->tabBar()->hide();
 }
 
-void SirveApp::setupConnections() {
+void SirveApp::SetupConnections() {
 
     connect(this, &SirveApp::updateVideoDisplayPinpointControls, this->video_display, &VideoDisplay::HandlePinpointControlActivation);
 
@@ -3137,7 +3137,7 @@ void SirveApp::EditOSMTrackColor()
     // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
 }
 
-void SirveApp::handle_outlier_processing_change()
+void SirveApp::HandleOutlierProcessingChange()
 {
     if(cmb_outlier_processing_type->currentIndex() == 0){
         txt_moving_median_N->setEnabled(false);
@@ -3148,7 +3148,7 @@ void SirveApp::handle_outlier_processing_change()
         txt_moving_median_N->setStyleSheet("#txt_moving_median_N {background-color:#ffffff; color:rgb(0,0,0);}");
     }
 }
-void SirveApp::edit_bad_pixel_color()
+void SirveApp::EditBadPixelColor()
 {
     QString bad_pixel_color = cmb_bad_pixel_color->currentText();
     video_display->HighlightBadPixelsColors(bad_pixel_color);
