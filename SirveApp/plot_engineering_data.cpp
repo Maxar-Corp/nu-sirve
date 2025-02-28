@@ -367,6 +367,7 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
     lineGraph->setXColumn(frameLineColumnX);
     lineGraph->setYColumn(frameLineColumnY);
+    lineGraph->setTitle("Frame Line");
 
     this->addGraph(lineGraph);
 }
