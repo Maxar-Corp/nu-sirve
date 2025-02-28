@@ -5,6 +5,7 @@
 #include "qmenu.h"
 #include "quantity.h"
 #include "qwidgetaction.h"
+#include <QMessageBox>
 
 #include <map>
 
@@ -43,6 +44,11 @@ void PlotPalette::AddPoppedTabIndex(int tab_index)
     popped_tabs.push_back(tab_index);
 }
 
+void PlotPalette::AddSyncedTabIndex(int tab_index)
+{
+    synced_tabs.push_back(tab_index);
+}
+
 void PlotPalette::DeleteGraphIfExists(int plot_id, int track_id)
 {
     engineering_plot_ref.at(plot_id)->DeleteGraphIfExists("Track " + QString::number(track_id));
@@ -61,6 +67,22 @@ Enums::PlotType PlotPalette::GetPlotTypeByTabId(int tab_id)
 Enums::PlotUnit PlotPalette::GetPlotUnitByTabId(int tab_id)
 {
     return Enums::getPlotUnitByIndex(tab_to_unit[tab_id]);
+}
+
+int PlotPalette::GetLowestSyncedTabIndex()
+{
+    auto minIter = std::min_element(synced_tabs.begin(), synced_tabs.end());
+
+    if (minIter != synced_tabs.end()) {
+        return *minIter;
+    } else {
+        std::cout << "The vector is empty.\n";
+    }
+}
+
+bool PlotPalette::HasSyncedTabWithIndex(int tab_id)
+{
+    return std::find(synced_tabs.begin(), synced_tabs.end(), tab_id) != synced_tabs.end();
 }
 
 void PlotPalette::HandleDesignerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities)
@@ -97,7 +119,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         "QCheckBox::indicator:unchecked {"
         "   background-color:rgb(200,200,200);"
         "}"
-    );
+        );
 
     // Create a QWidgetAction and set the checkbox as the widget
     QWidgetAction *syncAction = new QWidgetAction(this);
@@ -107,9 +129,21 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
     syncAction->setCheckable(true);
     syncAction->setChecked(false);
+
+    connect(&contextMenu, &QMenu::aboutToShow, this, [=]() {
+        syncCheckBox->setChecked(std::find(synced_tabs.begin(), synced_tabs.end(), tabIndex) != synced_tabs.end());  // Ensure it is checked when menu opens
+    });
+
+    connect(syncCheckBox, &QCheckBox::toggled, this, [tabIndex, syncCheckBox, this](bool checked) {
+        OnCheckboxToggled(checked, tabIndex);
+        if (!checked)
+            syncCheckBox->setChecked(true);
+    });
+
     contextMenu.addAction(syncAction);
 
     // What should be a simple use case for syncing plots?  How many can be synced at a given time?  What combos are allowed?
+    // A set of plots are chosen for syncing, and one with the lowest tab index is designated as the leader.
 
     QAction *closeTabAction = contextMenu.addAction("Hide Tab");
     QAction *editBanner = contextMenu.addAction("Edit Banner");
@@ -124,6 +158,8 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     // Handle selected actions
     if (selectedAction == closeTabAction) {
         setTabVisible(tabIndex,false);
+    } else if (selectedAction == syncAction)
+    {
     } else if (selectedAction == popoutPlotAction) {
         tabBar()->setTabVisible(tabIndex, false);
 
@@ -143,6 +179,14 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     }
 }
 
+void PlotPalette::OnCheckboxToggled(bool checked, int tabIndex)
+{
+    if (checked) // if checked (a moment ago)
+    {
+        AddSyncedTabIndex(tabIndex);
+    }
+}
+
 void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::RightButton) {
@@ -157,6 +201,16 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
             connect(designer, &PlotDesigner::designerParamsSelected, this, &PlotPalette::HandleDesignerParamsSelected);
 
             designer->exec();
+        });
+
+        menu.addAction("Stop Syncing", [this]() {
+            synced_tabs.clear();
+            for (int i = 0; i< this->tabBar()->count(); i++)
+            {
+                GetEngineeringPlotReference(i)->getPlotter()->resetMasterSynchronization(JKQTBasePlotter::sdXAxis);
+            }
+
+            QMessageBox::information(nullptr, "Sync Reset", "Plot syncing has been reset.");
         });
 
         if (abir_data_loaded)
@@ -193,6 +247,12 @@ void PlotPalette::RedrawPlot(int plot_id)
 void PlotPalette::RemovePoppedTabIndex(int tab_index)
 {
     popped_tabs.erase(std::remove(popped_tabs.begin(), popped_tabs.end(), tab_index), popped_tabs.end());
+}
+
+void PlotPalette::RemoveSyncedTabIndex(int tab_index)
+{
+    synced_tabs.erase(std::remove(synced_tabs.begin(), synced_tabs.end(), tab_index), synced_tabs.end());
+    GetEngineeringPlotReference(tab_index)->synchronizeToMaster(GetEngineeringPlotReference(GetLowestSyncedTabIndex()), JKQTBasePlotter::sdXAxis);
 }
 
 void PlotPalette::RouteFramelineUpdate(int frame)

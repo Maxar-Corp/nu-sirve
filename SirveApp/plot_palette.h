@@ -18,17 +18,21 @@ public:
 
     void AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities);
     void AddPoppedTabIndex(int tab_index);
+    void AddSyncedTabIndex(int tab_index);
     void DeleteGraphIfExists(int plot_id, int track_id);
 
     EngineeringPlot *GetEngineeringPlotReference(int tab_id);
     Enums::PlotType GetPlotTypeByTabId(int tab_id);
     Enums::PlotUnit GetPlotUnitByTabId(int tab_id);
 
+    int GetLowestSyncedTabIndex();
     int GetUnitTypeByTabId(int tab_id);
+    bool HasSyncedTabWithIndex(int tab_id);
     void PlotAllSirveTracks();
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
     void RedrawPlot(int plot_id);
     void RemovePoppedTabIndex(int tab_index);
+    void RemoveSyncedTabIndex(int tab_index);
     void RouteFramelineUpdate(int frameline_x);
     void SetAbirDataLoaded(bool abir_data_loaded);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
@@ -38,14 +42,15 @@ protected:
     void mouseDoubleClickEvent (QMouseEvent *event) override;
 
 private:
-
+    bool abir_data_loaded = false;
     PlotDesigner *designer;
     std::vector<EngineeringPlot*> engineering_plot_ref;
     std::vector<int> popped_tabs;
+    std::vector<int> synced_tabs;
     QStringList quantities;
     std::map<int, int> tab_to_type;
     std::map<int, int> tab_to_unit;
-    bool abir_data_loaded = false;
+    QMap<int, QMenu*> tab_menus;
 
 signals:
     void editClassification(int tab_index, QString current_value);
@@ -60,6 +65,7 @@ public slots:
 
 private slots:
     void HandleTabRightClicked(const QPoint &pos);
+    void OnCheckboxToggled(bool checked, int tabIndex);
 };
 
 #endif // PLOT_PALETTE_H
