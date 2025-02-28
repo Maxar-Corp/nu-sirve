@@ -37,6 +37,13 @@ public:
     EngineeringPlot(std::vector<Frame> *osm_frames, QString plotTitle, std::vector<Quantity> quantities);
     ~EngineeringPlot();
 
+    using JKQTPlotter::zoomIn; // Keep access to the base class version
+
+    inline void zoomIn() { // Overload with new default factor
+        qDebug() << "Got here";
+        zoomIn(1.5); // Call base class function with new factor
+    }
+
     void AddTransparentLabel();
 
     QChartView *chart_view;
@@ -96,6 +103,17 @@ public:
     void set_use_subinterval(bool use_subinterval);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
+
+protected:
+    void wheelEvent(QWheelEvent* event) override {
+
+        int delta = event->angleDelta().y();
+        if (delta < 0 && this->getPlotter()->getYMax() >= this->fixed_max_y) {
+            event->ignore();
+        } else {
+            JKQTPlotter::wheelEvent(event);
+        }
+    }
 
 signals:
     void changeMotionStatus(bool status);
