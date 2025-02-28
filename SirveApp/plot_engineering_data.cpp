@@ -359,7 +359,7 @@ std::vector<Quantity> EngineeringPlot::get_params()
 void EngineeringPlot::InitializeFrameLine(double frameline_x)
 {
     QVector<double> xData = {frameline_x, frameline_x};
-    QVector<double> yData = {0, this->fixed_max_y};
+    QVector<double> yData = {-SirveAppConstants::BigNumber, SirveAppConstants::BigNumber};
 
     frameLineColumnX = ds->addCopiedColumn(xData, "frameline_X");
     size_t frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");

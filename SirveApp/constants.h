@@ -8,6 +8,7 @@ namespace SirveAppConstants {
     constexpr int VideoDisplayWidth = 640;
     constexpr int VideoDisplayHeight = 480;
 
+    constexpr int BigNumber = 10000000;
 }
 
 #endif // CONSTANTS_H
