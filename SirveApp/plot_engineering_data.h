@@ -104,17 +104,6 @@ public:
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
 
-protected:
-    void wheelEvent(QWheelEvent* event) override {
-
-        int delta = event->angleDelta().y();
-        if (delta < 0 && this->getPlotter()->getYMax() >= this->fixed_max_y) {
-            event->ignore();
-        } else {
-            JKQTPlotter::wheelEvent(event);
-        }
-    }
-
 signals:
     void changeMotionStatus(bool status);
     void updatePlots();
