@@ -142,14 +142,14 @@ size_t BinaryFileReader::ReadMultipleValues(T& data, bool bigendian, uint64_t fo
 }
 
 // Utility to determine system endianness.
-bool BinaryFileReader::isSystemBigEndian() {
+bool BinaryFileReader::IsSystemBigEndian() {
     uint16_t test = 0x0102;
     uint8_t* bytes = reinterpret_cast<uint8_t*>(&test);
     return bytes[0] == 0x01; // Big-endian if the most significant byte is first.
 }
 
 // Swap the byte order of a double value.
-double BinaryFileReader::swapEndianness(double value) {
+double BinaryFileReader::SwapEndianness(double value) {
     union {
         double d;
         uint8_t bytes[sizeof(double)];
@@ -181,8 +181,8 @@ double BinaryFileReader::ReadDoubleFromBinary(FILE *fp, int bigendian) {
     }
 
     // Swap byte order if file's endianness doesn't match the system's
-    if (bigendian != isSystemBigEndian()) {
-        value = swapEndianness(value);
+    if (bigendian != IsSystemBigEndian()) {
+        value = SwapEndianness(value);
     }
 
     return value;
