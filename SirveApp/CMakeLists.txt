@@ -21,7 +21,7 @@ set(HEADERS
         engineering_data.h
         enhanced_label.h
         enums.h
-        frame_player.h
+        playback_controller.h
         histogram_plotter.h
         image_processing.h
         location_input.h
@@ -70,7 +70,7 @@ set(SOURCES
         data_export.cpp
         engineering_data.cpp
         enhanced_label.cpp
-        frame_player.cpp
+        playback_controller.cpp
         histogram_plotter.cpp
         image_processing.cpp
         location_input.cpp
@@ -103,9 +103,9 @@ set(UI_SOURCES location_gui.ui new_location.ui)
 set(RESOURCES SirveApp.qrc)
 
 # TODO: AUTOMOC doesn't work, investigate
-qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
+# qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
 
-add_executable(SirveApp ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${UI_SOURCES} ${FRAMES} ${RESOURCES})
+add_executable(SirveApp ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${UI_SOURCES} ${RESOURCES})
 
 if(WIN32)
     set_target_properties(SirveApp PROPERTIES
@@ -134,7 +134,7 @@ target_include_directories(SirveApp PRIVATE
 set_target_properties(SirveApp PROPERTIES
     AUTOGEN_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated"
     # TODO: AUTOMOC doesn't work, investigate
-    # AUTOMOC ON
+    AUTOMOC ON
     AUTOUIC ON
     AUTORCC ON
 )

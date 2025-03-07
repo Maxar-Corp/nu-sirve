@@ -9,6 +9,8 @@
 
 //Required Headers
 #include "Earth.h"
+#include "euler.h"
+#include "jtime.h"
 
 namespace earth {
 

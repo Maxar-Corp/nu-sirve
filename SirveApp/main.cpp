@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
     SirveApp app;
     
-    QScreen *screen = QApplication::primaryScreen();
+    QPointer screen = QApplication::primaryScreen();
 
     QSize resolution = screen->size();
 

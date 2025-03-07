@@ -12,7 +12,7 @@ CalibrationData::~CalibrationData()
 
 }
 
-std::vector<double> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time)
+std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time)
 {
 	double scale_factor = integration_time / frame_integration_time;
 
@@ -31,8 +31,8 @@ std::vector<double> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, i
 	// remove any non-finite numbers
 	arma::vec vector_radiance = arma::vectorise(radiance);
 	arma::uvec indices_finite = arma::find_finite(vector_radiance);
-	std::vector<double> output{0,0,0};
-	if (indices_finite.n_elem>0){
+	std::array<double, 3> output{0,0,0};
+	if (indices_finite.n_elem>0) {
 		arma::vec vector_radiance_norm = vector_radiance(indices_finite);
 
 		double max_pixel = arma::max(vector_radiance_norm);

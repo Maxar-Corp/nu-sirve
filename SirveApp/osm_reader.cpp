@@ -1,5 +1,7 @@
 #include "osm_reader.h"
 
+#include "support/jtime.h"
+
 OSMReader::OSMReader()
 {
     location_from_file = false;

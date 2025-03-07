@@ -1,7 +1,10 @@
 #include "az_el_calculation.h"
 
-#define _USE_MATH_DEFINES
-#include <cmath>
+#include "euler.h"
+#include "support/earth.h"
+
+#include <math.h>
+
 
 std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {

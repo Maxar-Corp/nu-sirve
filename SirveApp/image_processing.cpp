@@ -1,4 +1,8 @@
 #include "image_processing.h"
+
+#include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
+
 ImageProcessing::ImageProcessing()
 {
     frameval = 0;
@@ -13,7 +17,7 @@ ImageProcessing::ImageProcessing()
 ImageProcessing::~ImageProcessing() {
 }
 
-void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, std::vector<unsigned int> bad_pixel_indices, int width_pixels)
+void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indices, int width_pixels)
 {
     //For each frame, replaces any bad pixels with the mean of the value of 2 pixels above, below, left, and right
     //Other bad pixels are exempted from the calculation
@@ -102,7 +106,7 @@ void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_
     }
 }
 
-arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::vector<uint16_t>>& input_pixels)
+arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, const std::vector<std::vector<uint16_t>>& input_pixels)
 {    
     double c = 1.4826;
 
@@ -146,7 +150,7 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMedian(double N, std::vector<std::v
     return index_outlier;
 }
 
-arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length, double N, std::vector<std::vector<uint16_t>>& input_pixels)
+arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length, double N, const std::vector<std::vector<uint16_t>>& input_pixels)
 {
     int start_frame_index, stop_frame_index;
     int num_video_frames = input_pixels.size();
@@ -190,7 +194,7 @@ arma::uvec ImageProcessing::IdentifyBadPixelsMovingMedian(int half_window_length
     return index_outlier;
 }
 
-arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint16_t>>& input_pixels)
+arma::uvec ImageProcessing::FindDeadBadscalePixels(const std::vector<std::vector<uint16_t>>& input_pixels)
 {
     int num_video_frames = input_pixels.size();
 
@@ -237,7 +241,9 @@ arma::uvec ImageProcessing::FindDeadBadscalePixels(std::vector<std::vector<uint1
     return index_dead;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QString image_path, QString path_video_file, int frame0, int start_frame, int stop_frame, double version, VideoDetails & original)
+std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const QString& image_path,
+    const QString& path_video_file, int frame0, int start_frame, int stop_frame, double version,
+    const VideoDetails & original)
 {
 	// Initialize output
 	std::vector<std::vector<uint16_t>> frames_out;
@@ -302,7 +308,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(QStrin
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames, VideoDetails & original)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames, const VideoDetails& original)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
@@ -367,18 +373,15 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, VideoDetails & original)
+std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, const VideoDetails& original)
 {
 	int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();
-    int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
     int N2 = num_of_averaging_frames/2;
     int num_indices = std::max(N2,1); 
     int si, fi;
 	arma::mat adjusted_window_data(num_pixels,num_of_averaging_frames);
     arma::mat frame_data(num_pixels,num_video_frames);
-    int start_frame_new = abs(start_frame)+N2;
 
     for (int i = 0; i < num_video_frames; i++) {
         frame_data.col(i) = arma::conv_to<arma::vec>::from(original.frames_16bit[i]);
@@ -423,7 +426,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionMatr
 	return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(VideoDetails & original)
+std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(const VideoDetails& original)
 {
     std::vector<std::vector<uint16_t>> frames_out;
 	int num_video_frames = original.frames_16bit.size();
@@ -523,7 +526,7 @@ arma::mat ImageProcessing::apply_shrinkage_operator(arma::mat s, double tau)
     return st;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(double weight, int offset, int NThresh, VideoDetails & original, bool hide_shadow_choice)
+std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(double weight, int offset, int NThresh, const VideoDetails& original, bool hide_shadow_choice)
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
@@ -636,7 +639,7 @@ void ImageProcessing::remove_shadow(int nRows, int nCols, arma::vec & frame_vect
     frame_vector /= frame_vector.max();
 }
 
-std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrelation(VideoDetails & original)
+std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrelation(const VideoDetails & original)
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
@@ -656,7 +659,7 @@ std::vector<std::vector<uint16_t>>ImageProcessing::DeinterlaceOpenCVPhaseCorrela
     return frames_out;
 }
 
-std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int framei, std::vector<uint16_t> & current_frame_16bit)
+std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int framei, const std::vector<uint16_t>& current_frame_16bit) const
 {
     int yOffset, xOffset;
   
@@ -675,42 +678,36 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
     cv::Mat source( nRows2, nCols, CV_64FC1, even_frame.memptr() );
     cv::Mat source_blurred;
     cv::GaussianBlur(source, source_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
-    // double maxval;
-    // cv::minMaxLoc(source_blurred, NULL, &maxval, NULL, NULL);
-    // cv::threshold(source_blurred, source_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
     cv::Mat target( nRows2, nCols, CV_64FC1, odd_frame.memptr() );
     cv::Mat target_blurred;
     cv::GaussianBlur(target, target_blurred, cv::Size(deinterlace_kernel_size, deinterlace_kernel_size), 0);
-    // cv::minMaxLoc(target_blurred, NULL, &maxval, NULL, NULL);
-    // cv::threshold(target_blurred, target_blurred, .5*maxval, NULL, cv::THRESH_TOZERO); 
     cv::Point2d shift = cv::phaseCorrelate(target_blurred, source_blurred);
-    if(shift == shift)
-    {
-        yOffset = shift.y;
-        xOffset = shift.x;
-        double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
-        if (d < max_deinterlace_dist && d > min_deinterlace_dist)
-        {
-            cv::Mat H = (cv::Mat_<float>(2, 3) << 1.0, 0.0, -shift.x/2, 0.0, 1.0, -shift.y/2);
-            cv::Mat res;
-            warpAffine(source, res, H, target_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
-            cv::Mat H2 = (cv::Mat_<float>(2, 3) << 1.0, 0.0, shift.x/2, 0.0, 1.0, shift.y/2);
-            cv::Mat res2;
-            warpAffine(target, res2, H2, source_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
-            arma::mat arma_mat_source( reinterpret_cast<double*>(res.data), res.cols, res.rows );
-            arma::mat arma_mat_target( reinterpret_cast<double*>(res2.data), res2.cols, res2.rows );
-            output.cols(odd_rows) = arma_mat_target;
-            output.cols(even_rows) = arma_mat_source;
-        }
-    }
-    output = output - arma::min(output.as_col());
-    current_frame_16bit = arma::conv_to<std::vector<uint16_t>>::from(output.as_col());
 
-    return current_frame_16bit;
+    yOffset = shift.y;
+    xOffset = shift.x;
+    double d = sqrt(pow(xOffset,2) + pow(yOffset,2));
+    if (d < max_deinterlace_dist && d > min_deinterlace_dist)
+    {
+        cv::Mat H = (cv::Mat_<float>(2, 3) << 1.0, 0.0, -shift.x/2, 0.0, 1.0, -shift.y/2);
+        cv::Mat res;
+        warpAffine(source, res, H, target_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
+        cv::Mat H2 = (cv::Mat_<float>(2, 3) << 1.0, 0.0, shift.x/2, 0.0, 1.0, shift.y/2);
+        cv::Mat res2;
+        warpAffine(target, res2, H2, source_blurred.size(),cv::INTER_AREA + cv::WARP_FILL_OUTLIERS);
+        arma::mat arma_mat_source( reinterpret_cast<double*>(res.data), res.cols, res.rows );
+        arma::mat arma_mat_target( reinterpret_cast<double*>(res2.data), res2.cols, res2.rows );
+        output.cols(odd_rows) = arma_mat_target;
+        output.cols(even_rows) = arma_mat_source;
+    }
+
+    output = output - arma::min(output.as_col());
+    return arma::conv_to<std::vector<uint16_t>>::from(output.as_col());
 }
 
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString trackTypePriority, VideoDetails & original, int OSM_track_id, int manual_track_id, std::vector<TrackFrame> osmFrames, std::vector<TrackFrame> manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString& trackTypePriority,
+    const VideoDetails& original, int OSM_track_id, int manual_track_id, const std::vector<TrackFrame>& osmFrames,
+    const std::vector<TrackFrame>& manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
 {
     // Initialize output
     std::vector<std::vector<uint16_t>> frames_out;
@@ -736,18 +733,18 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
             return std::vector<std::vector<uint16_t>>();
         }
 
-        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();  
+        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
         output = frame;
-   
+
         if(OSMPriority==0) //OSM tracks have priority
-        { 
+        {
             cont_search = true;
             if(OSM_track_id>0) //Specific track id
             {
-                if (osmFrames[framei].tracks[OSM_track_id].number_pixels != NULL)
+                if (osmFrames[framei].tracks.at(OSM_track_id).number_pixels != 0)
                 {
-                    yOffset = osmFrames[framei].tracks[OSM_track_id].centroid_y;
-                    xOffset = osmFrames[framei].tracks[OSM_track_id].centroid_x;
+                    yOffset = osmFrames[framei].tracks.at(OSM_track_id).centroid_y;
+                    xOffset = osmFrames[framei].tracks.at(OSM_track_id).centroid_x;
                     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                     cont_search = false;
@@ -755,15 +752,16 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
             }
             else //Search for first track
             {
-                i = 0;  
+                i = 0;
                 if(osmFrames[framei].tracks.size()>0)
-                { 
+                {
                     while (cont_search && i < osmFrames[framei].tracks.size())
                     {
-                        if (osmFrames[framei].tracks[i].number_pixels != NULL)
+                        TrackDetails td = osmFrames[framei].tracks.begin()->second;
+                        if (td.number_pixels != 0)
                         {
-                            yOffset = osmFrames[framei].tracks[i].centroid_y;
-                            xOffset = osmFrames[framei].tracks[i].centroid_x;
+                            yOffset = osmFrames[framei].tracks.at(i).centroid_y;
+                            xOffset = osmFrames[framei].tracks.at(i).centroid_x;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                             track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
@@ -779,10 +777,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
             {
                 if(manual_track_id>0) //Specific track id
                 {
-                    if (manualFrames[framei].tracks[manual_track_id].number_pixels != NULL)
+                    if (manualFrames[framei].tracks.at(manual_track_id).number_pixels != 0)
                     {
-                        yOffset = manualFrames[framei].tracks[manual_track_id].centroid_y - yOffset_correction;
-                        xOffset = manualFrames[framei].tracks[manual_track_id].centroid_x - xOffset_correction;
+                        yOffset = manualFrames[framei].tracks.at(manual_track_id).centroid_y - yOffset_correction;
+                        xOffset = manualFrames[framei].tracks.at(manual_track_id).centroid_x - xOffset_correction;
                         output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                         track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                         cont_search = false;
@@ -790,16 +788,16 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                 }
                 else
                 {
-                    if(manualFrames[framei].tracks.size()>0)  
+                    if(manualFrames[framei].tracks.size()>0)
                     {
                         i = 0;
                         cont_search = true;
                         while (cont_search && i < manualFrames[framei].tracks.size())
                         {
-                            if (manualFrames[framei].tracks[i].number_pixels != NULL)
+                            if (manualFrames[framei].tracks.at(i).number_pixels != 0)
                             {
-                                yOffset = manualFrames[framei].tracks[i].centroid_y - yOffset_correction;
-                                xOffset = manualFrames[framei].tracks[i].centroid_x - xOffset_correction;
+                                yOffset = manualFrames[framei].tracks.at(i).centroid_y - yOffset_correction;
+                                xOffset = manualFrames[framei].tracks.at(i).centroid_x - xOffset_correction;
                                 output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                                 track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                                 cont_search = false;
@@ -818,10 +816,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
             cont_search = true;
             if(manual_track_id>0) //Specific track id
             {
-                if (manualFrames[framei].tracks[manual_track_id].number_pixels != NULL)
+                if (manualFrames[framei].tracks.at(manual_track_id).number_pixels != 0)
                 {
-                    yOffset = manualFrames[framei].tracks[manual_track_id].centroid_y - yOffset_correction;
-                    xOffset = manualFrames[framei].tracks[manual_track_id].centroid_x - xOffset_correction;
+                    yOffset = manualFrames[framei].tracks.at(manual_track_id).centroid_y - yOffset_correction;
+                    xOffset = manualFrames[framei].tracks.at(manual_track_id).centroid_x - xOffset_correction;
                     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                     cont_search = false;
@@ -834,9 +832,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                 {
                     while (cont_search && i < manualFrames[framei].tracks.size())
                     {
-                        if (manualFrames[framei].tracks[i].number_pixels != NULL){
-                            yOffset = manualFrames[framei].tracks[i].centroid_y - yOffset_correction;
-                            xOffset = manualFrames[framei].tracks[i].centroid_x - xOffset_correction;
+                        if (manualFrames[framei].tracks.at(i).number_pixels != 0){
+                            yOffset = manualFrames[framei].tracks.at(i).centroid_y - yOffset_correction;
+                            xOffset = manualFrames[framei].tracks.at(i).centroid_x - xOffset_correction;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                             track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
@@ -852,10 +850,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
             {
                 if(OSM_track_id>0) //Specific track id
                 {
-                    if (osmFrames[framei].tracks[OSM_track_id].number_pixels != NULL)
+                    if (osmFrames[framei].tracks.at(OSM_track_id).number_pixels != 0)
                     {
-                        yOffset = osmFrames[framei].tracks[OSM_track_id].centroid_y;
-                        xOffset = osmFrames[framei].tracks[OSM_track_id].centroid_x;
+                        yOffset = osmFrames[framei].tracks.at(OSM_track_id).centroid_y;
+                        xOffset = osmFrames[framei].tracks.at(OSM_track_id).centroid_x;
                         output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                         track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                         cont_search = false;
@@ -867,9 +865,9 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
                     {
                         while (cont_search && i < osmFrames[framei].tracks.size())
                         {
-                            if (osmFrames[framei].tracks[i].number_pixels != NULL){
-                                yOffset = osmFrames[framei].tracks[i].centroid_y;
-                                xOffset = osmFrames[framei].tracks[i].centroid_x;
+                            if (osmFrames[framei].tracks.at(i).number_pixels != 0){
+                                yOffset = osmFrames[framei].tracks.at(i).centroid_y;
+                                xOffset = osmFrames[framei].tracks.at(i).centroid_x;
                                 output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                                 track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                                 cont_search = false;
@@ -889,7 +887,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(QString track
     return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterImageFromOffsets(VideoDetails & original, std::vector<std::vector<int>> track_centered_offsets)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterImageFromOffsets(const VideoDetails & original, const std::vector<std::vector<int>>& track_centered_offsets)
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
@@ -924,7 +922,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterImageFromOffsets(Video
     return frames_out;
 }
 
-std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets)
+std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(const VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets)
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
@@ -965,7 +963,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(VideoDetai
     return frames_out;     
 }
 
- std::vector<std::vector<uint16_t>> ImageProcessing::FrameStacking(int num_of_averaging_frames, VideoDetails & original)
+ std::vector<std::vector<uint16_t>> ImageProcessing::FrameStacking(int num_of_averaging_frames, const VideoDetails & original)
  {
     int num_video_frames = original.frames_16bit.size();
 	int num_pixels = original.frames_16bit[0].size();

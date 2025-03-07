@@ -1,3 +1,6 @@
+#ifndef QT_ELEMENTS_WITH_IDS_H
+#define QT_ELEMENTS_WITH_IDS_H
+
 #include <QCheckBox>
 #include <QPushButton>
 #include <QComboBox>
@@ -5,7 +8,6 @@
 class QComboBoxWithId : public QComboBox
 {
     Q_OBJECT
-
 public:
     QComboBoxWithId(int id, QWidget *parent = nullptr);
 
@@ -53,3 +55,5 @@ private slots:
 private:
     int id;
 };
+
+#endif // QT_ELEMENTS_WITH_IDS_H
