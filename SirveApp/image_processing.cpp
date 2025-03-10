@@ -739,12 +739,15 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
         if(OSMPriority==0) //OSM tracks have priority
         {
             cont_search = true;
-            if(OSM_track_id>0) //Specific track id
+            std::map<int, TrackDetails> trackMap = osmFrames[framei].tracks;
+
+            if(OSM_track_id>0 && trackMap.find(OSM_track_id) != trackMap.end()) //Specific track id
             {
-                if (osmFrames[framei].tracks.at(OSM_track_id).number_pixels != 0)
+                TrackDetails td = trackMap.find(OSM_track_id)->second;
+                if (td.number_pixels != 0)
                 {
-                    yOffset = osmFrames[framei].tracks.at(OSM_track_id).centroid_y;
-                    xOffset = osmFrames[framei].tracks.at(OSM_track_id).centroid_x;
+                    yOffset = td.centroid_y;
+                    xOffset = td.centroid_x;
                     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                     cont_search = false;
@@ -752,27 +755,28 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             }
             else //Search for first track
             {
-                i = 0;
-                if(osmFrames[framei].tracks.size()>0)
+                if(trackMap.size()>0)
                 {
-                    while (cont_search && i < osmFrames[framei].tracks.size())
+                    auto it = trackMap.begin();
+                    while (cont_search && it != trackMap.end())
                     {
-                        TrackDetails td = osmFrames[framei].tracks.begin()->second;
+                        TrackDetails td = it->second;
                         if (td.number_pixels != 0)
                         {
-                            yOffset = osmFrames[framei].tracks.at(i).centroid_y;
-                            xOffset = osmFrames[framei].tracks.at(i).centroid_x;
+                            yOffset = td.centroid_y;
+                            xOffset = td.centroid_x;
                             output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
                             track_centered_offsets.push_back({framei+1,xOffset,yOffset});
                             cont_search = false;
                         }
                         else
                         {
-                            i+=1;
+                            ++it;
                         }
                     }
                 }
             }
+
             if(cont_search && findAnyTrack) //Now search for manual tracks
             {
                 if(manual_track_id>0) //Specific track id
