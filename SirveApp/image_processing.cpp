@@ -705,6 +705,15 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
 }
 
 
+void ImageProcessing::TranslateFrameByOffsets(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset)
+{
+    yOffset = td.centroid_y;
+    xOffset = td.centroid_x;
+    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+    cont_search = false;
+}
+
 std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString& trackTypePriority,
     const VideoDetails& original, int OSM_track_id, int manual_track_id, const std::vector<TrackFrame>& osmFrames,
     const std::vector<TrackFrame>& manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
@@ -745,11 +754,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                 TrackDetails td = trackMap.find(OSM_track_id)->second;
                 if (td.number_pixels != 0)
                 {
-                    yOffset = td.centroid_y;
-                    xOffset = td.centroid_x;
-                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                    cont_search = false;
+                    TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                 }
             }
             else //Search for first track
@@ -762,11 +767,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                         TrackDetails td = it->second;
                         if (td.number_pixels != 0)
                         {
-                            yOffset = td.centroid_y;
-                            xOffset = td.centroid_x;
-                            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                            cont_search = false;
+                            TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                         }
                         else
                         {
@@ -785,11 +786,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     TrackDetails td = trackMap.find(manual_track_id)->second;
                     if (td.number_pixels != 0)
                     {
-                        yOffset = td.centroid_y - yOffset_correction;
-                        xOffset = td.centroid_x - xOffset_correction;
-                        output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                        track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                        cont_search = false;
+                        TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                     }
                 }
                 else
@@ -803,11 +800,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                             TrackDetails td = it->second;
                             if (td.number_pixels != 0)
                             {
-                                yOffset = td.centroid_y - yOffset_correction;
-                                xOffset = td.centroid_x - xOffset_correction;
-                                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                                track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                                cont_search = false;
+                                TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                             }
                             else
                             {
@@ -828,11 +821,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                 TrackDetails td = trackMap.find(manual_track_id)->second;
                 if (td.number_pixels != 0)
                 {
-                    yOffset = td.centroid_y - yOffset_correction;
-                    xOffset = td.centroid_x - xOffset_correction;
-                    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                    cont_search = false;
+                    TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                 }
             }
             else //Search for first track
@@ -844,11 +833,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     {
                         TrackDetails td = it->second;
                         if (td.number_pixels != 0){
-                            yOffset = td.centroid_y - yOffset_correction;
-                            xOffset = td.centroid_x - xOffset_correction;
-                            output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                            track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                            cont_search = false;
+                            TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                         }
                         else
                         {
@@ -866,11 +851,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     TrackDetails td = trackMap.find(OSM_track_id)->second;
                     if (td.number_pixels != 0)
                     {
-                        yOffset = td.centroid_y;
-                        xOffset = td.centroid_x;
-                        output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                        track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                        cont_search = false;
+                        TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                     }
                 }
                 else{
@@ -881,11 +862,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                         {
                             TrackDetails td = it->second;
                             if (td.number_pixels != 0){
-                                yOffset = td.centroid_y;
-                                xOffset = td.centroid_x;
-                                output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-                                track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-                                cont_search = false;
+                                TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                             }
                             else
                             {
