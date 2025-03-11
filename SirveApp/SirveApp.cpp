@@ -4329,7 +4329,7 @@ void SirveApp::ExecuteAutoTracking()
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
         appPos = this->GetWindowPosition();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, frame_headers, new_track_file_name, calibration_model);
+        arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_display->frame_headers, new_track_file_name, calibration_model);
 
         auto currentState = video_display->container.GetCurrentState();
         if (!autotrack.empty() && currentState.offsets.size()>0){

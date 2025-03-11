@@ -46,6 +46,8 @@ public:
     QString banner_text;
     QColor bad_pixel_color;
 
+    std::vector<ABIR_Frame> frame_headers;
+
     void HighlightBadPixels(bool status);
     void HighlightBadPixelsColors(const QString& input_color);
 
@@ -192,7 +194,6 @@ private:
     std::vector<TrackFrame> manual_track_frames;
     std::set<int> manual_track_ids_to_show;
     std::map<int, QColor> manual_track_colors;
-    std::vector<ABIR_Frame> frame_headers;
 
     void SetupUi();
     void SetupLabels();
