@@ -1,10 +1,12 @@
 set(HEADERS
         abir_reader.h
+        abir_reader2.h
         abpnuc_reader.h
         annotation_edit_dialog.h
         annotation_list_dialog.h
         annotation_stencil.h
         auto_tracking.h
+        binary_reader.h
         binary_file_reader.h
         calibration_data.h
         chart_metadata.h
@@ -28,6 +30,7 @@ set(HEADERS
         new_location.h
         non_uniformity_correction_external_file.h
         osm_reader.h
+	osm_reader2.h
         plot_engineering_data.h
         popout_dialog.h
         process_file.h
@@ -52,6 +55,7 @@ set(HEADERS
 
 set(SOURCES
         abir_reader.cpp
+        abir_reader2.cpp
         abpnuc_reader.cpp
         annotation_edit_dialog.cpp
         annotation_info.cpp
@@ -59,6 +63,7 @@ set(SOURCES
         annotation_stencil.cpp
         auto_tracking.cpp
         binary_file_reader.cpp
+        binary_reader.cpp
         calibration_data.cpp
         classification.cpp
         clickable_chartview.cpp
@@ -78,6 +83,7 @@ set(SOURCES
         new_location.cpp
         non_uniformity_correction_external_file.cpp
         osm_reader.cpp
+	osm_reader2.cpp
         plot_engineering_data.cpp
         popout_dialog.cpp
         process_file.cpp
