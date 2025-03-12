@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BINARY_READER_H
+#define BINARY_READER_H
 
 #include <fstream>
 #include "SirveApp.h"
@@ -121,3 +122,5 @@ T BinaryReader::SwapOrder(T value)
 
     return value;
 }
+
+#endif // BINARY_READER_H

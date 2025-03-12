@@ -16,7 +16,7 @@ std::vector<Frame> OSMReader2::ReadFrames()
 
     auto data = LoadFrames(num_messages);
 
-    return {};
+    return data;
 }
 
 std::vector<Frame> OSMReader2::LoadFrames(uint32_t num_messages)
@@ -237,10 +237,8 @@ TrackData OSMReader2::GetTrackData(const FrameData& input)
     current_track.centroid_variance_x = Read<double>(true);
     current_track.centroid_variance_y = Read<double>(true);
 
-    current_track.az_el_track = CalculateAzimuthElevation(
-        static_cast<int>(current_track.centroid_x),
-        static_cast<int>(current_track.centroid_y),
-        input);
+    current_track.az_el_track = CalculateAzimuthElevation(static_cast<int>(current_track.centroid_x),
+                                                          static_cast<int>(current_track.centroid_y), input);
 
     current_track.covariance = Read<double>(true);
     current_track.num_pixels = Read<uint32_t>(true);
@@ -318,10 +316,10 @@ uint32_t OSMReader2::FindMessageNumber()
         if (status_code == NUM_HEADER_VALUES && header[2])
         {
             num_messages++;
-            //auto current_p = Tell();
+            // auto current_p = Tell();
             int64_t seek_position = 92 - 24; // TODO: MAGIC!
             Seek(seek_position, std::ios_base::cur);
-            //auto current_p1 = Tell();
+            // auto current_p1 = Tell();
             uint32_t data[2];
             status_code = ReadArray(data);
             double value = data[0] + data[1] * 1e-6;

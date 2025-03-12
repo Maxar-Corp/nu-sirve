@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ABIR_READER2_H
+#define ABIR_READER2_H
 
 #include "binary_reader.h"
 
@@ -42,73 +43,73 @@ struct ABIRFrameObject
 ///////////////////////////////////////////////////////////////////////////////
 struct ABIRFrameHeader
 {
-    uint64_t seconds;
-    uint64_t nano_seconds;
-    uint64_t size;
-    uint64_t image_size;
-    uint64_t image_size_double;
+    uint64_t seconds{};
+    uint64_t nano_seconds{};
+    uint64_t size{};
+    uint64_t image_size{};
+    uint64_t image_size_double{};
 
-    uint16_t sensor_id;
-    uint32_t frame_number;
-    double frame_time;
-    uint32_t image_origin;
-    uint16_t image_x_size;
-    uint16_t image_y_size;
-    uint16_t pixel_depth;
-    uint16_t bits_per_pixel;
+    uint16_t sensor_id{};
+    uint32_t frame_number{};
+    double frame_time{};
+    uint32_t image_origin{};
+    uint16_t image_x_size{};
+    uint16_t image_y_size{};
+    uint16_t pixel_depth{};
+    uint16_t bits_per_pixel{};
 
-    uint32_t sensor_fov;
-    double alpha;
-    double beta;
-    double alpha_dot;
-    double beta_dot;
+    uint32_t sensor_fov{};
+    double alpha{};
+    double beta{};
+    double alpha_dot{};
+    double beta_dot{};
 
     // VERSION >=2
-    uint16_t focus;
+    uint16_t focus{};
     // END VERSION >=2
 
     // VERSION >= 2.1
-    uint32_t msg_type;
-    float msg_version;
-    uint32_t guid[5];
-    uint32_t guid_source[5];
-    uint32_t intended_fov;
+    uint32_t msg_type{};
+    float msg_version{};
+    uint32_t guid[5]{};
+    uint32_t guid_source[5]{};
+    uint32_t intended_fov{};
     // END VERSION >=2.1
 
     // VERSION == 3.0
-    double p_heading;
-    double p_pitch;
-    double p_roll;
-    double p_alt_gps;
-    double p_heading_mag;
-    uint32_t p_heading_ref;
+    double p_heading{};
+    double p_pitch{};
+    double p_roll{};
+    double p_alt_gps{};
+    double p_heading_mag{};
+    uint32_t p_heading_ref{};
     // END VERSION == 3
 
     // VERSION >= 3.0
-    double p_lla[3];
-    double p_vel_xyz[3];
+    double p_lla[3]{};
+    double p_vel_xyz[3]{};
     // END VERSION >= 3.0
 
     // VERSION >= 3.1
-    float int_time;
-    double p_ypr[3];
+    float int_time{};
+    double p_ypr[3]{};
     // END VERSION >= 3.1
 
     // VERSION >= 4.0
-    float fpa_gain;
+    float fpa_gain{};
     ABIRFrameObject one{};
     ABIRFrameObject two{};
     // END VERSION >= 4.0
 
     // VERSIONS >= 4.1
-    float temp_k;
-    float pressure;
-    float relative_humidity;
-    double p_ypr_dot[3];
+    float temp_k{};
+    float pressure{};
+    float relative_humidity{};
+    double p_ypr_dot[3]{};
     // END VERSIONS >= 4.1
 
     // VERSION >= 5
-    double g_roll;
+    double g_roll{};
     // END VERSION >= 5
 };
 
@@ -151,3 +152,5 @@ signals:
 private:
     double file_version_{};
 };
+
+#endif // ABIR_READER2_H

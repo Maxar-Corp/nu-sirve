@@ -2,12 +2,14 @@
 
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
-/*static constexpr auto MIN_VERSION_NUMBER = 1.0;
-static constexpr auto MAX_VERSION_NUMBER = 20.0;*/
+static constexpr auto MIN_VERSION_NUMBER = 1.0;
+static constexpr auto MAX_VERSION_NUMBER = 20.0;
 static constexpr auto FRAME_SIZE_INCREMENT = 32;
 static constexpr auto FRAME_SIZE_INCREMENT_2_1 = 40;
 
-ABIRFrames::ABIRFrames() : x_pixels(0), y_pixels(0), max_value(0), last_valid_frame(0) {}
+ABIRFrames::ABIRFrames() : x_pixels(0), y_pixels(0), max_value(0), last_valid_frame(0)
+{
+}
 
 bool ABIRReader::Open(const char* filename, double version_number)
 {
@@ -37,6 +39,11 @@ bool ABIRReader::Open(const char* filename, double version_number)
     //                                                         to Use:",
     //                                                         version_number,
     //                                                         1, 4.2, 2, &ok);
+
+    if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER)
+    {
+        return false;
+    }
 
     if (file_version_ == 2.5)
     {

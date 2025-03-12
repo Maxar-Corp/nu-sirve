@@ -1,4 +1,5 @@
-#pragma once
+#ifndef OSM_READER2_H
+#define OSM_READER2_H
 
 #include "binary_reader.h"
 
@@ -27,3 +28,5 @@ private:
     bool location_from_file_ = false;
     std::vector<double> file_ecef_vector_;
 };
+
+#endif // OSM_READER2_H
