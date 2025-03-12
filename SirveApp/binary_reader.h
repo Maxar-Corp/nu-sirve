@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SirveApp.h"
 #include <fstream>
+#include "SirveApp.h"
 
 class BinaryReader : public QObject
 {
@@ -45,11 +45,13 @@ T BinaryReader::Read(bool big_endian)
     T data;
 
     stream_.read(reinterpret_cast<char*>(&data), sizeof(T));
-    if (stream_.fail()) {
+    if (stream_.fail())
+    {
         throw std::runtime_error("Failed to read from file.");
     }
 
-    if (big_endian && !IsBigEndian()) {
+    if (big_endian && !IsBigEndian())
+    {
         data = SwapOrder<T>(data);
     }
 
@@ -59,18 +61,21 @@ T BinaryReader::Read(bool big_endian)
 template <typename T>
 size_t BinaryReader::Read(T* data, uint32_t num_elements, bool big_endian)
 {
-    if (num_elements == 0) {
-        throw std::invalid_argument(
-            "Total bytes is less than the size of one element.");
+    if (num_elements == 0)
+    {
+        throw std::invalid_argument("Total bytes is less than the size of one element.");
     }
 
     stream_.read(reinterpret_cast<char*>(data), sizeof(T) * num_elements);
-    if (stream_.fail()) {
+    if (stream_.fail())
+    {
         throw std::runtime_error("Failed to read from file");
     }
 
-    if (big_endian && !IsBigEndian()) {
-        for (auto i = 0; i < num_elements; i++) {
+    if (big_endian && !IsBigEndian())
+    {
+        for (auto i = 0; i < num_elements; i++)
+        {
             data[i] = SwapOrder<T>(data[i]);
         }
     }
@@ -90,14 +95,17 @@ std::vector<T> BinaryReader::ReadVector(int num_values, bool big_endian)
     std::vector<T> data(num_values);
 
     stream_.read(reinterpret_cast<char*>(&data[0]), sizeof(T) * num_values);
-    if (stream_.fail()) {
+    if (stream_.fail())
+    {
         throw std::runtime_error("Failed to read from file.");
     }
 
     auto isBigEndian = IsBigEndian();
 
-    for (auto i = 0; i < num_values; i++) {
-        if (big_endian && !isBigEndian) {
+    for (auto i = 0; i < num_values; i++)
+    {
+        if (big_endian && !isBigEndian)
+        {
             data[i] = SwapOrder<T>(data[i]);
         }
     }

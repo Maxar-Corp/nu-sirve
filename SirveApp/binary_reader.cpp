@@ -10,7 +10,8 @@ bool BinaryReader::Open(const char* filename)
     Close();
 
     stream_.open(filename);
-    if (!stream_.is_open()) {
+    if (!stream_.is_open())
+    {
         return false;
     }
 
@@ -19,7 +20,8 @@ bool BinaryReader::Open(const char* filename)
 
 bool BinaryReader::Close()
 {
-    if (!IsOpen()) {
+    if (!IsOpen())
+    {
         return false;
     }
 
@@ -28,10 +30,7 @@ bool BinaryReader::Close()
     return true;
 }
 
-bool BinaryReader::IsOpen() const
-{
-    return stream_.is_open();
-}
+bool BinaryReader::IsOpen() const { return stream_.is_open(); }
 
 bool BinaryReader::IsBigEndian()
 {
@@ -42,7 +41,8 @@ bool BinaryReader::IsBigEndian()
 
 uint64_t BinaryReader::FileSize()
 {
-    if (!IsOpen()) {
+    if (!IsOpen())
+    {
         return 0;
     }
 
@@ -56,12 +56,14 @@ uint64_t BinaryReader::FileSize()
 
 void BinaryReader::Seek(int64_t offset, std::ios_base::seekdir way)
 {
-    if (!IsOpen()) {
+    if (!IsOpen())
+    {
         throw std::runtime_error("File is not open.");
     }
 
     stream_.seekg(offset, way);
-    if (stream_.fail()) {
+    if (stream_.fail())
+    {
         throw std::runtime_error("Failed to seek in file.");
     }
 }
