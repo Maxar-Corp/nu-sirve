@@ -286,32 +286,32 @@ QString processingState::GetFriendlyDescription() const {
     {
         case ProcessingMethod::original:
             return "Original ('Raw') Data";
-            break;
+
         case ProcessingMethod::replace_bad_pixels:
             return "Replaced Bad Pixels\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +QString::number(replaced_pixels.size()) + " bad pixels replaced.\n"+\
                 "State steps: " + state_steps;
-            break;
+
         case ProcessingMethod::adaptive_noise_suppression:{
             return "Adaptive Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +"ANS: from " + QString::number(ANS_relative_start_frame) + ", averaging " + QString::number(ANS_num_frames)+" frames.\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::fixed_noise_suppression:{
             return "Fixed Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +"FNS: " + FNS_file_path + " Frames " + QString::number(FNS_start_frame) + " to " + QString::number(FNS_stop_frame)+".\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::RPCP_noise_suppression:{
             return "RPCP Noise Suppression\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::accumulator_noise_suppression:{
             QString boolString = hide_shadow ? "true" : "false";
@@ -329,13 +329,13 @@ QString processingState::GetFriendlyDescription() const {
                     +"Accumulator: Weight " + QString::number(weight) +"\n"\
                     +"State steps: " + state_steps;
             }
-            break;
+
         }
         case ProcessingMethod::deinterlace:{
             return "Deinterlacing\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::center_on_OSM:{
             QString trackid;
@@ -350,7 +350,7 @@ QString processingState::GetFriendlyDescription() const {
                 +"Process steps: " + process_steps +"\n"\
                 +"Centered on OSM Track: " + trackid + ". Find any tracks set to " + boolString +".\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::center_on_manual:{
             QString trackid;
@@ -365,24 +365,23 @@ QString processingState::GetFriendlyDescription() const {
                 +"Process steps: " + process_steps +"\n"\
                 +"Centered on Manual Track: " + trackid + ". Find any tracks set to " + boolString +".\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::center_on_brightest:{
             return "Centered on Brightest\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         case ProcessingMethod::frame_stacking:{
             return "Frame Stacking\n<Previous State " + QString::number(source_state_ID) + ">\n"\
                 +"Process steps: " + process_steps +"\n"\
                 +"Frame Stack: Averaging " + QString::number(frame_stack_num_frames)+".\n"\
                 +"State steps: " + state_steps;
-            break;
+
         }
         default:
-            return "Unknown";
-            break;
+            return "Unknown";       
     }
 }
 
@@ -395,20 +394,20 @@ QString processingState::GetComboBoxDescription() const {
     {
         case ProcessingMethod::original:
             return "Original ('Raw') Data";
-            break;
+
         case ProcessingMethod::replace_bad_pixels:
             return "<Previous State " + QString::number(source_state_ID) + "> Replace Bad Pixels";;
-            break;
+
         case ProcessingMethod::adaptive_noise_suppression:
             return "<Previous State " + QString::number(source_state_ID) + "> ANS";
-            break;
+
         case ProcessingMethod::fixed_noise_suppression:
             //may potentially want to leave fns_file_path empty if it isn't an external file?
             return "<Previous State " + QString::number(source_state_ID) + "> FNS " ;
-            break;
+
         case ProcessingMethod::RPCP_noise_suppression:
             return "<Previous State " + QString::number(source_state_ID) + "> RPCP";
-            break;
+
         case ProcessingMethod::accumulator_noise_suppression:
             if (hide_shadow){
                 return "<Previous State " + QString::number(source_state_ID) + "> Rolling Mean Hide Shadow";
@@ -416,25 +415,24 @@ QString processingState::GetComboBoxDescription() const {
             else{
                 return "<Previous State " + QString::number(source_state_ID) + "> Rolling Mean";
             }
-            break;
+
         case ProcessingMethod::deinterlace:
             return "<Previous State " + QString::number(source_state_ID) + "> Deinterlace" ;
-            break;
+
         case ProcessingMethod::center_on_OSM:
             return "<Previous State " + QString::number(source_state_ID) + "> Centered on OSM";
-            break;
+
         case ProcessingMethod::center_on_manual:
             return "<Previous State " + QString::number(source_state_ID) + "> Centered on Manual";
-            break;
+
         case ProcessingMethod::center_on_brightest:
             return "<Previous State " + QString::number(source_state_ID) + "> Centered on Brightest";
-            break;
+
         case ProcessingMethod::frame_stacking:
             return "<Previous State " + QString::number(source_state_ID) + "> Frame Stack Averaging";
-            break;
+
         default:
             return "Unknown";
-            break;
     }
 }
 

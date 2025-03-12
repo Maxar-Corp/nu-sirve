@@ -3497,7 +3497,7 @@ void SirveApp::ReceiveNewBadPixels(const std::vector<unsigned int>& new_pixels)
             lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(bad_pixels.size()));
             current_state.UpdateDescription();
             lbl_processing_description->setText(current_state.state_description);
-                    UpdateGlobalFrameVector();
+            UpdateGlobalFrameVector();
         }
     }
     else
@@ -3517,7 +3517,7 @@ void SirveApp::ReceiveNewGoodPixels(const std::vector<unsigned int>& pixels)
         auto& replaced_pixels = current_state.replaced_pixels;
         for (size_t i = 0; i < pixels.size(); i++) {
             unsigned int candidate_pixel = pixels[i];
-            std::vector<unsigned int>::iterator position = std::find(replaced_pixels.begin(), replaced_pixels.end(), candidate_pixel);
+            auto position = std::find(replaced_pixels.begin(), replaced_pixels.end(), candidate_pixel);
             if (position != replaced_pixels.end()) {
                 replaced_pixels.erase(position);
                 for (size_t framei = 0; framei < current_state.details.frames_16bit.size(); framei++)

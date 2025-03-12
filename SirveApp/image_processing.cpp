@@ -755,7 +755,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
         frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
         output = frame;
 
-        if(OSMPriority==0) //OSM tracks have priority
+        if (OSMPriority == 0) //OSM tracks have priority
         {
             cont_search = true;
             std::map<int, TrackDetails> trackMap = osmFrames[framei].tracks;
@@ -772,21 +772,18 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             }
             else //Search for first track
             {
-                if(trackMap.size()>0)
+                auto it = trackMap.begin();
+                while (cont_search && it != trackMap.end())
                 {
-                    auto it = trackMap.begin();
-                    while (cont_search && it != trackMap.end())
+                    TrackDetails td = it->second;
+                    if (td.number_pixels != 0)
                     {
-                        TrackDetails td = it->second;
-                        if (td.number_pixels != 0)
-                        {
-                            translation_counts[1]++;
-                            TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
-                        }
-                        else
-                        {
-                            ++it;
-                        }
+                        translation_counts[1]++;
+                        TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
+                    }
+                    else
+                    {
+                        ++it;
                     }
                 }
             }
@@ -796,7 +793,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             if(cont_search && findAnyTrack) //Now search for manual tracks
             {
                 auto it = trackMap.find(manual_track_id);
-                if(manual_track_id>0 && it != trackMap.end()) //Specific track id
+                if(manual_track_id > 0 && it != trackMap.end()) //Specific track id
                 {
                     TrackDetails td = it->second;
                     if (td.number_pixels != 0)
@@ -834,7 +831,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             std::map<int, TrackDetails> trackMap = manualFrames[framei].tracks;
 
             auto it = trackMap.find(manual_track_id);
-            if(manual_track_id>0 && it != trackMap.end()) //Specific track id
+            if(manual_track_id > 0 && it != trackMap.end()) //Specific track id
             {
                 TrackDetails td = it->second;
                 if (td.number_pixels != 0)
@@ -846,19 +843,16 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             else //Search for first track
             {
                 auto it = trackMap.begin();
-                if(manualFrames[framei].tracks.size()>0)
+                while (cont_search && it != trackMap.end())
                 {
-                    while (cont_search && it != trackMap.end())
+                    TrackDetails td = it->second;
+                    if (td.number_pixels != 0){
+                        translation_counts[5]++;
+                        TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
+                    }
+                    else
                     {
-                        TrackDetails td = it->second;
-                        if (td.number_pixels != 0){
-                            translation_counts[5]++;
-                            TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
-                        }
-                        else
-                        {
-                            ++it;
-                        }
+                        ++it;
                     }
                 }
             }
@@ -878,20 +872,17 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     }
                 }
                 else{
-                    if (trackMap.size()>0)
+                    auto it = trackMap.begin();
+                    while (cont_search && it != trackMap.end())
                     {
-                        auto it = trackMap.begin();
-                        while (cont_search && it != trackMap.end())
+                        TrackDetails td = it->second;
+                        if (td.number_pixels != 0){
+                            translation_counts[7]++;
+                            TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
+                        }
+                        else
                         {
-                            TrackDetails td = it->second;
-                            if (td.number_pixels != 0){
-                                translation_counts[7]++;
-                                TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
-                            }
-                            else
-                            {
-                                ++it;
-                            }
+                            ++it;
                         }
                     }
                 }
