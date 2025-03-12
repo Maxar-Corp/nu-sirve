@@ -731,6 +731,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
     std::vector<TrackFrame> trackFrames = manualFrames;
     bool cont_search;
 
+    std::vector<int> translation_counts = {0,0,0,0,0,0,0,0};
+
     // Recenter the cube, frame by frame, for both non-OSM ('manual') tracks, and for the OSM track (track_id==0).
     for (int framei = 0; framei < num_video_frames; framei++)
     {
@@ -755,6 +757,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                 TrackDetails td = it->second;
                 if (td.number_pixels != 0)
                 {
+                    translation_counts[0]++;
                     TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                 }
             }
@@ -768,6 +771,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                         TrackDetails td = it->second;
                         if (td.number_pixels != 0)
                         {
+                            translation_counts[1]++;
                             TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                         }
                         else
@@ -788,6 +792,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     TrackDetails td = it->second;
                     if (td.number_pixels != 0)
                     {
+                        translation_counts[2]++;
                         TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                     }
                 }
@@ -802,6 +807,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                             TrackDetails td = it->second;
                             if (td.number_pixels != 0)
                             {
+                                translation_counts[3]++;
                                 TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                             }
                             else
@@ -824,6 +830,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                 TrackDetails td = it->second;
                 if (td.number_pixels != 0)
                 {
+                    translation_counts[4]++;
                     TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                 }
             }
@@ -836,6 +843,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     {
                         TrackDetails td = it->second;
                         if (td.number_pixels != 0){
+                            translation_counts[5]++;
                             TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                         }
                         else
@@ -856,6 +864,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     TrackDetails td = it->second;
                     if (td.number_pixels != 0)
                     {
+                        translation_counts[6]++;
                         TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                     }
                 }
@@ -867,6 +876,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                         {
                             TrackDetails td = it->second;
                             if (td.number_pixels != 0){
+                                translation_counts[7]++;
                                 TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
                             }
                             else
@@ -879,7 +889,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             }
         }
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));   
-    }                       
+    }
+
+    for (int i=0; i < 8; i++)
+        qDebug() << " " << translation_counts[i];
 
     return frames_out;
 }
