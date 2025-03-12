@@ -749,9 +749,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             cont_search = true;
             std::map<int, TrackDetails> trackMap = osmFrames[framei].tracks;
 
-            if(OSM_track_id>0 && trackMap.find(OSM_track_id) != trackMap.end()) //Specific track id
+            auto it = trackMap.find(OSM_track_id);
+            if(OSM_track_id>0 && it != trackMap.end()) //Specific track id
             {
-                TrackDetails td = trackMap.find(OSM_track_id)->second;
+                TrackDetails td = it->second;
                 if (td.number_pixels != 0)
                 {
                     TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
@@ -781,9 +782,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
 
             if(cont_search && findAnyTrack) //Now search for manual tracks
             {
-                if(manual_track_id>0 && trackMap.find(manual_track_id) != trackMap.end()) //Specific track id
+                auto it = trackMap.find(manual_track_id);
+                if(manual_track_id>0 && it != trackMap.end()) //Specific track id
                 {
-                    TrackDetails td = trackMap.find(manual_track_id)->second;
+                    TrackDetails td = it->second;
                     if (td.number_pixels != 0)
                     {
                         TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
@@ -816,9 +818,10 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             cont_search = true;
             std::map<int, TrackDetails> trackMap = manualFrames[framei].tracks;
 
-            if(manual_track_id>0 && trackMap.find(manual_track_id) != trackMap.end()) //Specific track id
+            auto it = trackMap.find(manual_track_id);
+            if(manual_track_id>0 && it != trackMap.end()) //Specific track id
             {
-                TrackDetails td = trackMap.find(manual_track_id)->second;
+                TrackDetails td = it->second;
                 if (td.number_pixels != 0)
                 {
                     TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
@@ -846,9 +849,11 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
             if(cont_search && findAnyTrack) // Now search for OSM tracks
             {
                 std::map<int, TrackDetails> trackMap = osmFrames[framei].tracks;
-                if(OSM_track_id>0 && trackMap.find(OSM_track_id) != trackMap.end()) //Specific track id
+
+                auto it = trackMap.find(OSM_track_id);
+                if(OSM_track_id>0 && it != trackMap.end()) //Specific track id
                 {
-                    TrackDetails td = trackMap.find(OSM_track_id)->second;
+                    TrackDetails td = it->second;
                     if (td.number_pixels != 0)
                     {
                         TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
