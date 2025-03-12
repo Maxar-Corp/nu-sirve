@@ -66,7 +66,8 @@ private:
     static arma::mat apply_shrinkage_operator(arma::mat s, double tau);
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
     static arma::mat perform_thresholding(arma::mat X, double tau);
-    void TranslateFrameByOffsets(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset);
+    void TranslateFrameByOffsetsManual(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset, int xOffset_correction, int yOffset_correction);
+    void TranslateFramesByOffsetOsm(int &yOffset, std::vector<std::vector<int>>& track_centered_offsets, bool &cont_search, arma::mat &frame, int &xOffset, arma::mat &output, int &framei, TrackDetails &td);
 };
 
 #endif

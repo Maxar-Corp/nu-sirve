@@ -705,7 +705,16 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
 }
 
 
-void ImageProcessing::TranslateFrameByOffsets(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset)
+void ImageProcessing::TranslateFrameByOffsetsManual(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset, int xOffset_correction, int yOffset_correction)
+{
+    yOffset = td.centroid_y - yOffset_correction;
+    xOffset = td.centroid_x- xOffset_correction;
+    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
+    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
+    cont_search = false;
+}
+
+void ImageProcessing::TranslateFramesByOffsetOsm(int &yOffset, std::vector<std::vector<int>>& track_centered_offsets, bool &cont_search, arma::mat &frame, int &xOffset, arma::mat &output, int &framei, TrackDetails &td)
 {
     yOffset = td.centroid_y;
     xOffset = td.centroid_x;
@@ -758,7 +767,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                 if (td.number_pixels != 0)
                 {
                     translation_counts[0]++;
-                    TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                    TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
                 }
             }
             else //Search for first track
@@ -772,7 +781,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                         if (td.number_pixels != 0)
                         {
                             translation_counts[1]++;
-                            TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                            TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
                         }
                         else
                         {
@@ -793,7 +802,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     if (td.number_pixels != 0)
                     {
                         translation_counts[2]++;
-                        TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                        TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
                     }
                 }
                 else
@@ -808,7 +817,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                             if (td.number_pixels != 0)
                             {
                                 translation_counts[3]++;
-                                TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                                TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
                             }
                             else
                             {
@@ -831,7 +840,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                 if (td.number_pixels != 0)
                 {
                     translation_counts[4]++;
-                    TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                    TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
                 }
             }
             else //Search for first track
@@ -844,7 +853,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                         TrackDetails td = it->second;
                         if (td.number_pixels != 0){
                             translation_counts[5]++;
-                            TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                            TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
                         }
                         else
                         {
@@ -865,7 +874,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                     if (td.number_pixels != 0)
                     {
                         translation_counts[6]++;
-                        TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                        TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
                     }
                 }
                 else{
@@ -877,7 +886,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
                             TrackDetails td = it->second;
                             if (td.number_pixels != 0){
                                 translation_counts[7]++;
-                                TranslateFrameByOffsets(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset);
+                                TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
                             }
                             else
                             {
