@@ -236,7 +236,7 @@ void VideoDisplay::SetupPinpointDisplay()
 
 void VideoDisplay::SetupUi()
 {
-
+    // TO DO: Build out the future video capability.
 }
 
 void VideoDisplay::SetupLabels()
