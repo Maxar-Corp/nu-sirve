@@ -1,5 +1,7 @@
 #include "abir_reader2.h"
 
+#include "qcoreapplication.h"
+
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
 static constexpr auto MIN_VERSION_NUMBER = 1.0;
@@ -27,7 +29,7 @@ bool ABIRReader::Open(const char* filename, double version_number)
         return true;
     }
 
-    Seek(VERSION_NUMBER_OFFSET, std::ios::beg);
+    Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
 
     file_version_ = Read<double>(true);
 
@@ -64,7 +66,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
     std::vector<std::vector<uint16_t>> video_frames_16bit;
 
-    Seek(FRAME_SIZE_OFFSET, std::ios::beg);
+    Seek(FRAME_SIZE_OFFSET, SEEK_SET);
 
     auto frame_size = Read<uint64_t>();
     if (file_version_ >= 2.1)
@@ -96,8 +98,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
     max_frame = std::min(max_frame, num_frames);
     min_frame = std::max(min_frame, 1u);
 
-    using IRData = std::vector<ABIRFrameHeader>;
-    IRData ir_data;
+    std::vector<ABIRFrameHeader> ir_data;
 
     ir_data.reserve(max_frame - min_frame + 1);
 
@@ -110,7 +111,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
     {
         ABIRFrameHeader header_data{};
 
-        Seek(static_cast<int64_t>((frame_index - 1) * frame_size), std::ios::beg);
+        Seek(static_cast<int64_t>((frame_index - 1) * frame_size), SEEK_SET);
 
         auto temp_seconds = Read<uint64_t>();
         auto temp_nano_seconds = Read<uint64_t>();
@@ -137,7 +138,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         // Skipped section only relevant for versions less than or equal to 3.0
 
         header_data.sensor_id = Read<uint16_t>();
-        Seek(2, std::ios::cur);
+        Seek(2, SEEK_CUR);
         header_data.frame_number = Read<uint32_t>();
 
         header_data.frame_time = Read<double>();
@@ -167,7 +168,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         }
 
         // Skipped check for seek when file version is < 2.1
-        Seek(2, std::ios::cur);
+        Seek(2, SEEK_CUR);
 
         header_data.alpha = Read<double>();
         header_data.beta = Read<double>();
@@ -282,7 +283,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
             header_data.fpa_gain = Read<float>();
 
-            Seek(4, std::ios::cur);
+            Seek(4, SEEK_CUR);
 
             if (file_version_ >= 4.1)
             {

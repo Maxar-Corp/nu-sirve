@@ -1,4 +1,10 @@
+
+#include <armadillo>
+#include <numeric>
+
+#include "location_input.h"
 #include "osm_reader2.h"
+#include "support/az_el_calculation.h"
 
 static constexpr auto MAX_NUMBER_ITERATIONS = 100000;
 static constexpr auto SMALL_NUMBER = 0.000001;
@@ -31,13 +37,13 @@ std::vector<Frame> OSMReader2::LoadFrames(uint32_t num_messages)
 
     frames.reserve(index.n_elem);
 
-    Seek(0, std::ios_base::beg);
+    Seek(0, SEEK_SET);
 
     for (auto i = 0u; i < num_messages; ++i)
     {
         Frame current_frame;
         current_frame.msg_header = ReadMessageHeader();
-        if (current_frame.msg_header.size < 0)
+        if (static_cast<int64_t>(current_frame.msg_header.size) < 0)
         {
             return {};
         }
@@ -310,22 +316,24 @@ uint32_t OSMReader2::FindMessageNumber()
 
     while (num_iterations < MAX_NUMBER_ITERATIONS)
     {
-        uint64_t header[NUM_HEADER_VALUES];
+        uint64_t header[NUM_HEADER_VALUES]{};
 
-        size_t status_code = ReadArray(header);
+        auto status_code = ReadArray(header);
         if (status_code == NUM_HEADER_VALUES && header[2])
         {
             num_messages++;
-            // auto current_p = Tell();
             int64_t seek_position = 92 - 24; // TODO: MAGIC!
-            Seek(seek_position, std::ios_base::cur);
-            // auto current_p1 = Tell();
+
+            Seek(seek_position, SEEK_CUR);
+
             uint32_t data[2];
-            status_code = ReadArray(data);
+            ReadArray(data, true); 
+
             double value = data[0] + data[1] * 1e-6;
-            frame_time_.push_back(value);
+            frame_time_.emplace_back(value);
+
             seek_position = static_cast<int64_t>(header[2]) - 76; // TODO: MAGIC!
-            Seek(seek_position, std::ios_base::cur);
+            Seek(seek_position, SEEK_CUR);
         }
         else
         {
@@ -335,7 +343,7 @@ uint32_t OSMReader2::FindMessageNumber()
         num_iterations++;
     }
 
-    return 0;
+    return num_messages;
 }
 
 double OSMReader2::CalculateGpsUtcJulianDate(double offset_gps_seconds)

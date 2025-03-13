@@ -30,7 +30,7 @@ set(HEADERS
         new_location.h
         non_uniformity_correction_external_file.h
         osm_reader.h
-	osm_reader2.h
+	    osm_reader2.h
         plot_engineering_data.h
         popout_dialog.h
         process_file.h
@@ -44,6 +44,7 @@ set(HEADERS
         video_details.h
         video_display.h
         video_display_zoom.h
+        wait_cursor.h
         workspace.h
         support/az_el_calculation.h
         support/earth.h
@@ -83,7 +84,7 @@ set(SOURCES
         new_location.cpp
         non_uniformity_correction_external_file.cpp
         osm_reader.cpp
-	osm_reader2.cpp
+	    osm_reader2.cpp
         plot_engineering_data.cpp
         popout_dialog.cpp
         process_file.cpp
@@ -96,6 +97,7 @@ set(SOURCES
         video_container.cpp
         video_display.cpp
         video_display_zoom.cpp
+        wait_cursor.cpp
         workspace.cpp
         support/az_el_calculation.cpp
         support/earth.cpp

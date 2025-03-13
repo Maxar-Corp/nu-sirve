@@ -1,17 +1,17 @@
-#ifndef BINARY_READER_H
-#define BINARY_READER_H
+#ifndef BINARY_READER2_H
+#define BINARY_READER2_H
 
 #include <fstream>
-#include "SirveApp.h"
+
+#include "QObject"
 
 class BinaryReader : public QObject
 {
 public:
     BinaryReader() = default;
-
     ~BinaryReader() override;
 
-    virtual bool Open(const char* filename);
+    virtual bool Open(const QString& filename);
     bool Close();
     [[nodiscard]] bool IsOpen() const;
 
@@ -30,14 +30,14 @@ public:
     static bool IsBigEndian();
     uint64_t FileSize();
 
-    void Seek(int64_t offset, std::ios_base::seekdir way);
+    void Seek(int64_t offset, int way);
     uint64_t Tell();
 
 protected:
     template <typename T>
-    static T SwapOrder(T value);
+    static void SwapOrder(T* value);
 
-    std::ifstream stream_;
+    FILE* stream_ = nullptr;
 };
 
 template <typename T>
@@ -45,15 +45,15 @@ T BinaryReader::Read(bool big_endian)
 {
     T data;
 
-    stream_.read(reinterpret_cast<char*>(&data), sizeof(T));
-    if (stream_.fail())
+    auto elements_read = fread(&data, sizeof(T), 1, stream_);
+    if (elements_read != 1)
     {
-        throw std::runtime_error("Failed to read from file.");
+        throw std::runtime_error("Failed to read the expected number of elements from the stream.");
     }
 
     if (big_endian && !IsBigEndian())
     {
-        data = SwapOrder<T>(data);
+        SwapOrder<T>(&data);
     }
 
     return data;
@@ -67,17 +67,17 @@ size_t BinaryReader::Read(T* data, uint32_t num_elements, bool big_endian)
         throw std::invalid_argument("Total bytes is less than the size of one element.");
     }
 
-    stream_.read(reinterpret_cast<char*>(data), sizeof(T) * num_elements);
-    if (stream_.fail())
+    auto elements_read = fread(data, sizeof(T), num_elements, stream_);
+    if (elements_read != num_elements)
     {
-        throw std::runtime_error("Failed to read from file");
+        throw std::runtime_error("Failed to read the expected number of elements from the stream.");
     }
 
     if (big_endian && !IsBigEndian())
     {
         for (auto i = 0; i < num_elements; i++)
         {
-            data[i] = SwapOrder<T>(data[i]);
+            SwapOrder<T>(&data[i]);
         }
     }
 
@@ -95,10 +95,10 @@ std::vector<T> BinaryReader::ReadVector(int num_values, bool big_endian)
 {
     std::vector<T> data(num_values);
 
-    stream_.read(reinterpret_cast<char*>(&data[0]), sizeof(T) * num_values);
-    if (stream_.fail())
+    auto elements_read = fread(&data[0], sizeof(T), num_values, stream_);
+    if (elements_read != num_values)
     {
-        throw std::runtime_error("Failed to read from file.");
+        throw std::runtime_error("Failed to read the expected number of elements from the stream.");
     }
 
     auto isBigEndian = IsBigEndian();
@@ -107,7 +107,7 @@ std::vector<T> BinaryReader::ReadVector(int num_values, bool big_endian)
     {
         if (big_endian && !isBigEndian)
         {
-            data[i] = SwapOrder<T>(data[i]);
+            SwapOrder<T>(&data[i]);
         }
     }
 
@@ -115,12 +115,10 @@ std::vector<T> BinaryReader::ReadVector(int num_values, bool big_endian)
 }
 
 template <typename T>
-T BinaryReader::SwapOrder(T value)
+void BinaryReader::SwapOrder(T* value)
 {
-    auto* pbytes = reinterpret_cast<uint8_t*>(&value);
+    auto* pbytes = reinterpret_cast<uint8_t*>(value);
     std::reverse(pbytes, pbytes + sizeof(T));
-
-    return value;
 }
 
-#endif // BINARY_READER_H
+#endif // BINARY_READER2_H

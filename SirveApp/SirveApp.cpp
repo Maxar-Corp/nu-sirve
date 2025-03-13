@@ -1881,6 +1881,8 @@ void SirveApp::HandleAbpFileSelected()
         return;
     }
 
+    WaitCursor cursor;
+
     bool validated = ValidateAbpFiles(file_selection);
 	if (validated) {
         LoadOsmData();
@@ -1922,7 +1924,18 @@ bool SirveApp::ValidateAbpFiles(QString path_to_image_file)
 void SirveApp::LoadOsmData()
 {
     ResetEngineeringDataAndSliderGUIs();
-    osm_frames = osm_reader.ReadOsmFileData(abp_file_metadata.osm_path);
+
+    OSMReader2 reader;
+    if (!reader.Open(abp_file_metadata.osm_path))
+    {
+        QtHelpers::LaunchMessageBox(QString("Error loading OSM file"),
+                                    QString("Error reading OSM file. Close program and open logs for details."));
+        return;
+    }
+
+    osm_frames = reader.ReadFrames();
+
+    //osm_frames = osm_reader.ReadOsmFileData(abp_file_metadata.osm_path);
     if (osm_frames.size() == 0)
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));

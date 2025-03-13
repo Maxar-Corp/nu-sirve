@@ -5,6 +5,7 @@
 #include "classification.h"
 #include "constants.h"
 #include "osm_reader.h"
+#include "osm_reader2.h"
 #include "ABIR_Reader.h"
 #include "video_display.h"
 #include "histogram_plotter.h"
@@ -34,6 +35,7 @@
 #include "image_processing.h"
 #include "auto_tracking.h"
 #include "shared_tracking_functions.h"
+#include "wait_cursor.h"
 
 #include <qlabel.h>
 #include <qgridlayout.h>

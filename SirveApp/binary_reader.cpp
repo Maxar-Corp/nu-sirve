@@ -5,16 +5,19 @@ BinaryReader::~BinaryReader()
     Close();
 }
 
-bool BinaryReader::Open(const char* filename)
+bool BinaryReader::Open(const QString& filename)
 {
     Close();
 
-    stream_.open(filename);
-    if (!stream_.is_open())
-    {
-        return false;
-    }
+    auto array = filename.toLocal8Bit();
+    auto* pfilename = array.constData();
 
+    auto result = fopen_s(&stream_, pfilename, "rb");
+    if (result != 0)
+    {
+        return result;
+    }
+    
     return true;
 }
 
@@ -25,12 +28,17 @@ bool BinaryReader::Close()
         return false;
     }
 
-    stream_.close();
+    fclose(stream_);
+
+    stream_ = nullptr;
 
     return true;
 }
 
-bool BinaryReader::IsOpen() const { return stream_.is_open(); }
+bool BinaryReader::IsOpen() const
+{
+    return stream_ != nullptr;
+}
 
 bool BinaryReader::IsBigEndian()
 {
@@ -46,23 +54,23 @@ uint64_t BinaryReader::FileSize()
         return 0;
     }
 
-    auto save = stream_.tellg();
-    stream_.seekg(0, std::ios::end);
-    auto size = stream_.tellg();
-    stream_.seekg(save);
+    auto save = _ftelli64(stream_);
+    _fseeki64(stream_, 0, SEEK_END);
+    auto size = _ftelli64(stream_);
+    _fseeki64(stream_, save, SEEK_SET);
 
     return size;
 }
 
-void BinaryReader::Seek(int64_t offset, std::ios_base::seekdir way)
+void BinaryReader::Seek(int64_t offset, int way)
 {
     if (!IsOpen())
     {
         throw std::runtime_error("File is not open.");
     }
 
-    stream_.seekg(offset, way);
-    if (stream_.fail())
+    auto result = _fseeki64(stream_, offset, way);
+    if (result != 0)
     {
         throw std::runtime_error("Failed to seek in file.");
     }
@@ -70,5 +78,10 @@ void BinaryReader::Seek(int64_t offset, std::ios_base::seekdir way)
 
 uint64_t BinaryReader::Tell()
 {
-    return stream_.tellg();
+    if (!IsOpen())
+    {
+        throw std::runtime_error("File is not open.");
+    }
+
+    return _ftelli64(stream_);
 }

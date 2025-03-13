@@ -2,6 +2,7 @@
 #define OSM_READER2_H
 
 #include "binary_reader.h"
+#include "data_structures.h"
 
 class OSMReader2 : public BinaryReader
 {
