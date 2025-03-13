@@ -3,10 +3,7 @@
 #define AZ_EL_CALCULATION_H
 
 #include <armadillo>
-#include <math.h>
-
 #include "constants.h"
-#include "support/earth.h"
 
 const int FOCAL_PLANE_ARRAY_WIDTH = SirveAppConstants::VideoDisplayWidth;
 const int FOCAL_PLANE_ARRAY_HEIGHT = SirveAppConstants::VideoDisplayHeight;

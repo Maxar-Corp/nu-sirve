@@ -404,7 +404,7 @@ void AutoTracking::TrackingStep(
         SIGMA = stats.stddev();
         step_success = (ok && abs((sum_relative_counts - stats.mean())) <= step_success_coefficient*SIGMA);
 
-        std::vector<double> measurements = {0,0,0};
+        std::array<double, 3> measurements = {0,0,0};
         if (calibration_model.calibration_available)
         {
             measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);

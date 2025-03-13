@@ -14,6 +14,7 @@
 #include "annotation_info.h"
 #include "classification.h"
 
+class VideoContainer;
 namespace fs = std::filesystem;
 
 struct WorkspaceValues {
@@ -31,11 +32,13 @@ class Workspace {
         Workspace(QString workspace_directory);
         ~Workspace();
 
-        void SaveState(QString full_workspace_file_path, QString image_path, int start_frame, int end_frame, double timing_offset, const std::vector<processingState> all_states, const std::vector<AnnotationInfo> annotations, std::vector<Classification> classifications);
-        WorkspaceValues LoadState(QString workspace_name);
-        void UpdateWorkspaceDirectory(QString workspace_directory);
+    void SaveState(const QString& full_workspace_file_path, const QString& image_path, int start_frame, int end_frame,
+        double timing_offset, const VideoContainer& all_states, const std::vector<AnnotationInfo>& annotations,
+        const std::vector<Classification>& classifications);
 
-        QStringList get_workspace_names(QString workspace_folder);
+        static WorkspaceValues LoadState(const QString& workspace_name);
+
+        static QStringList get_workspace_names(const QString& workspace_folder);
 };
 
 #endif //WORKSPACE_H

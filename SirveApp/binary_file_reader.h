@@ -1,12 +1,7 @@
-#pragma once
-
-#include "qobject.h"
 #ifndef BINARY_READER_H
 #define BINARY_READER_H
 
-#include <cmath>
-#include <iostream>
-#include <fstream>
+#include <QObject>
 #include <vector>
 
 class BinaryFileReader : public QObject
