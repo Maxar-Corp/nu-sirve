@@ -41,6 +41,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_ti
     toolbar->addAction(this->get_action_toggle_frameline());
 
     connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
+    connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     this->setToolbarAlwaysOn(true);
 }
@@ -144,7 +145,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         std::vector<double> x_values = get_x_func(track_index);
         std::vector<double> y_values = get_y_func(track_index);
 
-
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
 
@@ -156,7 +156,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         graph->setYColumn(columnY);
         graph->setTitle(title.replace('_',' '));
 
-        graph->setSymbolSize(5);
+        graph->setSymbolSize(0);
         graph->setSymbolLineWidth(1);
         graph->setColor(colors.get_current_color());
         graph->setSymbolColor(QColor::fromRgb(255,20,20));
@@ -394,6 +394,19 @@ void EngineeringPlot::ToggleFrameLine()
     show_frame_line = ! show_frame_line;
     this->getGraphs().at(1)->setVisible(show_frame_line);
     emit this->plotter->plotUpdated();
+}
+
+void EngineeringPlot::ToggleGraphTickSymbol()
+{
+    int currentSize = graph->getSymbolSize();
+    int newSize = (currentSize == 0) ? 5 : 0;
+
+    if (newSize >= 0 && newSize <= 5)
+    {
+        qDebug() << "NewSize = " << newSize;
+        graph->setSymbolSize(newSize);
+        emit this->plotter->plotUpdated();
+    }
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)

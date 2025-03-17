@@ -61,7 +61,6 @@ public:
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
     std::vector<double> boresight_az, boresight_el;
 
-    JKQTPXYLineGraph* graph;
     Enums::PlotType plotYType;
     Enums::PlotType plotXType;
 
@@ -116,12 +115,14 @@ public slots:
 
 public Q_SLOTS:
     void ToggleFrameLine();
+    void ToggleGraphTickSymbol();
 
 private:
 
     QAction* actToggleFrameLine;
     double fixed_max_y;
     size_t frameLineColumnX;
+    JKQTPXYLineGraph* graph;
     std::vector<Quantity> my_quantities;
     std::map<int, QColor> manual_track_colors;
     std::vector<ManualPlottingTrackFrame> manual_track_frames;
