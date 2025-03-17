@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <qstring.h>
 
-#include "abir_reader2.h"
+#include "abir_reader.h"
 
 struct AbpFileMetadata
 {
@@ -21,25 +21,19 @@ class ProcessFile : public QWidget
 {
 	Q_OBJECT
 public:
-    ABIRFrames::Ptr frames_;
 
     ProcessFile();
     ~ProcessFile() override;
 
     bool VerifyPath(const QString& path);
     AbpFileMetadata LocateAbpFiles(const QString& candidate_image_path);
-    bool LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version);
+    ABIRFrames::Ptr LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version);
 
 public slots:
     void HandleProgressBarUpdate(int frame_index);
 
 signals:
-
     void forwardProgress(int);
-
-
-
-
 };
 
 #endif // PROCESS_FILE_H

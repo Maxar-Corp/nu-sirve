@@ -1,134 +1,157 @@
-#pragma once
-
 #ifndef ABIR_READER_H
 #define ABIR_READER_H
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <stdexcept>
-#include <type_traits>
-#include <QtWidgets>
-#include <sys/stat.h>
-#include <qprogressdialog.h>
-#include <qinputdialog.h>
+#include "binary_reader.h"
 
-#include "binary_file_reader.h"
-#include "binary_file_reader.cpp"
+#pragma pack(push, 1)
+///////////////////////////////////////////////////////////////////////////////
+struct IMUData
+{
+    float imu_angle[3];
+    float imu_vel[3];
+};
+#pragma pack(pop)
 
+///////////////////////////////////////////////////////////////////////////////
+struct ABIRFrameObject
+{
+    double frame_time;
+    double alpha;
+    double beta;
+    double alpha_dot;
+    double beta_dot;
+    double imc_az;
+    double imc_el;
+    double ars_ypr[3];
+    double p_lla[3];
+    double p_ypr[3];
+    double p_vel[3];
+    double fpa_ypr[3];
 
-struct Object {
+    uint32_t imu_count;
+    IMUData imu_data[8];
 
-	uint32_t imu_count;
+    // VERSION >= 4.1
+    double p_ypr_dot[3];
+    // END VERSION >= 4.1
 
-
-	std::vector <std::vector<float>> imu_angle, imu_vel;
-
-	double frame_time, alpha, beta, alpha_dot, beta_dot, imc_az, imc_el;
-	std::vector<double> ars_ypr, p_lla, p_ypr, p_vel, fpa_ypr;
-		
-	//For versions >= 4.1 ...
-	std::vector<double> p_ypr_dot;
-
-	//For versions >= 4.2 ...
-	std::vector<double> imu_sum;
-
+    // VERSION >= 4.2
+    double imu_sum[3];
+    // END VERSION >= 4.2
 };
 
-
-struct ABIR_Header
+///////////////////////////////////////////////////////////////////////////////
+struct ABIRFrameHeader
 {
+    uint64_t seconds{};
+    uint64_t nano_seconds{};
+    uint64_t size{};
+    uint64_t image_size{};
+    uint64_t image_size_double{};
 
-	//Base variables for all versions >= 1.0 ...
-	
-	uint16_t sensor_id, image_x_size, image_y_size, pixel_depth, bits_per_pixel;
-	std::vector<uint32_t> guid, guid_source;
-	uint32_t frame_number, image_origin, sensor_fov;
-    uint64_t size, image_size, image_size_double;
-	
-	double seconds, frame_time, alpha, beta, alpha_dot, beta_dot;
+    uint16_t sensor_id{};
+    uint32_t frame_number{};
+    double frame_time{};
+    uint32_t image_origin{};
+    uint16_t image_x_size{};
+    uint16_t image_y_size{};
+    uint16_t pixel_depth{};
+    uint16_t bits_per_pixel{};
 
-	//For version >= 2 ...
-	uint16_t focus;
+    uint32_t sensor_fov{};
+    double alpha{};
+    double beta{};
+    double alpha_dot{};
+    double beta_dot{};
 
-	//For versions >= 2.1 ...
-	uint32_t msg_type, intended_fov;
-	float msg_version;
+    // VERSION >=2
+    uint16_t focus{};
+    // END VERSION >=2
 
-	//For versions >= 3.0 ...
-	std::vector<double> p_lla;
-	std::vector<double> p_vel_xyz;
+    // VERSION >= 2.1
+    uint32_t msg_type{};
+    float msg_version{};
+    uint32_t guid[5]{};
+    uint32_t guid_source[5]{};
+    uint32_t intended_fov{};
+    // END VERSION >=2.1
 
-	// For versions = 3.0 ...
-	double p_heading, p_pitch, p_roll, p_alt_gps, p_heading_mag;
-	uint32_t p_heading_ref;
+    // VERSION == 3.0
+    double p_heading{};
+    double p_pitch{};
+    double p_roll{};
+    double p_alt_gps{};
+    double p_heading_mag{};
+    uint32_t p_heading_ref{};
+    // END VERSION == 3
 
-	// For versions <= 3.0 ...
-	//std::vector<char> mission_id, mission_date;
-	//float i_fov_x, i_fov_y, pixel_cal_gain, pixel_cal_offset;
-	//uint32_t sensor_mode;
+    // VERSION >= 3.0
+    double p_lla[3]{};
+    double p_vel_xyz[3]{};
+    // END VERSION >= 3.0
 
-	//For versions >= 3.1 ...
-	float int_time;
-	std::vector<double> p_ypr;
-	
-	//For versions >= 4.1 ...
-	std::vector<double> p_ypr_dot;
-	float temp_k, pressure, relative_humidity;
+    // VERSION >= 3.1
+    float int_time{};
+    double p_ypr[3]{};
+    // END VERSION >= 3.1
 
-	//For version < 4 ...
-	// double ars_ypr;
+    // VERSION >= 4.0
+    float fpa_gain{};
+    ABIRFrameObject one{};
+    ABIRFrameObject two{};
+    // END VERSION >= 4.0
 
-	//For versions >= 5.0 ...
-	double g_roll, g_roll_rate;
+    // VERSIONS >= 4.1
+    float temp_k{};
+    float pressure{};
+    float relative_humidity{};
+    double p_ypr_dot[3]{};
+    // END VERSIONS >= 4.1
 
-	//For versions >= 4.0 ...
-	float fpa_gain;
-	Object one, two;
-
+    // VERSION >= 5
+    double g_roll{};
+    // END VERSION >= 5
 };
 
-
-struct ABIR_Frame
+///////////////////////////////////////////////////////////////////////////////
+struct ABIRFrames
 {
-	ABIR_Header header;
-	//std::vector<uint16_t> data;
+    ABIRFrames();
+    ABIRFrames(const ABIRFrames& other) = default;
+    ABIRFrames(ABIRFrames&& other) = default;
+    ~ABIRFrames() = default;
 
-    //uint8_t *raw_8bit;
-    //uint16_t *raw_16bit;
-};
+    using Ptr = std::unique_ptr<ABIRFrames>;
 
-struct ABIRDataResult
-{
+    ABIRFrames& operator=(const ABIRFrames& other) = default;
+    ABIRFrames& operator=(ABIRFrames&& other) = default;
+
     std::vector<std::vector<uint16_t>> video_frames_16bit;
-    bool had_error;
-    int x_pixels, y_pixels, max_value, last_valid_frame;
+    std::vector<ABIRFrameHeader> ir_data;
+    int x_pixels;
+    int y_pixels;
+    int max_value;
+    int last_valid_frame;
 };
-//-------------------------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------------
 
-class ABIRData : public BinaryFileReader
+///////////////////////////////////////////////////////////////////////////////
+class ABIRReader : public BinaryReader
 {
     Q_OBJECT
+
 public:
-    ABIRData();
-    ~ABIRData();
+    ABIRReader() = default;
+    ~ABIRReader() override = default;
 
-    const char* full_file_path;
-    double file_version;
-	std::vector<ABIR_Frame> ir_data;
+    bool Open(const char* filename, double version_number = 0.0);
+    ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only = false);
 
-    ABIRDataResult* GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number = -0.1, bool header_only = false);
-
-
+private:
 signals:
     void advanceFrame(int);
 
 private:
-    int FileSetup(const char* file_path, double version_number = -0.1);
-    double GetVersionNumberFromFile();
+    double file_version_{};
 };
 
-
-
-#endif
+#endif // ABIR_READER_H

@@ -59,8 +59,7 @@ public slots:
     void CancelOperation();
 
 private:
-
-    ABIRData abir_data;
+    std::vector<std::vector<uint16_t>> video_frames_16bit;
     arma::mat disk_avg_kernel;
 
     static arma::mat apply_shrinkage_operator(arma::mat s, double tau);

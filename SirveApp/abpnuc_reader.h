@@ -1,47 +1,46 @@
-#pragma once
-
 #ifndef ABPNUC_READER_H
 #define ABPNUC_READER_H
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <stdexcept>
-#include <type_traits>
-#include <string>
-
-#include <sys/stat.h>
-#include <qprogressdialog.h>
-#include <qinputdialog.h>
-
-#include "binary_file_reader.h"
-#include "binary_file_reader.cpp"
+#include "binary_reader.h"
 
 struct ABPNUCFrame
 {
-	int frame_number;
-	uint ir_temperature, nuc_environment, measured_det_cal_factor;
-	int32_t tec_temperature_x100, tec_temperature_t1_x100, tec_temperature_t2_x100, tec_temperature_t3_x100, scene_mean_t1, scene_mean_t2, scene_mean_t3, scene_mean;
+    int frame_number;
+    uint32_t ir_temperature;
+    uint32_t nuc_environment;
+    uint32_t measured_det_cal_factor;
+    int32_t tec_temperature_x100;
+    int32_t tec_temperature_t1_x100;
+    int32_t tec_temperature_t2_x100;
+    int32_t tec_temperature_t3_x100;
+    int32_t scene_mean_t1;
+    int32_t scene_mean_t2;
+    int32_t scene_mean_t3;
+    int32_t scene_mean;
+    double frame_time;
+    double seconds;
+    double ambient;
+    double afocal1;
+    double afocal2;
+    double ir_atherm;
+    double ir_integration_time_usec;
+    double detector_temperature;
 
-	double frame_time, seconds, ambient, afocal1, afocal2, ir_atherm, ir_integration_time_usec, detector_temperature;
-
+    // new fields
+    uint32_t guid[5];
+    uint32_t guid_source[5];
+    uint16_t sensorId;
 };
 
-//-------------------------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------------
+using ABPNUCFrames = std::vector<ABPNUCFrame>;
 
-class ABPNUCData : private BinaryFileReader
+class ABPNUCReader : public BinaryReader
 {
 public:
-	ABPNUCData(char* path);
-	~ABPNUCData();
+    ABPNUCReader() = default;
+    ~ABPNUCReader() override;
 
-	const char* full_file_path;
-	int read_status, number_of_frames;
-    std::vector<ABPNUCFrame> data;
-
-	void ReadABPNUCFile();
-
+    ABPNUCFrames ReadFrames();
 };
 
-#endif
+#endif // ABPNUC_READER_H

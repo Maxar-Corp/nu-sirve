@@ -1,10 +1,10 @@
 #ifndef SIRVEAPP_H
 #define SIRVEAPP_H
 
+#include "abir_reader.h"
 #include "classification.h"
 #include "color_map.h"
 #include "osm_reader.h"
-#include "ABIR_Reader.h"
 #include "video_display.h"
 #include "histogram_plotter.h"
 #include "playback_controller.h"
@@ -42,7 +42,7 @@ public:
     /* --------------------------------------------------------------------------------------------
         Key component & supporting status variables
     ----------------------------------------------------------------------------------------------- */
-    ABIRDataResult *abir_data_result;
+	ABIRFrames::Ptr abir_frames;
     QString abpimage_file_base_name;
     AbpFileMetadata abp_file_metadata;
     QPointer<AutoTracking> auto_tracking;

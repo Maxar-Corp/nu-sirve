@@ -72,33 +72,31 @@ bool ProcessFile::VerifyPath(const QString& path)
 	return file_exists && file_isFile;
 }
 
-bool ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version)
-{	
-	if (first_frame < 0 || last_frame < 0)
-	{
-        return false;
-	}
+ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version)
+{
+    if (first_frame < 0 || last_frame < 0)
+    {
+        return nullptr;
+    }
 
-	unsigned int frame_start = first_frame;
-	unsigned int frame_end = last_frame;
+    unsigned int frame_start = first_frame;
+    unsigned int frame_end = last_frame;
 
-	QByteArray array = image_path.toLocal8Bit();
-	char* buffer = array.data();
+    QByteArray array = image_path.toLocal8Bit();
+    char* buffer = array.data();
 
     ABIRReader reader;
     connect(&reader, &ABIRReader::advanceFrame, this, &ProcessFile::HandleProgressBarUpdate);
 
     if (!reader.Open(buffer, version))
     {
-        return false;
-	}
+        return nullptr;
+    }
 
-    frames_ = reader.ReadFrames(frame_start, frame_end, false);    
-    return frames_ != nullptr;
+    return reader.ReadFrames(frame_start, frame_end, false);
 }
 
 void ProcessFile::HandleProgressBarUpdate(int frame_index)
 {
     emit forwardProgress(frame_index);
 }
-

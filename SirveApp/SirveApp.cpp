@@ -2,6 +2,8 @@
 
 #include "color_correction.h"
 #include "data_export.h"
+#include "osm_reader.h"
+#include "wait_cursor.h"
 
 SirveApp::SirveApp(QWidget *parent)
     : QMainWindow(parent)
@@ -13,7 +15,6 @@ SirveApp::SirveApp(QWidget *parent)
     config_values = configReaderWriter::ExtractWorkspaceConfigValues();
 
     workspace = new Workspace(config_values.workspace_folder);
-
     file_processor = new ProcessFile();
 
     // establish object that will hold video and connect it to the playback thread
@@ -1920,7 +1921,7 @@ void SirveApp::LoadOsmData()
 {
     ResetEngineeringDataAndSliderGUIs();
 
-    OSMReader2 reader;
+    OSMReader reader;
     if (!reader.Open(abp_file_metadata.osm_path))
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"),
@@ -1929,8 +1930,6 @@ void SirveApp::LoadOsmData()
     }
 
     osm_frames = reader.ReadFrames();
-
-    //osm_frames = osm_reader.ReadOsmFileData(abp_file_metadata.osm_path);
     if (osm_frames.size() == 0)
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -2145,11 +2144,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
 void SirveApp::DeleteAbirData()
 {
-    // abir_data_result = nullptr;
-    /*if (file_processor->abir_data.ir_data.size()>0){
-        file_processor->abir_data.ir_data.clear();
-        file_processor->data_result->video_frames_16bit.clear();
-    }*/
+    abir_frames.reset();
 }
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
@@ -2164,15 +2159,15 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Task 1:
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
-    if (!file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version))
+    auto frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+    if (frames == nullptr)
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
-
         return;
     }
-    const auto& frames = file_processor->frames_;
-    if (!frames || frames->video_frames_16bit.empty())
+
+    if (frames->video_frames_16bit.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"),
                                     "No valid frames were found in the .abpimage file. See log for more details.");
@@ -3396,15 +3391,15 @@ void SirveApp::HandleBadPixelReplacement()
             QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + QString::number(osm_frames.size()) + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
-        if (!file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
-                                           config_values.version))
+        auto frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
+                                           config_values.version);
+        if (frames == nullptr)
         {
             QtHelpers::LaunchMessageBox(QString("Error loading frames."),
                                         "Check that the file exists and is not corrupted.");
             return;
         }
-        const auto& frames = file_processor->frames_;
-        test_data = frames->video_frames_16bit;
+        test_data = std::move(frames->video_frames_16bit);
     }
     else{
         if (stop_frame > txt_stop_frame->text().toInt() ||\
@@ -4359,7 +4354,7 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
+        auto frame_headers = abir_frames->ir_data;
         appPos = this->GetWindowPosition();
         arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_display->frame_headers, new_track_file_name, calibration_model);
 

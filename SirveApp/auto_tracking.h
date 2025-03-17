@@ -44,7 +44,7 @@ public:
     bool cancel_operation;
     void UpdateProgressBar(unsigned int value);
     cv::Mat raw_display_frame;
-    arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIR_Frame>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);   
+    arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, processingState & current_processing_state, VideoDetails & base_processing_state_details, std::vector<ABIRFrameHeader>& input_frame_header, QString new_track_file_name, CalibrationData & calibration_model);
     void SetCalibrationModel(CalibrationData input);
 
 signals:
@@ -89,7 +89,7 @@ private:
                         double & clamp_high_coeff,
                         processingState & current_processing_state,
                         VideoDetails & base_processing_state_details,
-                        std::vector<ABIR_Frame>& input_frame_header,
+                        std::vector<ABIRFrameHeader>& input_frame_header,
                         string & prefilter,
                         Ptr<Tracker> & tracker,
                         string & trackFeature,
