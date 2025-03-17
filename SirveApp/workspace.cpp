@@ -1,5 +1,7 @@
 #include "workspace.h"
 
+#include "video_container.h"
+
 Workspace::Workspace(QString workspace_folder)
 {
     QDir().mkdir(workspace_folder);
@@ -9,12 +11,14 @@ Workspace::~Workspace()
 {
 };
 
-QStringList Workspace::get_workspace_names(QString workspace_folder)
+QStringList Workspace::get_workspace_names(const QString& workspace_folder)
 {
     return QDir(workspace_folder).entryList(QStringList() << "*.json");
 };
 
-void Workspace::SaveState(QString full_workspace_file_path, QString image_path, int start_frame, int end_frame, double timing_offset, std::vector<processingState> all_states, std::vector<AnnotationInfo> annotations, std::vector<Classification> classifications)
+void Workspace::SaveState(const QString& full_workspace_file_path, const QString& image_path, int start_frame, int end_frame,
+    double timing_offset, const VideoContainer& all_states, const std::vector<AnnotationInfo>& annotations,
+    const std::vector<Classification>& classifications)
 {
     QJsonObject json_object;
     json_object.insert("image_path", image_path);
@@ -25,8 +29,7 @@ void Workspace::SaveState(QString full_workspace_file_path, QString image_path, 
     QJsonArray states;
     for (auto state : all_states)
     {
-        QJsonObject state_object = state.to_json();
-        states.push_back(state_object);
+        states.push_back(state.ToJson());
     }
     json_object.insert("processing_states", states);
 
@@ -47,13 +50,13 @@ void Workspace::SaveState(QString full_workspace_file_path, QString image_path, 
 
     QJsonDocument json_document(json_object);
 
-    QFile file((QString(full_workspace_file_path)));
+    QFile file(full_workspace_file_path);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
     file.write(json_document.toJson());
     file.close();
 };
 
-WorkspaceValues Workspace::LoadState(QString workspace_name) {
+WorkspaceValues Workspace::LoadState(const QString& workspace_name) {
      //Inspiration: https://stackoverflow.com/questions/60723466/how-to-write-and-read-in-json-file-using-qt
     QFile file(workspace_name);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
@@ -69,7 +72,7 @@ WorkspaceValues Workspace::LoadState(QString workspace_name) {
     std::vector<processingState> states;
     for (auto json_obj : data_object.value("processing_states").toArray())
     {
-        processingState state = create_processing_state_from_json(json_obj.toObject());
+        processingState state = processingState::FromJson(json_obj.toObject());
         states.push_back(state);
     }
 

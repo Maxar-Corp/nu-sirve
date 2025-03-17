@@ -2,6 +2,7 @@ set(HEADERS
         abir_reader.h
         abir_reader2.h
         abpnuc_reader.h
+        abpnuc_reader2.h
         annotation_edit_dialog.h
         annotation_list_dialog.h
         annotation_stencil.h
@@ -23,14 +24,14 @@ set(HEADERS
         engineering_data.h
         enhanced_label.h
         enums.h
-        frame_player.h
+        playback_controller.h
         histogram_plotter.h
         image_processing.h
         location_input.h
         new_location.h
         non_uniformity_correction_external_file.h
         osm_reader.h
-	    osm_reader2.h
+	osm_reader2.h
         plot_engineering_data.h
         popout_dialog.h
         process_file.h
@@ -58,6 +59,7 @@ set(SOURCES
         abir_reader.cpp
         abir_reader2.cpp
         abpnuc_reader.cpp
+        abpnuc_reader2.cpp
         annotation_edit_dialog.cpp
         annotation_info.cpp
         annotation_list_dialog.cpp
@@ -76,7 +78,7 @@ set(SOURCES
         data_export.cpp
         engineering_data.cpp
         enhanced_label.cpp
-        frame_player.cpp
+        playback_controller.cpp
         histogram_plotter.cpp
         image_processing.cpp
         location_input.cpp
@@ -84,7 +86,7 @@ set(SOURCES
         new_location.cpp
         non_uniformity_correction_external_file.cpp
         osm_reader.cpp
-	    osm_reader2.cpp
+ 	osm_reader2.cpp
         plot_engineering_data.cpp
         popout_dialog.cpp
         process_file.cpp
@@ -111,9 +113,9 @@ set(UI_SOURCES location_gui.ui new_location.ui)
 set(RESOURCES SirveApp.qrc)
 
 # TODO: AUTOMOC doesn't work, investigate
-qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
+# qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
 
-add_executable(SirveApp ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${UI_SOURCES} ${FRAMES} ${RESOURCES})
+add_executable(SirveApp ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${UI_SOURCES} ${RESOURCES})
 
 if(WIN32)
     set_target_properties(SirveApp PROPERTIES

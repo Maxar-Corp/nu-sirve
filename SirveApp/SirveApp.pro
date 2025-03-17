@@ -10,7 +10,7 @@ INCLUDEPATH += .
 
 #CONFIG += c++17 \
 #            console
-CONFIG += c++17 
+CONFIG += c++17
 
 HEADERS += abir_reader.h \
             abpnuc_reader.h \
@@ -41,6 +41,7 @@ HEADERS += abir_reader.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
             osm_reader.h \
+            playback_controller.h \
             plot_engineering_data.h \
             popout_dialog.h \
             process_file.h \
@@ -83,7 +84,6 @@ SOURCES += abir_reader.cpp \
             data_export.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
-            frame_player.cpp \
             histogram_plotter.cpp \
             image_processing.cpp \
             location_input.cpp \
@@ -91,6 +91,7 @@ SOURCES += abir_reader.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
             osm_reader.cpp \
+            playback_controller.cpp \
             plot_engineering_data.cpp \
             popout_dialog.cpp \
             process_file.cpp \

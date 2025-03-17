@@ -13,12 +13,6 @@
 
 //Required Headers
 #include <armadillo>
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <math.h>
-#include <random>
-#include <stdexcept>
 
 namespace jtime {
 

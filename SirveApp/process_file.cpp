@@ -1,4 +1,6 @@
 #include "process_file.h"
+#include <QOpenGLContext>
+#include <qfileinfo.h>
 
 ProcessFile::ProcessFile()
 {
@@ -8,7 +10,7 @@ ProcessFile::~ProcessFile()
 {
 }
 
-AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
+AbpFileMetadata ProcessFile::LocateAbpFiles(const QString& candidate_image_path)
 {
 	/*
 	The returned struct will have error_msg populated if there was an error
@@ -23,7 +25,8 @@ AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
 	bool valid_image_extension = candidate_image_path.endsWith(".abpimage", Qt::CaseInsensitive);
 	bool image_file_exists = VerifyPath(candidate_image_path);
 
-	if (!valid_image_extension || !image_file_exists) {
+    if (!valid_image_extension || !image_file_exists)
+    {
 		abp_data.error_msg = QString("File with .abpimage extension not found");
 		return abp_data;
 	}
@@ -34,8 +37,10 @@ AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
 	QString candidate_osm_path = candidate_image_path;
 	candidate_osm_path.replace(QString(".abpimage"), QString(".abposm"), Qt::CaseInsensitive);
 
-	if (!VerifyPath(candidate_osm_path)) {
-		abp_data.error_msg = QString("No corresponding file found with .abposm extension that matches the image file name");
+    if (!VerifyPath(candidate_osm_path))
+    {
+        abp_data.error_msg = QString(
+            "No corresponding file found with .abposm extension that matches the image file name");
 		return abp_data;
 	}
 	abp_data.info_msg.append("Corresponding OSM file found with correction extension \n");
@@ -58,7 +63,7 @@ AbpFileMetadata ProcessFile::LocateAbpFiles(QString candidate_image_path)
 	return abp_data;
 }
 
-bool ProcessFile::VerifyPath(QString path)
+bool ProcessFile::VerifyPath(const QString& path)
 {
 	QFileInfo check_file(path);
 	bool file_isFile = check_file.isFile();
@@ -67,7 +72,7 @@ bool ProcessFile::VerifyPath(QString path)
 	return file_exists && file_isFile;
 }
 
-bool ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_frame, double version)
+bool ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version)
 {	
 	if (first_frame < 0 || last_frame < 0)
 	{
@@ -80,14 +85,16 @@ bool ProcessFile::LoadImageFile(QString image_path, int first_frame, int last_fr
 	QByteArray array = image_path.toLocal8Bit();
 	char* buffer = array.data();
 
-    connect(&abir_data, &ABIRData::advanceFrame, this, &ProcessFile::HandleProgressBarUpdate);
+    ABIRReader reader;
+    connect(&reader, &ABIRReader::advanceFrame, this, &ProcessFile::HandleProgressBarUpdate);
 
-    data_result = abir_data.GetFrames(buffer, frame_start, frame_end, version, false);
-    if (data_result->had_error) {
+    if (!reader.Open(buffer, version))
+    {
         return false;
 	}
 
-    return true;
+    frames_ = reader.ReadFrames(frame_start, frame_end, false);    
+    return frames_ != nullptr;
 }
 
 void ProcessFile::HandleProgressBarUpdate(int frame_index)
@@ -95,7 +102,3 @@ void ProcessFile::HandleProgressBarUpdate(int frame_index)
     emit forwardProgress(frame_index);
 }
 
-ABIRDataResult* ProcessFile::getAbirDataLoadResult()
-{
-    return data_result;
-}

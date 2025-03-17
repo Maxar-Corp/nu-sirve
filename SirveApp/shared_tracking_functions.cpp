@@ -1,9 +1,12 @@
 #include "shared_tracking_functions.h"
 
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/photo.hpp>
 
-std::vector<double> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details, double frame_integration_time, CalibrationData & model)
+std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, CalibrationData & model)
 {
-    std::vector<double> measurements = {0,0,0};
+    std::array<double, 3> measurements = {0,0,0};
     int nRows = SirveAppConstants::VideoDisplayHeight;
     int nCols = SirveAppConstants::VideoDisplayWidth;
 
@@ -16,20 +19,18 @@ std::vector<double> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::R
 
     bool valid_indices = ((col2>col1) && (row2>row1) && (col1>0) && (col2>0) && (row1>0) && (row2>0));
 
-    arma::mat counts;
-
     if (valid_indices)
     {
-        counts = original_mat_frame.submat(row1, col1, row2, col2);
+        arma::mat counts = original_mat_frame.submat(row1, col1, row2, col2);
         measurements = model.MeasureIrradiance(row1, col1, row2, col2, counts, frame_integration_time);
     }
 
     return measurements;
 }
 
-double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox, VideoDetails & base_processing_state_details)
+double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details)
 {
-    int number_median_frames = 30;
+    int number_median_frames = std::min((int)base_processing_state_details.frames_16bit.size(), 30);
     double sum_relative_counts = 0;
      
     int start_indx;
@@ -47,7 +48,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
     bool valid_indices = ((col2>col1) && (row2>row1) && (col1>0) && (col2>0) && (row1>0) && (row2>0));
     if (valid_indices)
     {
-        for (unsigned int k = 0; k <= number_median_frames; ++k)
+        for (unsigned int k = 0; k < number_median_frames; ++k)
         {
             data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx+k]),nCols,nRows); 
         }
@@ -119,10 +120,10 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
         // Get the bounding rectangle
         bbox = cv::boundingRect(largestContour);
 
-        bbox.x = max(bbox.x - bbox_buffer_pixels, 0);
-        bbox.width = min((bbox.width + 2*bbox_buffer_pixels), ROI.width - bbox.x);
-        bbox.y = max(bbox.y - bbox_buffer_pixels, 0);
-        bbox.height = min((bbox.height + 2*bbox_buffer_pixels), ROI.height - bbox.y);
+        bbox.x = std::max(bbox.x - bbox_buffer_pixels, 0);
+        bbox.width = std::min((bbox.width + 2*bbox_buffer_pixels), ROI.width - bbox.x);
+        bbox.y = std::max(bbox.y - bbox_buffer_pixels, 0);
+        bbox.height = std::min((bbox.height + 2*bbox_buffer_pixels), ROI.height - bbox.y);
 
         // Draw the bounding rectangle
         output_image = temp_image.clone();
@@ -172,7 +173,7 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
     }
 }
 
-void SharedTrackingFunctions::GetTrackPointData(string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
+void SharedTrackingFunctions::GetTrackPointData(std::string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
 {
     cv::Scalar raw_frame_bbox_mean, raw_frame_bbox_sigma, mean, sigma;
     cv::Mat frame_bbox_threshold_binary, raw_frame_bbox_threshold;
@@ -234,10 +235,10 @@ void SharedTrackingFunctions::GetFrameRepresentations(
                                                         uint & indx,
                                                         double & clamp_low_coeff,
                                                         double & clamp_high_coeff,
-                                                        VideoDetails & current_processing_state,
-                                                        VideoDetails & base_processing_details,
+                                                        const VideoDetails & current_processing_state,
+                                                        const VideoDetails & base_processing_details,
                                                         cv::Mat & frame,
-                                                        string & prefilter,
+                                                        std::string & prefilter,
                                                         cv::Mat & display_frame,
                                                         cv::Mat & raw_display_frame,
                                                         cv::Mat & clean_display_frame,
@@ -272,7 +273,7 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     FilterImage(prefilter, display_frame, clean_display_frame);
 }
 
-void SharedTrackingFunctions::FilterImage(string & prefilter, cv::Mat & display_frame, cv::Mat & clean_display_frame)
+void SharedTrackingFunctions::FilterImage(std::string & prefilter, cv::Mat & display_frame, cv::Mat & clean_display_frame)
 {
     if(prefilter=="GAUSSIAN"){
         cv::GaussianBlur(display_frame, display_frame, cv::Size(5,5), 0);
@@ -287,7 +288,7 @@ void SharedTrackingFunctions::FilterImage(string & prefilter, cv::Mat & display_
     clean_display_frame = display_frame.clone();
 }
 
-void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, processingState & state_details, arma::mat & offsets_matrix)
+void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, const processingState & state_details, arma::mat & offsets_matrix)
 {
     arma::vec frame_indices = arma::regspace(start_frame,stop_frame);
 

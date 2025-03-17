@@ -1,35 +1,17 @@
-#pragma once
 #ifndef CALIBRATION_DATA_H
 #define CALIBRATION_DATA_H
 
 #include <armadillo>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <math.h>
+#include <array>
 
-#include <qbuttongroup.h>
-#include <qcombobox.h>
 #include <qdialog.h>
 #include <qfiledialog.h>
-#include <qjsonobject.h>
-#include <qjsondocument.h>
 #include <qlabel.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-#include <qpushbutton.h>
-#include <qobject.h>
 #include <qradiobutton.h>
 
-#include <QtCharts/QChartView>
-#include <QtCharts/QAbstractAxis>
-#include <QtCharts/QValueAxis>
 #include <QtCharts/QLineSeries>
 #include <QList>
 #include <QPointF>
-#include <qinputdialog.h>
-
-#include <qgridlayout.h>
 
 #include "abpnuc_reader.h"
 #include "clickable_chartview.h"
@@ -37,7 +19,6 @@
 #include "data_structures.h"
 #include "osm_reader.h"
 #include "process_file.h"
-#include "support/qthelpers.h"
 
 struct ImportFrames {
 
@@ -65,7 +46,7 @@ public:
 	CalibrationData();
 	~CalibrationData();
 
-	std::vector<double> MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time);
+	std::array<double, 3> MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time);
 	void setup_model(arma::mat input_m, arma::mat input_b);
 	bool set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2, double int_time);
 	bool check_path(QString path);

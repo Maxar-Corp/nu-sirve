@@ -62,7 +62,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         throw std::runtime_error("File is not open.");
     }
 
-    auto data_result = std::make_unique<ABIRFrames>();
+    auto frames = std::make_unique<ABIRFrames>();
 
     std::vector<std::vector<uint16_t>> video_frames_16bit;
 
@@ -84,7 +84,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         throw std::runtime_error("File size is zero.");
     }
 
-    uint32_t num_frames = file_size / frame_size;
+    uint32_t num_frames = static_cast<uint32_t>(file_size / frame_size);
 
     // Ensure that minimum frame number is smaller than max frame number
     if (max_frame < min_frame)
@@ -98,9 +98,8 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
     max_frame = std::min(max_frame, num_frames);
     min_frame = std::max(min_frame, 1u);
 
-    std::vector<ABIRFrameHeader> ir_data;
 
-    ir_data.reserve(max_frame - min_frame + 1);
+    frames->ir_data.reserve(max_frame - min_frame + 1);
 
     // Initialize with the smallest possible integer
     auto max_val = std::numeric_limits<uint16_t>::min();
@@ -122,7 +121,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             break; // break from empty frames
         }
 
-        header_data.seconds = static_cast<uint64_t>(temp_seconds + temp_nano_seconds * 10e-9);
+        header_data.seconds = static_cast<uint64_t>(static_cast<double>(temp_seconds + temp_nano_seconds) * 10e-9);
         header_data.size = temp_size;
         header_data.image_size_double = Read<uint64_t>();
 
@@ -188,7 +187,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
         if (file_version_ >= 3)
         {
-            if (file_version_ == 3)
+            if (file_version_ == 3.0)
             {
                 header_data.p_heading = Read<double>();
                 header_data.p_pitch = Read<double>();
@@ -197,7 +196,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
             ReadArray(header_data.p_lla);
 
-            if (file_version_ == 3)
+            if (file_version_ == 3.0)
             {
                 header_data.p_alt_gps = Read<double>();
             }
@@ -214,7 +213,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
             ReadArray(header_data.p_vel_xyz);
 
-            if (file_version_ == 3)
+            if (file_version_ == 3.0)
             {
                 header_data.p_heading_mag = Read<double>();
                 header_data.p_heading_ref = Read<uint32_t>();
@@ -232,12 +231,12 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             header_data.one.alpha = Read<double>();
             header_data.one.beta = Read<double>();
             header_data.one.alpha_dot = Read<double>();
-            header_data.one.alpha_dot = Read<double>();
+            header_data.one.beta_dot = Read<double>();
 
             header_data.two.alpha = Read<double>();
             header_data.two.beta = Read<double>();
             header_data.two.alpha_dot = Read<double>();
-            header_data.two.alpha_dot = Read<double>();
+            header_data.two.beta_dot = Read<double>();
 
             header_data.one.imc_az = Read<double>();
             header_data.one.imc_el = Read<double>();
@@ -302,33 +301,33 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             // WARN << "ABIR Load: Image size exceeds max allowable. Check version
             // type.";
             Close();
-            data_result->x_pixels = ir_data[0].image_x_size;
-            data_result->y_pixels = ir_data[0].image_y_size;
+            frames->x_pixels = frames->ir_data[0].image_x_size;
+            frames->y_pixels = frames->ir_data[0].image_y_size;
 
             for (const auto& row : video_frames_16bit)
             {
                 max_val = std::max(max_val, *std::max_element(row.begin(), row.end()));
             }
 
-            data_result->max_value = max_val;
-            data_result->video_frames_16bit = std::move(video_frames_16bit);
+            frames->max_value = max_val;
+            frames->video_frames_16bit = std::move(video_frames_16bit);
 
-            return data_result;
+            return frames;
         }
 
         auto image_data = std::make_unique<uint16_t[]>(header_data.image_size);
 
         if (!header_only)
         {
-            Read(image_data.get(), header_data.image_size / sizeof(uint16_t));
+            Read(image_data.get(), static_cast<uint32_t>(header_data.image_size) / sizeof(uint16_t));
         }
 
         video_frames_16bit.emplace_back(image_data.get(), image_data.get() + header_data.image_size);
         image_data.reset();
 
-        ir_data.emplace_back(header_data);
+        frames->ir_data.emplace_back(header_data);
 
-        last_valid_frame = frame_index;
+        last_valid_frame = static_cast<uint16_t>(frame_index);
 
         auto progress = frame_index / (frame_span * 0.01);
         QCoreApplication::processEvents();
@@ -338,18 +337,18 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
     Close();
 
-    data_result->x_pixels = ir_data[0].image_x_size;
-    data_result->y_pixels = ir_data[0].image_y_size;
+    frames->x_pixels = frames->ir_data[0].image_x_size;
+    frames->y_pixels = frames->ir_data[0].image_y_size;
 
     for (const auto& row : video_frames_16bit)
     {
         max_val = std::max(max_val, *std::max_element(row.begin(), row.end()));
     }
 
-    data_result->max_value = max_val;
-    data_result->last_valid_frame = last_valid_frame;
+    frames->max_value = max_val;
+    frames->last_valid_frame = last_valid_frame;
 
-    data_result->video_frames_16bit = std::move(video_frames_16bit);
+    frames->video_frames_16bit = std::move(video_frames_16bit);
 
-    return data_result;
+    return frames;
 }

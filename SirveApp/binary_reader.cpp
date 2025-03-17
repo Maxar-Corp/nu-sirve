@@ -40,12 +40,6 @@ bool BinaryReader::IsOpen() const
     return stream_ != nullptr;
 }
 
-bool BinaryReader::IsBigEndian()
-{
-    int16_t test = 0x0102;
-    auto bytes = reinterpret_cast<uint8_t*>(&test);
-    return bytes[0] == 0x01;
-}
 
 uint64_t BinaryReader::FileSize()
 {

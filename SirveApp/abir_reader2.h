@@ -127,6 +127,7 @@ struct ABIRFrames
     ABIRFrames& operator=(ABIRFrames&& other) = default;
 
     std::vector<std::vector<uint16_t>> video_frames_16bit; // TODO: don't do this
+    std::vector<ABIRFrameHeader> ir_data;
     int x_pixels;
     int y_pixels;
     int max_value;

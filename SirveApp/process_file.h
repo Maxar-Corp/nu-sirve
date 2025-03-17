@@ -1,18 +1,18 @@
-#pragma once
 
 
 #ifndef PROCESS_FILE_H
 #define PROCESS_FILE_H
 
-
+#include <QWidget>
 #include <qstring.h>
 
-#include "abir_reader.h"
-#include <qfiledialog.h>
+#include "abir_reader2.h"
 
-struct AbpFileMetadata {
+struct AbpFileMetadata
+{
 	QString osm_path, image_path, directory_path, file_name, info_msg, error_msg;
-	AbpFileMetadata() {
+    AbpFileMetadata()
+    {
 		error_msg = "ABP Files Not Yet Configured.";
 	}
 };
@@ -21,27 +21,24 @@ class ProcessFile : public QWidget
 {
 	Q_OBJECT
 public:
-	ABIRData abir_data;
-    ABIRDataResult *data_result;
-    ABIRDataResult *test_frames;
+    ABIRFrames::Ptr frames_;
 
     ProcessFile();
-    ~ProcessFile();
+    ~ProcessFile() override;
 
-    bool VerifyPath(QString path);
-    AbpFileMetadata LocateAbpFiles(QString candidate_image_path);
-    bool LoadImageFile(QString image_path, int first_frame, int last_frame, double version);
-    ABIRDataResult* getAbirDataLoadResult();
+    bool VerifyPath(const QString& path);
+    AbpFileMetadata LocateAbpFiles(const QString& candidate_image_path);
+    bool LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version);
+
+public slots:
+    void HandleProgressBarUpdate(int frame_index);
 
 signals:
 
     void forwardProgress(int);
 
-public slots:
 
-    void HandleProgressBarUpdate(int percent);
 
-private:
 
 };
 

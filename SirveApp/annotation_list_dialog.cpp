@@ -1,6 +1,7 @@
 #include "annotation_list_dialog.h"
 #include "annotation_edit_dialog.h"
 #include "constants.h"
+#include "support/qthelpers.h"
 
 AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent)
     : QDialog(parent, Qt::Window), data(input_vector), base_data(details)
