@@ -1,13 +1,18 @@
 #include "video_display.h"
 
+#include <QApplication>
+#include <QCheckBox>
+
 #include "shared_tracking_functions.h"
 
-#include <QPainter>
 #include <QFileDialog>
+#include <QFormLayout>
+#include <QPainter>
+#include <qscreen.h>
 
 const QString VideoDisplay::kBoldLargeStyleSheet = "color: black; font-weight: bold; font-size: 12px";
 
-VideoDisplay::VideoDisplay(const QVector<QRgb>& starting_color_table, QWidget* parent) :
+VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget* parent) :
     QWidget(parent), color_table(std::move(starting_color_table))
 {
     lbl_image_canvas = new EnhancedLabel(this);
@@ -604,7 +609,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
                                                mean_counts, sum_counts, number_pixels);
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-    double frame_integration_time = frame_headers[counter].header.int_time;
+    double frame_integration_time = frame_headers[counter].int_time;
     std::array<double, 3> measurements = {0, 0, 0};
     if (model.calibration_available) {
         measurements = SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state->details,
@@ -1068,7 +1073,7 @@ void VideoDisplay::UpdateDisplayFrame()
             calibrate_original_frame_vector.clear();
             original_mat_frame.clear();
 
-            double frame_integration_time = frame_headers[counter].header.int_time;
+            double frame_integration_time = frame_headers[counter].int_time;
             auto measurements = model.MeasureIrradiance(
                 top_left.x(), top_left.y(), bottom_right.x(), bottom_right.y(), counts, frame_integration_time);
 

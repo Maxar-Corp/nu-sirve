@@ -1,5 +1,7 @@
 #include "non_uniformity_correction_external_file.h"
 
+#include "location_input.h"
+
 ExternalNUCInformationWidget::ExternalNUCInformationWidget()
 {
 

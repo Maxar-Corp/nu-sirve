@@ -1930,7 +1930,7 @@ void SirveApp::LoadOsmData()
     }
 
     osm_frames = reader.ReadFrames();
-    if (osm_frames.size() == 0)
+    if (osm_frames.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
         return;

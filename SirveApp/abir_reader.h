@@ -110,6 +110,7 @@ struct ABIRFrameHeader
 
     // VERSION >= 5
     double g_roll{};
+    double g_roll_rate{};
     // END VERSION >= 5
 };
 

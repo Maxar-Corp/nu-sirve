@@ -3,6 +3,7 @@
 #include <qpointer.h>
 
 #include "qcoreapplication.h"
+#include "qinputdialog.h"
 
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
@@ -11,7 +12,8 @@ static constexpr auto MAX_VERSION_NUMBER = 20.0;
 static constexpr auto FRAME_SIZE_INCREMENT = 32;
 static constexpr auto FRAME_SIZE_INCREMENT_2_1 = 40;
 
-ABIRFrames::ABIRFrames() : x_pixels(0), y_pixels(0), max_value(0), last_valid_frame(0)
+ABIRFrames::ABIRFrames() :
+    x_pixels(0), y_pixels(0), max_value(0), last_valid_frame(0)
 {
 }
 
@@ -22,27 +24,28 @@ bool ABIRReader::Open(const char* filename, double version_number)
         return false;
     }
 
-    // FIXME: This is conceptually flawed...you CANNOT specify a version number
-    // That differs from what the file says the version number is
-
     if (version_number > 0.0)
     {
         file_version_ = version_number;
-        return true;
+    }
+    else
+    {
+        Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
+        file_version_ = Read<double>(true);
     }
 
-    Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
+    bool ok;
+    double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version",
+                                                            "Enter File Version to Use:",
+                                                            version_number,
+                                                            1, 4.2, 2, &ok);
+    if (!ok)
+    {
+        // INFO << "User selected 'Cancel' for version. Import of video files canceled"
+        return false;
+    }
 
-    file_version_ = Read<double>(true);
-
-    // WHY IS THIS HERE?!
-    // bool ok;
-    // double version_number_entered = QInputDialog::getDouble(nullptr, "Override
-    // File Version",
-    //                                                         "Enter File Version
-    //                                                         to Use:",
-    //                                                         version_number,
-    //                                                         1, 4.2, 2, &ok);
+    file_version_ = version_number_entered;
 
     if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER)
     {
@@ -99,7 +102,6 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
     // Ensure reasonable upper and lower bounds
     max_frame = std::min(max_frame, num_frames);
     min_frame = std::max(min_frame, 1u);
-
 
     frames->ir_data.reserve(max_frame - min_frame + 1);
 
@@ -184,7 +186,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
         if (file_version_ >= 5)
         {
-            header_data.g_roll = Read<double>();
+            header_data.g_roll_rate = Read<double>();
         }
 
         if (file_version_ >= 3)
@@ -295,8 +297,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         }
 
         header_data.image_origin = Read<uint32_t>();
-        header_data.image_size = Read<uint32_t>(); // BUG? : image_size is of type
-        // uint64_t, but reads uint32_t?
+        header_data.image_size = Read<uint32_t>();
 
         if (header_data.image_size > static_cast<uint64_t>(20e6))
         {
