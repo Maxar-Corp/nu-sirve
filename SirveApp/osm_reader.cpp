@@ -85,7 +85,7 @@ MessageHeader OSMReader::ReadMessageHeader()
         return header;
     }
 
-    header.seconds = static_cast<double>(seconds + nano_seconds) * 1e-9;
+    header.seconds = seconds + nano_seconds * 1e-9;
     header.size = tsize;
 
     return header;
