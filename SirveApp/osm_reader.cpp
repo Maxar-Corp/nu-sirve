@@ -126,19 +126,18 @@ FrameData OSMReader::ReadFrameData()
 
     // Frame data requires reading big-endian integers
 
-    data.task_id = Read<uint32_t>();
-    auto osm_seconds = Read<uint32_t>();
-    auto osm_micro_seconds = Read<uint32_t>();
+    data.task_id = Read<uint32_t>(true);
+    auto osm_seconds = Read<uint32_t>(true);
+    auto osm_micro_seconds = Read<uint32_t>(true);
 
     data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
     data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
 
     auto modified_julian_date = data.julian_date + 0.5;
-    int midnight_julian = std::floor(modified_julian_date);
+    int midnight_julian = static_cast<int>(std::floor(modified_julian_date));
 
     data.seconds_past_midnight = (modified_julian_date - midnight_julian) * 86400.;
 
-    // FIXME: SLOW!!! -- DO NOT STORE VECTORS!
     data.mrp = ReadVector<double>(3, true);
     data.mrp_cov_rand = ReadVector<double>(6, true);
     data.mrp_cov_bias = ReadVector<double>(6, true);

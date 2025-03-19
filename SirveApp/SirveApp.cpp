@@ -1915,7 +1915,7 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
     abp_file_metadata = possible_abp_file_metadata;
 
     return true;
-};
+}
 
 void SirveApp::LoadOsmData()
 {
