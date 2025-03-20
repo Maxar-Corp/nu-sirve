@@ -118,7 +118,7 @@ void EngineeringPlot::PlotSirveTracks()
         for (size_t i = 0; i < manual_track_frames.size(); i++)
         {
             std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
-            if (it != manual_track_frames[i].tracks.end() && i > 100 && i < 600)
+            if (it != manual_track_frames[i].tracks.end())
             {
                 x_values.push_back(get_single_x_axis_value(i));
 
@@ -128,7 +128,7 @@ void EngineeringPlot::PlotSirveTracks()
                 } else if (my_quantities.at(0).getName() == "Elevation")
                 {
                     y_values.push_back(it->second.elevation);
-                } else
+                } else if (my_quantities.at(0).getName() == "Irradiance")
                 {
                     y_values.push_back(it->second.irradiance);
                 }
