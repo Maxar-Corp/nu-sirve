@@ -7,5 +7,4 @@ public:
     ~WaitCursor();
 };
 
-
 #endif // WAITCURSOR_H

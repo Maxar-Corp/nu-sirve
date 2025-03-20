@@ -2149,6 +2149,8 @@ void SirveApp::DeleteAbirData()
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 {
+    WaitCursor cursor;
+
     playback_controller->StopTimer();
     video_display->container.clear();
 
@@ -3395,6 +3397,8 @@ void SirveApp::HandleBadPixelReplacement()
             QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + QString::number(osm_frames.size()) + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
+
+        WaitCursor cursor;
         abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
                                            config_values.version);
         if (abir_frames == nullptr)
