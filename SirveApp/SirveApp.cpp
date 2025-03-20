@@ -2159,15 +2159,15 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Task 1:
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
-    auto frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
-    if (frames == nullptr)
+    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+    if (abir_frames == nullptr)
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
         return;
     }
 
-    if (frames->video_frames_16bit.empty())
+    if (abir_frames->video_frames_16bit.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"),
                                     "No valid frames were found in the .abpimage file. See log for more details.");
@@ -2181,22 +2181,21 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Deriving processing state..."));
     this->repaint();
     processingState primary;
-    auto number_frames = static_cast<uint32_t>(frames->video_frames_16bit.size());
-    auto x_pixels = frames->x_pixels;
+    auto number_frames = static_cast<uint32_t>(abir_frames->video_frames_16bit.size());
+    auto x_pixels = abir_frames->x_pixels;
     progress_bar_main->setValue(20);
-    auto y_pixels = frames->y_pixels;
+    auto y_pixels = abir_frames->y_pixels;
     progress_bar_main->setValue(40);
-    auto max_value = frames->max_value;
+    auto max_value = abir_frames->max_value;
     progress_bar_main->setValue(60);
 
     primary.details = {
         x_pixels,
         y_pixels,
-        max_value,
-        frames->video_frames_16bit
+        max_value, abir_frames->video_frames_16bit
     };
     progress_bar_main->setValue(80);
-    max_frame = frames->last_valid_frame;
+    max_frame = abir_frames->last_valid_frame;
     progress_bar_main->setValue(100);
 
     // Task 3:
@@ -2245,7 +2244,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         cmb_OSM_track_IDs->addItem(QString::number(track_id));
     }
 
-    video_display->InitializeFrameData(min_frame, temp, frames->ir_data);
+    video_display->InitializeFrameData(min_frame, temp, abir_frames->ir_data);
     // DeleteAbirData();
     video_display->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
@@ -3391,15 +3390,15 @@ void SirveApp::HandleBadPixelReplacement()
             QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + QString::number(osm_frames.size()) + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
-        auto frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
+        abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
                                            config_values.version);
-        if (frames == nullptr)
+        if (abir_frames == nullptr)
         {
             QtHelpers::LaunchMessageBox(QString("Error loading frames."),
                                         "Check that the file exists and is not corrupted.");
             return;
         }
-        test_data = std::move(frames->video_frames_16bit);
+        test_data = abir_frames->video_frames_16bit;
     }
     else{
         if (stop_frame > txt_stop_frame->text().toInt() ||\
