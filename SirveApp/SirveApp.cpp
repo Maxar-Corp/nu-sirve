@@ -2175,6 +2175,51 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         return;
     }
 
+    [&]()
+    {
+        class ABIRFrameWriter
+        {
+        public:
+            explicit ABIRFrameWriter(std::string path) : file_path(std::move(path))
+            {
+                ofs.open(file_path, std::ios::binary | std::ios::out);
+                if (!ofs.is_open())
+                {
+                    throw std::runtime_error("Failed to open file for writing: " + file_path);
+                }
+            }
+
+            void WriteFrames(const ABIRFrames::Ptr & frames)
+            {
+                ofs << "x_pixels: " << frames->x_pixels << "\n";
+                ofs << "y_pixels: " << frames->y_pixels << "\n";
+                ofs << "max_value: " << frames->max_value << "\n";
+                ofs << "last_valid_frame: " << frames->last_valid_frame << "\n";
+                ofs << "video_frames_16bit_size: " << frames->video_frames_16bit.size() << "\n";
+                for (const auto& frame : frames->video_frames_16bit)
+                {
+                    ofs.write(reinterpret_cast<const char*>(frame.data()), static_cast<std::streamsize>(frame.size() * sizeof(uint16_t)));
+                }
+            }
+
+            void Close()
+            {
+                if (ofs.is_open())
+                {
+                    ofs.close();
+                }
+            }
+        private:
+            std::string file_path;
+            std::ofstream ofs;
+        };
+
+        ABIRFrameWriter writer("d:\\tmp\\abir_frames_refactor.bin");
+        writer.WriteFrames(abir_frames);
+
+        writer.Close();
+    }();
+
     // Task 2:
     QCoreApplication::processEvents();
     progress_bar_main->setValue(0);
