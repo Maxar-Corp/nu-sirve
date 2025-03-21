@@ -4,7 +4,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/photo.hpp>
 
-std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, CalibrationData & model)
+std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, const CalibrationData&
+                                                                   model)
 {
     std::array<double, 3> measurements = {0,0,0};
     int nRows = SirveAppConstants::VideoDisplayHeight;
@@ -78,7 +79,6 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
 
     cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
-    cv::Scalar frame_crop_mean, frame_crop_sigma;
     cv::Scalar mean, sigma; 
     
     double threshold_val;
@@ -175,7 +175,7 @@ void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, 
 
 void SharedTrackingFunctions::GetTrackPointData(std::string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
 {
-    cv::Scalar raw_frame_bbox_mean, raw_frame_bbox_sigma, mean, sigma;
+    cv::Scalar mean, sigma;
     cv::Mat frame_bbox_threshold_binary, raw_frame_bbox_threshold;
 
     cv::minMaxLoc(frame_bbox, NULL, NULL, NULL, & frame_point); //Gets location of peak point in processed cropped frame
@@ -232,18 +232,18 @@ void SharedTrackingFunctions::GetPointXY(cv::Point input_point, cv::Rect ROI,int
 }
 
 void SharedTrackingFunctions::GetFrameRepresentations(
-                                                        uint & indx,
-                                                        double & clamp_low_coeff,
-                                                        double & clamp_high_coeff,
-                                                        const VideoDetails & current_processing_state,
-                                                        const VideoDetails & base_processing_details,
-                                                        cv::Mat & frame,
-                                                        std::string & prefilter,
-                                                        cv::Mat & display_frame,
-                                                        cv::Mat & raw_display_frame,
-                                                        cv::Mat & clean_display_frame,
-                                                        cv::Mat & raw_frame
-                                                    )
+                                                       uint & indx,
+                                                       double clamp_low_coeff,
+                                                       double clamp_high_coeff,
+                                                       const VideoDetails & current_processing_state,
+                                                       const VideoDetails & base_processing_details,
+                                                       cv::Mat & frame,
+                                                       std::string & prefilter,
+                                                       cv::Mat & display_frame,
+                                                       cv::Mat & raw_display_frame,
+                                                       cv::Mat & clean_display_frame,
+                                                       cv::Mat & raw_frame
+                                                   )
 {
     int numRows = SirveAppConstants::VideoDisplayHeight;
     int numCols = SirveAppConstants::VideoDisplayWidth; 
@@ -288,7 +288,7 @@ void SharedTrackingFunctions::FilterImage(std::string & prefilter, cv::Mat & dis
     clean_display_frame = display_frame.clone();
 }
 
-void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, const processingState & state_details, arma::mat & offsets_matrix)
+void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, const ProcessingState & state_details, arma::mat & offsets_matrix)
 {
     arma::vec frame_indices = arma::regspace(start_frame,stop_frame);
 

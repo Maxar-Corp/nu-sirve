@@ -3,6 +3,8 @@
 #include "constants.h"
 #include "support/qthelpers.h"
 
+// TODO: Retaining a reference like this can lead to use-after-free issues. Fix by making the annotations
+// vector be a shared_ptr.
 AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent)
     : QDialog(parent, Qt::Window), data(input_vector), base_data(details)
 {

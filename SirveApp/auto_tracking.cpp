@@ -1,14 +1,5 @@
 #include "auto_tracking.h"
 
-AutoTracking::AutoTracking()
-{
-    cancel_operation = false;
-}
-
-AutoTracking::~AutoTracking()
-{
-}
-
 void AutoTracking::UpdateProgressBar(unsigned int val)
 {
     emit signalProgress(val);
@@ -20,25 +11,24 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::s32_mat AutoTracking::SingleTracker( 
-                                    QSize screenResolution,
-                                    QPoint appPos,
-                                    u_int track_id,
-                                    double clamp_low_coeff,
-                                    double clamp_high_coeff,
-                                    int threshold,
-                                    int bbox_buffer_pixels,
-                                    string prefilter,
-                                    string trackFeature,
-                                    uint frame0,
-                                    uint start_frame,
-                                    uint stop_frame,
-                                    processingState & current_processing_state,
-                                    VideoDetails & base_processing_state_details,
-                                    std::vector<ABIR_Frame>& input_frame_header,
-                                    QString new_track_file_name,
-                                    CalibrationData & calibration_model
-                                    )
+arma::s32_mat AutoTracking::SingleTracker(
+    QSize screenResolution,
+    QPoint appPos,
+    u_int track_id,
+    double clamp_low_coeff,
+    double clamp_high_coeff,
+    int threshold,
+    int bbox_buffer_pixels,
+    string prefilter,
+    string trackFeature,
+    uint frame0,
+    uint start_frame,
+    uint stop_frame,
+    const ProcessingState& current_processing_state,
+    const VideoDetails& base_processing_state_details,
+    const std::vector<ABIR_Frame>& input_frame_header,
+    const CalibrationData& calibration_model
+)
 {
     double peak_counts, SIGMA, sum_relative_counts__old = 0, mean_counts;
 
@@ -216,43 +206,43 @@ arma::s32_mat AutoTracking::SingleTracker(
 }
 
 void AutoTracking::InitializeTracking(
-                                    bool isRestart,
-                                    u_int i,
-                                    u_int indx,
-                                    u_int frame0,
-                                    double clamp_low_coeff,
-                                    double clamp_high_coeff,
-                                    VideoDetails & current_processing_state,
-                                    VideoDetails & base_processing_details,
-                                    string prefilter,
-                                    cv::Mat & display_frame,
-                                    cv::Mat & raw_display_frame,
-                                    cv::Mat & clean_display_frame,
-                                    cv::Rect & ROI,
-                                    bool & valid_ROI,
-                                    cv::Mat & frame,
-                                    cv::Mat & frame_crop,
-                                    cv::Mat & raw_frame,
-                                    Ptr<Tracker> tracker,
-                                    string & choice,
-                                    arma::running_stat<double> & stats
-                                    )
+    bool isRestart,
+    u_int i,
+    u_int indx,
+    u_int frame0,
+    double clamp_low_coeff,
+    double clamp_high_coeff,
+    const VideoDetails& current_processing_state,
+    const VideoDetails& base_processing_details,
+    string prefilter,
+    cv::Mat & display_frame,
+    cv::Mat & raw_display_frame,
+    cv::Mat & clean_display_frame,
+    cv::Rect & ROI,
+    bool & valid_ROI,
+    cv::Mat & frame,
+    cv::Mat & frame_crop,
+    cv::Mat & raw_frame,
+    Ptr<Tracker> tracker,
+    string & choice,
+    arma::running_stat<double> & stats
+)
 {
     cv::Mat display_frame_resize;
 
     SharedTrackingFunctions::GetFrameRepresentations(
-                                                    indx,
-                                                    clamp_low_coeff,
-                                                    clamp_high_coeff,
-                                                    current_processing_state,
-                                                    base_processing_details,
-                                                    frame,
-                                                    prefilter,
-                                                    display_frame,
-                                                    raw_display_frame,
-                                                    clean_display_frame,
-                                                    raw_frame
-                                                    );
+        indx,
+        clamp_low_coeff,
+        clamp_high_coeff,
+        current_processing_state,
+        base_processing_details,
+        frame,
+        prefilter,
+        display_frame,
+        raw_display_frame,
+        clean_display_frame,
+        raw_frame
+    );
 
     if (!isRestart)
     {
@@ -339,40 +329,40 @@ void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_
 }
 
 void AutoTracking::TrackingStep(
-                                int & i,
-                                uint & indx,
-                                uint & track_id,
-                                uint & frame0,
-                                double & clamp_low_coeff,
-                                double & clamp_high_coeff,
-                                processingState & current_processing_state,
-                                VideoDetails & base_processing_state_details,
-                                std::vector<ABIR_Frame>& input_frame_header,
-                                string & prefilter,
-                                Ptr<Tracker> & tracker,
-                                string & trackFeature,
-                                cv::Mat & display_frame,
-                                cv::Mat & raw_display_frame,
-                                cv::Mat & clean_display_frame,
-                                int & threshold,
-                                int & bbox_buffer_pixels,
-                                cv::Rect & ROI,
-                                cv::Mat & frame,                           
-                                cv::Mat & raw_frame,
-                                cv::Mat & raw_frame_bbox,
-                                cv::Point & frame_point,
-                                arma::running_stat<double> & stats,
-                                bool & step_success,
-                                double & SIGMA,
-                                double & peak_counts,
-                                double & mean_counts,
-                                cv::Scalar & sum_counts,
-                                uint & number_pixels,
-                                arma::mat & offsets_matrix,
-                                arma::s32_mat & output,
-                                double & sum_relative_counts__old,
-                                CalibrationData & calibration_model
-                                )
+    int & i,
+    uint & indx,
+    uint & track_id,
+    uint & frame0,
+    double & clamp_low_coeff,
+    double & clamp_high_coeff,
+    const ProcessingState& current_processing_state,
+    const VideoDetails& base_processing_state_details,
+    const std::vector<ABIR_Frame>& input_frame_header,
+    string & prefilter,
+    Ptr<Tracker> & tracker,
+    string & trackFeature,
+    cv::Mat & display_frame,
+    cv::Mat & raw_display_frame,
+    cv::Mat & clean_display_frame,
+    int & threshold,
+    int & bbox_buffer_pixels,
+    cv::Rect & ROI,
+    cv::Mat & frame,
+    cv::Mat & raw_frame,
+    cv::Mat & raw_frame_bbox,
+    cv::Point & frame_point,
+    arma::running_stat<double> & stats,
+    bool & step_success,
+    double & SIGMA,
+    double & peak_counts,
+    double & mean_counts,
+    cv::Scalar & sum_counts,
+    uint & number_pixels,
+    arma::mat & offsets_matrix,
+    arma::s32_mat & output,
+    double & sum_relative_counts__old,
+    const CalibrationData& calibration_model
+)
 {
     int frame_x, frame_y;
 

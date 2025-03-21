@@ -11,8 +11,9 @@
 class VideoDisplayZoomManager
 {
 public:
-    VideoDisplayZoomManager(int x_pixels=0, int y_pixels=0);
+    VideoDisplayZoomManager(int width=0, int height=0);
 
+    void Clear(int width, int height);
     const std::vector<QRect>& GetZoomList() const noexcept;
     const std::vector<QRectF>& GetAbsoluteZoomList() const noexcept;
     void ZoomImage(const QRect& area);
@@ -24,9 +25,9 @@ public:
     bool IsCurrentlyZoomed(int x0, int y0) const noexcept;
 
 private:
-    int image_x = 0, image_y = 0;
-    std::vector<QRect> zoom_list;
-    std::vector<QRectF> absolute_zoom_list;
+    int image_width_ = 0, image_height_ = 0;
+    std::vector<QRect> zoom_list_;
+    std::vector<QRectF> absolute_zoom_list_;
 };
 
 #endif

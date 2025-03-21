@@ -23,7 +23,7 @@ public:
     void ShowAnnotation(int index);
     void repopulate_list();
 
-    QPushButton *btn_ok;
+    QPointer<QPushButton> btn_ok;
 
 protected:
     void closeEvent(QCloseEvent *event) override;

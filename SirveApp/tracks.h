@@ -1,10 +1,6 @@
-#pragma once
-
-#include "qcolor.h"
 #ifndef TRACKS_H
 #define TRACKS_H
 
-#include <QFile>
 #include <QString>
 
 #include <map>
@@ -13,47 +9,46 @@
 #include <optional>
 
 #include "data_structures.h"
-#include "support/az_el_calculation.h"
 
 struct TrackDetails {
-    double frame_time;
-    double julian_date;
-    double second_past_midnight;
-    double timing_offset;
-    int centroid_x_boresight;
-    int centroid_y_boresight;
-    int centroid_x;
-    int centroid_y;
-    double az;
-    double el;
-    int peak_counts;
-    int sum_counts;
-    int mean_counts;
-    int number_pixels;
-    double sum_relative_counts;
-    double peak_irradiance;
-    double mean_irradiance;
-    double sum_irradiance;
-    double sum_relative_irradiance;
-    int bbox_x;
-    int bbox_y;
-    int bbox_width;
-    int bbox_height;
+    double frame_time = 0.0;
+    double julian_date = 0.0;
+    double second_past_midnight = 0.0;
+    double timing_offset = 0.0;
+    int centroid_x_boresight = 0;
+    int centroid_y_boresight = 0;
+    int centroid_x = 0;
+    int centroid_y = 0;
+    double az = 0.0;
+    double el = 0.0;
+    int peak_counts = 0;
+    int sum_counts = 0;
+    int mean_counts = 0;
+    int number_pixels = 0;
+    double sum_relative_counts = 0.0;
+    double peak_irradiance = 0.0;
+    double mean_irradiance = 0.0;
+    double sum_irradiance = 0.0;
+    double sum_relative_irradiance = 0.0;
+    int bbox_x = 0;
+    int bbox_y = 0;
+    int bbox_width = 0;
+    int bbox_height = 0;
 };
 
 struct PlottingTrackDetails {
-    int track_id;
+    int track_id = -1;
     TrackDetails centroid;
-    double sum_relative_counts;
-    double azimuth;
-    double elevation;
+    double sum_relative_counts = 0.0;
+    double azimuth = 0.0;
+    double elevation = 0.0;
 };
 
 struct ManualPlottingTrackDetails {
     TrackDetails centroid;
-    double azimuth;
-    double elevation;
-    double sum_relative_counts;
+    double azimuth = 0.0;
+    double elevation = 0.0;
+    double sum_relative_counts = 0.0;
 };
 
 struct ManualPlottingTrackFrame {
@@ -75,8 +70,8 @@ struct TrackFileReadResult {
 };
 
 struct TrackEngineeringData {
-    double i_fov_x, i_fov_y;
-    double boresight_lat, boresight_long;
+    double i_fov_x = 0.0, i_fov_y = 0.0;
+    double boresight_lat = 0.0, boresight_long = 0.0;
     std::vector<double> dcm;
 };
 
@@ -86,13 +81,13 @@ class TrackInformation {
         TrackInformation(const std::vector<Frame> & osm_file_frames);
 
         TrackFileReadResult ReadTracksFromFile(QString file_name) const;
-        void AddManualTracks(std::vector<TrackFrame> new_frames);
+        void AddManualTracks(const std::vector<TrackFrame>& new_frames);
         void RemoveManualTrack(int track_id);
         void RemoveManualTrackPlotting(int track_id);
         void RemoveManualTrackImage(int track_id);
-        void AddCreatedManualTrack(std::vector<PlottingFrameData> frame_data,int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name);
+        void AddCreatedManualTrack(const std::vector<PlottingFrameData>& frame_data,int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name);
         std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
-        std::vector<std::optional<TrackDetails>> GetEmptyTrack();
+        std::vector<std::optional<TrackDetails>> GetEmptyTrack() const;
 
         std::vector<TrackFrame> get_osm_frames(int start_index, int end_index);
         std::vector<TrackFrame> get_manual_frames(int start_index, int end_index);
@@ -100,16 +95,14 @@ class TrackInformation {
         std::vector<ManualPlottingTrackFrame> get_manual_plotting_frames();
         std::vector<TrackFrame> get_manual_image_frames();
 
-        int get_track_count();
-        int get_frame_count();
+        int get_track_count() const;
+        int get_frame_count() const;
         std::set<int> get_manual_track_ids();
         std::set<int> get_OSM_track_ids();
 
-        void set_manual_frame(int index, int track_id, TrackDetails * centroid);
-
     private:
         TrackInformation();
-        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts);
+        ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts) const;
 
         std::vector<PlottingTrackFrame> osm_plotting_track_frames;
         std::vector<TrackFrame> osm_frames;

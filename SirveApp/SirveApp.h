@@ -6,8 +6,8 @@
 #include "osm_reader.h"
 #include "ABIR_Reader.h"
 #include "video_display.h"
+#include "video_player.h"
 #include "histogram_plotter.h"
-#include "playback_controller.h"
 #include "engineering_data.h"
 #include "plot_engineering_data.h"
 #include "process_file.h"
@@ -53,14 +53,13 @@ public:
     bool osmDataLoaded;
     std::vector<Frame> osm_frames;
     OSMReader osm_reader;
-    QPointer<PlaybackController> playback_controller;
     bool record_video;
     QSize screenResolution;
     QPointer<TrackManagementWidget> tm_widget;
-    TrackInformation *track_info;
-    QPointer<VideoDisplay> video_display;
-    Workspace *workspace;
+    TrackInformation *track_info = nullptr;
+    Workspace *workspace = nullptr;
     bool yAxisChanged = false;
+    ConfigValues config_values;
 
     /* --------------------------------------------------------------------------------------------
         Qt elements for user interface
@@ -73,7 +72,7 @@ public:
 
     QPointer<QTabWidget> tab_menu, tab_plots;
     QPointer<QDateTimeEdit> dt_epoch;
-    QPointer<QLabel>  lbl_file_name, lbl_lift_value, lbl_gain_value, lbl_max_frames, lbl_fps, lbl_current_epoch,
+    QPointer<QLabel>  lbl_file_name, lbl_lift_value, lbl_gain_value, lbl_max_frames, lbl_current_epoch,
         lbl_adaptive_noise_suppression, lbl_bad_pixel_color, lbl_current_workspace_folder;
 
     QPointer<QLabel> lbl_adaptive_noise_suppression_status, lbl_fixed_suppression, lbl_bad_pixel_count,
@@ -82,16 +81,14 @@ public:
     QPointer<QLabel> lbl_progress_status, lbl_processing_description, lbl_min_scale_value, lbl_max_scale_value;
     QPointer<QScrollArea> scrollarea_processing_description;
     QPointer<QLineEdit> txt_lift_sigma, txt_gain_sigma, txt_frame_stack_Nframes, txt_accumulator_offset;
-    QPointer<QSlider> slider_lift, slider_gain, slider_video;
+    QPointer<QSlider> slider_lift, slider_gain;
 
     QPointer<QLineEdit> txt_pixel_buffer, txt_start_frame, txt_stop_frame, txt_moving_median_N,
         txt_bad_pixel_start_frame, txt_bad_pixel_stop_frame, txt_ANS_number_frames, txt_ANS_offset_frames,
         txt_FNS_start_frame,  txt_FNS_stop_frame;
     QPointer<QPushButton> btn_get_frames, btn_load_osm, btn_copy_directory, btn_apply_epoch, btn_reset_color_correction,
-        btn_ANS, btn_FNS, btn_calibration_dialog, btn_deinterlace, btn_deinterlace_current_frame, btn_play,
-        btn_slow_back, btn_fast_forward, btn_prev_frame, btn_next_frame, btn_video_menu, btn_pause, btn_reverse,
-        btn_frame_save, btn_frame_record, btn_save_plot, btn_plot_menu, btn_zoom, btn_calculate_radiance,
-        btn_workspace_load, btn_workspace_save, btn_undo_step, btn_popout_video, btn_popout_histogram,
+        btn_ANS, btn_FNS, btn_calibration_dialog, btn_deinterlace, btn_deinterlace_current_frame, btn_video_menu,
+        btn_save_plot, btn_plot_menu,  btn_workspace_load, btn_workspace_save, btn_undo_step, btn_popout_histogram,
         btn_popout_engineering, btn_replace_bad_pixels, btn_import_tracks, btn_create_track, btn_finish_create_track,
         btn_center_on_tracks, btn_center_on_brightest, btn_frame_stack, btn_RPCP, btn_cancel_operation,
         btn_auto_track_target;
@@ -131,10 +128,10 @@ public:
     QPointer<AnnotationListDialog> annotation_dialog;
 
     QPointer<QStatusBar> status_bar;
-    QPointer<QLabel> lbl_goto_frame, lbl_status_start_frame, lbl_status_stop_frame, lbl_loaded_frames,
+    QPointer<QLabel> lbl_status_start_frame, lbl_status_stop_frame, lbl_loaded_frames,
         lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field;
     QPointer<QCheckBox> chk_bad_pixels_from_original;
-    QPointer<QLineEdit> txt_goto_frame, txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
+    QPointer<QLineEdit> txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
 
 
     /* --------------------------------------------------------------------------------------------
@@ -144,6 +141,10 @@ public:
     static QString CreateEpochString(const std::vector<double>& new_epoch);
     void    DisplayOriginalEpoch(const QString& new_epoch_string);
     void    FramePlotSpace();
+    static SirveApp* GetMainWindow();
+    const QVector<QRgb>& GetStartingColorTable() const;
+    StateManager& GetStateManager();
+    const StateManager& GetStateManager() const;
     QPoint  GetWindowPosition() const;
     QSize   GetWindowSize() const;
 
@@ -154,19 +155,21 @@ public:
     QWidget*    SetupTracksTab();
     void        SetupUi();
     void        SetupVideoFrame();
-    QSize 	    ScreenResolution;
 
-    void ToggleVideoPlaybackOptions(bool input);
     void UpdateEpochString(const QString& new_epoch_string);
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
     void UpdatePlots();
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
+    void UpdateGlobalFrameVector();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    QPointer<StateManager> state_manager_;
+    QPointer<VideoPlayer> video_player_;
+
     ColorMap video_colors;
     QPointer<ColorMapDisplay> color_map_display;
 
@@ -175,13 +178,10 @@ private:
 
     QPointer<ProcessFile> file_processor;
 
-    QPointer<PopoutDialog> popout_video;
     QPointer<PopoutDialog> popout_histogram;
     QPointer<PopoutDialog> popout_engineering;
 
     QPointer<HistogramLinePlot> histogram_plot;
-
-    ConfigValues config_values;
 
     int currently_editing_or_creating_track_id;
 
@@ -245,11 +245,9 @@ private:
     void HandleCreateTrackClick();
     void HandleExternalFileToggle();
     void HandleFinishCreateTrackClick();
-    void HandleFrameNumberChange(unsigned int new_frame_number);
     void HandleOutlierProcessingChange();
     void HandlePopoutEngineeringClick(bool checked);
     void HandlePopoutHistogramClick(bool checked);
-    void HandlePopoutVideoClick(bool checked);
     void HandleYAxisChange();
 
     void LoadAbirData(int start_frame, int stop_frame);
@@ -257,13 +255,11 @@ private:
 
     void OpenPopoutEngineeringPlot();
     void OpenPopoutHistogramPlot();
-    void OpenPopoutVideoDisplay();
     void OpenProgressArea(const QString& message, int N);
     void PrepareForTrackCreation(int track_id);
     static void ProvideInformationAbout();
     void ReplaceBadPixels(std::vector<unsigned int> pixels_to_replace, int source_state_ind);
     void ResetEngineeringDataAndSliderGUIs();
-    void UpdateGlobalFrameVector();
 
 signals:
     void changeBanner(QString banner_text);
@@ -279,7 +275,6 @@ public slots:
     void ApplyEpochTime();
     void ApplyFixedNoiseSuppressionFromExternalFile();
     void ChangeWorkspaceDirectory();
-    void ClearZoomAndCalculationButtons();
     void CloseWindow();
     void EnableYAxisOptions(bool enabled);
 
@@ -293,13 +288,10 @@ public slots:
     void ExecuteFixedNoiseSuppression();
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
-
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);
-    void HandleCalculationOnVideoToggle();
     void HandleFrameChange();
-    void HandleFrameNumberChangeInput();
     void HandleGainSliderToggled();
     void HandleHideManualTrackId(int track_id);
     void HandleHistogramClick(double x0, double x1);
@@ -313,7 +305,6 @@ public slots:
     void HandlePlotPrimaryOnlyToggle();
     void HandlePopoutEngineeringClosed();
     void HandlePopoutHistogramClosed();
-    void HandlePopoutVideoClosed();
     void HandleProcessingNewStateSelected();
     void HandleProcessingStateRemoval(ProcessingMethod method, int index);
     void HandleProcessingStatesCleared();
@@ -323,7 +314,6 @@ public slots:
     void HandleTrackRemoval(int track_id);
     void HandleXAxisOptionChange();
     void HandleZoomAfterSlider();
-    void HandleZoomOnVideoToggle();
 
     void ImportTracks();
     void LoadWorkspace();
@@ -332,7 +322,6 @@ public slots:
     void ReceiveProgressBarUpdate(int percent) const;
     void ResetColorCorrection();
 
-    void SaveFrame();
     void SavePlot();
     void SaveWorkspace();
 
@@ -340,9 +329,7 @@ public slots:
     void SetLiftAndGain(double lift, double gain);
     void ShowCalibrationDialog();
 
-    void StartStopVideoRecording();
     void UiLoadAbirData();
-    void UpdateFps();
     bool ValidateAbpFiles(const QString& path_to_image_file);
 
     void onThresholdComboBoxIndexChanged(int index) {

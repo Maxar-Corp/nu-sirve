@@ -1,18 +1,6 @@
 #include "calibration_data.h"
 
-CalibrationData::CalibrationData()
-{
-	// set check variable to false to start
-	calibration_available = false;
-
-}
-
-CalibrationData::~CalibrationData()
-{
-
-}
-
-std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time)
+std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
 {
 	double scale_factor = integration_time / frame_integration_time;
 
