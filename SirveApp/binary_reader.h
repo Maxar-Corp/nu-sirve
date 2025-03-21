@@ -34,18 +34,22 @@ public:
     uint64_t Tell();
 
 protected:
-    constexpr bool needSwap(bool big_endian) const
-    {
-        return big_endian ? !IsBigEndian() : IsBigEndian();
-    }
+    [[nodiscard]] static constexpr bool NeedSwap(bool big_endian) ;
+
     template <typename T>
     static void SwapOrder(T* value);
 
     FILE* stream_ = nullptr;
 };
+
 constexpr bool BinaryReader::IsBigEndian()
 {
     return Q_BYTE_ORDER == Q_BIG_ENDIAN;
+}
+
+constexpr bool BinaryReader::NeedSwap(bool big_endian)
+{
+    return big_endian ? !IsBigEndian() : IsBigEndian();
 }
 
 template <typename T>
@@ -59,7 +63,7 @@ T BinaryReader::Read(bool big_endian)
         throw std::runtime_error("Failed to read the expected number of elements from the stream.");
     }
 
-    if (needSwap(big_endian))
+    if (NeedSwap(big_endian))
     {
         SwapOrder<T>(&data);
     }
@@ -81,9 +85,9 @@ size_t BinaryReader::Read(T* data, uint32_t num_elements, bool big_endian)
         throw std::runtime_error("Failed to read the expected number of elements from the stream.");
     }
 
-    if (needSwap(big_endian))
+    if (NeedSwap(big_endian))
     {
-        for (auto i = 0; i < num_elements; i++)
+        for (auto i = 0u; i < num_elements; i++)
         {
             SwapOrder<T>(&data[i]);
         }
@@ -112,7 +116,7 @@ std::vector<T> BinaryReader::ReadVector(int num_values, bool big_endian)
 
     for (auto i = 0; i < num_values; i++)
     {
-        if (needSwap(big_endian))
+        if (NeedSwap(big_endian))
         {
             SwapOrder<T>(&data[i]);
         }

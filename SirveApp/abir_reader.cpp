@@ -1,7 +1,5 @@
 #include "abir_reader.h"
 
-#include <qpointer.h>
-
 #include "qcoreapplication.h"
 #include "qinputdialog.h"
 
@@ -54,7 +52,7 @@ bool ABIRReader::Open(const char* filename, double version_number)
 
     if (file_version_ == 2.5)
     {
-        file_version_ = 3.0; // ?? That cannot be safe
+        file_version_ = 3.0;
     }
 
     return true;
@@ -125,7 +123,8 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             break; // break from empty frames
         }
 
-        header_data.seconds = static_cast<uint64_t>(static_cast<double>(temp_seconds + temp_nano_seconds) * 10e-9);
+        header_data.seconds = temp_seconds + static_cast<uint64_t>(static_cast<double>(temp_nano_seconds) * 10e-9);
+
         header_data.size = temp_size;
         header_data.image_size_double = Read<uint64_t>();
 

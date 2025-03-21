@@ -57,7 +57,7 @@ std::vector<Frame> OSMReader::LoadFrames(uint32_t num_messages)
             return {};
         }
 
-        if (i == 0 || frame_time_[i] - frame_time_[i - 1] != 0)
+        if (i == 0 || frame_time_[i] - frame_time_[i - 1] != 0.00)
         {
             frames.emplace_back(std::move(current_frame));
         }
@@ -85,7 +85,7 @@ MessageHeader OSMReader::ReadMessageHeader()
         return header;
     }
 
-    header.seconds = seconds + nano_seconds * 1e-9;
+    header.seconds = static_cast<double>(seconds) + static_cast<double>(nano_seconds) * 1e-9;
     header.size = tsize;
 
     return header;
