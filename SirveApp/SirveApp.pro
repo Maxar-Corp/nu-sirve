@@ -49,9 +49,9 @@ HEADERS += abir_reader.h \
             Section.h \
             shared_tracking_functions.h\
             SirveApp.h \
+            state_manager.h \
             track_management_widget.h \
             tracks.h \
-            video_container.h \
             video_details.h \
             video_display.h \
             video_display_zoom.h \
@@ -99,9 +99,9 @@ SOURCES += abir_reader.cpp \
             Section.cpp \
             shared_tracking_functions.cpp\
             SirveApp.cpp \
+            state_manager.cpp \
             track_management_widget.cpp \
             tracks.cpp \
-            video_container.cpp \
             video_display.cpp \
             video_display_zoom.cpp \
             workspace.cpp \
