@@ -1,7 +1,5 @@
 #include "abir_reader.h"
-
 #include "qcoreapplication.h"
-#include "qinputdialog.h"
 
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
@@ -15,8 +13,10 @@ ABIRFrames::ABIRFrames() :
 {
 }
 
-bool ABIRReader::Open(const char* filename, double version_number)
+bool ABIRReader::Open(const char* filename, double version_number, bool mtsDData)
 {
+    mtsDData_ = mtsDData;
+
     if (!BinaryReader::Open(filename))
     {
         return false;
@@ -31,19 +31,6 @@ bool ABIRReader::Open(const char* filename, double version_number)
         Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
         file_version_ = Read<double>(true);
     }
-
-    bool ok;
-    double version_number_entered = QInputDialog::getDouble(nullptr, "Override File Version",
-                                                            "Enter File Version to Use:",
-                                                            version_number,
-                                                            1, 4.2, 2, &ok);
-    if (!ok)
-    {
-        // INFO << "User selected 'Cancel' for version. Import of video files canceled"
-        return false;
-    }
-
-    file_version_ = version_number_entered;
 
     if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER)
     {
@@ -292,6 +279,11 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
                 header_data.temp_k = Read<float>();
                 header_data.pressure = Read<float>();
                 header_data.relative_humidity = Read<float>();
+
+                if (mtsDData_)
+                {
+                    header_data.cooling = Read<float>();
+                }
             }
         }
 

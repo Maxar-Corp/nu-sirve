@@ -7,6 +7,8 @@
 #include <QPushButton>
 #include <qbuttongroup.h>
 
+#include "abp_version_dlg.h"
+
 CalibrationData::CalibrationData()
 {
     // set check variable to false to start
@@ -692,9 +694,19 @@ void CalibrationDialog::verifyCalibrationValues()
         btn_ok->setEnabled(false);
         btn_cancel->setEnabled(false);
 
+        AbpVersionDlg dlg(this);
+        dlg.SetVersionNumbers({version, 1, 2, 4.2}, version);
+        if (dlg.exec() != Accepted)
+        {
+            return;
+        }
+
+        version = dlg.GetVersionNumber();
+        auto mtsDData = dlg.LoadMTSDData();
+
         // get counts from abp image file
         auto frames1 =
-            file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version);
+            file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version, mtsDData);
         if (frames1 == nullptr)
         {
             QMessageBox msg_box;
@@ -709,7 +721,7 @@ void CalibrationDialog::verifyCalibrationValues()
         auto video_frames1 = std::move(frames1->video_frames_16bit);
 
         auto frames2 =
-            file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version);
+            file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version, mtsDData);
         if (frames2 == nullptr)
         {
             QMessageBox msg_box;

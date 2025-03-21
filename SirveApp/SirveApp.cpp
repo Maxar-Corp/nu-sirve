@@ -4,6 +4,7 @@
 #include "data_export.h"
 #include "osm_reader.h"
 #include "wait_cursor.h"
+#include "abp_version_dlg.h"
 
 SirveApp::SirveApp(QWidget *parent)
     : QMainWindow(parent)
@@ -2149,8 +2150,6 @@ void SirveApp::DeleteAbirData()
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 {
-    WaitCursor cursor;
-
     playback_controller->StopTimer();
     video_display->container.clear();
 
@@ -2161,7 +2160,19 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Task 1:
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
-    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
+
+    AbpVersionDlg dlg(this);
+    dlg.SetVersionNumbers({config_values.version, 1, 2, 4.2}, config_values.version);
+    if (dlg.exec() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    auto version = dlg.GetVersionNumber();
+    auto mtsDData = dlg.LoadMTSDData();
+
+    WaitCursor cursor;
+    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, version, mtsDData);
     if (abir_frames == nullptr)
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
@@ -2177,9 +2188,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         return;
     }
 
-
-
-
+    // version_number, 1, 4.2, 2,
 
 
     // Task 2:
@@ -3398,9 +3407,19 @@ void SirveApp::HandleBadPixelReplacement()
             return;
         }
 
+        AbpVersionDlg dlg(this);
+        dlg.SetVersionNumbers({config_values.version, 1, 2, 4.2}, config_values.version);
+        if (dlg.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+
+        auto version = dlg.GetVersionNumber();
+        auto mtsDData = dlg.LoadMTSDData();
+
         WaitCursor cursor;
         abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
-                                           config_values.version);
+                                           version, mtsDData);
         if (abir_frames == nullptr)
         {
             QtHelpers::LaunchMessageBox(QString("Error loading frames."),

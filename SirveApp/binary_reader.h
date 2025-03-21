@@ -113,7 +113,6 @@ std::vector<T> BinaryReader::ReadVector(int num_values, bool big_endian)
         throw std::runtime_error("Failed to read the expected number of elements from the stream.");
     }
 
-
     for (auto i = 0; i < num_values; i++)
     {
         if (NeedSwap(big_endian))

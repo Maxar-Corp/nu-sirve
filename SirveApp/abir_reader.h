@@ -105,6 +105,7 @@ struct ABIRFrameHeader
     float temp_k{};
     float pressure{};
     float relative_humidity{};
+    float cooling{};    // for MTS-D Data
     double p_ypr_dot[3]{};
     // END VERSIONS >= 4.1
 
@@ -144,7 +145,7 @@ public:
     ABIRReader() = default;
     ~ABIRReader() override = default;
 
-    bool Open(const char* filename, double version_number = 0.0);
+    bool Open(const char* filename, double version_number = 0.0, bool mtsDData = false);
     ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only = false);
 
 private:
@@ -153,6 +154,7 @@ signals:
 
 private:
     double file_version_{};
+    bool mtsDData_ = false; // for MTS-D Data
 };
 
 #endif // ABIR_READER_H
