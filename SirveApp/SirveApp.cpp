@@ -1953,7 +1953,9 @@ void SirveApp::LoadOsmData()
         delete data_plots;
         delete engineering_plot_layout;
 
-        video_display->container.clear();
+        if (video_display->container.metaObject())
+            video_display->container.clear();
+
         video_display->RemoveFrame();
         histogram_plot->RemoveHistogramPlots();
 
