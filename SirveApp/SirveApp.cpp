@@ -1876,6 +1876,8 @@ void SirveApp::HandleAbpFileSelected()
         return;
     }
 
+    lbl_processing_description->setText("");
+
     bool validated = ValidateAbpFiles(file_selection);
 	if (validated) {
         LoadOsmData();
