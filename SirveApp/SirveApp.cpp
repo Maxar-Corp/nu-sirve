@@ -16,6 +16,7 @@ SirveApp::SirveApp(QWidget *parent)
     config_values = configReaderWriter::ExtractWorkspaceConfigValues();
 
     workspace = new Workspace(config_values.workspace_folder);
+
     file_processor = new ProcessFile();
 
     // establish object that will hold video and connect it to the playback thread
@@ -1880,6 +1881,8 @@ void SirveApp::HandleAbpFileSelected()
 
     WaitCursor cursor;
 
+    lbl_processing_description->setText("");
+
     bool validated = ValidateAbpFiles(file_selection);
 	if (validated) {
         LoadOsmData();
@@ -1966,7 +1969,9 @@ void SirveApp::LoadOsmData()
         delete data_plots;
         delete engineering_plot_layout;
 
-        video_display->container.clear();
+        if (video_display->container.metaObject())
+            video_display->container.clear();
+
         video_display->RemoveFrame();
         histogram_plot->RemoveHistogramPlots();
 
@@ -2187,9 +2192,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         btn_get_frames->setEnabled(true);
         return;
     }
-
-    // version_number, 1, 4.2, 2,
-
 
     // Task 2:
     QCoreApplication::processEvents();
