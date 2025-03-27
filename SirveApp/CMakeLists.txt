@@ -109,9 +109,6 @@ set(RESOURCES SirveApp.qrc)
 # TODO: AUTOMOC doesn't work, investigate
 # qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
 
-set(CMAKE_AUTOUIC ON)
-qt5_wrap_ui(UI_SOURCES ${UI_SOURCES})
-
 add_executable(SirveApp ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${UI_SOURCES} ${RESOURCES})
 
 if(WIN32)
@@ -133,7 +130,6 @@ target_link_libraries(SirveApp
 
 target_include_directories(SirveApp PRIVATE 
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${CMAKE_CURRENT_BINARY_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}/generated"
     "${ARMADILLO_INCLUDE_DIRS}"
     "${OpenCV_INCLUDE_DIRS}"
