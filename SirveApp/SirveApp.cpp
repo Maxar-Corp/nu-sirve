@@ -4383,71 +4383,75 @@ void SirveApp::HandleAutoTrackStartChangeInput()
 
 void SirveApp::UpdateGlobalFrameVector()
 {
-    const auto& current = state_manager_->GetCurrentState();
-    std::vector<double> original_frame_vector = {
-        current.details.frames_16bit[video_player_->GetCounter()].begin(),
-        current.details.frames_16bit[video_player_->GetCounter()].end()
-    };
-
-    //Convert current frame to armadillo matrix
-    arma::vec image_vector(original_frame_vector);
-
-    int image_max_value = image_vector.max();
-    if (!rad_scale_by_frame->isChecked()){
-        image_max_value = current.details.max_value;
-    }
-
-    int image_min_value = image_vector.min();
-
-    lbl_min_scale_value->setText("Low: " + QString::number(image_min_value));
-    lbl_max_scale_value->setText("High: " + QString::number(image_max_value));
-    image_vector -= arma::mean(image_vector);
-    image_vector /= (24*arma::stddev(image_vector));
-    image_vector += (12*arma::stddev(image_vector));
-
-    if (chk_auto_lift_gain->isChecked())
+    if (!state_manager_->empty())
     {
-        double lift_sigma = txt_lift_sigma->text().toDouble();
-        double gain_sigma = txt_gain_sigma->text().toDouble();
-        double sigma = arma::stddev(image_vector);
-        double meanVal = arma::mean(image_vector);
-        double lift = meanVal - (lift_sigma * sigma);
-        double gain = meanVal + (gain_sigma * sigma);
+        const auto& current = state_manager_->GetCurrentState();
 
-        lift = std::max(lift, 0.);
-        gain = std::min(gain, 1.);
-        SetLiftAndGain(lift, gain);
+        std::vector<double> original_frame_vector = {
+            current.details.frames_16bit[video_player_->GetCounter()].begin(),
+            current.details.frames_16bit[video_player_->GetCounter()].end()
+        };
+
+        //Convert current frame to armadillo matrix
+        arma::vec image_vector(original_frame_vector);
+
+        int image_max_value = image_vector.max();
+        if (!rad_scale_by_frame->isChecked()){
+            image_max_value = current.details.max_value;
+        }
+
+        int image_min_value = image_vector.min();
+
+        lbl_min_scale_value->setText("Low: " + QString::number(image_min_value));
+        lbl_max_scale_value->setText("High: " + QString::number(image_max_value));
+        image_vector -= arma::mean(image_vector);
+        image_vector /= (24*arma::stddev(image_vector));
+        image_vector += (12*arma::stddev(image_vector));
+
+        if (chk_auto_lift_gain->isChecked())
+        {
+            double lift_sigma = txt_lift_sigma->text().toDouble();
+            double gain_sigma = txt_gain_sigma->text().toDouble();
+            double sigma = arma::stddev(image_vector);
+            double meanVal = arma::mean(image_vector);
+            double lift = meanVal - (lift_sigma * sigma);
+            double gain = meanVal + (gain_sigma * sigma);
+
+            lift = std::max(lift, 0.);
+            gain = std::min(gain, 1.);
+            SetLiftAndGain(lift, gain);
+        }
+
+        double lift = lbl_lift_value->text().toDouble();
+        double gain = lbl_gain_value->text().toDouble();
+
+        int max_val = std::round(image_max_value * gain);
+        QString max_val_info = "Dark Set Pt: " + QString::number(max_val);
+        lbl_max_count_val->setText(max_val_info);
+
+        int min_val = std::round(image_max_value * lift);
+        QString min_val_info = "Light Set Pt:" + QString::number(min_val);
+        lbl_min_count_val->setText(min_val_info);
+
+        color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);
+        histogram_plot->UpdateHistogramAbsPlot(image_vector, lift, gain);
+
+        // Correct image based on min/max value inputs
+        ColorCorrection::UpdateColor(image_vector, lift, gain);
+
+        histogram_plot->UpdateHistogramRelPlot(image_vector);
+
+        image_vector = image_vector * 255;
+
+        std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
+        std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
+        arma::mat offsets_matrix(current.details.frames_16bit.size(),3,arma::fill::zeros);
+        if (!current.offsets_matrix.empty()){
+            offsets_matrix = current.offsets_matrix;
+        }
+
+        video_player_->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets_matrix);
     }
-
-    double lift = lbl_lift_value->text().toDouble();
-    double gain = lbl_gain_value->text().toDouble();
-
-    int max_val = std::round(image_max_value * gain);
-    QString max_val_info = "Dark Set Pt: " + QString::number(max_val);
-    lbl_max_count_val->setText(max_val_info);
-
-    int min_val = std::round(image_max_value * lift);
-    QString min_val_info = "Light Set Pt:" + QString::number(min_val);
-    lbl_min_count_val->setText(min_val_info);
-
-    color_map_display->set_color_map(video_colors.maps[cmb_color_maps->currentIndex()].colors,lift,gain);
-    histogram_plot->UpdateHistogramAbsPlot(image_vector, lift, gain);
-
-    // Correct image based on min/max value inputs
-    ColorCorrection::UpdateColor(image_vector, lift, gain);
-
-    histogram_plot->UpdateHistogramRelPlot(image_vector);
-
-    image_vector = image_vector * 255;
-
-    std::vector<double>out_vector = arma::conv_to<std::vector<double>>::from(image_vector);
-    std::vector<uint8_t> display_ready_converted_values = {out_vector.begin(), out_vector.end()};
-    arma::mat offsets_matrix(current.details.frames_16bit.size(),3,arma::fill::zeros);
-    if (!current.offsets_matrix.empty()){
-        offsets_matrix = current.offsets_matrix;
-    }
-
-    video_player_->UpdateFrameVector(original_frame_vector, display_ready_converted_values, offsets_matrix);
 }
 
 void SirveApp::closeEvent(QCloseEvent *event) {

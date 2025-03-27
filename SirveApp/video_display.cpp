@@ -913,14 +913,29 @@ void VideoDisplay::UpdateDisplayFrame()
     } else {
         lbl_image_canvas->setStyleSheet("#video_object { border: 1px solid light gray; }");
     }
-    auto final_zoom_level2 = zoom_manager.GetZoomList().back();
-    double x_scale2 = width / final_zoom_level2.width();
-    double y_scale2 = height / final_zoom_level2.height();
+
+    double x_scale2 = 1.0;
+    double y_scale2 = 1.0;
+
+    if (zoom_manager.ZoomListExists())
+    {
+        auto final_zoom_level2 = zoom_manager.GetZoomList().back();
+
+        x_scale2 = width / final_zoom_level2.width();
+        y_scale2 = height / final_zoom_level2.height();
+    }
+    else
+    {
+        x_scale2 = width / 640;
+        y_scale2 = height / 480;
+    }
+
     double size_of_pixel_x2 = 1.0 * x_scale2;
     double size_of_pixel_y2 = 1.0 * y_scale2;
     int marker_size = 5;
     double marker_width = size_of_pixel_x2 - 1 + marker_size * 2;
     double marker_height = size_of_pixel_y2 - 1 + marker_size * 2;
+
     if (in_track_creation_mode) {
         if (track_details[starting_frame_number + counter - 1].has_value()) {
             QPainter track_creation_marker_painter(&frame);

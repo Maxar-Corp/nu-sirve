@@ -92,21 +92,33 @@ void VideoDisplayZoomManager::UndoZoom()
 
 bool VideoDisplayZoomManager::IsCurrentlyZoomed(int x0, int y0) const noexcept
 {
-    const auto& final_zoom_level = absolute_zoom_list_.back();
+    if (!absolute_zoom_list_.empty())
+    {
+        const auto& final_zoom_level = absolute_zoom_list_.back();
 
-	if (x0 + 1 < final_zoom_level.x())
-		return false;
+        if (x0 + 1 < final_zoom_level.x())
+            return false;
 
-	if (x0 > final_zoom_level.x() + final_zoom_level.width())
-		return false;
+        if (x0 > final_zoom_level.x() + final_zoom_level.width())
+            return false;
 
-	if (y0 + 1 < final_zoom_level.y())
-		return false;
+        if (y0 + 1 < final_zoom_level.y())
+            return false;
 
-	if (y0 > final_zoom_level.y() + final_zoom_level.height())
-		return false;
+        if (y0 > final_zoom_level.y() + final_zoom_level.height())
+            return false;
 
-	return true;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool VideoDisplayZoomManager::ZoomListExists()
+{
+    return ! zoom_list_.empty();
 }
 
 QPoint VideoDisplayZoomManager::GetPositionWithinZoom(int x0, int y0) const

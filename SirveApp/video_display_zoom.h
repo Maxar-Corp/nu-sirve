@@ -24,6 +24,8 @@ public:
     bool IsCurrentlyZoomed() const noexcept;
     bool IsCurrentlyZoomed(int x0, int y0) const noexcept;
 
+    bool ZoomListExists();
+
 private:
     int image_width_ = 0, image_height_ = 0;
     std::vector<QRect> zoom_list_;
