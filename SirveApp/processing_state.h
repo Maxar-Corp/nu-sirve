@@ -26,9 +26,9 @@ enum struct ProcessingMethod
     state_steps
 };
 
-struct processingState {
-	processingState() = default;
-	static processingState FromJson(const QJsonObject & json_obj);
+struct ProcessingState {
+	ProcessingState() = default;
+	static ProcessingState FromJson(const QJsonObject & json_obj);
 
     ProcessingMethod method = ProcessingMethod::original;
     VideoDetails details;

@@ -5,7 +5,9 @@
 
 #include <QDialog>
 #include <QGridLayout>
+#include <QPointer>
 #include <QWidget>
+
 
 class PopoutDialog : public QDialog
 {
@@ -13,9 +15,8 @@ class PopoutDialog : public QDialog
 
 public:
 	PopoutDialog();
-	~PopoutDialog();
 
-    QGridLayout * mainLayout;
+    QPointer<QGridLayout> mainLayout;
 
 	void acquire(QWidget *widget);
 };

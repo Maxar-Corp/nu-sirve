@@ -5,20 +5,20 @@
  * \param json_obj The JSON object to create the processing state from.
  * \return The processing state created from the JSON object.
  */
-processingState processingState::FromJson(const QJsonObject & json_obj)
+ProcessingState ProcessingState::FromJson(const QJsonObject & json_obj)
 {
     QString method = json_obj.value("method").toString();
 
     if (method == "Original ('Raw') Data")
     {
-        processingState temp = { ProcessingMethod::original };
+        ProcessingState temp = { ProcessingMethod::original };
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
         return temp;
     }
     if (method == "Replace Bad Pixels")
     {
-        processingState temp = { ProcessingMethod::replace_bad_pixels };
+        ProcessingState temp = { ProcessingMethod::replace_bad_pixels };
         std::vector<unsigned int> replaced_pixels;
         for (auto json_item : json_obj.value("replaced_pixels").toArray())
         {
@@ -31,7 +31,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
     }
     if (method == "ANS")
     {
-        processingState temp = { ProcessingMethod::adaptive_noise_suppression };
+        ProcessingState temp = { ProcessingMethod::adaptive_noise_suppression };
         temp.ANS_relative_start_frame = json_obj.value("ANS_relative_start_frame").toInt();
         temp.ANS_num_frames = json_obj.value("ANS_num_frames").toInt();
         temp.state_ID = json_obj.value("state_ID").toInt();
@@ -53,7 +53,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
     }
     if (method == "Deinterlace")
     {
-        processingState temp = { ProcessingMethod::deinterlace };
+        ProcessingState temp = { ProcessingMethod::deinterlace };
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
         std::vector<unsigned int>  ancestors;
@@ -74,7 +74,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
     }
     if (method == "FNS")
     {
-        processingState temp = { ProcessingMethod::fixed_noise_suppression };
+        ProcessingState temp = { ProcessingMethod::fixed_noise_suppression };
         temp.frame0 = json_obj.value("frame0").toInt();
         temp.FNS_start_frame = json_obj.value("FNS_start_frame").toInt();
         temp.FNS_stop_frame = json_obj.value("FNS_stop_frame").toInt();
@@ -98,7 +98,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
     }
     if (method == "Accumulator")
     {
-        processingState temp = { ProcessingMethod::accumulator_noise_suppression };
+        ProcessingState temp = { ProcessingMethod::accumulator_noise_suppression };
         temp.weight = json_obj.value("weight").toDouble();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
@@ -122,7 +122,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
     }
     if (method == "Center on OSM")
     {
-        processingState temp = { ProcessingMethod::center_on_OSM };
+        ProcessingState temp = { ProcessingMethod::center_on_OSM };
         temp.track_id = json_obj.value("Track_ID").toInt();
         std::vector<int> offsets0;
         std::vector<std::vector<int>> offsets;
@@ -157,7 +157,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
 
     if (method == "Center on Manual")
     {
-        processingState temp = { ProcessingMethod::center_on_manual };
+        ProcessingState temp = { ProcessingMethod::center_on_manual };
         temp.track_id = json_obj.value("Track_ID").toInt();
         std::vector<int> offsets0;
         std::vector<std::vector<int>> offsets;
@@ -194,7 +194,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
 
     if (method == "Center on Brightest")
     {
-        processingState temp = { ProcessingMethod::center_on_brightest };
+        ProcessingState temp = { ProcessingMethod::center_on_brightest };
         temp.track_id = json_obj.value("Track_ID").toInt();
         std::vector<int> offsets0;
         std::vector<std::vector<int>> offsets;
@@ -230,7 +230,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
 
     if (method == "Frame Stacking")
     {
-        processingState temp = { ProcessingMethod::frame_stacking };
+        ProcessingState temp = { ProcessingMethod::frame_stacking };
         temp.frame_stack_num_frames = json_obj.value("frame_stack_num_frames").toInt();
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
@@ -251,7 +251,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
     }
     if (method == "RPCP")
     {
-        processingState temp = { ProcessingMethod::RPCP_noise_suppression };
+        ProcessingState temp = { ProcessingMethod::RPCP_noise_suppression };
         temp.state_ID = json_obj.value("state_ID").toInt();
         temp.source_state_ID = json_obj.value("source_state_ID").toInt();
         std::vector<unsigned int>  ancestors;
@@ -281,7 +281,7 @@ processingState processingState::FromJson(const QJsonObject & json_obj)
  * \brief Returns a friendly description of the processing state, based on method.
  * \return A friendly description of the processing state.
  */
-QString processingState::GetFriendlyDescription() const {
+QString ProcessingState::GetFriendlyDescription() const {
     switch (method)
     {
         case ProcessingMethod::original:
@@ -389,7 +389,7 @@ QString processingState::GetFriendlyDescription() const {
  * \brief Returns a description of the processing state for use in a combobox, based on method.
  * \return A description of the processing state for use in a combobox.
  */
-QString processingState::GetComboBoxDescription() const {
+QString ProcessingState::GetComboBoxDescription() const {
     switch (method)
     {
         case ProcessingMethod::original:
@@ -436,7 +436,7 @@ QString processingState::GetComboBoxDescription() const {
     }
 }
 
-const QString& processingState::GetStepName() const
+const QString& ProcessingState::GetStepName() const
 {
     static const QString step_names[] = {
         "Original ('Raw') Data",
@@ -459,7 +459,7 @@ const QString& processingState::GetStepName() const
  * \brief Returns a JSON object representing the processing state.
  * \return A JSON object representing the processing state.
  */
-QJsonObject processingState::ToJson() const {
+QJsonObject ProcessingState::ToJson() const {
     QJsonObject state_object;
     state_object.insert("state_ID", state_ID);
     state_object.insert("source_state_ID", source_state_ID);
@@ -592,13 +592,13 @@ QJsonObject processingState::ToJson() const {
     return state_object;
 }
 
-void processingState::UpdateDescription()
+void ProcessingState::UpdateDescription()
 {
     state_description = "State " + QString::number(state_ID) + ": " + GetFriendlyDescription();
     combobox_state_name = combobox_state_name = QString::number(state_ID) + ": " + GetComboBoxDescription();
 }
 
-void processingState::UpdateMaxValue()
+void ProcessingState::UpdateMaxValue()
 {
     auto maxVal = std::numeric_limits<uint16_t>::min();
     for (const auto& row : details.frames_16bit) {

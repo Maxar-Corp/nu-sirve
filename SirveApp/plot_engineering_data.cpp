@@ -715,7 +715,7 @@ void EngineeringPlots::UpdateManualPlottingTrackFrames(std::vector<ManualPlottin
 
 void EngineeringPlots::RecolorManualTrack(int track_id, QColor new_color)
 {
-    manual_track_colors[track_id] = new_color;
+    manual_track_colors[track_id] = std::move(new_color);
 }
 
 void EngineeringPlots::RecolorOsmTrack(QColor color)

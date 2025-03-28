@@ -4,7 +4,7 @@
 const std::vector<double> PlaybackController::kSpeeds =
 	{1 / 15.0, 0.10, 0.20, .25, 1 / 3.0, .5, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 60};
 
-PlaybackController::PlaybackController(unsigned int number_frames)
+PlaybackController::PlaybackController(QObject* parent, uint32_t number_frames) : QObject(parent)
 {
 	timer_ = std::make_unique<QTimer>(this);
 	timer_->setInterval(1000);
@@ -20,18 +20,18 @@ PlaybackController::PlaybackController(unsigned int number_frames)
 	connect(timer_.get(), &QTimer::timeout, this, &PlaybackController::UpdateTimer);
 }
 
-void PlaybackController::SetNumberOfFrames(unsigned int value)
+void PlaybackController::SetNumberOfFrames(uint32_t value)
 {
 	max_frame_number_ = value - 1;
 	current_frame_number_ = 0;
 }
 
-unsigned int PlaybackController::GetCurrentFrameNumber() const
+uint32_t PlaybackController::GetCurrentFrameNumber() const
 {
 	return current_frame_number_;
 }
 
-unsigned int PlaybackController::GetMaxFrameNumber() const
+uint32_t PlaybackController::GetMaxFrameNumber() const
 {
 	return max_frame_number_;
 }
@@ -95,7 +95,7 @@ void PlaybackController::UpdateTimer()
 	emit frameSelected(current_frame_number_);
 }
 
-void PlaybackController::SetCurrentFrameNumber(unsigned int value)
+void PlaybackController::SetCurrentFrameNumber(uint32_t value)
 {
 	if (value == current_frame_number_)
 		return;
@@ -131,12 +131,12 @@ void PlaybackController::GotoNextFrame()
 	emit frameSelected(current_frame_number_);
 }
 
-void PlaybackController::CustomAdvanceFrame(unsigned int frame_amt)
+void PlaybackController::CustomAdvanceFrame(uint32_t frame_amt)
 {
 	if (frame_amt > 0 && frame_amt <= max_frame_number_) {
 		timer_->stop();
 
-		unsigned int new_frame_number = current_frame_number_ + frame_amt;
+		uint32_t new_frame_number = current_frame_number_ + frame_amt;
 
 		if (new_frame_number > max_frame_number_) {
 			new_frame_number -= max_frame_number_;

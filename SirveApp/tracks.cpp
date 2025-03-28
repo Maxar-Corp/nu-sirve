@@ -1,5 +1,7 @@
 #include "tracks.h"
 #include "constants.h"
+#include "QFile"
+#include "support/az_el_calculation.h"
 
 TrackInformation::TrackInformation()
 {
@@ -94,12 +96,12 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
     }
 }
 
-int TrackInformation::get_track_count()
+int TrackInformation::get_track_count() const
 {
     return static_cast<int>(osm_track_ids.size());
 }
 
-int TrackInformation::get_frame_count()
+int TrackInformation::get_frame_count() const
 {
     return static_cast<int>(osm_frames.size());
 }
@@ -150,7 +152,7 @@ std::set<int> TrackInformation::get_OSM_track_ids()
 }
 
 
-void TrackInformation::AddManualTracks(std::vector<TrackFrame> new_frames)
+void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
     for (int i = 0; i < manual_frames.size(); i++ )
@@ -205,7 +207,7 @@ void TrackInformation::RemoveManualTrackImage(int track_id)
     }
 }
 
-void TrackInformation::AddCreatedManualTrack(std::vector<PlottingFrameData> frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, QString new_track_file_name)
+void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name)
 {
     //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
     manual_track_ids.insert(track_id);
@@ -287,14 +289,9 @@ std::vector<std::optional<TrackDetails>> TrackInformation::CopyManualTrack(int t
     return single_track_frames;
 }
 
-std::vector<std::optional<TrackDetails>> TrackInformation::GetEmptyTrack()
+std::vector<std::optional<TrackDetails>> TrackInformation::GetEmptyTrack() const
 {
-    std::vector<std::optional<TrackDetails>> track_frames;
-    for (int i = 0; i < manual_frames.size(); i++ )
-    {
-        track_frames.push_back(std::nullopt);
-    }
-    return track_frames;
+    return { manual_frames.size(), std::nullopt };
 }
 
 TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_name) const
@@ -324,7 +321,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
         {
             line_num += 1;
 
-            QByteArray line = file.readLine();
+            line = file.readLine();
             QList<QByteArray> cells = line.split(',');
 
             int track_id = cells[0].toInt(&ok);
@@ -417,11 +414,11 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
 }
 
-ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts)
+ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts) const
 {
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
-    
-    struct ManualPlottingTrackDetails details;
+
+    ManualPlottingTrackDetails details;
 	
 	bool adjust_frame_ref = true;
 

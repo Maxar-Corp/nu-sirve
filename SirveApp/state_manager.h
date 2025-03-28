@@ -1,5 +1,5 @@
-#ifndef VIDEO_CONTAINER_H
-#define VIDEO_CONTAINER_H
+#ifndef STATE_MANAGER_H
+#define STATE_MANAGER_H
 
 #include <QObject>
 #include <vector>
@@ -15,42 +15,42 @@
  * It also provides some functionality of a ContiguousContainer requirement and can largely be used as you'd
  * use an std::vector. See https://en.cppreference.com/w/cpp/named_req/ContiguousContainer
  */
-class VideoContainer : public QObject
+class StateManager : public QObject
 {
 	Q_OBJECT
 
 public:
-	VideoContainer() = default;
+	StateManager(QObject* parent = nullptr);
 
-	processingState& GetCurrentState();
-	const processingState& GetCurrentState() const;
+	ProcessingState& GetCurrentState();
+	const ProcessingState& GetCurrentState() const;
 	int GetCurrentStateIdx() const;
 
 	// ContiguousContainer requirements
-	using value_type = processingState;
-	using reference = processingState&;
-	using const_reference = const processingState&;
-	using iterator = std::vector<processingState>::iterator;
-	using const_iterator = std::vector<processingState>::const_iterator;
-	using difference_type = std::vector<processingState>::difference_type;
-	using size_type = std::vector<processingState>::size_type;
+	using value_type = ProcessingState;
+	using reference = ProcessingState&;
+	using const_reference = const ProcessingState&;
+	using iterator = std::vector<ProcessingState>::iterator;
+	using const_iterator = std::vector<ProcessingState>::const_iterator;
+	using difference_type = std::vector<ProcessingState>::difference_type;
+	using size_type = std::vector<ProcessingState>::size_type;
 
-	processingState& at(size_t idx);
-	const processingState& at(size_t idx) const;
+	ProcessingState& at(size_t idx);
+	const ProcessingState& at(size_t idx) const;
 
-	processingState& operator[](size_t idx);
-	const processingState& operator[](size_t idx) const;
+	ProcessingState& operator[](size_t idx);
+	const ProcessingState& operator[](size_t idx) const;
 
-	processingState& front();
-	const processingState& front() const;
+	ProcessingState& front();
+	const ProcessingState& front() const;
 
-	processingState& back();
-	const processingState& back() const;
+	ProcessingState& back();
+	const ProcessingState& back() const;
 
 	size_t size() const noexcept;
 	bool empty() const noexcept;
 
-	void push_back(processingState sourceState, ProcessingMethod method = ProcessingMethod::original, bool emit_state_added = true, bool emit_update_display = true);
+	void push_back(ProcessingState sourceState, ProcessingMethod method = ProcessingMethod::original, bool emit_state_added = true, bool emit_update_display = true);
 
 	void erase(size_t idx, bool emit_update_display = false);
 	void erase(const const_iterator& it, bool emit_update_display = false);
@@ -75,8 +75,8 @@ public slots:
 	void PopProcessingState();
 
 private:
-	std::vector<processingState> processing_states;
+	std::vector<ProcessingState> processing_states;
 	int current_idx = -1;
 };
 
-#endif // VIDEO_CONTAINER_H
+#endif // STATE_MANAGER_H

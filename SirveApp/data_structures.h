@@ -1,11 +1,7 @@
-#pragma once
-
 #ifndef DATA_STRUCTURES_H
 #define DATA_STRUCTURES_H
 
-#include <iostream>
 #include <vector>
-#include <map>
 
 struct FrameHeader {
 
