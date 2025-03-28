@@ -43,6 +43,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_ti
     connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
+    this->setExclusionString("frameline");
+
     this->setToolbarAlwaysOn(true);
 }
 
