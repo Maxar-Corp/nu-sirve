@@ -1723,6 +1723,8 @@ void SirveApp::HandleAbpFileSelected()
         return;
     }
 
+    lbl_processing_description->setText("");
+
     bool validated = ValidateAbpFiles(file_selection);
 	if (validated) {
         LoadOsmData();
@@ -1802,6 +1804,7 @@ void SirveApp::LoadOsmData()
 
         state_manager_->clear();
         video_player_->RemoveFrame();
+
         histogram_plot->RemoveHistogramPlots();
 
         tab_menu->setTabEnabled(0, false);
