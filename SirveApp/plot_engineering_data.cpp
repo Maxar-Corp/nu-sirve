@@ -158,7 +158,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         graph->setYColumn(columnY);
         graph->setTitle(title.replace('_',' '));
 
-        graph->setSymbolSize(0);
+        graph->setSymbolSize(0.1);
         graph->setSymbolLineWidth(1);
         graph->setColor(colors.get_current_color());
         graph->setSymbolColor(QColor::fromRgb(255,20,20));
@@ -400,8 +400,8 @@ void EngineeringPlot::ToggleFrameLine()
 
 void EngineeringPlot::ToggleGraphTickSymbol()
 {
-    int currentSize = graph->getSymbolSize();
-    int newSize = (currentSize == 0) ? 5 : 0;
+    double currentSize = graph->getSymbolSize();
+    double newSize = (currentSize == 0.1) ? 5 : 0.1;
 
     if (newSize >= 0 && newSize <= 5)
     {
