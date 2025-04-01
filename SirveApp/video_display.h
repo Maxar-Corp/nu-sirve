@@ -11,22 +11,21 @@
 #include <armadillo>
 #include <qpointer.h>
 
+#include "annotation_stencil.h"
+#include "abir_reader.h"
+#include "state_manager.h"
 #include "Data_Structures.h"
 #include "abir_reader.h"
 #include "annotation_info.h"
-#include "annotation_stencil.h"
-#include "calibration_data.h"
-#include "enhanced_label.h"
-#include "tracks.h"
-#include "video_container.h"
 #include "video_display_zoom.h"
+#include "tracks.h"
 
 class VideoDisplay : public QWidget
 {
     Q_OBJECT
 
 public:
-    VideoDisplay(QVector<QRgb> starting_color_table, QWidget *parent = nullptr);
+    VideoDisplay(QWidget *parent, StateManager* state_manager, const QVector<QRgb>& starting_color_table = {});
     static const QString kBoldLargeStyleSheet;
 
     QPointer<QVBoxLayout> video_display_layout;
@@ -38,17 +37,21 @@ public:
 
     std::vector<AnnotationInfo> annotation_list;
 
-    int image_x = 0;
-    int image_y = 0;
+    int width = SirveAppConstants::VideoDisplayWidth;
+    int height = SirveAppConstants::VideoDisplayHeight;
 
     QPointer<EnhancedLabel> lbl_image_canvas;
     QPointer<AnnotationStencil> annotation_stencil;
-    VideoContainer container;
 
     QString banner_text;
     QColor bad_pixel_color;
 
     std::vector<ABIRFrameHeader> frame_headers;
+
+    StateManager* GetStateManager();
+    const StateManager* GetStateManager() const;
+
+    uint32_t GetStartingFrameNumber() const noexcept;
 
     void HighlightBadPixels(bool status);
     void HighlightBadPixelsColors(const QString& input_color);
@@ -81,7 +84,7 @@ public:
 
     void SaveFrame();
     void ViewFrame(unsigned int frame_number);
-    void RemoveFrame();
+    void ResetFrame();
 
     void ReceiveVideoData(int x, int y);
     void InitializeToggles();
@@ -89,30 +92,24 @@ public:
 
 signals:
     void clearMouseButtons();
-    void addNewBadPixels(std::vector<unsigned int> new_pixels);
-    void removeBadPixels(std::vector<unsigned int> pixels);
+    void addNewBadPixels(const std::vector<unsigned int>& new_pixels);
+    void removeBadPixels(const std::vector<unsigned int>& pixels);
     void advanceFrame(int frame_amt);
     void finishTrackCreation();
     void disableTrack(int id);
     void enableTrack(int id);
 
 public slots:
-    void DisplayManualBox(QPoint pt);
-    void SetSelectCentroidBtn(bool status);
-    void GetThreshold(const QVariant& data);
+    void SetThreshold(const QVariant& data);
     void OnTrackFeatureRadioButtonClicked(int id);
     void OnFilterRadioButtonClicked(int id);
-    void ClearPinpoints();
     void SetCurrentIdx(int current_idx_new);
-
-    void HandleAnnotationChanges();
-    void HandleColorMapUpdate(QVector<QRgb> color_table);
-    void HandleFrameTimeToggle(bool checked);
+    void SetColorMap(QVector<QRgb> color_table);
+    void SetFrameTimeToggle(bool checked);
     void HandleImageAreaSelection(QRect area);
     void HandlePinpointControlActivation(bool enabled);
-    void HandlePixelSelection(QPoint origin);
-    void HandleSensorBoresightDataCheck(bool checked);
-    void HandleTrackerColorUpdate(QColor input_color);
+    void SetDisplayBoresight(bool checked);
+    void SetTrackerColor(QColor input_color);
 
     // stencil stuff
     void HideStencil();
@@ -125,7 +122,16 @@ public slots:
     void UpdateBannerText(const QString& input_banner_text);
     void UpdateBannerColor(const QString& input_color);
 
+private slots:
+    void DisplayManualBox(QPoint pt);
+    void SetSelectCentroidBtn(bool status);
+    void ClearPinpoints();
+    void HandleAnnotationChanges();
+    void HandlePixelSelection(QPoint origin);
+
 private:
+    QPointer<StateManager> state_manager_;
+
     static constexpr int kFrameAdvanceLimit = 500;
     QVector<QRgb> color_table;
 
@@ -178,7 +184,6 @@ private:
     bool is_zoom_active = false, is_calculate_active = false, should_show_bad_pixels = false;
     bool in_track_creation_mode = false, cursor_in_image = false;
     QPointer<QLabel> lbl_video_time_midnight, lbl_zulu_time;
-    QPointer<QLabel> lbl_frame_number;
     QRect calculation_region;
 
     // Frame data
@@ -197,7 +202,7 @@ private:
     std::set<int> manual_track_ids_to_show;
     std::map<int, QColor> manual_track_colors;
 
-    void SetupUi();
+    void SetupBlankFrame();
     void SetupLabels();
     void SetupCreateTrackControls();
     void SetupPinpointDisplay();

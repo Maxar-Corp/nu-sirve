@@ -12,12 +12,13 @@
 
 const QString VideoDisplay::kBoldLargeStyleSheet = "color: black; font-weight: bold; font-size: 12px";
 
-VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget* parent) :
-    QWidget(parent), color_table(std::move(starting_color_table))
+VideoDisplay::VideoDisplay(QWidget* parent, StateManager* state_manager, const QVector<QRgb>& starting_color_table) :
+    QWidget(parent), state_manager_(state_manager), color_table(std::move(starting_color_table))
 {
     lbl_image_canvas = new EnhancedLabel(this);
     video_display_layout = new QVBoxLayout();
     video_display_layout->addStretch(1);
+    SetupBlankFrame();
     SetupCreateTrackControls();
     SetupPinpointDisplay();
     SetupLabels();
@@ -28,8 +29,6 @@ VideoDisplay::VideoDisplay(QVector<QRgb> starting_color_table, QWidget* parent) 
 
     QScreen* screen = QApplication::primaryScreen();
     screenResolution = screen->size();
-
-    SetupUi();
 }
 
 void VideoDisplay::EstablishStencil()
@@ -92,9 +91,22 @@ void VideoDisplay::SetCurrentIdx(int current_idx_new)
     current_idx = current_idx_new;
 }
 
-void VideoDisplay::GetThreshold(const QVariant& data)
+void VideoDisplay::SetThreshold(const QVariant& data)
 {
     threshold = data.toInt();
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void VideoDisplay::SetupBlankFrame() {
+    QImage frame(width, height, QImage::Format_Grayscale16);
+    frame.fill(0);
+    lbl_image_canvas->setPixmap(QPixmap::fromImage(frame));
+    lbl_image_canvas->setMinimumSize(width, height);
+    lbl_image_canvas->update();
+    lbl_image_canvas->repaint();
+
+    lbl_image_canvas->update();
+    lbl_image_canvas->repaint();
 }
 
 void VideoDisplay::InitializeToggles()
@@ -239,11 +251,6 @@ void VideoDisplay::SetupPinpointDisplay()
     video_display_layout->addWidget(grp_pinpoint);
 }
 
-void VideoDisplay::SetupUi()
-{
-    // TO DO: Build out the future video capability.
-}
-
 void VideoDisplay::SetupLabels()
 {
     lbl_image_canvas->setBackgroundRole(QPalette::Base);
@@ -258,14 +265,11 @@ void VideoDisplay::SetupLabels()
     video_display_layout->insertWidget(0, lbl_image_canvas, 0, Qt::AlignHCenter);
 
     QHBoxLayout* hlayout_video_labels = new QHBoxLayout();
-    lbl_frame_number = new QLabel("");
     lbl_video_time_midnight = new QLabel("");
     lbl_zulu_time = new QLabel("");
-    lbl_frame_number->setAlignment(Qt::AlignLeft);
-    lbl_video_time_midnight->setAlignment(Qt::AlignHCenter);
+    lbl_video_time_midnight->setAlignment(Qt::AlignLeft);
     lbl_zulu_time->setAlignment(Qt::AlignRight);
 
-    hlayout_video_labels->addWidget(lbl_frame_number);
     hlayout_video_labels->addWidget(lbl_video_time_midnight);
     hlayout_video_labels->addWidget(lbl_zulu_time);
     video_display_layout->insertLayout(2, hlayout_video_labels);
@@ -324,15 +328,15 @@ void VideoDisplay::ReclaimLabel()
 
 void VideoDisplay::ReceiveVideoData(int x, int y)
 {
-    image_x = x;
-    image_y = y;
-    number_pixels = image_x * image_y;
+    width = x;
+    height = y;
+    number_pixels = width * height;
     
-    zoom_manager = {image_x, image_y};
+    zoom_manager = {width, height};
     pinpoint_indices.clear();
 
-    lbl_image_canvas->setMinimumWidth(image_x);
-    lbl_image_canvas->setMinimumHeight(image_y);
+    lbl_image_canvas->setMinimumWidth(width);
+    lbl_image_canvas->setMinimumHeight(height);
 }
 
 void VideoDisplay::UpdateBannerText(const QString& input_banner_text)
@@ -348,20 +352,20 @@ void VideoDisplay::UpdateBannerColor(const QString& input_color)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleFrameTimeToggle(bool checked)
+void VideoDisplay::SetFrameTimeToggle(bool checked)
 {
     display_time = checked;
 
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleColorMapUpdate(QVector<QRgb> color_table)
+void VideoDisplay::SetColorMap(QVector<QRgb> color_table)
 {
     this->color_table = std::move(color_table);
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleTrackerColorUpdate(QColor new_color)
+void VideoDisplay::SetTrackerColor(QColor new_color)
 {
     OSM_track_color = std::move(new_color);
 
@@ -375,7 +379,7 @@ void VideoDisplay::ToggleOsmTracks(bool input)
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::HandleSensorBoresightDataCheck(bool checked)
+void VideoDisplay::SetDisplayBoresight(bool checked)
 {
     display_boresight = checked;
 
@@ -460,12 +464,12 @@ void VideoDisplay::HandleAnnotationChanges()
 void VideoDisplay::HandleImageAreaSelection(QRect area)
 {
     // check to make sure rectangle doesn't exceed dimensions. if so, shorten
-    if (area.x() + area.width() > image_x) {
-        area.setWidth(image_x - area.x());
+    if (area.x() + area.width() > width) {
+        area.setWidth(width - area.x());
     }
 
-    if (area.y() + area.height() > image_y) {
-        area.setHeight(image_y - area.y());
+    if (area.y() + area.height() > height) {
+        area.setHeight(height - area.y());
     }
 
     if (is_zoom_active) {
@@ -497,13 +501,13 @@ void VideoDisplay::Calibrate(QRect area)
 
             adjusted_area.getCoords(x1, y1, x2, y2);
 
-            double x1_position = *x1 * 1.0 / image_x;
-            double y1_position = *y1 * 1.0 / image_y;
+            double x1_position = *x1 * 1.0 / width;
+            double y1_position = *y1 * 1.0 / height;
             int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
             int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
 
-            double x2_position = *x2 * 1.0 / image_x;
-            double y2_position = *y2 * 1.0 / image_y;
+            double x2_position = *x2 * 1.0 / width;
+            double y2_position = *y2 * 1.0 / height;
             int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
             int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
 
@@ -534,8 +538,8 @@ void VideoDisplay::HandlePixelSelection(QPoint origin)
     // Storing the absolute zoom levels is not ideal (duplication), but a good half-way point that lets me keep moving for now.
     if (btn_pinpoint->isChecked() || btn_select_track_centroid->isChecked()) {
         const auto& rectangle = zoom_manager.GetAbsoluteZoomList().back();
-        double absolute_x = rectangle.x() + rectangle.width() * (1.0 * origin.x() / image_x);
-        double absolute_y = rectangle.y() + rectangle.height() * (1.0 * origin.y() / image_y);
+        double absolute_x = rectangle.x() + rectangle.width() * (1.0 * origin.x() / width);
+        double absolute_y = rectangle.y() + rectangle.height() * (1.0 * origin.y() / height);
 
         unsigned int x = std::floor(absolute_x);
         unsigned int y = std::floor(absolute_y);
@@ -569,9 +573,9 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     cv::Mat frame, display_frame, clean_display_frame, raw_frame, raw_display_frame;
 
-    const processingState* base_processing_state = &this->container.front();
-    processingState& current_processing_state = this->container.back();
-    for (const auto& test_state : this->container) {
+    const ProcessingState* base_processing_state = &this->state_manager_->front();
+    ProcessingState& current_processing_state = this->state_manager_->back();
+    for (const auto& test_state : *this->state_manager_) {
         if (test_state.method == ProcessingMethod::replace_bad_pixels) {
             base_processing_state = &test_state;
             break;
@@ -717,7 +721,7 @@ void VideoDisplay::UpdateCreateTrackLabel()
 
 void VideoDisplay::PinpointPixel(unsigned int x, unsigned int y)
 {
-    unsigned int pinpoint_idx = y * image_x + x;
+    unsigned int pinpoint_idx = y * width + x;
 
     //Disallow clicking an already-pinpointed pixel
     if (std::find(pinpoint_indices.begin(), pinpoint_indices.end(), pinpoint_idx) != pinpoint_indices.end()) {
@@ -773,7 +777,7 @@ void VideoDisplay::UpdateDisplayFrame()
     QRgb rgb_cyan = QColorConstants::Cyan.rgb();
 
     uint8_t* color_corrected_frame = display_ready_converted_values.data();
-    frame = QImage((uchar*)color_corrected_frame, image_x, image_y, QImage::Format_Grayscale8);
+    frame = QImage((uchar*)color_corrected_frame, width, height, QImage::Format_Grayscale8);
 
     // Convert image to format_indexed. Allows color table to take effect on image
     frame = frame.convertToFormat(QImage::Format_Indexed8);
@@ -787,23 +791,23 @@ void VideoDisplay::UpdateDisplayFrame()
     y_correction = offsets_matrix(indx, 1);
 
     if (should_show_bad_pixels && current_idx != -1) {
-        for (auto i = 0; i < container[current_idx].replaced_pixels.size(); i++) {
-            unsigned int pixel_index = container[current_idx].replaced_pixels[i];
-            int pixel_x = pixel_index % image_x;
-            int pixel_y = pixel_index / image_x;
+        for (auto i = 0; i < state_manager_->at(current_idx).replaced_pixels.size(); i++) {
+            unsigned int pixel_index = state_manager_->at(current_idx).replaced_pixels[i];
+            int pixel_x = pixel_index % width;
+            int pixel_y = pixel_index / width;
             int new_pixel_x = pixel_x - x_correction;
             int new_pixel_y = pixel_y - y_correction;
             if (new_pixel_x < 0) {
-                new_pixel_x = new_pixel_x + image_x;
+                new_pixel_x = new_pixel_x + width;
             }
             if (new_pixel_y < 0) {
-                new_pixel_y = new_pixel_y + image_y;
+                new_pixel_y = new_pixel_y + height;
             }
-            if (new_pixel_x > image_x) {
-                new_pixel_x = new_pixel_x - image_x;
+            if (new_pixel_x > width) {
+                new_pixel_x = new_pixel_x - width;
             }
-            if (new_pixel_y > image_y) {
-                new_pixel_y = new_pixel_y - image_y;
+            if (new_pixel_y > height) {
+                new_pixel_y = new_pixel_y - height;
             }
             frame.setPixelColor(new_pixel_x, new_pixel_y, bad_pixel_color);
         }
@@ -815,13 +819,13 @@ void VideoDisplay::UpdateDisplayFrame()
 
         if (pinpoint_idx < original_frame_vector.size()) {
             int counts_value = original_frame_vector[pinpoint_idx];
-            int pinpoint_x = pinpoint_idx % image_x;
-            int pinpoint_y = pinpoint_idx / image_x;
+            int pinpoint_x = pinpoint_idx % width;
+            int pinpoint_y = pinpoint_idx / width;
             pinpoint_text += "Pixel: " + QString::number(pinpoint_x + 1) + "," + QString::number(pinpoint_y + 1) + ". Value: " +
                 QString::number(counts_value);
-            if (std::find(container[current_idx].replaced_pixels.begin(),
-                          container[current_idx].replaced_pixels.end(),
-                          pinpoint_idx) != container[current_idx].replaced_pixels.end()) {
+            if (std::find(state_manager_->at(current_idx).replaced_pixels.begin(),
+                          state_manager_->at(current_idx).replaced_pixels.end(),
+                          pinpoint_idx) != state_manager_->at(current_idx).replaced_pixels.end()) {
                 pinpoint_text += " * (adjusted, bad pixel)";
             }
 
@@ -846,8 +850,8 @@ void VideoDisplay::UpdateDisplayFrame()
 
         auto rectangle = zoom_manager.GetAbsoluteZoomList().back();
         int ROI_box_size = txt_ROI_dim->text().toInt();
-        double x_scale = rectangle.width() / image_x;
-        double y_scale = rectangle.height() / image_y;
+        double x_scale = rectangle.width() / width;
+        double y_scale = rectangle.height() / height;
 
         double absolute_x = rectangle.x() + 1.0 * x * x_scale;
         double absolute_y = rectangle.y() + 1.0 * y * y_scale;
@@ -906,7 +910,7 @@ void VideoDisplay::UpdateDisplayFrame()
         frame = frame.copy(sub_frame);
 
         // scale to initial aspect ratio
-        frame = frame.scaled(image_x, image_y);
+        frame = frame.scaled(width, height);
     }
 
     if (zoom_manager.IsCurrentlyZoomed()) {
@@ -914,14 +918,29 @@ void VideoDisplay::UpdateDisplayFrame()
     } else {
         lbl_image_canvas->setStyleSheet("#video_object { border: 1px solid light gray; }");
     }
-    auto final_zoom_level2 = zoom_manager.GetZoomList().back();
-    double x_scale2 = image_x / final_zoom_level2.width();
-    double y_scale2 = image_y / final_zoom_level2.height();
+
+    double x_scale2 = 1.0;
+    double y_scale2 = 1.0;
+
+    if (zoom_manager.ZoomListExists())
+    {
+        auto final_zoom_level2 = zoom_manager.GetZoomList().back();
+
+        x_scale2 = width / final_zoom_level2.width();
+        y_scale2 = height / final_zoom_level2.height();
+    }
+    else
+    {
+        x_scale2 = width / 640;
+        y_scale2 = height / 480;
+    }
+
     double size_of_pixel_x2 = 1.0 * x_scale2;
     double size_of_pixel_y2 = 1.0 * y_scale2;
     int marker_size = 5;
     double marker_width = size_of_pixel_x2 - 1 + marker_size * 2;
     double marker_height = size_of_pixel_y2 - 1 + marker_size * 2;
+
     if (in_track_creation_mode) {
         if (track_details[starting_frame_number + counter - 1].has_value()) {
             QPainter track_creation_marker_painter(&frame);
@@ -933,16 +952,16 @@ void VideoDisplay::UpdateDisplayFrame()
             int new_track_x = track_x - x_correction;
             int new_track_y = track_y - y_correction;
             if (new_track_x < 0) {
-                new_track_x = new_track_x + image_x;
+                new_track_x = new_track_x + width;
             }
             if (new_track_y < 0) {
-                new_track_y = new_track_y + image_y;
+                new_track_y = new_track_y + height;
             }
-            if (new_track_x > image_x) {
-                new_track_x = new_track_x - image_x;
+            if (new_track_x > width) {
+                new_track_x = new_track_x - width;
             }
-            if (new_track_y > image_y) {
-                new_track_y = new_track_y - image_y;
+            if (new_track_y > height) {
+                new_track_y = new_track_y - height;
             }
             QRectF track_creation_marker = GetRectangleAroundPixel(new_track_x, new_track_y, marker_size, marker_width, marker_height);
             track_creation_marker_painter.drawRect(track_creation_marker);
@@ -956,21 +975,21 @@ void VideoDisplay::UpdateDisplayFrame()
 
         for (const auto& trackData : osm_track_frames[counter].tracks) {
             //The OSM tracks are stored offset from the center instead of the top left
-            int x_center = image_x / 2 + trackData.second.centroid_x;
-            int y_center = image_y / 2 + trackData.second.centroid_y;
+            int x_center = width / 2 + trackData.second.centroid_x;
+            int y_center = height / 2 + trackData.second.centroid_y;
             int new_x_center = x_center - x_correction;
             int new_y_center = y_center - y_correction;
             if (new_x_center < 0) {
-                new_x_center = new_x_center + image_x;
+                new_x_center = new_x_center + width;
             }
             if (new_y_center < 0) {
-                new_y_center = new_y_center + image_y;
+                new_y_center = new_y_center + height;
             }
-            if (new_x_center > image_x) {
-                new_x_center = new_x_center - image_x;
+            if (new_x_center > width) {
+                new_x_center = new_x_center - width;
             }
-            if (new_y_center > image_y) {
-                new_y_center = new_y_center - image_y;
+            if (new_y_center > height) {
+                new_y_center = new_y_center - height;
             }
             QRectF osm_track_marker = GetRectangleAroundPixel(new_x_center - 1, new_y_center - 1, marker_size, marker_width, marker_height);
             if (osm_track_marker.isNull())
@@ -993,16 +1012,16 @@ void VideoDisplay::UpdateDisplayFrame()
                 int new_track_x = track_x - x_correction;
                 int new_track_y = track_y - y_correction;
                 if (new_track_x < 0) {
-                    new_track_x = new_track_x + image_x;
+                    new_track_x = new_track_x + width;
                 }
                 if (new_track_y < 0) {
-                    new_track_y = new_track_y + image_y;
+                    new_track_y = new_track_y + height;
                 }
-                if (new_track_x > image_x) {
-                    new_track_x = new_track_x - image_x;
+                if (new_track_x > width) {
+                    new_track_x = new_track_x - width;
                 }
-                if (new_track_y > image_y) {
-                    new_track_y = new_track_y - image_y;
+                if (new_track_y > height) {
+                    new_track_y = new_track_y - height;
                 }
                 QRectF manual_track_marker = GetRectangleAroundPixel(new_track_x, new_track_y, marker_size, marker_width, marker_height);
                 if (manual_track_marker.isNull())
@@ -1023,8 +1042,6 @@ void VideoDisplay::UpdateDisplayFrame()
 
         p2.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignLeft, boresight_txt);
     }
-
-    lbl_frame_number->setText("Frame # " + QString::number(starting_frame_number + counter));
 
     double seconds_midnight = display_data[counter].seconds_past_midnight;
     lbl_video_time_midnight->setText("From Midnight " + QString::number(seconds_midnight, 'g', 8));
@@ -1054,11 +1071,11 @@ void VideoDisplay::UpdateDisplayFrame()
         // determine if calculation region is within zoomed image
         if (top_left.x() >= 0 && bottom_right.x() >= 0) {
             // get frame data from original data set and convert mat
-            std::vector<double> calibrate_original_frame_vector(container.front().details.frames_16bit[counter].begin(),
-                                                                container.front().details.frames_16bit[counter].end());
+            std::vector<double> calibrate_original_frame_vector(state_manager_->front().details.frames_16bit[counter].begin(),
+                                                                state_manager_->front().details.frames_16bit[counter].end());
             arma::vec original_image_vector(calibrate_original_frame_vector);
             arma::mat original_mat_frame(original_image_vector);
-            original_mat_frame.reshape(image_x, image_y);
+            original_mat_frame.reshape(width, height);
             original_mat_frame = original_mat_frame.t();
 
             // get counts sub-matrix corresponding to the calculation region
@@ -1206,6 +1223,21 @@ QString VideoDisplay::GetZuluTimeString(double seconds_midnight)
     return zulu_time;
 }
 
+StateManager* VideoDisplay::GetStateManager()
+{
+    return state_manager_;
+}
+
+const StateManager* VideoDisplay::GetStateManager() const
+{
+    return state_manager_;
+}
+
+uint32_t VideoDisplay::GetStartingFrameNumber() const noexcept
+{
+    return starting_frame_number;
+}
+
 void VideoDisplay::HighlightBadPixels(bool status)
 {
     should_show_bad_pixels = status;
@@ -1286,7 +1318,7 @@ bool VideoDisplay::StartRecording(const QString& file_name, double fps)
 {
     std::string file_string = file_name.toLocal8Bit().constData();
 
-    video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(image_x, image_y));
+    video.open(file_string, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), fps, cv::Size(width, height));
 
     bool video_opened = video.isOpened();
 
@@ -1319,19 +1351,20 @@ void VideoDisplay::SaveFrame()
     }
 }
 
-void VideoDisplay::RemoveFrame()
+void VideoDisplay::ResetFrame()
 {
-    lbl_zulu_time = nullptr;
-    lbl_image_canvas = new EnhancedLabel(this);
-    SetupLabels();
+    SetupBlankFrame();
+    lbl_video_time_midnight->setText("");
+    lbl_zulu_time->setText("");
+    lbl_pinpoint->setText("");
 
     frame_data.clear();
 
-    image_x = 0;
-    image_y = 0;
-    number_pixels = image_x * image_y;
+    width = SirveAppConstants::VideoDisplayWidth;
+    height = SirveAppConstants::VideoDisplayHeight;
+    number_pixels = width * height;
 
-    zoom_manager = VideoDisplayZoomManager();
+    zoom_manager.Clear(width, height);
     original_frame_vector.clear();
 }
 

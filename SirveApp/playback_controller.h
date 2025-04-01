@@ -14,16 +14,16 @@ class PlaybackController : public QObject
 	Q_OBJECT
 
 public:
-	explicit PlaybackController(unsigned int number_frames);
+	explicit PlaybackController(QObject* parent = nullptr, uint32_t number_frames = 1);
 
-	unsigned int GetCurrentFrameNumber() const;
-	unsigned int GetMaxFrameNumber() const;
-	void SetNumberOfFrames(unsigned int value);
+	uint32_t GetCurrentFrameNumber() const;
+	uint32_t GetMaxFrameNumber() const;
+	void SetNumberOfFrames(uint32_t value);
 	double GetFps() const;
 	bool IsRunning() const;
 
 signals:
-	void frameSelected(unsigned int current_frame_number);
+	void frameSelected(uint32_t current_frame_number);
 
 public slots:
 	void IncreaseTimerInterval();
@@ -32,11 +32,11 @@ public slots:
 	void StartTimer();
 	void UpdateTimer();
 	void ReverseTimer();
-	void SetCurrentFrameNumber(unsigned int value);
+	void SetCurrentFrameNumber(uint32_t value);
 
 	void GotoPrevFrame();
 	void GotoNextFrame();
-	void CustomAdvanceFrame(unsigned int frame_amt);
+	void CustomAdvanceFrame(uint32_t frame_amt);
 
 private:
 	static const std::vector<double> kSpeeds;
@@ -45,8 +45,8 @@ private:
 	int timer_frequency_ = 1000 * 1 / kSpeeds[index_speed_];
 	bool is_reverse_ = false;
 	std::unique_ptr<QTimer> timer_;
-	unsigned int current_frame_number_ = 0;
-	unsigned int max_frame_number_ = 0;
+	uint32_t current_frame_number_ = 0;
+	uint32_t max_frame_number_ = 0;
 };
 
 

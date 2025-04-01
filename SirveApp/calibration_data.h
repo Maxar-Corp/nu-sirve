@@ -40,18 +40,17 @@ struct SelectedData {
 class CalibrationData {
 
 public:
-	CalibrationData();
-	~CalibrationData();
+	CalibrationData() = default;
 
-	std::array<double, 3> MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time);
+	std::array<double, 3> MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const;
 	void setup_model(arma::mat input_m, arma::mat input_b);
 	bool set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2, double int_time);
 	bool check_path(QString path);
 
-	bool calibration_available;
+	bool calibration_available = false;
 	QString path_nuc, path_image;
 	SelectedData user_selection1, user_selection2;
-	double integration_time;
+	double integration_time = 0.0;
 
 private:
 	arma::mat m, b;

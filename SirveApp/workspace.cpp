@@ -1,6 +1,6 @@
 #include "workspace.h"
 
-#include "video_container.h"
+#include "state_manager.h"
 
 Workspace::Workspace(QString workspace_folder)
 {
@@ -17,7 +17,7 @@ QStringList Workspace::get_workspace_names(const QString& workspace_folder)
 };
 
 void Workspace::SaveState(const QString& full_workspace_file_path, const QString& image_path, int start_frame, int end_frame,
-    double timing_offset, const VideoContainer& all_states, const std::vector<AnnotationInfo>& annotations,
+    double timing_offset, const StateManager& all_states, const std::vector<AnnotationInfo>& annotations,
     const std::vector<Classification>& classifications)
 {
     QJsonObject json_object;
@@ -69,10 +69,10 @@ WorkspaceValues Workspace::LoadState(const QString& workspace_name) {
     int end_frame = data_object.value("end_frame").toInt();
     double timing_offset = data_object.value("timing_offset").toDouble();
 
-    std::vector<processingState> states;
+    std::vector<ProcessingState> states;
     for (auto json_obj : data_object.value("processing_states").toArray())
     {
-        processingState state = processingState::FromJson(json_obj.toObject());
+        ProcessingState state = ProcessingState::FromJson(json_obj.toObject());
         states.push_back(state);
     }
 

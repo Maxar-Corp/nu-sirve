@@ -11,10 +11,6 @@ PopoutDialog::PopoutDialog()
     setWindowFlags(Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
 }
 
-PopoutDialog::~PopoutDialog()
-{
-    delete mainLayout;
-}
 
 void PopoutDialog::acquire(QWidget* widget)
 {

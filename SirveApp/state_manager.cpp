@@ -1,8 +1,14 @@
-#include "video_container.h"
+#include "state_manager.h"
 
 inline void AddUnique(std::vector<unsigned int>& vec, unsigned int val);
 
-void VideoContainer::SelectState(int idx)
+
+StateManager::StateManager(QObject* parent): QObject(parent)
+{
+	setObjectName("state_manager");
+}
+
+void StateManager::SelectState(int idx)
 {
 	if (idx == -1) {
 		return;
@@ -13,56 +19,56 @@ void VideoContainer::SelectState(int idx)
 	emit updateDisplayVideo();
 }
 
-void VideoContainer::PopProcessingState()
+void StateManager::PopProcessingState()
 {
 	pop_back();
 }
 
-processingState& VideoContainer::at(size_t idx)
+ProcessingState& StateManager::at(size_t idx)
 {
 	return processing_states.at(idx);
 }
 
-const processingState& VideoContainer::at(size_t idx) const
+const ProcessingState& StateManager::at(size_t idx) const
 {
 	return processing_states.at(idx);
 }
 
-processingState& VideoContainer::operator[](size_t idx)
+ProcessingState& StateManager::operator[](size_t idx)
 {
 	return at(idx);
 }
-const processingState& VideoContainer::operator[](size_t idx) const
+const ProcessingState& StateManager::operator[](size_t idx) const
 {
 	return at(idx);
 }
 
-processingState& VideoContainer::front()
+ProcessingState& StateManager::front()
 {
 	return processing_states.front();
 }
 
-const processingState& VideoContainer::front() const
+const ProcessingState& StateManager::front() const
 {
 	return processing_states.front();
 }
 
-processingState& VideoContainer::back()
+ProcessingState& StateManager::back()
 {
 	return processing_states.back();
 }
 
-const processingState& VideoContainer::back() const
+const ProcessingState& StateManager::back() const
 {
 	return processing_states.back();
 }
 
-size_t VideoContainer::size() const noexcept
+size_t StateManager::size() const noexcept
 {
 	return processing_states.size();
 }
 
-bool VideoContainer::empty() const noexcept
+bool StateManager::empty() const noexcept
 {
 	return processing_states.empty();
 }
@@ -78,7 +84,7 @@ bool VideoContainer::empty() const noexcept
  * \param emit_state_added Whether to emit the stateAdded signal.
  * \param emit_update_display Whether to emit the updateDisplayVideo signal.
  */
-void VideoContainer::push_back(processingState sourceState, ProcessingMethod method, bool emit_state_added, bool emit_update_display)
+void StateManager::push_back(ProcessingState sourceState, ProcessingMethod method, bool emit_state_added, bool emit_update_display)
 {
 	// Set the method and source_state_ID of the new state before it gets overwritten
 	sourceState.method = method;
@@ -90,7 +96,7 @@ void VideoContainer::push_back(processingState sourceState, ProcessingMethod met
 
 	if (last.method == ProcessingMethod::original) {
 		// Record ourselves as the only state
-		last.state_steps = QLocale().toString(last.state_ID);
+		last.state_steps = QLocale::c().toString(last.state_ID);
 		last.process_steps.clear();
 
 	} else {
@@ -101,7 +107,7 @@ void VideoContainer::push_back(processingState sourceState, ProcessingMethod met
 		AddUnique(last.ancestors, source.state_ID);
 
 		last.process_steps.push_back(" [" + last.GetStepName() + "] ");
-		last.state_steps += " -> " + QLocale().toString(last.state_ID);
+		last.state_steps += " -> " + QLocale::c().toString(last.state_ID);
 	}
 
 	last.UpdateMaxValue();
@@ -122,7 +128,7 @@ void VideoContainer::push_back(processingState sourceState, ProcessingMethod met
 	}
 }
 
-void VideoContainer::pop_back(bool emit_state_removed, bool emit_update_display)
+void StateManager::pop_back(bool emit_state_removed, bool emit_update_display)
 {
 	if (size() < 2) {
 		return;
@@ -140,12 +146,12 @@ void VideoContainer::pop_back(bool emit_state_removed, bool emit_update_display)
 	}
 }
 
-void VideoContainer::erase(size_t idx, bool emit_update_display)
+void StateManager::erase(size_t idx, bool emit_update_display)
 {
 	erase(processing_states.begin() + idx, emit_update_display);
 }
 
-void VideoContainer::erase(const const_iterator& it, bool emit_update_display)
+void StateManager::erase(const const_iterator& it, bool emit_update_display)
 {
 	processing_states.erase(it);
 	if (current_idx >= static_cast<int>(processing_states.size()) && emit_update_display) {
@@ -154,7 +160,7 @@ void VideoContainer::erase(const const_iterator& it, bool emit_update_display)
 	}
 }
 
-void VideoContainer::erase(const const_iterator& begin, const const_iterator& end, bool emit_update_display)
+void StateManager::erase(const const_iterator& begin, const const_iterator& end, bool emit_update_display)
 {
 	processing_states.erase(begin, end);
 	if (current_idx >= static_cast<int>(processing_states.size())) {
@@ -163,7 +169,7 @@ void VideoContainer::erase(const const_iterator& begin, const const_iterator& en
 	}
 }
 
-void VideoContainer::clear()
+void StateManager::clear()
 {
 	processing_states.clear();
 	current_idx = -1;
@@ -171,27 +177,27 @@ void VideoContainer::clear()
 	emit statesCleared();
 }
 
-std::vector<processingState>::iterator VideoContainer::begin()
+std::vector<ProcessingState>::iterator StateManager::begin()
 {
 	return processing_states.begin();
 }
 
-std::vector<processingState>::const_iterator VideoContainer::begin() const
+std::vector<ProcessingState>::const_iterator StateManager::begin() const
 {
 	return processing_states.begin();
 }
 
-std::vector<processingState>::iterator VideoContainer::end()
+std::vector<ProcessingState>::iterator StateManager::end()
 {
 	return processing_states.end();
 }
 
-std::vector<processingState>::const_iterator VideoContainer::end() const
+std::vector<ProcessingState>::const_iterator StateManager::end() const
 {
 	return processing_states.end();
 }
 
-processingState& VideoContainer::GetCurrentState()
+ProcessingState& StateManager::GetCurrentState()
 {
 	if (current_idx < 0) {
 		throw std::out_of_range("Video container is empty");
@@ -202,12 +208,12 @@ processingState& VideoContainer::GetCurrentState()
 	return processing_states.at(current_idx);
 }
 
-const processingState& VideoContainer::GetCurrentState() const
+const ProcessingState& StateManager::GetCurrentState() const
 {
-	return const_cast<VideoContainer*>(this)->GetCurrentState();
+	return const_cast<StateManager*>(this)->GetCurrentState();
 }
 
-int VideoContainer::GetCurrentStateIdx() const
+int StateManager::GetCurrentStateIdx() const
 {
 	return current_idx;
 }
