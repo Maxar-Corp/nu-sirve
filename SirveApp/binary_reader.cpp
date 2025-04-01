@@ -40,8 +40,7 @@ bool BinaryReader::IsOpen() const
     return stream_ != nullptr;
 }
 
-
-uint64_t BinaryReader::FileSize()
+uint64_t BinaryReader::FileSize() const
 {
     if (!IsOpen())
     {
@@ -56,7 +55,7 @@ uint64_t BinaryReader::FileSize()
     return size;
 }
 
-void BinaryReader::Seek(int64_t offset, int way)
+void BinaryReader::Seek(int64_t offset, int way) const
 {
     if (!IsOpen())
     {
@@ -70,7 +69,7 @@ void BinaryReader::Seek(int64_t offset, int way)
     }
 }
 
-uint64_t BinaryReader::Tell()
+uint64_t BinaryReader::Tell() const
 {
     if (!IsOpen())
     {

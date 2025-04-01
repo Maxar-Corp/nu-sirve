@@ -31,5 +31,5 @@ double AbpVersionDlg::GetVersionNumber() const
 
 bool AbpVersionDlg::LoadMTSDData() const
 {
-    return ui.checkBoxMTSDData->checkState() == Qt::Checked ? true : false;
+    return ui.checkBoxMTSDData->checkState() == Qt::Checked;
 }

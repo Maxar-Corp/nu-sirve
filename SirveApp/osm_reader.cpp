@@ -178,7 +178,7 @@ FrameData OSMReader::ReadFrameData()
 
     data.az_el_boresight = CalculateAzimuthElevation(0, 0, data);
 
-    qDebug() << "AZ EL BORESIGHT: " << data.az_el_boresight;
+    // qDebug() << "AZ EL BORESIGHT: " << data.az_el_boresight;
 
     for (auto j = 0u; j < data.num_tracks; ++j)
     {
@@ -188,6 +188,7 @@ FrameData OSMReader::ReadFrameData()
 
     return data;
 }
+
 TrackData OSMReader::GetTrackData(const FrameData& input)
 {
     TrackData current_track{};
@@ -322,7 +323,7 @@ uint32_t OSMReader::FindMessageNumber()
         if (status_code == NUM_HEADER_VALUES && header[2])
         {
             num_messages++;
-            int64_t seek_position = 92 - 24; // TODO: MAGIC!
+            int64_t seek_position = 92 - 24; // TODO: Don't use magic numbers
 
             Seek(seek_position, SEEK_CUR);
 
@@ -332,7 +333,7 @@ uint32_t OSMReader::FindMessageNumber()
             double value = data[0] + data[1] * 1e-6;
             frame_time_.emplace_back(value);
 
-            seek_position = static_cast<int64_t>(header[2]) - 76; // TODO: MAGIC!
+            seek_position = static_cast<int64_t>(header[2]) - 76; // TODO: Don't use magic numbers
             Seek(seek_position, SEEK_CUR);
         }
         else
