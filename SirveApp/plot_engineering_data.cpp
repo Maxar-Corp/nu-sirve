@@ -5,6 +5,7 @@
 #include "enums.h"
 #include "SirveApp.h"
 
+
 EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_title, std::vector<Quantity> quantities) : JKQTPlotter()
 {
     osm_frames_ref = osm_frames;
@@ -47,6 +48,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_ti
 
     this->setToolbarAlwaysOn(true);
 }
+
 
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
     return this->actToggleFrameLine;
@@ -140,12 +142,17 @@ void EngineeringPlot::PlotSirveTracks()
     }
 }
 
+
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
+
+void EngineeringPlots::PlotSumRelativeCounts(size_t plot_number_tracks)
+
 {
     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
     {
         std::vector<double> x_values = get_x_func(track_index);
         std::vector<double> y_values = get_y_func(track_index);
+
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
@@ -210,14 +217,17 @@ std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
     return x_values;
 }
 
+
 std::vector<double> EngineeringPlot::get_individual_y_track_irradiance(size_t i)
+std::vector<double> EngineeringPlots::get_individual_y_track_sum_relative_counts(size_t i)
+
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
     {
         if (i < track_frames[track_frame_index].details.size())
         {
-            y_values.push_back(track_frames[track_frame_index].details[i].irradiance);
+            y_values.push_back(track_frames[track_frame_index].details[i].sum_relative_counts);
         }
     }
 
@@ -355,6 +365,7 @@ double EngineeringPlot::get_max_x_axis_value()
 
 std::vector<Quantity> EngineeringPlot::get_params()
 {
+
     return my_quantities;
 }
 
@@ -428,7 +439,12 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
 
 void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, int track_id)
 {
+
     QString title = "Track " + QString::number(track_id);
+
+//    manual_track_colors[track_id] = std::move(new_color);
+}
+//>>>>>>> main
 
     DeleteGraphIfExists(title);
 
@@ -472,7 +488,6 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 {
-
     int index = 0;
     bool graph_exists = false;
 

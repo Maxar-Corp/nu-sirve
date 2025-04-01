@@ -1,4 +1,5 @@
 #include "color_map.h"
+#include "qpainter.h"
 #include <armadillo>
 
 ColorMapDisplay::ColorMapDisplay(QVector<QRgb> initial_color_map, double minV, double maxV)

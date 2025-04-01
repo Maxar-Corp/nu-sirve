@@ -272,6 +272,7 @@ issues_and_plans.xlsx
 
 # Ignore all build artifacts
 build/
+build-*/
 cmake-build-*/
 [Dd]ebug/
 [Dd]ebugPublic/

@@ -15,9 +15,12 @@
 #include <QtCharts/QLogValueAxis>
 #include <QtCharts/qxyseries.h>
 #include <qfiledialog.h>
+#include <QDebug>
 #include <QPair>
 #include <QString>
 #include <vector>
+
+#include <armadillo>
 
 #include "data_structures.h"
 #include "enums.h"
@@ -73,8 +76,10 @@ public:
     void DefinePlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
 
+
     void PlotChart();
     void PlotSirveTracks();
+
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
@@ -144,7 +149,7 @@ private:
 
     QAction* get_action_toggle_frameline() const;
     std::vector<double> get_individual_x_track(size_t i);
-    std::vector<double> get_individual_y_track_irradiance(size_t i);
+    std::vector<double> get_individual_y_track_sum_relative_counts(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_boresight_azimuth(size_t i);
     std::vector<double> get_individual_y_track_boresight_elevation(size_t i);

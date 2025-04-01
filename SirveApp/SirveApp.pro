@@ -8,6 +8,8 @@ INCLUDEPATH += .
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+#CONFIG += c++17 \
+#            console
 CONFIG += c++17
 
 HEADERS += abir_reader.h \
@@ -19,6 +21,7 @@ HEADERS += abir_reader.h \
             binary_file_reader.h \
             calibration_data.h \
             chart_metadata.h \
+            classification.h \
             clickable_chartview.h \
             color_correction.h \
             color_map.h \
@@ -37,24 +40,26 @@ HEADERS += abir_reader.h \
             location_input.h \
             new_location.h \
             non_uniformity_correction_external_file.h \
-            non_uniformity_correction.h \
             osm_reader.h \
             plot_designer.h \
+            playback_controller.h \
             plot_engineering_data.h \
             plot_palette.h \
             popout_dialog.h \
             process_file.h \
             processing_state.h \
             Section.h \
+            shared_tracking_functions.h\
             SirveApp.h \
             quantity.h \
             single_check_list.h \
+            state_manager.h \
             track_management_widget.h \
             tracks.h \
-            video_container.h \
             video_details.h \
             video_display.h \
             video_display_zoom.h \
+            video_player.h \
             workspace.h \
             support/az_el_calculation.h \
             support/earth.h \
@@ -74,6 +79,7 @@ SOURCES += abir_reader.cpp \
             auto_tracking.cpp\
             binary_file_reader.cpp \
             calibration_data.cpp \
+            classification.cpp \
             clickable_chartview.cpp \
             color_correction.cpp \
             color_map.cpp \
@@ -83,30 +89,34 @@ SOURCES += abir_reader.cpp \
             data_export.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
-            frame_player.cpp \
             histogram_plotter.cpp \
             image_processing.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
             non_uniformity_correction_external_file.cpp \
-            non_uniformity_correction.cpp \
             osm_reader.cpp \
             plot_designer.cpp \
+            playback_controller.cpp \
             plot_engineering_data.cpp \
             plot_palette.cpp \
             popout_dialog.cpp \
             process_file.cpp \
             processing_state.cpp \
             Section.cpp \
+            shared_tracking_functions.cpp\
             SirveApp.cpp \
+
             quantity.cpp \
             single_check_list.cpp \
+
+            state_manager.cpp \
+
             track_management_widget.cpp \
             tracks.cpp \
-            video_container.cpp \
             video_display.cpp \
             video_display_zoom.cpp \
+            video_player.cpp \
             workspace.cpp \
             support/az_el_calculation.cpp \
             support/earth.cpp \

@@ -18,6 +18,11 @@
 #include "support/qthelpers.h"
 #include "tracks.h"
 #include "video_details.h"
+#include "processing_state.h"
+#include "shared_tracking_functions.h"
+#include "constants.h"
+#include "abir_reader.h"
+#include "calibration_data.h"
 
 using namespace std;
 using namespace cv;
@@ -28,12 +33,21 @@ class  AutoTracking : public QObject
 
 public:
 
-    AutoTracking(); 
-    ~AutoTracking();
-    int N = 2;
-    bool cancel_operation;
+    AutoTracking() = default;
+    int image_scale_factor = 2;
+    int step_success_coefficient = 3;
+    int nrows = SirveAppConstants::VideoDisplayHeight;
+    int ncols = SirveAppConstants::VideoDisplayWidth;
+    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
+    bool cancel_operation = false;
     void UpdateProgressBar(unsigned int value);
-    arma::u64_mat SingleTracker(u_int track_id, double clamp_low, double clamp_high, int threshold, string prefilter, string tracktype, uint frame0, int start_frame, int stop_frame, VideoDetails original, QString new_track_file_name);
+    cv::Mat raw_display_frame;
+    arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int
+                                bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, const ProcessingState&
+                                current_processing_state, const VideoDetails& base_processing_state_details, const std::vector<ABIR_Frame>& input_frame_header, const
+                                CalibrationData& calibration_model);
+    void SetCalibrationModel(CalibrationData input);
 
 signals:
      void signalProgress(unsigned int frameval);
@@ -42,13 +56,68 @@ public slots:
     void CancelOperation();
 
 private:
-    void FilterImage(string filter_type, cv::Mat & input_image, cv::Mat & output_image);
-    void GetTrackFeatureData(string trackFeature, int threshold, cv::Mat frame_crop, cv::Point & frame_point, cv::Scalar frame_crop_mean, double & peak_counts, cv::Scalar & sum_counts,\
-     cv::Scalar & sum_ROI_counts, uint & N_threshold_pixels,  uint & N_ROI_pixels);
-    void GetPointXY(cv::Point input_point, cv::Rect ROI, u_int & centerX,  u_int & centerY);
-    void GetProcessedFrameMatrix(int indx, double clampLow, double clampHigh, VideoDetails original,  arma::vec & frame_vector, cv::Mat & frame_matrix, cv::Mat & processed_frame_matrix);
+    CalibrationData model;
 
-    double tracking_peak_success_threshold = 0.35;
+    void InitializeTracking(
+        bool isRestart,
+        u_int i,
+        u_int indx,
+        u_int frame0,
+        double clamp_low_coeff,
+        double clamp_high_coeff,
+        const VideoDetails& current_processing_state_details,
+        const VideoDetails& base_processing_state_details,
+        string prefilter,
+        cv::Mat & display_frame,
+        cv::Mat & raw_display_frame,
+        cv::Mat & clean_display_frame,
+        cv::Rect & ROI,
+        bool &valid_ROI,
+        cv::Mat & frame,
+        cv::Mat & frame_crop,
+        cv::Mat & raw_frame,
+        Ptr<Tracker> tracker,
+        string & choice,
+        arma::running_stat<double> & stats
+    );
+ 
+    void TrackingStep(
+        int & i,
+        uint & indx,
+        uint & track_id,
+        uint & frame0,
+        double & clamp_low_coeff,
+        double & clamp_high_coeff,
+        const ProcessingState& current_processing_state,
+        const VideoDetails& base_processing_state_details,
+        const std::vector<ABIR_Frame>& input_frame_header,
+        string & prefilter,
+        Ptr<Tracker> & tracker,
+        string & trackFeature,
+        cv::Mat & display_frame,
+        cv::Mat & raw_display_frame,
+        cv::Mat & clean_display_frame,
+        int & threshold,
+        int & bbox_buffer_pixels,
+        cv::Rect & ROI,
+        cv::Mat & frame,
+        cv::Mat & raw_frame,
+        cv::Mat & raw_frame_bbox,
+        cv::Point & frame_point,
+        arma::running_stat<double> & stats,
+        bool & step_success,
+        double & S,
+        double & peak_counts,
+        double & mean_counts,
+        cv::Scalar & sum_counts,
+        uint & number_pixels,
+        arma::mat & offsets_matrix,
+        arma::s32_mat & output,
+        double & adjusted_integrated_counts_old,
+        const CalibrationData& calibration_model
+    );
+
+    void GetROI(string window_name, cv::Rect & ROI, cv::Mat & filtered_frame_8bit_color_resize);
 };
 
 #endif

@@ -20,11 +20,9 @@
 struct Object {
 
 	uint32_t imu_count;
-
-
 	std::vector <std::vector<float>> imu_angle, imu_vel;
 
-	double frame_time, alpha, beta, alpha_dot, beta_dot, imc_az, imc_el;
+    double alpha, beta, alpha_dot, beta_dot, frame_time, imc_az, imc_el;
 	std::vector<double> ars_ypr, p_lla, p_ypr, p_vel, fpa_ypr;
 		
 	//For versions >= 4.1 ...
@@ -38,15 +36,23 @@ struct Object {
 
 struct ABIR_Header
 {
-
 	//Base variables for all versions >= 1.0 ...
+
+    uint16_t                bits_per_pixel;
+    uint16_t                image_x_size, image_y_size;
+    uint16_t                pixel_depth;
+    uint16_t                sensor_id;
+
+    uint32_t                frame_number;
+    uint32_t                image_origin;
+    uint32_t                sensor_fov;
+
+    uint64_t                image_size, image_size_double;
+    uint64_t                size;
+
+    std::vector<uint32_t>   guid, guid_source;
 	
-	uint16_t sensor_id, image_x_size, image_y_size, pixel_depth, bits_per_pixel;
-	std::vector<uint32_t> guid, guid_source;
-	uint32_t frame_number, image_origin, sensor_fov;
-    uint64_t size, image_size, image_size_double;
-	
-	double seconds, frame_time, alpha, beta, alpha_dot, beta_dot;
+    double alpha, beta, alpha_dot, beta_dot, frame_time, seconds;
 
 	//For version >= 2 ...
 	uint16_t focus;
@@ -62,11 +68,6 @@ struct ABIR_Header
 	// For versions = 3.0 ...
 	double p_heading, p_pitch, p_roll, p_alt_gps, p_heading_mag;
 	uint32_t p_heading_ref;
-
-	// For versions <= 3.0 ...
-	//std::vector<char> mission_id, mission_date;
-	//float i_fov_x, i_fov_y, pixel_cal_gain, pixel_cal_offset;
-	//uint32_t sensor_mode;
 
 	//For versions >= 3.1 ...
 	float int_time;
@@ -92,43 +93,39 @@ struct ABIR_Header
 struct ABIR_Frame
 {
 	ABIR_Header header;
-	//std::vector<uint16_t> data;
-
-    //uint8_t *raw_8bit;
-    //uint16_t *raw_16bit;
 };
 
 struct ABIRDataResult
 {
+    bool    had_error;
+    int     last_valid_frame;
+    int     max_value;
+    int     x_pixels, y_pixels;
+
     std::vector<std::vector<uint16_t>> video_frames_16bit;
-    bool had_error;
-    int x_pixels, y_pixels, max_value, last_valid_frame;
 };
-//-------------------------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------------
 
 class ABIRData : public BinaryFileReader
 {
-    Q_OBJECT
-public:
-    ABIRData();
-    ~ABIRData();
+        Q_OBJECT
+    public:
+        ABIRData();
+        ~ABIRData();
 
-    const char* full_file_path;
-    double file_version;
-	std::vector<ABIR_Frame> ir_data;
+        const char* full_file_path;
+        double file_version;
+        std::vector<ABIR_Frame> ir_data;
 
-    ABIRDataResult* GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number = -0.1, bool header_only = false);
+        ABIRDataResult* GetFrames(const char* file_path, unsigned int min_frame, unsigned int max_frame, double version_number = -0.1, bool header_only = false);
 
 
-signals:
-    void advanceFrame(int);
+    signals:
+        void advanceFrame(int);
 
-private:
-    int FileSetup(const char* file_path, double version_number = -0.1);
-    double GetVersionNumberFromFile();
+    private:
+        int FileSetup(const char* file_path, double version_number = -0.1);
+        double GetVersionNumberFromFile();
 };
-
 
 
 #endif

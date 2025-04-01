@@ -1,6 +1,5 @@
 #include "annotation_stencil.h"
 #include <QMouseEvent>
-#include <QStyleOption>
 #include <QPainter>
 #include <QWidget>
 #include <QFontMetrics>
@@ -68,9 +67,9 @@ void AnnotationStencil::paintEvent(QPaintEvent *event)
 
 void AnnotationStencil::InitializeData(AnnotationInfo data)
 {
-    current_data->color = data.color;
+    current_data->color = std::move(data.color);
     current_data->font_size = data.font_size;
-    current_data->text = data.text;
+    current_data->text = std::move(data.text);
 
     // Calculate the size needed to display the text and set accordingly
     QFont font("Times", current_data->font_size);

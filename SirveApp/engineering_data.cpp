@@ -94,7 +94,7 @@ std::vector<PlottingFrameData> EngineeringData::get_plotting_frame_data()
 {
 	std::vector<PlottingFrameData> output;
 	int length = frame_data.size();
-
+	
 	if (std::abs(timing_offset) < 0.001)
 		return frame_data;
 
@@ -106,7 +106,7 @@ std::vector<PlottingFrameData> EngineeringData::get_plotting_frame_data()
 		temp.elevation_sensor = frame_data[i].elevation_sensor;
 		temp.julian_date = frame_data[i].julian_date + timing_offset / 86400.0;
 		temp.seconds_past_midnight = frame_data[i].seconds_past_midnight + timing_offset;
-
+		temp.timing_offset = timing_offset;
 		output.push_back(temp);
 	}
 
@@ -132,10 +132,18 @@ void EngineeringData::extract_engineering_data(std::vector<Frame> *osm_frames)
 
 		// ----------------------------------------------------------------------------------------
 		// Get Az-El of sensor and primary target
-        temp.azimuth_sensor = osm_frames->at(i).data.az_el_boresight[0];
-        temp.elevation_sensor = osm_frames->at(i).data.az_el_boresight[1];
-        temp.julian_date = osm_frames->at(i).data.julian_date;
-        temp.seconds_past_midnight = osm_frames->at(i).data.seconds_past_midnight;
+// <<<<<<< try-jkqt-plot
+//         temp.azimuth_sensor = osm_frames->at(i).data.az_el_boresight[0];
+//         temp.elevation_sensor = osm_frames->at(i).data.az_el_boresight[1];
+//         temp.julian_date = osm_frames->at(i).data.julian_date;
+//         temp.seconds_past_midnight = osm_frames->at(i).data.seconds_past_midnight;
+// =======
+		temp.azimuth_sensor = osm_frames[i].data.az_el_boresight[0];
+		temp.elevation_sensor = osm_frames[i].data.az_el_boresight[1];
+		temp.julian_date = osm_frames[i].data.julian_date;
+		temp.seconds_past_midnight = osm_frames[i].data.seconds_past_midnight;
+		temp.frame_time = osm_frames[i].data.frametime;
+//>>>>>>> main
 
 		frame_data.push_back(temp);
         julian_date.push_back(osm_frames->at(i).data.julian_date);

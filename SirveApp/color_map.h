@@ -1,20 +1,7 @@
-#pragma once
-
 #ifndef COLOR_MAP_H
 #define COLOR_MAP_H
 
-#include <iostream>
-#include <string>
-#include <math.h>
-
-#include <QString>
-#include <QTimer>
-#include <QLabel>
-#include <vector>
-#include <math.h>
-#include <qpainter.h>
-#include <qbrush.h>
-#include <armadillo>
+#include <QWidget>
 
 class ColorMapDisplay : public QWidget
 {

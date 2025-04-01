@@ -1,19 +1,31 @@
 #include "video_display_zoom.h"
 
-VideoDisplayZoomManager::VideoDisplayZoomManager(int x_pixels, int y_pixels)
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+VideoDisplayZoomManager::VideoDisplayZoomManager(int width, int height) :
+	image_width_(width), image_height_(height), zoom_list_({{0, 0, width, height}}),
+	absolute_zoom_list_({{0.0, 0.0, 1.0*width, 1.0*height}}) {}
+
+void VideoDisplayZoomManager::Clear(int width, int height)
 {
-    image_x = x_pixels;
-    image_y = y_pixels;
-	QRect new_zoom(0, 0, image_x, image_y);
-	zoom_list.push_back(new_zoom);
-    absolute_zoom_list.push_back(AbsoluteZoomInfo {0, 0, 1.0*image_x, 1.0*image_y});
+	image_width_ = width;
+	image_height_ = height;
+	zoom_list_.clear();
+	absolute_zoom_list_.clear();
 }
 
-VideoDisplayZoomManager::~VideoDisplayZoomManager()
+const std::vector<QRect>& VideoDisplayZoomManager::GetZoomList() const noexcept
 {
+	return zoom_list_;
 }
 
-void VideoDisplayZoomManager::ZoomImage(QRect area)
+const std::vector<QRectF>& VideoDisplayZoomManager::GetAbsoluteZoomList() const noexcept
+{
+	return absolute_zoom_list_;
+}
+
+void VideoDisplayZoomManager::ZoomImage(const QRect& area)
 {
     int height = area.height();
     int width = area.width();
@@ -24,7 +36,7 @@ void VideoDisplayZoomManager::ZoomImage(QRect area)
         return;
     }
 
-    double aspect_ratio = 1.0 * image_x / image_y;
+    double aspect_ratio = 1.0 * image_width_ / image_height_;
 	double current_aspect_ratio = 1.0 * width / height;
 
 	//This code simply adjusts the selected area to match the original frame's aspect ratio
@@ -49,64 +61,77 @@ void VideoDisplayZoomManager::ZoomImage(QRect area)
 
 	//Shift left or up if needed because the box has grown outside the edge
 	//(QImage pixels by default are just padded black)
-	if (x + width > image_x)
+	if (x + width > image_width_)
 	{
-		x = image_x - width - 1;
+		x = image_width_ - width - 1;
 	}
-	if (y + height > image_y)
+	if (y + height > image_height_)
 	{
-		y = image_y - height - 1;
+		y = image_height_ - height - 1;
 	}
 
-	QRect new_zoom(x, y, width, height);
-	zoom_list.push_back(new_zoom);
+	zoom_list_.emplace_back(x, y, width, height);
 
-    AbsoluteZoomInfo starting_rectangle = absolute_zoom_list[absolute_zoom_list.size() - 1];
-	double absolute_x = starting_rectangle.x + x * starting_rectangle.width / image_x;
-	double absolute_y = starting_rectangle.y + y * starting_rectangle.height / image_y;
-	double absolute_width = starting_rectangle.width * (1.0 * width / image_x);
-	double absolute_height = starting_rectangle.height * (1.0 * height / image_y);
-    absolute_zoom_list.push_back(AbsoluteZoomInfo {absolute_x, absolute_y, absolute_width, absolute_height});
+    const auto& starting_rectangle = absolute_zoom_list_.back();
+	double absolute_x = starting_rectangle.x() + x * starting_rectangle.width() / image_width_;
+	double absolute_y = starting_rectangle.y() + y * starting_rectangle.height() / image_height_;
+	double absolute_width = starting_rectangle.width() * (1.0 * width / image_width_);
+	double absolute_height = starting_rectangle.height() * (1.0 * height / image_height_);
+    absolute_zoom_list_.emplace_back(absolute_x, absolute_y, absolute_width, absolute_height);
+
+	assert(absolute_zoom_list_.size() == zoom_list_.size());
 }
 
 void VideoDisplayZoomManager::UndoZoom()
 {
-    zoom_list.pop_back();
-    absolute_zoom_list.pop_back();
+    zoom_list_.pop_back();
+    absolute_zoom_list_.pop_back();
+
+	assert(absolute_zoom_list_.size() == zoom_list_.size());
 }
 
-bool VideoDisplayZoomManager::is_any_piece_within_zoom(int x0, int y0)
+bool VideoDisplayZoomManager::IsCurrentlyZoomed(int x0, int y0) const noexcept
 {
-    AbsoluteZoomInfo final_zoom_level = absolute_zoom_list[absolute_zoom_list.size() - 1];
+    if (!absolute_zoom_list_.empty())
+    {
+        const auto& final_zoom_level = absolute_zoom_list_.back();
 
-	if (x0 + 1 < final_zoom_level.x)
-		return false;
+        if (x0 + 1 < final_zoom_level.x())
+            return false;
 
-	if (x0 > final_zoom_level.x + final_zoom_level.width)
-		return false;
+        if (x0 > final_zoom_level.x() + final_zoom_level.width())
+            return false;
 
-	if (y0 + 1 < final_zoom_level.y)
-		return false;
+        if (y0 + 1 < final_zoom_level.y())
+            return false;
 
-	if (y0 > final_zoom_level.y + final_zoom_level.height)
-		return false;
+        if (y0 > final_zoom_level.y() + final_zoom_level.height())
+            return false;
 
-	return true;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
-std::vector<int> VideoDisplayZoomManager::GetPositionWithinZoom(int x0, int y0)
+bool VideoDisplayZoomManager::ZoomListExists()
 {
-	size_t num_zooms = zoom_list.size();
+    return ! zoom_list_.empty();
+}
+
+QPoint VideoDisplayZoomManager::GetPositionWithinZoom(int x0, int y0) const
+{
 	bool pt_within_area = true;
 
 	int x_center = x0;
 	int y_center = y0;
 
 	//for each zoom level ...
-	for (auto j = 0; j < num_zooms; j++)
+	for (const auto& sub_frame : zoom_list_)
 	{
 		//define object location relative to zoom frame
-		QRect sub_frame = zoom_list[j];
 		x_center = x_center - sub_frame.x();
 		y_center = y_center - sub_frame.y();
 
@@ -124,8 +149,8 @@ std::vector<int> VideoDisplayZoomManager::GetPositionWithinZoom(int x0, int y0)
 		}
 
 		//rescale pixels to image frame
-		double temp_x = x_center * 1.0 / sub_frame.width() * image_x;
-		double temp_y = y_center * 1.0 / sub_frame.height() * image_y;
+		double temp_x = x_center * 1.0 / sub_frame.width() * image_width_;
+		double temp_y = y_center * 1.0 / sub_frame.height() * image_height_;
 
 		x_center = std::round(temp_x);
 		y_center = std::round(temp_y);
@@ -133,15 +158,15 @@ std::vector<int> VideoDisplayZoomManager::GetPositionWithinZoom(int x0, int y0)
 	}
 
 	//if point is within all zoom frames ...
-	if (pt_within_area)
-	{
-		return std::vector<int> {x_center, y_center};
-	}
-	else
-		return std::vector<int> {-1, -1};
+	return pt_within_area ? QPoint {x_center, y_center} :  QPoint {-1, -1};
 }
 
-bool VideoDisplayZoomManager::is_currently_zoomed()
+QPoint VideoDisplayZoomManager::GetPositionWithinZoom(const QPoint& pt) const
 {
-    return zoom_list.size() > 1;
+	return GetPositionWithinZoom(pt.x(), pt.y());
+}
+
+bool VideoDisplayZoomManager::IsCurrentlyZoomed() const noexcept
+{
+    return zoom_list_.size() > 1;
 }

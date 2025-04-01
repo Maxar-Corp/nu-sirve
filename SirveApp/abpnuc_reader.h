@@ -19,12 +19,19 @@
 
 struct ABPNUCFrame
 {
-	int frame_number;
-	uint ir_temperature, tec_temperature_x100, tec_temperature_t1_x100, tec_temperature_t2_x100, tec_temperature_t3_x100,
-		nuc_environment, measured_det_cal_factor, scene_mean_t1, scene_mean_t2, scene_mean_t3, scene_mean;
+    int         frame_number;
+    uint        ir_temperature;
+    uint        measured_det_cal_factor;
+    uint        nuc_environment;
+    int32_t     tec_temperature_x100, tec_temperature_t1_x100, tec_temperature_t2_x100, tec_temperature_t3_x100;
+    int32_t     scene_mean_t1, scene_mean_t2, scene_mean_t3, scene_mean;
 
-	double frame_time, seconds, ambient, afocal1, afocal2, ir_atherm, ir_integration_time_usec, detector_temperature;
-
+    double      ambient;
+    double      afocal1, afocal2;
+    double      detector_temperature;
+    double      frame_time;
+    double      ir_atherm, ir_integration_time_usec;
+    double      seconds;
 };
 
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -36,9 +43,10 @@ public:
 	ABPNUCData(char* path);
 	~ABPNUCData();
 
-	const char* full_file_path;
-	int read_status, number_of_frames;
-    std::vector<ABPNUCFrame> data;
+    std::vector<ABPNUCFrame>    data;
+    const char*                 full_file_path;
+    int                         number_of_frames;
+    int                         read_status;
 
 	void ReadABPNUCFile();
 

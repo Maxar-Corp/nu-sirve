@@ -20,13 +20,24 @@ QStringList ColorScheme::get_track_colors()
 {
     return {
         "red",
-        "orange",
-        "yellow",
         "green",
         "blue",
+        "cyan",
+        "magenta",
+        "orange",
+        "yellow",
+        "gray",
         "violet",
         "black",
         "white",
+        "darkRed",
+        "darkGreen",
+        "darkBlue",
+        "darkCyan",
+        "darkMagenta",
+        "darkYellow",
+        "darkGray",
+        "lightGray"
     };
 }
 

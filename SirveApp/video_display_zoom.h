@@ -2,36 +2,34 @@
 #ifndef VIDEO_DISPLAY_ZOOM_H
 #define VIDEO_DISPLAY_ZOOM_H
 
-#include <vector>
-#include <cmath>
 #include <QRect>
+#include <vector>
 
-struct AbsoluteLocation {
-    double x;
-    double y;
-};
+/**
+ * \brief Manages the zoom state of a video display.
+ */
+class VideoDisplayZoomManager
+{
+public:
+    VideoDisplayZoomManager(int width=0, int height=0);
 
-struct AbsoluteZoomInfo {
-	double x, y, width, height;
-};
+    void Clear(int width, int height);
+    const std::vector<QRect>& GetZoomList() const noexcept;
+    const std::vector<QRectF>& GetAbsoluteZoomList() const noexcept;
+    void ZoomImage(const QRect& area);
+    QPoint GetPositionWithinZoom(int x0, int y0) const;
+    QPoint GetPositionWithinZoom(const QPoint& pt) const;
+    void UndoZoom();
 
-class VideoDisplayZoomManager {
-    public:
-        VideoDisplayZoomManager(int x_pixels, int y_pixels);
-        ~VideoDisplayZoomManager();
+    bool IsCurrentlyZoomed() const noexcept;
+    bool IsCurrentlyZoomed(int x0, int y0) const noexcept;
 
-	    std::vector<QRect> zoom_list;
-        std::vector<AbsoluteZoomInfo> absolute_zoom_list;
+    bool ZoomListExists();
 
-        void ZoomImage(QRect area);
-        std::vector<int> GetPositionWithinZoom(int x0, int y0);
-        void UndoZoom();
-
-        bool is_currently_zoomed();
-        bool is_any_piece_within_zoom(int x0, int y0);
-
-    private:
-        int image_x, image_y;
+private:
+    int image_width_ = 0, image_height_ = 0;
+    std::vector<QRect> zoom_list_;
+    std::vector<QRectF> absolute_zoom_list_;
 };
 
 #endif

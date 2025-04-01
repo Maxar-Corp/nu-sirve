@@ -31,11 +31,11 @@ namespace jtime {
 
 		double a, b, c, d, e;
 
-		a = 367 * year;
-		b = -std::floor(7 * (year + std::floor((month + 9) / 12)) / 4);
-		c = -std::floor(3 * (std::floor((year + (month - 9) / 7) / 100) + 1) / 4);
-		d = std::floor(275 * month / 9) + day + 1721028.5;
-		e = (hr * 3600 + minute * 60 + sec) / 86400;
+		a = 367. * year;
+		b = -std::floor(7 * (year + std::floor((month + 9) / 12)) / 4.);
+		c = -std::floor(3 * (std::floor((year + (month - 9) / 7) / 100.) + 1) / 4.);
+		d = std::floor(275 * month / 9.) + day + 1721028.5;
+		e = (hr * 3600. + minute * 60. + sec) / 86400.;
 
 		return a + b + c + d + e;
 	}

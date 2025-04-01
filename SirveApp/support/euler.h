@@ -16,15 +16,9 @@
 
 #ifndef EULER_H
 #define EULER_H
-//#define _USE_MATH_DEFINES
+
 
 #include <armadillo>
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <math.h>
-#include <random>
-#include <stdexcept>
 
 namespace rotate {
 

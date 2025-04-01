@@ -13,15 +13,6 @@
 
 //Required Headers
 #include <armadillo>
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <math.h>
-#include <random>
-#include <stdexcept>
-
-#include "support/Euler.h"
-#include "support/JTime.h"
 
 namespace earth {
 
