@@ -87,8 +87,8 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     if (height < 500)
         this->resize(500, 500);
 
-    engineering_data = new EngineeringData(&osm_frames);
-    plot_data = new EngineeringPlot(&osm_frames, "Irradiance", {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)}); // TODO: Pull in metadata for this.
+    engineering_data = new EngineeringData(osm_frames);
+    plot_data = new EngineeringPlot(osm_frames, "Irradiance", {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)}); // TODO: Pull in metadata for this.
 
     track_info = new TrackInformation(osm_frames);
     plot_data->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
@@ -98,8 +98,8 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     plot_data->SetPlotClassification("");
 
 
-    plot_data->toggle_yaxis_log(true);
-    plot_data->SetYAxisChartId(2);
+    //plot_data->toggle_yaxis_log(true);
+    //plot_data->SetYAxisChartId(2);
     plot_data->PlotChart();
 
     btn_load_frames->setEnabled(true);    

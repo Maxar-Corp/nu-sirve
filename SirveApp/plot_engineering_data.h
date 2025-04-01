@@ -37,7 +37,7 @@ class EngineeringPlot : public JKQTPlotter
     Q_OBJECT
 public:
 
-    EngineeringPlot(std::vector<Frame> *osm_frames, QString plotTitle, std::vector<Quantity> quantities);
+    EngineeringPlot(std::vector<Frame> const &osm_frames, QString plotTitle, std::vector<Quantity> quantities);
     ~EngineeringPlot();
 
     using JKQTPlotter::zoomIn; // Keep access to the base class version
@@ -134,7 +134,7 @@ private:
     std::set<int> manual_track_ids;
     unsigned int num_frames;
     int number_of_tracks;
-    std::vector<Frame> *osm_frames_ref;
+    const std::vector<Frame> *osm_frames_ref;
     int palette_tab_index;
     QString plot_classification;
     bool show_frame_line;
@@ -149,6 +149,7 @@ private:
 
     QAction* get_action_toggle_frameline() const;
     std::vector<double> get_individual_x_track(size_t i);
+    std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_sum_relative_counts(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_boresight_azimuth(size_t i);

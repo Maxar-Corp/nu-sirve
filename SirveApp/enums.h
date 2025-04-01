@@ -29,7 +29,7 @@ public:
         Photons,
         None
     };
-    
+
     enum ClassificationType {
         Plot,
         VideoDisplay
@@ -84,7 +84,15 @@ public:
     static int getPlotUnitIndexFromString(const QString &value) {
         const QMetaObject &metaObj = Enums::staticMetaObject;
         int index = metaObj.indexOfEnumerator("PlotUnit");
-        
+        QMetaEnum metaEnum = metaObj.enumerator(index);
+
+        int enumValue = metaEnum.keyToValue(value.toUtf8().constData());
+        if (enumValue == -1) {
+            throw std::invalid_argument(QString("Invalid PlotUnit value: %1").arg(value).toStdString());
+        }
+        return enumValue; // Since enums are zero-based by definition, this is also the zero-based index.
+    }
+
     // Function to get an enum by index
     static ClassificationType getClassificationTypeByIndex(int index) {
         if (index < 0 || index >= static_cast<int>(ClassificationType::VideoDisplay) + 1) {
@@ -105,10 +113,9 @@ public:
         }
         return enumValue; // Since enums are zero-based by definition, this is also the zero-based index.
     }
- Q_ENUM(PlotType)
- Q_ENUM(PlotUnit)
+
+    Q_ENUM(PlotType)
+    Q_ENUM(PlotUnit)
 };
 
-
 #endif // ENUMS_H
-

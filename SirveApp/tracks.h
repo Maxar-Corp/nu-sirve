@@ -42,12 +42,14 @@ struct PlottingTrackDetails {
     double sum_relative_counts = 0.0;
     double azimuth = 0.0;
     double elevation = 0.0;
+    double irradiance = 0.0;
 };
 
 struct ManualPlottingTrackDetails {
     TrackDetails centroid;
     double azimuth = 0.0;
     double elevation = 0.0;
+    double irradiance = 0.0;
     double sum_relative_counts = 0.0;
 };
 

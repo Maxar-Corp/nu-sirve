@@ -106,12 +106,9 @@ SOURCES += abir_reader.cpp \
             Section.cpp \
             shared_tracking_functions.cpp\
             SirveApp.cpp \
-
             quantity.cpp \
             single_check_list.cpp \
-
             state_manager.cpp \
-
             track_management_widget.cpp \
             tracks.cpp \
             video_display.cpp \

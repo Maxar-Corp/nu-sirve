@@ -6,16 +6,16 @@
 #include "SirveApp.h"
 
 
-EngineeringPlot::EngineeringPlot(std::vector<Frame> *osm_frames, QString plot_title, std::vector<Quantity> quantities) : JKQTPlotter()
+EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString plot_title, std::vector<Quantity> quantities) : JKQTPlotter()
 {
-    osm_frames_ref = osm_frames;
+    osm_frames_ref = &osm_frames;
 
     plotTitle = plot_title;
     plot_classification = "EDIT CLASSIFICATION";
     my_quantities = quantities;
     plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(0).getName()));
     plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(1).getName()));
-    num_frames = static_cast<unsigned int>(osm_frames->size());
+    num_frames = static_cast<unsigned int>(osm_frames.size());
 
     EngineeringData *engineeringData = new EngineeringData(osm_frames);
 
@@ -144,15 +144,11 @@ void EngineeringPlot::PlotSirveTracks()
 
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
-
-void EngineeringPlots::PlotSumRelativeCounts(size_t plot_number_tracks)
-
 {
     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
     {
         std::vector<double> x_values = get_x_func(track_index);
         std::vector<double> y_values = get_y_func(track_index);
-
 
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
@@ -186,6 +182,47 @@ void EngineeringPlots::PlotSumRelativeCounts(size_t plot_number_tracks)
     }
 }
 
+// void EngineeringPlot::PlotSumRelativeCounts(size_t plot_number_tracks)
+
+// {
+//     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
+//     {
+//         std::vector<double> x_values = get_x_func(track_index);
+//         std::vector<double> y_values = get_y_func(track_index);
+
+
+//         QVector<double> X(x_values.begin(), x_values.end());
+//         QVector<double> Y(y_values.begin(), y_values.end());
+
+//         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+//         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+//         graph=new JKQTPXYLineGraph(this);
+//         graph->setXColumn(columnX);
+//         graph->setYColumn(columnY);
+//         graph->setTitle(title.replace('_',' '));
+
+//         graph->setSymbolSize(0.1);
+//         graph->setSymbolLineWidth(1);
+//         graph->setColor(colors.get_current_color());
+//         graph->setSymbolColor(QColor::fromRgb(255,20,20));
+
+//         this->addGraph(graph);
+
+//         this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
+//         this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
+//         this->getYAxis()->setLabelFontSize(10); // large x-axis label
+//         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
+
+//         this->zoomToFit();
+
+//         // get the upper bound for drawing the frame line
+//         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
+
+//         InitializeFrameLine(index_sub_plot_xmin + 0);
+//     }
+// }
+
 void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
 {
     track_frames = frames;
@@ -217,10 +254,21 @@ std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
     return x_values;
 }
 
-
 std::vector<double> EngineeringPlot::get_individual_y_track_irradiance(size_t i)
-std::vector<double> EngineeringPlots::get_individual_y_track_sum_relative_counts(size_t i)
+{
+    std::vector<double> y_values;
+    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    {
+        if (i < track_frames[track_frame_index].details.size())
+        {
+            y_values.push_back(track_frames[track_frame_index].details[i].irradiance);
+        }
+    }
 
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_sum_relative_counts(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
@@ -439,12 +487,7 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
 
 void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, int track_id)
 {
-
     QString title = "Track " + QString::number(track_id);
-
-//    manual_track_colors[track_id] = std::move(new_color);
-}
-//>>>>>>> main
 
     DeleteGraphIfExists(title);
 

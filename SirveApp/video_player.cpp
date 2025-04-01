@@ -317,13 +317,13 @@ void VideoPlayer::SetPlaybackEnabled(bool enabled)
 }
 
 void VideoPlayer::ConnectDataPlots()
-{
-    auto data_plots = mw_->data_plots;
-    connect(pause_, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
-    connect(play_, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
-    connect(reverse_, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
-    connect(next_, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
-    connect(prev_, &QPushButton::clicked, data_plots, &EngineeringPlots::HandlePlayerButtonClick);
+{ // TODO: Fix this!
+    // auto data_plots = mw_->data_plots;
+    // connect(pause_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(play_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(reverse_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(next_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
+    // connect(prev_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst

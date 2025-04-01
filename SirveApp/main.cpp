@@ -25,7 +25,7 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 
 int main(int argc, char *argv[])
 {
-	// Check the command line argument count before checking if the first true argument is a debug flag
+    // Check the command line argument count before checking if the first true argument is a debug flag
     if (argc > 1 && std::strcmp(argv[1],"--debug") == 0) {
         QString LOG_FILE_PATH = "log/debug_log_file.txt";
 
@@ -51,25 +51,24 @@ int main(int argc, char *argv[])
         file.close();
     }
 
-    SirveApp app;
-    
+    SirveApp app2;
+
     QPointer screen = QApplication::primaryScreen();
 
     QSize resolution = screen->size();
 
     if (resolution.width() <= 1920)
     {
-        app.move(10,10);
+        app2.move(10,10);
     }
     else
     {
-        app.move((resolution.width() - app.size().width())/2,(resolution.height() - app.size().height())/2);
+        app2.move((resolution.width() - app2.size().width())/2,(resolution.height() - app2.size().height())/2);
     }
 
-    app.show();
+    app2.show();
 
-
-    qDebug() << "Dimensions of Sirve: Width=" << widget.size().width() << " Height=" << widget.size().height() << "\r\n";
+    qDebug() << "Dimensions of Sirve: Width=" << app2.size().width() << " Height=" << app2.size().height() << "\r\n";
 
     return app.exec();
 }

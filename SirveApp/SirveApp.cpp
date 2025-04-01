@@ -47,11 +47,7 @@ SirveApp::SirveApp(QWidget *parent)
     SetupConnections();
 
     HandleRelativeHistogramToggle(false);
-
-    ToggleVideoPlaybackOptions(false);
-
     video_player_->SetPlaybackEnabled(false);
-    EnableEngineeringPlotOptions();
 
     CreateMenuActions();
 
@@ -519,7 +515,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     cmb_outlier_processing_type = new QComboBox();
     cmb_outlier_processing_type->addItem("Median");
     cmb_outlier_processing_type->addItem("Moving Median");
-    connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::handle_outlier_processing_change);
+    connect(cmb_outlier_processing_type, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::HandleOutlierProcessingChange);
 
     cmb_outlier_processing_sensitivity = new QComboBox();
     cmb_outlier_processing_sensitivity->addItem("Low 6 sigma");
@@ -561,7 +557,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     cmb_bad_pixel_color->setFixedWidth(100);
     cmb_bad_pixel_color->addItems(colors);
     cmb_bad_pixel_color->setCurrentIndex(2);
-    connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::edit_bad_pixel_color);
+    connect(cmb_bad_pixel_color, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &SirveApp::EditBadPixelColor);
 
     QFormLayout *form_highlight_bad_pixels = new QFormLayout;
     form_highlight_bad_pixels->addRow(tr("&Color"),cmb_bad_pixel_color);
@@ -1116,11 +1112,11 @@ void SirveApp::SetupConnections() {
     // Connect epoch button click to function
     connect(btn_apply_epoch, &QPushButton::clicked, this, &SirveApp::ApplyEpochTime);
 
-    //Enable saving frame
-    connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::SaveFrame);
+    //Enable saving frame TODO: Was this a requirement?
+    //connect(btn_frame_save, &QPushButton::clicked, this, &SirveApp::SaveFrame);
 
     connect(btn_popout_histogram, &QPushButton::clicked, this, &SirveApp::HandlePopoutHistogramClick);
-    connect(this, &SirveApp::enableYAxisOptions, this, &SirveApp::EnableYAxisOptions);
+
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -1182,7 +1178,7 @@ void SirveApp::ImportTracks()
     std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
     for ( int track_id : result.track_ids )
     {
-        video_display->AddManualTrackIdToShowLater(track_id);
+        video_player_->AddManualTrackIdToShowLater(track_id);
         tm_widget->AddTrackControl(track_id);
         if (previous_manual_track_ids.find(track_id) != previous_manual_track_ids.end())
         {
@@ -1436,11 +1432,9 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     QColor new_color(0,0,0,0);
 
     video_player_->HideManualTrackId(track_id);
-    int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-    int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
-    plot_palette->RecolorManualTrack(0, track_id, std::move(new_color)
-);
-
+    // int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
+    // int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+    plot_palette->RecolorManualTrack(0, track_id, new_color);
     FramePlotSpace();
 }
 
@@ -1448,10 +1442,6 @@ void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
 {
     video_player_->ShowManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color);
-
-    video_player_->ShowManualTrackId(track_id);
-    data_plots->RecolorManualTrack(track_id, new_color);
-
     FramePlotSpace();
 }
 
@@ -1555,7 +1545,7 @@ void SirveApp::SaveWorkspace()
 
         if (selectedUserFilePath.length() > 0) {
             QFileInfo fileInfo(selectedUserFilePath);
-t
+
             workspace->SaveState(selectedUserFilePath, 
                                  abp_file_metadata.image_path,
                                  plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin + 1,
@@ -1563,9 +1553,8 @@ t
                                  eng_data->get_offset_time(),
                                  *state_manager_,
                                  video_player_->GetAnnotations(),
-                                 classification_list,
-                                 lbl_workspace_name_field->setText(fileInfo.fileName());
-                                                         
+                                 classification_list);
+            lbl_workspace_name_field->setText(fileInfo.fileName());
         }
     }
 }
@@ -1684,7 +1673,8 @@ void SirveApp::LoadWorkspace()
             // Set classification to the appropriate widget, depending on its type.
             if (classification.type == "Plot")
             {
-                data_plots->SetPlotTitle(classification.text);
+                //TODO: Fix this to use new PlotSpace API
+                //data_plots->SetPlotTitle(classification.text);
             } else
             {
                 video_player_->UpdateBannerText(classification.text);
@@ -1800,7 +1790,7 @@ void SirveApp::LoadOsmData()
         txt_stop_frame->setStyleSheet(orange_styleSheet);
     }
 
-    eng_data = new EngineeringData(&osm_frames);
+    eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames);
 
     plot_palette = new PlotPalette();
@@ -1876,14 +1866,7 @@ void SirveApp::LoadOsmData()
     menu_plot_all_data->setIconVisibleInMenu(true);
     menu_plot_primary->setIconVisibleInMenu(false);
 
-
     tab_plots->setCurrentIndex(1);
-
-    menu_plot_frame_marker->setIconVisibleInMenu(false);
-
-    EnableEngineeringPlotOptions();
-    EnableYAxisOptions(false);
-
 
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
     {
@@ -1897,7 +1880,7 @@ void SirveApp::LoadOsmData()
 
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
-    EngineeringPlot *data_plot = new EngineeringPlot(&osm_frames, plotTitle, quantities);
+    EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
     data_plot->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
     UpdatePlots(data_plot);
 
@@ -1907,7 +1890,7 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         data_plot->set_use_subinterval(plot_palette->GetEngineeringPlotReference(0)->get_use_subinterval());
         if (data_plot->get_use_subinterval()){
             data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
-                                            plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
+                                             plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
             data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
                                              plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
         }
@@ -2134,7 +2117,7 @@ void SirveApp::OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::
 {
     QDialog *popoutDialog = new QDialog(this);
     QVBoxLayout *popoutDialogLayout = new QVBoxLayout(popoutDialog);
-    EngineeringPlot *dialogPlotter = new EngineeringPlot(&osm_frames, plotTitle, quantities);
+    EngineeringPlot *dialogPlotter = new EngineeringPlot(osm_frames, plotTitle, quantities);
 
     popoutDialogLayout->addWidget(plot_palette->GetEngineeringPlotReference(tab_index));
 
@@ -2181,7 +2164,7 @@ void SirveApp::ClosePopoutEngineeringPlot()
 
 void SirveApp::HandlePlotFocusChanged(int tab_index)
 {
-    plot_palette->RouteFramelineUpdate(this->playback_controller->get_current_frame_number());
+    plot_palette->RouteFramelineUpdate(video_player_->GetCurrentFrameNumber());
 }
 
 void SirveApp::HandleProgressUpdate(int percent)
@@ -2215,7 +2198,8 @@ void SirveApp::HandlePopoutHistogramClosed()
 
 void SirveApp::HandleZoomAfterSlider()
 {
-    data_plots->PlotCurrentStep(video_player_->GetCurrentFrameNumber());
+    // TODO: Re-enable this (using loop convention?)
+    //data_plots->PlotCurrentStep(video_player_->GetCurrentFrameNumber());
 }
 
 void SirveApp::HandleHistogramClick(double x0, double x1) {
@@ -2785,8 +2769,8 @@ void SirveApp::ExportPlotData()
     }
     else {
 
-        min_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-        max_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax;
+        int min_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
+        int max_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax;
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
     }
@@ -2872,6 +2856,7 @@ void SirveApp::HandleOutlierProcessingChange()
         txt_moving_median_N->setStyleSheet("#txt_moving_median_N {background-color:#ffffff; color:rgb(0,0,0);}");
     }
 }
+
 void SirveApp::EditBadPixelColor()
 {
     QString bad_pixel_color = cmb_bad_pixel_color->currentText();
@@ -2883,7 +2868,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
     if (eng_data)
     {
         engineering_plot->PlotChart();
-        engineering_plot->PlotCurrentFrameline(playback_controller->get_current_frame_number());
+        engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
     }
 
     if (osmDataLoaded == true)
@@ -3171,12 +3156,8 @@ void SirveApp::ReceiveNewBadPixels(const std::vector<unsigned int>& new_pixels)
             current_state.replaced_pixels = bad_pixels;
             lbl_bad_pixel_count->setText("Bad pixels currently replaced: " + QString::number(bad_pixels.size()));
 
-            QString state_name = "State " + QString::number(current_state_idx) + ": " + video_display->container.processing_states[current_state_idx].get_friendly_description();
-            video_display->container.processing_states[current_state_idx].state_description = state_name;
-            
             current_state.UpdateDescription();
             lbl_processing_description->setText(current_state.state_description);
-            ImageProcessor->deleteLater();
 
             UpdateGlobalFrameVector();
         }
@@ -3277,7 +3258,6 @@ void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
     catch (const std::exception&)
     {
         // catch any errors when loading frames. try-catch not needed when loading frames from same file since no errors originally occurred
-        //TODO: LAUNCHMESSAGEBOX
         QMessageBox msgBox;
         msgBox.setWindowTitle(QString("Fixed Noise Suppression from External File"));
         QString box_text = "Error occurred when loading the frames for the noise suppression. See log for details.  ";
@@ -4228,11 +4208,13 @@ void SirveApp::ExecuteAutoTracking()
             video_player_->AddManualTrackIdToShowLater(track_id);
             track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
 
-            int index0 = data_plots->index_sub_plot_xmin;
-            int index1 = data_plots->index_sub_plot_xmax + 1;
+            int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
+            int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-
+            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
+            {
+                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            }
             FramePlotSpace();
 
             cmb_manual_track_IDs->clear();
@@ -4289,11 +4271,12 @@ void SirveApp::ExecuteAutoTracking()
     }
 }
 
-void SirveApp::UpdateEpochString(QString new_epoch_string)
+void SirveApp::UpdateEpochString(const QString& new_epoch_string)
 {
     QString out = "Applied Epoch: ";
     out = out +new_epoch_string;
     lbl_current_epoch->setText(out);
+
 }
 
 void SirveApp::DisplayOriginalEpoch(const QString& new_epoch_string)

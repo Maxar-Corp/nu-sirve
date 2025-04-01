@@ -1,3 +1,4 @@
+
 #ifndef QUANTITY_H
 #define QUANTITY_H
 

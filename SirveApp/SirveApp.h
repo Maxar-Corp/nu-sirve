@@ -31,7 +31,6 @@
 #include "popout_dialog.h"
 #include "tracks.h"
 #include "track_management_widget.h"
-#include "SirveApp.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
 
@@ -57,7 +56,7 @@ public:
     AbpFileMetadata abp_file_metadata;
     QPointer<AutoTracking> auto_tracking;
     std::vector<Classification> classification_list;
-    EngineeringPlots *data_plots;
+    //EngineeringPlots *data_plots;
     QPointer<EngineeringData> eng_data;
     QPointer<QWidget> main_widget;
     bool osmDataLoaded;
@@ -74,16 +73,9 @@ public:
     //QWidget *main_widget;
     QGridLayout *engineering_plot_layout;
 
-    FramePlayer *playback_controller;
-    QMenu *menu, *plot_menu;
-
     /* --------------------------------------------------------------------------------------------
     Qt Elements for user interface
     ----------------------------------------------------------------------------------------------- */
-
-    QString orange_styleSheet = "color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;";
-
-    QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
 
     QString orange_styleSheet = "color: black; background-color: rgba(245, 200, 125, 255); font-weight: bold;";
     QString bold_large_styleSheet = "color: black; font-weight: bold; font-size: 12px";
@@ -183,7 +175,7 @@ public:
     void UpdateEpochString(const QString& new_epoch_string);
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
-    void UpdatePlots();
+    void UpdatePlots(EngineeringPlot *engineering_plot);
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
     void UpdateGlobalFrameVector();
 
@@ -244,12 +236,12 @@ private:
     void EditBadPixelColor();
     void EditBannerColor();
     void EditBannerText();
+    void EditClassificationText(int plot_tab_index, QString current_value);
     void EditColorMap();
     void EditOSMTrackColor();
     void EditPlotText();
 
     void EnableBinaryExport();
-    void EnableEngineeringPlotOptions();
 
     void ExitTrackCreationMode();
 
@@ -272,14 +264,13 @@ private:
     void HandleExternalFileToggle();
     void HandleFinishCreateTrackClick();
     void HandleOutlierProcessingChange();
-    void HandlePopoutEngineeringClick(bool checked);
+    //void HandlePopoutEngineeringClick(bool checked);
     void HandlePopoutHistogramClick(bool checked);
     void HandleYAxisChange();
 
     void LoadAbirData(int start_frame, int stop_frame);
     void LoadOsmData();
-
-    void OpenPopoutEngineeringPlot();
+;
     void OpenPopoutHistogramPlot();
     void OpenProgressArea(const QString& message, int N);
     void PrepareForTrackCreation(int track_id);
@@ -292,7 +283,6 @@ signals:
     void changeBannerColor(QString color);
     void changeTrackerColor(QString color);
     void directorySelected(QString directory);
-    void enableYAxisOptions(bool enabled);
     void itemDataSelected(QVariant data);
     void updateVideoDisplayPinpointControls(bool status);
 
@@ -302,7 +292,6 @@ public slots:
     void ApplyFixedNoiseSuppressionFromExternalFile();
     void ChangeWorkspaceDirectory();
     void CloseWindow();
-    void EnableYAxisOptions(bool enabled);
 
     void ExecuteAccumulatorNoiseSuppression();
     void ExecuteAdaptiveNoiseSuppression();
@@ -325,11 +314,12 @@ public slots:
     void HandleManualTrackRecoloring(int track_id, const QColor& color);
     void HandleNewProcessingState(const QString& state_name, const QString& combobox_state_name, int index);
     void HandleOsmTracksToggle();
+    void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
     void HandlePlayerStateChanged(bool status);
-    void HandlePlotCurrentFrameMarkerToggle();
+    void HandlePlotFocusChanged(int tab_index);
     void HandlePlotFullDataToggle();
     void HandlePlotPrimaryOnlyToggle();
-    void HandlePopoutEngineeringClosed();
+    //void HandlePopoutEngineeringClosed();
     void HandlePopoutHistogramClosed();
     void HandleProcessingNewStateSelected();
     void HandleProcessingStateRemoval(ProcessingMethod method, int index);
@@ -338,11 +328,14 @@ public slots:
     void HandleRelativeHistogramToggle(bool input);
     void HandleShowManualTrackId(int track_id, const QColor& color);
     void HandleTrackRemoval(int track_id);
-    void HandleXAxisOptionChange();
     void HandleZoomAfterSlider();
 
     void ImportTracks();
     void LoadWorkspace();
+
+    void OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::vector<Quantity> quantities);
+    void ClosePopoutEngineeringPlot();
+
     void ReceiveNewBadPixels(const std::vector<unsigned int>& new_pixels);
     void ReceiveNewGoodPixels(const std::vector<unsigned int>& pixels);
     void ReceiveProgressBarUpdate(int percent) const;
