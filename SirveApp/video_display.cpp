@@ -1302,7 +1302,7 @@ void VideoDisplay::RecolorManualTrack(int id, QColor color)
 }
 
 void VideoDisplay::InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data,
-                                       std::vector<ABIRFrameHeader>& input_frame_header)
+                                       std::vector<ABIRFrameHeader> input_frame_header)
 {
     starting_frame_number = frame_number;
     display_data = std::move(input_data);

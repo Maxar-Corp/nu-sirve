@@ -11,14 +11,16 @@
 #include <armadillo>
 #include <qpointer.h>
 
-#include "annotation_stencil.h"
-#include "abir_reader.h"
-#include "state_manager.h"
 #include "Data_Structures.h"
 #include "abir_reader.h"
 #include "annotation_info.h"
-#include "video_display_zoom.h"
+#include "annotation_stencil.h"
+#include "calibration_data.h"
+#include "constants.h"
+#include "enhanced_label.h"
+#include "state_manager.h"
 #include "tracks.h"
+#include "video_display_zoom.h"
 
 class VideoDisplay : public QWidget
 {
@@ -59,7 +61,7 @@ public:
     void UpdateFrameData(std::vector<PlottingFrameData> input_data);
 
     void InitializeTrackData(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);
-    void InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIRFrameHeader>& input_frame_header);
+    void InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data, std::vector<ABIRFrameHeader> input_frame_header);
     void UpdateManualTrackData(std::vector<TrackFrame> track_frame_input);
 
     void AddManualTrackIdToShowLater(int id);

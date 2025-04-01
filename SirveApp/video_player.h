@@ -1,6 +1,7 @@
 #ifndef VIDEO_PLAYER_H
 #define VIDEO_PLAYER_H
 
+#include <QPointer>
 #include <armadillo>
 
 #include "ABIR_Reader.h"
@@ -40,7 +41,7 @@ public:
     uint32_t GetCounter() const;
     const std::vector<std::optional<TrackDetails>>& GetCreatedTrackDetails();
     uint32_t GetCurrentFrameNumber() const;
-    const std::vector<ABIR_Frame>& GetFrameHeaders() const;
+    const std::vector<ABIRFrameHeader>& GetFrameHeaders() const;
     int GetImageWidth() const;
     int GetImageHeight() const;
     QVBoxLayout* GetLayout() const;
@@ -49,7 +50,7 @@ public:
     void HideManualTrackId(int id);
     void HighlightBadPixelsColors(const QString& color);
     void InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data,
-        std::vector<ABIR_Frame> input_frame_header);
+        std::vector<ABIRFrameHeader> input_frame_header);
     void InitializeStencilData(AnnotationInfo data);
     void InitializeToggles();
     void InitializeTrackData(std::vector<TrackFrame> osm_frame_input, std::vector<TrackFrame> manual_frame_input);

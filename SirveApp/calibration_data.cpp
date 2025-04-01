@@ -8,19 +8,6 @@
 #include <qbuttongroup.h>
 
 #include "abp_version_dlg.h"
-
-CalibrationData::CalibrationData()
-{
-    // set check variable to false to start
-    calibration_available = false;
-}
-
-CalibrationData::~CalibrationData()
-{
-}
-
-std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x,
-                                                         double frame_integration_time)
 std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
 {
 	double scale_factor = integration_time / frame_integration_time;
@@ -269,6 +256,7 @@ void CalibrationDialog::ImportNucFile()
         msgBox.setWindowTitle(QString("Issue Reading File"));
         QString box_text("Error occurred when reading from apbnuc file");
         msgBox.setText(box_text);
+		return;
     }
 
     auto frames = reader.ReadFrames();
@@ -638,13 +626,11 @@ void CalibrationDialog::verifyCalibrationValues()
     QFile file(path);
     double version = 0;
 
-    if (file.open(QFile::ReadOnly))
-    {
+	if (file.open(QFile::ReadOnly)) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
         QJsonObject jsonObj = jsonDoc.object();
 
-        if (jsonObj.contains("version"))
-        {
+		if (jsonObj.contains("version")) {
             version = jsonObj.value("version").toDouble();
         }
     }
@@ -839,8 +825,8 @@ void CalibrationDialog::PrepareAndPlotTemperature(const ABPNUCFrames& frames)
     CreateTemperaturePlot(temperature);
 }
 
-void CalibrationDialog::DrawAxes()
-{
+void CalibrationDialog::DrawAxes() {
+
     // set up axes
     chart_temperature->createDefaultAxes();
     QAbstractAxis* x_axis = chart_temperature->axes(Qt::Horizontal)[0];
@@ -860,8 +846,8 @@ void CalibrationDialog::DrawAxes()
     chart_temperature->setContentsMargins(0, 0, 0, 0);
 }
 
-void CalibrationDialog::CreateTemperaturePlot(QList<QPointF> temperature)
-{
+void CalibrationDialog::CreateTemperaturePlot(QList<QPointF> temperature) {
+
     chart_temperature->removeAllSeries();
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -901,15 +887,15 @@ bool CalibrationDialog::CheckPath(QString path)
     return file_exists && file_isFile;
 }
 
-double CalibrationDialog::TrapezoidalIntegration(arma::vec x, arma::vec Y)
-{
+double CalibrationDialog::TrapezoidalIntegration(arma::vec x, arma::vec Y) {
+
     arma::vec integ = arma::trapz(x, Y, 0);
     std::vector<double> area = arma::conv_to<std::vector<double>>::from(integ);
     return area[0];
 }
 
-arma::mat CalibrationDialog::AverageMultipleFrames(std::vector<std::vector<uint16_t>>& frames)
-{
+arma::mat CalibrationDialog::AverageMultipleFrames(std::vector<std::vector<uint16_t>> &frames) {
+
     int num_pixels = frames[0].size();
     int num_frames = frames.size();
 
