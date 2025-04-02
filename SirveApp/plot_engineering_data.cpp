@@ -182,47 +182,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
     }
 }
 
-// void EngineeringPlot::PlotSumRelativeCounts(size_t plot_number_tracks)
-
-// {
-//     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
-//     {
-//         std::vector<double> x_values = get_x_func(track_index);
-//         std::vector<double> y_values = get_y_func(track_index);
-
-
-//         QVector<double> X(x_values.begin(), x_values.end());
-//         QVector<double> Y(y_values.begin(), y_values.end());
-
-//         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
-//         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
-
-//         graph=new JKQTPXYLineGraph(this);
-//         graph->setXColumn(columnX);
-//         graph->setYColumn(columnY);
-//         graph->setTitle(title.replace('_',' '));
-
-//         graph->setSymbolSize(0.1);
-//         graph->setSymbolLineWidth(1);
-//         graph->setColor(colors.get_current_color());
-//         graph->setSymbolColor(QColor::fromRgb(255,20,20));
-
-//         this->addGraph(graph);
-
-//         this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
-//         this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
-//         this->getYAxis()->setLabelFontSize(10); // large x-axis label
-//         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
-
-//         this->zoomToFit();
-
-//         // get the upper bound for drawing the frame line
-//         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
-
-//         InitializeFrameLine(index_sub_plot_xmin + 0);
-//     }
-// }
-
 void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
 {
     track_frames = frames;
@@ -261,7 +220,7 @@ std::vector<double> EngineeringPlot::get_individual_y_track_irradiance(size_t i)
     {
         if (i < track_frames[track_frame_index].details.size())
         {
-            y_values.push_back(track_frames[track_frame_index].details[i].irradiance);
+            y_values.push_back(track_frames[track_frame_index].details[i].sum_relative_counts);
         }
     }
 
