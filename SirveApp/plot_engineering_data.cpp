@@ -453,8 +453,23 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     QVector<double> X(x_values.begin(), x_values.end());
     QVector<double> Y(y_values.begin(), y_values.end());
 
-    size_t columnX=ds->addCopiedColumn(X, "x");
-    size_t columnY=ds->addCopiedColumn(Y, "y");
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
+     QList<QString> names = ds->getColumnNames();
+
+    size_t columnX;
+    size_t columnY;
+
+    if (!names.contains(titleX))
+    {
+        columnX=ds->addCopiedColumn(X, titleX);
+        columnY=ds->addCopiedColumn(Y, titleY);
+    }
+    else {
+        columnX=(size_t)names.indexOf(titleX);
+        columnY=(size_t)names.indexOf(titleY);
+    }
 
     graph=new JKQTPXYLineGraph(this);
 
