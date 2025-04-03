@@ -45,7 +45,7 @@ public:
     cv::Mat raw_display_frame;
     arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int
                                 bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, const ProcessingState&
-                                current_processing_state, const VideoDetails& base_processing_state_details, const std::vector<ABIR_Frame>& input_frame_header, const
+                                current_processing_state, const VideoDetails& base_processing_state_details, const std::vector<ABIRFrameHeader>& input_frame_header, const
                                 CalibrationData& calibration_model);
     void SetCalibrationModel(CalibrationData input);
 
@@ -90,7 +90,7 @@ private:
         double & clamp_high_coeff,
         const ProcessingState& current_processing_state,
         const VideoDetails& base_processing_state_details,
-        const std::vector<ABIR_Frame>& input_frame_header,
+        const std::vector<ABIRFrameHeader>& input_frame_header,
         string & prefilter,
         Ptr<Tracker> & tracker,
         string & trackFeature,

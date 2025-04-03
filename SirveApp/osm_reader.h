@@ -1,54 +1,33 @@
-#pragma once
+#ifndef OSM_READER2_H
+#define OSM_READER2_H
 
-#ifndef OSM_READER_H
-#define OSM_READER_H
-
-#include <armadillo>
-#include <excpt.h>
-#include <fstream>
-#include <iostream>
-#include <math.h>
-#include <qstring.h>
-#include <stdexcept>
-#include <type_traits>
-
-#include "binary_file_reader.h"
-#include "binary_file_reader.cpp"
+#include "binary_reader.h"
 #include "data_structures.h"
-#include "location_input.h"
-#include "support/earth.h"
-#include "support/az_el_calculation.h"
 
-const int       kMAX_NUMBER_ITERATIONS = 100000;
-const double    kSMALL_NUMBER = 0.000001;
-
-
-class OSMReader: private BinaryFileReader
+class OSMReader : public BinaryReader
 {
-    public:
-        std::vector<Frame> ReadOsmFileData(QString path);
+public:
+    OSMReader() = default;
+    ~OSMReader() override = default;
 
-        OSMReader();
-        ~OSMReader();
+    std::vector<Frame> ReadFrames();
 
-    private:
-        std::vector<double> file_ecef_vector;
-        std::vector<double> frame_time;
-        bool                location_from_file;
+private:
+    std::vector<Frame> LoadFrames(uint32_t num_messages);
+    MessageHeader ReadMessageHeader();
+    FrameHeader ReadFrameHeader();
+    FrameData ReadFrameData();
+    TrackData GetTrackData(const FrameData& input);
 
-        std::vector<double> CalculateAzimuthElevation(int x_pixel, int y_pixel, FrameData & input);
-        std::vector<double> CalculateDirectionCosineMatrix(std::vector<double> input);
-        double              CalculateGpsUtcJulianDate(double offset_gps_seconds);
-        std::vector<double> CalculateLatLonAltVector(std::vector<double> ecf);
+    uint32_t FindMessageNumber();
+    static double CalculateGpsUtcJulianDate(double offset_gps_seconds);
+    static std::vector<double> CalculateLatLonAltVector(const std::vector<double>& ecf);
+    static std::vector<double> CalculateDirectionCosineMatrix(const std::vector<double>& input);
+    static std::vector<double> CalculateAzimuthElevation(int x_pixel, int y_pixel, const FrameData& input);
 
-        uint32_t            FindMessageNumber();
-        TrackData           GetTrackData(FrameData & input);
-        std::vector<Frame>  LoadData(uint32_t num_messages, bool combine_tracks);
-        std::vector<Frame>  LoadFrameVectors(const char *file_path, bool input_combine_tracks = false);
-
-        FrameHeader         ReadFrameHeader();
-        FrameData           ReadFrameData();
-        MessageHeader       ReadMessageHeader();
+    std::vector<double> frame_time_;
+    bool location_from_file_ = false;
+    std::vector<double> file_ecef_vector_;
 };
 
-#endif
+#endif // OSM_READER2_H

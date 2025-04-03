@@ -1,5 +1,7 @@
 #include "non_uniformity_correction_external_file.h"
 
+#include "location_input.h"
+
 ExternalNUCInformationWidget::ExternalNUCInformationWidget()
 {
 
@@ -60,7 +62,13 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
         return;
     }
 
-    osm_frames = osm_reader.ReadOsmFileData(abp_metadata.osm_path);
+    if (osm_reader.Open(abp_metadata.osm_path))
+    {
+        QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
+        return;
+    }
+
+    osm_frames = osm_reader.ReadFrames();
     if (osm_frames.size() == 0)
 	{
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -68,7 +76,6 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
 	}
 
     PlotOsmFrameData();
-
 }
 
 void ExternalNUCInformationWidget::PlotOsmFrameData()

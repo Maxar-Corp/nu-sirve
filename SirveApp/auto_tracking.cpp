@@ -26,7 +26,7 @@ arma::s32_mat AutoTracking::SingleTracker(
     uint stop_frame,
     const ProcessingState& current_processing_state,
     const VideoDetails& base_processing_state_details,
-    const std::vector<ABIR_Frame>& input_frame_header,
+    const std::vector<ABIRFrameHeader>& input_frame_header,
     const CalibrationData& calibration_model
 )
 {
@@ -337,7 +337,7 @@ void AutoTracking::TrackingStep(
     double & clamp_high_coeff,
     const ProcessingState& current_processing_state,
     const VideoDetails& base_processing_state_details,
-    const std::vector<ABIR_Frame>& input_frame_header,
+    const std::vector<ABIRFrameHeader>& input_frame_header,
     string & prefilter,
     Ptr<Tracker> & tracker,
     string & trackFeature,
@@ -386,7 +386,7 @@ void AutoTracking::TrackingStep(
 
         SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
-        double frame_integration_time = input_frame_header[indx].header.int_time;
+        double frame_integration_time = input_frame_header[indx].int_time;
 
         sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
         sum_relative_counts__old = sum_relative_counts;

@@ -255,19 +255,23 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const 
     index_start_frame = start_frame - frame0;
     index_stop_frame = stop_frame  - frame0;
 
-    ABIRDataResult *abir_result = new ABIRDataResult();
-    abir_result->video_frames_16bit = original.frames_16bit;
+    video_frames_16bit = original.frames_16bit;
+
     int compare = QString::compare(path_video_file, image_path, Qt::CaseInsensitive);
     if (compare!=0)
     {
         //Read External
         QByteArray array = image_path.toLocal8Bit();
         char* buffer = array.data();
-        abir_result = abir_data.GetFrames(buffer, start_frame, stop_frame, version, false);
-        if (abir_result->had_error)
+
+        ABIRReader reader;
+        if (!reader.Open(buffer, version))
         {
             return frames_out;
         }
+
+        auto frames = reader.ReadFrames(start_frame, stop_frame, false);
+        video_frames_16bit = std::move(frames->video_frames_16bit);
     }
 
     // Create an Armadillo matrix for submatrix average
@@ -276,7 +280,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const 
     // Fill the Armadillo matrix from the std::vector
     int k = 0;
     for (int i = index_start_frame; i < index_stop_frame; i++){
-        window_data.col(k) = arma::conv_to<arma::vec>::from(abir_result->video_frames_16bit[i]);
+        window_data.col(k) = arma::conv_to<arma::vec>::from(video_frames_16bit[i]);
         k += 1;
     }
 
@@ -302,8 +306,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const 
         frame_vector = M * frame_vector / frame_vector.max();
         frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(frame_vector));
     }
-
-    delete abir_result;
 
     return frames_out;
 }
