@@ -72,7 +72,7 @@ bool ProcessFile::VerifyPath(const QString& path)
 	return file_exists && file_isFile;
 }
 
-ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version, bool mtsDData)
+ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame, ABPFileType file_type)
 {
     if (first_frame < 0 || last_frame < 0)
     {
@@ -86,9 +86,9 @@ ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_
     char* buffer = array.data();
 
     ABIRReader reader;
-    connect(&reader, &ABIRReader::advanceFrame, this, &ProcessFile::HandleProgressBarUpdate);
+    connect(&reader, &ABIRReader::AdvanceFrame, this, &ProcessFile::HandleProgressBarUpdate);
 
-    if (!reader.Open(buffer, version, mtsDData))
+    if (!reader.Open(buffer, file_type))
     {
         return nullptr;
     }

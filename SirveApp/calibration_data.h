@@ -15,6 +15,7 @@
 #include <QtCharts/QLineSeries>
 
 #include "abpnuc_reader.h"
+#include "abir_reader.h"
 #include "clickable_chartview.h"
 #include "color_scheme.h"
 #include "data_structures.h"
@@ -61,7 +62,7 @@ class CalibrationDialog : public QDialog
 	Q_OBJECT
 public:
 
-	CalibrationDialog(CalibrationData & input_model, QWidget* parent = nullptr);
+	CalibrationDialog(CalibrationData & input_model, ABPFileType file_type);
 	~CalibrationDialog();
 
 	CalibrationData model;
@@ -70,7 +71,7 @@ public:
         void PointSelected(double x0, double x1);
 
 private:
-
+    ABPFileType file_type;
 	ColorScheme colors;
 	QList<QPointF> temperature;
 	std::vector<double>all_frame_times, vector_wavelength, vector_filter;

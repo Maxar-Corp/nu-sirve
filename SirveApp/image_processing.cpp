@@ -242,7 +242,7 @@ arma::uvec ImageProcessing::FindDeadBadscalePixels(const std::vector<std::vector
 }
 
 std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const QString& image_path,
-    const QString& path_video_file, int frame0, int start_frame, int stop_frame, double version,
+    const QString& path_video_file, int frame0, int start_frame, int stop_frame, ABPFileType file_type,
     const VideoDetails & original)
 {
     // Initialize output
@@ -265,7 +265,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const 
         char* buffer = array.data();
 
         ABIRReader reader;
-        if (!reader.Open(buffer, version))
+        if (!reader.Open(buffer, file_type))
         {
             return frames_out;
         }

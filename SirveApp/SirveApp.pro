@@ -14,7 +14,6 @@ CONFIG += c++17
 
 HEADERS +=  abir_reader.h \
             abpnuc_reader.h \
-            abp_version_dlg.h \
             annotation_edit_dialog.h \
             annotation_list_dialog.h \
             annotation_stencil.h \
@@ -66,11 +65,10 @@ HEADERS +=  abir_reader.h \
             support/qt_elements_with_ids.h \
             support/qthelpers.h
 
-FORMS += location_gui.ui new_location.ui abp_version.ui
+FORMS += location_gui.ui new_location.ui
 
 SOURCES +=  abir_reader.cpp \
             abpnuc_reader.cpp \
-            abp_version_dlg.cpp \
             annotation_edit_dialog.cpp \
             annotation_info.cpp \
             annotation_list_dialog.cpp \

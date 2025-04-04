@@ -13,28 +13,21 @@ ABIRFrames::ABIRFrames() :
 {
 }
 
-bool ABIRReader::Open(const char* filename, double version_number, bool mtsDData)
+bool ABIRReader::Open(const char* filename, ABPFileType file_type)
 {
-    mtsDData_ = mtsDData;
+    file_type_ = file_type;
 
     if (!BinaryReader::Open(filename))
     {
         return false;
     }
 
-    if (version_number > 0.0)
-    {
-        file_version_ = version_number;
-    }
-    else
-    {
-        Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
-        file_version_ = Read<double>(true);
-    }
+    Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
+    file_version_ = Read<double>(true);
 
     if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER)
     {
-        return false;
+        file_version_ = 4.20;
     }
 
     if (file_version_ == 2.5)
@@ -280,7 +273,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
                 header_data.pressure = Read<float>();
                 header_data.relative_humidity = Read<float>();
 
-                if (mtsDData_)
+                if (file_type_ == ABPFileType::ABP_D)
                 {
                     header_data.cooling = Read<float>();
                 }
@@ -326,7 +319,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         auto progress = frame_index / (frame_span * 0.01);
         QCoreApplication::processEvents();
 
-        emit advanceFrame(static_cast<int>(std::round(progress)));
+        emit AdvanceFrame(static_cast<int>(std::round(progress)));
     }
 
     Close();
