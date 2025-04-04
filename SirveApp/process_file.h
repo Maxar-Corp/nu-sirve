@@ -27,7 +27,7 @@ public:
 
     bool VerifyPath(const QString& path);
     AbpFileMetadata LocateAbpFiles(const QString& candidate_image_path);
-    ABIRFrames::Ptr LoadImageFile(const QString& image_path, int first_frame, int last_frame, double version, bool mtsDData);
+    ABIRFrames::Ptr LoadImageFile(const QString& image_path, int first_frame, int last_frame, ABPFileType file_type);
 
 public slots:
     void HandleProgressBarUpdate(int frame_index);

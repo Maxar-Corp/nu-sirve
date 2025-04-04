@@ -21,7 +21,6 @@
 #include "popout_dialog.h"
 #include "tracks.h"
 #include "track_management_widget.h"
-#include "SirveApp.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
 
@@ -167,6 +166,8 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    ABPFileType abp_file_type = ABPFileType::ABP_B;
+
     QPointer<StateManager> state_manager_;
     QPointer<VideoPlayer> video_player_;
 
@@ -187,14 +188,14 @@ private:
 
     QPointer<QMenu> file_menu, menu_workspace, menu_export, menu_settings, menu_about;
     QPointer<QAction> action_about, action_close, action_set_timing_offset, action_change_workspace_directory,
-        action_load_OSM, action_load_frames;
+        action_load_OSM_B, action_load_OSM_D, action_load_frames;
     QPointer<QAction> action_load_workspace, action_save_workspace, action_export_current_frame,
         action_export_frame_range, action_export_tracking_data;
     QPointer<QAction> action_export_all_frames;
 
     CalibrationData calibration_model;
 
-    void AllocateAbirData(int start_frame, int stop_frame);
+    void AllocateAbirData(int min_frame, int max_frame);
     void AnnotateVideo();
 
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
@@ -288,6 +289,8 @@ public slots:
     void ExecuteFixedNoiseSuppression();
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
+    void HandleAbpBFileSelected();
+    void HandleAbpDFileSelected();
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);

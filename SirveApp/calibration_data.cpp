@@ -7,7 +7,6 @@
 #include <QPushButton>
 #include <qbuttongroup.h>
 
-#include "abp_version_dlg.h"
 std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
 {
 	double scale_factor = integration_time / frame_integration_time;
@@ -81,8 +80,9 @@ bool CalibrationData::check_path(QString path)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-CalibrationDialog::CalibrationDialog(CalibrationData & input_model, QWidget* parent)
+CalibrationDialog::CalibrationDialog(CalibrationData& input_model, ABPFileType file_type)
 {
+    this->file_type = file_type;
 
 	// initiliaze chart parameters
 	chart_temperature = new QChart();
@@ -616,7 +616,7 @@ void CalibrationDialog::verifyCalibrationValues()
     }
     osm_frames = osm_reader.ReadFrames();
 
-    if (osm_frames.size() == 0)
+    if (osm_frames.empty())
     {
         return;
     }
@@ -644,19 +644,9 @@ void CalibrationDialog::verifyCalibrationValues()
         btn_ok->setEnabled(false);
         btn_cancel->setEnabled(false);
 
-        AbpVersionDlg dlg(this);
-        dlg.SetVersionNumbers({version, 1, 2, 4.2}, version);
-        if (dlg.exec() != Accepted)
-        {
-            return;
-        }
-
-        version = dlg.GetVersionNumber();
-        auto mtsDData = dlg.LoadMTSDData();
-
         // get counts from abp image file
         auto frames1 =
-            file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, version, mtsDData);
+            file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, file_type);
         if (frames1 == nullptr)
         {
             QMessageBox msg_box;
@@ -671,7 +661,7 @@ void CalibrationDialog::verifyCalibrationValues()
         auto video_frames1 = std::move(frames1->video_frames_16bit);
 
         auto frames2 =
-            file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, version, mtsDData);
+            file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, file_type);
         if (frames2 == nullptr)
         {
             QMessageBox msg_box;

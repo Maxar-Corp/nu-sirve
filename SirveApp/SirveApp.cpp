@@ -4,7 +4,6 @@
 #include "data_export.h"
 #include "osm_reader.h"
 #include "wait_cursor.h"
-#include "abp_version_dlg.h"
 
 SirveApp::SirveApp(QWidget *parent)
     : QMainWindow(parent)
@@ -1619,11 +1618,9 @@ void SirveApp::LoadWorkspace()
         {
             return;
         }
-        else
-        {
-            LoadAbirData(workspace_vals.start_frame, workspace_vals.end_frame);
-        }
 
+        LoadAbirData(workspace_vals.start_frame, workspace_vals.end_frame);
+        
         ProcessingState original = workspace_vals.all_states[0];
 
         for (auto i = 1; i < workspace_vals.all_states.size(); i++)
@@ -1715,6 +1712,18 @@ void SirveApp::LoadWorkspace()
 
         eng_data->set_offset_time(workspace_vals.timing_offset);
     }
+}
+
+void SirveApp::HandleAbpBFileSelected()
+{
+    abp_file_type = ABPFileType::ABP_B;
+    HandleAbpFileSelected();
+}
+
+void SirveApp::HandleAbpDFileSelected()
+{
+    abp_file_type = ABPFileType::ABP_D;
+    HandleAbpFileSelected();
 }
 
 void SirveApp::HandleAbpFileSelected()
@@ -1914,8 +1923,6 @@ void SirveApp::LoadOsmData()
     data_plots->InitializeIntervals(osm_frames);
 
     UpdateGuiPostDataLoad(osmDataLoaded);
-
-    return;
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
@@ -1999,18 +2006,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
 
-    AbpVersionDlg dlg(this);
-    dlg.SetVersionNumbers({config_values.version, 1, 2, 4.2}, config_values.version);
-    if (dlg.exec() != QDialog::Accepted)
-    {
-        return;
-    }
-
-    auto version = dlg.GetVersionNumber();
-    auto mtsDData = dlg.LoadMTSDData();
-
     WaitCursor cursor;
-    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, version, mtsDData);
+    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, abp_file_type);
     if (abir_frames == nullptr)
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
@@ -2573,9 +2570,13 @@ void SirveApp::CreateMenuActions()
 {
     QIcon on(":/icons/check.png");
 
-    action_load_OSM = new QAction("Load Data");
-    action_load_OSM->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
+    action_load_OSM_B = new QAction("Load B Data");
+    action_load_OSM_B->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM_B, &QAction::triggered, this, &SirveApp::HandleAbpBFileSelected);
+
+    action_load_OSM_D = new QAction("Load D Data");
+    action_load_OSM_D->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
 
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
@@ -2623,7 +2624,8 @@ void SirveApp::CreateMenuActions()
     connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
 
 	file_menu = menuBar()->addMenu(tr("&File"));
-	file_menu->addAction(action_load_OSM);
+	file_menu->addAction(action_load_OSM_B);
+	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
 
 	file_menu->addAction(action_close);
@@ -2744,7 +2746,7 @@ void SirveApp::EditPlotText()
 
 void SirveApp::ShowCalibrationDialog()
 {
-	CalibrationDialog calibrate_dialog(calibration_model);
+	CalibrationDialog calibrate_dialog(calibration_model, abp_file_type);
 
 	auto response = calibrate_dialog.exec();
 
@@ -3108,19 +3110,8 @@ void SirveApp::HandleBadPixelReplacement()
             return;
         }
 
-        AbpVersionDlg dlg(this);
-        dlg.SetVersionNumbers({config_values.version, 1, 2, 4.2}, config_values.version);
-        if (dlg.exec() != QDialog::Accepted)
-        {
-            return;
-        }
-
-        auto version = dlg.GetVersionNumber();
-        auto mtsDData = dlg.LoadMTSDData();
-
         WaitCursor cursor;
-        abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame,
-                                           version, mtsDData);
+        abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, abp_file_type);
         if (abir_frames == nullptr)
         {
             QtHelpers::LaunchMessageBox(QString("Error loading frames."),
@@ -3420,7 +3411,7 @@ void SirveApp::ApplyFixedNoiseSuppression(const QString& image_path, const QStri
     auto new_state = GetStateManager()[source_state_idx];
 
     new_state.details.frames_16bit = image_processor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path,
-        frame0, start_frame, stop_frame, config_values.version, new_state.details);
+        frame0, start_frame, stop_frame, abp_file_type, new_state.details);
 
     if(new_state.details.frames_16bit.size() > 0) {
         state_manager_->push_back(std::move(new_state), ProcessingMethod::fixed_noise_suppression);

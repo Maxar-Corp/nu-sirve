@@ -3,6 +3,12 @@
 
 #include "binary_reader.h"
 
+enum class ABPFileType
+{
+    ABP_B,
+    ABP_D,
+};
+
 #pragma pack(push, 1)
 ///////////////////////////////////////////////////////////////////////////////
 struct IMUData
@@ -145,16 +151,16 @@ public:
     ABIRReader() = default;
     ~ABIRReader() override = default;
 
-    bool Open(const char* filename, double version_number = 0.0, bool mtsDData = false);
+    bool Open(const char* filename, ABPFileType file_type);
     ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only = false);
 
 private:
 signals:
-    void advanceFrame(int);
+    void AdvanceFrame(int);
 
 private:
     double file_version_{};
-    bool mtsDData_ = false; // for MTS-D Data
+    ABPFileType file_type_{ABPFileType::ABP_B};
 };
 
 #endif // ABIR_READER_H
