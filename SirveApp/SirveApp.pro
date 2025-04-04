@@ -128,15 +128,15 @@ LIBS += -lshell32
 
 LIBS += "-L../6.6.0/msvc2019_64/lib/"
 
-include(..\..\JKQtPlotter\lib\jkqtplotter.pri)
-include(..\..\JKQtPlotter\lib\jkqtcommon.pri)
-include(..\..\JKQtPlotter\lib\jkqtfastplotter.pri)
+include(..\jkqtPlotter\lib\jkqtplotter.pri)
+include(..\jkqtPlotter\lib\jkqtcommon.pri)
+include(..\jkqtPlotter\lib\jkqtfastplotter.pri)
 
-include(..\..\JKQtPlotter\lib\jkqtcommon_statistics_and_math.pri)
-include(..\..\JKQtPlotter\lib\jkqtmath.pri)
-include(..\..\JKQtPlotter\lib\jkqtmathtext.pri)
+include(..\jkqtPlotter\lib\jkqtcommon_statistics_and_math.pri)
+include(..\jkqtPlotter\lib\jkqtmath.pri)
+include(..\jkqtPlotter\lib\jkqtmathtext.pri)
 
-include(..\..\JKQtPlotter\examples\libexampletools\libexampletools.pri)
+include(..\jkqtPlotter\examples\libexampletools\libexampletools.pri)
 
 #To copy all the required files alongside the exe, run `nmake install`
 dlls.files = "../6.6.0/msvc2019_64/bin/Qt6Charts.dll" \
@@ -220,10 +220,10 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../fftw-3.3.5-dll64/ -l
 INCLUDEPATH += $$PWD/../fftw-3.3.5-dll64
 DEPENDPATH += $$PWD/../fftw-3.3.5-dll64
 
-INCLUDEPATH += $$PWD\..\..\JKQtPlotter\lib \
-                $$PWD\..\..\JKQtPlotter\examples\libexampletools
+INCLUDEPATH += $$PWD\..\jkqtPlotter\lib \
+                $$PWD\..\jkqtPlotter\examples\libexampletools
 
-HEADERS += $$PWD\..\..\JKQtPlotter\examples\libexampletools\jkqtpexampleapplication.h
+HEADERS += $$PWD\..\jkqtPlotter\examples\libexampletools\jkqtpexampleapplication.h
 
 RESOURCES += \
     SirveApp.qrc
