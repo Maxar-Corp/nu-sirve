@@ -106,9 +106,6 @@ set(SOURCES
 set(UI_SOURCES location_gui.ui new_location.ui)
 set(RESOURCES SirveApp.qrc)
 
-# TODO: AUTOMOC doesn't work, investigate
-# qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
-
 add_executable(SirveApp ${SOURCES} ${HEADERS} ${MOC_SOURCES} ${UI_SOURCES} ${RESOURCES})
 
 if(WIN32)
@@ -119,10 +116,10 @@ endif()
 
 target_link_libraries(SirveApp
         PRIVATE
-            Qt5::Core
-            Qt5::Gui
-            Qt5::Widgets
-            Qt5::Charts
+            ${QT_NAME}::Core
+            ${QT_NAME}::Gui
+            ${QT_NAME}::Charts
+            ${QT_NAME}::Widgets
             FFTW::fftw3-3
             BLAS::BLAS
             ${OpenCV_LIBS}
@@ -167,8 +164,7 @@ if(WIN32)
 
     install(FILES "${OPENBLAS_DLL}" $<TARGET_RUNTIME_DLLS:SirveApp> TYPE BIN)
 
-    # Build the windeployqt command
-    set(WINDEPLOYQT_COMMAND "${QT5_WINDEPLOYQT}" "--no-translations" "--no-system-d3d-compiler" "--no-opengl-sw")
+    set(WINDEPLOYQT_COMMAND ${WINDEPLOYQT_EXEC} "--no-translations" "--no-system-d3d-compiler" "--no-opengl-sw")
 
     if(NOT SIRVE_INSTALL_VC_REDIST)
         list(APPEND WINDEPLOYQT_COMMAND "--no-compiler-runtime" "--no-libraries")
