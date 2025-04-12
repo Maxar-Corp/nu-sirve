@@ -2717,7 +2717,7 @@ void SirveApp::CreateMenuActions()
 
 ImageProcessing* SirveApp::CreateImageProcessor()
 {
-    QPointer image_processor = new ImageProcessing();
+    QPointer image_processor = new ImageProcessing(abp_file_type);
     connect(image_processor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);
 
@@ -3646,7 +3646,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 
     lbl_progress_status->setText(QString("Center on Brightest Object..."));
 
-    QPointer image_processor = new ImageProcessing;
+    QPointer image_processor = new ImageProcessing(abp_file_type);
 
     connect(image_processor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);

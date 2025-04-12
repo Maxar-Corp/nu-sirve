@@ -3,7 +3,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
-ImageProcessing::ImageProcessing()
+ImageProcessing::ImageProcessing(ABPFileType file_type)
 {
     frameval = 0;
 
@@ -12,6 +12,12 @@ ImageProcessing::ImageProcessing()
     min_deinterlace_dist = 1.5;
     max_deinterlace_dist = 40;
     deinterlace_kernel_size = 3;
+    if (file_type == ABPFileType::ABP_D)
+    {
+        int nRows = 720;
+        int nRows2 = nRows/2;
+        int nCols = 1280;
+    }
 }
 
 ImageProcessing::~ImageProcessing() {
