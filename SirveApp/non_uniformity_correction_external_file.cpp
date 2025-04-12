@@ -2,9 +2,9 @@
 
 #include "location_input.h"
 
-ExternalNUCInformationWidget::ExternalNUCInformationWidget()
+ExternalNUCInformationWidget::ExternalNUCInformationWidget(ABPFileType file_type)
 {
-
+    file_type_ = file_type;
     InitializeGui();
 	engineering_data = NULL;
     
@@ -68,7 +68,7 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
         return;
     }
 
-    osm_frames = osm_reader.ReadFrames();
+    osm_frames = osm_reader.ReadFrames(file_type_);
     if (osm_frames.size() == 0)
 	{
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));

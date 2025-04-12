@@ -1802,7 +1802,7 @@ void SirveApp::LoadOsmData()
         return;
     }
 
-    osm_frames = reader.ReadFrames();
+    osm_frames = reader.ReadFrames(abp_file_type);
     if (osm_frames.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -3277,7 +3277,7 @@ bool SirveApp::CheckCurrentStateisNoiseSuppressed(int source_state_idx) const
 
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 {
-    ExternalNUCInformationWidget external_nuc_dialog;
+    ExternalNUCInformationWidget external_nuc_dialog(abp_file_type);
 
     auto response = external_nuc_dialog.exec();
 

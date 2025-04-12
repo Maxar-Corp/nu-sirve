@@ -10,8 +10,9 @@
 static constexpr auto MAX_NUMBER_ITERATIONS = 100000;
 static constexpr auto SMALL_NUMBER = 0.000001;
 
-std::vector<Frame> OSMReader::ReadFrames()
+std::vector<Frame> OSMReader::ReadFrames(ABPFileType file_type)
 {
+    file_type_ = file_type;
     if (!IsOpen())
     {
         throw std::runtime_error("File not open");

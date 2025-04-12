@@ -3,6 +3,7 @@
 
 #include "binary_reader.h"
 #include "data_structures.h"
+#include "abir_reader.h"
 
 class OSMReader : public BinaryReader
 {
@@ -10,7 +11,7 @@ public:
     OSMReader() = default;
     ~OSMReader() override = default;
 
-    std::vector<Frame> ReadFrames();
+    std::vector<Frame> ReadFrames(ABPFileType file_type);
 
 private:
     std::vector<Frame> LoadFrames(uint32_t num_messages);
@@ -28,6 +29,7 @@ private:
     std::vector<double> frame_time_;
     bool location_from_file_ = false;
     std::vector<double> file_ecef_vector_;
+    ABPFileType file_type_{ABPFileType::ABP_B};
 };
 
 #endif // OSM_READER2_H
