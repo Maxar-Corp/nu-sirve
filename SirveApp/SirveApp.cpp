@@ -3964,7 +3964,7 @@ void SirveApp::ExecuteAutoTracking()
         }
     }
 
-    AutoTracking AutoTracker;
+    AutoTracking AutoTracker(abp_file_type);
 
     string prefilter = "NONE";
     if (rad_autotrack_filter_gaussian->isChecked()){

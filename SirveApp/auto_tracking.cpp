@@ -1,5 +1,19 @@
 #include "auto_tracking.h"
 
+AutoTracking::AutoTracking(ABPFileType file_type)
+{
+    if (file_type == ABPFileType::ABP_D)
+    {
+        int nRows = 720;
+        int nRows2 = nRows/2;
+        int nCols = 1280;
+    }
+}
+
+AutoTracking::~AutoTracking()
+{
+}
+
 void AutoTracking::UpdateProgressBar(unsigned int val)
 {
     emit signalProgress(val);
@@ -64,16 +78,16 @@ arma::s32_mat AutoTracking::SingleTracker(
     tracking_window_y =  SirveApp_y;
     tracking_window_x = 10;
     extent_window_x = 10; 
-    extent_window_y = std::min(tracking_window_y, Display_res_y - SirveAppConstants::VideoDisplayHeight);
+    extent_window_y = std::min(tracking_window_y, Display_res_y - nRows);
     if (Display_res_x > 1920)
     {
-        ROI_window_x = std::max(SirveApp_x - image_scale_factor*(SirveAppConstants::VideoDisplayWidth) - 10,ROI_window_x);
-        tracking_window_x = std::max(SirveApp_x - SirveAppConstants::VideoDisplayWidth - 500, tracking_window_x);
-        extent_window_x = tracking_window_x + SirveAppConstants::VideoDisplayWidth + 10;
+        ROI_window_x = std::max(SirveApp_x - image_scale_factor*(nCols) - 10,ROI_window_x);
+        tracking_window_x = std::max(SirveApp_x - nCols - 500, tracking_window_x);
+        extent_window_x = tracking_window_x + nCols + 10;
     }
 
     raw_window_x = tracking_window_x;
-    raw_window_y = std::min(tracking_window_y + SirveAppConstants::VideoDisplayHeight + 10, Display_res_y - SirveAppConstants::VideoDisplayHeight);
+    raw_window_y = std::min(tracking_window_y + nRows + 10, Display_res_y - nRows);
 
     SharedTrackingFunctions::CreateOffsetMatrix(start_frame, stop_frame, current_processing_state, offsets_matrix);
 
@@ -246,7 +260,7 @@ void AutoTracking::InitializeTracking(
 
     if (!isRestart)
     {
-        cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
+        cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*nCols, image_scale_factor*nRows));
         string ROI_window_name = "Region of Interest (ROI) Selection - Press Escape twice to Cancel, or Select ROI then Hit Enter twice to Continue.";
         GetROI(ROI_window_name, ROI, display_frame_resize);
         choice = "Continue";
@@ -276,7 +290,7 @@ void AutoTracking::InitializeTracking(
         }
         else
         {
-            cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*ncols, image_scale_factor*nrows));
+            cv::resize(display_frame, display_frame_resize, cv::Size(image_scale_factor*nCols, image_scale_factor*nRows));
             string window_name_lost = "Track Paused or Lost at Frame " + std::to_string(indx+frame0) + " Select ROI again.";
             GetROI(window_name_lost, ROI, display_frame_resize);
             choice = "Continue";
@@ -375,7 +389,7 @@ void AutoTracking::TrackingStep(
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(i, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y); //Returns absolute position of bbox within frame
+    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, i, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y); //Returns absolute position of bbox within frame
 
     cv::Mat frame_bbox = frame(bbox);
     raw_frame_bbox = raw_frame(bbox_uncentered);
@@ -409,7 +423,7 @@ void AutoTracking::TrackingStep(
         cv::moveWindow(window_name, tracking_window_x, tracking_window_y); 
 
         string raw_window_name = "Raw Data Tracking... ";
-        bool bbox_uncentered_valid = (bbox_uncentered.x>0 && (bbox_uncentered.x+bbox_uncentered.width)<ncols && bbox_uncentered.y>0 && (bbox_uncentered.y+bbox_uncentered.height)<nrows); 
+        bool bbox_uncentered_valid = (bbox_uncentered.x>0 && (bbox_uncentered.x+bbox_uncentered.width)<nCols && bbox_uncentered.y>0 && (bbox_uncentered.y+bbox_uncentered.height)<nRows); 
         if (bbox_uncentered_valid)
         {
             rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 0, 0, 255 ), 1);
@@ -422,8 +436,8 @@ void AutoTracking::TrackingStep(
         output.row(i) =  {
                             static_cast<uint16_t>(track_id),
                             static_cast<uint16_t>(frame0 + i),
-                            frame_x - nrows/2,
-                            frame_y - ncols/2,
+                            frame_x - nRows/2,
+                            frame_y - nCols/2,
                             frame_x,
                             frame_y,
                             static_cast<int32_t>(number_pixels),

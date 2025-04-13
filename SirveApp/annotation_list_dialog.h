@@ -50,7 +50,7 @@ private:
     QLabel *lbl_annotations, *lbl_description;
     QListWidget *lst_annotations;
     QPushButton *btn_edit, *btn_new, *btn_delete;
-    VideoDisplay *current_video;
+    // VideoDisplay *current_video;
 
     QString *myText;
 

@@ -556,17 +556,15 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 {
     Display_res_x = screenResolution.width();
     Display_res_y = screenResolution.height();
-
+    
     extent_window_x = 10;
     extent_window_y = SirveApp_y;
     if (Display_res_x > 1920) {
         extent_window_x = std::max(SirveApp_x - 450, extent_window_x);
     }
 
-
     TrackDetails details;
-    int nrows = SirveAppConstants::VideoDisplayHeight;
-    int ncols = SirveAppConstants::VideoDisplayWidth;
+
     int ROI_dim = txt_ROI_dim->text().toInt();
 
     uint indx = this->counter;
@@ -597,13 +595,13 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     uint minx = std::max(0, static_cast<int>(x) - ROI_dim / 2);
     uint miny = std::max(0, static_cast<int>(y) - ROI_dim / 2);
-    uint ROI_width = std::min(ROI_dim, static_cast<int>(ncols - minx));
-    uint ROI_height = std::min(ROI_dim, static_cast<int>(nrows - miny));
+    uint ROI_width = std::min(ROI_dim, static_cast<int>(nCols - minx));
+    uint ROI_height = std::min(ROI_dim, static_cast<int>(nRows - miny));
     cv::Rect ROI(minx, miny, ROI_width, ROI_height);
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels,
+    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels,
                                               frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x,
                                               extent_window_y);
     cv::Mat frame_crop = frame(bbox);

@@ -8,8 +8,8 @@ std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv:
                                                                    model)
 {
     std::array<double, 3> measurements = {0,0,0};
-    int nRows = SirveAppConstants::VideoDisplayHeight;
-    int nCols = SirveAppConstants::VideoDisplayWidth;
+    int nRows = base_processing_state_details.y_pixels;
+    int nCols = base_processing_state_details.x_pixels;
 
     int row1 = std::max(boundingBox.y,0);
     int row2 = std::min(boundingBox.y + boundingBox.height-1, nCols);
@@ -37,8 +37,8 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
     int start_indx;
     start_indx = std::max(indx - number_median_frames,0);
 
-    int nRows = SirveAppConstants::VideoDisplayHeight;
-    int nCols = SirveAppConstants::VideoDisplayWidth;
+    int nRows = base_processing_state_details.y_pixels;
+    int nCols = base_processing_state_details.x_pixels;
 
     int row1 = std::max(boundingBox.y,0);
     int row2 = std::min(boundingBox.y + boundingBox.height-1, nCols);
@@ -71,11 +71,9 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 
 }
 
-void SharedTrackingFunctions::FindTargetExtent(int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
+void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
 {
     int resize_factor = 10;
-    int nRows = SirveAppConstants::VideoDisplayHeight;
-    int nCols = SirveAppConstants::VideoDisplayWidth;
 
     cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
