@@ -6,6 +6,7 @@ AutoTracking::AutoTracking(ABPFileType file_type)
     {
         nRows = 720;
         nCols = 1280;
+        image_scale_factor = 1;
     }
 }
 
