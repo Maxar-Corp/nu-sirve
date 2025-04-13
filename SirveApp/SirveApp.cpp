@@ -3817,7 +3817,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     auto new_state = GetStateManager()[source_state_idx];
     QPointer image_processor = CreateImageProcessor();
 
-    if (GetAvailableMemoryRatio(num_frames) >=1.5) {
+    if (GetAvailableMemoryRatio(num_frames, abp_file_type) >=1.5) {
         new_state.details.frames_16bit =
             image_processor->AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, new_state.details);
     } else {
@@ -3870,7 +3870,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
     video_player_->StopTimer();
 
     int num_frames = (int)GetStateManager()[source_state_idx].details.frames_16bit.size();
-    if(GetAvailableMemoryRatio(num_frames) < 1.5) {
+    if(GetAvailableMemoryRatio(num_frames, abp_file_type) < 1.5) {
         QtHelpers::LaunchMessageBox("Low memory", "Insufficient memory for this operation. Please select fewer frames.");
         return;
     }
@@ -4436,8 +4436,15 @@ void SirveApp::GetAboutTimeStamp()
     }
 }
 
-double SirveApp::GetAvailableMemoryRatio(int num_frames)
+double SirveApp::GetAvailableMemoryRatio(int num_frames, ABPFileType file_type)
 {
+    int nRows = 480;
+    int nCols = 640;
+    if (file_type == ABPFileType::ABP_D)
+    {
+        nRows = 720;
+        nCols = 1280;
+    }
     MEMORYSTATUSEX memInfo;
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);

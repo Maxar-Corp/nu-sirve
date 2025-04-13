@@ -256,7 +256,7 @@ private:
     void FrameStacking(int num_frames, int processing_state_idx);
 
     static void GetAboutTimeStamp();
-    static double GetAvailableMemoryRatio(int num_frames);
+    static double GetAvailableMemoryRatio(int num_frames, ABPFileType file_type);
     static int GetCurrentColorIndex(const QVector<QString>& colors, const QColor& input_color);
     static std::vector<unsigned int> GetUniqueIntegerVector(std::vector<unsigned int> A);
 
