@@ -5,6 +5,12 @@
 ExternalNUCInformationWidget::ExternalNUCInformationWidget(ABPFileType file_type)
 {
     file_type_ = file_type;
+    if (file_type == ABPFileType::ABP_D)
+    {
+        int nRows = 720;
+        int nRows2 = nRows/2;
+        int nCols = 1280;
+    }
     InitializeGui();
 	engineering_data = NULL;
     
@@ -97,7 +103,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     engineering_data = new EngineeringData(osm_frames);
     plot_data = new EngineeringPlot(osm_frames, "Irradiance", {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)}); // TODO: Pull in metadata for this.
 
-    track_info = new TrackInformation(osm_frames);
+    track_info = new TrackInformation(osm_frames,file_type_);
     plot_data->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
 
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();

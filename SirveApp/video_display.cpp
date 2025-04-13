@@ -626,8 +626,8 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         details.centroid_x = round(frame_x + x_correction);
         details.centroid_y = round(frame_y + y_correction);
     }
-    details.centroid_x_boresight = details.centroid_x - SirveAppConstants::VideoDisplayWidth / 2;
-    details.centroid_y_boresight = details.centroid_y - SirveAppConstants::VideoDisplayHeight / 2;
+    details.centroid_x_boresight = details.centroid_x - nCols / 2;
+    details.centroid_y_boresight = details.centroid_y - nRows / 2;
     details.number_pixels = number_pixels;
     details.peak_counts = peak_counts;
     details.mean_counts = mean_counts;

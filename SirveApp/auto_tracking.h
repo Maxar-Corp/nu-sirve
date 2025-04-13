@@ -37,8 +37,7 @@ public:
     ~AutoTracking();
     int image_scale_factor = 2;
     int step_success_coefficient = 3;
-    int nRows = 480;
-    int nCols = 640;
+    
     int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
     int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
     bool cancel_operation = false;
@@ -57,8 +56,9 @@ public slots:
     void CancelOperation();
 
 private:
-    ABPFileType file_type_{ABPFileType::ABP_B};
     CalibrationData model;
+    int nRows = 480;
+    int nCols = 640;
 
     void InitializeTracking(
         bool isRestart,

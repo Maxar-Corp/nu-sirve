@@ -20,7 +20,8 @@ ImageProcessing::ImageProcessing(ABPFileType file_type)
     }
 }
 
-ImageProcessing::~ImageProcessing() {
+ImageProcessing::~ImageProcessing()
+{
 }
 
 void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indices, int width_pixels)

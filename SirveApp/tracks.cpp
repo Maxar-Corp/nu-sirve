@@ -48,9 +48,15 @@ TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
     }
 }
 
-TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames)
+TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, ABPFileType file_type)
     : TrackInformation(static_cast<unsigned int>(osm_file_frames.size()))
 {
+    if (file_type == ABPFileType::ABP_D)
+    {
+        int nRows = 720;
+        int nCols = 1280;
+    }
+
     for (unsigned int i = 0; i < osm_file_frames.size(); i++)
     {
         //Here we retain all the track "engineering" data (boresight lat/long, ifov, dcm)
@@ -424,19 +430,19 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
 
     if (centroid_x < 0)
     {
-        centroid_x = centroid_x +  SirveAppConstants::VideoDisplayWidth;
+        centroid_x = centroid_x + nCols;
     }
     if (centroid_y < 0)
     {
-        centroid_y = centroid_y +  SirveAppConstants::VideoDisplayHeight;
+        centroid_y = centroid_y + nRows;
     }
-    if (centroid_x > SirveAppConstants::VideoDisplayWidth)
+    if (centroid_x > nCols)
     {
-        centroid_x = centroid_x - SirveAppConstants::VideoDisplayWidth;
+        centroid_x = centroid_x - nCols;
     }
-    if (centroid_y > SirveAppConstants::VideoDisplayHeight)
+    if (centroid_y > nRows)
     {
-        centroid_y = centroid_y -  SirveAppConstants::VideoDisplayHeight;
+        centroid_y = centroid_y - nRows;
     }
 
     std::vector<double> az_el_result = AzElCalculation::calculate(centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y, adjust_frame_ref);

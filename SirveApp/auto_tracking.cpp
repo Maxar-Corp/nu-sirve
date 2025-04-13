@@ -4,9 +4,8 @@ AutoTracking::AutoTracking(ABPFileType file_type)
 {
     if (file_type == ABPFileType::ABP_D)
     {
-        int nRows = 720;
-        int nRows2 = nRows/2;
-        int nCols = 1280;
+        nRows = 720;
+        nCols = 1280;
     }
 }
 

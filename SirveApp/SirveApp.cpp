@@ -73,8 +73,6 @@ QSize SirveApp::GetWindowSize() const {
 void SirveApp::SetupUi() {
 
     QHBoxLayout* main_layout = new QHBoxLayout();
-
-    // test
     QVBoxLayout* main_layout_col1 = new QVBoxLayout();
     QVBoxLayout* main_layout_col2 = new QVBoxLayout();
     QVBoxLayout* main_layout_col3 = new QVBoxLayout();
@@ -128,6 +126,7 @@ void SirveApp::SetupUi() {
     frame_video_player = new QFrame();
     tab_plots = new QTabWidget();
     tab_plots->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Preferred);
+    tab_plots->setMinimumWidth(500);
 
     // tab_menu->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
@@ -142,7 +141,8 @@ void SirveApp::SetupUi() {
     SetupPlotFrame();
 
     lbl_max_frames = new QLabel("Available Frames: ");
-    QFormLayout *form_start_frame = new QFormLayout;
+
+	  QFormLayout *form_start_frame = new QFormLayout;
     QFormLayout *form_stop_frame = new QFormLayout;
     txt_start_frame = new QLineEdit();
     txt_start_frame->setAlignment(Qt::AlignVCenter);
@@ -1022,7 +1022,6 @@ void SirveApp::ResetEngineeringDataAndSliderGUIs()
             video_player_->DeleteManualTrack(track_id);
         }
     }
-    //UpdatePlots();
 }
 
 void SirveApp::SetupVideoFrame()
@@ -1080,7 +1079,6 @@ void SirveApp::SetupPlotFrame() {
     QVBoxLayout* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
 
     vlayout_widget_plots_tab_color->addWidget(frame_plots);
-    //vlayout_widget_plots_tab_color->addLayout(hlayout_widget_plots_tab_color_control);
 
     // ------------------------------------------------------------------------
     // Add all to tab widget
@@ -1486,10 +1484,9 @@ void SirveApp::HandleHideManualTrackId(int track_id)
 {
     QColor new_color(0,0,0,0);
 
+    // TODO: Check this!
     video_player_->HideManualTrackId(track_id);
-    // int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-    // int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
-    plot_palette->RecolorManualTrack(0, track_id, new_color);
+    plot_palette->RecolorManualTrack(0, track_id, new_color); // Why painting black here?
     FramePlotSpace();
 }
 
@@ -1713,8 +1710,8 @@ void SirveApp::LoadWorkspace()
             // Set classification to the appropriate widget, depending on its type.
             if (classification.type == "Plot")
             {
-                //TODO: Fix this to use new PlotSpace API
-                //data_plots->SetPlotTitle(classification.text);
+                // TODO: Fix this to use new PlotSpace API
+                // data_plots->SetPlotTitle(classification.text);
             } else
             {
                 video_player_->UpdateBannerText(classification.text);
@@ -1766,7 +1763,7 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
 
     if (!possible_abp_file_metadata.error_msg.isEmpty())
     {
-        if (eng_data != NULL) {
+        if (eng_data != NULL) { // previously this was nullptr??
             // if eng_data already initialized, allow user to re-select frames
             txt_start_frame->setEnabled(true);
             txt_stop_frame->setEnabled(true);
@@ -1802,7 +1799,7 @@ void SirveApp::LoadOsmData()
         return;
     }
 
-    osm_frames = reader.ReadFrames(abp_file_type);
+    osm_frames = reader.ReadFrames();
     if (osm_frames.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -1836,7 +1833,6 @@ void SirveApp::LoadOsmData()
         // delete objects with existing data within them
         delete eng_data;
         delete track_info;
-        //delete data_plot_yformat;
         delete engineering_plot_layout;
 
         state_manager_->clear();
@@ -1979,8 +1975,6 @@ void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
     //cmb_plot_xaxis->setEnabled(osm_data_status);
 
     osm_data_status ? tab_plots->tabBar()->show() : tab_plots->tabBar()->hide();
-
-    //connect(cmb_plot_xaxis, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::HandleXAxisOptionChange );
 }
 
 void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
@@ -2422,8 +2416,6 @@ void SirveApp::HandlePlotPrimaryOnlyToggle()
 {
     plot_palette->GetEngineeringPlotReference(0)->plot_primary_only = !plot_palette->GetEngineeringPlotReference(0)->plot_primary_only;
     menu_plot_primary->setIconVisibleInMenu(plot_palette->GetEngineeringPlotReference(0)->plot_primary_only);
-
-    //UpdatePlots();
 }
 
 void SirveApp::SetDataTimingOffset()
@@ -2710,9 +2702,6 @@ void SirveApp::CreateMenuActions()
     plot_menu = new QMenu(this);
     plot_menu->addAction(menu_plot_all_data);
     plot_menu->addAction(menu_plot_primary);
-
-    //btn_plot_menu->setMenu(plot_menu);
-
 }
 
 ImageProcessing* SirveApp::CreateImageProcessor()
@@ -2961,7 +2950,7 @@ void SirveApp::AnnotateVideo()
     standard_info.x_correction = video_player_->GetXCorrection();
     standard_info.y_correction = video_player_->GetYCorrection();
 
-    annotation_dialog = new AnnotationListDialog(video_player_->GetAnnotations(), standard_info);
+    annotation_dialog = new AnnotationListDialog(video_player_->GetAnnotations(), standard_info, abp_file_type);
     connect(annotation_dialog, &AnnotationListDialog::showAnnotationStencil, video_player_, &VideoPlayer::ShowStencil);
     connect(annotation_dialog, &AnnotationListDialog::hideAnnotationStencil, video_player_, &VideoPlayer::HideStencil);
     connect(annotation_dialog, &AnnotationListDialog::updateAnnotationStencil, video_player_, &VideoPlayer::InitializeStencilData);
@@ -3392,16 +3381,7 @@ void SirveApp::ApplyFixedNoiseSuppression(const QString& image_path, const QStri
         last.FNS_stop_frame = stop_frame;
         last.source_state_ID = source_state_idx;
 
-//         // update state gui status
-//         result += std::to_string(video_display->container.processing_states[endi].state_ID);
-//         QString state_steps = QString::fromStdString(result);
-//         video_display->container.processing_states[endi].state_steps = state_steps;
-//         video_display->container.processing_states[endi].process_steps.push_back(" [Fixed Noise Suppression] ");
-//         QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
-//         QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
-//         video_display->container.processing_states[endi].state_description = state_name;
-//         HandleNewProcessingState(state_name, combobox_state_name, endi);
-
+        // Shouldn't this be handled by a signal?
         UpdateGlobalFrameVector();
 
         QFileInfo fi(file_path);
@@ -3460,8 +3440,6 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = image_processor->DeinterlaceOpenCVPhaseCorrelation(new_state.details);
-
-    // NOTE: A lot was removed here. Trust, but verify!
 
     if(new_state.details.frames_16bit.size() > 0) {
         state_manager_->push_back(std::move(new_state), ProcessingMethod::deinterlace);
@@ -3575,14 +3553,11 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
         int track_id = osm_priority == 0 ? OSM_track_id : manual_track_id;
         last.track_id = track_id;
 
-        // Again, trust but verify!
-
         arma::mat offsets_matrix;
         SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
         last.offsets_matrix = offsets_matrix;
 
         // TODO: Shouldn't this be handled by a signal?
-
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
@@ -3615,7 +3590,6 @@ void SirveApp::CenterOnOffsets(const QString& trackFeaturePriority, int track_id
         last.offsets_matrix = std::move(offsets_matrix);
 
         // TODO: Shouldn't this be handled by a signal?
-
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
@@ -3662,11 +3636,13 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
         last.offsets_matrix = offsets_matrix;
 
+        // TODO: Shouldn't this be handled by a signal?
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
 }
 
+// TODO:Verify this works as expected
 void SirveApp::HandleOsmTracksToggle()
 {
     bool current_status = chk_show_OSM_tracks->isChecked();
@@ -3779,6 +3755,7 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
 
         UpdateGlobalFrameVector();
     }
+
     CloseProgressArea();
 }
 
@@ -3841,6 +3818,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
         lbl_adaptive_noise_suppression_status->setWordWrap(true);
         lbl_adaptive_noise_suppression_status->setText(description);
 
+        // TODO: Shouldn't this be handled by a signal?
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
@@ -4119,12 +4097,10 @@ void SirveApp::ExecuteAutoTracking()
             QStringList color_options = ColorScheme::get_track_colors();
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)
-
             {
                 QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
                 const QFileInfo info(new_track_file_name);
                 lbl_track_description->setText(info.fileName());
-
                 int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
                 HandleManualTrackRecoloring(track_id, color_options[ind]);
             }
@@ -4422,18 +4398,16 @@ void SirveApp::closeEvent(QCloseEvent *event) {
 
 void SirveApp::GetAboutTimeStamp()
 {
-    if (HMODULE hModule = GetModuleHandle(nullptr))
-    {
-          PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
-          PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((BYTE*)pDosHeader + pDosHeader->e_lfanew);
-          DWORD timestamp = pNtHeaders->FileHeader.TimeDateStamp;
-          std::cout << "Timestamp: " << timestamp << std::endl;
-
-          constexpr size_t kTimeStampSize = 26;
-          char buf[kTimeStampSize];
-          ctime_s(buf, kTimeStampSize, (time_t*)&timestamp);
-          std::cout << "Build date: " << buf;
-    }
+    if (HMODULE hModule = GetModuleHandle(nullptr)) {
+            PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
+            PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((BYTE*)pDosHeader + pDosHeader->e_lfanew);
+            DWORD timestamp = pNtHeaders->FileHeader.TimeDateStamp;
+            std::cout << "Timestamp: " << timestamp << std::endl;
+            constexpr size_t kTimeStampSize = 26;
+            char buf[kTimeStampSize];
+            ctime_s(buf, kTimeStampSize, (time_t*)&timestamp);
+            std::cout << "Build date: " << buf;
+        }
 }
 
 double SirveApp::GetAvailableMemoryRatio(int num_frames, ABPFileType file_type)

@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "data_structures.h"
+#include "abir_reader.h"
 
 struct TrackDetails {
     double frame_time = 0.0;
@@ -80,7 +81,7 @@ struct TrackEngineeringData {
 class TrackInformation {
     public:
         TrackInformation(unsigned int num_frames);
-        TrackInformation(const std::vector<Frame> & osm_file_frames);
+        TrackInformation(const std::vector<Frame> & osm_file_frames, ABPFileType file_type);
 
         TrackFileReadResult ReadTracksFromFile(QString file_name) const;
         void AddManualTracks(const std::vector<TrackFrame>& new_frames);
@@ -101,6 +102,8 @@ class TrackInformation {
         int get_frame_count() const;
         std::set<int> get_manual_track_ids();
         std::set<int> get_OSM_track_ids();
+        int nRows = 480;
+        int nCols = 640;
 
     private:
         TrackInformation();
