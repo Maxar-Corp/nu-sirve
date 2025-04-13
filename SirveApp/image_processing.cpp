@@ -14,9 +14,9 @@ ImageProcessing::ImageProcessing(ABPFileType file_type)
     deinterlace_kernel_size = 3;
     if (file_type == ABPFileType::ABP_D)
     {
-        int nRows = 720;
-        int nRows2 = nRows/2;
-        int nCols = 1280;
+        nRows = 720;
+        nRows2 = nRows/2;
+        nCols = 1280;
     }
 }
 

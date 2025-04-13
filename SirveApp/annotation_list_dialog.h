@@ -9,13 +9,14 @@
 #include "annotation_info.h"
 #include "video_display.h"
 #include "annotation_edit_dialog.h"
+#include "abir_reader.h"
 
 class AnnotationListDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent = nullptr);
+    AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, ABPFileType file_type, QWidget *parent = nullptr);
     ~AnnotationListDialog();
 
     AnnotationEditDialog *annotation_edit_dialog;
@@ -43,6 +44,8 @@ public slots:
     void SetStencilLocation(QPoint location);
 
 private:
+    int nRows = 480;
+    int nCols = 640;
     std::vector<AnnotationInfo> &data;
     VideoInfo base_data;
     AnnotationInfo old_data;
