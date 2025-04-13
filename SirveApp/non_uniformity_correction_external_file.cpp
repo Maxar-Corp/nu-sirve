@@ -68,7 +68,7 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
         return;
     }
 
-    if (osm_reader.Open(abp_metadata.osm_path))
+    if (!osm_reader.Open(abp_metadata.osm_path))
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
         return;
