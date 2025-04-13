@@ -5,11 +5,12 @@
 
 #include "enums.h"
 #include "constants.h"
+#include "abir_reader.h"
+
 #include "classification.h"
 #include "color_map.h"
 
 #include "osm_reader.h"
-#include "ABIR_Reader.h"
 #include "video_display.h"
 #include "video_player.h"
 #include "histogram_plotter.h"
@@ -51,7 +52,7 @@ public:
     /* --------------------------------------------------------------------------------------------
         Key component & supporting status variables
     ----------------------------------------------------------------------------------------------- */
-    ABIRDataResult *abir_data_result;
+	ABIRFrames::Ptr abir_frames;
     QString abpimage_file_base_name;
     AbpFileMetadata abp_file_metadata;
     QPointer<AutoTracking> auto_tracking;
@@ -183,6 +184,8 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    ABPFileType abp_file_type = ABPFileType::ABP_B;
+
     QPointer<StateManager> state_manager_;
     QPointer<VideoPlayer> video_player_;
 
@@ -203,14 +206,14 @@ private:
 
     QPointer<QMenu> file_menu, menu_workspace, menu_export, menu_settings, menu_about;
     QPointer<QAction> action_about, action_close, action_set_timing_offset, action_change_workspace_directory,
-        action_load_OSM, action_load_frames;
+        action_load_OSM_B, action_load_OSM_D, action_load_frames;
     QPointer<QAction> action_load_workspace, action_save_workspace, action_export_current_frame,
         action_export_frame_range, action_export_tracking_data;
     QPointer<QAction> action_export_all_frames;
 
     CalibrationData calibration_model;
 
-    void AllocateAbirData(int start_frame, int stop_frame);
+    void AllocateAbirData(int min_frame, int max_frame);
     void AnnotateVideo();
 
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
@@ -303,6 +306,8 @@ public slots:
     void ExecuteFixedNoiseSuppression();
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
+    void HandleAbpBFileSelected();
+    void HandleAbpDFileSelected();
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);

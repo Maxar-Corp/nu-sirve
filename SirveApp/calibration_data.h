@@ -9,11 +9,13 @@
 #include <qlabel.h>
 #include <qradiobutton.h>
 
-#include <QtCharts/QLineSeries>
 #include <QList>
 #include <QPointF>
+#include <QVBoxLayout>
+#include <QtCharts/QLineSeries>
 
 #include "abpnuc_reader.h"
+#include "abir_reader.h"
 #include "clickable_chartview.h"
 #include "color_scheme.h"
 #include "data_structures.h"
@@ -21,14 +23,11 @@
 #include "process_file.h"
 
 struct ImportFrames {
-
 	int start_frame1, start_frame2, stop_frame1, stop_frame2;
 	bool all_frames_found;
 };
 
-
 struct SelectedData {
-
 	bool valid_data;
 	double temperature_mean, temperature_std;
 	int num_frames, initial_frame, id;
@@ -38,7 +37,6 @@ struct SelectedData {
 	QString color;
 	QList<QPointF> points;
 };
-
 
 class CalibrationData {
 
@@ -56,19 +54,15 @@ public:
 	double integration_time = 0.0;
 
 private:
-
 	arma::mat m, b;
 };
-
 
 class CalibrationDialog : public QDialog
 {
 	Q_OBJECT
-
-
 public:
 
-	CalibrationDialog(CalibrationData & input_model, QWidget* parent = nullptr);
+	CalibrationDialog(CalibrationData & input_model, ABPFileType file_type);
 	~CalibrationDialog();
 
 	CalibrationData model;
@@ -77,7 +71,7 @@ public:
         void PointSelected(double x0, double x1);
 
 private:
-
+    ABPFileType file_type;
 	ColorScheme colors;
 	QList<QPointF> temperature;
 	std::vector<double>all_frame_times, vector_wavelength, vector_filter;
@@ -103,7 +97,7 @@ private:
     void InitializeGui();
     void ResetOrImportNucFile();
     void ImportNucFile();
-    void PrepareAndPlotTemperature(ABPNUCData &nuc_data);
+    void PrepareAndPlotTemperature(const ABPNUCFrames &nuc_data);
     void CreateTemperaturePlot(QList<QPointF> temperature);
 	
     void ShowUserSelection(SelectedData &user_selection, double x0, double x1);

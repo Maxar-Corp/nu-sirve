@@ -96,7 +96,7 @@ uint32_t VideoPlayer::GetCurrentFrameNumber() const
     return playback_controller_->GetCurrentFrameNumber();
 }
 
-const std::vector<ABIR_Frame>& VideoPlayer::GetFrameHeaders() const
+const std::vector<ABIRFrameHeader>& VideoPlayer::GetFrameHeaders() const
 {
     return video_display_->frame_headers;
 }
@@ -140,7 +140,7 @@ void VideoPlayer::HighlightBadPixelsColors(const QString& color)
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void VideoPlayer::InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data,
-                                      std::vector<ABIR_Frame> input_frame_header)
+                                      std::vector<ABIRFrameHeader> input_frame_header)
 {
     auto numFrames = input_frame_header.size();
     video_display_->InitializeFrameData(frame_number, std::move(input_data), std::move(input_frame_header));

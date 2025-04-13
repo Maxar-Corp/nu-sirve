@@ -5,7 +5,7 @@ set(HEADERS
         annotation_list_dialog.h
         annotation_stencil.h
         auto_tracking.h
-        binary_file_reader.h
+        binary_reader.h
         calibration_data.h
         chart_metadata.h
         classification.h
@@ -41,6 +41,7 @@ set(HEADERS
         video_details.h
         video_display.h
         video_display_zoom.h
+        wait_cursor.h
         video_player.h
         workspace.h
         support/az_el_calculation.h
@@ -59,7 +60,7 @@ set(SOURCES
         annotation_list_dialog.cpp
         annotation_stencil.cpp
         auto_tracking.cpp
-        binary_file_reader.cpp
+        binary_reader.cpp
         calibration_data.cpp
         classification.cpp
         clickable_chartview.cpp
@@ -91,6 +92,7 @@ set(SOURCES
         tracks.cpp
         video_display.cpp
         video_display_zoom.cpp
+        wait_cursor.cpp
         video_player.cpp
         workspace.cpp
         support/az_el_calculation.cpp

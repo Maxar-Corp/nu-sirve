@@ -1,85 +1,69 @@
 #include "abpnuc_reader.h"
 
-ABPNUCData::ABPNUCData(char* path)
-{
-
-    read_status = 0;
-    full_file_path = path;
-
-    ReadABPNUCFile();
-
-}
-
-ABPNUCData::~ABPNUCData()
+ABPNUCReader::~ABPNUCReader()
 {
 }
 
-void ABPNUCData::ReadABPNUCFile()
+ABPNUCFrames ABPNUCReader::ReadFrames()
 {
-    // Outline for file read function provided by John Albritton
-
-    errno_t err = fopen_s(&fp, full_file_path, "rb");
-
-    // if error in reading file, set read status to zero 
-    if (err != 0) {
-        read_status = 0;
-        return;
+    if (!IsOpen())
+    {
+        throw std::runtime_error("File is not open");
     }
 
-    number_of_frames = 0;
+    ABPNUCFrames frames;
+
     while (true)
     {
+        ABPNUCFrame frame;
 
-        ABPNUCFrame temp;
+        // Load message header and break if empty and eliminate last message
+        auto sec = Read<uint64_t>();
+        auto nsec = Read<uint64_t>();
+        auto tsize = Read<uint64_t>();
 
-        // Load message header, break if emptyand eliminate last message
-        uint64_t sec = ReadValue<uint64_t>();
-        uint64_t nsec = ReadValue<uint64_t>();
-        uint64_t tsize = ReadValue<uint64_t>();
-
-        // check that tsize is zero or empty 
+        // check that tsize is zero or empty
         if (tsize == 0)
+        {
             break;
+        }
 
-        temp.seconds = sec + nsec * 1e-9;
-        // msgHdr(n).size = tsize;
-        // currPosition = ftell(fid);
+        frame.seconds = static_cast<double>(sec) + static_cast<double>(nsec) * 1e-9;
 
-        // Load the OSM
-        std::vector<uint32_t> guid = ReadMultipleValuesIntoVector<uint32_t>(5);
-        std::vector<uint32_t> source_guid = ReadMultipleValuesIntoVector<uint32_t>(5);
-        uint16_t sensorId = ReadValue<uint16_t>();
-
-        // skip 2 bytes here
-        int buffer = ReadValue<int16_t>();
-        temp.frame_number = ReadValue<uint32_t>();
-        temp.frame_time = ReadValue<double>();
-        temp.ir_temperature = ReadValue<uint32_t>();
-        temp.tec_temperature_x100 = ReadValue<int32_t>();
-        temp.tec_temperature_t1_x100 = ReadValue<int32_t>();
-        temp.tec_temperature_t2_x100 = ReadValue<int32_t>();
-        temp.tec_temperature_t3_x100 = ReadValue<int32_t>();
-        temp.ambient = ReadValue<float>();
-        temp.afocal1 = ReadValue<float>();
-        temp.afocal2 = ReadValue<float>();
-        temp.ir_atherm = ReadValue<float>();
-        temp.ir_integration_time_usec = ReadValue<uint16_t>();
+        // load the OSM
+        ReadArray(frame.guid);
+        ReadArray(frame.guid_source);
+        frame.sensorId = Read<uint16_t>();
 
         // skip 2 bytes here
-        buffer = ReadValue<int16_t>();
-        temp.detector_temperature = ReadValue<double>();
-        temp.nuc_environment = ReadValue<uint32_t>();
-        temp.measured_det_cal_factor = ReadValue<uint32_t>();
-        temp.scene_mean_t2 = ReadValue<int32_t>();
-        temp.scene_mean_t1 = ReadValue<int32_t>();
-        temp.scene_mean_t3 = ReadValue<int32_t>();
-        temp.scene_mean = ReadValue<int32_t>();
+        Seek(2, SEEK_CUR);
 
-        // add new abpnuc frame and add to frame counter
-        data.push_back(temp);
-        number_of_frames = number_of_frames + 1;
+        frame.frame_number = Read<int32_t>();
+        frame.frame_time = Read<double>();
+        frame.ir_temperature = Read<uint32_t>();
+        frame.tec_temperature_x100 = Read<int32_t>();
+        frame.tec_temperature_t1_x100 = Read<int32_t>();
+        frame.tec_temperature_t2_x100 = Read<int32_t>();
+        frame.tec_temperature_t3_x100 = Read<int32_t>();
+        frame.ambient = Read<float>();
+        frame.afocal1 = Read<float>();
+        frame.afocal2 = Read<float>();
+        frame.ir_atherm = Read<float>();
+        frame.ir_integration_time_usec = Read<uint16_t>();
+
+        // skip 2 bytes here
+        Seek(2, SEEK_CUR);
+
+        frame.detector_temperature = Read<double>();
+        frame.nuc_environment = Read<uint32_t>();
+        frame.measured_det_cal_factor = Read<uint32_t>();
+        frame.scene_mean_t2 = Read<int32_t>();
+        frame.scene_mean_t1 = Read<int32_t>();
+        frame.scene_mean_t3 = Read<int32_t>();
+        frame.scene_mean = Read<int32_t>();
+
+        frames.emplace_back(frame);
     }
 
-    fclose(fp);
-    read_status = 1;
+    return frames;
 }

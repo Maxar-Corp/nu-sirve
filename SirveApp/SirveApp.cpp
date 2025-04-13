@@ -2,6 +2,8 @@
 
 #include "color_correction.h"
 #include "data_export.h"
+#include "osm_reader.h"
+#include "wait_cursor.h"
 
 SirveApp::SirveApp(QWidget *parent)
     : QMainWindow(parent)
@@ -908,7 +910,7 @@ QWidget* SirveApp::SetupTracksTab(){
     buttongrp_autotrack_filters->addButton(rad_autotrack_filter_median,3);
     buttongrp_autotrack_filters->addButton(rad_autotrack_filter_nlmeans,4);
     connect(buttongrp_autotrack_filters, &QButtonGroup::idClicked, video_player_, &VideoPlayer::OnFilterRadioButtonClicked);
-  
+
     grid_autotrack_filters->addWidget(rad_autotrack_filter_none,1,0);
     grid_autotrack_filters->addWidget(rad_autotrack_filter_gaussian,1,1);
     grid_autotrack_filters->addWidget(rad_autotrack_filter_median,2,0);
@@ -942,7 +944,7 @@ QWidget* SirveApp::SetupTracksTab(){
     vlayout_auto_track_control->addItem(vspacer_item20);
     vlayout_auto_track_control->addLayout(hlayout_auto_track_control);
     vlayout_auto_track_control->insertStretch(-1,0);
-  
+
     vlayout_tab_workspace->addWidget(grpbox_autotrack);
     vlayout_tab_workspace->insertStretch(0,0);
     vlayout_tab_workspace->addLayout(vlayout_workspace);
@@ -1200,7 +1202,7 @@ void SirveApp::ImportTracks()
                 int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
                 video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-              
+
                 for (int i = 0; i < plot_palette->tabBar()->count(); i++)
                 {
                     plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
@@ -1483,7 +1485,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
 //     video_player_->DeleteManualTrack(track_id);
 //     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 // >>>>>>> main
-  
+
     FramePlotSpace();
 }
 
@@ -1546,7 +1548,7 @@ void SirveApp::SaveWorkspace()
         if (selectedUserFilePath.length() > 0) {
             QFileInfo fileInfo(selectedUserFilePath);
 
-            workspace->SaveState(selectedUserFilePath, 
+            workspace->SaveState(selectedUserFilePath,
                                  abp_file_metadata.image_path,
                                  plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin + 1,
                                  plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1,
@@ -1588,10 +1590,8 @@ void SirveApp::LoadWorkspace()
         {
             return;
         }
-        else
-        {
-            LoadAbirData(workspace_vals.start_frame, workspace_vals.end_frame);
-        }
+
+        LoadAbirData(workspace_vals.start_frame, workspace_vals.end_frame);
 
         ProcessingState original = workspace_vals.all_states[0];
 
@@ -1687,6 +1687,18 @@ void SirveApp::LoadWorkspace()
     }
 }
 
+void SirveApp::HandleAbpBFileSelected()
+{
+    abp_file_type = ABPFileType::ABP_B;
+    HandleAbpFileSelected();
+}
+
+void SirveApp::HandleAbpDFileSelected()
+{
+    abp_file_type = ABPFileType::ABP_D;
+    HandleAbpFileSelected();
+}
+
 void SirveApp::HandleAbpFileSelected()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
@@ -1695,6 +1707,8 @@ void SirveApp::HandleAbpFileSelected()
         QtHelpers::LaunchMessageBox(QString("Issue Finding File"), "No file was selected.");
         return;
     }
+
+    WaitCursor cursor;
 
     lbl_processing_description->setText("");
 
@@ -1734,13 +1748,22 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
     abp_file_metadata = possible_abp_file_metadata;
 
     return true;
-};
+}
 
 void SirveApp::LoadOsmData()
 {
     ResetEngineeringDataAndSliderGUIs();
-    osm_frames = osm_reader.ReadOsmFileData(abp_file_metadata.osm_path);
-    if (osm_frames.size() == 0)
+
+    OSMReader reader;
+    if (!reader.Open(abp_file_metadata.osm_path))
+    {
+        QtHelpers::LaunchMessageBox(QString("Error loading OSM file"),
+                                    QString("Error reading OSM file. Close program and open logs for details."));
+        return;
+    }
+
+    osm_frames = reader.ReadFrames();
+    if (osm_frames.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
         return;
@@ -1801,7 +1824,7 @@ void SirveApp::LoadOsmData()
     HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
 
     osmDataLoaded = true;
-  
+
     connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
     size_t num_tracks = track_info->get_track_count();
@@ -1843,7 +1866,7 @@ void SirveApp::LoadOsmData()
     engineering_plot_layout->addWidget(plot_palette);
 
     frame_plots->setLayout(engineering_plot_layout);
-  
+
     video_player_->SetRadianceCalculationEnabled(false);
 
     chk_highlight_bad_pixels->setChecked(false);
@@ -1874,8 +1897,6 @@ void SirveApp::LoadOsmData()
     }
 
     UpdateGuiPostDataLoad(osmDataLoaded);
-
-    return;
 }
 
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
@@ -1966,11 +1987,7 @@ void SirveApp::LoadAbirData(int min_frame, int max_frame)
 
 void SirveApp::DeleteAbirData()
 {
-    // abir_data_result = nullptr;
-    if (file_processor->abir_data.ir_data.size()>0){
-        file_processor->abir_data.ir_data.clear();
-        file_processor->data_result->video_frames_16bit.clear();
-    }
+    abir_frames.reset();
 }
 
 void SirveApp::AllocateAbirData(int min_frame, int max_frame)
@@ -1985,12 +2002,21 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     // Task 1:
     progress_bar_main->setValue(0);
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
-    file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, config_values.version);
 
-    if (file_processor->getAbirDataLoadResult()->had_error) {
+    WaitCursor cursor;
+    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, abp_file_type);
+    if (abir_frames == nullptr)
+    {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
         btn_get_frames->setEnabled(true);
+        return;
+    }
 
+    if (abir_frames->video_frames_16bit.empty())
+    {
+        QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"),
+                                    "No valid frames were found in the .abpimage file. See log for more details.");
+        btn_get_frames->setEnabled(true);
         return;
     }
 
@@ -2000,16 +2026,21 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Deriving processing state..."));
     this->repaint();
     ProcessingState primary;
-    unsigned int number_frames = static_cast<unsigned int>(file_processor->getAbirDataLoadResult()->video_frames_16bit.size());
-    int x_pixels = file_processor->getAbirDataLoadResult()->x_pixels;
+    auto number_frames = static_cast<uint32_t>(abir_frames->video_frames_16bit.size());
+    auto x_pixels = abir_frames->x_pixels;
     progress_bar_main->setValue(20);
-    int y_pixels = file_processor->getAbirDataLoadResult()->y_pixels;
+    auto y_pixels = abir_frames->y_pixels;
     progress_bar_main->setValue(40);
-    int max_value = file_processor->getAbirDataLoadResult()->max_value;
+    auto max_value = abir_frames->max_value;
     progress_bar_main->setValue(60);
-    primary.details = {x_pixels, y_pixels, max_value, file_processor->getAbirDataLoadResult()->video_frames_16bit};
+
+    primary.details = {
+        x_pixels,
+        y_pixels,
+        max_value, abir_frames->video_frames_16bit
+    };
     progress_bar_main->setValue(80);
-    max_frame = file_processor->data_result->last_valid_frame;
+    max_frame = abir_frames->last_valid_frame;
     progress_bar_main->setValue(100);
 
     // Task 3:
@@ -2046,7 +2077,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         cmb_OSM_track_IDs->addItem(QString::number(track_id));
     }
 
-    video_player_->InitializeFrameData(min_frame, std::move(temp), std::move(file_processor->abir_data.ir_data));
+    video_player_->InitializeFrameData(min_frame, std::move(temp), std::move(abir_frames->ir_data));
     // DeleteAbirData();
     video_player_->ReceiveVideoData(x_pixels, y_pixels);
     UpdateGlobalFrameVector();
@@ -2061,7 +2092,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
 
     connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
-  
+
 // =======
 //     // Update frame marker on engineering plot
 //     connect(video_player_, &VideoPlayer::frameNumberChanged, data_plots, &EngineeringPlots::PlotCurrentStep);
@@ -2072,7 +2103,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     video_player_->UpdateFps();
 
     progress_bar_main->setValue(100);
-    this->repaint();;
+    this->repaint();
 
     tab_plots->setCurrentIndex(1);
 
@@ -2562,9 +2593,13 @@ void SirveApp::CreateMenuActions()
 {
     QIcon on(":/icons/check.png");
 
-    action_load_OSM = new QAction("Load Data");
-    action_load_OSM->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
+    action_load_OSM_B = new QAction("Load B Data");
+    action_load_OSM_B->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM_B, &QAction::triggered, this, &SirveApp::HandleAbpBFileSelected);
+
+    action_load_OSM_D = new QAction("Load D Data");
+    action_load_OSM_D->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
 
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
@@ -2611,8 +2646,9 @@ void SirveApp::CreateMenuActions()
     action_about = new QAction("SirveApp");
     connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
 
-    file_menu = menuBar()->addMenu(tr("&File"));
-    file_menu->addAction(action_load_OSM);
+	file_menu = menuBar()->addMenu(tr("&File"));
+	file_menu->addAction(action_load_OSM_B);
+	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
     file_menu->addAction(action_close);
     menu_workspace = menuBar()->addMenu(tr("&Workspace"));
@@ -2721,7 +2757,7 @@ void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
 
 void SirveApp::ShowCalibrationDialog()
 {
-	CalibrationDialog calibrate_dialog(calibration_model);
+	CalibrationDialog calibrate_dialog(calibration_model, abp_file_type);
 
 	auto response = calibrate_dialog.exec();
 
@@ -3030,9 +3066,16 @@ void SirveApp::HandleBadPixelReplacement()
             QtHelpers::LaunchMessageBox(QString("Invalid frame range."), "Max frame: " + QString::number(osm_frames.size()) + ". Stop must be greater than start. Recommend the number of sample frames must be less <= 2000.");
             return;
         }
-        file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, config_values.version);
-        ABIRDataResult test_frames = *file_processor->getAbirDataLoadResult();
-        test_data = test_frames.video_frames_16bit;
+
+        WaitCursor cursor;
+        abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, abp_file_type);
+        if (abir_frames == nullptr)
+        {
+            QtHelpers::LaunchMessageBox(QString("Error loading frames."),
+                                        "Check that the file exists and is not corrupted.");
+            return;
+        }
+        test_data = abir_frames->video_frames_16bit;
     }
     else{
         if (stop_frame > txt_stop_frame->text().toInt() ||\
@@ -3327,7 +3370,7 @@ void SirveApp::ApplyFixedNoiseSuppression(const QString& image_path, const QStri
     auto new_state = GetStateManager()[source_state_idx];
 
     new_state.details.frames_16bit = image_processor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path,
-        frame0, start_frame, stop_frame, config_values.version, new_state.details);
+        frame0, start_frame, stop_frame, abp_file_type, new_state.details);
 
     if(new_state.details.frames_16bit.size() > 0) {
         state_manager_->push_back(std::move(new_state), ProcessingMethod::fixed_noise_suppression);
@@ -3405,7 +3448,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
 
 //     video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames,video_display->container.processing_states[source_state_idx].details);
 // =======
-  
+
     auto new_state = GetStateManager()[source_state_idx];
 
 
@@ -3417,7 +3460,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
     new_state.details.frames_16bit = image_processor->DeinterlaceOpenCVPhaseCorrelation(new_state.details);
 
     // NOTE: A lot was removed here. Trust, but verify!
-  
+
 // <<<<<<< try-jkqt-plot
 //         video_display->container.processing_states[endi].details.max_value = maxVal;
 //         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
@@ -3440,7 +3483,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
 //         video_display->container.processing_states[endi].state_description = state_name;
 //         HandleNewProcessingState(state_name, combobox_state_name, endi);
 // =======
-  
+
     if(new_state.details.frames_16bit.size() > 0) {
         state_manager_->push_back(std::move(new_state), ProcessingMethod::deinterlace);
 
@@ -3556,7 +3599,7 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
         last.track_id = track_id;
 
         // Again, trust but verify!
-      
+
 // <<<<<<< try-jkqt-plot
 //         // fetch max value
 //         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
@@ -3584,7 +3627,7 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
 //         video_display->container.processing_states[endi].state_description = state_name;
 //         HandleNewProcessingState(state_name, combobox_state_name, endi);
 // =======
-  
+
         arma::mat offsets_matrix;
         SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
         last.offsets_matrix = offsets_matrix;
@@ -3709,29 +3752,6 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
         SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
         last.offsets_matrix = offsets_matrix;
 
-// <<<<<<< try-jkqt-plot
-//         video_display->container.processing_states[endi].details.max_value = maxVal;
-//         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
-//         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
-//         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
-//         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
-//         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
-
-//         // update state gui status
-//         std::string result;
-//         for (auto num : video_display->container.processing_states[endi].ancestors) {
-//             result += std::to_string(num) + " -> ";
-//         }
-//         result += std::to_string(video_display->container.processing_states[endi].state_ID);
-//         QString state_steps = QString::fromStdString(result);
-//         video_display->container.processing_states[endi].state_steps = state_steps;
-//         video_display->container.processing_states[endi].process_steps.push_back(" [Center on Brightest] ");
-//         QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
-//         QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
-//         video_display->container.processing_states[endi].state_description = state_name;
-//         HandleNewProcessingState(state_name, combobox_state_name, endi);
-// =======
-
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
@@ -3747,16 +3767,6 @@ void SirveApp::HandleOsmTracksToggle()
         QColor color = color_options[cmb_OSM_track_color->currentIndex()];
 
         video_player_->SetTrackerColor(std::move(color));
-// =======
-//         video_player_->SetTrackerColor(std::move(color));
-//         double xmax = data_plots->axis_x->max();
-//         double xmin = data_plots->axis_x->min();
-//         double ymax = data_plots->axis_y->max();
-//         double ymin = data_plots->axis_y->min();
-//         data_plots->RecolorOsmTrack(color);
-//         data_plots->set_xaxis_limits(xmin,xmax);
-//         data_plots->set_yaxis_limits(ymin,ymax);
-// >>>>>>> main
     }
     else
     {
@@ -3764,16 +3774,6 @@ void SirveApp::HandleOsmTracksToggle()
         QColor color = QColor(0,0,0,0);
 
         video_player_->SetTrackerColor(std::move(color));
-// =======
-//         video_player_->SetTrackerColor(std::move(color));
-//         double xmax = data_plots->axis_x->max();
-//         double xmin = data_plots->axis_x->min();
-//         double ymax = data_plots->axis_y->max();
-//         double ymin = data_plots->axis_y->min();
-//         data_plots->RecolorOsmTrack(color);
-//         data_plots->set_xaxis_limits(xmin,xmax);
-//         data_plots->set_yaxis_limits(ymin,ymax);
-// >>>>>>> main
     }
 }
 
@@ -3817,7 +3817,7 @@ void SirveApp::HandleProcessingNewStateSelected()
     {
       return;
     }
-  
+
     const auto& state = GetStateManager()[cmb_processing_states->currentIndex()];
 
     lbl_processing_description->setText(state.state_description);
@@ -4144,7 +4144,7 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        std::vector<ABIR_Frame> frame_headers = file_processor->abir_data.ir_data;
+        auto frame_headers = abir_frames->ir_data;
         appPos = this->GetWindowPosition();
         arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
@@ -4256,7 +4256,7 @@ void SirveApp::ExecuteAutoTracking()
             QStringList color_options = ColorScheme::get_track_colors();
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)
-              
+
             {
                 QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
                 const QFileInfo info(new_track_file_name);
@@ -4559,7 +4559,7 @@ void SirveApp::closeEvent(QCloseEvent *event) {
 
 void SirveApp::GetAboutTimeStamp()
 {
-    if (HMODULE hModule = GetModuleHandle(nullptr)) 
+    if (HMODULE hModule = GetModuleHandle(nullptr))
     {
           PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
           PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)((BYTE*)pDosHeader + pDosHeader->e_lfanew);
