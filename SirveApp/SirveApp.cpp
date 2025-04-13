@@ -4450,5 +4450,5 @@ double SirveApp::GetAvailableMemoryRatio(int num_frames, ABPFileType file_type)
     GlobalMemoryStatusEx(&memInfo);
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
     return static_cast<double>(availPhysMem) /
-        (num_frames * 16 * SirveAppConstants::VideoDisplayWidth * SirveAppConstants::VideoDisplayHeight);
+        (num_frames * 16 * nCols * nRows);
 }
