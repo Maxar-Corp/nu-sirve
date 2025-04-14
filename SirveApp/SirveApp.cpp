@@ -73,16 +73,61 @@ QSize SirveApp::GetWindowSize() const {
 void SirveApp::SetupUi() {
 
     QHBoxLayout* main_layout = new QHBoxLayout();
+
+    // test
     QVBoxLayout* main_layout_col1 = new QVBoxLayout();
     QVBoxLayout* main_layout_col2 = new QVBoxLayout();
     QVBoxLayout* main_layout_col3 = new QVBoxLayout();
+
+    main_layout_col1->setSpacing(0);
+    main_layout_col2->setSpacing(0);
+    main_layout_col3->setSpacing(0);
+
+    main_layout_col1->setContentsMargins(10,10,5, 10);
+    main_layout_col2->setContentsMargins(5,10,5, 10);
+    main_layout_col3->setContentsMargins(5,10,10, 10);
+
+    QWidget* leftWidget = new QWidget();
+    QWidget* centralWidget = new QWidget();
+    QWidget* rightWidget = new QWidget();
+
+
+    leftWidget->setContentsMargins(0,0,0, 0);
+    centralWidget->setContentsMargins(0,0,0, 0);
+    rightWidget->setContentsMargins(0,0,0, 0);
+
+    // Create a splitter
+    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+
+
+    // Set minimum sizes
+    leftWidget->setMinimumWidth(550);
+    centralWidget->setMinimumWidth(700);
+    rightWidget->setMinimumWidth(450);
+
+    leftWidget->setLayout(main_layout_col1);
+    centralWidget->setLayout(main_layout_col2);
+    rightWidget->setLayout(main_layout_col3);
+
+    // Add widgets to splitter
+    splitter->addWidget(leftWidget);
+    splitter->addWidget(centralWidget);
+    splitter->addWidget(rightWidget);
+
+    // Set initial size ratios
+    splitter->setStretchFactor(0, 1);  // Left widget small
+    splitter->setStretchFactor(1, 2);  // Central widget larger
+    splitter->setStretchFactor(2, 1);  // Right widget small
+
+    // removes the added extra padding around widgets
+    splitter->setHandleWidth(0);
+
 
     // Define main widgets in UI
     tab_menu = new QTabWidget();
     frame_video_player = new QFrame();
     tab_plots = new QTabWidget();
     tab_plots->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Preferred);
-    tab_plots->setMinimumWidth(500);
 
     // tab_menu->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
@@ -174,10 +219,20 @@ void SirveApp::SetupUi() {
     main_layout->addLayout(main_layout_col1);
     main_layout->addLayout(main_layout_col2);
     main_layout->addLayout(main_layout_col3);
-    // main_layout->insertStretch(-1,0);
 
-    QFrame* frame_main = new QFrame();
-    frame_main->setLayout(main_layout);
+    // removes extra padding from layout
+    main_layout->setMargin(0);
+    main_layout->setSpacing(0);
+
+    QWidget *mainWidget = new QWidget(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
+
+    // removes extra padding from layout
+    mainLayout->setMargin(0);
+    mainLayout->setSpacing(0);
+
+    mainLayout->addWidget(splitter);
+    mainWidget->setLayout(mainLayout);
 
     // ------------------------------------------------------------------------
     // initialize ui elements
@@ -214,7 +269,7 @@ void SirveApp::SetupUi() {
     grpbox_auto_lift_gain->setEnabled(true);
     // ------------------------------------------------------------------------
 
-    this->setCentralWidget(frame_main);
+    this->setCentralWidget(mainWidget);
 
     status_bar = this->statusBar();
     lbl_file_name = new QLabel("OSM File Name:");
@@ -248,6 +303,7 @@ void SirveApp::SetupUi() {
     QSpacerItem *hspacer_item10 = new QSpacerItem(10,1);
     QVBoxLayout * vlayout_status_lbl = new QVBoxLayout();
 
+
     hlayout_status_bar1->addWidget(lbl_file_name);
     hlayout_status_bar1->addItem(hspacer_item10);
     hlayout_status_bar1->addWidget(lbl_loaded_frames);
@@ -273,6 +329,8 @@ void SirveApp::SetupUi() {
     hlayout_status_permanent->addItem(hspacer_item10);
     hlayout_status_permanent->insertStretch(-1,0);
     status_bar->addPermanentWidget(grpbox_status_permanent,0);
+
+    status_bar->setContentsMargins(10,0,10, 10);
 
     this->show();
 }
@@ -968,12 +1026,7 @@ void SirveApp::ResetEngineeringDataAndSliderGUIs()
 void SirveApp::SetupVideoFrame()
 {
 
-    QSizePolicy fixed_width_video;
-    fixed_width_video.setVerticalPolicy(QSizePolicy::Expanding);
-    frame_video_player->setSizePolicy(fixed_width_video);
-    frame_video_player->setMinimumWidth(725);
     frame_video_player->setObjectName("frame_video_player");
-
     // ------------------------------------------------------------------------
     // Adds all elements to main UI
 

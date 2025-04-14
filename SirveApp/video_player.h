@@ -122,7 +122,7 @@ private:
     QPointer<QPushButton> play_, pause_, reverse_, next_, prev_, record_, save_, zoom_, calculate_radiance_, popout_,
         increase_fps_, decrease_fps_;
 
-    QPointer<QWidget> original_parent_;
+    QPointer<QWidget> original_parent_, central_panel_;
     QPointer<QDialog> popout_dialog_;
 };
 

@@ -237,6 +237,8 @@ void VideoPlayer::ToggleOsmTracks(bool input)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void VideoPlayer::TogglePopout()
 {
+
+
     auto pop_in = [this] {
         if (original_parent_) {
             popout_->setChecked(false);
@@ -245,6 +247,11 @@ void VideoPlayer::TogglePopout()
             popout_->setToolTip("Pop Out Video Player");
             original_parent_->show();
             original_parent_ = nullptr;
+
+        }
+        if (central_panel_)
+        {
+            central_panel_->show();
         }
     };
 
@@ -254,6 +261,9 @@ void VideoPlayer::TogglePopout()
         original_parent_->layout()->removeWidget(this);
         setParent(nullptr);
         original_parent_->hide();
+
+        central_panel_ = original_parent_->parentWidget();
+        central_panel_->hide();
 
         popout_dialog_ = new QDialog(nullptr, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
         popout_dialog_->setMinimumWidth(minimum_width);
