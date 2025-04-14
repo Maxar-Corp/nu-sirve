@@ -4,7 +4,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED HINTS "${Qt6_ROOT}/lib/cmake/")
 
 if(QT_VERSION_MAJOR LESS 5)
     message(FATAL_ERROR "Minimum supported Qt version is 5, but you are trying to compile against Qt${QT_VERSION_MAJOR}")

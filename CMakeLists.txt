@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(SIRVE_INSTALL_VC_REDIST "Install Visual C++ Redistributable with the application" OFF)
 
-set(Qt5_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/5.15.2/msvc2019_64/" CACHE PATH "Qt5 installation directory")
+set(Qt6_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/6.6.0/msvc2019_64/" CACHE PATH "Qt6 installation directory")
 set(OpenCV_DIR "${CMAKE_CURRENT_SOURCE_DIR}/opencv/build/x64/vc16/lib" CACHE PATH "OpenCV installation directory")
 set(FFTW_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/fftw-3.3.5-dll64" CACHE PATH "FFTW installation directory")
 set(ARMADILLO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/armadillo-12.2.0/include" CACHE PATH "Armadillo include directory")
@@ -33,17 +33,23 @@ find_package(BLAS)
 set(OPENBLAS_PROVIDES_LAPACK ON)
 find_package(Armadillo REQUIRED)
 
-set(Qt5_DIR "${Qt5_ROOT}/lib/cmake/Qt5" CACHE PATH "Qt5 cmake directory")
-mark_as_advanced(Qt5_DIR)
+set(Qt6_DIR "${Qt6_ROOT}/lib/cmake/Qt6" CACHE PATH "Qt6 cmake directory")
+mark_as_advanced(Qt6_DIR)
 
-find_package(Qt5 COMPONENTS Core Gui Widgets Charts REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets Charts REQUIRED)
 if(WIN32)
     # TODO: This is unnecessary on for Qt6, since windeployqt is included as Qt6::windeployqt
-    set(QT5_WINDEPLOYQT "${Qt5_ROOT}/bin/windeployqt.exe")
+    set(QT6_WINDEPLOYQT "${Qt6_ROOT}/bin/windeployqt.exe")
 
     set(CMAKE_INSTALL_BINDIR .)
     set(CMAKE_INSTALL_LIBDIR .)
     set(CMAKE_INSTALL_DATAROOTDIR .)
 endif()
 
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/jkqtPlotter/lib")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/jkqtPlotter/examples/libexampletools")
+include_directories("${Qt6_ROOT}\\include\\QtPrintSupport\\")
+
+add_subdirectory(jkqtPlotter)
 add_subdirectory(SirveApp)

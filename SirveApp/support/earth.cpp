@@ -7,7 +7,10 @@
 *
 *=============================================================================*/
 
-//Required Headers
+// Required Headers
+#include <qmath.h>
+
+
 #include "Earth.h"
 #include "euler.h"
 #include "jtime.h"

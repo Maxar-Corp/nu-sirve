@@ -3,7 +3,7 @@
 #include "euler.h"
 #include "support/earth.h"
 
-#include <math.h>
+#include <qmath.h>
 
 
 std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)

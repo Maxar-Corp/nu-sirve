@@ -1,4 +1,6 @@
 set(HEADERS
+        Section.h
+        SirveApp.h
         abir_reader.h
         abpnuc_reader.h
         annotation_edit_dialog.h
@@ -21,38 +23,42 @@ set(HEADERS
         engineering_data.h
         enhanced_label.h
         enums.h
-        playback_controller.h
         histogram_plotter.h
         image_processing.h
         location_input.h
         new_location.h
         non_uniformity_correction_external_file.h
         osm_reader.h
+        playback_controller.h
+        plot_designer.h
         plot_engineering_data.h
+        plot_palette.h
         popout_dialog.h
         process_file.h
         processing_state.h
-        Section.h
+        quantity.h
         shared_tracking_functions.h
-        SirveApp.h
+        single_check_list.h
         state_manager.h
-        track_management_widget.h
-        tracks.h
-        video_details.h
-        video_display.h
-        video_display_zoom.h
-        wait_cursor.h
-        video_player.h
-        workspace.h
         support/az_el_calculation.h
         support/earth.h
         support/euler.h
         support/jtime.h
         support/qt_elements_with_ids.h
         support/qthelpers.h
+        track_management_widget.h
+        tracks.h
+        video_details.h
+        video_display.h
+        video_display_zoom.h
+        video_player.h
+        wait_cursor.h
+        workspace.h
 )
 
 set(SOURCES
+        Section.cpp
+        SirveApp.cpp
         abir_reader.cpp
         abpnuc_reader.cpp
         annotation_edit_dialog.cpp
@@ -72,7 +78,6 @@ set(SOURCES
         data_export.cpp
         engineering_data.cpp
         enhanced_label.cpp
-        playback_controller.cpp
         histogram_plotter.cpp
         image_processing.cpp
         location_input.cpp
@@ -80,27 +85,30 @@ set(SOURCES
         new_location.cpp
         non_uniformity_correction_external_file.cpp
         osm_reader.cpp
+        playback_controller.cpp
+        plot_designer.cpp
         plot_engineering_data.cpp
+        plot_palette.cpp
         popout_dialog.cpp
         process_file.cpp
         processing_state.cpp
-        Section.cpp
+        quantity.cpp
         shared_tracking_functions.cpp
-        SirveApp.cpp
+        single_check_list.cpp
         state_manager.cpp
-        track_management_widget.cpp
-        tracks.cpp
-        video_display.cpp
-        video_display_zoom.cpp
-        wait_cursor.cpp
-        video_player.cpp
-        workspace.cpp
         support/az_el_calculation.cpp
         support/earth.cpp
         support/euler.cpp
         support/jtime.cpp
         support/qt_elements_with_ids.cpp
         support/qthelpers.cpp
+        track_management_widget.cpp
+        tracks.cpp
+        video_display.cpp
+        video_display_zoom.cpp
+        video_player.cpp
+        wait_cursor.cpp
+        workspace.cpp
 )
 
 set(UI_SOURCES location_gui.ui new_location.ui)
@@ -119,13 +127,18 @@ endif()
 
 target_link_libraries(SirveApp
         PRIVATE
-            Qt5::Core
-            Qt5::Gui
-            Qt5::Widgets
-            Qt5::Charts
+            Qt6::Core
+            Qt6::Gui
+            Qt6::Widgets
+            Qt6::Charts
             FFTW::fftw3-3
             BLAS::BLAS
             ${OpenCV_LIBS}
+            JKQTPlotter6::JKQTPlotter6
+            JKQTPlotter6::JKQTMathText6
+            JKQTPlotter6::JKQTMath6
+            JKQTPlotter6::JKQTCommon6
+            JKQTPExampleToolsLib
 )
 
 target_include_directories(SirveApp PRIVATE 
@@ -168,7 +181,7 @@ if(WIN32)
     install(FILES "${OPENBLAS_DLL}" $<TARGET_RUNTIME_DLLS:SirveApp> TYPE BIN)
 
     # Build the windeployqt command
-    set(WINDEPLOYQT_COMMAND "${QT5_WINDEPLOYQT}" "--no-translations" "--no-system-d3d-compiler" "--no-opengl-sw")
+    set(WINDEPLOYQT_COMMAND "${QT6_WINDEPLOYQT}" "--no-translations" "--no-system-d3d-compiler" "--no-opengl-sw")
 
     if(NOT SIRVE_INSTALL_VC_REDIST)
         list(APPEND WINDEPLOYQT_COMMAND "--no-compiler-runtime" "--no-libraries")

@@ -55,6 +55,7 @@ set(jkqtplotter_cmakeSubdir JKQTPlotter${jkqtplotter_LIBNAME_VERSION_PART})
 
 # now add subdirectories with the library code ...
 add_subdirectory(lib)
+add_subdirectory(examples/libexampletools)
 
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     # We're in the root, define additional targets for developers.
