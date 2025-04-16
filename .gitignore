@@ -8,6 +8,10 @@ opencv*/
 backedup/*
 tests/
 
+## AQT-installed files
+aqtinstall.log
+6.6.0/
+
 ## Ignore Qt Creator Files
 *.idx
 *.idx.*
