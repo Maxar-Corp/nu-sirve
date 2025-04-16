@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.23)
-
 # Project Name and Version
 # starting from 2020: using semantic version number <major>.<minor>.<patch>
 #   - bugfixes which do not change the API/ABI lead to an increase in <patch>
@@ -10,13 +8,13 @@ cmake_minimum_required(VERSION 3.23)
 #   - v2018.08  <--> 2.0.0
 #   - v2019.11  <--> 3.x.y
 #   ==> sematic versioning starts with 4.0.0
-project(JKQTPlotter
-          LANGUAGES CXX
-          VERSION 5.0.0
-          HOMEPAGE_URL https://github.com/jkriege2/JKQtPlotter
-          DESCRIPTION "an extensive Qt5 & Qt6 Plotter framework (including a feature-richt plotter widget, a speed-optimized, but limited variant and a LaTeX equation renderer!), written fully in C/C++ and without external dependencies"
-      )
 
+project(JKQTPlotter
+        LANGUAGES CXX
+        VERSION 5.0.0
+        HOMEPAGE_URL https://github.com/jkriege2/JKQtPlotter
+        DESCRIPTION "an extensive Qt5 & Qt6 Plotter framework (including a feature-richt plotter widget, a speed-optimized, but limited variant and a LaTeX equation renderer!), written fully in C/C++ and without external dependencies"
+)
 
 # set search path for CMake files
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)

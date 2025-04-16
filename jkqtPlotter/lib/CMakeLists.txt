@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
 
-
 message( STATUS )
 message( STATUS "=============================================================================" )
 message( STATUS "== JKQTPlotterLib Build Information                                        ==" )

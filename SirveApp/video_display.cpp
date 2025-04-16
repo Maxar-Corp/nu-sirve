@@ -651,9 +651,9 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
 
     if (chk_auto_advance_frame->isChecked()) {
         emit advanceFrame(this->txt_frame_advance_amt->text().toInt());
-    } else {
-        UpdateDisplayFrame();
     }
+
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::HandleClearTrackCentroidClick()
@@ -1370,7 +1370,11 @@ void VideoDisplay::ResetFrame()
 
 void VideoDisplay::ViewFrame(unsigned int frame_number)
 {
+    if (counter == frame_number) {
+        return;
+    }
     counter = frame_number;
+    UpdateDisplayFrame();
 }
 
 void VideoDisplay::ShowStencil()

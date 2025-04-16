@@ -139,21 +139,22 @@ void VideoPlayer::HighlightBadPixelsColors(const QString& color)
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void VideoPlayer::InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data,
+void VideoPlayer::InitializeFrameData(unsigned int min_frame, std::vector<PlottingFrameData> input_data,
                                       std::vector<ABIRFrameHeader> input_frame_header)
 {
     auto numFrames = input_frame_header.size();
-    video_display_->InitializeFrameData(frame_number, std::move(input_data), std::move(input_frame_header));
+    video_display_->InitializeFrameData(min_frame, std::move(input_data), std::move(input_frame_header));
 
     if (numFrames > 0) {
-        goto_frame_->setValidator(new QIntValidator(frame_number, frame_number + input_data.size(), goto_frame_));
-        goto_frame_->setText(QLocale::c().toString(frame_number));
+        frame_number_validator_->setRange(min_frame, min_frame + numFrames - 1);
+        goto_frame_->setText(QLocale::c().toString(min_frame));
 
         playback_controller_->SetNumberOfFrames(numFrames);
         slider_->setRange(0, numFrames - 1);
     } else {
         goto_frame_->setText("");
         slider_->setRange(0, 0);
+        frame_number_validator_->setRange(0, 0);
     }
 }
 
@@ -236,6 +237,8 @@ void VideoPlayer::ToggleOsmTracks(bool input)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void VideoPlayer::TogglePopout()
 {
+
+
     auto pop_in = [this] {
         if (original_parent_) {
             popout_->setChecked(false);
@@ -244,6 +247,11 @@ void VideoPlayer::TogglePopout()
             popout_->setToolTip("Pop Out Video Player");
             original_parent_->show();
             original_parent_ = nullptr;
+
+        }
+        if (central_panel_)
+        {
+            central_panel_->show();
         }
     };
 
@@ -253,6 +261,9 @@ void VideoPlayer::TogglePopout()
         original_parent_->layout()->removeWidget(this);
         setParent(nullptr);
         original_parent_->hide();
+
+        central_panel_ = original_parent_->parentWidget();
+        central_panel_->hide();
 
         popout_dialog_ = new QDialog(nullptr, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
         popout_dialog_->setMinimumWidth(minimum_width);
@@ -430,13 +441,6 @@ void VideoPlayer::UpdateFrameVector(std::vector<double> original, std::vector<ui
     video_display_->UpdateFrameVector(std::move(original), std::move(converted), std::move(offsets_matrix));
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
-void VideoPlayer::ViewFrame(uint32_t frame_number)
-{
-    video_display_->ViewFrame(frame_number);
-    slider_->setValue(frame_number);
-}
-
 /*
  * Private Slots
  */
@@ -498,6 +502,8 @@ void VideoPlayer::SetupUi()
     goto_frame_->setFixedWidth(50);
     goto_frame_->setValidator(new QIntValidator(1, std::numeric_limits<int>::max(), goto_frame_));
     goto_frame_->setEnabled(false);
+    frame_number_validator_ = new QIntValidator(1, 1, goto_frame_);
+    goto_frame_->setValidator(frame_number_validator_);
 
     QPointer form_layout = new QFormLayout;
     form_layout->setAlignment(Qt::AlignHCenter|Qt::AlignCenter);
@@ -600,7 +606,7 @@ void VideoPlayer::SetupConnections()
     });
 
     connect(playback_controller_, &PlaybackController::frameSelected, [this](uint32_t frame_number) {
-        SetFrameNumber(frame_number);
+        ViewFrame(frame_number);
     });
 
     connect(popout_, &QPushButton::clicked, [this] {
@@ -667,7 +673,7 @@ void VideoPlayer::InitMainWindow()
     }
 }
 
-void VideoPlayer::SetFrameNumber(uint32_t frame_number)
+void VideoPlayer::ViewFrame(uint32_t frame_number)
 {
     InitMainWindow();
 
@@ -695,6 +701,7 @@ void VideoPlayer::SetFrameNumber(uint32_t frame_number)
     }
 
     goto_frame_->setText(QLocale::c().toString(video_display_->GetStartingFrameNumber() + frame_number));
+    slider_->setValue(frame_number);
 
     mw_->UpdateGlobalFrameVector();
     emit frameNumberChanged(frame_number);

@@ -49,7 +49,7 @@ public:
     int GetYCorrection() const;
     void HideManualTrackId(int id);
     void HighlightBadPixelsColors(const QString& color);
-    void InitializeFrameData(unsigned int frame_number, std::vector<PlottingFrameData> input_data,
+    void InitializeFrameData(unsigned int min_frame, std::vector<PlottingFrameData> input_data,
         std::vector<ABIRFrameHeader> input_frame_header);
     void InitializeStencilData(AnnotationInfo data);
     void InitializeToggles();
@@ -103,7 +103,6 @@ private:
     void SetupUi();
     void SetupConnections();
     void InitMainWindow();
-    void SetFrameNumber(uint32_t frame_number);
     void StartRecording();
     void StopRecording();
 
@@ -116,12 +115,13 @@ private:
 
     QPointer<QVBoxLayout> layout_;
     QPointer<QLineEdit> goto_frame_;
+    QPointer<QIntValidator> frame_number_validator_;
     QPointer<QLabel> lbl_fps_;
     QPointer<QSlider> slider_;
     QPointer<QPushButton> play_, pause_, reverse_, next_, prev_, record_, save_, zoom_, calculate_radiance_, popout_,
         increase_fps_, decrease_fps_;
 
-    QPointer<QWidget> original_parent_;
+    QPointer<QWidget> original_parent_, central_panel_;
     QPointer<QDialog> popout_dialog_;
 };
 
