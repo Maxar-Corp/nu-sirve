@@ -1775,7 +1775,7 @@ void SirveApp::LoadOsmData()
     {
         video_player_->ResetSlider();
         video_player_->SetPlaybackEnabled(false);
-        
+
         // Reset video frame
         video_player_->StopTimer();
         ResetColorCorrection();

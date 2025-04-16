@@ -112,7 +112,8 @@ set(SOURCES
 )
 
 set(UI_SOURCES location_gui.ui new_location.ui)
-set(RESOURCES SirveApp.qrc)
+set(RESOURCES SirveApp.qrc
+        enums.cpp)
 
 # TODO: AUTOMOC doesn't work, investigate
 # qt5_wrap_cpp(MOC_SOURCES ${HEADERS})
