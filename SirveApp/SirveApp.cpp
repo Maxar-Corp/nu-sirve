@@ -221,14 +221,14 @@ void SirveApp::SetupUi() {
     main_layout->addLayout(main_layout_col3);
 
     // removes extra padding from layout
-    main_layout->setMargin(0);
+    main_layout->setContentsMargins(0,0,0,0);
     main_layout->setSpacing(0);
 
     QWidget *mainWidget = new QWidget(this);
     QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
 
     // removes extra padding from layout
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->setSpacing(0);
 
     mainLayout->addWidget(splitter);
