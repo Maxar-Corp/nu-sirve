@@ -79,7 +79,6 @@ signals:
 
 public slots:
     void SetPlaybackEnabled(bool enabled);
-    void ConnectDataPlots();
     void HandlePinpointControlActivation(bool status);
     void HideStencil();
     void HighlightBadPixels(bool status);

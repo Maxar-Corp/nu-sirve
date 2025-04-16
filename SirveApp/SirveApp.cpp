@@ -1473,19 +1473,6 @@ void SirveApp::HandleTrackRemoval(int track_id)
         plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     }
 
-// =======
-//     for ( int tid : track_ids ){
-//         cmb_manual_track_IDs->addItem(QString::number(tid));
-//     }
-//     track_info->RemoveManualTrackPlotting(track_id);
-//     track_info->RemoveManualTrackImage(track_id);
-//     int index0 = data_plots->index_sub_plot_xmin;
-//     int index1 = data_plots->index_sub_plot_xmax + 1;
-//     video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-//     video_player_->DeleteManualTrack(track_id);
-//     data_plots->UpdateManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-// >>>>>>> main
-
     FramePlotSpace();
 }
 
@@ -1788,8 +1775,7 @@ void SirveApp::LoadOsmData()
     {
         video_player_->ResetSlider();
         video_player_->SetPlaybackEnabled(false);
-        //ToggleVideoPlaybackOptions(false);
-
+        
         // Reset video frame
         video_player_->StopTimer();
         ResetColorCorrection();
@@ -2092,13 +2078,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 
 
     connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
-
-// =======
-//     // Update frame marker on engineering plot
-//     connect(video_player_, &VideoPlayer::frameNumberChanged, data_plots, &EngineeringPlots::PlotCurrentStep);
-//     connect(this->data_plots, &EngineeringPlots::updatePlots, this, &SirveApp::UpdatePlots);
-//     connect(this->data_plots->chart_view, &NewChartView::updateFrameLine, this, &SirveApp::HandleZoomAfterSlider);
-// >>>>>>> main
 
     video_player_->UpdateFps();
 
@@ -2412,8 +2391,6 @@ void SirveApp::SetDataTimingOffset()
 
         std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
         video_player_->UpdateFrameData(temp);
-
-        //UpdatePlots();
     }
 }
 
@@ -2435,11 +2412,6 @@ void SirveApp::ChangeWorkspaceDirectory()
 void SirveApp::CloseWindow()
 {
     close();
-}
-
-void SirveApp::SavePlot()
-{
-    //data_plots->SavePlot();
 }
 
 void SirveApp::EnableBinaryExport()
@@ -2721,21 +2693,7 @@ void SirveApp::EditBannerText()
     auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
     if (response == QMessageBox::Yes)
     {
-
         plot_palette->GetEngineeringPlotReference(0)->SetPlotClassification(input_text);
-// =======
-//         auto response = QtHelpers::LaunchYesNoMessageBox("Update All Banners", "Video and plot banners do not match. Would you like to set both to the same banner?");
-//         if (response == QMessageBox::Yes)
-//         {
-//             data_plots->SetPlotTitle(input_text);
-
-//             if (!UpdateClassificationIfExists("Plot", input_text, &classification_list))
-//             {
-//                 Classification classification(QString(input_text), QString("Plot"));
-//                 classification_list.push_back(classification);
-//             }
-//         }
-// >>>>>>> main
     }
 }
 
@@ -3441,16 +3399,7 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
 
     int num_frames = (int)GetStateManager()[source_state_idx].details.frames_16bit.size();
     OpenProgressArea("Deinterlacing...", num_frames - 1);
-
-// <<<<<<< try-jkqt-plot
-//     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
-//     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
-
-//     video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->DeinterlaceOpenCVPhaseCorrelation(osm_frames,video_display->container.processing_states[source_state_idx].details);
-// =======
-
     auto new_state = GetStateManager()[source_state_idx];
-
 
     QPointer image_processor = CreateImageProcessor();
 
@@ -3461,39 +3410,14 @@ void SirveApp::ApplyDeinterlacing(int source_state_idx)
 
     // NOTE: A lot was removed here. Trust, but verify!
 
-// <<<<<<< try-jkqt-plot
-//         video_display->container.processing_states[endi].details.max_value = maxVal;
-//         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
-//         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
-//         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
-//         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
-//         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
-
-//         // update state gui status
-//         std::string result;
-//         for (auto num : video_display->container.processing_states[endi].ancestors) {
-//             result += std::to_string(num) + " -> ";
-//         }
-//         result += std::to_string(video_display->container.processing_states[endi].state_ID);
-//         QString state_steps = QString::fromStdString(result);
-//         video_display->container.processing_states[endi].state_steps = state_steps;
-//         video_display->container.processing_states[endi].process_steps.push_back(" [Deinterlace] ");
-//         QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
-//         QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
-//         video_display->container.processing_states[endi].state_description = state_name;
-//         HandleNewProcessingState(state_name, combobox_state_name, endi);
-// =======
-
     if(new_state.details.frames_16bit.size() > 0) {
         state_manager_->push_back(std::move(new_state), ProcessingMethod::deinterlace);
 
         // TODO: Shouldn't this be handled by a signal?
-
         UpdateGlobalFrameVector();
     }
 
     CloseProgressArea();
-
 }
 
 void SirveApp::ApplyDeinterlacingCurrent()
@@ -3600,34 +3524,6 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
 
         // Again, trust but verify!
 
-// <<<<<<< try-jkqt-plot
-//         // fetch max value
-//         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-//         for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
-//             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-//         }
-//         video_display->container.processing_states[endi].details.max_value = maxVal;
-//         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
-//         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
-//         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
-//         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
-//         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
-
-//         // update state gui status
-//         std::string result;
-//         for (auto num : video_display->container.processing_states[endi].ancestors) {
-//             result += std::to_string(num) + " -> ";
-//         }
-//         result += std::to_string(video_display->container.processing_states[endi].state_ID);
-//         QString state_steps = QString::fromStdString(result);
-//         video_display->container.processing_states[endi].state_steps = state_steps;
-//         video_display->container.processing_states[endi].process_steps.push_back(" [Center on Tracks] ");
-//         QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
-//         QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
-//         video_display->container.processing_states[endi].state_description = state_name;
-//         HandleNewProcessingState(state_name, combobox_state_name, endi);
-// =======
-
         arma::mat offsets_matrix;
         SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
         last.offsets_matrix = offsets_matrix;
@@ -3644,18 +3540,6 @@ void SirveApp::CenterOnOffsets(const QString& trackFeaturePriority, int track_id
     int num_frames = (int)GetStateManager()[source_state_idx].details.frames_16bit.size();
     OpenProgressArea("Centering on offsets...",num_frames - 1);
 
-// <<<<<<< try-jkqt-plot
-//     // set new state ...
-//     video_display->container.processing_states.push_back(video_display->container.processing_states[source_state_idx]);
-//     int endi = video_display->container.processing_states.size()-1;
-//     int number_video_frames = static_cast<int>(video_display->container.processing_states[source_state_idx].details.frames_16bit.size());
-
-//     video_display->container.processing_states[endi].track_id = track_id;
-//     if (OSMPriority==0){
-//         video_display->container.processing_states[endi].method = ProcessingMethod::center_on_OSM;
-//     }
-//     else{
-// =======
     auto new_state = GetStateManager()[source_state_idx];
 
     QPointer image_processor = CreateImageProcessor();
@@ -3673,33 +3557,6 @@ void SirveApp::CenterOnOffsets(const QString& trackFeaturePriority, int track_id
         last.track_id = track_id;
         last.offsets = track_centered_offsets;
 
-// <<<<<<< try-jkqt-plot
-//         // fetch max value
-//         uint16_t maxVal = std::numeric_limits<uint>::min(); // Initialize with the smallest possible int
-//         for (const auto& row : video_display->container.processing_states[endi].details.frames_16bit) {
-//             maxVal = std::max(maxVal, *std::max_element(row.begin(), row.end()));
-//         }
-//         video_display->container.processing_states[endi].details.max_value = maxVal;
-//         video_display->container.processing_states[endi].state_ID = video_display->container.processing_states.size() - 1;
-//         video_display->container.processing_states[source_state_idx].descendants.push_back(video_display->container.processing_states[endi].state_ID);
-//         video_display->container.processing_states[source_state_idx].descendants = GetUniqueIntegerVector(video_display->container.processing_states[source_state_idx].descendants);
-//         video_display->container.processing_states[endi].ancestors = video_display->container.processing_states[source_state_idx].ancestors;
-//         video_display->container.processing_states[endi].ancestors.push_back(source_state_idx);
-
-//         // update state gui status
-//         std::string result;
-//         for (auto num : video_display->container.processing_states[endi].ancestors) {
-//             result += std::to_string(num) + " -> ";
-//         }
-//         result += std::to_string(video_display->container.processing_states[endi].state_ID);
-//         QString state_steps = QString::fromStdString(result);
-//         video_display->container.processing_states[endi].state_steps = state_steps;
-//         video_display->container.processing_states[endi].process_steps.push_back(" [Center on Tracks] ");
-//         QString state_name = "State " + QString::number(endi) + ": " + video_display->container.processing_states[endi].get_friendly_description();
-//         QString combobox_state_name = QString::number(endi) + ": " +video_display->container.processing_states[endi].get_combobox_description();
-//         video_display->container.processing_states[endi].state_description = state_name;
-//         HandleNewProcessingState(state_name, combobox_state_name, endi);
-// =======
         arma::mat offsets_matrix;
         SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
         last.offsets_matrix = std::move(offsets_matrix);
@@ -3859,17 +3716,6 @@ void SirveApp::FrameStacking(int number_of_frames, int source_state_idx)
     OpenProgressArea("Frame stacking...",num_frames - 1);
     auto new_state = GetStateManager()[source_state_idx];
 
-// <<<<<<< try-jkqt-plot
-//     connect(ImageProcessor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
-//     connect(btn_cancel_operation, &QPushButton::clicked, ImageProcessor, &ImageProcessing::CancelOperation);
-
-//     video_display->container.processing_states[endi].details.frames_16bit = ImageProcessor->FrameStacking(number_of_frames, video_display->container.processing_states[source_state_idx].details);
-
-//     if (video_display->container.processing_states[endi].details.frames_16bit.size()>0){
-//         video_display->container.processing_states[endi].method = ProcessingMethod::frame_stacking;
-//         video_display->container.processing_states[endi].frame_stack_num_frames = number_of_frames;
-//         video_display->container.processing_states[endi].source_state_ID = source_state_idx;
-// =======
     QPointer image_processor = CreateImageProcessor();
     new_state.details.frames_16bit = image_processor->FrameStacking(number_of_frames, new_state.details);
 
@@ -4148,14 +3994,6 @@ void SirveApp::ExecuteAutoTracking()
         appPos = this->GetWindowPosition();
         arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
-// <<<<<<< try-jkqt-plot
-//         double clamp_low = txt_lift_sigma->text().toDouble();
-//         double clamp_high = txt_gain_sigma->text().toDouble();
-//         int threshold = 6 - cmb_autotrack_threshold->currentIndex();
-//         arma::u64_mat autotrack = AutoTracker.SingleTracker(track_id, clamp_low, clamp_high, threshold, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, original.details, new_track_file_name);
-
-//         if (!autotrack.empty() && video_display->container.processing_states[video_display->container.current_idx].offsets.size()>0){
-// =======
         auto currentState = state_manager_->GetCurrentState();
         if (!autotrack.empty() && currentState.offsets.size()>0){
 
@@ -4222,37 +4060,9 @@ void SirveApp::ExecuteAutoTracking()
             std::set<int> track_ids = track_info->get_manual_track_ids();
             for ( int tid : track_ids )
             {
-// <<<<<<< try-jkqt-plot
-//                 video_display->AddManualTrackIdToShowLater(track_id);
-//                 tm_widget->AddTrackControl(track_id);
-//                 track_info->AddManualTracks(result.frames);
-//                 cmb_manual_track_IDs->clear();
-//                 cmb_manual_track_IDs->addItem("Primary");
-//                 std::set<int> track_ids = track_info->get_manual_track_ids();
-//                 for ( int track_id : track_ids ){
-//                     cmb_manual_track_IDs->addItem(QString::number(track_id));
-//                 }
-// =======
                 cmb_manual_track_IDs->addItem(QString::number(tid));
             }
 
-// <<<<<<< try-jkqt-plot
-//         int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-//         int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
-//         //qDebug() << "index0=" << index0;
-//         //qDebug() << "index1=" << index1;
-//         video_display->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-
-//         for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-//         {
-//             plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-//         }
-
-//         FramePlotSpace();
-
-//         QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-//         if (existing_track_control != nullptr)
-// =======
             QStringList color_options = ColorScheme::get_track_colors();
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)

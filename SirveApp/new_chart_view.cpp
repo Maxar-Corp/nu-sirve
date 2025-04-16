@@ -8,8 +8,8 @@
 NewChartView::NewChartView(QChart* chart)
     :QChartView(chart), rubberBand(new QRubberBand(QRubberBand::Rectangle, this))
 {
-    newchart = chart;
-    newchart->setBackgroundBrush(QBrush(QColor(200, 200, 200)));
+    new_chart = chart;
+    new_chart->setBackgroundBrush(QBrush(QColor(200, 200, 200)));
 
     setMouseTracking(true);
     setInteractive(true);
@@ -53,8 +53,8 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::RightButton)
     {
-        newchart->zoomOut();
-        newchart->zoomReset();
+        new_chart->zoomOut();
+        new_chart->zoomReset();
         is_zoomed = false;
 
         emit updatePlots();
@@ -64,7 +64,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
     {
         if (this->is_frameline_moving) {
             clearSeriesByName("Red Line");
-            newchart->update();
+            new_chart->update();
         }
 
         rubberBand->hide();
@@ -97,7 +97,7 @@ void NewChartView::mouseReleaseEvent(QMouseEvent *e)
 
 void NewChartView::apply_nice_numbers()
 {
-    QList<QAbstractAxis*> axes_list = newchart->axes();
+    QList<QAbstractAxis*> axes_list = new_chart->axes();
     for (QAbstractAxis * abstract_axis : axes_list)
     {
         QValueAxis* value_axis = qobject_cast<QValueAxis*>(abstract_axis);

@@ -316,16 +316,6 @@ void VideoPlayer::SetPlaybackEnabled(bool enabled)
     }
 }
 
-void VideoPlayer::ConnectDataPlots()
-{ // TODO: Fix this!
-    // auto data_plots = mw_->data_plots;
-    // connect(pause_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(play_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(reverse_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(next_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
-    // connect(prev_, &QPushButton::clicked, data_plots, &EngineeringPlot::HandlePlayerButtonClick);
-}
-
 // ReSharper disable once CppMemberFunctionMayBeConst
 void VideoPlayer::HandlePinpointControlActivation(bool status)
 {

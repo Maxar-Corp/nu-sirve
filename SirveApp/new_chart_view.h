@@ -33,7 +33,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *e) override;
     void apply_nice_numbers();
 
-    QChart *newchart;
+    QChart *new_chart;
     bool is_zoomed;
     ChartState get_chart_state();
     void set_chart_state(ChartState chartState);

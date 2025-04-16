@@ -346,7 +346,6 @@ public slots:
     void ReceiveProgressBarUpdate(int percent) const;
     void ResetColorCorrection();
 
-    void SavePlot();
     void SaveWorkspace();
 
     void SetDataTimingOffset();
