@@ -142,7 +142,7 @@ void SirveApp::SetupUi() {
 
     lbl_max_frames = new QLabel("Available Frames: ");
 
-	  QFormLayout *form_start_frame = new QFormLayout;
+    QFormLayout *form_start_frame = new QFormLayout;
     QFormLayout *form_stop_frame = new QFormLayout;
     txt_start_frame = new QLineEdit();
     txt_start_frame->setAlignment(Qt::AlignVCenter);
@@ -1799,7 +1799,7 @@ void SirveApp::LoadOsmData()
         return;
     }
 
-    osm_frames = reader.ReadFrames();
+    osm_frames = reader.ReadFrames(abp_file_type);
     if (osm_frames.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -1849,7 +1849,7 @@ void SirveApp::LoadOsmData()
     }
 
     eng_data = new EngineeringData(osm_frames);
-    track_info = new TrackInformation(osm_frames);
+    track_info = new TrackInformation(osm_frames, abp_file_type);
 
     plot_palette = new PlotPalette();
 
