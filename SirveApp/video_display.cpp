@@ -2,7 +2,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
-
+#include <QComboBox>
 #include "shared_tracking_functions.h"
 
 #include <QFileDialog>
@@ -203,6 +203,15 @@ void VideoDisplay::SetupPinpointDisplay()
     grp_pinpoint = new QGroupBox("Selected Pixels");
     grp_pinpoint->setStyleSheet(kBoldLargeStyleSheet);
 
+    cursor_color = new QComboBox();
+    cursor_color->addItems(ColorScheme::cursorColors.keys());
+    cursor_color->setCurrentIndex(10);
+    cursor_color->setEnabled(false);
+    QFormLayout *form_cursor_color = new QFormLayout;
+
+    form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
+    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &VideoDisplay::EditCursorColor);
+
     QHBoxLayout* pinpoint_layout = new QHBoxLayout(grp_pinpoint);
 
     lbl_pinpoint = new QLabel();
@@ -243,6 +252,7 @@ void VideoDisplay::SetupPinpointDisplay()
             &VideoDisplay::ClearPinpoints);
 
     pinpoint_layout->addWidget(btn_pinpoint);
+    pinpoint_layout->addLayout(form_cursor_color);
     pinpoint_layout->addWidget(lbl_pinpoint);
     pinpoint_layout->addStretch(1);
     pinpoint_layout->addLayout(button_layout);
@@ -319,6 +329,7 @@ void VideoDisplay::HandlePinpointControlActivation(bool status)
     btn_pinpoint_bad_pixel->setEnabled(status);
     btn_pinpoint_good_pixel->setEnabled(status);
     btn_clear_pinpoints->setEnabled(status);
+    cursor_color->setEnabled(status);
 }
 
 void VideoDisplay::ReclaimLabel()
@@ -755,6 +766,25 @@ void VideoDisplay::ClearPinpoints()
 {
     pinpoint_indices.clear();
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::EditCursorColor()
+{
+    QString color = cursor_color->currentText();
+
+
+    std::string icon = "This is a sample string";
+
+    if ("auto detect" == cursor_color->currentText().toStdString())
+    {
+        lbl_image_canvas->setCursor(Qt::CrossCursor);
+        return;
+    }
+
+    QString icon_path =ColorScheme::get_cursor_icon_path(color);
+    QPixmap crosshairs_icon(icon_path);
+    QCursor crosshairs_cursor(crosshairs_icon);
+    lbl_image_canvas->setCursor(crosshairs_cursor);
 }
 
 void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, arma::mat offsets_matrix0)

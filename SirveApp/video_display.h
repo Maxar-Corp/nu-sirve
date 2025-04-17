@@ -128,6 +128,7 @@ private slots:
     void DisplayManualBox(QPoint pt);
     void SetSelectCentroidBtn(bool status);
     void ClearPinpoints();
+    void EditCursorColor();
     void HandleAnnotationChanges();
     void HandlePixelSelection(QPoint origin);
 
@@ -169,6 +170,7 @@ private:
     QPointer<QPushButton> btn_pinpoint_bad_pixel;
     QPointer<QPushButton> btn_pinpoint_good_pixel;
     QPointer<QPushButton> btn_clear_pinpoints;
+    QPointer<QComboBox> cursor_color;
 
     // Track-related controls and data
     std::vector<std::optional<TrackDetails>> track_details;

@@ -13,6 +13,15 @@
         <file>icons/crosshair.png</file>
         <file>icons/crosshair-golden.png</file>
         <file>icons/crosshair-golden_pinpoint.png</file>
+        <file>icons/crosshair-cyan.png</file>
+        <file>icons/crosshair-magenta.png</file>
+        <file>icons/crosshair-black.png</file>
+        <file>icons/crosshair-blue.png</file>
+        <file>icons/crosshair-green.png</file>
+        <file>icons/crosshair-orange.png</file>
+        <file>icons/crosshair-red.png</file>
+        <file>icons/crosshair-violet.png</file>
+        <file>icons/crosshair-white.png</file>
         <file>icons/expand.png</file>
         <file>icons/magnify.png</file>
         <file>icons/menu.png</file>

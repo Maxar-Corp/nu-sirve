@@ -1,4 +1,5 @@
 #include "color_scheme.h"
+#include <qmap.h>
 
 ColorScheme::ColorScheme()
 {
@@ -63,4 +64,23 @@ QString ColorScheme::get_next_color()
 void ColorScheme::ResetColors()
 {
 	index = 0;
+}
+
+QMap<QString, QString> ColorScheme::cursorColors = {
+    {"auto detect", ""},
+    {"black", ":icons/crosshair-black.png"},
+    {"blue", ":icons/crosshair-blue.png"},
+    {"cyan", ":icons/crosshair-cyan.png"},
+    {"green", ":icons/crosshair-green.png"},
+    {"magenta", ":icons/crosshair-magenta.png"},
+    {"orange", ":icons/crosshair-orange.png"},
+    {"red", ":icons/crosshair-red.png"},
+    {"violet", ":icons/crosshair-violet.png"},
+    {"white", ":icons/crosshair-white.png"},
+    {"yellow", ":icons/crosshair-golden.png"},
+};
+
+QString ColorScheme::get_cursor_icon_path(QString &color)
+{
+    return cursorColors.value(color, ":icons/crosshair-golden.png");
 }
