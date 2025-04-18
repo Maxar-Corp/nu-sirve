@@ -17,7 +17,6 @@ SIRVE requires the following software to be installed on your computer:
 * CMake
 * Ninja
 * Python
-* Qt 6.6.0 (included with the project)
 
 Note that Visual Studio actually comes with its own CMake and Ninja, but it's
 still recommended to install the standalone versions for convenience.
