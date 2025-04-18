@@ -317,8 +317,10 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         is_zoom_active = false;
         is_calculate_active = false;
         SetupCrosshairCursor(":icons/crosshair-golden_pinpoint.png");
+        cursor_color->setEnabled(true);
     } else {
         lbl_image_canvas->unsetCursor();
+        cursor_color->setEnabled(false);
     }
     UpdateDisplayFrame();
 }
@@ -329,7 +331,6 @@ void VideoDisplay::HandlePinpointControlActivation(bool status)
     btn_pinpoint_bad_pixel->setEnabled(status);
     btn_pinpoint_good_pixel->setEnabled(status);
     btn_clear_pinpoints->setEnabled(status);
-    cursor_color->setEnabled(status);
 }
 
 void VideoDisplay::ReclaimLabel()
@@ -771,9 +772,6 @@ void VideoDisplay::ClearPinpoints()
 void VideoDisplay::EditCursorColor()
 {
     QString color = cursor_color->currentText();
-
-
-    std::string icon = "This is a sample string";
 
     if ("auto detect" == cursor_color->currentText().toStdString())
     {
