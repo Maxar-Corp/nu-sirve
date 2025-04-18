@@ -17,7 +17,7 @@ SIRVE requires the following software to be installed on your computer:
 * CMake
 * Ninja
 * Python
-* Qt 5.15.2 (included with the project)
+* Qt 6.6.0 (included with the project)
 
 Note that Visual Studio actually comes with its own CMake and Ninja, but it's
 still recommended to install the standalone versions for convenience.
@@ -75,7 +75,7 @@ These are the steps taken to get the QT headers and libraries:
   this project:
 
 ```powershell
-python -m aqt install-qt windows desktop 5.15.2 win64_msvc2019_64 -m qtcharts
+python -m aqt install-qt windows desktop 6.6.0 win64_msvc2019_64 -m qtcharts
 ```
 
 ## Dependencies
