@@ -331,6 +331,10 @@ void VideoDisplay::HandlePinpointControlActivation(bool status)
     btn_pinpoint_bad_pixel->setEnabled(status);
     btn_pinpoint_good_pixel->setEnabled(status);
     btn_clear_pinpoints->setEnabled(status);
+    if (status == false)
+    {
+        cursor_color->setEnabled(false);
+    }
 }
 
 void VideoDisplay::ReclaimLabel()
