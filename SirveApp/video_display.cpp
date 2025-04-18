@@ -316,7 +316,7 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         ExitSelectTrackCentroidMode();
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairCursor(":icons/crosshair-golden_pinpoint.png");
+        EditCursorColor();
         cursor_color->setEnabled(true);
     } else {
         lbl_image_canvas->unsetCursor();
