@@ -19,8 +19,8 @@
 #include "single_check_list.h"
 
 void populateComboBox(QComboBox* comboBox) {
-    for (int i = 0; i <= static_cast<int>(Enums::PlotUnit::None); ++i) {
-        Enums::PlotUnit value = static_cast<Enums::PlotUnit>(i);
+    for (int i = 0; i < static_cast<int>(Enums::PlotUnit::Undefined_PlotUnit); ++i) {
+        auto value = static_cast<Enums::PlotUnit>(i);
         comboBox->addItem(Enums::plotUnitToString(Enums::getPlotUnitByIndex(i)), QVariant::fromValue(value));
     }
 }

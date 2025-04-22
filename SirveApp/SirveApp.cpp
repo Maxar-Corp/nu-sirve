@@ -99,9 +99,9 @@ void SirveApp::SetupUi() {
 
 
     // Set minimum sizes
-    leftWidget->setMinimumWidth(550);
-    centralWidget->setMinimumWidth(700);
-    rightWidget->setMinimumWidth(450);
+    leftWidget->setMinimumWidth(510);
+    centralWidget->setMinimumWidth(690);
+    rightWidget->setMinimumWidth(515);
 
     leftWidget->setLayout(main_layout_col1);
     centralWidget->setLayout(main_layout_col2);
@@ -158,7 +158,7 @@ void SirveApp::SetupUi() {
     btn_get_frames = new QPushButton("Load Frames");
     grpbox_load_frames_area = new QGroupBox();
     grpbox_load_frames_area->setObjectName("grpbox_load_frames_area");
-    QHBoxLayout *hlayout_load_frames_area = new QHBoxLayout(grpbox_load_frames_area);
+    auto *hlayout_load_frames_area = new QHBoxLayout(grpbox_load_frames_area);
     hlayout_load_frames_area->addWidget(lbl_max_frames);
     hlayout_load_frames_area->addLayout(form_start_frame);
     hlayout_load_frames_area->addLayout(form_stop_frame);
@@ -168,26 +168,32 @@ void SirveApp::SetupUi() {
 
     grpbox_progressbar_area = new QGroupBox();
     grpbox_progressbar_area->setObjectName("grpbox_progressbar_area");
-    QHBoxLayout *hlayout_progressbar_area = new QHBoxLayout();
+    auto *hlayout_progressbar_area = new QHBoxLayout(grpbox_progressbar_area);
     grpbox_progressbar_area->setLayout(hlayout_progressbar_area);
     grpbox_progressbar_area->setEnabled(false);
     progress_bar_main = new QProgressBar();
-    progress_bar_main->setFixedWidth(300);
+    progress_bar_main->setMinimumWidth(300); // 300? Why not!?
+    progress_bar_main->setAlignment(Qt::AlignLeft);
+    progress_bar_main->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
     btn_cancel_operation = new QPushButton("Cancel");
-    btn_cancel_operation->setFixedWidth(75);
+    btn_cancel_operation->setFixedWidth(60);
     hlayout_progressbar_area->addWidget(progress_bar_main);
+    hlayout_progressbar_area->addStretch(2);
     hlayout_progressbar_area->addWidget(btn_cancel_operation);
 
     grpbox_status_area = new QGroupBox("State Control");
     grpbox_status_area->setObjectName("grpbox_status_area");
     grpbox_status_area->setFixedHeight(200);
-    QVBoxLayout *vlayout_status_area = new QVBoxLayout();
+    auto *vlayout_status_area = new QVBoxLayout();
     grpbox_status_area->setLayout(vlayout_status_area);
     cmb_processing_states = new QComboBox();
     btn_undo_step = new QPushButton("Undo One Step");
     btn_undo_step->setFixedWidth(110);
     btn_delete_state = new QPushButton("Delete State");
+
     connect(btn_delete_state, &QPushButton::clicked, this, &SirveApp::DeleteState);
+
     lbl_processing_description = new QLabel("");
     lbl_processing_description->setWordWrap(true);
     scrollarea_processing_description = new QScrollArea();
@@ -195,16 +201,17 @@ void SirveApp::SetupUi() {
     scrollarea_processing_description->setWidget(lbl_processing_description);
     scrollarea_processing_description->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollarea_processing_description->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    QVBoxLayout *vlayout_processing_description = new QVBoxLayout(scrollarea_processing_description);
+
+    auto *vlayout_processing_description = new QVBoxLayout(scrollarea_processing_description);
     vlayout_processing_description->addWidget(lbl_processing_description);
-    QSpacerItem * d_bottom_vertical_spacer = new QSpacerItem(100, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    auto * d_bottom_vertical_spacer = new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     vlayout_processing_description->addItem(d_bottom_vertical_spacer);
     vlayout_status_area->addWidget(scrollarea_processing_description);
-    QFormLayout *form_processing_state = new QFormLayout;
+    auto *form_processing_state = new QFormLayout;
     form_processing_state->addRow(tr("&Processing State:"),cmb_processing_states);
     form_processing_state->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
     vlayout_status_area->addLayout(form_processing_state);
-    QHBoxLayout *hlayout_processing_state_buttons = new QHBoxLayout();
+    auto *hlayout_processing_state_buttons = new QHBoxLayout();
     hlayout_processing_state_buttons->addWidget(btn_delete_state);
     hlayout_processing_state_buttons->addWidget(btn_undo_step);
     hlayout_processing_state_buttons->insertStretch(-1,0);
@@ -224,8 +231,8 @@ void SirveApp::SetupUi() {
     main_layout->setContentsMargins(0,0,0,0);
     main_layout->setSpacing(0);
 
-    QWidget *mainWidget = new QWidget(this);
-    QVBoxLayout *mainLayout = new QVBoxLayout(mainWidget);
+    auto *mainWidget = new QWidget(this);
+    auto *mainLayout = new QVBoxLayout(mainWidget);
 
     // removes extra padding from layout
     mainLayout->setContentsMargins(0,0,0,0);
@@ -254,9 +261,6 @@ void SirveApp::SetupUi() {
 
     btn_delete_state->setEnabled(false);
     btn_undo_step->setEnabled(false);
-
-    rad_decimal->setChecked(true);
-    rad_linear->setChecked(true);
 
     grpbox_auto_lift_gain->setEnabled(false);
 
@@ -289,19 +293,19 @@ void SirveApp::SetupUi() {
     lbl_workspace_name_field = new QLabel("");
     lbl_workspace_name_field->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_progress_status = new QLabel("");
-    lbl_progress_status->setFixedWidth(300);
+    lbl_progress_status->setFixedWidth(200); // adjust this number to give progress bar room to expand (or not)
     lbl_progress_status->setWordWrap(true);
-    QGroupBox *grpbox_status_bar = new QGroupBox();
+    auto *grpbox_status_bar = new QGroupBox();
     grpbox_status_bar->setMinimumWidth(1050);
-    QHBoxLayout * hlayout_status_bar1 = new QHBoxLayout();
-    QHBoxLayout * hlayout_status_bar2 = new QHBoxLayout();
-    QGroupBox *grpbox_status_permanent = new QGroupBox();
-    grpbox_status_permanent->setMinimumWidth(650);
-    QHBoxLayout * hlayout_status_permanent = new QHBoxLayout();
+    auto *hlayout_status_bar1 = new QHBoxLayout();
+    auto *hlayout_status_bar2 = new QHBoxLayout();
+    auto *grpbox_status_permanent = new QGroupBox();
+    grpbox_status_permanent->setMinimumWidth(600);
+    auto *hlayout_status_permanent = new QHBoxLayout();
     grpbox_status_permanent->setLayout(hlayout_status_permanent);
 
-    QSpacerItem *hspacer_item10 = new QSpacerItem(10,1);
-    QVBoxLayout * vlayout_status_lbl = new QVBoxLayout();
+    auto *hspacer_item10 = new QSpacerItem(10,1);
+    auto *vlayout_status_lbl = new QVBoxLayout();
 
 
     hlayout_status_bar1->addWidget(lbl_file_name);
@@ -323,13 +327,15 @@ void SirveApp::SetupUi() {
     grpbox_status_bar->setLayout(vlayout_status_lbl);
 
     status_bar->addWidget(grpbox_status_bar);
-    hlayout_status_permanent->addWidget(lbl_progress_status);
-    hlayout_status_permanent->addItem(hspacer_item10);
-    hlayout_status_permanent->addWidget(grpbox_progressbar_area);
-    hlayout_status_permanent->addItem(hspacer_item10);
-    hlayout_status_permanent->insertStretch(-1,0);
-    status_bar->addPermanentWidget(grpbox_status_permanent,0);
 
+    hlayout_status_permanent->addWidget(lbl_progress_status);
+    //hlayout_status_permanent->addItem(hspacer_item1);
+    hlayout_status_permanent->addStretch(1);
+    hlayout_status_permanent->addWidget(grpbox_progressbar_area);
+    //hlayout_status_permanent->addItem(hspacer_item1);
+    //hlayout_status_permanent->insertStretch(-1,0);
+
+    status_bar->addPermanentWidget(grpbox_status_permanent,0);
     status_bar->setContentsMargins(10,0,10, 10);
 
     this->show();
@@ -888,7 +894,7 @@ QWidget* SirveApp::SetupTracksTab(){
     connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
-    hlayout_workspace->addStretch();
+    //hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
     QGroupBox * grpbox_autotrack = new QGroupBox("Tracking Parameters");
@@ -1041,9 +1047,7 @@ void SirveApp::SetupPlotFrame() {
 
     tab_plots->setTabPosition(QTabWidget::South);
 
-    // ------------------------------------------------------------------------
-
-    QWidget* widget_tab_histogram = new QWidget();
+    auto* widget_tab_histogram = new QWidget();
 
     vlayout_tab_histogram = new QVBoxLayout(widget_tab_histogram);
 
@@ -1068,15 +1072,9 @@ void SirveApp::SetupPlotFrame() {
     frame_plots = new QFrame();
     plot_groupbox = new QGroupBox("Y-Axis Options");
 
-    // create and group radial boxes
-    rad_decimal = new QRadioButton("Decimal");
-    rad_scientific = new QRadioButton("Scientific");
-    rad_log = new QRadioButton("Log");
-    rad_linear = new QRadioButton("Linear");
-
     // set layout for engineering plots tab
-    QWidget* widget_plots_tab_color = new QWidget();
-    QVBoxLayout* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
+    auto* widget_plots_tab_color = new QWidget();
+    auto* vlayout_widget_plots_tab_color = new QVBoxLayout(widget_plots_tab_color);
 
     vlayout_widget_plots_tab_color->addWidget(frame_plots);
 
@@ -1854,9 +1852,9 @@ void SirveApp::LoadOsmData()
     plot_palette = new PlotPalette();
 
     //  Set up new plots as we do in the plot designer class:
-    HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::None)});
-    HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::None)});
+    HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
 
     osmDataLoaded = true;
 

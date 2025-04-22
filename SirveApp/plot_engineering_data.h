@@ -59,8 +59,8 @@ public:
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
     std::vector<double> boresight_az, boresight_el;
 
-    Enums::PlotType plotYType;
-    Enums::PlotType plotXType;
+    Enums::PlotType plotYType = Enums::PlotType::Undefined_PlotType;
+    Enums::PlotType plotXType = Enums::PlotType::Undefined_PlotType;
 
     void copyStateFrom(EngineeringPlot &other);
 
@@ -147,9 +147,10 @@ private:
     QString plot_classification;
     bool show_frame_line;
     QTabWidget* tabWidget;
+
     bool use_subinterval = false;
     std::vector<PlottingTrackFrame> track_frames;
-    Enums::PlotType x_axis_units;
+    Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);

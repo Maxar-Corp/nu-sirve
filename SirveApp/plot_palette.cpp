@@ -160,7 +160,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
         std::vector<Quantity> quantities;
         quantities.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
-        quantities.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
+        quantities.push_back(Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)); // TODO: Implement analogous name/enum transfer here.
 
         emit popoutPlot(tabIndex, "title", quantities);
     } else if (selectedAction == editBanner) {

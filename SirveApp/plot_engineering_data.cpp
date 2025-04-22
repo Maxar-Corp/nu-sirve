@@ -44,7 +44,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     this->setExclusionString("frameline");
-
+    this->setMinimumWidth(200);
+    this->plotter->setWidgetWidth(100);
     this->setToolbarAlwaysOn(true);
 }
 

@@ -124,7 +124,7 @@ public:
     QPointer<QComboBox>  cmb_OSM_track_IDs, cmb_manual_track_IDs, cmb_track_centering_priority;
     QPointer<QFrame> frame_video_player, frame_histogram_rel, frame_histogram_abs;
     QPointer<QFrame> frame_plots;
-    QPointer<QRadioButton> rad_decimal, rad_linear, rad_scientific, rad_log, rad_scale_by_frame, rad_scale_by_cube,
+    QPointer<QRadioButton> rad_scientific, rad_log, rad_scale_by_frame, rad_scale_by_cube,
         rad_autotrack_filter_none, rad_autotrack_filter_gaussian, rad_autotrack_filter_median,
         rad_autotrack_filter_nlmeans;
     QPointer<QButtonGroup> data_plot_yformat, data_plot_yloglinear;
