@@ -3,7 +3,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
-ImageProcessing::ImageProcessing()
+ImageProcessing::ImageProcessing(ABPFileType file_type)
 {
     frameval = 0;
 
@@ -12,9 +12,16 @@ ImageProcessing::ImageProcessing()
     min_deinterlace_dist = 1.5;
     max_deinterlace_dist = 40;
     deinterlace_kernel_size = 3;
+    if (file_type == ABPFileType::ABP_D)
+    {
+        nRows = 720;
+        nRows2 = nRows/2;
+        nCols = 1280;
+    }
 }
 
-ImageProcessing::~ImageProcessing() {
+ImageProcessing::~ImageProcessing()
+{
 }
 
 void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indices, int width_pixels)

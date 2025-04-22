@@ -124,7 +124,7 @@ public:
     QPointer<QComboBox>  cmb_OSM_track_IDs, cmb_manual_track_IDs, cmb_track_centering_priority;
     QPointer<QFrame> frame_video_player, frame_histogram_rel, frame_histogram_abs;
     QPointer<QFrame> frame_plots;
-    QPointer<QRadioButton> rad_decimal, rad_linear, rad_scientific, rad_log, rad_scale_by_frame, rad_scale_by_cube,
+    QPointer<QRadioButton> rad_scientific, rad_log, rad_scale_by_frame, rad_scale_by_cube,
         rad_autotrack_filter_none, rad_autotrack_filter_gaussian, rad_autotrack_filter_median,
         rad_autotrack_filter_nlmeans;
     QPointer<QButtonGroup> data_plot_yformat, data_plot_yloglinear;
@@ -256,7 +256,7 @@ private:
     void FrameStacking(int num_frames, int processing_state_idx);
 
     static void GetAboutTimeStamp();
-    static double GetAvailableMemoryRatio(int num_frames);
+    static double GetAvailableMemoryRatio(int num_frames, ABPFileType file_type);
     static int GetCurrentColorIndex(const QVector<QString>& colors, const QColor& input_color);
     static std::vector<unsigned int> GetUniqueIntegerVector(std::vector<unsigned int> A);
 
@@ -319,12 +319,14 @@ public slots:
     void HandleManualTrackRecoloring(int track_id, const QColor& color);
     void HandleNewProcessingState(const QString& state_name, const QString& combobox_state_name, int index);
     void HandleOsmTracksToggle();
+
     void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
     void HandlePlayerStateChanged(bool status);
     void HandlePlotFocusChanged(int tab_index);
     void HandlePlotFullDataToggle();
     void HandlePlotPrimaryOnlyToggle();
     //void HandlePopoutEngineeringClosed();
+
     void HandlePopoutHistogramClosed();
     void HandleProcessingNewStateSelected();
     void HandleProcessingStateRemoval(ProcessingMethod method, int index);

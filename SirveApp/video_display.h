@@ -42,6 +42,9 @@ public:
     int width = SirveAppConstants::VideoDisplayWidth;
     int height = SirveAppConstants::VideoDisplayHeight;
 
+    int nRows = 480;
+    int nCols = 640;
+
     QPointer<EnhancedLabel> lbl_image_canvas;
     QPointer<AnnotationStencil> annotation_stencil;
 

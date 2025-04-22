@@ -8,7 +8,7 @@ namespace SirveAppConstants {
     constexpr int VideoDisplayWidth = 640;
     constexpr int VideoDisplayHeight = 480;
 
-    constexpr int BigNumber = 10000000;
+    constexpr int BigNumber = std::numeric_limits<int>::max();
 }
 
 #endif // CONSTANTS_H

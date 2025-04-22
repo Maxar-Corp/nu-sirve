@@ -72,12 +72,7 @@ Enums::PlotUnit PlotPalette::GetPlotUnitByTabId(int tab_id)
 int PlotPalette::GetLowestSyncedTabIndex()
 {
     auto minIter = std::min_element(synced_tabs.begin(), synced_tabs.end());
-
-    if (minIter != synced_tabs.end()) {
-        return *minIter;
-    } else {
-        std::cout << "The vector is empty.\n";
-    }
+    return *minIter;
 }
 
 bool PlotPalette::HasSyncedTabWithIndex(int tab_id)
@@ -165,7 +160,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
         std::vector<Quantity> quantities;
         quantities.push_back(Quantity(Enums::plotTypeToString(GetPlotTypeByTabId(tabIndex)), GetPlotUnitByTabId(tabIndex)));
-        quantities.push_back(Quantity("Frames", Enums::PlotUnit::None)); // TODO: Implement analogous name/enum transfer here.
+        quantities.push_back(Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)); // TODO: Implement analogous name/enum transfer here.
 
         emit popoutPlot(tabIndex, "title", quantities);
     } else if (selectedAction == editBanner) {

@@ -18,19 +18,21 @@ public:
         Irradiance,
         Frames,
         Seconds_From_Epoch,
-        Seconds_Past_Midnight
+        Seconds_Past_Midnight,
+        Undefined_PlotType
     };
 
     enum PlotUnit {
         Degrees,
         Radians,
         Photons,
-        None
+        Undefined_PlotUnit
     };
 
     enum ClassificationType {
         Plot,
-        VideoDisplay
+        VideoDisplay,
+        Undefined_ClassificationType
     };
 
     static PlotType getPlotTypeByIndex(int index);
