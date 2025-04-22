@@ -89,7 +89,6 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     if (engineering_data != NULL) {
 
         // delete objects with existing data within them
-        //frame_layout->removeWidget(plot_data->chart_view);
         delete engineering_data;
     }
 
@@ -109,14 +108,9 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
     plot_data->SetPlotClassification("");
-
-
-    //plot_data->toggle_yaxis_log(true);
-    //plot_data->SetYAxisChartId(2);
     plot_data->PlotChart();
 
-    btn_load_frames->setEnabled(true);    
-    
+    btn_load_frames->setEnabled(true);
 }
 
 void ExternalNUCInformationWidget::getFrames()

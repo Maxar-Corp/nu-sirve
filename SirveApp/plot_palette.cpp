@@ -72,12 +72,7 @@ Enums::PlotUnit PlotPalette::GetPlotUnitByTabId(int tab_id)
 int PlotPalette::GetLowestSyncedTabIndex()
 {
     auto minIter = std::min_element(synced_tabs.begin(), synced_tabs.end());
-
-    if (minIter != synced_tabs.end()) {
-        return *minIter;
-    } else {
-        std::cout << "The vector is empty.\n";
-    }
+    return *minIter;
 }
 
 bool PlotPalette::HasSyncedTabWithIndex(int tab_id)

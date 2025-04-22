@@ -24,7 +24,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     plot_all_data = true;
     plot_primary_only = false;
-    plot_current_marker = true;
 
     x_axis_units = plotXType;
 
@@ -48,7 +47,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     this->setToolbarAlwaysOn(true);
 }
-
 
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
     return this->actToggleFrameLine;
@@ -142,7 +140,6 @@ void EngineeringPlot::PlotSirveTracks()
     }
 }
 
-
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
 {
     for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
@@ -182,20 +179,14 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
     }
 }
 
-void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
+int EngineeringPlot::get_index_sub_plot_xmin()
 {
-    track_frames = frames;
-    number_of_tracks = num_unique;
+    return index_sub_plot_xmin;
 }
 
-bool EngineeringPlot::get_use_subinterval()
+int EngineeringPlot::get_index_sub_plot_xmax()
 {
-    return use_subinterval;
-}
-
-void EngineeringPlot::set_use_subinterval(bool use_subinterval)
-{
-    this->use_subinterval = use_subinterval;
+    return index_sub_plot_xmax;
 }
 
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
@@ -376,6 +367,32 @@ std::vector<Quantity> EngineeringPlot::get_params()
     return my_quantities;
 }
 
+bool EngineeringPlot::get_plot_primary_only()
+{
+    return plot_primary_only;
+}
+
+bool EngineeringPlot::get_use_subinterval()
+{
+    return use_subinterval;
+}
+
+void EngineeringPlot::set_plot_primary_only(bool value)
+{
+    plot_primary_only = value;
+}
+
+void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique)
+{
+    track_frames = frames;
+    number_of_tracks = num_unique;
+}
+
+void EngineeringPlot::set_use_subinterval(bool use_subinterval)
+{
+    this->use_subinterval = use_subinterval;
+}
+
 void EngineeringPlot::InitializeFrameLine(double frameline_x)
 {
     QVector<double> xData = {frameline_x, frameline_x};
@@ -394,7 +411,7 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
 
 void EngineeringPlot::PlotCurrentFrameline(int frame)
 {
-    if (plot_current_marker && show_frame_line)
+    if (show_frame_line)
     {
         int frameline_x = frame + index_sub_plot_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
         QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
@@ -492,6 +509,16 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
         plotter->getXAxis()->setMax(max);
         plotter->redrawPlot();
     }
+}
+
+void EngineeringPlot::set_sub_plot_xmin(int value)
+{
+    sub_plot_xmin = value;
+}
+
+void EngineeringPlot::set_sub_plot_xmax(int value)
+{
+    sub_plot_xmax = value;
 }
 
 void EngineeringPlot::DefinePlotSubInterval(int min, int max)

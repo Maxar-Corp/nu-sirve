@@ -8,6 +8,9 @@
 
 #include "enums.h"
 #include "plot_designer.h"
+
+#include <QPointer>
+
 #include "support/qthelpers.h"
 #include "qcombobox.h"
 #include "qlineedit.h"

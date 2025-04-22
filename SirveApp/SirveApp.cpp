@@ -1250,8 +1250,8 @@ void SirveApp::ImportTracks()
                 }
                 track_info->AddManualTracks(result.frames);
 
-                int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-                int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+                int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+                int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
                 video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
                 for (int i = 0; i < plot_palette->tabBar()->count(); i++)
@@ -1286,8 +1286,8 @@ void SirveApp::ImportTracks()
                 lbl_track_description->setText(info.fileName());
             }
 
-            int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-            int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+            int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+            int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));;
             for (int i = 0; i < plot_palette->tabBar()->count(); i++)
             {
@@ -1431,8 +1431,8 @@ void SirveApp::HandleFinishCreateTrackClick()
         video_player_->AddManualTrackIdToShowLater(currently_editing_or_creating_track_id);
         track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),currently_editing_or_creating_track_id, created_track_details, new_track_file_name);
 
-        int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-        int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+        int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+        int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
         video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
         plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
@@ -1510,8 +1510,8 @@ void SirveApp::HandleTrackRemoval(int track_id)
     }
     track_info->RemoveManualTrackPlotting(track_id);
     track_info->RemoveManualTrackImage(track_id);
-    int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-    int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+    int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+    int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
     video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_player_->DeleteManualTrack(track_id);
 
@@ -1576,8 +1576,8 @@ void SirveApp::SaveWorkspace()
         QDate today = QDate::currentDate();
         QTime currentTime = QTime::currentTime();
         QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
-        QString start_frame = QString::number(plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin + 1);
-        QString stop_frame = QString::number(plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1);
+        QString start_frame = QString::number(plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin() + 1);
+        QString stop_frame = QString::number(plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1);
         QString initial_name = abpimage_file_base_name + "_" + start_frame + "-"+ stop_frame + "_" + formattedDate;
 
         QString selectedUserFilePath = QFileDialog::getSaveFileName(this, tr("Workspace File"), config_values.workspace_folder + "/" + initial_name, tr("Workspace Files *.json"));
@@ -1587,8 +1587,8 @@ void SirveApp::SaveWorkspace()
 
             workspace->SaveState(selectedUserFilePath,
                                  abp_file_metadata.image_path,
-                                 plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin + 1,
-                                 plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1,
+                                 plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin() + 1,
+                                 plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1,
                                  eng_data->get_offset_time(),
                                  *state_manager_,
                                  video_player_->GetAnnotations(),
@@ -2118,8 +2118,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     for (int i= 0; i < plot_palette->tabBar()->count(); i++)
     {
         plot_palette->GetEngineeringPlotReference(i)->SetPlotterXAxisMinMax(min_frame - 1, max_frame - 1);
-        plot_palette->GetEngineeringPlotReference(i)->sub_plot_xmin = min_frame - 1;
-        plot_palette->GetEngineeringPlotReference(i)->sub_plot_xmax = max_frame - 1;
+        plot_palette->GetEngineeringPlotReference(i)->set_sub_plot_xmin(min_frame - 1);
+        plot_palette->GetEngineeringPlotReference(i)->set_sub_plot_xmax(max_frame - 1);
         plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval(min_frame-1, max_frame - 1);
     }
 
@@ -2414,8 +2414,8 @@ void SirveApp::HandlePlotFullDataToggle()
 
 void SirveApp::HandlePlotPrimaryOnlyToggle()
 {
-    plot_palette->GetEngineeringPlotReference(0)->plot_primary_only = !plot_palette->GetEngineeringPlotReference(0)->plot_primary_only;
-    menu_plot_primary->setIconVisibleInMenu(plot_palette->GetEngineeringPlotReference(0)->plot_primary_only);
+    plot_palette->GetEngineeringPlotReference(0)->set_plot_primary_only(!plot_palette->GetEngineeringPlotReference(0)->get_plot_primary_only());
+    menu_plot_primary->setIconVisibleInMenu(plot_palette->GetEngineeringPlotReference(0)->get_plot_primary_only());
 }
 
 void SirveApp::SetDataTimingOffset()
@@ -2431,8 +2431,8 @@ void SirveApp::SetDataTimingOffset()
         plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
         plot_palette->GetEngineeringPlotReference(0)->past_epoch = eng_data->get_seconds_from_epoch();
 
-        int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-        int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax;
+        int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+        int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax();
 
         std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
         video_player_->UpdateFrameData(temp);
@@ -2497,7 +2497,7 @@ void SirveApp::ExportFrame()
     QTime currentTime = QTime::currentTime();;
     QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
 
-    QString current_frame = QString::number(video_player_->GetCounter() + plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin + 1);
+    QString current_frame = QString::number(video_player_->GetCounter() + plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin() + 1);
 
     QString initial_name = abpimage_file_base_name + "_Frame_" + current_frame + "_" + formattedDate;
 
@@ -2550,7 +2550,7 @@ void SirveApp::ExportFrameRange()
         int startframe = start_frame.toInt() - 1;
         int endframe = end_frame.toInt() - 1;
         int num_video_frames = endframe - startframe + 1;
-        int start_framei = startframe - plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
+        int start_framei = startframe - plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int end_framei = start_framei + num_video_frames - 1;
         arma::u32_cube frame_cube(nRows,nCols,num_video_frames);
         int k = 0;
@@ -2805,8 +2805,8 @@ void SirveApp::ExportPlotData()
     }
     else {
 
-        int min_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-        int max_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax;
+        int min_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+        int max_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax();
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
     }
@@ -2944,8 +2944,8 @@ void SirveApp::AnnotateVideo()
     standard_info.x_pixels = video_player_->GetImageWidth();
     standard_info.y_pixels = video_player_->GetImageHeight();
 
-    standard_info.min_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin + 1;
-    standard_info.max_frame = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+    standard_info.min_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin() + 1;
+    standard_info.max_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
 
     standard_info.x_correction = video_player_->GetXCorrection();
     standard_info.y_correction = video_player_->GetYCorrection();
@@ -4077,8 +4077,8 @@ void SirveApp::ExecuteAutoTracking()
             video_player_->AddManualTrackIdToShowLater(track_id);
             track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
 
-            int index0 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmin;
-            int index1 = plot_palette->GetEngineeringPlotReference(0)->index_sub_plot_xmax + 1;
+            int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
+            int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
             for (int i = 0; i < plot_palette->tabBar()->count(); i++)
             {
