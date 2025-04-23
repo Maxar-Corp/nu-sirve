@@ -55,17 +55,12 @@ public:
 
     QString x_title, y_title, plotTitle;
 
-    // Parameters to display subplot
-    bool plot_all_data, plot_primary_only, plot_current_marker;
-    double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-    unsigned int index_sub_plot_xmin, index_sub_plot_xmax, index_zoom_min, index_zoom_max;
-
     std::vector<double> past_midnight, past_epoch;
     std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
     std::vector<double> boresight_az, boresight_el;
 
-    Enums::PlotType plotYType;
-    Enums::PlotType plotXType;
+    Enums::PlotType plotYType = Enums::PlotType::Undefined_PlotType;
+    Enums::PlotType plotXType = Enums::PlotType::Undefined_PlotType;
 
     void copyStateFrom(EngineeringPlot &other);
 
@@ -100,10 +95,18 @@ public:
     int get_subinterval_min();
     int get_subinterval_max();
 
-    void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
-    void set_palette_index();
-
+    int get_index_sub_plot_xmin();
+    int get_index_sub_plot_xmax();
+    int get_index_zoom_min();
+    int get_index_zoom_max();
+    bool get_plot_primary_only();
     bool get_use_subinterval();
+
+    void set_plot_primary_only(bool value);
+    void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+    void set_sub_plot_xmin(int value);
+    void set_sub_plot_xmax(int value);
+
     void set_use_subinterval(bool use_subinterval);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
@@ -124,6 +127,11 @@ public Q_SLOTS:
 
 private:
 
+    // Parameters to display subplot
+    bool plot_all_data, plot_primary_only;
+    double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
+    int index_sub_plot_xmin, index_sub_plot_xmax;
+
     QAction* actToggleFrameLine;
     double fixed_max_y;
     size_t frameLineColumnX;
@@ -139,9 +147,10 @@ private:
     QString plot_classification;
     bool show_frame_line;
     QTabWidget* tabWidget;
+
     bool use_subinterval = false;
     std::vector<PlottingTrackFrame> track_frames;
-    Enums::PlotType x_axis_units;
+    Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);

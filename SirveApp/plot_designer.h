@@ -4,7 +4,7 @@
 #include "qcombobox.h"
 #include "qlistwidget.h"
 #include "quantity.h"
-#include <QWidget>
+#include <QPointer>
 #include <QDialog>
 
 class QLabel;
@@ -27,18 +27,18 @@ public slots:
     void accept() override;
 
 private:
-    QLabel *label1;
-    QLabel *label2;
-    QLineEdit *plotTitle;
-    QTextEdit *textEdit1;
-    QTextEdit *textEdit2;
-    QPushButton *closeButton;
+    QPointer<QLabel> label1;
+    QPointer<QLabel> label2;
+    QPointer<QLineEdit> plotTitle;
+    QPointer<QTextEdit> textEdit1;
+    QPointer<QTextEdit> textEdit2;
+    QPointer<QPushButton> closeButton;
 
-    QListWidget *listWidget1;
-    QListWidget *listWidget2;
+    QPointer<QListWidget> listWidget1;
+    QPointer<QListWidget> listWidget2;
 
-    QComboBox *unitsBox1;
-    QComboBox *unitsBox2;
+    QPointer<QComboBox> unitsBox1;
+    QPointer<QComboBox> unitsBox2;
 
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
     bool AnyItemChecked(QListWidget *listWidget);

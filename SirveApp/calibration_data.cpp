@@ -614,7 +614,7 @@ void CalibrationDialog::verifyCalibrationValues()
     {
         return;
     }
-    osm_frames = osm_reader.ReadFrames();
+    osm_frames = osm_reader.ReadFrames(file_type);
 
     if (osm_frames.empty())
     {

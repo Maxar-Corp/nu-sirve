@@ -5,9 +5,15 @@
 
 // TODO: Retaining a reference like this can lead to use-after-free issues. Fix by making the annotations
 // vector be a shared_ptr.
-AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, QWidget *parent)
+AnnotationListDialog::AnnotationListDialog(std::vector<AnnotationInfo> &input_vector, VideoInfo details, ABPFileType file_type, QWidget *parent)
     : QDialog(parent, Qt::Window), data(input_vector), base_data(details)
 {
+    if (file_type == ABPFileType::ABP_D)
+    {
+        nRows = 720;
+        nCols = 1280;
+    }
+
     initialize_gui();
 
     base_data = details;
@@ -254,16 +260,16 @@ void AnnotationListDialog::SetStencilLocation(QPoint location)
     int ypos = location.y() + yc;
 
     if (xpos < 0){
-        xpos = xpos + SirveAppConstants::VideoDisplayWidth;
+        xpos = xpos + nCols;
     }
     if (ypos < 0){
-        ypos = ypos + SirveAppConstants::VideoDisplayHeight;
+        ypos = ypos + nRows;
     }
     if (xpos > 640){
-        xpos = ypos - SirveAppConstants::VideoDisplayWidth;
+        xpos = ypos - nCols;
     }
     if (ypos > 480){
-        ypos = ypos - SirveAppConstants::VideoDisplayHeight;
+        ypos = ypos - nRows;
     }
 
     data[index].x_pixel = xpos;

@@ -26,7 +26,7 @@ public:
 
 	int get_numeric_value(QString input);
     bool check_numeric_value(QString input);
-    VideoDisplay *current_video;
+    // VideoDisplay *current_video;
     QPushButton *btn_add, *btn_cancel;
 
 signals:

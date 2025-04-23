@@ -21,13 +21,14 @@
 #include "process_file.h"
 #include "support/qthelpers.h"
 #include "tracks.h"
+#include "abir_reader.h"
 
 class ExternalNUCInformationWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	ExternalNUCInformationWidget();
+	ExternalNUCInformationWidget(ABPFileType file_type);
 	~ExternalNUCInformationWidget();
 
     AbpFileMetadata abp_metadata;
@@ -62,6 +63,7 @@ private:
     void DisplayError(QString msg);
     void InitializeGui();
     void PlotOsmFrameData();
+	ABPFileType file_type_{ABPFileType::ABP_B};
 };
 
 
