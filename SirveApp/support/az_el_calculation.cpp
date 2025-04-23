@@ -6,12 +6,12 @@
 #include <qmath.h>
 
 
-std::vector<double> AzElCalculation::calculate(int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
+std::vector<double> AzElCalculation::calculate(int nRows, int nCols, int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {
 	if (adjust_frame_ref)
 	{
-		x -= FOCAL_PLANE_ARRAY_WIDTH / 2;
-		y -= FOCAL_PLANE_ARRAY_HEIGHT / 2;
+		x -= nCols / 2;
+		y -= nRows / 2;
 	}
 	
     arma::mat a_ecf_to_seu = earth::Atf_Transformation(sensor_lat, sensor_long);

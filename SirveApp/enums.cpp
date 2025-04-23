@@ -10,7 +10,7 @@ Enums::PlotType Enums::getPlotTypeByIndex(int index) {
 }
 
 Enums::PlotUnit Enums::getPlotUnitByIndex(int index) {
-    if (index < 0 || index > static_cast<int>(PlotUnit::None)) {
+    if (index < 0 || index >= static_cast<int>(PlotUnit::Undefined_PlotUnit)) {
         throw std::out_of_range("Index out of range for PlotUnit enum");
     }
     return static_cast<PlotUnit>(index);

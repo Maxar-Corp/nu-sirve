@@ -10,8 +10,9 @@
 static constexpr auto MAX_NUMBER_ITERATIONS = 100000;
 static constexpr auto SMALL_NUMBER = 0.000001;
 
-std::vector<Frame> OSMReader::ReadFrames()
+std::vector<Frame> OSMReader::ReadFrames(ABPFileType file_type)
 {
+    file_type_ = file_type;
     if (!IsOpen())
     {
         throw std::runtime_error("File not open");
@@ -22,6 +23,12 @@ std::vector<Frame> OSMReader::ReadFrames()
     auto num_messages = FindMessageNumber();
 
     auto data = LoadFrames(num_messages);
+
+    if (file_type == ABPFileType::ABP_D)
+    {
+        nRows = 720;
+        nCols = 1280;
+    }
 
     return data;
 }
@@ -176,7 +183,7 @@ FrameData OSMReader::ReadFrameData()
     data.i_fov_y = Read<double>(true);
     data.num_tracks = Read<uint32_t>(true);
 
-    data.az_el_boresight = CalculateAzimuthElevation(0, 0, data);
+    data.az_el_boresight = CalculateAzimuthElevation(nRows, nCols, 0, 0, data);
 
     // qDebug() << "AZ EL BORESIGHT: " << data.az_el_boresight;
 
@@ -244,7 +251,7 @@ TrackData OSMReader::GetTrackData(const FrameData& input)
     current_track.centroid_variance_x = Read<double>(true);
     current_track.centroid_variance_y = Read<double>(true);
 
-    current_track.az_el_track = CalculateAzimuthElevation(static_cast<int>(current_track.centroid_x),
+    current_track.az_el_track = CalculateAzimuthElevation(nRows, nCols, static_cast<int>(current_track.centroid_x),
                                                           static_cast<int>(current_track.centroid_y), input);
 
     current_track.covariance = Read<double>(true);
@@ -254,9 +261,9 @@ TrackData OSMReader::GetTrackData(const FrameData& input)
     return current_track;
 }
 
-std::vector<double> OSMReader::CalculateAzimuthElevation(int x_pixel, int y_pixel, const FrameData& input)
+std::vector<double> OSMReader::CalculateAzimuthElevation(int nRows, int nCols, int x_pixel, int y_pixel, const FrameData& input)
 {
-    std::vector<double> results = AzElCalculation::calculate(x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm,
+    std::vector<double> results = AzElCalculation::calculate(nRows, nCols, x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm,
                                                              input.i_fov_x, input.i_fov_y, false);
     return results;
 }

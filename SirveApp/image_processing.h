@@ -17,7 +17,7 @@ class  ImageProcessing : public QObject
 
 public:
 
-    ImageProcessing();
+    ImageProcessing(ABPFileType file_type);
     ~ImageProcessing();
 
     double min_deinterlace_dist;
@@ -25,9 +25,9 @@ public:
     int deinterlace_kernel_size;
     int frameval;
     bool cancel_operation;
-    int nRows = SirveAppConstants::VideoDisplayHeight;
+    int nRows = 480;
     int nRows2 = nRows/2;
-    int nCols = SirveAppConstants::VideoDisplayWidth;
+    int nCols = 640;
 
     void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indeces, int width_pixels);
     void UpdateProgressBar(unsigned int value);
