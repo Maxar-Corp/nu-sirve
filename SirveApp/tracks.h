@@ -102,8 +102,7 @@ class TrackInformation {
         int get_frame_count() const;
         std::set<int> get_manual_track_ids();
         std::set<int> get_OSM_track_ids();
-        int nRows = 480;
-        int nCols = 640;
+
 
     private:
         TrackInformation();
@@ -118,6 +117,8 @@ class TrackInformation {
         std::set<int> manual_track_ids;
         std::vector<ManualPlottingTrackFrame> manual_plotting_frames;
         std::vector<TrackFrame> manual_image_frames;
+        int nRows = 480;
+        int nCols = 640;
 };
 
 #endif
