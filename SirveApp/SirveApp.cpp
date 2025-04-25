@@ -793,7 +793,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     hlayout_deinterlacing->addLayout(vlayout_deinterlacing);
     hlayout_deinterlacing->insertStretch(-1,0);
 
-    QToolBox *toolbox_image_processing = new QToolBox();
+    toolbox_image_processing = new QToolBox();
     toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
     toolbox_image_processing->addItem(grpbox_image_processing,QString("Noise Suppression"));
     toolbox_image_processing->addItem(grpbox_deinterlacing,QString("Deinterlacing"));
@@ -1726,12 +1726,31 @@ void SirveApp::HandleAbpBFileSelected()
 {
     abp_file_type = ABPFileType::ABP_B;
     HandleAbpFileSelected();
+    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+        {
+            toolbox_image_processing->setItemEnabled(i, true);
+            toolbox_image_processing->setItemIcon(i, QIcon());
+        }
+    }
 }
 
 void SirveApp::HandleAbpDFileSelected()
 {
     abp_file_type = ABPFileType::ABP_D;
     HandleAbpFileSelected();
+    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+        {
+            QIcon icon(":/icons/no-ghosts.png");
+
+            // Set same pixmap for Disabled mode
+            icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
+
+            toolbox_image_processing->setItemIcon(i, icon);
+            toolbox_image_processing->setItemEnabled(i, false);
+        }
+    }
 }
 
 void SirveApp::HandleAbpFileSelected()
@@ -1748,7 +1767,8 @@ void SirveApp::HandleAbpFileSelected()
     lbl_processing_description->setText("");
 
     bool validated = ValidateAbpFiles(file_selection);
-    if (validated) {
+    if (validated)
+    {
         LoadOsmData();
         QFileInfo fileInfo(file_selection);
         abpimage_file_base_name = fileInfo.baseName();
@@ -1769,7 +1789,8 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
             txt_start_frame->setStyleSheet(orange_styleSheet);
             txt_stop_frame->setStyleSheet(orange_styleSheet);
         }
-        else{
+        else
+        {
             txt_start_frame->setEnabled(false);
             txt_stop_frame->setEnabled(false);
             btn_get_frames->setEnabled(false);

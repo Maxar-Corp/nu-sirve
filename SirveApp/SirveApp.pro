@@ -90,6 +90,7 @@ SOURCES +=  abir_reader.cpp \
             data_export.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
+            enums.cpp \
             histogram_plotter.cpp \
             image_processing.cpp \
             location_input.cpp \
