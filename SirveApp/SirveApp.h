@@ -150,6 +150,8 @@ public:
     QPointer<QCheckBox> chk_bad_pixels_from_original;
     QPointer<QLineEdit> txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
 
+    // this was put here in order to tweak its icon when disabling deinterlacing on D:
+    QToolBox *toolbox_image_processing;
 
     /* --------------------------------------------------------------------------------------------
         Setup & Basic Frontend Operations
