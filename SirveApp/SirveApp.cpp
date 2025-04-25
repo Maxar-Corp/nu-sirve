@@ -95,13 +95,13 @@ void SirveApp::SetupUi() {
     rightWidget->setContentsMargins(0,0,0, 0);
 
     // Create a splitter
-    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+    splitter = new QSplitter(Qt::Horizontal, this);
 
 
     // Set minimum sizes
-    leftWidget->setMinimumWidth(510);
-    centralWidget->setMinimumWidth(690);
-    rightWidget->setMinimumWidth(515);
+    leftWidget->setMinimumWidth(leftWidgetStartingSize);
+    centralWidget->setMinimumWidth(centralWidgetStartingSize);
+    rightWidget->setMinimumWidth(rightWidgetStartingSize);
 
     leftWidget->setLayout(main_layout_col1);
     centralWidget->setLayout(main_layout_col2);
@@ -2028,6 +2028,21 @@ void SirveApp::UiLoadAbirData()
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
+
+    QList<int> sizes = splitter->sizes();
+    // expand frame for d data
+    if (abp_file_type == ABPFileType::ABP_D)
+    {
+        // collapse right panel and let video take its space
+        sizes[1] += sizes[2];
+        sizes[2] = 0;
+
+    }else
+    {
+        sizes[1] = centralWidgetStartingSize;
+        sizes[2] = rightWidgetStartingSize;
+    }
+    splitter->setSizes(sizes);
 }
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)
