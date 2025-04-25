@@ -53,8 +53,8 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, A
 {
     if (file_type == ABPFileType::ABP_D)
     {
-        int nRows = 720;
-        int nCols = 1280;
+        nRows = 720;
+        nCols = 1280;
     }
 
     for (unsigned int i = 0; i < osm_file_frames.size(); i++)
