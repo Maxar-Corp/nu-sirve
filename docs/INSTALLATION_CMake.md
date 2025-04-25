@@ -65,7 +65,7 @@ Center. Any version 3.9 or later is fine.
 
 ### Qt
 
-Qt is already included in the SIRVE project, so you don't need to install it.
+As of April 2025, SIRVE runs on Qt6.  Qt is no longer included as part of the Git repository -- you as developer must acquire a copy of Qt6 and install it.  You can do this using a tool such as AQT (see below) or by using a .zip file available from one of the team members.
 
 These are the steps taken to get the QT headers and libraries:
 
