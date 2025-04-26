@@ -3279,7 +3279,10 @@ void JKQTBasePlotter::copyData() {
     loadUserSettings();
     QString result="";
     QString qfresult;
+    qDebug() << "GOT HERE~";
     QSet<int> cols=getDataColumnsByUser();
+    cols.remove(3);
+    cols.remove(2);
     {
         QTextStream txt(&result);
         QLocale loc=QLocale::system();
@@ -4643,8 +4646,8 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     qDebug()<< "LEGEND EXCLUSION STRING=" << legendExclusionString;
 
-    for (int i=0; i<cols.size(); i++) {
-        if (legendExclusionString.length() > 0 && !cols[i].contains(legendExclusionString))
+    for (int i=0; i<=cols.size(); i++) {
+        if (legendExclusionString.length() > 0 && !cols[i].contains("frameline"))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
             item->setCheckState(Qt::Checked);
@@ -4673,7 +4676,7 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     if (dlg->exec()==QDialog::Accepted) {
         for (int i=0; i<dataColumnsListWidget->count(); i++) {
-            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked) {
+            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked && ! dataColumnsListWidget->item(i)->text().contains("frameline", Qt::CaseInsensitive)) {
                 set.insert(i);
             }
         }
