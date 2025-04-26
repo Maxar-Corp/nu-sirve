@@ -288,17 +288,11 @@ JKQTBasePlotter::JKQTBasePlotter(bool datastore_internal, QObject* parent, JKQTP
     actZoomOut=new QAction(QIcon(":/JKQTPlotter/jkqtp_zoomout.png"), tr("Zoom &Out"), this);
     actZoomOut->setToolTip(tr("Zoom out"));
 
-    actShowPlotData=new QAction(QIcon(":/JKQTPlotter/jkqtp_showplotdata.png"), tr("&Show Plot Data"), this);
-    actShowPlotData->setToolTip(tr("Opens a dialog that contains all data used for the plot in a table."));
-
-
-
     connect(actSavePlot,   SIGNAL(triggered()), this, SLOT(saveImage()));
     connect(actSaveData,   SIGNAL(triggered()), this, SLOT(saveData()));
     connect(actCopyData,   SIGNAL(triggered()), this, SLOT(copyData()));
     connect(actCopyPixelImage,   SIGNAL(triggered()), this, SLOT(copyPixelImage()));
     connect(actCopyMatlab,   SIGNAL(triggered()), this, SLOT(copyDataMatlab()));
-    connect(actShowPlotData,   SIGNAL(triggered()), this, SLOT(showPlotData()));
 
 #ifndef JKQTPLOTTER_COMPILE_WITHOUT_PRINTSUPPORT
     connect(actPrint,      SIGNAL(triggered()), this, SLOT(print()));
@@ -3193,10 +3187,6 @@ QAction *JKQTBasePlotter::getActionZoomOut() const {
     return this->actZoomOut;
 }
 
-QAction *JKQTBasePlotter::getActionShowPlotData() const {
-    return this->actShowPlotData;
-}
-
 JKQTBasePlotter::AdditionalActionsMap JKQTBasePlotter::getLstAdditionalPlotterActions() const {
     return this->lstAdditionalPlotterActions;
 }
@@ -3289,7 +3279,10 @@ void JKQTBasePlotter::copyData() {
     loadUserSettings();
     QString result="";
     QString qfresult;
+    qDebug() << "GOT HERE~";
     QSet<int> cols=getDataColumnsByUser();
+    cols.remove(3);
+    cols.remove(2);
     {
         QTextStream txt(&result);
         QLocale loc=QLocale::system();
@@ -4653,8 +4646,8 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     qDebug()<< "LEGEND EXCLUSION STRING=" << legendExclusionString;
 
-    for (int i=0; i<cols.size(); i++) {
-        if (legendExclusionString.length() > 0 && !cols[i].contains(legendExclusionString))
+    for (int i=0; i<=cols.size(); i++) {
+        if (legendExclusionString.length() > 0 && !cols[i].contains("frameline"))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
             item->setCheckState(Qt::Checked);
@@ -4683,7 +4676,7 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     if (dlg->exec()==QDialog::Accepted) {
         for (int i=0; i<dataColumnsListWidget->count(); i++) {
-            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked) {
+            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked && ! dataColumnsListWidget->item(i)->text().contains("frameline", Qt::CaseInsensitive)) {
                 set.insert(i);
             }
         }

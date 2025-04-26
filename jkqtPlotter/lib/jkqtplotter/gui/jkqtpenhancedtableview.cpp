@@ -175,9 +175,13 @@ void JKQTPEnhancedTableView::copySelectionToExcel(int copyrole, bool storeHead)
         QSet<int> rows, cols;
         int colmin=0;
         int rowmin=0;
+
         for (int i=0; i<sel.size(); i++) {
             int r=sel[i].row();
             int c=sel[i].column();
+
+            qDebug() << sel[i].data();
+
             rows.insert(r);
             cols.insert(c);
             if (i==0) {
@@ -199,7 +203,6 @@ void JKQTPEnhancedTableView::copySelectionToExcel(int copyrole, bool storeHead)
 #else
         QList<int> collist=QList<int>::fromSet(cols);
 #endif
-        std::sort(collist.begin(), collist.end());
         int rowcnt=rowlist.size();
         int colcnt=collist.size();
         QList<QStringList> data;
