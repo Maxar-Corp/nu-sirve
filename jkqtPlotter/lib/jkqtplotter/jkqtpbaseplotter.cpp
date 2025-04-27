@@ -3279,10 +3279,8 @@ void JKQTBasePlotter::copyData() {
     loadUserSettings();
     QString result="";
     QString qfresult;
-    qDebug() << "GOT HERE~";
+
     QSet<int> cols=getDataColumnsByUser();
-    cols.remove(3);
-    cols.remove(2);
     {
         QTextStream txt(&result);
         QLocale loc=QLocale::system();
@@ -3302,7 +3300,7 @@ void JKQTBasePlotter::copyData() {
     mime->setText(result);
     mime->setData("jkqtplotter/csv", qfresult.toUtf8());
     clipboard->setMimeData(mime);
-    //clipboard->setText(result);
+
     saveUserSettings();
 }
 
@@ -4614,14 +4612,21 @@ QString JKQTBasePlotter::getUserSettigsPrefix() const
 
 QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     loadUserSettings();
-    QSet<int> set;
 
+    QSet<int> set;
     QStringList cols=getDatastore()->getColumnNames();
+
+    for (int i = 0; i < cols.size(); ++i)
+    {
+        if (!cols[i].contains(this->legendExclusionString, Qt::CaseSensitivity::CaseInsensitive))
+        {
+            set.insert(i);
+        }
+    }
 
     QDialog* dlg=new QDialog(nullptr, Qt::WindowMinMaxButtonsHint);
     dlg->setSizeGripEnabled(true);
-    //printZoomFactor=0.95;
-    //printMagnification=1.5;
+
     QGridLayout* layout=new QGridLayout();
     dlg->setLayout(layout);
     dlg->setWindowTitle(tr("Select columns to export ..."));
@@ -4644,10 +4649,8 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     dataColumnsListWidget=new QListWidget(dlg);
 
-    qDebug()<< "LEGEND EXCLUSION STRING=" << legendExclusionString;
-
-    for (int i=0; i<=cols.size(); i++) {
-        if (legendExclusionString.length() > 0 && !cols[i].contains("frameline"))
+    for (int i=0; i < cols.size(); i++) {
+        if (set.contains(i))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
             item->setCheckState(Qt::Checked);
@@ -4675,16 +4678,13 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     dataColumnsCombobox->setCurrentIndex(-1);
 
     if (dlg->exec()==QDialog::Accepted) {
-        for (int i=0; i<dataColumnsListWidget->count(); i++) {
-            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked && ! dataColumnsListWidget->item(i)->text().contains("frameline", Qt::CaseInsensitive)) {
-                set.insert(i);
-            }
-        }
+
     }
     delete dlg;
     dataColumnsListWidget=nullptr;
 
     saveUserSettings();
+
     return set;
 }
 
