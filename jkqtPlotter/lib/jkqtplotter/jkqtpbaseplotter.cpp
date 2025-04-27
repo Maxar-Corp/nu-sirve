@@ -3281,8 +3281,13 @@ void JKQTBasePlotter::copyData() {
     QString qfresult;
     qDebug() << "GOT HERE~";
     QSet<int> cols=getDataColumnsByUser();
-    cols.remove(3);
-    cols.remove(2);
+    // remove the frameline x,y columns
+    //cols.remove(3);
+    //cols.remove(2);
+
+    for (const int& col : cols) {
+        qDebug() << "Final :" << col;
+    }
     {
         QTextStream txt(&result);
         QLocale loc=QLocale::system();
@@ -4618,10 +4623,16 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     QStringList cols=getDatastore()->getColumnNames();
 
+    for (int i = 0; i < cols.size(); ++i) {
+        set.insert(i);
+    }
+
+    set.remove(3);
+    set.remove(2);
+
     QDialog* dlg=new QDialog(nullptr, Qt::WindowMinMaxButtonsHint);
     dlg->setSizeGripEnabled(true);
-    //printZoomFactor=0.95;
-    //printMagnification=1.5;
+
     QGridLayout* layout=new QGridLayout();
     dlg->setLayout(layout);
     dlg->setWindowTitle(tr("Select columns to export ..."));
@@ -4646,8 +4657,10 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     qDebug()<< "LEGEND EXCLUSION STRING=" << legendExclusionString;
 
-    for (int i=0; i<=cols.size(); i++) {
-        if (legendExclusionString.length() > 0 && !cols[i].contains("frameline"))
+    for (int i=0; i < cols.size(); i++) {
+        qDebug() << "Col name = " << cols[i];
+
+        if (set.contains(i))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
             item->setCheckState(Qt::Checked);
@@ -4675,16 +4688,17 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     dataColumnsCombobox->setCurrentIndex(-1);
 
     if (dlg->exec()==QDialog::Accepted) {
-        for (int i=0; i<dataColumnsListWidget->count(); i++) {
-            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked && ! dataColumnsListWidget->item(i)->text().contains("frameline", Qt::CaseInsensitive)) {
-                set.insert(i);
-            }
-        }
+
     }
     delete dlg;
     dataColumnsListWidget=nullptr;
 
     saveUserSettings();
+
+    for (int value : set) {
+        qDebug() << "Set:" << value;
+    }
+
     return set;
 }
 
