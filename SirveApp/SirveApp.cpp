@@ -2043,6 +2043,7 @@ void SirveApp::UiLoadAbirData()
         sizes[2] = rightWidgetStartingSize;
     }
     splitter->setSizes(sizes);
+    video_player_->SetVideoDimensions();
 }
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)

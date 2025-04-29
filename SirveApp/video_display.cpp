@@ -1391,6 +1391,14 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
     annotation_stencil->InitializeData(std::move(data));
 }
 
+void VideoDisplay::SetVideoDimensions()
+{
+    //get the length width
+    height = lbl_image_canvas->pixmap().height();
+    width = lbl_image_canvas->pixmap().width();
+    ReceiveVideoData(width, height);
+}
+
 void VideoDisplay::DisplayManualBox(QPoint pt)
 {
     if (in_track_creation_mode) {
@@ -1398,3 +1406,5 @@ void VideoDisplay::DisplayManualBox(QPoint pt)
         UpdateDisplayFrame();
     }
 }
+
+

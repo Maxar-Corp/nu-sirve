@@ -94,6 +94,7 @@ public:
     void ReceiveVideoData(int x, int y);
     void InitializeToggles();
     void DrawAnnotations();
+    void SetVideoDimensions();
 
 signals:
     void clearMouseButtons();
