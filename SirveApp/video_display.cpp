@@ -191,15 +191,6 @@ void VideoDisplay::SetupPinpointDisplay()
     grp_pinpoint = new QGroupBox("Selected Pixels");
     grp_pinpoint->setStyleSheet(kBoldLargeStyleSheet);
 
-    // cursor_color = new QComboBox();
-    // cursor_color->addItems(ColorScheme::cursorColors.keys());
-    // cursor_color->setCurrentIndex(10);
-    // cursor_color->setEnabled(false);
-    // QFormLayout *form_cursor_color = new QFormLayout;
-    //
-    // form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
-    // connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &VideoDisplay::EditCursorColor);
-
     QHBoxLayout* pinpoint_layout = new QHBoxLayout(grp_pinpoint);
 
     lbl_pinpoint = new QLabel();
