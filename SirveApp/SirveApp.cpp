@@ -1517,6 +1517,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
     {
         plot_palette->DeleteGraphIfExists(i, track_id);
+        plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
         plot_palette->RedrawPlot(i);
         plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     }
