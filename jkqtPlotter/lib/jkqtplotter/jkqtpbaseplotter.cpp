@@ -3279,15 +3279,8 @@ void JKQTBasePlotter::copyData() {
     loadUserSettings();
     QString result="";
     QString qfresult;
-    qDebug() << "GOT HERE~";
-    QSet<int> cols=getDataColumnsByUser();
-    // remove the frameline x,y columns
-    //cols.remove(3);
-    //cols.remove(2);
 
-    for (const int& col : cols) {
-        qDebug() << "Final :" << col;
-    }
+    QSet<int> cols=getDataColumnsByUser();
     {
         QTextStream txt(&result);
         QLocale loc=QLocale::system();
@@ -3307,7 +3300,7 @@ void JKQTBasePlotter::copyData() {
     mime->setText(result);
     mime->setData("jkqtplotter/csv", qfresult.toUtf8());
     clipboard->setMimeData(mime);
-    //clipboard->setText(result);
+
     saveUserSettings();
 }
 
@@ -4619,16 +4612,17 @@ QString JKQTBasePlotter::getUserSettigsPrefix() const
 
 QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     loadUserSettings();
-    QSet<int> set;
 
+    QSet<int> set;
     QStringList cols=getDatastore()->getColumnNames();
 
-    for (int i = 0; i < cols.size(); ++i) {
-        set.insert(i);
+    for (int i = 0; i < cols.size(); ++i)
+    {
+        if (!cols[i].contains(this->legendExclusionString, Qt::CaseSensitivity::CaseInsensitive))
+        {
+            set.insert(i);
+        }
     }
-
-    set.remove(3);
-    set.remove(2);
 
     QDialog* dlg=new QDialog(nullptr, Qt::WindowMinMaxButtonsHint);
     dlg->setSizeGripEnabled(true);
@@ -4655,11 +4649,7 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     dataColumnsListWidget=new QListWidget(dlg);
 
-    qDebug()<< "LEGEND EXCLUSION STRING=" << legendExclusionString;
-
     for (int i=0; i < cols.size(); i++) {
-        qDebug() << "Col name = " << cols[i];
-
         if (set.contains(i))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
@@ -4694,10 +4684,6 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     dataColumnsListWidget=nullptr;
 
     saveUserSettings();
-
-    for (int value : set) {
-        qDebug() << "Set:" << value;
-    }
 
     return set;
 }
