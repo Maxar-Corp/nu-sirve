@@ -78,6 +78,7 @@ signals:
     void removeBadPixels(const std::vector<unsigned int>& pixels);
 
 public slots:
+    void Close();
     void SetPlaybackEnabled(bool enabled);
     void HandlePinpointControlActivation(bool status);
     void HideStencil();

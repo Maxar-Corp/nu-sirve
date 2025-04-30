@@ -247,7 +247,6 @@ void VideoPlayer::TogglePopout()
             popout_->setToolTip("Pop Out Video Player");
             original_parent_->show();
             original_parent_ = nullptr;
-
         }
         if (central_panel_)
         {
@@ -303,6 +302,13 @@ void VideoPlayer::UpdateBannerText(const QString& text)
 void VideoPlayer::UpdateManualTrackData(std::vector<TrackFrame> track_frame_input)
 {
     video_display_->UpdateManualTrackData(std::move(track_frame_input));
+}
+
+void VideoPlayer::Close()
+{
+    if (popout_dialog_) {
+        popout_dialog_->close();
+    }
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
