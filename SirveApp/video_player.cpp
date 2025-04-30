@@ -754,6 +754,11 @@ void VideoPlayer::StopRecording()
     recording_ = false;
 }
 
+void VideoPlayer::SetVideoDimensions()
+{
+    video_display_->SetVideoDimensions();
+}
+
 VideoPlayerPopout::VideoPlayerPopout(QWidget* parent, VideoPlayer* video_player): QDialog(parent), video_player_(video_player)
 {
     setWindowTitle("Video Player");
