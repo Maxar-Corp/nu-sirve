@@ -4428,6 +4428,10 @@ void SirveApp::closeEvent(QCloseEvent *event) {
     }
     cv::destroyAllWindows();
 
+    if (video_player_) {
+        video_player_->Close();
+    }
+
     event->accept();  // Proceed with closing the main window
 }
 
