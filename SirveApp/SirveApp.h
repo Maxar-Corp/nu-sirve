@@ -71,6 +71,10 @@ public:
     bool yAxisChanged = false;
     ConfigValues config_values;
 
+    const int leftWidgetStartingSize = 510;
+    const int centralWidgetStartingSize = 690;
+    const int rightWidgetStartingSize = 515;
+
     //QWidget *main_widget;
     QGridLayout *engineering_plot_layout;
 
@@ -149,8 +153,12 @@ public:
         lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field;
     QPointer<QCheckBox> chk_bad_pixels_from_original;
     QPointer<QLineEdit> txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
-    QPointer<QComboBox> cursor_color;
 
+    QPointer<QComboBox> cursor_color;
+    QPointer<QSplitter> splitter;
+
+    // this was put here in order to tweak its icon when disabling deinterlacing on D:
+    QToolBox *toolbox_image_processing;
 
     /* --------------------------------------------------------------------------------------------
         Setup & Basic Frontend Operations

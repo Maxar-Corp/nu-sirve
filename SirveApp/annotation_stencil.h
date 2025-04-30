@@ -7,6 +7,7 @@
 #include <qlabel.h>
 #include <qlineedit.h>
 #include <qlistwidget.h>
+#include <qcombobox.h>
 #include <qmessagebox.h>
 #include <qobject.h>
 #include <qpushbutton.h>

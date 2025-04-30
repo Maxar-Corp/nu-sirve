@@ -1317,8 +1317,6 @@ public:
     QAction* getActionZoomIn() const;
     /** \copydoc actZoomOut */
     QAction *getActionZoomOut() const;
-    /** \copydoc actShowPlotData */
-    QAction *getActionShowPlotData() const;
     /** \copydoc lstAdditionalPlotterActions */
     AdditionalActionsMap getLstAdditionalPlotterActions() const;
 
@@ -2755,8 +2753,6 @@ protected:
     QAction* actZoomIn;
     /** \brief QAction which triggers zoom out */
     QAction* actZoomOut;
-    /** \brief QAction to show a table with all the plot data in the datastore */
-    QAction* actShowPlotData;
     /** \brief this list contains additional actions, that can be registered by registerAdditionalAction(). They are shown in the context menu only and are e.g. used to display "save image data" actions. Each action may be in a category (key of map), which is displayed as a submenu of the context-menu! */
     AdditionalActionsMap lstAdditionalPlotterActions;
     /** \brief the current directory in which to open SaveAs ... dialogs */
@@ -2791,7 +2787,6 @@ protected:
 
 
     QListWidget* dataColumnsListWidget;
-    QComboBox* dataColumnsCombobox;
     QSet<int> getDataColumnsByUser();
     QMap<QString, QStringList> getDataColumnsByUserSaved;
 

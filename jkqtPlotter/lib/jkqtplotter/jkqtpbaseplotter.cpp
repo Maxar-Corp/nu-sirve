@@ -288,17 +288,11 @@ JKQTBasePlotter::JKQTBasePlotter(bool datastore_internal, QObject* parent, JKQTP
     actZoomOut=new QAction(QIcon(":/JKQTPlotter/jkqtp_zoomout.png"), tr("Zoom &Out"), this);
     actZoomOut->setToolTip(tr("Zoom out"));
 
-    actShowPlotData=new QAction(QIcon(":/JKQTPlotter/jkqtp_showplotdata.png"), tr("&Show Plot Data"), this);
-    actShowPlotData->setToolTip(tr("Opens a dialog that contains all data used for the plot in a table."));
-
-
-
     connect(actSavePlot,   SIGNAL(triggered()), this, SLOT(saveImage()));
     connect(actSaveData,   SIGNAL(triggered()), this, SLOT(saveData()));
     connect(actCopyData,   SIGNAL(triggered()), this, SLOT(copyData()));
     connect(actCopyPixelImage,   SIGNAL(triggered()), this, SLOT(copyPixelImage()));
     connect(actCopyMatlab,   SIGNAL(triggered()), this, SLOT(copyDataMatlab()));
-    connect(actShowPlotData,   SIGNAL(triggered()), this, SLOT(showPlotData()));
 
 #ifndef JKQTPLOTTER_COMPILE_WITHOUT_PRINTSUPPORT
     connect(actPrint,      SIGNAL(triggered()), this, SLOT(print()));
@@ -3193,10 +3187,6 @@ QAction *JKQTBasePlotter::getActionZoomOut() const {
     return this->actZoomOut;
 }
 
-QAction *JKQTBasePlotter::getActionShowPlotData() const {
-    return this->actShowPlotData;
-}
-
 JKQTBasePlotter::AdditionalActionsMap JKQTBasePlotter::getLstAdditionalPlotterActions() const {
     return this->lstAdditionalPlotterActions;
 }
@@ -3289,6 +3279,7 @@ void JKQTBasePlotter::copyData() {
     loadUserSettings();
     QString result="";
     QString qfresult;
+
     QSet<int> cols=getDataColumnsByUser();
     {
         QTextStream txt(&result);
@@ -3309,7 +3300,7 @@ void JKQTBasePlotter::copyData() {
     mime->setText(result);
     mime->setData("jkqtplotter/csv", qfresult.toUtf8());
     clipboard->setMimeData(mime);
-    //clipboard->setText(result);
+
     saveUserSettings();
 }
 
@@ -4621,40 +4612,34 @@ QString JKQTBasePlotter::getUserSettigsPrefix() const
 
 QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     loadUserSettings();
-    QSet<int> set;
 
+    QSet<int> set;
     QStringList cols=getDatastore()->getColumnNames();
+
+    for (int i = 0; i < cols.size(); ++i)
+    {
+        if (!cols[i].contains(this->legendExclusionString, Qt::CaseSensitivity::CaseInsensitive))
+        {
+            set.insert(i);
+        }
+    }
 
     QDialog* dlg=new QDialog(nullptr, Qt::WindowMinMaxButtonsHint);
     dlg->setSizeGripEnabled(true);
-    //printZoomFactor=0.95;
-    //printMagnification=1.5;
+
     QGridLayout* layout=new QGridLayout();
     dlg->setLayout(layout);
     dlg->setWindowTitle(tr("Select columns to export ..."));
     dlg->setWindowIcon(QIcon());
 
-    QLabel* lab=new QLabel(tr("<center><b>Please check the columns that should be exported in the list!</b><br>"
-                                "You may also save a selection to reuse it in future, by clicking \"Save\". "
-                                "A stored selection can be used by selecting its name in the dropdown field "
-                                "above the list widget.</center>"), dlg);
+    QLabel* lab=new QLabel(tr("<center><b>Please check the columns that should be exported.</b></center>"), dlg);
     lab->setWordWrap(true);
     layout->addWidget(lab,0,0,1,2);
 
-    dataColumnsCombobox=new QComboBox(dlg);
-    dataColumnsCombobox->addItems(getDataColumnsByUserSaved.keys());
-    connect(dataColumnsCombobox, SIGNAL(currentIndexChanged(QString)), this, SLOT(getDataColumnsByUserComboBoxSelected(QString)));
-    layout->addWidget(dataColumnsCombobox, 1,0);
-    QPushButton* btn=new QPushButton(tr("&save"), dlg);
-    connect(btn, SIGNAL(clicked()), this, SLOT(getDataColumnsByUserSave()));
-    layout->addWidget(btn, 1,1);
-
     dataColumnsListWidget=new QListWidget(dlg);
 
-    qDebug()<< "LEGEND EXCLUSION STRING=" << legendExclusionString;
-
-    for (int i=0; i<cols.size(); i++) {
-        if (legendExclusionString.length() > 0 && !cols[i].contains(legendExclusionString))
+    for (int i=0; i < cols.size(); i++) {
+        if (set.contains(i))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
             item->setCheckState(Qt::Checked);
@@ -4665,7 +4650,7 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
     connect(dataColumnsListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(getDataColumnsByUserItemChanged(QListWidgetItem*)));
     layout->addWidget(dataColumnsListWidget, 2,0,5,1);
-    btn=new QPushButton(tr("select &all"), dlg);
+    QPushButton* btn=new QPushButton(tr("select &all"), dlg);
     connect(btn, SIGNAL(clicked()), this, SLOT(getDataColumnsByUserCheckAll()));
     layout->addWidget(btn, 2,1);
     btn=new QPushButton(tr("select &none"), dlg);
@@ -4679,19 +4664,15 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     layout->setRowStretch(layout->rowCount()-2,1);
     layout->setColumnStretch(0,1);
     dlg->resize(350,500);
-    dataColumnsCombobox->setCurrentIndex(-1);
 
     if (dlg->exec()==QDialog::Accepted) {
-        for (int i=0; i<dataColumnsListWidget->count(); i++) {
-            if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked) {
-                set.insert(i);
-            }
-        }
+
     }
     delete dlg;
     dataColumnsListWidget=nullptr;
 
     saveUserSettings();
+
     return set;
 }
 
@@ -4725,11 +4706,6 @@ void JKQTBasePlotter::getDataColumnsByUserSave() {
         }
         data.sort();
         getDataColumnsByUserSaved[name]=data;
-        disconnect(dataColumnsCombobox, SIGNAL(currentIndexChanged(QString)), this, SLOT(getDataColumnsByUserComboBoxSelected(QString)));
-        dataColumnsCombobox->clear();
-        dataColumnsCombobox->addItems(getDataColumnsByUserSaved.keys());
-        dataColumnsCombobox->setCurrentIndex(dataColumnsCombobox->findText(name));
-        connect(dataColumnsCombobox, SIGNAL(currentIndexChanged(QString)), this, SLOT(getDataColumnsByUserComboBoxSelected(QString)));
     }
 }
 
@@ -4765,10 +4741,6 @@ void JKQTBasePlotter::getDataColumnsByUserItemChanged(QListWidgetItem * /*widget
             item=it.key();
         }
     }
-
-    disconnect(dataColumnsCombobox, SIGNAL(currentIndexChanged(QString)), this, SLOT(getDataColumnsByUserComboBoxSelected(QString)));
-    dataColumnsCombobox->setCurrentIndex(dataColumnsCombobox->findText(item));
-    connect(dataColumnsCombobox, SIGNAL(currentIndexChanged(QString)), this, SLOT(getDataColumnsByUserComboBoxSelected(QString)));
 }
 
 void JKQTBasePlotter::showPlotData() {
