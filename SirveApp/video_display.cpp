@@ -118,18 +118,6 @@ void VideoDisplay::InitializeToggles()
     bad_pixel_color = new_color;
 }
 
-void VideoDisplay::SetupCrosshairCursor(const QString& icon_resource)
-{
-    QPixmap crosshairs_icon(icon_resource);
-
-    if (crosshairs_icon.isNull()) {
-        qWarning("Failed to load cursor icon.");
-    } else {
-        QCursor crosshairs_cursor(crosshairs_icon);
-        lbl_image_canvas->setCursor(crosshairs_cursor);
-    }
-}
-
 void VideoDisplay::SetupCreateTrackControls()
 {
     grp_create_track = new QGroupBox("Track Editing");
@@ -203,15 +191,6 @@ void VideoDisplay::SetupPinpointDisplay()
     grp_pinpoint = new QGroupBox("Selected Pixels");
     grp_pinpoint->setStyleSheet(kBoldLargeStyleSheet);
 
-    cursor_color = new QComboBox();
-    cursor_color->addItems(ColorScheme::cursorColors.keys());
-    cursor_color->setCurrentIndex(10);
-    cursor_color->setEnabled(false);
-    QFormLayout *form_cursor_color = new QFormLayout;
-
-    form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
-    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &VideoDisplay::EditCursorColor);
-
     QHBoxLayout* pinpoint_layout = new QHBoxLayout(grp_pinpoint);
 
     lbl_pinpoint = new QLabel();
@@ -252,7 +231,6 @@ void VideoDisplay::SetupPinpointDisplay()
             &VideoDisplay::ClearPinpoints);
 
     pinpoint_layout->addWidget(btn_pinpoint);
-    pinpoint_layout->addLayout(form_cursor_color);
     pinpoint_layout->addWidget(lbl_pinpoint);
     pinpoint_layout->addStretch(1);
     pinpoint_layout->addLayout(button_layout);
@@ -294,7 +272,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairCursor(":icons/crosshair-golden.png");
+        SetVideoCursor();
         lbl_image_canvas->setAttribute(Qt::WA_Hover);
     } else {
         lbl_image_canvas->unsetCursor();
@@ -316,7 +294,7 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         ExitSelectTrackCentroidMode();
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairCursor(":icons/crosshair-golden_pinpoint.png");
+        SetVideoCursor();
     } else {
         lbl_image_canvas->unsetCursor();
     }
@@ -329,7 +307,6 @@ void VideoDisplay::HandlePinpointControlActivation(bool status)
     btn_pinpoint_bad_pixel->setEnabled(status);
     btn_pinpoint_good_pixel->setEnabled(status);
     btn_clear_pinpoints->setEnabled(status);
-    cursor_color->setEnabled(status);
 }
 
 void VideoDisplay::ReclaimLabel()
@@ -361,6 +338,30 @@ void VideoDisplay::UpdateBannerColor(const QString& input_color)
     QColor new_color(input_color);
     banner_color = new_color;
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::UpdateCursorColor(const QString& input_color)
+{
+    cursor_color = input_color;
+
+   if (btn_pinpoint->isChecked())
+   {
+       SetVideoCursor();
+   }
+}
+
+void VideoDisplay::SetVideoCursor()
+{
+    if ("auto detect" == cursor_color.toStdString())
+    {
+        lbl_image_canvas->setCursor(Qt::CrossCursor);
+        return;
+    }
+
+    QString icon_path =ColorScheme::get_cursor_icon_path(cursor_color);
+    QPixmap crosshairs_icon(icon_path);
+    QCursor crosshairs_cursor(crosshairs_icon);
+    lbl_image_canvas->setCursor(crosshairs_cursor);
 }
 
 void VideoDisplay::SetFrameTimeToggle(bool checked)
@@ -766,25 +767,6 @@ void VideoDisplay::ClearPinpoints()
     UpdateDisplayFrame();
 }
 
-void VideoDisplay::EditCursorColor()
-{
-    QString color = cursor_color->currentText();
-
-
-    std::string icon = "This is a sample string";
-
-    if ("auto detect" == cursor_color->currentText().toStdString())
-    {
-        lbl_image_canvas->setCursor(Qt::CrossCursor);
-        return;
-    }
-
-    QString icon_path =ColorScheme::get_cursor_icon_path(color);
-    QPixmap crosshairs_icon(icon_path);
-    QCursor crosshairs_cursor(crosshairs_icon);
-    lbl_image_canvas->setCursor(crosshairs_cursor);
-}
-
 void VideoDisplay::UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, arma::mat offsets_matrix0)
 {
     original_frame_vector = std::move(original);
@@ -896,7 +878,7 @@ void VideoDisplay::UpdateDisplayFrame()
             manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
         if (chk_show_crosshair->isChecked()) {
-            SetupCrosshairCursor(":icons/crosshair-golden.png");
+            SetVideoCursor();
         }
 
         if (track_details[starting_frame_number + counter - 1].has_value()) {

@@ -293,6 +293,11 @@ void VideoPlayer::UpdateBannerColor(QString color)
     video_display_->UpdateBannerColor(std::move(color));
 }
 
+void VideoPlayer::UpdateCursorColor(QString color)
+{
+    video_display_->UpdateCursorColor(std::move(color));
+}
+
 // ReSharper disable once CppMemberFunctionMayBeConst
 void VideoPlayer::UpdateBannerText(const QString& text)
 {

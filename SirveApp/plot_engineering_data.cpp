@@ -441,7 +441,6 @@ void EngineeringPlot::ToggleGraphTickSymbol()
 
     if (newSize >= 0 && newSize <= 5)
     {
-        qDebug() << "NewSize = " << newSize;
         graph->setSymbolSize(newSize);
         emit this->plotter->plotUpdated();
     }

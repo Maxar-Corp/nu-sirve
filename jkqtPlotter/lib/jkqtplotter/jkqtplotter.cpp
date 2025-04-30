@@ -1185,7 +1185,6 @@ void JKQTPlotter::initContextMenu()
     contextMenu->addAction(plotter->getActionCopyData());
     contextMenu->addAction(plotter->getActionCopyMatlab());
     contextMenu->addSeparator();
-    contextMenu->addAction(plotter->getActionShowPlotData());
     contextMenu->addSection(tr("Zooming"));
     contextMenu->addAction(plotter->getActionZoomAll());
     contextMenu->addAction(plotter->getActionZoomIn());
@@ -1720,8 +1719,6 @@ void JKQTPlotter::populateToolbar(QToolBar *toolbar) const
     toolbar->addAction(plotter->getActionCopyPixelImage());
     toolbar->addAction(plotter->getActionCopyData());
     toolbar->addAction(plotter->getActionCopyMatlab());
-    toolbar->addSeparator();
-    toolbar->addAction(plotter->getActionShowPlotData());
     toolbar->addSeparator();
     toolbar->addAction(plotter->getActionZoomAll());
     toolbar->addAction(plotter->getActionZoomIn());

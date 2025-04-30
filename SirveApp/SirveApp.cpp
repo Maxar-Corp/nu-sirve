@@ -95,13 +95,13 @@ void SirveApp::SetupUi() {
     rightWidget->setContentsMargins(0,0,0, 0);
 
     // Create a splitter
-    QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
+    splitter = new QSplitter(Qt::Horizontal, this);
 
 
     // Set minimum sizes
-    leftWidget->setMinimumWidth(510);
-    centralWidget->setMinimumWidth(690);
-    rightWidget->setMinimumWidth(515);
+    leftWidget->setMinimumWidth(leftWidgetStartingSize);
+    centralWidget->setMinimumWidth(centralWidgetStartingSize);
+    rightWidget->setMinimumWidth(rightWidgetStartingSize);
 
     leftWidget->setLayout(main_layout_col1);
     centralWidget->setLayout(main_layout_col2);
@@ -506,20 +506,38 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
     btn_add_annotations = new QPushButton("Add/Edit Annotations");
 
+    cursor_color = new QComboBox();
+    cursor_color->addItems(ColorScheme::cursorColors.keys());
+    cursor_color->setCurrentIndex(10);
+    QFormLayout *form_cursor_color = new QFormLayout;
+    form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
+
     QStringList colors = ColorScheme::get_track_colors();
     cmb_text_color = new QComboBox();
     cmb_text_color->addItems(colors);
     QFormLayout *form_text_color = new QFormLayout;
     form_text_color->addRow(tr("&Text Color"),cmb_text_color);
+
     QSpacerItem *vspacer_item10 = new QSpacerItem(1,10);
     vlayout_overlay_controls_col1->addItem(vspacer_item10);
+    vlayout_overlay_controls_col2->addItem(vspacer_item10);
+
     vlayout_overlay_controls_col1->addLayout(form_text_color);
-    vlayout_overlay_controls_col1->addWidget(chk_sensor_track_data);
-    vlayout_overlay_controls_col1->addWidget(chk_show_time);
+    vlayout_overlay_controls_col1->addLayout(form_cursor_color);
+
     vlayout_overlay_controls_col2->addWidget(btn_change_banner_text);
     vlayout_overlay_controls_col2->addWidget(btn_add_annotations);
+
+
+    vlayout_overlay_controls_col1->addWidget(chk_sensor_track_data);
+    vlayout_overlay_controls_col2->addWidget(chk_show_time);
+
+
+
     hlayout_overlay_controls->addLayout(vlayout_overlay_controls_col1);
     hlayout_overlay_controls->addLayout(vlayout_overlay_controls_col2);
+
+
     hlayout_overlay_controls->insertStretch(-1,0);
     hlayout_overlay_controls->insertStretch(0,0);
 
@@ -793,7 +811,7 @@ QWidget* SirveApp::SetupProcessingTab() {
     hlayout_deinterlacing->addLayout(vlayout_deinterlacing);
     hlayout_deinterlacing->insertStretch(-1,0);
 
-    QToolBox *toolbox_image_processing = new QToolBox();
+    toolbox_image_processing = new QToolBox();
     toolbox_image_processing->addItem(grpbox_bad_pixels_correction,QString("Bad Pixel Correction"));
     toolbox_image_processing->addItem(grpbox_image_processing,QString("Noise Suppression"));
     toolbox_image_processing->addItem(grpbox_deinterlacing,QString("Deinterlacing"));
@@ -1134,9 +1152,11 @@ void SirveApp::SetupConnections() {
     connect(chk_show_time, &QCheckBox::stateChanged, video_player_, &VideoPlayer::SetFrameTimeToggle);
     connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditColorMap);
     connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditBannerColor);
+    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditCursorColor);
 
     connect(btn_add_annotations, &QPushButton::clicked, this, &SirveApp::AnnotateVideo);
     connect(btn_change_banner_text, &QPushButton::clicked, this, &SirveApp::EditBannerText);
+
 
     //---------------------------------------------------------------------------
 
@@ -1726,12 +1746,31 @@ void SirveApp::HandleAbpBFileSelected()
 {
     abp_file_type = ABPFileType::ABP_B;
     HandleAbpFileSelected();
+    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+        {
+            toolbox_image_processing->setItemEnabled(i, true);
+            toolbox_image_processing->setItemIcon(i, QIcon());
+        }
+    }
 }
 
 void SirveApp::HandleAbpDFileSelected()
 {
     abp_file_type = ABPFileType::ABP_D;
     HandleAbpFileSelected();
+    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+        {
+            QIcon icon(":/icons/no-ghosts.png");
+
+            // Set same pixmap for Disabled mode
+            icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
+
+            toolbox_image_processing->setItemIcon(i, icon);
+            toolbox_image_processing->setItemEnabled(i, false);
+        }
+    }
 }
 
 void SirveApp::HandleAbpFileSelected()
@@ -1748,7 +1787,8 @@ void SirveApp::HandleAbpFileSelected()
     lbl_processing_description->setText("");
 
     bool validated = ValidateAbpFiles(file_selection);
-    if (validated) {
+    if (validated)
+    {
         LoadOsmData();
         QFileInfo fileInfo(file_selection);
         abpimage_file_base_name = fileInfo.baseName();
@@ -1769,7 +1809,8 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
             txt_start_frame->setStyleSheet(orange_styleSheet);
             txt_stop_frame->setStyleSheet(orange_styleSheet);
         }
-        else{
+        else
+        {
             txt_start_frame->setEnabled(false);
             txt_stop_frame->setEnabled(false);
             btn_get_frames->setEnabled(false);
@@ -2007,6 +2048,21 @@ void SirveApp::UiLoadAbirData()
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
+
+    QList<int> sizes = splitter->sizes();
+    // expand frame for d data
+    if (abp_file_type == ABPFileType::ABP_D)
+    {
+        // collapse right panel and let video take its space
+        sizes[1] += sizes[2];
+        sizes[2] = 0;
+
+    }else
+    {
+        sizes[1] = centralWidgetStartingSize;
+        sizes[2] = rightWidgetStartingSize;
+    }
+    splitter->setSizes(sizes);
 }
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)
@@ -2737,6 +2793,7 @@ void SirveApp::EditBannerText()
     }
 }
 
+
 void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
 {
     bool ok;
@@ -2866,6 +2923,12 @@ void SirveApp::EditBannerColor()
 {
     QString color = cmb_text_color->currentText();
     video_player_->UpdateBannerColor(std::move(color));
+}
+
+void SirveApp::EditCursorColor()
+{
+    QString color = cursor_color->currentText();
+    video_player_->UpdateCursorColor(std::move(color));
 }
 
 void SirveApp::EditOSMTrackColor()
