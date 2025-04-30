@@ -1391,6 +1391,25 @@ void VideoDisplay::InitializeStencilData(AnnotationInfo data)
     annotation_stencil->InitializeData(std::move(data));
 }
 
+void VideoDisplay::SetVideoDimensions()
+{
+    //get the length width, need to apply corrections for larger d data screen size
+    height = lbl_image_canvas->pixmap().height();
+    width = lbl_image_canvas->pixmap().width();
+
+    // if x, ychange then rows and columns and resolutions needs to be changed
+    nRows = height;
+    nCols = width;
+
+    zoom_manager.Clear(width, height);
+    ReceiveVideoData(width, height);
+    
+    QScreen* screen = QApplication::primaryScreen();
+    screenResolution = screen->size();
+
+
+}
+
 void VideoDisplay::DisplayManualBox(QPoint pt)
 {
     if (in_track_creation_mode) {
@@ -1398,3 +1417,5 @@ void VideoDisplay::DisplayManualBox(QPoint pt)
         UpdateDisplayFrame();
     }
 }
+
+

@@ -66,6 +66,7 @@ public:
     void ToggleOsmTracks(bool input);
     void TogglePopout();
     void UpdateBannerColor(QString color);
+    void SetVideoDimensions();
     void UpdateBannerText(const QString& text);
     void UpdateManualTrackData(std::vector<TrackFrame> track_frame_input);
 
