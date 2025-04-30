@@ -2787,7 +2787,6 @@ protected:
 
 
     QListWidget* dataColumnsListWidget;
-    QComboBox* dataColumnsCombobox;
     QSet<int> getDataColumnsByUser();
     QMap<QString, QStringList> getDataColumnsByUserSaved;
 
