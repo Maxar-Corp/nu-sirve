@@ -153,6 +153,8 @@ public:
         lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field;
     QPointer<QCheckBox> chk_bad_pixels_from_original;
     QPointer<QLineEdit> txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
+
+    QPointer<QComboBox> cursor_color;
     QPointer<QSplitter> splitter;
 
     // this was put here in order to tweak its icon when disabling deinterlacing on D:
@@ -246,6 +248,7 @@ private:
     void EditBadPixelColor();
     void EditBannerColor();
     void EditBannerText();
+    void EditCursorColor();
     void EditClassificationText(int plot_tab_index, QString current_value);
     void EditColorMap();
     void EditOSMTrackColor();

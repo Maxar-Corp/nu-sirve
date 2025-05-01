@@ -2,7 +2,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
-
+#include <QComboBox>
 #include "shared_tracking_functions.h"
 
 #include <QFileDialog>
@@ -116,18 +116,6 @@ void VideoDisplay::InitializeToggles()
     OSM_track_color = QString("blue");
     QColor new_color(QString("yellow"));
     bad_pixel_color = new_color;
-}
-
-void VideoDisplay::SetupCrosshairCursor(const QString& icon_resource)
-{
-    QPixmap crosshairs_icon(icon_resource);
-
-    if (crosshairs_icon.isNull()) {
-        qWarning("Failed to load cursor icon.");
-    } else {
-        QCursor crosshairs_cursor(crosshairs_icon);
-        lbl_image_canvas->setCursor(crosshairs_cursor);
-    }
 }
 
 void VideoDisplay::SetupCreateTrackControls()
@@ -284,7 +272,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
         btn_pinpoint->setChecked(false);
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairCursor(":icons/crosshair-golden.png");
+        SetVideoCursor();
         lbl_image_canvas->setAttribute(Qt::WA_Hover);
     } else {
         lbl_image_canvas->unsetCursor();
@@ -306,7 +294,7 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
         ExitSelectTrackCentroidMode();
         is_zoom_active = false;
         is_calculate_active = false;
-        SetupCrosshairCursor(":icons/crosshair-golden_pinpoint.png");
+        SetVideoCursor();
     } else {
         lbl_image_canvas->unsetCursor();
     }
@@ -350,6 +338,30 @@ void VideoDisplay::UpdateBannerColor(const QString& input_color)
     QColor new_color(input_color);
     banner_color = new_color;
     UpdateDisplayFrame();
+}
+
+void VideoDisplay::UpdateCursorColor(const QString& input_color)
+{
+    cursor_color = input_color;
+
+   if (btn_pinpoint->isChecked())
+   {
+       SetVideoCursor();
+   }
+}
+
+void VideoDisplay::SetVideoCursor()
+{
+    if ("auto detect" == cursor_color.toStdString())
+    {
+        lbl_image_canvas->setCursor(Qt::CrossCursor);
+        return;
+    }
+
+    QString icon_path =ColorScheme::get_cursor_icon_path(cursor_color);
+    QPixmap crosshairs_icon(icon_path);
+    QCursor crosshairs_cursor(crosshairs_icon);
+    lbl_image_canvas->setCursor(crosshairs_cursor);
 }
 
 void VideoDisplay::SetFrameTimeToggle(bool checked)
@@ -866,7 +878,7 @@ void VideoDisplay::UpdateDisplayFrame()
             manual_ROI_painter.drawRect(manual_ROI_rectangle);
         }
         if (chk_show_crosshair->isChecked()) {
-            SetupCrosshairCursor(":icons/crosshair-golden.png");
+            SetVideoCursor();
         }
 
         if (track_details[starting_frame_number + counter - 1].has_value()) {
