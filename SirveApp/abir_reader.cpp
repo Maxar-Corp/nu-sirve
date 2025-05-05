@@ -309,6 +309,11 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             Read(image_data.get(), static_cast<uint32_t>(header_data.image_size));
         }
 
+        for (size_t i = 0; i < header_data.image_size; ++i)
+        {
+            image_data[i] = image_data[i] & 0x3FFF; // Mask lower 14 bits
+        }
+
         video_frames_16bit.emplace_back(image_data.get(), image_data.get() + header_data.image_size);
         image_data.reset();
 
