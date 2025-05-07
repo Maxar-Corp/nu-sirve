@@ -176,7 +176,12 @@ void EngineeringPlot::PlotSirveTracks()
                 }
             }
         }
-        AddSeriesWithColor(x_values, y_values, track_id);
+
+        size_t columnX, columnY;
+
+        DeleteGraphIfExists("Track " + QString::number(track_id));
+        AddTrack(x_values, y_values, track_id, columnX, columnY);
+        AddGraph(track_id, columnX, columnY);
     }
 }
 
@@ -500,33 +505,8 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
     }
 }
 
-void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, int track_id)
+void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
 {
-    QString title = "Track " + QString::number(track_id);
-
-    DeleteGraphIfExists(title);
-
-    QVector<double> X(x_values.begin(), x_values.end());
-    QVector<double> Y(y_values.begin(), y_values.end());
-
-    QString titleX = "Track " + QString::number(track_id) + " x";
-    QString titleY = "Track " + QString::number(track_id) + " y";
-
-     QList<QString> names = ds->getColumnNames();
-
-    size_t columnX;
-    size_t columnY;
-
-    if (!names.contains(titleX))
-    {
-        columnX=ds->addCopiedColumn(X, titleX);
-        columnY=ds->addCopiedColumn(Y, titleY);
-    }
-    else {
-        columnX=(size_t)names.indexOf(titleX);
-        columnY=(size_t)names.indexOf(titleY);
-    }
-
     graph=new JKQTPXYLineGraph(this);
 
     graph->setXColumn(columnX);
@@ -538,6 +518,27 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     graph->setSymbolType(JKQTPNoSymbol);
 
     this->addGraph(graph);
+}
+
+void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
+{
+    QVector<double> X(x_values.begin(), x_values.end());
+    QVector<double> Y(y_values.begin(), y_values.end());
+
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
+     QList<QString> names = ds->getColumnNames();
+
+    if (!names.contains(titleX))
+    {
+        columnX=ds->addCopiedColumn(X, titleX);
+        columnY=ds->addCopiedColumn(Y, titleY);
+    }
+    else {
+        columnX=(size_t)names.indexOf(titleX);
+        columnY=(size_t)names.indexOf(titleY);
+    }
 }
 
 void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)

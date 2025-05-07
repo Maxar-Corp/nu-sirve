@@ -66,7 +66,8 @@ public:
 
     const QVector<double>& getColumn(size_t index) const;
 
-    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
+    void AddGraph(int track_id, size_t &columnX, size_t&columnY);
+    void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
