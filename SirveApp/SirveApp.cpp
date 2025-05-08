@@ -1272,11 +1272,7 @@ void SirveApp::ImportTracks()
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
                 video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
-                for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-                {
-                    plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-                }
-
+                plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
                 plot_palette->PlotAllSirveTracks();
             }
         }
@@ -1307,11 +1303,8 @@ void SirveApp::ImportTracks()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));;
-            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-            {
-                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            }
 
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
             plot_palette->PlotAllSirveTracks();
         }
 
@@ -1452,15 +1445,9 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
         video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
-        for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-        {
-            plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        }
-
-
-        //plot_palette->PlotAllSirveTracks();
+        plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        plot_palette->PlotAllSirveTracks();
 
         if (!existing_track_TF)
         {
@@ -4138,10 +4125,8 @@ void SirveApp::ExecuteAutoTracking()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-            {
-                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            }
+
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
             plot_palette->PlotAllSirveTracks();;
 
             cmb_manual_track_IDs->clear();

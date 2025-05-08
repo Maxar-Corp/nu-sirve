@@ -37,6 +37,7 @@ public:
     void SetAbirDataLoaded(bool abir_data_loaded);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void UpdatePlotLabel(int tab_id, QString label);
+    void UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame>, std::set<int>);
 
 protected:
     void mouseDoubleClickEvent (QMouseEvent *event) override;
