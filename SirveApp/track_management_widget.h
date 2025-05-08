@@ -31,6 +31,7 @@ signals:
 
 private:
     QWidget* CreateTrackControl(int id);
+    QColor GetCurrentTrackColor(int id);
     void HandleTrackColorSelection(int id, int index);
     void HandleDisplayTrack(int id);
     void HandleHideTrack(int id);

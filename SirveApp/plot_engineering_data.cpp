@@ -219,11 +219,17 @@ void EngineeringPlot::PlotSirveTracks()
 
         if (AddTrack(x_values, y_values, track_id, columnX, columnY))
         {
+            qDebug() << "columnX = " << columnX;
+            qDebug() << "columnY = " << columnY;
             AddGraph(track_id, columnX, columnY);
         }
         else
         {
             ReplaceTrack(x_values, y_values, track_id);
+            DeleteGraphIfExists("Track " + QString::number(track_id));
+            qDebug() << "columnX = " << columnX;
+            qDebug() << "columnY = " << columnY;
+            AddGraph(track_id, columnX, columnY);
         }
     }
     print_ds(ds);
@@ -590,31 +596,31 @@ bool EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double>
 void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
 {
     qDebug() << "Replacing Track...";
+    qDebug() << "Length of x = " << x.size();
+
     QList<QString> names = ds->getColumnNames();
+
+    QString x_column_to_search_for = "Track " + QString::number(track_id) + " x";
+    int col_index_found;
 
     for (int j=0; j < ds->getColumnCount(); j++)
     {
         qDebug() << "j=" << j;
-        qDebug() << names[j];
+        if (QString(names[j]) == x_column_to_search_for)
+        {
+            col_index_found = j;
+            qDebug() << "index_found = " << col_index_found;
+        }
     }
 
-    // for (int i = 0; i < ds->getMaxRows(); i++)
-    // {
-    //     QString row = *new QString();
-    //     for (int j=0; j < ds->getColumnCount(); j++)
-    //     {
-    //         double val = ds->get(j, i);
+    for (size_t row_index = 0; row_index < x.size(); ++row_index)
+    {
 
-    //         ds->set(0,1.0,2.0);
-
-    //     }
-
-    // }
-
-
-    // use ds->set(0,1.0,2.0); to copy the numbers from the two new columns into the two old columns
+        qDebug() << y[row_index] << " ";
+        ds->set(col_index_found, row_index, x[row_index]);
+        ds->set(col_index_found+1, row_index, y[row_index]);
+    }
 }
-
 
 void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 {
