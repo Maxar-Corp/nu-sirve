@@ -140,7 +140,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     }
     else if (type == Enums::PlotType::Elevation)
     {
-        func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
+        func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
     }
     else if (type == Enums::PlotType::FovX)
     {
@@ -152,7 +152,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     }
     else if (type == Enums::PlotType::Boresight_Elevation)
     {
-        func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+        func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
     }
     else if (type == Enums::PlotType::Irradiance)
     {
