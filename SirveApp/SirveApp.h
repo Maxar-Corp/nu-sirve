@@ -166,7 +166,7 @@ public:
 
     static QString CreateEpochString(const std::vector<double>& new_epoch);
     void    DisplayOriginalEpoch(const QString& new_epoch_string);
-    void    FramePlotSpace();
+
     static SirveApp* GetMainWindow();
     const QVector<QRgb>& GetStartingColorTable() const;
     StateManager& GetStateManager();

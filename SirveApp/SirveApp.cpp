@@ -1277,7 +1277,7 @@ void SirveApp::ImportTracks()
                     plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
                 }
 
-                FramePlotSpace();
+                plot_palette->PlotAllSirveTracks();
             }
         }
         else
@@ -1312,7 +1312,7 @@ void SirveApp::ImportTracks()
                 plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
             }
 
-            FramePlotSpace();
+            plot_palette->PlotAllSirveTracks();
         }
 
     }
@@ -1460,7 +1460,7 @@ void SirveApp::HandleFinishCreateTrackClick()
         }
 
 
-        FramePlotSpace();
+        //plot_palette->PlotAllSirveTracks();
 
         if (!existing_track_TF)
         {
@@ -1505,14 +1505,14 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     // TODO: Check this!
     video_player_->HideManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color); // Why painting black here?
-    FramePlotSpace();
+    plot_palette->PlotAllSirveTracks();
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
 {
     video_player_->ShowManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color);
-    FramePlotSpace();
+    plot_palette->PlotAllSirveTracks();
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1542,7 +1542,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
         plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     }
 
-    FramePlotSpace();
+    plot_palette->PlotAllSirveTracks();
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color)
@@ -1553,11 +1553,6 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color
         plot_palette->RecolorManualTrack(index, track_id, new_color);
     }
 
-    FramePlotSpace();
-}
-
-void SirveApp::FramePlotSpace()
-{
     plot_palette->PlotAllSirveTracks();
 }
 
@@ -4147,7 +4142,7 @@ void SirveApp::ExecuteAutoTracking()
             {
                 plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
             }
-            FramePlotSpace();
+            plot_palette->PlotAllSirveTracks();;
 
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
