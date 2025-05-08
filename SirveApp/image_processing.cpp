@@ -713,184 +713,91 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
     return arma::conv_to<std::vector<uint16_t>>::from(output.as_col());
 }
 
-
-void ImageProcessing::TranslateFrameByOffsetsManual(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset, int xOffset_correction, int yOffset_correction)
+static bool OffsetFrame(const std::map<int, TrackDetails>& track_map, const arma::mat& frame, int track_id,
+    const QPoint& correction, QPoint& out_offsets, arma::mat& output)
 {
-    yOffset = td.centroid_y - yOffset_correction;
-    xOffset = td.centroid_x- xOffset_correction;
-    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-    cont_search = false;
-}
+    const TrackDetails* td = nullptr;
+    if (track_id >= 0) {
+        // Find the track by ID
+        const auto it = track_map.find(track_id);
+        if (it != track_map.end() && it->second.number_pixels != 0) {
+            td = &it->second;
+        }
+    } else {
+        // Find the first valid track
+        const auto it = std::find_if(track_map.begin(), track_map.end(), [](const auto& item) {
+            return item.second.number_pixels != 0;
+        });
 
-void ImageProcessing::TranslateFramesByOffsetOsm(int &yOffset, std::vector<std::vector<int>>& track_centered_offsets, bool &cont_search, arma::mat &frame, int &xOffset, arma::mat &output, int &framei, TrackDetails &td)
-{
-    yOffset = td.centroid_y;
-    xOffset = td.centroid_x;
-    output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
-    track_centered_offsets.push_back({framei+1,xOffset,yOffset});
-    cont_search = false;
+        if (it != track_map.end()) {
+            td = &it->second;
+        }
+    }
+
+    if (!td) {
+        return false;
+    }
+
+    out_offsets = {td->centroid_x - correction.x(), td->centroid_y - correction.y()};
+    output = arma::shift(arma::shift(frame, -out_offsets.y(), 0), -out_offsets.x(), 1);
+    return true;
 }
 
 std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString& trackTypePriority,
-    const VideoDetails& original, int OSM_track_id, int manual_track_id, const std::vector<TrackFrame>& osmFrames,
-    const std::vector<TrackFrame>& manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets)
+    const VideoDetails& original, int osm_track_id, int manual_track_id, const std::vector<TrackFrame>& osm_frames,
+    const std::vector<TrackFrame>& manual_frames, bool any_track, std::vector<std::vector<int>> & out_offsets)
 {
-    // Initialize output
-    std::vector<std::vector<uint16_t>> frames_out;
+    std::vector<std::vector<uint16_t>> out;
 
-    int num_video_frames = original.frames_16bit.size();
-    int nRows = original.y_pixels, yOffset_correction = nRows/2;
-    int nCols = original.x_pixels, xOffset_correction = nCols/2;
-    int yOffset, xOffset;
-    int OSMPriority = QString::compare(trackTypePriority, "OSM", Qt::CaseInsensitive);
-    arma::mat output(nRows, nCols);
-    arma::mat frame(nRows, nCols);
-    std::vector<TrackFrame> trackFrames = manualFrames;
-    bool cont_search;
+    QSize size (original.x_pixels, original.y_pixels);
+    auto osm_priority = QString::compare(trackTypePriority, "OSM", Qt::CaseInsensitive) == 0;
+    auto num_frames = (int) osm_frames.size();
 
-    // Recenter the cube, frame by frame, for both non-OSM ('manual') tracks, and for the OSM track (track_id==0).
-    for (int framei = 0; framei < num_video_frames; framei++)
-    {
-        UpdateProgressBar(framei);
+    const std::vector<TrackFrame> *primary_frames, *secondary_frames;
+    QPoint primary_correction, secondary_correction;
+    if (osm_priority) {
+        primary_frames = &osm_frames;
+        secondary_frames = &manual_frames;
+        primary_correction = {0, 0};
+        secondary_correction = {size.width() / 2, size.height() / 2};
+    } else {
+        primary_frames = &manual_frames;
+        secondary_frames = &osm_frames;
+        primary_correction = {size.width() / 2, size.height() / 2};
+        secondary_correction = {0, 0};
+    }
+
+    arma::mat frame(size.width(), size.height());
+    arma::mat output(size.width(), size.height());
+
+    for (int i = 0; i < num_frames; ++i) {
+        UpdateProgressBar(i);
         QCoreApplication::processEvents();
-        if (cancel_operation)
-        {
+        if (cancel_operation) {
             return std::vector<std::vector<uint16_t>>();
         }
 
-        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[framei]),nCols,nRows).t();
+        frame = arma::reshape(arma::conv_to<arma::vec>::from(original.frames_16bit[i]), size.width(), size.height()).t();
         output = frame;
+        QPoint offsets;
 
-        if (OSMPriority == 0) //OSM tracks have priority
-        {
-            cont_search = true;
-            std::map<int, TrackDetails> trackMap = osmFrames[framei].tracks;
-
-            auto it = trackMap.find(OSM_track_id);
-            if(OSM_track_id>0 && it != trackMap.end()) //Specific track id
-            {
-                TrackDetails td = it->second;
-                if (td.number_pixels != 0)
-                {
-                    TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
-                }
-            }
-            else //Search for first track
-            {
-                auto it = trackMap.begin();
-                while (cont_search && it != trackMap.end())
-                {
-                    TrackDetails td = it->second;
-                    if (td.number_pixels != 0)
-                    {
-                        TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
-                    }
-                    else
-                    {
-                        ++it;
-                    }
-                }
-            }
-
-            trackMap = manualFrames[framei].tracks;
-
-            if(cont_search && findAnyTrack) //Now search for manual tracks
-            {
-                auto it = trackMap.find(manual_track_id);
-                if(manual_track_id > 0 && it != trackMap.end()) //Specific track id
-                {
-                    TrackDetails td = it->second;
-                    if (td.number_pixels != 0)
-                    {
-                        TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
-                    }
-                }
-                else
-                {
-                    if(trackMap.size()>0)
-                    {
-                        cont_search = true;
-                        auto it = trackMap.begin();
-                        while (cont_search && it != trackMap.end())
-                        {
-                            TrackDetails td = it->second;
-                            if (td.number_pixels != 0)
-                            {
-                                TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
-                            }
-                            else
-                            {
-                                ++it;
-                            }
-                        }
-                    }
-                }
-            }
+        // Try the primary tracks first
+        auto good = OffsetFrame(primary_frames->at(i).tracks, frame, osm_track_id, primary_correction, offsets, output);
+        if (!good && any_track) {
+            // If no valid tracks were found, try the secondary tracks, if any_track is true
+            good = OffsetFrame(
+                secondary_frames->at(i).tracks, frame, manual_track_id, secondary_correction, offsets, output);
         }
-        else //Manual Tracks have priority
-        {
-            cont_search = true;
-            std::map<int, TrackDetails> trackMap = manualFrames[framei].tracks;
 
-            auto it = trackMap.find(manual_track_id);
-            if(manual_track_id > 0 && it != trackMap.end()) //Specific track id
-            {
-                TrackDetails td = it->second;
-                if (td.number_pixels != 0)
-                {
-                    TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
-                }
-            }
-            else //Search for first track
-            {
-                auto it = trackMap.begin();
-                while (cont_search && it != trackMap.end())
-                {
-                    TrackDetails td = it->second;
-                    if (td.number_pixels != 0){
-                        TranslateFrameByOffsetsManual(td, frame, cont_search, framei, xOffset, output, track_centered_offsets, yOffset, xOffset_correction, yOffset_correction);
-                    }
-                    else
-                    {
-                        ++it;
-                    }
-                }
-            }
-
-            if(cont_search && findAnyTrack) // Now search for OSM tracks
-            {
-                std::map<int, TrackDetails> trackMap = osmFrames[framei].tracks;
-
-                auto it = trackMap.find(OSM_track_id);
-                if(OSM_track_id>0 && it != trackMap.end()) //Specific track id
-                {
-                    TrackDetails td = it->second;
-                    if (td.number_pixels != 0)
-                    {
-                        TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
-                    }
-                }
-                else{
-                    auto it = trackMap.begin();
-                    while (cont_search && it != trackMap.end())
-                    {
-                        TrackDetails td = it->second;
-                        if (td.number_pixels != 0){
-                            TranslateFramesByOffsetOsm(yOffset, track_centered_offsets, cont_search, frame, xOffset, output, framei, td);
-                        }
-                        else
-                        {
-                            ++it;
-                        }
-                    }
-                }
-            }
+        if (good) {
+            out_offsets.push_back({i+1, offsets.x(), offsets.y()});
+            out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
+        } else {
+            out.push_back(original.frames_16bit[i]);
         }
-        frames_out.push_back(arma::conv_to<std::vector<uint16_t>>::from(output.t().as_col()));
     }
 
-    return frames_out;
+    return out;
 }
 
 std::vector<std::vector<uint16_t>> ImageProcessing::CenterImageFromOffsets(const VideoDetails & original, const std::vector<std::vector<int>>& track_centered_offsets)

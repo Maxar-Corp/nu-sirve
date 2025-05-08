@@ -148,7 +148,11 @@ void StateManager::pop_back(bool emit_state_removed, bool emit_update_display)
 
 void StateManager::erase(size_t idx, bool emit_update_display)
 {
-	erase(processing_states.begin() + idx, emit_update_display);
+	if (idx < processing_states.size()) {
+		erase(processing_states.begin() + idx, emit_update_display);
+	} else {
+		qDebug() << "StateManager::erase: index out of range";
+	}
 }
 
 void StateManager::erase(const const_iterator& it, bool emit_update_display)

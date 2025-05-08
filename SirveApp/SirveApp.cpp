@@ -3573,28 +3573,32 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
 
     QPointer image_processor = CreateImageProcessor();
 
+    connect(image_processor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);
+
     new_state.details.frames_16bit = image_processor->CenterOnTracks(trackFeaturePriority, new_state.details,
         OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
 
     if (new_state.details.frames_16bit.size() > 0)
     {
         auto method = osm_priority == 0 ? ProcessingMethod::center_on_OSM : ProcessingMethod::center_on_manual;
-        state_manager_->push_back(std::move(new_state), method);
-        auto& last = state_manager_->back();
-        last.offsets = track_centered_offsets;
+        new_state.offsets = track_centered_offsets;
 
         osm_priority = QString::compare(trackFeaturePriority, "OSM", Qt::CaseInsensitive);
         int track_id = osm_priority == 0 ? OSM_track_id : manual_track_id;
-        last.track_id = track_id;
+        new_state.track_id = track_id;
 
         arma::mat offsets_matrix;
-        SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
-        last.offsets_matrix = offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0, num_frames-1, new_state, offsets_matrix);
+        new_state.offsets_matrix = std::move(offsets_matrix);
+
+        state_manager_->push_back(std::move(new_state), method);
 
         // TODO: Shouldn't this be handled by a signal?
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
+    image_processor->deleteLater();
 }
 
 void SirveApp::CenterOnOffsets(const QString& trackFeaturePriority, int track_id, const std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
@@ -4257,6 +4261,9 @@ void SirveApp::DeleteState()
                 }
             }
             std::sort(delete_states_i.begin(), delete_states_i.end(), std::greater<size_t>());
+            auto it = std::unique(delete_states_i.begin(), delete_states_i.end());
+            delete_states_i.erase(it, delete_states_i.end());
+
             for (auto i = 0; i <  delete_states_i.size() ;i++){
                 cmb_processing_states->removeItem(delete_states_i[i]);
                 state_manager_->erase(delete_states_i[i]);

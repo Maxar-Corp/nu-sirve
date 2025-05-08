@@ -61,6 +61,7 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, A
     {
         //Here we retain all the track "engineering" data (boresight lat/long, ifov, dcm)
         //This is required to later calculate az/el for manual tracks
+        // TODO: This should be a TrackEngineeringData constructor/assignment operator
         track_engineering_data[i].boresight_lat = osm_file_frames[i].data.lla[0];
         track_engineering_data[i].boresight_long = osm_file_frames[i].data.lla[1];
         track_engineering_data[i].dcm = osm_file_frames[i].data.dcm;
@@ -71,12 +72,23 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, A
         
         for (int track_index = 0; track_index < number_tracks; track_index++)
         {
-            //This is the "ideal" representation of a track
-            //For each frame (TrackFrame), there is information about any tracks in that frame (TrackDetails)
-            //The track details are mapped (hash table/lookup) by their track_id
+            // This is the "ideal" representation of a track
+            // For each frame (TrackFrame), there is information about any tracks in that frame (TrackDetails)
+            // The track details are mapped (hash table/lookup) by their track_id
+            // TODO: std::map is not a hash table, it's a red-black tree, which is not the best choice for performance.
+            const TrackData& track_data = osm_file_frames[i].data.track_data[track_index];
+            // TODO: This should be a TrackDetails constructor/assignment operator
             TrackDetails td;
-            td.centroid_x = std::lround(osm_file_frames[i].data.track_data[track_index].centroid_x);
-            td.centroid_y = std::lround(osm_file_frames[i].data.track_data[track_index].centroid_y);
+            td.centroid_x = std::lround(track_data.centroid_x);
+            td.centroid_y = std::lround(track_data.centroid_y);
+            td.az = osm_file_frames[i].data.track_data[track_index].az_el_track[0];
+            td.el = osm_file_frames[i].data.track_data[track_index].az_el_track[1];
+            td.number_pixels = (int)osm_file_frames[i].data.track_data[track_index].num_pixels;
+            td.bbox_x = std::min(track_data.roiBLX, track_data.roiURX);
+            td.bbox_y = std::min(track_data.roiBLY, track_data.roiURY);
+            td.bbox_width = std::abs((int)track_data.roiURX - (int)track_data.roiBLX);
+            td.bbox_height = std::abs((int)track_data.roiURY - (int)track_data.roiBLY);
+
             int track_id = osm_file_frames[i].data.track_data[track_index].track_id;
             osm_track_ids.insert(track_id);
             osm_frames[i].tracks[track_id] = td;
@@ -84,6 +96,7 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, A
             //This is a "combined" track representation that I'm only keeping around because I'm not smart enough to replace it yet
             //Across frames, it treats the first track as track 0, the second as track 1, etc.
             //In the future, we'll want to change this and the plotting code to stop merging tracks
+            // TODO: This should be a PlottingTrackDetails constructor/assignment operator
             PlottingTrackDetails ptd;
 
             //Note: This line assumes that there is only a single ir band, code will need updated if this changes
