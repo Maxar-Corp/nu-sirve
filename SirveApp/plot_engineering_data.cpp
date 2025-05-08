@@ -230,6 +230,7 @@ void EngineeringPlot::PlotSirveTracks()
             qDebug() << "columnX = " << columnX;
             qDebug() << "columnY = " << columnY;
             AddGraph(track_id, columnX, columnY);
+            this->plotter->plotUpdated();
         }
     }
     print_ds(ds);
@@ -617,6 +618,8 @@ void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y,
     }
 
     // Need to resize the column here?
+    ds->resizeColumn(col_index_found, x.size());
+    ds->resizeColumn(col_index_found+1, x.size());
 
     for (size_t row_index = 0; row_index < x.size(); ++row_index)
     {
