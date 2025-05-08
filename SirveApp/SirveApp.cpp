@@ -1883,8 +1883,8 @@ void SirveApp::LoadOsmData()
 
     //  Set up new plots as we do in the plot designer class:
     HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    //HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    //HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
 
     osmDataLoaded = true;
 
