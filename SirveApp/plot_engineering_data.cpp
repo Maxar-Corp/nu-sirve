@@ -557,6 +557,9 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
 {
+    qDebug() << "Inside AddGrph";
+    print_ds(ds);
+
     graph=new JKQTPXYLineGraph(this);
 
     graph->setXColumn(columnX);
@@ -613,9 +616,10 @@ void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y,
         }
     }
 
+    // Need to resize the column here?
+
     for (size_t row_index = 0; row_index < x.size(); ++row_index)
     {
-
         qDebug() << y[row_index] << " ";
         ds->set(col_index_found, row_index, x[row_index]);
         ds->set(col_index_found+1, row_index, y[row_index]);
@@ -665,7 +669,10 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
     }
 
     if (graph_exists)
+    {
+        qDebug() << "Deleting graph";
         this->getGraphs().removeAt(index);
+    }
 }
 
 void EngineeringPlot::DefineFullPlotInterval()
