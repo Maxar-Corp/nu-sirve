@@ -1382,6 +1382,8 @@ void SirveApp::PrepareForTrackCreation(int track_id)
 
 void SirveApp::HandleFinishCreateTrackClick()
 {
+    qDebug() << "Finishing track creation...";
+
     const auto& created_track_details = video_player_->GetCreatedTrackDetails();
     bool any_contents = false;
     for (int i = 0; i < created_track_details.size(); i++)
@@ -1447,6 +1449,7 @@ void SirveApp::HandleFinishCreateTrackClick()
         video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
         plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        qDebug() << "About to call PlotAllSirveTracks from within HandleFinishCreateTrackClick";
         plot_palette->PlotAllSirveTracks();
 
         if (!existing_track_TF)
@@ -1492,6 +1495,7 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     // TODO: Check this!
     video_player_->HideManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color); // Why painting black here?
+    qDebug() << "About to call PlotAllSirveTracks from within HandleHideManualTrackId";
     plot_palette->PlotAllSirveTracks();
 }
 
@@ -1529,6 +1533,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
         plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     }
 
+    qDebug() << "About to call PlotAllSirveTracks from within HandleTrackRemoval";
     plot_palette->PlotAllSirveTracks();
 }
 
@@ -1540,6 +1545,7 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color
         plot_palette->RecolorManualTrack(index, track_id, new_color);
     }
 
+    qDebug() << "About to call PlotAllSirveTracks from within HandleManualTrackRecoloring";
     plot_palette->PlotAllSirveTracks();
 }
 
@@ -1877,8 +1883,8 @@ void SirveApp::LoadOsmData()
 
     //  Set up new plots as we do in the plot designer class:
     HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    //HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    //HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
 
     osmDataLoaded = true;
 
@@ -4127,6 +4133,8 @@ void SirveApp::ExecuteAutoTracking()
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+
+            qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";
             plot_palette->PlotAllSirveTracks();;
 
             cmb_manual_track_IDs->clear();

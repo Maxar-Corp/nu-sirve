@@ -67,7 +67,7 @@ public:
     const QVector<double>& getColumn(size_t index) const;
 
     void AddGraph(int track_id, size_t &columnX, size_t&columnY);
-    void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
+    bool AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
@@ -75,6 +75,8 @@ public:
 
     void PlotChart();
     void PlotSirveTracks();
+
+    void ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id);
 
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
@@ -111,6 +113,8 @@ public:
     void set_use_subinterval(bool use_subinterval);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
+
+    void print_ds(JKQTPDatastore *_ds);
 
 signals:
     void changeMotionStatus(bool status);
@@ -170,6 +174,7 @@ private:
     double get_max_x_axis_value();
     double get_single_x_axis_value(int x_index);
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+
 };
 
 #endif

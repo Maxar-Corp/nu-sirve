@@ -32,6 +32,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     index_sub_plot_xmax = num_frames - 1;
 
     ds = this->getDatastore();
+    ds->clear();
+    print_ds(ds);
 
     show_frame_line = true;
 
@@ -64,6 +66,34 @@ int extractNumberBetweenSpaces(const QString& str) {
         return match.captured(1).toInt();
     } else {
         return -1;  // Not found
+    }
+}
+
+bool isGarbageNumber(const QString& str) {
+    return str.contains('e');
+}
+
+void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
+{
+    qDebug() << "Contents of Data Store:";
+    //for (int i = 0; i < _ds->getMaxRows(); i++)
+    if (_ds->getMaxRows() > 0) {
+        for (int i = 0; i < 10; i++)
+        {
+            QString row = *new QString();
+            for (int j=0; j < _ds->getColumnCount(); j++)
+            {
+                double val = _ds->get(j, i);
+
+                QString number_string = QString::number(val);
+
+                if (val <= 0 || val > 100000 || number_string.contains('e'))
+                    number_string = "NaN";
+
+                row += number_string + " ";
+            }
+            qDebug() << row;
+        }
     }
 }
 
@@ -146,13 +176,17 @@ void EngineeringPlot::PlotChart()
     func_y = DeriveFunctionPointers(plotYType);
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
-    PlotSirveTracks();
+    //PlotSirveTracks();
+
+    print_ds(ds);
 
     this->getPlotter()->setPlotLabel(plot_classification);
 }
 
 void EngineeringPlot::PlotSirveTracks()
 {
+    qDebug() << "PlotSirveTracks called...";
+
     for (int track_id : manual_track_ids)
     {
         std::vector<double> x_values, y_values;
@@ -179,10 +213,20 @@ void EngineeringPlot::PlotSirveTracks()
 
         size_t columnX, columnY;
 
-        DeleteGraphIfExists("Track " + QString::number(track_id));
-        AddTrack(x_values, y_values, track_id, columnX, columnY);
-        AddGraph(track_id, columnX, columnY);
+        //DeleteGraphIfExists("Track " + QString::number(track_id));
+
+        QList<QString> names = ds->getColumnNames();
+
+        if (AddTrack(x_values, y_values, track_id, columnX, columnY))
+        {
+            AddGraph(track_id, columnX, columnY);
+        }
+        else
+        {
+            ReplaceTrack(x_values, y_values, track_id);
+        }
     }
+    print_ds(ds);
 }
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
@@ -520,7 +564,7 @@ void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
     this->addGraph(graph);
 }
 
-void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
+bool EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
 {
     QVector<double> X(x_values.begin(), x_values.end());
     QVector<double> Y(y_values.begin(), y_values.end());
@@ -528,18 +572,49 @@ void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double>
     QString titleX = "Track " + QString::number(track_id) + " x";
     QString titleY = "Track " + QString::number(track_id) + " y";
 
-     QList<QString> names = ds->getColumnNames();
+    QList<QString> names = ds->getColumnNames();
 
     if (!names.contains(titleX))
     {
         columnX=ds->addCopiedColumn(X, titleX);
         columnY=ds->addCopiedColumn(Y, titleY);
+        return true;
     }
     else {
         columnX=(size_t)names.indexOf(titleX);
         columnY=(size_t)names.indexOf(titleY);
+        return false;
     }
 }
+
+void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
+{
+    qDebug() << "Replacing Track...";
+    QList<QString> names = ds->getColumnNames();
+
+    for (int j=0; j < ds->getColumnCount(); j++)
+    {
+        qDebug() << "j=" << j;
+        qDebug() << names[j];
+    }
+
+    // for (int i = 0; i < ds->getMaxRows(); i++)
+    // {
+    //     QString row = *new QString();
+    //     for (int j=0; j < ds->getColumnCount(); j++)
+    //     {
+    //         double val = ds->get(j, i);
+
+    //         ds->set(0,1.0,2.0);
+
+    //     }
+
+    // }
+
+
+    // use ds->set(0,1.0,2.0); to copy the numbers from the two new columns into the two old columns
+}
+
 
 void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 {
