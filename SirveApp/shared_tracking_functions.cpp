@@ -45,14 +45,15 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
     int col1 = std::max(boundingBox.x,0);
     int col2 = std::min(boundingBox.x + boundingBox.width-1, nRows);
 
-    arma::cube data_cube(nCols, nRows, number_median_frames+1);
+    arma::cube data_cube(nCols, nRows, number_median_frames);
     bool valid_indices = ((col2>col1) && (row2>row1) && (col1>0) && (col2>0) && (row1>0) && (row2>0));
     if (valid_indices)
     {
         for (unsigned int k = 0; k < number_median_frames; ++k)
         {
-            data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx+k]),nCols,nRows); 
+            data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx + k]),nCols,nRows);
         }
+
 
         arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
 
@@ -63,12 +64,11 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
             data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
         }
         arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
-        arma::vec current_frame_subcube_as_column = data_subcube.slice(number_median_frames).as_col();
-        sum_relative_counts = std::round(arma::sum(current_frame_subcube_as_column - data_subcube_as_columns_median));
+        sum_relative_counts = std::round(arma::sum(data_subcube_as_columns.col(number_median_frames-1) - data_subcube_as_columns_median));
     }
 
     return std::max(sum_relative_counts,0.0);
-
+    // return sum_relative_counts;
 }
 
 void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
@@ -87,6 +87,10 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
     double threshold_val;
 
     cv::Mat frame_crop = frame(ROI);
+    if (nCols<1280)
+    {
+        frame.convertTo(frame, CV_16U, 4);
+    }
 
     cv::meanStdDev(frame_crop, mean, sigma);
     int clamp_low = mean[0] - clamp_low_coeff*sigma[0];
@@ -252,7 +256,12 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     int nCols = base_processing_details.x_pixels;
     cv::Scalar mean, sigma;    
     std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
-    cv::Mat tmp(nRows, nCols, CV_16UC1, frame_vector.data()); 
+    cv::Mat tmp(nRows, nCols, CV_16UC1, frame_vector.data());
+    if (nCols<1280)
+    {
+        tmp.convertTo(tmp, CV_16U, 4);
+    }
+
     tmp.convertTo(frame,CV_32FC1);
 
     cv::meanStdDev(frame, mean, sigma);
@@ -264,6 +273,11 @@ void SharedTrackingFunctions::GetFrameRepresentations(
 
     std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
     cv::Mat tmp2(nRows, nCols, CV_16UC1, raw_frame_vector.data());
+    if (nCols<1280)
+    {
+        tmp2.convertTo(tmp2, CV_16U, 4);
+    }
+
     tmp2.convertTo(raw_frame, CV_32FC1);  
 
     cv::meanStdDev(raw_frame, mean, sigma);

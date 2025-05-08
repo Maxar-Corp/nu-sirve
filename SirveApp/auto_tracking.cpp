@@ -25,7 +25,7 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::s32_mat AutoTracking::SingleTracker(
+arma::s64_mat AutoTracking::SingleTracker(
     QSize screenResolution,
     QPoint appPos,
     u_int track_id,
@@ -56,7 +56,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     u_int indx, num_frames = stop_frame - start_frame + 1;
 
-    arma::s32_mat output(num_frames, 18);
+    arma::s64_mat output(num_frames, 18);
     
     arma::running_stat<double> stats;
 
@@ -127,7 +127,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     if (!valid_ROI || choice == "Discard")
     {
-        output = arma::s32_mat();
+        output = arma::s64_mat();
         return output;
     }
 
@@ -204,7 +204,7 @@ arma::s32_mat AutoTracking::SingleTracker(
             SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
             if (!valid_ROI || choice == "Discard")
             {
-                output = arma::s32_mat();
+                output = arma::s64_mat();
                 return output;
             }
             else if (choice == "Save")
@@ -373,7 +373,7 @@ void AutoTracking::TrackingStep(
     cv::Scalar & sum_counts,
     uint & number_pixels,
     arma::mat & offsets_matrix,
-    arma::s32_mat & output,
+    arma::s64_mat & output,
     double & sum_relative_counts__old,
     const CalibrationData& calibration_model
 )
@@ -402,7 +402,7 @@ void AutoTracking::TrackingStep(
 
         double frame_integration_time = input_frame_header[indx].int_time;
 
-        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
+        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx+1, bbox_uncentered, base_processing_state_details);
         sum_relative_counts__old = sum_relative_counts;
         stats(sum_relative_counts__old);
         SIGMA = stats.stddev();
@@ -444,7 +444,7 @@ void AutoTracking::TrackingStep(
                             static_cast<uint16_t>(peak_counts),
                             static_cast<int32_t>(mean_counts),
                             static_cast<int32_t>(sum_counts[0]),
-                            static_cast<int32_t>(sum_relative_counts),
+                            static_cast<int64_t>(sum_relative_counts),
                             static_cast<int32_t>(measurements[0]),
                             static_cast<int32_t>(measurements[1]),
                             static_cast<int32_t>(measurements[2]),

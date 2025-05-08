@@ -643,7 +643,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.number_pixels = number_pixels;
     details.peak_counts = peak_counts;
     details.mean_counts = mean_counts;
-    details.sum_counts = static_cast<uint32_t>(sum_counts[0]);
+    details.sum_counts = static_cast<uint64_t>(sum_counts[0]);
     details.peak_irradiance = measurements[0];
     details.mean_irradiance = measurements[1];
     details.sum_irradiance = measurements[2];

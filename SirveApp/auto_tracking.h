@@ -41,7 +41,7 @@ public:
     bool cancel_operation = false;
     void UpdateProgressBar(unsigned int value);
     cv::Mat raw_display_frame;
-    arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int
+    arma::s64_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int
                                 bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, const ProcessingState&
                                 current_processing_state, const VideoDetails& base_processing_state_details, const std::vector<ABIRFrameHeader>& input_frame_header, const
                                 CalibrationData& calibration_model);
@@ -114,7 +114,7 @@ private:
         cv::Scalar & sum_counts,
         uint & number_pixels,
         arma::mat & offsets_matrix,
-        arma::s32_mat & output,
+        arma::s64_mat & output,
         double & adjusted_integrated_counts_old,
         const CalibrationData& calibration_model
     );

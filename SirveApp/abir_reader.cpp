@@ -1,5 +1,6 @@
 #include "abir_reader.h"
 #include "qcoreapplication.h"
+#include <algorithm>
 
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
@@ -288,16 +289,16 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             // WARN << "ABIR Load: Image size exceeds max allowable. Check version
             // type.";
             Close();
-            frames->x_pixels = frames->ir_data[0].image_x_size;
-            frames->y_pixels = frames->ir_data[0].image_y_size;
+            // frames->x_pixels = frames->ir_data[0].image_x_size;
+            // frames->y_pixels = frames->ir_data[0].image_y_size;
 
-            for (const auto& row : video_frames_16bit)
-            {
-                max_val = std::max(max_val, *std::max_element(row.begin(), row.end()));
-            }
+            // for (const auto& row : video_frames_16bit)
+            // {
+            //     max_val = std::max(max_val, *std::max_element(row.begin(), row.end()));
+            // }
 
-            frames->max_value = max_val;
-            frames->video_frames_16bit = std::move(video_frames_16bit);
+            // frames->max_value = max_val;
+            // frames->video_frames_16bit = std::move(video_frames_16bit);
 
             return frames;
         }
@@ -307,11 +308,6 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         if (!header_only)
         {
             Read(image_data.get(), static_cast<uint32_t>(header_data.image_size));
-        }
-
-        for (size_t i = 0; i < header_data.image_size; ++i)
-        {
-            image_data[i] = image_data[i]>>2; // shift bits
         }
 
         video_frames_16bit.emplace_back(image_data.get(), image_data.get() + header_data.image_size);
@@ -344,3 +340,4 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
     return frames;
 }
+

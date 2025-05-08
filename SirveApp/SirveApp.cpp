@@ -4086,7 +4086,7 @@ void SirveApp::ExecuteAutoTracking()
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         auto frame_headers = abir_frames->ir_data;
         appPos = this->GetWindowPosition();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
+        arma::s64_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
         auto currentState = state_manager_->GetCurrentState();
         if (!autotrack.empty() && currentState.offsets.size()>0){
@@ -4109,7 +4109,7 @@ void SirveApp::ExecuteAutoTracking()
             offset_matrix2.insert_cols(offset_matrix2.n_cols,12);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
             autotrack_d += offset_matrix2;
-            autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
+            autotrack = arma::conv_to<arma::s64_mat>::from(autotrack_d);
         }
 
         if (!autotrack.empty()){

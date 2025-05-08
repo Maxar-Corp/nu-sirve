@@ -172,7 +172,7 @@ void EngineeringPlot::PlotSirveTracks()
                     y_values.push_back(it->second.elevation);
                 } else if (my_quantities.at(0).getName() == "Irradiance")
                 {
-                    y_values.push_back(it->second.irradiance);
+                    y_values.push_back(it->second.sum_relative_counts);
                 }
             }
         }
