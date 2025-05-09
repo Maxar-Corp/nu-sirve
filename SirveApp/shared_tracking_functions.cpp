@@ -55,7 +55,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
         }
 
 
-        arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
+            arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
 
         int nPix = data_subcube.n_rows*data_subcube.n_cols;
         arma::mat data_subcube_as_columns(nPix, number_median_frames);
@@ -64,7 +64,31 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
             data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
         }
         arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
-        sum_relative_counts = std::round(arma::sum(data_subcube_as_columns.col(number_median_frames-1) - data_subcube_as_columns_median));
+
+        std::vector<double> std_vec(data_subcube_as_columns.col(number_median_frames-1).begin(), data_subcube_as_columns.col(number_median_frames-1).end());
+
+        // // Print to verify
+        // for (double val : std_vec) {
+        //     std::cout << val << " ";
+        // }
+        std::vector<double> std_vec2(data_subcube_as_columns_median.begin(), data_subcube_as_columns_median.end());
+
+        // // Print to verify
+        // for (double val : std_vec2) {
+        //     std::cout << val << " ";
+        // }
+
+        arma::vec tmp = data_subcube_as_columns.col(number_median_frames-1) - data_subcube_as_columns_median;
+
+        std::vector<double> std_vec3(tmp.begin(), tmp.end());
+
+        // // Print to verify
+        //      for (double val : std_vec3) {
+        //     std::cout << val << " ";
+        // }
+        tmp.elem(arma::find(tmp < 0)).zeros();
+        sum_relative_counts = std::round(arma::sum(tmp));
+
     }
 
     return std::max(sum_relative_counts,0.0);
@@ -87,22 +111,25 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
     double threshold_val;
 
     cv::Mat frame_crop = frame(ROI);
-    if (nCols<1280)
-    {
-        frame.convertTo(frame, CV_16U, 4);
-    }
-
     cv::meanStdDev(frame_crop, mean, sigma);
     int clamp_low = mean[0] - clamp_low_coeff*sigma[0];
     int clamp_high = mean[0] + clamp_high_coeff*sigma[0];
+
     temp_image = cv::min(cv::max(frame, clamp_low), clamp_high);
-    cv::normalize(temp_image, temp_image, 0, 255, cv::NORM_MINMAX, CV_8U);
 
     temp_image = temp_image(ROI);
-    threshold_val = 255. * std::pow(10,-threshold/20.);
+
+    double maxVal = 0;
+    cv::minMaxLoc(temp_image, NULL, &maxVal, NULL, NULL);
+
+    threshold_val = maxVal * std::pow(10,-threshold/20.);
+
     frame_crop_threshold = temp_image;
-    cv::threshold(temp_image, frame_crop_threshold, threshold_val, 255, cv::THRESH_TOZERO);   
+    cv::threshold(temp_image, frame_crop_threshold, threshold_val, 255, cv::THRESH_TOZERO);
     frame_crop_threshold.convertTo(frame_crop_threshold,CV_8U);
+
+    // cv::normalize(temp_image, temp_image, 0, 255, cv::NORM_MINMAX, CV_8U);
+
 
     cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(1.5*resize_factor*frame_crop_threshold.cols, 1.5*resize_factor*frame_crop_threshold.rows));
     frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
@@ -242,7 +269,7 @@ void SharedTrackingFunctions::GetFrameRepresentations(
                                                        uint & indx,
                                                        double clamp_low_coeff,
                                                        double clamp_high_coeff,
-                                                       const VideoDetails & current_processing_state,
+                                                       const VideoDetails & current_processing_state_details,
                                                        const VideoDetails & base_processing_details,
                                                        cv::Mat & frame,
                                                        std::string & prefilter,
@@ -255,12 +282,12 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     int nRows = base_processing_details.y_pixels;
     int nCols = base_processing_details.x_pixels;
     cv::Scalar mean, sigma;    
-    std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
+    std::vector<uint16_t> frame_vector = current_processing_state_details.frames_16bit[indx];
     cv::Mat tmp(nRows, nCols, CV_16UC1, frame_vector.data());
-    if (nCols<1280)
-    {
-        tmp.convertTo(tmp, CV_16U, 4);
-    }
+    // if (nCols<1280)
+    // {
+    //     tmp.convertTo(tmp, CV_16U, 4);
+    // }
 
     tmp.convertTo(frame,CV_32FC1);
 
@@ -273,10 +300,10 @@ void SharedTrackingFunctions::GetFrameRepresentations(
 
     std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
     cv::Mat tmp2(nRows, nCols, CV_16UC1, raw_frame_vector.data());
-    if (nCols<1280)
-    {
-        tmp2.convertTo(tmp2, CV_16U, 4);
-    }
+    // if (nCols<1280)
+    // {
+    //     tmp2.convertTo(tmp2, CV_16U, 4);
+    // }
 
     tmp2.convertTo(raw_frame, CV_32FC1);  
 
