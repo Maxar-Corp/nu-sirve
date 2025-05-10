@@ -176,8 +176,6 @@ void EngineeringPlot::PlotChart()
     func_y = DeriveFunctionPointers(plotYType);
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
-    //PlotSirveTracks();
-
     print_ds(ds);
 
     this->getPlotter()->setPlotLabel(plot_classification);
@@ -212,28 +210,22 @@ void EngineeringPlot::PlotSirveTracks()
         }
 
         size_t columnX, columnY;
-
-        //DeleteGraphIfExists("Track " + QString::number(track_id));
-
         QList<QString> names = ds->getColumnNames();
 
-        if (AddTrack(x_values, y_values, track_id, columnX, columnY))
+        if (! TrackExists(track_id))
         {
-            qDebug() << "columnX = " << columnX;
-            qDebug() << "columnY = " << columnY;
+            AddTrack(x_values, y_values, track_id, columnX, columnY);
             AddGraph(track_id, columnX, columnY);
         }
         else
         {
             ReplaceTrack(x_values, y_values, track_id);
             DeleteGraphIfExists("Track " + QString::number(track_id));
-            qDebug() << "columnX = " << columnX;
-            qDebug() << "columnY = " << columnY;
+            LookupTrackColumnIndexes(track_id, columnX, columnY);
             AddGraph(track_id, columnX, columnY);
             this->plotter->plotUpdated();
         }
     }
-    print_ds(ds);
 }
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
@@ -558,9 +550,6 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
 {
-    qDebug() << "Inside AddGrph";
-    print_ds(ds);
-
     graph=new JKQTPXYLineGraph(this);
 
     graph->setXColumn(columnX);
@@ -574,7 +563,15 @@ void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
     this->addGraph(graph);
 }
 
-bool EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
+bool EngineeringPlot::TrackExists(int track_id)
+{
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QList<QString> names = ds->getColumnNames();
+
+    return names.contains(titleX);
+}
+
+void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
 {
     QVector<double> X(x_values.begin(), x_values.end());
     QVector<double> Y(y_values.begin(), y_values.end());
@@ -582,48 +579,44 @@ bool EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double>
     QString titleX = "Track " + QString::number(track_id) + " x";
     QString titleY = "Track " + QString::number(track_id) + " y";
 
+    columnX=ds->addCopiedColumn(X, titleX);
+    columnY=ds->addCopiedColumn(Y, titleY);
+}
+
+void EngineeringPlot::LookupTrackColumnIndexes(int track_id,  size_t &columnX, size_t &columnY)
+{
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
     QList<QString> names = ds->getColumnNames();
 
-    if (!names.contains(titleX))
-    {
-        columnX=ds->addCopiedColumn(X, titleX);
-        columnY=ds->addCopiedColumn(Y, titleY);
-        return true;
-    }
-    else {
-        columnX=(size_t)names.indexOf(titleX);
-        columnY=(size_t)names.indexOf(titleY);
-        return false;
-    }
+    columnX=(size_t)names.indexOf(titleX);
+    columnY=(size_t)names.indexOf(titleY);
 }
 
 void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
 {
     qDebug() << "Replacing Track...";
-    qDebug() << "Length of x = " << x.size();
 
     QList<QString> names = ds->getColumnNames();
-
     QString x_column_to_search_for = "Track " + QString::number(track_id) + " x";
     int col_index_found;
 
     for (int j=0; j < ds->getColumnCount(); j++)
     {
-        qDebug() << "j=" << j;
         if (QString(names[j]) == x_column_to_search_for)
         {
             col_index_found = j;
-            qDebug() << "index_found = " << col_index_found;
+            qDebug() << "Track found at index " << col_index_found;
         }
     }
 
-    // Need to resize the column here?
+    // Need to resize the column here...
     ds->resizeColumn(col_index_found, x.size());
     ds->resizeColumn(col_index_found+1, x.size());
 
     for (size_t row_index = 0; row_index < x.size(); ++row_index)
     {
-        qDebug() << y[row_index] << " ";
         ds->set(col_index_found, row_index, x[row_index]);
         ds->set(col_index_found+1, row_index, y[row_index]);
     }

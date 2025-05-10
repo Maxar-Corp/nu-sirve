@@ -4131,7 +4131,6 @@ void SirveApp::ExecuteAutoTracking()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
             qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";

@@ -67,7 +67,7 @@ public:
     const QVector<double>& getColumn(size_t index) const;
 
     void AddGraph(int track_id, size_t &columnX, size_t&columnY);
-    bool AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
+    void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
@@ -160,6 +160,7 @@ private:
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
+    bool TrackExists(int track_id);
 
     QAction* get_action_toggle_frameline() const;
     std::vector<double> get_individual_x_track(size_t i);
@@ -175,6 +176,7 @@ private:
     double get_single_x_axis_value(int x_index);
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 
+    void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
 };
 
 #endif
