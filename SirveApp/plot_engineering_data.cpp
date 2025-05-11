@@ -181,7 +181,7 @@ void EngineeringPlot::PlotChart()
     this->getPlotter()->setPlotLabel(plot_classification);
 }
 
-void EngineeringPlot::PlotSirveTracks()
+void EngineeringPlot::PlotSirveTracks(int override_track_id)
 {
     qDebug() << "PlotSirveTracks called...";
 
@@ -217,7 +217,7 @@ void EngineeringPlot::PlotSirveTracks()
             AddTrack(x_values, y_values, track_id, columnX, columnY);
             AddGraph(track_id, columnX, columnY);
         }
-        else
+        else if (track_id == override_track_id)
         {
             ReplaceTrack(x_values, y_values, track_id);
             DeleteGraphIfExists("Track " + QString::number(track_id));

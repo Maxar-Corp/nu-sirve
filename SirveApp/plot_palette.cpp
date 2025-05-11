@@ -221,11 +221,11 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
-void PlotPalette::PlotAllSirveTracks()
+void PlotPalette::PlotAllSirveTracks(int override_track_id)
 {
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
-        engineering_plot_ref.at(plot_id)->PlotSirveTracks();
+        engineering_plot_ref.at(plot_id)->PlotSirveTracks(override_track_id);
     }
 }
 

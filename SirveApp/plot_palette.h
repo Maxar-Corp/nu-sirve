@@ -28,7 +28,7 @@ public:
     int GetLowestSyncedTabIndex();
     int GetUnitTypeByTabId(int tab_id);
     bool HasSyncedTabWithIndex(int tab_id);
-    void PlotAllSirveTracks();
+    void PlotAllSirveTracks(int override_track_id);
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
     void RedrawPlot(int plot_id);
     void RemovePoppedTabIndex(int tab_index);

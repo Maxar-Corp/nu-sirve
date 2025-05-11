@@ -206,6 +206,8 @@ private:
 
     QPointer<ProcessFile> file_processor;
 
+    bool in_edit_mode = false;
+
     QPointer<PopoutDialog> popout_histogram;
     QPointer<PopoutDialog> popout_engineering;
 

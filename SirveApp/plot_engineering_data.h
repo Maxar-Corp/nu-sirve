@@ -74,7 +74,7 @@ public:
     void DeleteTrack(int track_id);
 
     void PlotChart();
-    void PlotSirveTracks();
+    void PlotSirveTracks(int override_track_id);
 
     void ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id);
 
