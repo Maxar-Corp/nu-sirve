@@ -1471,7 +1471,7 @@ void SirveApp::HandleFinishCreateTrackClick()
             const QFileInfo info(new_track_file_name);
             lbl_track_description->setText(info.fileName());
             int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-            HandleManualTrackRecoloring(currently_editing_or_creating_track_id, color_options[ind]);
+            ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
         }
     }
 
@@ -1493,18 +1493,16 @@ void SirveApp::HandleHideManualTrackId(int track_id)
 {
     QColor new_color(0,0,0,0);
 
-    // TODO: Check this!
     video_player_->HideManualTrackId(track_id);
-    plot_palette->RecolorManualTrack(0, track_id, new_color); // Why painting black here?
-    qDebug() << "About to call PlotAllSirveTracks from within HandleHideManualTrackId";
-    plot_palette->PlotAllSirveTracks(-1);
+    plot_palette->RecolorManualTrack(0, track_id, new_color);
+    plot_palette->PlotAllSirveTracks(track_id);
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
 {
     video_player_->ShowManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color);
-    plot_palette->PlotAllSirveTracks(-1);
+    plot_palette->PlotAllSirveTracks(track_id);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1538,6 +1536,23 @@ void SirveApp::HandleTrackRemoval(int track_id)
     plot_palette->PlotAllSirveTracks(-1);
 }
 
+void SirveApp::ColorTrack(int track_id, const QColor& initial_color)
+{
+    qDebug() << "Calling ColorTrack";
+    video_player_->RecolorManualTrack(track_id, initial_color);
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, initial_color);
+    }
+
+    int track_override_id = in_edit_mode ? track_id : -1;
+
+    plot_palette->PlotAllSirveTracks(track_override_id);
+
+    if (in_edit_mode)
+        in_edit_mode = false;
+}
+
 void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color)
 {
     video_player_->RecolorManualTrack(track_id, new_color);
@@ -1546,14 +1561,8 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color
         plot_palette->RecolorManualTrack(index, track_id, new_color);
     }
 
-    qDebug() << "About to call PlotAllSirveTracks from within HandleManualTrackRecoloring";
-
-    int track_override_id = in_edit_mode ? track_id : -1;
-
+    int track_override_id = track_id;
     plot_palette->PlotAllSirveTracks(track_override_id);
-
-    if (in_edit_mode)
-        in_edit_mode = false;
 }
 
 std::once_flag once_flag_main_window;

@@ -308,6 +308,8 @@ public slots:
     void ChangeWorkspaceDirectory();
     void CloseWindow();
 
+    void ColorTrack(int track_id, const QColor& initial_color);
+
     void ExecuteAccumulatorNoiseSuppression();
     void ExecuteAdaptiveNoiseSuppression();
     void ExecuteAutoTracking();
