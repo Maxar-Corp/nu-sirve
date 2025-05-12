@@ -55,7 +55,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
         }
 
 
-            arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
+         arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
 
         int nPix = data_subcube.n_rows*data_subcube.n_cols;
         arma::mat data_subcube_as_columns(nPix, number_median_frames);
@@ -86,7 +86,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
         //      for (double val : std_vec3) {
         //     std::cout << val << " ";
         // }
-        tmp.elem(arma::find(tmp < 0)).zeros();
+       // tmp.elem(arma::find(tmp < 0)).zeros();
         sum_relative_counts = std::round(arma::sum(tmp));
 
     }
