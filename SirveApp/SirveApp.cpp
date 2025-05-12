@@ -1538,7 +1538,6 @@ void SirveApp::HandleTrackRemoval(int track_id)
 
 void SirveApp::ColorTrack(int track_id, const QColor& initial_color)
 {
-    qDebug() << "Calling ColorTrack";
     video_player_->RecolorManualTrack(track_id, initial_color);
     for (int index = 0; index < plot_palette->tabBar()->count(); index++)
     {
