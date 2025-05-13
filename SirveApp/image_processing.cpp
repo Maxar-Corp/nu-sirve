@@ -714,7 +714,7 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
 void ImageProcessing::TranslateFrameByOffsetsManual(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset, int xOffset_correction, int yOffset_correction)
 {
     yOffset = td.centroid_y - yOffset_correction;
-    xOffset = td.centroid_x- xOffset_correction;
+    xOffset = td.centroid_x - xOffset_correction;
     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
     cont_search = false;
