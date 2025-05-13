@@ -95,33 +95,37 @@ void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
     }
 }
 
-void EngineeringPlot::DeleteTrack(int track_id)
+std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
 {
-    JKQTPDatastore *ds = getDatastore();
-    QList<size_t> toDelete;
-    int columns_found = 0;
-    int col = 0;
+    const int index_of_frameline_y_column = 3; // base zero, so 3 is the 4th column
 
+    JKQTPDatastore *ds = getDatastore();
     JKQTPDatastore *ds2 = new JKQTPDatastore();
 
+    std::vector<size_t> *new_column_indexes = new std::vector<size_t>();
+
     int column_count = ds->getColumnCount();
+    int next_ds2_index = 0;
     qDebug() << "Datastore ds has " << QString::number(column_count) << " columns:";
     print_ds(ds);
 
-    int next_ds2_index = 0;
     for (int i = 0; i < column_count; i++)
     {
         QString track_name_x = "Track " + QString::number(track_id) + " x";
         QString track_name_y = "Track " + QString::number(track_id) + " y";
         QString column_name = ds->getColumnName(i);
 
-        // Example condition: column name contains a number surrounded by underscores
         static QRegularExpression re("\\s(\\d+)\\s");
+
         if (!(re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt() == track_id)) {
-            qDebug() << "Column " << column_name << " shall pass!";
-            ds2->addColumn(ds->getRows(i), ds->getColumnName(i));
-            for (int j = 0; j < ds->getRows(i); j++)
-            {
+
+            size_t new_column_index = ds2->addColumn(ds->getRows(i), ds->getColumnName(i));
+
+            if (i > index_of_frameline_y_column) {
+                new_column_indexes->push_back(new_column_index);
+            }
+
+            for (int j = 0; j < ds->getRows(i); j++) {
                 ds2->set(next_ds2_index, j, ds->get(i,j));
             }
             next_ds2_index++;
@@ -138,9 +142,7 @@ void EngineeringPlot::DeleteTrack(int track_id)
     for (int i = 0; i < column_count; i++)
     {
         QString column_name = ds2->getColumnName(i);
-
         ds->addColumn(ds2->getRows(i), column_name);
-
         for (int j = 0; j < ds2->getRows(i); j++)
         {
             ds->set(i, j, ds2->get(i,j));
@@ -149,6 +151,16 @@ void EngineeringPlot::DeleteTrack(int track_id)
 
     qDebug() << "Here is the new ds: ";
     print_ds(ds);
+
+    return *new_column_indexes;
+}
+
+void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes)
+{
+    for (int i = 0; i < new_column_indexes.size(); i+=2)
+    {
+        AddGraph(i+1, new_column_indexes[i], new_column_indexes[i+1]);
+    }
 }
 
 FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
@@ -207,10 +219,6 @@ void EngineeringPlot::PlotChart()
 
 void EngineeringPlot::PlotSirveTracks(int override_track_id)
 {
-    //qDebug() << "PlotAllSirveTracks called...";
-    //print_ds(ds);
-    //qDebug() << "-------------------------";
-
     for (int track_id : manual_track_ids)
     {
         std::vector<double> x_values, y_values;

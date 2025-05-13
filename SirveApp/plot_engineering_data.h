@@ -71,7 +71,8 @@ public:
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
-    void DeleteTrack(int track_id);
+
+    std::vector<size_t>& DeleteTrack(int track_id);
 
     void PlotChart();
     void PlotSirveTracks(int override_track_id);
@@ -81,6 +82,7 @@ public:
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
+    void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
     void SetPlotterXAxisMinMax(int min, int max);
     void ToggleUseSubInterval();
 
