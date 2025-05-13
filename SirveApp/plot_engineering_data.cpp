@@ -33,7 +33,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     ds = this->getDatastore();
     ds->clear();
-    print_ds(ds);
 
     show_frame_line = true;
 
@@ -76,7 +75,6 @@ bool isGarbageNumber(const QString& str) {
 void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
 {
     qDebug() << "Contents of Data Store:";
-    //for (int i = 0; i < _ds->getMaxRows(); i++)
     if (_ds->getMaxRows() > 0) {
         for (int i = 0; i < 10; i++)
         {
@@ -104,26 +102,53 @@ void EngineeringPlot::DeleteTrack(int track_id)
     int columns_found = 0;
     int col = 0;
 
-    // Iterate over all column indices
-    while (columns_found < 2) {
-        QString colName = ds->getColumnName(col);
+    JKQTPDatastore *ds2 = new JKQTPDatastore();
+
+    int column_count = ds->getColumnCount();
+    qDebug() << "Datastore ds has " << QString::number(column_count) << " columns:";
+    print_ds(ds);
+
+    int next_ds2_index = 0;
+    for (int i = 0; i < column_count; i++)
+    {
+        QString track_name_x = "Track " + QString::number(track_id) + " x";
+        QString track_name_y = "Track " + QString::number(track_id) + " y";
+        QString column_name = ds->getColumnName(i);
 
         // Example condition: column name contains a number surrounded by underscores
-        QRegularExpression re("\\s(\\d+)\\s");
-        if (re.match(colName).hasMatch() && re.match(colName).captured(1).toInt() == track_id) {
-            qDebug() << "Marking column for deletion:" << colName;
-            toDelete.append(col);
-            columns_found++;
+        static QRegularExpression re("\\s(\\d+)\\s");
+        if (!(re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt() == track_id)) {
+            qDebug() << "Column " << column_name << " shall pass!";
+            ds2->addColumn(ds->getRows(i), ds->getColumnName(i));
+            for (int j = 0; j < ds->getRows(i); j++)
+            {
+                ds2->set(next_ds2_index, j, ds->get(i,j));
+            }
+            next_ds2_index++;
         }
-        col++;
     }
 
-    // Important: sort in descending order before deleting to avoid index shifting
-    std::sort(toDelete.begin(), toDelete.end(), std::greater<size_t>());
+    column_count = ds2->getColumnCount();
 
-    for (size_t col : toDelete) {
-        ds->deleteColumn(col);
+    qDebug() << "Datastore ds2 has " << QString::number(column_count) << " columns:";
+    print_ds(ds2);
+    qDebug() << "Time to create the final version of ds";
+    ds->clear();
+
+    for (int i = 0; i < column_count; i++)
+    {
+        QString column_name = ds2->getColumnName(i);
+
+        ds->addColumn(ds2->getRows(i), column_name);
+
+        for (int j = 0; j < ds2->getRows(i); j++)
+        {
+            ds->set(i, j, ds2->get(i,j));
+        }
     }
+
+    qDebug() << "Here is the new ds: ";
+    print_ds(ds);
 }
 
 FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
@@ -176,16 +201,15 @@ void EngineeringPlot::PlotChart()
     func_y = DeriveFunctionPointers(plotYType);
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
-    print_ds(ds);
 
     this->getPlotter()->setPlotLabel(plot_classification);
 }
 
 void EngineeringPlot::PlotSirveTracks(int override_track_id)
 {
-    qDebug() << "PlotAllSirveTracks called...";
-    print_ds(ds);
-    qDebug() << "-------------------------";
+    //qDebug() << "PlotAllSirveTracks called...";
+    //print_ds(ds);
+    //qDebug() << "-------------------------";
 
     for (int track_id : manual_track_ids)
     {
