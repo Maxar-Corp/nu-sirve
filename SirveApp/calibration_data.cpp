@@ -753,7 +753,7 @@ ImportFrames CalibrationDialog::FindOsmFrames() {
 	for (int i = 0; i < num_messages; i++)
 	{
 		
-		frame_time = osm_frames[i].data.frametime;
+		frame_time = osm_frames[i].data.frame_time;
 
 		if (frame_time >= user_selection1.start_time && frame_time <= user_selection1.stop_time)
 		{

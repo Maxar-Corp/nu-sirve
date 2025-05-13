@@ -106,14 +106,14 @@ struct FrameData
 	FrameData(const FrameData&) = default;
 	FrameData& operator=(const FrameData&) = default;
 
-	FrameData(uint32_t taskId, uint32_t numTracks, double frametime, double iFovX, double iFovY, double julianDate,
+	FrameData(uint32_t taskId, uint32_t numTracks, double frame_time, double iFovX, double iFovY, double julianDate,
 		double secondsPastMidnight, std::vector<double> mrp, std::vector<double> mrpCovRand, std::vector<double> mrpCovBias,
 		std::vector<double> ecf, std::vector<double> lla, std::vector<double> dcm, std::vector<double> azElBoresight,
 		std::vector<TrackData> trackData);
 
 	uint32_t task_id = 0;
 	uint32_t num_tracks = 0;
-	double frametime = 0.0;
+	double frame_time = 0.0;
 	double i_fov_x = 0.0;
 	double i_fov_y = 0.0;
 	double julian_date = 0.0;

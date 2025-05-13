@@ -56,12 +56,12 @@ TrackData::TrackData(uint32_t trackId, uint32_t sensorType, uint32_t numBands, u
                                                                                 ir_measurements(std::move(irMeasurements)),
                                                                                 az_el_track(std::move(azElTrack)) {}
 
-FrameData::FrameData(uint32_t taskId, uint32_t numTracks, double frametime, double iFovX, double iFovY, double julianDate,
+FrameData::FrameData(uint32_t taskId, uint32_t numTracks, double frame_time, double iFovX, double iFovY, double julianDate,
     double secondsPastMidnight, std::vector<double> mrp, std::vector<double> mrpCovRand, std::vector<double> mrpCovBias,
     std::vector<double> ecf, std::vector<double> lla, std::vector<double> dcm, std::vector<double> azElBoresight,
     std::vector<TrackData> trackData): task_id(taskId),
                                        num_tracks(numTracks),
-                                       frametime(frametime),
+                                       frame_time(frame_time),
                                        i_fov_x(iFovX),
                                        i_fov_y(iFovY),
                                        julian_date(julianDate),

@@ -39,21 +39,37 @@ TrackDetails::TrackDetails(const TrackData& track_data) :
     centroid_y(std::lround(track_data.centroid_y)),
     number_pixels((int)track_data.num_pixels),
     bbox_x(std::abs((int)track_data.roiURX - (int)track_data.roiBLX)),
+    bbox_y(std::min(track_data.roiBLY, track_data.roiURY)),
+    bbox_width(std::abs((int)track_data.roiURX - (int)track_data.roiBLX)),
     bbox_height(std::abs((int)track_data.roiURY - (int)track_data.roiBLY))
 {
     if (track_data.az_el_track.size() > 1) {
         az = track_data.az_el_track[0];
         el = track_data.az_el_track[1];
     }
+
+    if (!track_data.ir_measurements.empty() && !track_data.ir_measurements[0].ir_radiance.empty()) {
+        sum_relative_counts = track_data.ir_measurements[0].ir_radiance[0];
+    }
 }
 
 TrackDetails& TrackDetails::operator=(const TrackData& track_data)
 {
+    *this = TrackDetails(track_data);
     return *this;
 }
 
+TrackDetails::TrackDetails(const FrameData& frame_data, const TrackData& track_data) :
+    TrackDetails(track_data)
+{
+    frame_time = frame_data.frame_time;
+    julian_date = frame_data.julian_date;
+    second_past_midnight = frame_data.seconds_past_midnight;
+    assert(frame_data.num_tracks == frame_data.track_data.size());
+}
+
 PlottingTrackDetails::PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double azimuth,
-    double elevation, double irradiance):
+                                           double elevation, double irradiance):
         track_id(trackId),
         centroid(std::move(centroid)),
         sum_relative_counts(sumRelativeCounts),
@@ -89,7 +105,14 @@ TrackEngineeringData::TrackEngineeringData(double iFovX, double iFovY, double bo
     dcm(std::move(dcm)) {}
 
 TrackEngineeringData::TrackEngineeringData(const FrameData& frame_data) :
-    TrackEngineeringData(frame_data.i_fov_x, frame_data.i_fov_y, frame_data.lla[0], frame_data.lla[1], frame_data.dcm) {}
+    TrackEngineeringData(frame_data.i_fov_x, frame_data.i_fov_y, 0.0, 0.0, frame_data.dcm)
+{
+    if (frame_data.lla.size() > 1)
+    {
+        boresight_lat = frame_data.lla[0];
+        boresight_long = frame_data.lla[1];
+    }
+}
 
 TrackEngineeringData& TrackEngineeringData::operator=(const FrameData& frame_data)
 {
@@ -114,25 +137,25 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, A
         nCols = 1280;
     }
 
-    for (unsigned int i = 0; i < osm_file_frames.size(); i++)
+    for (unsigned int frame_index = 0; frame_index < osm_file_frames.size(); frame_index++)
     {
         //Here we retain all the track "engineering" data (boresight lat/long, ifov, dcm)
         //This is required to later calculate az/el for manual tracks
-        track_engineering_data[i] = osm_file_frames[i].data;
+        const auto& frame_data = osm_file_frames[frame_index].data;
+        track_engineering_data[frame_index] = frame_data;
 
-        for (const auto& track_data: osm_file_frames[i].data.track_data)
-        {
+        for (const auto& track_data : frame_data.track_data) {
             // This is the "ideal" representation of a track
             // For each frame (TrackFrame), there is information about any tracks in that frame (TrackDetails)
             // The track details are mapped (hash table/lookup) by their track_id
             osm_track_ids.insert(track_data.track_id);
-            osm_frames[i].tracks[track_data.track_id] = track_data;
+            osm_frames[frame_index].tracks.emplace(track_data.track_id, TrackDetails { frame_data, track_data });
 
             // This is a "combined" track representation that I'm only keeping around because I'm not smart enough
             // to replace it yet
             // Across frames, it treats the first track as track 0, the second as track 1, etc.
             // In the future, we'll want to change this and the plotting code to stop merging tracks
-            osm_plotting_track_frames[i].details.emplace_back(track_data);
+            osm_plotting_track_frames[frame_index].details.emplace_back(track_data);
         }
     }
 }
@@ -147,17 +170,17 @@ size_t TrackInformation::GetFrameCount() const
     return osm_frames.size();
 }
 
-std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index)
+std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index) const
 {
-    if (start_index >= osm_frames.size() || end_index >= osm_frames.size() || start_index > end_index) {
+    if (start_index > osm_frames.size() || end_index > osm_frames.size() || start_index > end_index) {
         return {};
     }
 	return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
 }
 
-std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index)
+std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index) const
 {
-    if (start_index >= manual_frames.size() || end_index >= manual_frames.size() || start_index > end_index) {
+    if (start_index > manual_frames.size() || end_index > manual_frames.size() || start_index > end_index) {
         return {};
     }
 	return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };

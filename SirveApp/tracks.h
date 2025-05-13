@@ -23,6 +23,7 @@ struct TrackDetails
 
     TrackDetails(const TrackData& track_data);
     TrackDetails& operator=(const TrackData& track_data);
+    TrackDetails(const FrameData& frame_data, const TrackData& track_data);
 
     double frame_time = 0.0;
     double julian_date = 0.0;
@@ -131,8 +132,8 @@ public:
     std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
     std::vector<std::optional<TrackDetails>> GetEmptyTrack() const;
 
-    std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index);
-    std::vector<TrackFrame> GetManualFrames(int start_index, int end_index);
+    std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
+    std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
     const std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
     const std::vector<ManualPlottingTrackFrame>& GetManualPlottingTrackFrames();
     const std::vector<TrackFrame>& GetManualImageFrames();

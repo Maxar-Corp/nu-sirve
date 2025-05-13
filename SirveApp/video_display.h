@@ -230,7 +230,7 @@ private:
     void UpdateCreateTrackLabel();
     void UpdateDisplayFrame();
     static QString GetZuluTimeString(double seconds_midnight);
-    QRectF GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height);
+    QRectF GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height) const;
 };
 
 #endif // VIDEO_DISPLAY_H
