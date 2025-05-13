@@ -1,55 +1,112 @@
 #include "tracks.h"
-#include "constants.h"
-#include "QFile"
 #include "support/az_el_calculation.h"
 
-TrackInformation::TrackInformation()
+#include <QFile>
+
+TrackDetails::TrackDetails(double frameTime, double julianDate, double secondPastMidnight, double timingOffset,
+                           int centroidXBoresight, int centroidYBoresight, int centroidX, int centroidY, double az, double el, int peakCounts,
+                           int sumCounts, int meanCounts, int numberPixels, double sumRelativeCounts, double peakIrradiance,
+                           double meanIrradiance, double sumIrradiance, double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth,
+                           int bboxHeight) :
+        frame_time(frameTime),
+        julian_date(julianDate),
+        second_past_midnight(secondPastMidnight),
+        timing_offset(timingOffset),
+        centroid_x_boresight(centroidXBoresight),
+        centroid_y_boresight(centroidYBoresight),
+        centroid_x(centroidX),
+        centroid_y(centroidY),
+        az(az),
+        el(el),
+        peak_counts(peakCounts),
+        sum_counts(sumCounts),
+        mean_counts(meanCounts),
+        number_pixels(numberPixels),
+        sum_relative_counts(sumRelativeCounts),
+        peak_irradiance(peakIrradiance),
+        mean_irradiance(meanIrradiance),
+        sum_irradiance(sumIrradiance),
+        sum_relative_irradiance(sumRelativeIrradiance),
+        bbox_x(bboxX),
+        bbox_y(bboxY),
+        bbox_width(bboxWidth),
+        bbox_height(bboxHeight) {}
+
+TrackDetails::TrackDetails(int centroid_x, int centroid_y) : centroid_x(centroid_x), centroid_y(centroid_y) {}
+
+TrackDetails::TrackDetails(const TrackData& track_data) :
+    centroid_x(std::lround(track_data.centroid_x)),
+    centroid_y(std::lround(track_data.centroid_y)),
+    number_pixels((int)track_data.num_pixels),
+    bbox_x(std::abs((int)track_data.roiURX - (int)track_data.roiBLX)),
+    bbox_height(std::abs((int)track_data.roiURY - (int)track_data.roiBLY))
 {
-    osm_track_ids = std::set<int>();
-    osm_frames = std::vector<TrackFrame>();
-    osm_plotting_track_frames = std::vector<PlottingTrackFrame>();
-
-    manual_track_ids = std::set<int>();
-
-    manual_frames = std::vector<TrackFrame>();
-
-    track_engineering_data = std::vector<TrackEngineeringData>();
-
-    manual_plotting_frames = std::vector<ManualPlottingTrackFrame>();
-
-    manual_image_frames = std::vector<TrackFrame>();
-}
-
-TrackInformation::TrackInformation(unsigned int num_frames) : TrackInformation()
-{
-    for (unsigned int i = 0; i < num_frames; i++)
-    {
-        TrackFrame frame;
-        frame.tracks = std::map<int, TrackDetails>();
-        osm_frames.push_back(frame);
-
-        TrackFrame manual_frame;
-        manual_frame.tracks = std::map<int, TrackDetails>();
-        manual_frames.push_back(manual_frame);
-
-        PlottingTrackFrame track_frame;
-        track_frame.details = std::vector<PlottingTrackDetails>();
-        osm_plotting_track_frames.push_back(track_frame);
-
-        track_engineering_data.push_back(TrackEngineeringData());
-
-        ManualPlottingTrackFrame manual_plotting_track_frame;
-        manual_plotting_track_frame.tracks = std::map<int,ManualPlottingTrackDetails>();
-        manual_plotting_frames.push_back(manual_plotting_track_frame);
-
-        TrackFrame manual_image_track_frame;
-        manual_image_track_frame.tracks = std::map<int, TrackDetails>();
-        manual_image_frames.push_back(manual_image_track_frame);
+    if (track_data.az_el_track.size() > 1) {
+        az = track_data.az_el_track[0];
+        el = track_data.az_el_track[1];
     }
 }
 
+TrackDetails& TrackDetails::operator=(const TrackData& track_data)
+{
+    return *this;
+}
+
+PlottingTrackDetails::PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double azimuth,
+    double elevation, double irradiance):
+        track_id(trackId),
+        centroid(std::move(centroid)),
+        sum_relative_counts(sumRelativeCounts),
+        azimuth(azimuth),
+        elevation(elevation),
+        irradiance(irradiance) {}
+
+PlottingTrackDetails::PlottingTrackDetails(const TrackData& track_data) :
+    track_id(track_data.track_id), centroid(track_data.centroid_x, track_data.centroid_y)
+{
+    if (!track_data.ir_measurements.empty() && !track_data.ir_measurements[0].ir_radiance.empty()) {
+        sum_relative_counts = track_data.ir_measurements[0].ir_radiance[0];
+    }
+
+    if (track_data.az_el_track.size() > 1) {
+        azimuth = track_data.az_el_track[0];
+        elevation = track_data.az_el_track[1];
+    }
+}
+
+PlottingTrackDetails& PlottingTrackDetails::operator=(const TrackData& track_data)
+{
+    *this = PlottingTrackDetails(track_data);
+    return *this;
+}
+
+TrackEngineeringData::TrackEngineeringData(double iFovX, double iFovY, double boresightLat, double boresightLong,
+                                           std::vector<double> dcm):
+    i_fov_x(iFovX),
+    i_fov_y(iFovY),
+    boresight_lat(boresightLat),
+    boresight_long(boresightLong),
+    dcm(std::move(dcm)) {}
+
+TrackEngineeringData::TrackEngineeringData(const FrameData& frame_data) :
+    TrackEngineeringData(frame_data.i_fov_x, frame_data.i_fov_y, frame_data.lla[0], frame_data.lla[1], frame_data.dcm) {}
+
+TrackEngineeringData& TrackEngineeringData::operator=(const FrameData& frame_data)
+{
+    *this = TrackEngineeringData(frame_data);
+    return *this;
+}
+
+TrackInformation::TrackInformation(size_t num_frames) :
+    osm_plotting_track_frames(num_frames),
+    osm_frames(num_frames),
+    track_engineering_data(num_frames),
+    manual_frames(num_frames),
+    manual_plotting_frames(num_frames),
+    manual_image_frames(num_frames) {}
+
 TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, ABPFileType file_type)
-    : TrackInformation(static_cast<unsigned int>(osm_file_frames.size()))
+    : TrackInformation(osm_file_frames.size())
 {
     if (file_type == ABPFileType::ABP_D)
     {
@@ -61,111 +118,72 @@ TrackInformation::TrackInformation(const std::vector<Frame> & osm_file_frames, A
     {
         //Here we retain all the track "engineering" data (boresight lat/long, ifov, dcm)
         //This is required to later calculate az/el for manual tracks
-        // TODO: This should be a TrackEngineeringData constructor/assignment operator
-        track_engineering_data[i].boresight_lat = osm_file_frames[i].data.lla[0];
-        track_engineering_data[i].boresight_long = osm_file_frames[i].data.lla[1];
-        track_engineering_data[i].dcm = osm_file_frames[i].data.dcm;
-        track_engineering_data[i].i_fov_x = osm_file_frames[i].data.i_fov_x;
-        track_engineering_data[i].i_fov_y = osm_file_frames[i].data.i_fov_y;
+        track_engineering_data[i] = osm_file_frames[i].data;
 
-        int number_tracks = osm_file_frames[i].data.num_tracks;
-        
-        for (int track_index = 0; track_index < number_tracks; track_index++)
+        for (const auto& track_data: osm_file_frames[i].data.track_data)
         {
             // This is the "ideal" representation of a track
             // For each frame (TrackFrame), there is information about any tracks in that frame (TrackDetails)
             // The track details are mapped (hash table/lookup) by their track_id
-            // TODO: std::map is not a hash table, it's a red-black tree, which is not the best choice for performance.
-            const TrackData& track_data = osm_file_frames[i].data.track_data[track_index];
-            // TODO: This should be a TrackDetails constructor/assignment operator
-            TrackDetails td;
-            td.centroid_x = std::lround(track_data.centroid_x);
-            td.centroid_y = std::lround(track_data.centroid_y);
-            td.az = osm_file_frames[i].data.track_data[track_index].az_el_track[0];
-            td.el = osm_file_frames[i].data.track_data[track_index].az_el_track[1];
-            td.number_pixels = (int)osm_file_frames[i].data.track_data[track_index].num_pixels;
-            td.bbox_x = std::min(track_data.roiBLX, track_data.roiURX);
-            td.bbox_y = std::min(track_data.roiBLY, track_data.roiURY);
-            td.bbox_width = std::abs((int)track_data.roiURX - (int)track_data.roiBLX);
-            td.bbox_height = std::abs((int)track_data.roiURY - (int)track_data.roiBLY);
+            osm_track_ids.insert(track_data.track_id);
+            osm_frames[i].tracks[track_data.track_id] = track_data;
 
-            int track_id = osm_file_frames[i].data.track_data[track_index].track_id;
-            osm_track_ids.insert(track_id);
-            osm_frames[i].tracks[track_id] = td;
-
-            //This is a "combined" track representation that I'm only keeping around because I'm not smart enough to replace it yet
-            //Across frames, it treats the first track as track 0, the second as track 1, etc.
-            //In the future, we'll want to change this and the plotting code to stop merging tracks
-            // TODO: This should be a PlottingTrackDetails constructor/assignment operator
-            PlottingTrackDetails ptd;
-
-            //Note: This line assumes that there is only a single ir band, code will need updated if this changes
-            ptd.sum_relative_counts = osm_file_frames[i].data.track_data[track_index].ir_measurements[0].ir_radiance[0];
-			ptd.azimuth = osm_file_frames[i].data.track_data[track_index].az_el_track[0];
-			ptd.elevation = osm_file_frames[i].data.track_data[track_index].az_el_track[1];
-            ptd.centroid.centroid_x = td.centroid_x;
-            ptd.centroid.centroid_y = td.centroid_y;
-
-            //Needed for the data export.
-            //In the future, all track data should probably live in one struct or a more logical format
-            ptd.track_id = track_id;
-
-            osm_plotting_track_frames[i].details.push_back(ptd);
+            // This is a "combined" track representation that I'm only keeping around because I'm not smart enough
+            // to replace it yet
+            // Across frames, it treats the first track as track 0, the second as track 1, etc.
+            // In the future, we'll want to change this and the plotting code to stop merging tracks
+            osm_plotting_track_frames[i].details.emplace_back(track_data);
         }
     }
 }
 
-int TrackInformation::get_track_count() const
+size_t TrackInformation::GetTrackCount() const
 {
-    return static_cast<int>(osm_track_ids.size());
+    return osm_track_ids.size();
 }
 
-int TrackInformation::get_frame_count() const
+size_t TrackInformation::GetFrameCount() const
 {
-    return static_cast<int>(osm_frames.size());
+    return osm_frames.size();
 }
 
-std::vector<TrackFrame> TrackInformation::get_osm_frames(int start_index, int end_index)
+std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index)
 {
-	std::vector<TrackFrame>::const_iterator first = osm_frames.begin() + start_index;
-	std::vector<TrackFrame>::const_iterator last = osm_frames.begin() + end_index;
-
-    std::vector<TrackFrame> subset(first, last);
-    
-    return subset;
+    if (start_index >= osm_frames.size() || end_index >= osm_frames.size() || start_index > end_index) {
+        return {};
+    }
+	return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
 }
 
-std::vector<TrackFrame> TrackInformation::get_manual_frames(int start_index, int end_index)
+std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index)
 {
-	std::vector<TrackFrame>::const_iterator first = manual_frames.begin() + start_index;
-	std::vector<TrackFrame>::const_iterator last = manual_frames.begin() + end_index;
-
-    std::vector<TrackFrame> subset(first, last);
-
-    return subset;
+    if (start_index >= manual_frames.size() || end_index >= manual_frames.size() || start_index > end_index) {
+        return {};
+    }
+	return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
 }
 
-std::vector<PlottingTrackFrame> TrackInformation::get_osm_plotting_track_frames()
+const std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
 {
     return osm_plotting_track_frames;
 }
 
-std::vector<ManualPlottingTrackFrame> TrackInformation::get_manual_plotting_frames()
+const std::vector<ManualPlottingTrackFrame>& TrackInformation::GetManualPlottingTrackFrames()
 {
     return manual_plotting_frames;
 }
 
-std::vector<TrackFrame> TrackInformation::get_manual_image_frames()
+const std::vector<TrackFrame>& TrackInformation::GetManualImageFrames()
 {
     return manual_image_frames;
 }
 
-std::set<int> TrackInformation::get_manual_track_ids()
+const std::set<int>& TrackInformation::GetManualTrackIds()
 {
     return manual_track_ids;
 }
 
-std::set<int> TrackInformation::get_OSM_track_ids()
+const std::set<int>& TrackInformation::GetOsmTrackIds()
 {
     return osm_track_ids;
 }
@@ -174,26 +192,26 @@ std::set<int> TrackInformation::get_OSM_track_ids()
 void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
-    for (int i = 0; i < manual_frames.size(); i++ )
+    for (int i = 0; i < manual_frames.size(); i++)
     {
-		for ( const auto &trackData : new_frames[i].tracks )
+		for (const auto &trackData : new_frames[i].tracks)
         {
             int track_id = trackData.first;
             RemoveManualTrackPlotting(track_id);
             RemoveManualTrackImage(track_id);
         }
     }
-    for (int i = 0; i < manual_frames.size(); i++ )
+    for (int i = 0; i < manual_frames.size(); i++)
     {
-		for ( const auto &trackData : new_frames[i].tracks )
+		for (const auto& track_data : new_frames[i].tracks)
         {
-            int track_id = trackData.first;
+            int track_id = track_data.first;
             manual_track_ids.insert(track_id);
-            manual_frames[i].tracks[track_id] = trackData.second;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, trackData.second.centroid_x-1, trackData.second.centroid_y-1, trackData.second.sum_relative_counts);
-            manual_image_frames[i].tracks[track_id].centroid_x = trackData.second.centroid_x-1;
-            manual_image_frames[i].tracks[track_id].centroid_y = trackData.second.centroid_y-1;
-            manual_plotting_frames[i].tracks[track_id].sum_relative_counts = trackData.second.sum_relative_counts;
+            manual_frames[i].tracks[track_id] = track_data.second;
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_data.second.centroid_x-1, track_data.second.centroid_y-1, track_data.second.sum_relative_counts);
+            manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x-1;
+            manual_image_frames[i].tracks[track_id].centroid_y = track_data.second.centroid_y-1;
+            manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_data.second.sum_relative_counts;
         }
     }
 }

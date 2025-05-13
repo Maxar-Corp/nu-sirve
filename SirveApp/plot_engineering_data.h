@@ -75,7 +75,7 @@ public:
     void PlotChart();
     void PlotSirveTracks();
 
-    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
+    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
     void SetPlotterXAxisMinMax(int min, int max);

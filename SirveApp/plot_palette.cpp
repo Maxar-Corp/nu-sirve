@@ -266,9 +266,9 @@ void PlotPalette::SetAbirDataLoaded(bool osm_data_loaded)
     this->abir_data_loaded = osm_data_loaded;
 }
 
-void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
 {
-    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(std::move(frames), track_ids);
 }
 
 void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
