@@ -98,6 +98,7 @@ void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
 std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
 {
     const int index_of_frameline_y_column = 3; // base zero, so 3 is the 4th column
+    const int index_of_deleted_track_x_column = index_of_frameline_y_column + track_id * 2 -1;
 
     JKQTPDatastore *ds = getDatastore();
     JKQTPDatastore *ds2 = new JKQTPDatastore();
@@ -106,13 +107,9 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
 
     int column_count = ds->getColumnCount();
     int next_ds2_index = 0;
-    qDebug() << "Datastore ds has " << QString::number(column_count) << " columns:";
-    print_ds(ds);
 
     for (int i = 0; i < column_count; i++)
     {
-        QString track_name_x = "Track " + QString::number(track_id) + " x";
-        QString track_name_y = "Track " + QString::number(track_id) + " y";
         QString column_name = ds->getColumnName(i);
 
         static QRegularExpression re("\\s(\\d+)\\s");
@@ -121,8 +118,9 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
 
             size_t new_column_index = ds2->addColumn(ds->getRows(i), ds->getColumnName(i));
 
-            if (i > index_of_frameline_y_column) {
+            if (i > index_of_frameline_y_column && i != index_of_deleted_track_x_column && i != index_of_deleted_track_x_column+1) {
                 new_column_indexes->push_back(new_column_index);
+                qDebug() << "Pushed " << new_column_index;
             }
 
             for (int j = 0; j < ds->getRows(i); j++) {
@@ -134,9 +132,9 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
 
     column_count = ds2->getColumnCount();
 
-    qDebug() << "Datastore ds2 has " << QString::number(column_count) << " columns:";
-    print_ds(ds2);
-    qDebug() << "Time to create the final version of ds";
+    // qDebug() << "Datastore ds2 has " << QString::number(column_count) << " columns:";
+    // print_ds(ds2);
+    // qDebug() << "Time to create the final version of ds";
     ds->clear();
 
     for (int i = 0; i < column_count; i++)
@@ -149,8 +147,8 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
         }
     }
 
-    qDebug() << "Here is the new ds: ";
-    print_ds(ds);
+    // qDebug() << "Here is the new ds: ";
+    // print_ds(ds);
 
     return *new_column_indexes;
 }
@@ -159,7 +157,8 @@ void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes
 {
     for (int i = 0; i < new_column_indexes.size(); i+=2)
     {
-        AddGraph(i+1, new_column_indexes[i], new_column_indexes[i+1]);
+        qDebug() << "Adding graph for track" << (int)(new_column_indexes[i]/2);
+        AddGraph((int)(new_column_indexes[i]/2), new_column_indexes[i], new_column_indexes[i+1]);
     }
 }
 
@@ -255,15 +254,15 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
         {
             qDebug() << "Entered second block:";
             ReplaceTrack(x_values, y_values, track_id);
-            DeleteGraphIfExists("Track " + QString::number(track_id));
+            //DeleteGraphIfExists("Track " + QString::number(track_id));
             LookupTrackColumnIndexes(track_id, columnX, columnY);
             AddGraph(track_id, columnX, columnY);
             this->plotter->plotUpdated();
         }
     }
-    qDebug() << "State of DS:";
-    print_ds(ds);
-    qDebug() << "-------------------------";
+    //qDebug() << "State of DS:";
+    //print_ds(ds);
+    //qDebug() << "-------------------------";
 }
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
@@ -689,23 +688,22 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     use_subinterval = true;
 }
 
-void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
+void EngineeringPlot::DeleteAllTrackGraphs()
 {
     int index = 0;
-    bool graph_exists = false;
 
-    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
-        QString title = (*it)->getTitle();
-        if (title == titleToFind) {
-            graph_exists = true;
-            break;
-        }
-    }
+    qDebug() << "Interior Plot has " << this->getGraphs().count() << " graphs";
 
-    if (graph_exists)
+    //for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
+
+    for (int i = this->getGraphs().count()-1; i >=0; i--)
     {
-        qDebug() << "Deleting graph";
-        this->getGraphs().removeAt(index);
+        QString title = this->getGraphs().at(i)->getTitle();
+        qDebug() << "Iterating on " << title;
+        if (title.contains("Track")) {
+            qDebug() << "Removing " << title;
+            this->getGraphs().removeAt(i);
+        }
     }
 }
 

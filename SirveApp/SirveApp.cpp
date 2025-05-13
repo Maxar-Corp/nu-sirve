@@ -1523,10 +1523,12 @@ void SirveApp::HandleTrackRemoval(int track_id)
     video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_player_->DeleteManualTrack(track_id);
 
+    qDebug() << "Azimuth Plot has " << plot_palette->GetEngineeringPlotReference(0)->getGraphs().count() << " graphs";
+
     // WARNING: This should be amended later to adjust for tabs that have been hidden by the user:
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
     {
-        plot_palette->DeleteGraphIfExists(i, track_id);
+        plot_palette->DeleteAllTrackGraphs(i);
 
         std::vector<size_t> &new_column_indices = plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
         plot_palette->GetEngineeringPlotReference(i)->RestoreTrackGraphs(new_column_indices);

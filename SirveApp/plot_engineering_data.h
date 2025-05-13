@@ -70,7 +70,7 @@ public:
     void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
-    void DeleteGraphIfExists(const QString& titleToFind);
+    void DeleteAllTrackGraphs();
 
     std::vector<size_t>& DeleteTrack(int track_id);
 

@@ -49,9 +49,9 @@ void PlotPalette::AddSyncedTabIndex(int tab_index)
     synced_tabs.push_back(tab_index);
 }
 
-void PlotPalette::DeleteGraphIfExists(int plot_id, int track_id)
+void PlotPalette::DeleteAllTrackGraphs(int plot_id)
 {
-    engineering_plot_ref.at(plot_id)->DeleteGraphIfExists("Track " + QString::number(track_id));
+    engineering_plot_ref.at(plot_id)->DeleteAllTrackGraphs();
 }
 
 EngineeringPlot *PlotPalette::GetEngineeringPlotReference(int tab_id)

@@ -19,7 +19,7 @@ public:
     void AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities);
     void AddPoppedTabIndex(int tab_index);
     void AddSyncedTabIndex(int tab_index);
-    void DeleteGraphIfExists(int plot_id, int track_id);
+    void DeleteAllTrackGraphs(int plot_id);
 
     EngineeringPlot *GetEngineeringPlotReference(int tab_id);
     Enums::PlotType GetPlotTypeByTabId(int tab_id);
