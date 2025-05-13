@@ -70,7 +70,7 @@ public:
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteGraphIfExists(const QString& titleToFind);
-
+    void DeleteTrack(int track_id);
 
     void PlotChart();
     void PlotSirveTracks();

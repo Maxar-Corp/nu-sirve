@@ -506,20 +506,38 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
     btn_add_annotations = new QPushButton("Add/Edit Annotations");
 
+    cursor_color = new QComboBox();
+    cursor_color->addItems(ColorScheme::cursorColors.keys());
+    cursor_color->setCurrentIndex(10);
+    QFormLayout *form_cursor_color = new QFormLayout;
+    form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
+
     QStringList colors = ColorScheme::get_track_colors();
     cmb_text_color = new QComboBox();
     cmb_text_color->addItems(colors);
     QFormLayout *form_text_color = new QFormLayout;
     form_text_color->addRow(tr("&Text Color"),cmb_text_color);
+
     QSpacerItem *vspacer_item10 = new QSpacerItem(1,10);
     vlayout_overlay_controls_col1->addItem(vspacer_item10);
+    vlayout_overlay_controls_col2->addItem(vspacer_item10);
+
     vlayout_overlay_controls_col1->addLayout(form_text_color);
-    vlayout_overlay_controls_col1->addWidget(chk_sensor_track_data);
-    vlayout_overlay_controls_col1->addWidget(chk_show_time);
+    vlayout_overlay_controls_col1->addLayout(form_cursor_color);
+
     vlayout_overlay_controls_col2->addWidget(btn_change_banner_text);
     vlayout_overlay_controls_col2->addWidget(btn_add_annotations);
+
+
+    vlayout_overlay_controls_col1->addWidget(chk_sensor_track_data);
+    vlayout_overlay_controls_col2->addWidget(chk_show_time);
+
+
+
     hlayout_overlay_controls->addLayout(vlayout_overlay_controls_col1);
     hlayout_overlay_controls->addLayout(vlayout_overlay_controls_col2);
+
+
     hlayout_overlay_controls->insertStretch(-1,0);
     hlayout_overlay_controls->insertStretch(0,0);
 
@@ -1132,9 +1150,11 @@ void SirveApp::SetupConnections() {
     connect(chk_show_time, &QCheckBox::stateChanged, video_player_, &VideoPlayer::SetFrameTimeToggle);
     connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditColorMap);
     connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditBannerColor);
+    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditCursorColor);
 
     connect(btn_add_annotations, &QPushButton::clicked, this, &SirveApp::AnnotateVideo);
     connect(btn_change_banner_text, &QPushButton::clicked, this, &SirveApp::EditBannerText);
+
 
     //---------------------------------------------------------------------------
 
@@ -1512,6 +1532,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
     {
         plot_palette->DeleteGraphIfExists(i, track_id);
+        plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
         plot_palette->RedrawPlot(i);
         plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
     }
@@ -2038,6 +2059,7 @@ void SirveApp::UiLoadAbirData()
         sizes[2] = rightWidgetStartingSize;
     }
     splitter->setSizes(sizes);
+    video_player_->SetVideoDimensions();
 }
 
 void SirveApp::LoadAbirData(int min_frame, int max_frame)
@@ -2767,6 +2789,7 @@ void SirveApp::EditBannerText()
     }
 }
 
+
 void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
 {
     bool ok;
@@ -2896,6 +2919,12 @@ void SirveApp::EditBannerColor()
 {
     QString color = cmb_text_color->currentText();
     video_player_->UpdateBannerColor(std::move(color));
+}
+
+void SirveApp::EditCursorColor()
+{
+    QString color = cursor_color->currentText();
+    video_player_->UpdateCursorColor(std::move(color));
 }
 
 void SirveApp::EditOSMTrackColor()
@@ -4426,6 +4455,10 @@ void SirveApp::closeEvent(QCloseEvent *event) {
         annotation_dialog->accept();  // This will trigger the connected slot for OK
     }
     cv::destroyAllWindows();
+
+    if (video_player_) {
+        video_player_->Close();
+    }
 
     event->accept();  // Proceed with closing the main window
 }

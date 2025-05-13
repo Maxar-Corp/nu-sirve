@@ -57,6 +57,45 @@ EngineeringPlot::~EngineeringPlot()
 {
 }
 
+int extractNumberBetweenSpaces(const QString& str) {
+    QRegularExpression re("\\s(\\d+)\\s");  // Matches a number surrounded by whitespace
+    QRegularExpressionMatch match = re.match(str, 0, QRegularExpression::NormalMatch);
+    if (match.hasMatch()) {
+        return match.captured(1).toInt();
+    } else {
+        return -1;  // Not found
+    }
+}
+
+void EngineeringPlot::DeleteTrack(int track_id)
+{
+    JKQTPDatastore *ds = getDatastore();
+    QList<size_t> toDelete;
+    int columns_found = 0;
+    int col = 0;
+
+    // Iterate over all column indices
+    while (columns_found < 2) {
+        QString colName = ds->getColumnName(col);
+
+        // Example condition: column name contains a number surrounded by underscores
+        QRegularExpression re("\\s(\\d+)\\s");
+        if (re.match(colName).hasMatch() && re.match(colName).captured(1).toInt() == track_id) {
+            qDebug() << "Marking column for deletion:" << colName;
+            toDelete.append(col);
+            columns_found++;
+        }
+        col++;
+    }
+
+    // Important: sort in descending order before deleting to avoid index shifting
+    std::sort(toDelete.begin(), toDelete.end(), std::greater<size_t>());
+
+    for (size_t col : toDelete) {
+        ds->deleteColumn(col);
+    }
+}
+
 FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
 {
     std::function<std::vector<double>(size_t)> func;
@@ -71,7 +110,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     }
     else if (type == Enums::PlotType::Elevation)
     {
-        func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
+        func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
     }
     else if (type == Enums::PlotType::FovX)
     {
@@ -83,7 +122,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     }
     else if (type == Enums::PlotType::Boresight_Elevation)
     {
-        func = std::bind(&EngineeringPlot::get_individual_y_track_elevation, this, std::placeholders::_1);
+        func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
     }
     else if (type == Enums::PlotType::Irradiance)
     {

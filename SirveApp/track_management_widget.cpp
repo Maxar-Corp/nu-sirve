@@ -1,3 +1,4 @@
+#include "plot_palette.h"
 #include "track_management_widget.h"
 #include "qdebug.h"
 

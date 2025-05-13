@@ -94,6 +94,7 @@ public:
     void ReceiveVideoData(int x, int y);
     void InitializeToggles();
     void DrawAnnotations();
+    void SetVideoDimensions();
 
 signals:
     void clearMouseButtons();
@@ -126,6 +127,8 @@ public slots:
     void UpdateFrameVector(std::vector<double> original, std::vector<uint8_t> converted, arma::mat offsets_matrix);
     void UpdateBannerText(const QString& input_banner_text);
     void UpdateBannerColor(const QString& input_color);
+    void UpdateCursorColor(const QString& input_color);
+    void SetVideoCursor();
 
 private slots:
     void DisplayManualBox(QPoint pt);
@@ -198,6 +201,7 @@ private:
     std::vector<unsigned int> bad_pixels;
 
     QColor banner_color;
+    QString cursor_color;
     bool display_boresight = false, display_time = false;
 
     CalibrationData model;
@@ -211,7 +215,6 @@ private:
     void SetupLabels();
     void SetupCreateTrackControls();
     void SetupPinpointDisplay();
-    void SetupCrosshairCursor(const QString& icon_Name);
 
     void ExitSelectTrackCentroidMode();
 

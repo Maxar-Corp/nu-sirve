@@ -66,6 +66,10 @@ public:
     void ToggleOsmTracks(bool input);
     void TogglePopout();
     void UpdateBannerColor(QString color);
+
+    void UpdateCursorColor(QString color);
+    void SetVideoDimensions();
+    
     void UpdateBannerText(const QString& text);
     void UpdateManualTrackData(std::vector<TrackFrame> track_frame_input);
 
@@ -78,6 +82,7 @@ signals:
     void removeBadPixels(const std::vector<unsigned int>& pixels);
 
 public slots:
+    void Close();
     void SetPlaybackEnabled(bool enabled);
     void HandlePinpointControlActivation(bool status);
     void HideStencil();
