@@ -1495,7 +1495,7 @@ void SirveApp::HandleHideManualTrackId(int track_id)
 
     video_player_->HideManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color);
-    plot_palette->PlotAllSirveTracks(track_id);
+    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)

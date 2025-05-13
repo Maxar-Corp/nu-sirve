@@ -183,7 +183,9 @@ void EngineeringPlot::PlotChart()
 
 void EngineeringPlot::PlotSirveTracks(int override_track_id)
 {
-    qDebug() << "PlotSirveTracks called...";
+    qDebug() << "PlotAllSirveTracks called...";
+    print_ds(ds);
+    qDebug() << "-------------------------";
 
     for (int track_id : manual_track_ids)
     {
@@ -219,6 +221,7 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
         }
         else if (track_id == override_track_id)
         {
+            qDebug() << "Entered second block:";
             ReplaceTrack(x_values, y_values, track_id);
             DeleteGraphIfExists("Track " + QString::number(track_id));
             LookupTrackColumnIndexes(track_id, columnX, columnY);
@@ -226,6 +229,9 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
             this->plotter->plotUpdated();
         }
     }
+    qDebug() << "State of DS:";
+    print_ds(ds);
+    qDebug() << "-------------------------";
 }
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
