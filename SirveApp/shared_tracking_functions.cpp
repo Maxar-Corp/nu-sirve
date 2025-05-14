@@ -54,7 +54,6 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
             data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx + k]),nCols,nRows);
         }
 
-
          arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
 
         int nPix = data_subcube.n_rows*data_subcube.n_cols;
@@ -65,28 +64,15 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
         }
         arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
 
-        std::vector<double> std_vec(data_subcube_as_columns.col(number_median_frames-1).begin(), data_subcube_as_columns.col(number_median_frames-1).end());
+        // std::vector<double> std_vec(data_subcube_as_columns.col(number_median_frames-1).begin(), data_subcube_as_columns.col(number_median_frames-1).end());
 
-        // // Print to verify
-        // for (double val : std_vec) {
-        //     std::cout << val << " ";
-        // }
-        std::vector<double> std_vec2(data_subcube_as_columns_median.begin(), data_subcube_as_columns_median.end());
-
-        // // Print to verify
-        // for (double val : std_vec2) {
-        //     std::cout << val << " ";
-        // }
+        // std::vector<double> std_vec2(data_subcube_as_columns_median.begin(), data_subcube_as_columns_median.end());
 
         arma::vec tmp = data_subcube_as_columns.col(number_median_frames-1) - data_subcube_as_columns_median;
 
-        std::vector<double> std_vec3(tmp.begin(), tmp.end());
+        // std::vector<double> std_vec3(tmp.begin(), tmp.end());
 
-        // // Print to verify
-        //      for (double val : std_vec3) {
-        //     std::cout << val << " ";
-        // }
-       // tmp.elem(arma::find(tmp < 0)).zeros();
+        tmp.elem(arma::find(tmp < 0)).zeros();
         sum_relative_counts = std::round(arma::sum(tmp));
 
     }
@@ -104,33 +90,27 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
     }
 
 
-    cv::Mat mask;
+    // cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
     cv::Scalar mean, sigma; 
     
     double threshold_val;
 
+    cv::cvtColor(frame, frame,cv::COLOR_RGB2GRAY);
     cv::Mat frame_crop = frame(ROI);
-    cv::meanStdDev(frame_crop, mean, sigma);
-    int clamp_low = mean[0] - clamp_low_coeff*sigma[0];
-    int clamp_high = mean[0] + clamp_high_coeff*sigma[0];
-
-    temp_image = cv::min(cv::max(frame, clamp_low), clamp_high);
-
-    temp_image = temp_image(ROI);
-
+  
     double maxVal = 0;
-    cv::minMaxLoc(temp_image, NULL, &maxVal, NULL, NULL);
+
+    cv::minMaxLoc(frame_crop, NULL, &maxVal, NULL, NULL);
+    cv::normalize(frame_crop, frame_crop, 0, maxVal, cv::NORM_MINMAX);
 
     threshold_val = maxVal * std::pow(10,-threshold/20.);
 
-    frame_crop_threshold = temp_image;
-    cv::threshold(temp_image, frame_crop_threshold, threshold_val, 255, cv::THRESH_TOZERO);
-    frame_crop_threshold.convertTo(frame_crop_threshold,CV_8U);
+    frame_crop_threshold = frame_crop.clone();
+    frame_crop_threshold.setTo(0, (frame_crop_threshold < threshold_val));
 
-    // cv::normalize(temp_image, temp_image, 0, 255, cv::NORM_MINMAX, CV_8U);
-
-
+    // frame_crop_threshold.convertTo(frame_crop_threshold,CV_8UC1);
+ 
     cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(1.5*resize_factor*frame_crop_threshold.cols, 1.5*resize_factor*frame_crop_threshold.rows));
     frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
     imshow("Thresholded ROI",frame_crop_threshold_resize);
@@ -160,7 +140,7 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
         bbox.height = std::min((bbox.height + 2*bbox_buffer_pixels), ROI.height - bbox.y);
 
         // Draw the bounding rectangle
-        output_image = temp_image.clone();
+        output_image = frame_crop_threshold.clone();
         cv::cvtColor(output_image, output_image, cv::COLOR_GRAY2BGR);
         cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);
           
@@ -284,10 +264,6 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     cv::Scalar mean, sigma;    
     std::vector<uint16_t> frame_vector = current_processing_state_details.frames_16bit[indx];
     cv::Mat tmp(nRows, nCols, CV_16UC1, frame_vector.data());
-    // if (nCols<1280)
-    // {
-    //     tmp.convertTo(tmp, CV_16U, 4);
-    // }
 
     tmp.convertTo(frame,CV_32FC1);
 
@@ -300,10 +276,6 @@ void SharedTrackingFunctions::GetFrameRepresentations(
 
     std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
     cv::Mat tmp2(nRows, nCols, CV_16UC1, raw_frame_vector.data());
-    // if (nCols<1280)
-    // {
-    //     tmp2.convertTo(tmp2, CV_16U, 4);
-    // }
 
     tmp2.convertTo(raw_frame, CV_32FC1);  
 
@@ -328,8 +300,7 @@ void SharedTrackingFunctions::FilterImage(std::string & prefilter, cv::Mat & dis
     else if(prefilter=="NLMEANS"){
         cv::fastNlMeansDenoising(display_frame, display_frame);
     }
-    cv::cvtColor(display_frame, display_frame,cv::COLOR_GRAY2RGB);
-    clean_display_frame = display_frame.clone();
+    cv::cvtColor(display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
 }
 
 void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, const ProcessingState & state_details, arma::mat & offsets_matrix)

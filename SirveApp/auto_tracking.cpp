@@ -317,6 +317,7 @@ void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_
 {
     cv::namedWindow(window_name,cv::WINDOW_AUTOSIZE);
     cv::moveWindow(window_name,ROI_window_x, ROI_window_y);
+    cv::cvtColor(display_frame_resize, display_frame_resize,cv::COLOR_GRAY2RGB);
     ROI = cv::selectROI(window_name, display_frame_resize);   
 
     while (true)
@@ -384,12 +385,12 @@ void AutoTracking::TrackingStep(
 
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame, prefilter, display_frame, raw_display_frame, clean_display_frame, raw_frame);
 
-    bool ok = tracker->update(display_frame, ROI);
+    bool ok = tracker->update(clean_display_frame, ROI);
 
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, i, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y); //Returns absolute position of bbox within frame
+    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, i, clamp_low_coeff, clamp_high_coeff, clean_display_frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y); //Returns absolute position of bbox within frame
 
     cv::Mat frame_bbox = frame(bbox);
     raw_frame_bbox = raw_frame(bbox_uncentered);
@@ -413,13 +414,13 @@ void AutoTracking::TrackingStep(
         {
             measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
         }
-
+        cv::cvtColor(clean_display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
         string window_name = "Tracking... ";
-        rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
-        rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
+        rectangle(clean_display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
+        rectangle(clean_display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
         cv::Point point(frame_x, frame_y);
-        cv::circle(display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
-        cv::imshow(window_name, display_frame);    
+        cv::circle(clean_display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
+        cv::imshow(window_name, clean_display_frame);    
         cv::moveWindow(window_name, tracking_window_x, tracking_window_y); 
 
         string raw_window_name = "Raw Data Tracking... ";
