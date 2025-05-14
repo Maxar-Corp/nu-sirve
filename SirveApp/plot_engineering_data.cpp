@@ -115,7 +115,6 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
 
             if (i > index_of_frameline_y_column && i != index_of_deleted_track_x_column && i != index_of_deleted_track_x_column+1) {
                 new_column_indexes->push_back(new_column_index);
-                qDebug() << "Pushed " << new_column_index;
             }
 
             for (int j = 0; j < ds->getRows(i); j++) {
@@ -126,10 +125,6 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
     }
 
     column_count = ds2->getColumnCount();
-
-    // qDebug() << "Datastore ds2 has " << QString::number(column_count) << " columns:";
-    // print_ds(ds2);
-    // qDebug() << "Time to create the final version of ds";
     ds->clear();
 
     for (int i = 0; i < column_count; i++)
@@ -141,9 +136,6 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
             ds->set(i, j, ds2->get(i,j));
         }
     }
-
-    // qDebug() << "Here is the new ds: ";
-    // print_ds(ds);
 
     return *new_column_indexes;
 }
@@ -238,7 +230,6 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
         }
         else
         {
-            qDebug() << "Entered second block:";
             if (track_id == override_track_id)
                 ReplaceTrack(x_values, y_values, track_id);
             DeleteGraphIfExists("Track " + QString::number(track_id));
@@ -617,8 +608,6 @@ void EngineeringPlot::LookupTrackColumnIndexes(int track_id,  size_t &columnX, s
 
 void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
 {
-    qDebug() << "Replacing Track...";
-
     QList<QString> names = ds->getColumnNames();
     QString x_column_to_search_for = "Track " + QString::number(track_id) + " x";
     int col_index_found;
@@ -628,7 +617,6 @@ void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y,
         if (QString(names[j]) == x_column_to_search_for)
         {
             col_index_found = j;
-            qDebug() << "Track found at index " << col_index_found;
         }
     }
 
@@ -704,15 +692,6 @@ void EngineeringPlot::DeleteAllTrackGraphs()
 
 void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes)
 {
-    qDebug() << "Restoring Track Graphs...";
-    qDebug() << "Column Names";
-
-    for (int i = 0; i < ds->getColumnNames().count(); i++)
-    {
-        qDebug() << ds->getColumnNames()[i];
-    }
-
-    print_ds(ds);
     for (int i = 0; i < new_column_indexes.size(); i+=2)
     {
         if (i > 3)
@@ -721,7 +700,6 @@ void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes
             static QRegularExpression re("\\s(\\d+)\\s");
             QString column_name = ds->getColumnNames()[i];
             int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
-            qDebug() << "Adding graph for track" << track_id;
             AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
         }
     }

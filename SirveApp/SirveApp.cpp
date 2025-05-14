@@ -1384,8 +1384,6 @@ void SirveApp::PrepareForTrackCreation(int track_id)
 
 void SirveApp::HandleFinishCreateTrackClick()
 {
-    qDebug() << "Finishing track creation...";
-
     const auto& created_track_details = video_player_->GetCreatedTrackDetails();
     bool any_contents = false;
     for (int i = 0; i < created_track_details.size(); i++)
@@ -1451,7 +1449,6 @@ void SirveApp::HandleFinishCreateTrackClick()
         video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
         plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        //qDebug() << "About to call PlotAllSirveTracks from within HandleFinishCreateTrackClick";
 
         if (!existing_track_TF)
         {
@@ -1522,8 +1519,6 @@ void SirveApp::HandleTrackRemoval(int track_id)
     int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
     video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
     video_player_->DeleteManualTrack(track_id);
-
-    qDebug() << "Azimuth Plot has " << plot_palette->GetEngineeringPlotReference(0)->getGraphs().count() << " graphs";
 
     // WARNING: This should be amended later to adjust for tabs that have been hidden by the user:
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
