@@ -117,6 +117,7 @@ public:
     FuncType DeriveFunctionPointers(Enums::PlotType type);
 
     void print_ds(JKQTPDatastore *_ds);
+    void DeleteGraphIfExists(const QString &titleToFind);
 
 signals:
     void changeMotionStatus(bool status);

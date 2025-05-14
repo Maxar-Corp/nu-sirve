@@ -1564,7 +1564,8 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color
         plot_palette->RecolorManualTrack(index, track_id, new_color);
     }
 
-    int track_override_id = track_id;
+    int track_override_id = in_edit_mode ? track_id : -1;
+
     plot_palette->PlotAllSirveTracks(track_override_id);
 }
 

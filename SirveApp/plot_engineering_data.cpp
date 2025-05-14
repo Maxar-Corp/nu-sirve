@@ -67,11 +67,6 @@ int extractNumberBetweenSpaces(const QString& str) {
         return -1;  // Not found
     }
 }
-
-bool isGarbageNumber(const QString& str) {
-    return str.contains('e');
-}
-
 void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
 {
     qDebug() << "Contents of Data Store:";
@@ -151,15 +146,6 @@ std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
     // print_ds(ds);
 
     return *new_column_indexes;
-}
-
-void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes)
-{
-    for (int i = 0; i < new_column_indexes.size(); i+=2)
-    {
-        qDebug() << "Adding graph for track" << (int)(new_column_indexes[i]/2);
-        AddGraph((int)(new_column_indexes[i]/2), new_column_indexes[i], new_column_indexes[i+1]);
-    }
 }
 
 FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
@@ -250,19 +236,17 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
             AddTrack(x_values, y_values, track_id, columnX, columnY);
             AddGraph(track_id, columnX, columnY);
         }
-        else if (track_id == override_track_id)
+        else
         {
             qDebug() << "Entered second block:";
-            ReplaceTrack(x_values, y_values, track_id);
-            //DeleteGraphIfExists("Track " + QString::number(track_id));
+            if (track_id == override_track_id)
+                ReplaceTrack(x_values, y_values, track_id);
+            DeleteGraphIfExists("Track " + QString::number(track_id));
             LookupTrackColumnIndexes(track_id, columnX, columnY);
             AddGraph(track_id, columnX, columnY);
             this->plotter->plotUpdated();
         }
     }
-    //qDebug() << "State of DS:";
-    //print_ds(ds);
-    //qDebug() << "-------------------------";
 }
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
@@ -648,7 +632,6 @@ void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y,
         }
     }
 
-    // Need to resize the column here...
     ds->resizeColumn(col_index_found, x.size());
     ds->resizeColumn(col_index_found+1, x.size());
 
@@ -688,22 +671,52 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     use_subinterval = true;
 }
 
-void EngineeringPlot::DeleteAllTrackGraphs()
+void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 {
     int index = 0;
+    bool graph_exists = false;
 
-    qDebug() << "Interior Plot has " << this->getGraphs().count() << " graphs";
+    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
+        QString title = (*it)->getTitle();
+        if (title == titleToFind) {
+            graph_exists = true;
+            break;
+        }
+    }
 
-    //for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
+    if (graph_exists)
+    {
+        qDebug() << "Deleting graph";
+        this->getGraphs().removeAt(index);
+    }
+}
 
+void EngineeringPlot::DeleteAllTrackGraphs()
+{
     for (int i = this->getGraphs().count()-1; i >=0; i--)
     {
         QString title = this->getGraphs().at(i)->getTitle();
-        qDebug() << "Iterating on " << title;
         if (title.contains("Track")) {
-            qDebug() << "Removing " << title;
             this->getGraphs().removeAt(i);
         }
+    }
+}
+
+void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes)
+{
+    qDebug() << "Restoring Track Graphs...";
+    qDebug() << "Column Names";
+
+    for (int i = 0; i < ds->getColumnNames().count(); i++)
+    {
+        qDebug() << ds->getColumnNames()[i];
+    }
+
+    print_ds(ds);
+    for (int i = 0; i < new_column_indexes.size(); i+=2)
+    {
+        qDebug() << "Adding graph for track" << (int)(new_column_indexes[i]/2);
+        AddGraph((int)(new_column_indexes[i]/2), new_column_indexes[i], new_column_indexes[i+1]);
     }
 }
 
