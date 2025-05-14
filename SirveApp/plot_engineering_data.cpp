@@ -715,8 +715,15 @@ void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes
     print_ds(ds);
     for (int i = 0; i < new_column_indexes.size(); i+=2)
     {
-        qDebug() << "Adding graph for track" << (int)(new_column_indexes[i]/2);
-        AddGraph((int)(new_column_indexes[i]/2), new_column_indexes[i], new_column_indexes[i+1]);
+        if (i > 3)
+        {
+            // get the track ID from the new columns' names
+            static QRegularExpression re("\\s(\\d+)\\s");
+            QString column_name = ds->getColumnNames()[i];
+            int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
+            qDebug() << "Adding graph for track" << track_id;
+            AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
+        }
     }
 }
 
