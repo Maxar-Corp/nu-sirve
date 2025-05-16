@@ -215,7 +215,7 @@ private:
 
     QPointer<QMenu> file_menu, menu_workspace, menu_export, menu_settings, menu_about;
     QPointer<QAction> action_about, action_close, action_set_timing_offset, action_change_workspace_directory,
-        action_load_OSM_B, action_load_OSM_D, action_load_frames;
+         action_load_OSM, action_load_OSM_D, action_load_frames;
     QPointer<QAction> action_load_workspace, action_save_workspace, action_export_current_frame,
         action_export_frame_range, action_export_tracking_data;
     QPointer<QAction> action_export_all_frames;
@@ -316,8 +316,8 @@ public slots:
     void ExecuteFixedNoiseSuppression();
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
-    void HandleAbpBFileSelected();
-    void HandleAbpDFileSelected();
+    // void HandleAbpFileSelected();
+    // void HandleAbpDFileSelected();
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);

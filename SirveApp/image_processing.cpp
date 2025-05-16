@@ -273,12 +273,12 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const 
         char* buffer = array.data();
 
         ABIRReader reader;
-        if (!reader.Open(buffer, file_type))
+        if (!reader.Open(buffer))
         {
             return frames_out;
         }
 
-        auto frames = reader.ReadFrames(start_frame, stop_frame, false);
+        auto frames = reader.ReadFrames(start_frame, stop_frame, false, file_type);
         video_frames_16bit = std::move(frames->video_frames_16bit);
     }
 

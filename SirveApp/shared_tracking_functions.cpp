@@ -72,7 +72,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 
         // std::vector<double> std_vec3(tmp.begin(), tmp.end());
 
-        tmp.elem(arma::find(tmp < 0)).zeros();
+        // tmp.elem(arma::find(tmp < 0)).zeros();
         sum_relative_counts = std::round(arma::sum(tmp));
 
     }

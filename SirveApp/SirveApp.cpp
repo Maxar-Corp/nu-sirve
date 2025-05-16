@@ -1743,36 +1743,36 @@ void SirveApp::LoadWorkspace()
     }
 }
 
-void SirveApp::HandleAbpBFileSelected()
-{
-    abp_file_type = ABPFileType::ABP_B;
-    HandleAbpFileSelected();
-    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-        {
-            toolbox_image_processing->setItemEnabled(i, true);
-            toolbox_image_processing->setItemIcon(i, QIcon());
-        }
-    }
-}
+// void SirveApp::HandleAbpFileSelected()
+// {
+//     abp_file_type = ABPFileType::ABP_B;
+//     HandleAbpFileSelected();
+//     for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+//         if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+//         {
+//             toolbox_image_processing->setItemEnabled(i, true);
+//             toolbox_image_processing->setItemIcon(i, QIcon());
+//         }
+//     }
+// }
 
-void SirveApp::HandleAbpDFileSelected()
-{
-    abp_file_type = ABPFileType::ABP_D;
-    HandleAbpFileSelected();
-    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-        {
-            QIcon icon(":/icons/no-ghosts.png");
+// void SirveApp::HandleAbpDFileSelected()
+// {
+//     abp_file_type = ABPFileType::ABP_D;
+//     HandleAbpFileSelected();
+//     for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+//         if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+//         {
+//             QIcon icon(":/icons/no-ghosts.png");
 
-            // Set same pixmap for Disabled mode
-            icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
+//             // Set same pixmap for Disabled mode
+//             icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
 
-            toolbox_image_processing->setItemIcon(i, icon);
-            toolbox_image_processing->setItemEnabled(i, false);
-        }
-    }
-}
+//             toolbox_image_processing->setItemIcon(i, icon);
+//             toolbox_image_processing->setItemEnabled(i, false);
+//         }
+//     }
+// }
 
 void SirveApp::HandleAbpFileSelected()
 {
@@ -1791,6 +1791,7 @@ void SirveApp::HandleAbpFileSelected()
     if (validated)
     {
         LoadOsmData();
+
         QFileInfo fileInfo(file_selection);
         abpimage_file_base_name = fileInfo.baseName();
     }
@@ -2046,6 +2047,33 @@ void SirveApp::UiLoadAbirData()
     video_player_->ClearAnnotations();
 
     LoadAbirData(min_frame, max_frame);
+
+    if (abp_file_type == ABPFileType::ABP_B)
+    {
+        for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+            if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+            {
+                toolbox_image_processing->setItemEnabled(i, true);
+                toolbox_image_processing->setItemIcon(i, QIcon());
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+            if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+            {
+                QIcon icon(":/icons/no-ghosts.png");
+
+                // Set same pixmap for Disabled mode
+                icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
+
+                toolbox_image_processing->setItemIcon(i, icon);
+                toolbox_image_processing->setItemEnabled(i, false);
+            }
+        }  
+    };
+
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
@@ -2666,13 +2694,13 @@ void SirveApp::CreateMenuActions()
 {
     QIcon on(":/icons/check.png");
 
-    action_load_OSM_B = new QAction("Load B Data");
-    action_load_OSM_B->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM_B, &QAction::triggered, this, &SirveApp::HandleAbpBFileSelected);
+    action_load_OSM = new QAction("Load Data");
+    action_load_OSM->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
 
-    action_load_OSM_D = new QAction("Load D Data");
-    action_load_OSM_D->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
+    // action_load_OSM_D = new QAction("Load D Data");
+    // action_load_OSM_D->setStatusTip("Load OSM abpimage file");
+    // connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
 
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
@@ -2720,7 +2748,7 @@ void SirveApp::CreateMenuActions()
     connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
 
 	file_menu = menuBar()->addMenu(tr("&File"));
-	file_menu->addAction(action_load_OSM_B);
+	file_menu->addAction( action_load_OSM);
 	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
     file_menu->addAction(action_close);

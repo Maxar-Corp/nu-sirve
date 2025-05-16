@@ -14,9 +14,9 @@ ABIRFrames::ABIRFrames() :
 {
 }
 
-bool ABIRReader::Open(const char* filename, ABPFileType file_type)
+bool ABIRReader::Open(const char* filename)
 {
-    file_type_ = file_type;
+    // file_type_ = file_type;
 
     if (!BinaryReader::Open(filename))
     {
@@ -39,7 +39,7 @@ bool ABIRReader::Open(const char* filename, ABPFileType file_type)
     return true;
 }
 
-ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only)
+ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only, ABPFileType & file_type)
 {
     if (!IsOpen())
     {
@@ -127,6 +127,11 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         header_data.frame_time = Read<double>();
         header_data.image_x_size = Read<uint16_t>();
         header_data.image_y_size = Read<uint16_t>();
+        if (header_data.image_x_size > 640)
+        {
+           file_type = ABPFileType::ABP_D;
+           file_type_ = file_type;
+        }
 
         header_data.pixel_depth = Read<uint16_t>();
         header_data.bits_per_pixel = Read<uint16_t>();
@@ -303,15 +308,41 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             return frames;
         }
 
-        auto image_data = std::make_unique<uint16_t[]>(header_data.image_size);
+        // auto image_data = std::make_unique<uint16_t[]>(header_data.image_size);
+
+        // if (!header_only)
+        // {
+        //     Read(image_data.get(), static_cast<uint32_t>(header_data.image_size));
+        // }
+
+        // video_frames_16bit.emplace_back(image_data.get(), image_data.get() + header_data.image_size);
+
+        std::vector<uint16_t> frame(header_data.image_size);
 
         if (!header_only)
         {
-            Read(image_data.get(), static_cast<uint32_t>(header_data.image_size));
+            if (file_type_ == ABPFileType::ABP_D)
+            {
+                // Read as int16_t
+                std::vector<int16_t> temp(header_data.image_size);
+                Read(temp.data(), static_cast<uint32_t>(header_data.image_size));
+
+                // Convert to uint16_t by adding 32768
+                for (size_t i = 0; i < header_data.image_size; ++i)
+                {
+                    frame[i] = static_cast<uint16_t>(static_cast<int32_t>(temp[i]) + 32768);
+                }
+            }
+            else // e.g., ABP_B
+            {
+                // Read directly as uint16_t
+                Read(frame.data(), static_cast<uint32_t>(header_data.image_size));
+            }
         }
 
-        video_frames_16bit.emplace_back(image_data.get(), image_data.get() + header_data.image_size);
-        image_data.reset();
+        video_frames_16bit.emplace_back(std::move(frame));
+
+        // image_data.reset();
 
         frames->ir_data.emplace_back(header_data);
 
@@ -341,3 +372,33 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
     return frames;
 }
 
+std::vector<uint16_t> LoadFrame(BinaryReader& reader, size_t count, bool header_only, bool big_endian, ABPFileType file_type)
+{
+    std::vector<uint16_t> result(count);
+
+    if (header_only)
+        return result;  // Zero-initialized
+
+    if (file_type == ABPFileType::ABP_D)
+    {
+        // Read as int16_t and convert
+        std::vector<int16_t> temp(count);
+        reader.Read<int16_t>(temp.data(), static_cast<uint32_t>(count), big_endian);
+
+        for (size_t i = 0; i < count; ++i)
+        {
+            result[i] = static_cast<uint16_t>(static_cast<int32_t>(temp[i]) + 32768);
+        }
+    }
+    else if (file_type == ABPFileType::ABP_B)
+    {
+        // Read as uint16_t directly
+        reader.Read<uint16_t>(result.data(), static_cast<uint32_t>(count), big_endian);
+    }
+    else
+    {
+        throw std::runtime_error("Unsupported ABP file type");
+    }
+
+    return result;
+}
