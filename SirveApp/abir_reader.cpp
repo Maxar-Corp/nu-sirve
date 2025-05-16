@@ -308,15 +308,6 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
             return frames;
         }
 
-        // auto image_data = std::make_unique<uint16_t[]>(header_data.image_size);
-
-        // if (!header_only)
-        // {
-        //     Read(image_data.get(), static_cast<uint32_t>(header_data.image_size));
-        // }
-
-        // video_frames_16bit.emplace_back(image_data.get(), image_data.get() + header_data.image_size);
-
         std::vector<uint16_t> frame(header_data.image_size);
 
         if (!header_only)
