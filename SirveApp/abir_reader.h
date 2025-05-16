@@ -161,7 +161,6 @@ signals:
 
 private:
     double file_version_{};
-    ABPFileType file_type_ = ABPFileType::ABP_B;
 };
 
 

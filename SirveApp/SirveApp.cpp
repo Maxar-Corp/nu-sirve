@@ -2090,6 +2090,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
 
     WaitCursor cursor;
+    abp_file_type = ABPFileType::ABP_B;
     abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, abp_file_type);
     if (abir_frames == nullptr)
     {
@@ -3124,6 +3125,7 @@ void SirveApp::HandleBadPixelReplacement()
         }
 
         WaitCursor cursor;
+        abp_file_type = ABPFileType::ABP_B;
         abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, abp_file_type);
         if (abir_frames == nullptr)
         {

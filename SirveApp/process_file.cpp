@@ -92,8 +92,10 @@ ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_
     {
         return nullptr;
     }
-
-    return reader.ReadFrames(frame_start, frame_end, false, file_type);
+	ABPFileType file_type_temp = file_type;	
+   	auto result = reader.ReadFrames(frame_start, frame_end, false, file_type_temp);
+	file_type = file_type_temp;
+	return result;
 }
 
 void ProcessFile::HandleProgressBarUpdate(int frame_index)

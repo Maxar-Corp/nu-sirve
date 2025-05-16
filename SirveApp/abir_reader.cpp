@@ -16,7 +16,6 @@ ABIRFrames::ABIRFrames() :
 
 bool ABIRReader::Open(const char* filename)
 {
-    // file_type_ = file_type;
 
     if (!BinaryReader::Open(filename))
     {
@@ -127,12 +126,13 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         header_data.frame_time = Read<double>();
         header_data.image_x_size = Read<uint16_t>();
         header_data.image_y_size = Read<uint16_t>();
-        if (header_data.image_x_size > 640)
+        if (frame_index == min_frame)
         {
-           file_type = ABPFileType::ABP_D;
-           file_type_ = file_type;
+            if (header_data.image_x_size > 640)
+            {
+                file_type = ABPFileType::ABP_D;
+            }
         }
-
         header_data.pixel_depth = Read<uint16_t>();
         header_data.bits_per_pixel = Read<uint16_t>();
 
@@ -279,7 +279,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
                 header_data.pressure = Read<float>();
                 header_data.relative_humidity = Read<float>();
 
-                if (file_type_ == ABPFileType::ABP_D)
+                if (file_type == ABPFileType::ABP_D)
                 {
                     header_data.cooling = Read<float>();
                 }
@@ -314,7 +314,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         {
             Read(frame.data(), static_cast<uint32_t>(header_data.image_size));
 
-            if (file_type_ == ABPFileType::ABP_D) {
+            if (file_type == ABPFileType::ABP_D) {
                 // Shift the int16_t values of the ABP-D data to fill the uint16_t's dynamic range
                 for(uint16_t& val : frame) {
                     val = static_cast<uint16_t>(reinterpret_cast<int16_t&>(val) + 0x8000);
@@ -324,8 +324,6 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         }
 
         video_frames_16bit.emplace_back(std::move(frame));
-
-        // image_data.reset();
 
         frames->ir_data.emplace_back(header_data);
 
