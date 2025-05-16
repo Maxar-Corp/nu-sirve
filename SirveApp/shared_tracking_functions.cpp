@@ -54,7 +54,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
             data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx + k]),nCols,nRows);
         }
 
-         arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
+        arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
 
         int nPix = data_subcube.n_rows*data_subcube.n_cols;
         arma::mat data_subcube_as_columns(nPix, number_median_frames);
@@ -64,15 +64,8 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
         }
         arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
 
-        // std::vector<double> std_vec(data_subcube_as_columns.col(number_median_frames-1).begin(), data_subcube_as_columns.col(number_median_frames-1).end());
-
-        // std::vector<double> std_vec2(data_subcube_as_columns_median.begin(), data_subcube_as_columns_median.end());
-
         arma::vec tmp = data_subcube_as_columns.col(number_median_frames-1) - data_subcube_as_columns_median;
 
-        // std::vector<double> std_vec3(tmp.begin(), tmp.end());
-
-        // tmp.elem(arma::find(tmp < 0)).zeros();
         sum_relative_counts = std::round(arma::sum(tmp));
 
     }

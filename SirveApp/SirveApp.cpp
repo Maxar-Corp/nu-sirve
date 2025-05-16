@@ -2667,10 +2667,6 @@ void SirveApp::CreateMenuActions()
     action_load_OSM->setStatusTip("Load OSM abpimage file");
     connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
 
-    // action_load_OSM_D = new QAction("Load D Data");
-    // action_load_OSM_D->setStatusTip("Load OSM abpimage file");
-    // connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
-
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
     action_show_calibration_dialog->setEnabled(false);
