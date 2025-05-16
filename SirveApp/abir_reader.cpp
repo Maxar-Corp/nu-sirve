@@ -312,23 +312,6 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
 
         if (!header_only)
         {
-            // if (file_type_ == ABPFileType::ABP_D)
-            // {
-            //     // Read as int16_t
-            //     std::vector<int16_t> temp(header_data.image_size);
-            //     Read(temp.data(), static_cast<uint32_t>(header_data.image_size));
-
-            //     // Convert to uint16_t by adding 32768
-            //     for (size_t i = 0; i < header_data.image_size; ++i)
-            //     {
-            //         frame[i] = static_cast<uint16_t>(static_cast<int32_t>(temp[i]) + 32768);
-            //     }
-            // }
-            // else // e.g., ABP_B
-            // {
-            //     // Read directly as uint16_t
-            //     Read(frame.data(), static_cast<uint32_t>(header_data.image_size));
-            // }
             Read(frame.data(), static_cast<uint32_t>(header_data.image_size));
 
             if (file_type_ == ABPFileType::ABP_D) {
