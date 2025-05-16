@@ -1743,37 +1743,6 @@ void SirveApp::LoadWorkspace()
     }
 }
 
-// void SirveApp::HandleAbpFileSelected()
-// {
-//     abp_file_type = ABPFileType::ABP_B;
-//     HandleAbpFileSelected();
-//     for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-//         if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-//         {
-//             toolbox_image_processing->setItemEnabled(i, true);
-//             toolbox_image_processing->setItemIcon(i, QIcon());
-//         }
-//     }
-// }
-
-// void SirveApp::HandleAbpDFileSelected()
-// {
-//     abp_file_type = ABPFileType::ABP_D;
-//     HandleAbpFileSelected();
-//     for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-//         if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-//         {
-//             QIcon icon(":/icons/no-ghosts.png");
-
-//             // Set same pixmap for Disabled mode
-//             icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
-
-//             toolbox_image_processing->setItemIcon(i, icon);
-//             toolbox_image_processing->setItemEnabled(i, false);
-//         }
-//     }
-// }
-
 void SirveApp::HandleAbpFileSelected()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
