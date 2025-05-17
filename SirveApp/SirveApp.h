@@ -166,7 +166,7 @@ public:
 
     static QString CreateEpochString(const std::vector<double>& new_epoch);
     void    DisplayOriginalEpoch(const QString& new_epoch_string);
-    void    FramePlotSpace();
+
     static SirveApp* GetMainWindow();
     const QVector<QRgb>& GetStartingColorTable() const;
     StateManager& GetStateManager();
@@ -205,6 +205,8 @@ private:
     QPointer<QClipboard> clipboard;
 
     QPointer<ProcessFile> file_processor;
+
+    bool in_edit_mode = false;
 
     QPointer<PopoutDialog> popout_histogram;
     QPointer<PopoutDialog> popout_engineering;
@@ -305,6 +307,8 @@ public slots:
     void ApplyFixedNoiseSuppressionFromExternalFile();
     void ChangeWorkspaceDirectory();
     void CloseWindow();
+
+    void ColorTrack(int track_id, const QColor& initial_color);
 
     void ExecuteAccumulatorNoiseSuppression();
     void ExecuteAdaptiveNoiseSuppression();

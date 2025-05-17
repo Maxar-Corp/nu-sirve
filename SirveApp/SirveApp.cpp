@@ -1272,12 +1272,8 @@ void SirveApp::ImportTracks()
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
                 video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
 
-                for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-                {
-                    plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-                }
-
-                FramePlotSpace();
+                plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+                plot_palette->PlotAllSirveTracks(-1);
             }
         }
         else
@@ -1307,12 +1303,9 @@ void SirveApp::ImportTracks()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));;
-            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-            {
-                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            }
 
-            FramePlotSpace();
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            plot_palette->PlotAllSirveTracks(-1);
         }
 
     }
@@ -1360,6 +1353,8 @@ void SirveApp::HandleCreateTrackClick()
         auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
         if (response == QMessageBox::Yes)
         {
+            in_edit_mode = true;
+
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)
             {
@@ -1452,15 +1447,8 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
         video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
-        for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-        {
-            plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-        }
-
-
-        FramePlotSpace();
+        plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
 
         if (!existing_track_TF)
         {
@@ -1480,7 +1468,7 @@ void SirveApp::HandleFinishCreateTrackClick()
             const QFileInfo info(new_track_file_name);
             lbl_track_description->setText(info.fileName());
             int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-            HandleManualTrackRecoloring(currently_editing_or_creating_track_id, color_options[ind]);
+            ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
         }
     }
 
@@ -1502,17 +1490,16 @@ void SirveApp::HandleHideManualTrackId(int track_id)
 {
     QColor new_color(0,0,0,0);
 
-    // TODO: Check this!
     video_player_->HideManualTrackId(track_id);
-    plot_palette->RecolorManualTrack(0, track_id, new_color); // Why painting black here?
-    FramePlotSpace();
+    plot_palette->RecolorManualTrack(0, track_id, new_color);
+    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
 {
     video_player_->ShowManualTrackId(track_id);
     plot_palette->RecolorManualTrack(0, track_id, new_color);
-    FramePlotSpace();
+    plot_palette->PlotAllSirveTracks(track_id);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1536,13 +1523,32 @@ void SirveApp::HandleTrackRemoval(int track_id)
     // WARNING: This should be amended later to adjust for tabs that have been hidden by the user:
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
     {
-        plot_palette->DeleteGraphIfExists(i, track_id);
-        plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
+        plot_palette->DeleteAllTrackGraphs(i);
+
+        std::vector<size_t> &new_column_indices = plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
+        plot_palette->GetEngineeringPlotReference(i)->RestoreTrackGraphs(new_column_indices);
         plot_palette->RedrawPlot(i);
         plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
     }
 
-    FramePlotSpace();
+    qDebug() << "About to call PlotAllSirveTracks from within HandleTrackRemoval";
+    plot_palette->PlotAllSirveTracks(-1);
+}
+
+void SirveApp::ColorTrack(int track_id, const QColor& initial_color)
+{
+    video_player_->RecolorManualTrack(track_id, initial_color);
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, initial_color);
+    }
+
+    int track_override_id = in_edit_mode ? track_id : -1;
+
+    plot_palette->PlotAllSirveTracks(track_override_id);
+
+    if (in_edit_mode)
+        in_edit_mode = false;
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color)
@@ -1553,12 +1559,9 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color
         plot_palette->RecolorManualTrack(index, track_id, new_color);
     }
 
-    FramePlotSpace();
-}
+    int track_override_id = in_edit_mode ? track_id : -1;
 
-void SirveApp::FramePlotSpace()
-{
-    plot_palette->PlotAllSirveTracks();
+    plot_palette->PlotAllSirveTracks(track_override_id);
 }
 
 std::once_flag once_flag_main_window;
@@ -4143,11 +4146,10 @@ void SirveApp::ExecuteAutoTracking()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-            {
-                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
-            }
-            FramePlotSpace();
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+
+            qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";
+            plot_palette->PlotAllSirveTracks(-1);
 
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
