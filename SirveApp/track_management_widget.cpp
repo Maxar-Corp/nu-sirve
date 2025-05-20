@@ -99,10 +99,17 @@ QWidget* TrackManagementWidget::CreateTrackControl(int id)
     return track_control;
 }
 
+QColor TrackManagementWidget::GetCurrentTrackColor(int id)
+{
+    return track_colors[id];
+}
+
 void TrackManagementWidget::HandleTrackColorSelection(int id, int index)
 {
     QStringList color_options = ColorScheme::get_track_colors();
-    emit recolorTrack(id, color_options[index]);
+
+    if (QColor(color_options[index]) != QColor(255,0,0,255))
+        emit recolorTrack(id, color_options[index]);
 }
 
 void TrackManagementWidget::HandleDisplayTrack(int id)

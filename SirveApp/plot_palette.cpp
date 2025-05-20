@@ -49,9 +49,9 @@ void PlotPalette::AddSyncedTabIndex(int tab_index)
     synced_tabs.push_back(tab_index);
 }
 
-void PlotPalette::DeleteGraphIfExists(int plot_id, int track_id)
+void PlotPalette::DeleteAllTrackGraphs(int plot_id)
 {
-    engineering_plot_ref.at(plot_id)->DeleteGraphIfExists("Track " + QString::number(track_id));
+    engineering_plot_ref.at(plot_id)->DeleteAllTrackGraphs();
 }
 
 EngineeringPlot *PlotPalette::GetEngineeringPlotReference(int tab_id)
@@ -221,11 +221,11 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
-void PlotPalette::PlotAllSirveTracks()
+void PlotPalette::PlotAllSirveTracks(int override_track_id)
 {
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
-        engineering_plot_ref.at(plot_id)->PlotSirveTracks();
+        engineering_plot_ref.at(plot_id)->PlotSirveTracks(override_track_id);
     }
 }
 
@@ -266,13 +266,21 @@ void PlotPalette::SetAbirDataLoaded(bool osm_data_loaded)
     this->abir_data_loaded = osm_data_loaded;
 }
 
+void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
+{
+    engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);
+    engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
+}
+
 void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
 {
     engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
 }
 
-void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
+void PlotPalette::UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
 {
-    engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);
-    engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
+    for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
+    {
+        engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+    }
 }

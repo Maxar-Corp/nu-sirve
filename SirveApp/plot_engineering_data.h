@@ -66,18 +66,23 @@ public:
 
     const QVector<double>& getColumn(size_t index) const;
 
-    void AddSeriesWithColor(std::vector<double> x, std::vector<double> y, int track_id);
+    void AddGraph(int track_id, size_t &columnX, size_t&columnY);
+    void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
-    void DeleteGraphIfExists(const QString& titleToFind);
-    void DeleteTrack(int track_id);
+    void DeleteAllTrackGraphs();
+
+    std::vector<size_t>& DeleteTrack(int track_id);
 
     void PlotChart();
-    void PlotSirveTracks();
+    void PlotSirveTracks(int override_track_id);
+
+    void ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id);
 
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
+    void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
     void SetPlotterXAxisMinMax(int min, int max);
     void ToggleUseSubInterval();
 
@@ -110,6 +115,9 @@ public:
     void set_use_subinterval(bool use_subinterval);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
+
+    void print_ds(JKQTPDatastore *_ds);
+    void DeleteGraphIfExists(const QString &titleToFind);
 
 signals:
     void changeMotionStatus(bool status);
@@ -155,6 +163,7 @@ private:
     void EditPlotText();
     void InitializeFrameLine(double x_intercept);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
+    bool TrackExists(int track_id);
 
     QAction* get_action_toggle_frameline() const;
     std::vector<double> get_individual_x_track(size_t i);
@@ -169,6 +178,8 @@ private:
     double get_max_x_axis_value();
     double get_single_x_axis_value(int x_index);
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+
+    void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
 };
 
 #endif
