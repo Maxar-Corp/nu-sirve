@@ -1491,15 +1491,21 @@ void SirveApp::HandleHideManualTrackId(int track_id)
     QColor new_color(0,0,0,0);
 
     video_player_->HideManualTrackId(track_id);
-    plot_palette->RecolorManualTrack(0, track_id, new_color);
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, new_color);
+    }
     plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
 {
     video_player_->ShowManualTrackId(track_id);
-    plot_palette->RecolorManualTrack(0, track_id, new_color);
-    plot_palette->PlotAllSirveTracks(track_id);
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, new_color);
+    }
+    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
