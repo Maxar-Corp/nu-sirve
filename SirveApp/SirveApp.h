@@ -57,7 +57,7 @@ public:
     AbpFileMetadata abp_file_metadata;
     QPointer<AutoTracking> auto_tracking;
     std::vector<Classification> classification_list;
-    //EngineeringPlots *data_plots;
+
     QPointer<EngineeringData> eng_data;
     QPointer<QWidget> main_widget;
     bool osmDataLoaded;
@@ -75,7 +75,6 @@ public:
     const int centralWidgetStartingSize = 690;
     const int rightWidgetStartingSize = 600;
 
-    //QWidget *main_widget;
     QGridLayout *engineering_plot_layout;
 
     /* --------------------------------------------------------------------------------------------
@@ -279,7 +278,6 @@ private:
     void HandleExternalFileToggle();
     void HandleFinishCreateTrackClick();
     void HandleOutlierProcessingChange();
-    //void HandlePopoutEngineeringClick(bool checked);
     void HandlePopoutHistogramClick(bool checked);
     void HandleYAxisChange();
 
@@ -320,8 +318,7 @@ public slots:
     void ExecuteFixedNoiseSuppression();
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
-    // void HandleAbpFileSelected();
-    // void HandleAbpDFileSelected();
+
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);
@@ -333,14 +330,11 @@ public slots:
     void HandleManualTrackRecoloring(int track_id, const QColor& color);
     void HandleNewProcessingState(const QString& state_name, const QString& combobox_state_name, int index);
     void HandleOsmTracksToggle();
-
     void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
     void HandlePlayerStateChanged(bool status);
     void HandlePlotFocusChanged(int tab_index);
     void HandlePlotFullDataToggle();
     void HandlePlotPrimaryOnlyToggle();
-    //void HandlePopoutEngineeringClosed();
-
     void HandlePopoutHistogramClosed();
     void HandleProcessingNewStateSelected();
     void HandleProcessingStateRemoval(ProcessingMethod method, int index);

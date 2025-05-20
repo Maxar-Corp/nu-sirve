@@ -71,7 +71,6 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
     }
 
     return std::max(sum_relative_counts,0.0);
-    // return sum_relative_counts;
 }
 
 void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
