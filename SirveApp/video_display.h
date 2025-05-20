@@ -42,9 +42,6 @@ public:
     int width = SirveAppConstants::VideoDisplayWidth;
     int height = SirveAppConstants::VideoDisplayHeight;
 
-    int nRows = 480;
-    int nCols = 640;
-
     QPointer<EnhancedLabel> lbl_image_canvas;
     QPointer<AnnotationStencil> annotation_stencil;
 
@@ -138,6 +135,12 @@ private slots:
     void HandlePixelSelection(QPoint origin);
 
 private:
+
+    int nRows = 480;
+    int nCols = 640;
+    int nRows2 = nRows/2;
+    int nCols2 = nCols/2;
+
     QPointer<StateManager> state_manager_;
 
     static constexpr int kFrameAdvanceLimit = 500;

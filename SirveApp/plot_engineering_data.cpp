@@ -674,7 +674,6 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 
     if (graph_exists)
     {
-        qDebug() << "Deleting graph";
         this->getGraphs().removeAt(index);
     }
 }

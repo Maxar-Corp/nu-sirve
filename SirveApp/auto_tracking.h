@@ -36,12 +36,12 @@ public:
     AutoTracking(ABPFileType file_type);
     ~AutoTracking();
     
-    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
-    int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
+    // int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    // int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
     bool cancel_operation = false;
     void UpdateProgressBar(unsigned int value);
     cv::Mat raw_display_frame;
-    arma::s32_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int
+    arma::s64_mat SingleTracker(QSize screenResolution, QPoint appPos, u_int track_id, double clamp_low_coeff, double clamp_high_coeff, int threshold, int
                                 bbox_buffer_pixels, string prefilter, string trackFeature, uint frame0, uint start_frame, uint stop_frame, const ProcessingState&
                                 current_processing_state, const VideoDetails& base_processing_state_details, const std::vector<ABIRFrameHeader>& input_frame_header, const
                                 CalibrationData& calibration_model);
@@ -58,7 +58,9 @@ private:
     int nRows = 480;
     int nCols = 640;
     int image_scale_factor = 2;
-    int step_success_coefficient = 3;
+    int step_success_coefficient = 6;
+    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
 
     void InitializeTracking(
         bool isRestart,
@@ -114,7 +116,7 @@ private:
         cv::Scalar & sum_counts,
         uint & number_pixels,
         arma::mat & offsets_matrix,
-        arma::s32_mat & output,
+        arma::s64_mat & output,
         double & adjusted_integrated_counts_old,
         const CalibrationData& calibration_model
     );
