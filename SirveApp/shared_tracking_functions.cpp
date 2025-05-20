@@ -76,12 +76,12 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
 
 void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
 {
-    int resize_factor = 10;
+   
+    int resize_factor = 15;
     if (nRows>=720)
     {
-        resize_factor = 5;
+        resize_factor = 7.5;
     }
-
 
     // cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
@@ -101,13 +101,6 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
 
     frame_crop_threshold = frame_crop.clone();
     frame_crop_threshold.setTo(0, (frame_crop_threshold < threshold_val));
-
-    // frame_crop_threshold.convertTo(frame_crop_threshold,CV_8UC1);
- 
-    cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(1.5*resize_factor*frame_crop_threshold.cols, 1.5*resize_factor*frame_crop_threshold.rows));
-    frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
-    imshow("Thresholded ROI",frame_crop_threshold_resize);
-    cv::moveWindow("Thresholded ROI", extent_window_x, extent_window_y);
 
     // Find contours of the blob
     std::vector<std::vector<cv::Point>> contours;
@@ -135,17 +128,18 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
         // Draw the bounding rectangle
         output_image = frame_crop_threshold.clone();
         cv::cvtColor(output_image, output_image, cv::COLOR_GRAY2BGR);
-        cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);
-          
-        cv::resize(output_image, output_image_resize, cv::Size(resize_factor*output_image.cols, resize_factor*output_image.rows));
-        cv::namedWindow("Target Extent", cv::WINDOW_NORMAL);
+        cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);    
+        cv::resize(output_image, output_image_resize, cv::Size(resize_factor*frame_crop_threshold.cols, resize_factor*frame_crop_threshold.rows));
+        cv::namedWindow("Target Extent");
         cv::imshow("Target Extent",output_image_resize);
-        cv::moveWindow("Target Extent", extent_window_x, extent_window_y + 1.5*resize_factor*frame_crop_threshold.rows + 50);
+        if (i==0)
+        {
+            cv::moveWindow("Target Extent", extent_window_x, extent_window_y);
+        }
         frame_crop_threshold = frame_crop_threshold(bbox);
         bbox.x = ROI.x + bbox.x;
         bbox.y = ROI.y + bbox.y;
 
-        // cv::waitKey(0);
     } else {
         std::cerr << "No contours found!" << std::endl;
         bbox = ROI;
@@ -178,6 +172,7 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
     {
         bbox_uncentered.height = std::max(nRows - bbox_uncentered.y,1);
     }
+    
 }
 
 void SharedTrackingFunctions::GetTrackPointData(std::string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
@@ -318,4 +313,17 @@ void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame
         }
     }
     offsets_matrix.shed_col(0);
+}
+
+cv::Point SharedTrackingFunctions::GetOpenCVWindowPosition(const std::string& window_name) {
+    HWND hwnd = FindWindowA(NULL, window_name.c_str());
+    if (hwnd == NULL) {
+        return {-1, -1}; // Window not found
+    }
+
+    RECT rect;
+    if (GetWindowRect(hwnd, &rect)) {
+        return {rect.left, rect.top};
+    }
+    return {-1, -1};
 }

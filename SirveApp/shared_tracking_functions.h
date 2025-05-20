@@ -5,6 +5,7 @@
 #include "video_display.h"
 #include <armadillo>
 #include "calibration_data.h"
+#include <Windows.h>
 
 namespace SharedTrackingFunctions
 {
@@ -18,6 +19,7 @@ namespace SharedTrackingFunctions
     void GetPointXY(cv::Point input_point, cv::Rect ROI, int & centerX,  int & centerY);
     void CheckROI(cv::Rect & ROI, bool & valid_ROI);
     void CreateOffsetMatrix(int start_frame, int stop_frame, const ProcessingState & state_details, arma::mat & offsets_matrix);
+    cv::Point GetOpenCVWindowPosition(const std::string& window_name); 
 };
 
 #endif

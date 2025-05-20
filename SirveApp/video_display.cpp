@@ -613,7 +613,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, counter, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels,
+    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, counter, clamp_low_coeff, clamp_high_coeff, clean_display_frame, threshold, bbox_buffer_pixels,
                                               frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x,
                                               extent_window_y);
     cv::Mat frame_crop = frame(bbox);
@@ -638,8 +638,8 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
         details.centroid_x = round(frame_x + x_correction);
         details.centroid_y = round(frame_y + y_correction);
     }
-    details.centroid_x_boresight = details.centroid_x - nCols / 2;
-    details.centroid_y_boresight = details.centroid_y - nRows / 2;
+    details.centroid_x_boresight = details.centroid_x - nCols2;
+    details.centroid_y_boresight = details.centroid_y - nRows2;
     details.number_pixels = number_pixels;
     details.peak_counts = peak_counts;
     details.mean_counts = mean_counts;
@@ -941,8 +941,8 @@ void VideoDisplay::UpdateDisplayFrame()
     }
     else
     {
-        x_scale2 = width / 640;
-        y_scale2 = height / 480;
+        x_scale2 = width / nCols;
+        y_scale2 = height / nRows;
     }
 
     double size_of_pixel_x2 = 1.0 * x_scale2;
@@ -1412,13 +1412,14 @@ void VideoDisplay::SetVideoDimensions()
     // if x, ychange then rows and columns and resolutions needs to be changed
     nRows = height;
     nCols = width;
+    nRows2 = nRows/2;
+    nCols2 = nCols/2;
 
     zoom_manager.Clear(width, height);
     ReceiveVideoData(width, height);
     
     QScreen* screen = QApplication::primaryScreen();
     screenResolution = screen->size();
-
 
 }
 

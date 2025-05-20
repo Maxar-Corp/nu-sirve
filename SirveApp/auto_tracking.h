@@ -36,8 +36,8 @@ public:
     AutoTracking(ABPFileType file_type);
     ~AutoTracking();
     
-    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
-    int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
+    // int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    // int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
     bool cancel_operation = false;
     void UpdateProgressBar(unsigned int value);
     cv::Mat raw_display_frame;
@@ -58,7 +58,9 @@ private:
     int nRows = 480;
     int nCols = 640;
     int image_scale_factor = 2;
-    int step_success_coefficient = 3;
+    int step_success_coefficient = 6;
+    int SirveApp_x, SirveApp_y, Display_res_x, Display_res_y;
+    int ROI_window_x, ROI_window_y, tracking_window_x, tracking_window_y, raw_window_x, raw_window_y, extent_window_x, extent_window_y;
 
     void InitializeTracking(
         bool isRestart,

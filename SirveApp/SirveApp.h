@@ -71,9 +71,9 @@ public:
     bool yAxisChanged = false;
     ConfigValues config_values;
 
-    const int leftWidgetStartingSize = 510;
+    const int leftWidgetStartingSize = 600;
     const int centralWidgetStartingSize = 690;
-    const int rightWidgetStartingSize = 515;
+    const int rightWidgetStartingSize = 600;
 
     //QWidget *main_widget;
     QGridLayout *engineering_plot_layout;

@@ -421,8 +421,11 @@ void AutoTracking::TrackingStep(
         cv::Point point(frame_x, frame_y);
         cv::circle(clean_display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
         cv::imshow(window_name, clean_display_frame);    
-        cv::moveWindow(window_name, tracking_window_x, tracking_window_y); 
-
+        if (i==0)
+        {
+            cv::moveWindow(window_name, tracking_window_x, tracking_window_y);           
+        }
+        
         string raw_window_name = "Raw Data Tracking... ";
         bool bbox_uncentered_valid = (bbox_uncentered.x>0 && (bbox_uncentered.x+bbox_uncentered.width)<nCols && bbox_uncentered.y>0 && (bbox_uncentered.y+bbox_uncentered.height)<nRows); 
         if (bbox_uncentered_valid)
@@ -430,8 +433,10 @@ void AutoTracking::TrackingStep(
             rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 0, 0, 255 ), 1);
         }
         cv::imshow(raw_window_name, raw_display_frame); 
-        cv::moveWindow(raw_window_name, raw_window_x, raw_window_y); 
-
+        if (i==0)
+        {
+            cv::moveWindow(raw_window_name, raw_window_x, raw_window_y); 
+        }
         cv::waitKey(1);
 
         output.row(i) =  {

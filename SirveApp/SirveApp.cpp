@@ -100,6 +100,7 @@ void SirveApp::SetupUi() {
 
     // Set minimum sizes
     leftWidget->setMinimumWidth(leftWidgetStartingSize);
+    leftWidget->setMaximumWidth(leftWidgetStartingSize);
     centralWidget->setMinimumWidth(centralWidgetStartingSize);
     rightWidget->setMinimumWidth(rightWidgetStartingSize);
 
@@ -133,10 +134,10 @@ void SirveApp::SetupUi() {
     // ------------------------------------------------------------------------
     // Define complete tab widget
     // ------------------------------------------------------------------------
-    tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
+    tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupTracksTab(), "Tracks");
-
+ 
     SetupVideoFrame();
     SetupPlotFrame();
 
@@ -244,14 +245,12 @@ void SirveApp::SetupUi() {
     // ------------------------------------------------------------------------
     // initialize ui elements
 
-    tab_menu->setCurrentIndex(0);
-
     tab_menu->setTabEnabled(0, false);
     tab_menu->setTabEnabled(1, false);
     tab_menu->setTabEnabled(2, false);
 
     tab_menu->tabBar()->hide();
-
+    tab_menu->setCurrentIndex(0);
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
     btn_get_frames->setEnabled(false);
@@ -1384,7 +1383,8 @@ void SirveApp::PrepareForTrackCreation(int track_id)
     btn_create_track->setHidden(true);
     btn_finish_create_track->setHidden(false);
     lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
-    tab_menu->setTabEnabled(0, false);
+    // tab_menu->setTabEnabled(0, false);
+    tab_menu->setTabEnabled(1, false);
 }
 
 void SirveApp::HandleFinishCreateTrackClick()
@@ -1494,7 +1494,7 @@ void SirveApp::ExitTrackCreationMode()
     lbl_create_track_message->setText("");
     currently_editing_or_creating_track_id = -1;
     tab_menu->setTabEnabled(0, true);
-    tab_menu->setTabEnabled(2, true);
+    tab_menu->setTabEnabled(1, true);
     video_player_->ExitTrackCreationMode();
 }
 
@@ -2208,7 +2208,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_start_frame->setValidator(validator);
     txt_auto_track_stop_frame->setValidator(validator);
     txt_auto_track_start_frame->setText(QString::number(min_frame));
-    txt_auto_track_stop_frame->setText(QString::number(min_frame + 1));
+    txt_auto_track_stop_frame->setText(QString::number(max_frame));
     connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
 
     video_player_->SetPlaybackEnabled(true);
