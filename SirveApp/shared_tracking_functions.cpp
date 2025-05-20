@@ -45,13 +45,13 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
     int col1 = std::max(boundingBox.x,0);
     int col2 = std::min(boundingBox.x + boundingBox.width-1, nRows);
 
-    arma::cube data_cube(nCols, nRows, number_median_frames+1);
+    arma::cube data_cube(nCols, nRows, number_median_frames);
     bool valid_indices = ((col2>col1) && (row2>row1) && (col1>0) && (col2>0) && (row1>0) && (row2>0));
     if (valid_indices)
     {
         for (unsigned int k = 0; k < number_median_frames; ++k)
         {
-            data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx+k]),nCols,nRows); 
+            data_cube.slice(k) = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[start_indx + k]),nCols,nRows);
         }
 
         arma::cube data_subcube = data_cube.tube(col1,row1,col2,row2);
@@ -63,47 +63,43 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
             data_subcube_as_columns.col(k) = data_subcube.slice(k).as_col();
         }
         arma::vec data_subcube_as_columns_median = arma::median(data_subcube_as_columns,1);
-        arma::vec current_frame_subcube_as_column = data_subcube.slice(number_median_frames).as_col();
-        sum_relative_counts = std::round(arma::sum(current_frame_subcube_as_column - data_subcube_as_columns_median));
+
+        arma::vec tmp = data_subcube_as_columns.col(number_median_frames-1) - data_subcube_as_columns_median;
+
+        sum_relative_counts = std::round(arma::sum(tmp));
+
     }
 
     return std::max(sum_relative_counts,0.0);
-
 }
 
 void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y)
 {
-    int resize_factor = 10;
+   
+    int resize_factor = 15;
     if (nRows>=720)
     {
-        resize_factor = 5;
+        resize_factor = 7.5;
     }
 
-
-    cv::Mat mask;
+    // cv::Mat mask;
     cv::Mat temp_image, output_image, output_image_resize, frame_crop_resize, frame_crop_threshold_resize;
     cv::Scalar mean, sigma; 
     
     double threshold_val;
 
+    cv::cvtColor(frame, frame,cv::COLOR_RGB2GRAY);
     cv::Mat frame_crop = frame(ROI);
+  
+    double maxVal = 0;
 
-    cv::meanStdDev(frame_crop, mean, sigma);
-    int clamp_low = mean[0] - clamp_low_coeff*sigma[0];
-    int clamp_high = mean[0] + clamp_high_coeff*sigma[0];
-    temp_image = cv::min(cv::max(frame, clamp_low), clamp_high);
-    cv::normalize(temp_image, temp_image, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::minMaxLoc(frame_crop, NULL, &maxVal, NULL, NULL);
+    cv::normalize(frame_crop, frame_crop, 0, maxVal, cv::NORM_MINMAX);
 
-    temp_image = temp_image(ROI);
-    threshold_val = 255. * std::pow(10,-threshold/20.);
-    frame_crop_threshold = temp_image;
-    cv::threshold(temp_image, frame_crop_threshold, threshold_val, 255, cv::THRESH_TOZERO);   
-    frame_crop_threshold.convertTo(frame_crop_threshold,CV_8U);
+    threshold_val = maxVal * std::pow(10,-threshold/20.);
 
-    cv::resize(frame_crop_threshold, frame_crop_threshold_resize, cv::Size(1.5*resize_factor*frame_crop_threshold.cols, 1.5*resize_factor*frame_crop_threshold.rows));
-    frame_crop_threshold_resize.convertTo(frame_crop_threshold_resize, cv::COLOR_GRAY2BGR);
-    imshow("Thresholded ROI",frame_crop_threshold_resize);
-    cv::moveWindow("Thresholded ROI", extent_window_x, extent_window_y);
+    frame_crop_threshold = frame_crop.clone();
+    frame_crop_threshold.setTo(0, (frame_crop_threshold < threshold_val));
 
     // Find contours of the blob
     std::vector<std::vector<cv::Point>> contours;
@@ -129,19 +125,20 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
         bbox.height = std::min((bbox.height + 2*bbox_buffer_pixels), ROI.height - bbox.y);
 
         // Draw the bounding rectangle
-        output_image = temp_image.clone();
+        output_image = frame_crop_threshold.clone();
         cv::cvtColor(output_image, output_image, cv::COLOR_GRAY2BGR);
-        cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);
-          
-        cv::resize(output_image, output_image_resize, cv::Size(resize_factor*output_image.cols, resize_factor*output_image.rows));
-        cv::namedWindow("Target Extent", cv::WINDOW_NORMAL);
+        cv::rectangle(output_image, bbox, cv::Scalar(255, 255, 0), 1);    
+        cv::resize(output_image, output_image_resize, cv::Size(resize_factor*frame_crop_threshold.cols, resize_factor*frame_crop_threshold.rows));
+        cv::namedWindow("Target Extent");
         cv::imshow("Target Extent",output_image_resize);
-        cv::moveWindow("Target Extent", extent_window_x, extent_window_y + 1.5*resize_factor*frame_crop_threshold.rows + 50);
+        if (i==0)
+        {
+            cv::moveWindow("Target Extent", extent_window_x, extent_window_y);
+        }
         frame_crop_threshold = frame_crop_threshold(bbox);
         bbox.x = ROI.x + bbox.x;
         bbox.y = ROI.y + bbox.y;
 
-        // cv::waitKey(0);
     } else {
         std::cerr << "No contours found!" << std::endl;
         bbox = ROI;
@@ -174,6 +171,7 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
     {
         bbox_uncentered.height = std::max(nRows - bbox_uncentered.y,1);
     }
+    
 }
 
 void SharedTrackingFunctions::GetTrackPointData(std::string & trackFeature, cv::Mat & frame_bbox, cv::Mat & raw_frame_bbox, cv::Mat & frame_bbox_threshold, cv::Point & frame_point, double & peak_counts, double & mean_counts, cv::Scalar & sum_counts, uint32_t & number_pixels)
@@ -238,7 +236,7 @@ void SharedTrackingFunctions::GetFrameRepresentations(
                                                        uint & indx,
                                                        double clamp_low_coeff,
                                                        double clamp_high_coeff,
-                                                       const VideoDetails & current_processing_state,
+                                                       const VideoDetails & current_processing_state_details,
                                                        const VideoDetails & base_processing_details,
                                                        cv::Mat & frame,
                                                        std::string & prefilter,
@@ -251,8 +249,9 @@ void SharedTrackingFunctions::GetFrameRepresentations(
     int nRows = base_processing_details.y_pixels;
     int nCols = base_processing_details.x_pixels;
     cv::Scalar mean, sigma;    
-    std::vector<uint16_t> frame_vector = current_processing_state.frames_16bit[indx];
-    cv::Mat tmp(nRows, nCols, CV_16UC1, frame_vector.data()); 
+    std::vector<uint16_t> frame_vector = current_processing_state_details.frames_16bit[indx];
+    cv::Mat tmp(nRows, nCols, CV_16UC1, frame_vector.data());
+
     tmp.convertTo(frame,CV_32FC1);
 
     cv::meanStdDev(frame, mean, sigma);
@@ -264,6 +263,7 @@ void SharedTrackingFunctions::GetFrameRepresentations(
 
     std::vector<uint16_t> raw_frame_vector = base_processing_details.frames_16bit[indx];
     cv::Mat tmp2(nRows, nCols, CV_16UC1, raw_frame_vector.data());
+
     tmp2.convertTo(raw_frame, CV_32FC1);  
 
     cv::meanStdDev(raw_frame, mean, sigma);
@@ -287,8 +287,7 @@ void SharedTrackingFunctions::FilterImage(std::string & prefilter, cv::Mat & dis
     else if(prefilter=="NLMEANS"){
         cv::fastNlMeansDenoising(display_frame, display_frame);
     }
-    cv::cvtColor(display_frame, display_frame,cv::COLOR_GRAY2RGB);
-    clean_display_frame = display_frame.clone();
+    cv::cvtColor(display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
 }
 
 void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame, const ProcessingState & state_details, arma::mat & offsets_matrix)
@@ -314,3 +313,17 @@ void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame
     }
     offsets_matrix.shed_col(0);
 }
+
+//Keeping for possible future use
+// cv::Point SharedTrackingFunctions::GetOpenCVWindowPosition(const std::string& window_name) {
+//     HWND hwnd = FindWindowA(NULL, window_name.c_str());
+//     if (hwnd == NULL) {
+//         return {-1, -1}; // Window not found
+//     }
+
+//     RECT rect;
+//     if (GetWindowRect(hwnd, &rect)) {
+//         return {rect.left, rect.top};
+//     }
+//     return {-1, -1};
+// }

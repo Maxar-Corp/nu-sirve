@@ -25,9 +25,6 @@ public:
     int deinterlace_kernel_size;
     int frameval;
     bool cancel_operation;
-    int nRows = 480;
-    int nRows2 = nRows/2;
-    int nCols = 640;
 
     void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indeces, int width_pixels);
     void UpdateProgressBar(unsigned int value);
@@ -59,6 +56,11 @@ public slots:
     void CancelOperation();
 
 private:
+
+    int nRows = 480;
+    int nRows2 = nRows/2;
+    int nCols = 640;
+    int nCols2 = nCols/2;
     std::vector<std::vector<uint16_t>> video_frames_16bit;
     arma::mat disk_avg_kernel;
 

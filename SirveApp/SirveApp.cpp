@@ -100,6 +100,7 @@ void SirveApp::SetupUi() {
 
     // Set minimum sizes
     leftWidget->setMinimumWidth(leftWidgetStartingSize);
+    leftWidget->setMaximumWidth(leftWidgetStartingSize);
     centralWidget->setMinimumWidth(centralWidgetStartingSize);
     rightWidget->setMinimumWidth(rightWidgetStartingSize);
 
@@ -133,10 +134,10 @@ void SirveApp::SetupUi() {
     // ------------------------------------------------------------------------
     // Define complete tab widget
     // ------------------------------------------------------------------------
-    tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
+    tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupTracksTab(), "Tracks");
-
+ 
     SetupVideoFrame();
     SetupPlotFrame();
 
@@ -244,14 +245,12 @@ void SirveApp::SetupUi() {
     // ------------------------------------------------------------------------
     // initialize ui elements
 
-    tab_menu->setCurrentIndex(0);
-
     tab_menu->setTabEnabled(0, false);
     tab_menu->setTabEnabled(1, false);
     tab_menu->setTabEnabled(2, false);
 
     tab_menu->tabBar()->hide();
-
+    tab_menu->setCurrentIndex(0);
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
     btn_get_frames->setEnabled(false);
@@ -1379,7 +1378,8 @@ void SirveApp::PrepareForTrackCreation(int track_id)
     btn_create_track->setHidden(true);
     btn_finish_create_track->setHidden(false);
     lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
-    tab_menu->setTabEnabled(0, false);
+    // tab_menu->setTabEnabled(0, false);
+    tab_menu->setTabEnabled(1, false);
 }
 
 void SirveApp::HandleFinishCreateTrackClick()
@@ -1482,7 +1482,7 @@ void SirveApp::ExitTrackCreationMode()
     lbl_create_track_message->setText("");
     currently_editing_or_creating_track_id = -1;
     tab_menu->setTabEnabled(0, true);
-    tab_menu->setTabEnabled(2, true);
+    tab_menu->setTabEnabled(1, true);
     video_player_->ExitTrackCreationMode();
 }
 
@@ -1752,37 +1752,6 @@ void SirveApp::LoadWorkspace()
     }
 }
 
-void SirveApp::HandleAbpBFileSelected()
-{
-    abp_file_type = ABPFileType::ABP_B;
-    HandleAbpFileSelected();
-    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-        {
-            toolbox_image_processing->setItemEnabled(i, true);
-            toolbox_image_processing->setItemIcon(i, QIcon());
-        }
-    }
-}
-
-void SirveApp::HandleAbpDFileSelected()
-{
-    abp_file_type = ABPFileType::ABP_D;
-    HandleAbpFileSelected();
-    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-        {
-            QIcon icon(":/icons/no-ghosts.png");
-
-            // Set same pixmap for Disabled mode
-            icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
-
-            toolbox_image_processing->setItemIcon(i, icon);
-            toolbox_image_processing->setItemEnabled(i, false);
-        }
-    }
-}
-
 void SirveApp::HandleAbpFileSelected()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
@@ -1800,6 +1769,7 @@ void SirveApp::HandleAbpFileSelected()
     if (validated)
     {
         LoadOsmData();
+
         QFileInfo fileInfo(file_selection);
         abpimage_file_base_name = fileInfo.baseName();
     }
@@ -2055,6 +2025,33 @@ void SirveApp::UiLoadAbirData()
     video_player_->ClearAnnotations();
 
     LoadAbirData(min_frame, max_frame);
+
+    if (abp_file_type == ABPFileType::ABP_B)
+    {
+        for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+            if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+            {
+                toolbox_image_processing->setItemEnabled(i, true);
+                toolbox_image_processing->setItemIcon(i, QIcon());
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+            if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+            {
+                QIcon icon(":/icons/no-ghosts.png");
+
+                // Set same pixmap for Disabled mode
+                icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
+
+                toolbox_image_processing->setItemIcon(i, icon);
+                toolbox_image_processing->setItemEnabled(i, false);
+            }
+        }  
+    };
+
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
@@ -2102,6 +2099,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
 
     WaitCursor cursor;
+    abp_file_type = ABPFileType::ABP_B;
     abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, abp_file_type);
     if (abir_frames == nullptr)
     {
@@ -2219,7 +2217,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_start_frame->setValidator(validator);
     txt_auto_track_stop_frame->setValidator(validator);
     txt_auto_track_start_frame->setText(QString::number(min_frame));
-    txt_auto_track_stop_frame->setText(QString::number(min_frame + 1));
+    txt_auto_track_stop_frame->setText(QString::number(max_frame));
     connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
 
     video_player_->SetPlaybackEnabled(true);
@@ -2675,13 +2673,9 @@ void SirveApp::CreateMenuActions()
 {
     QIcon on(":/icons/check.png");
 
-    action_load_OSM_B = new QAction("Load B Data");
-    action_load_OSM_B->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM_B, &QAction::triggered, this, &SirveApp::HandleAbpBFileSelected);
-
-    action_load_OSM_D = new QAction("Load D Data");
-    action_load_OSM_D->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
+    action_load_OSM = new QAction("Load Data");
+    action_load_OSM->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
 
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
@@ -2729,7 +2723,7 @@ void SirveApp::CreateMenuActions()
     connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
 
 	file_menu = menuBar()->addMenu(tr("&File"));
-	file_menu->addAction(action_load_OSM_B);
+	file_menu->addAction( action_load_OSM);
 	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
     file_menu->addAction(action_close);
@@ -3140,6 +3134,7 @@ void SirveApp::HandleBadPixelReplacement()
         }
 
         WaitCursor cursor;
+        abp_file_type = ABPFileType::ABP_B;
         abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, abp_file_type);
         if (abir_frames == nullptr)
         {
@@ -4095,7 +4090,7 @@ void SirveApp::ExecuteAutoTracking()
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         auto frame_headers = abir_frames->ir_data;
         appPos = this->GetWindowPosition();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
+        arma::s64_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
         auto currentState = state_manager_->GetCurrentState();
         if (!autotrack.empty() && currentState.offsets.size()>0){
@@ -4118,7 +4113,7 @@ void SirveApp::ExecuteAutoTracking()
             offset_matrix2.insert_cols(offset_matrix2.n_cols,12);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
             autotrack_d += offset_matrix2;
-            autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
+            autotrack = arma::conv_to<arma::s64_mat>::from(autotrack_d);
         }
 
         if (!autotrack.empty()){

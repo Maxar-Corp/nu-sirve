@@ -151,8 +151,9 @@ public:
     ABIRReader() = default;
     ~ABIRReader() override = default;
 
-    bool Open(const char* filename, ABPFileType file_type);
-    ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only = false);
+    bool Open(const char* filename);
+
+    ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only, ABPFileType & file_type);
 
 private:
 signals:
@@ -160,7 +161,7 @@ signals:
 
 private:
     double file_version_{};
-    ABPFileType file_type_{ABPFileType::ABP_B};
 };
+
 
 #endif // ABIR_READER_H
