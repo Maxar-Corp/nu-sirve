@@ -315,15 +315,16 @@ void SharedTrackingFunctions::CreateOffsetMatrix(int start_frame, int stop_frame
     offsets_matrix.shed_col(0);
 }
 
-cv::Point SharedTrackingFunctions::GetOpenCVWindowPosition(const std::string& window_name) {
-    HWND hwnd = FindWindowA(NULL, window_name.c_str());
-    if (hwnd == NULL) {
-        return {-1, -1}; // Window not found
-    }
+//Keeping for possible future use
+// cv::Point SharedTrackingFunctions::GetOpenCVWindowPosition(const std::string& window_name) {
+//     HWND hwnd = FindWindowA(NULL, window_name.c_str());
+//     if (hwnd == NULL) {
+//         return {-1, -1}; // Window not found
+//     }
 
-    RECT rect;
-    if (GetWindowRect(hwnd, &rect)) {
-        return {rect.left, rect.top};
-    }
-    return {-1, -1};
-}
+//     RECT rect;
+//     if (GetWindowRect(hwnd, &rect)) {
+//         return {rect.left, rect.top};
+//     }
+//     return {-1, -1};
+// }
