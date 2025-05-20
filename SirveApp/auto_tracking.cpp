@@ -430,7 +430,7 @@ void AutoTracking::TrackingStep(
         bool bbox_uncentered_valid = (bbox_uncentered.x>0 && (bbox_uncentered.x+bbox_uncentered.width)<nCols && bbox_uncentered.y>0 && (bbox_uncentered.y+bbox_uncentered.height)<nRows); 
         if (bbox_uncentered_valid)
         {
-            rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 0, 0, 255 ), 1);
+            rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 255, 255, 0 ), 1);
         }
         cv::imshow(raw_window_name, raw_display_frame); 
         if (i==0)

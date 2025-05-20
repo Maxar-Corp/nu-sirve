@@ -128,7 +128,7 @@ void SharedTrackingFunctions::FindTargetExtent(int nRows, int nCols, int i, doub
         // Draw the bounding rectangle
         output_image = frame_crop_threshold.clone();
         cv::cvtColor(output_image, output_image, cv::COLOR_GRAY2BGR);
-        cv::rectangle(output_image, bbox, cv::Scalar(0, 255, 0), 1);    
+        cv::rectangle(output_image, bbox, cv::Scalar(255, 255, 0), 1);    
         cv::resize(output_image, output_image_resize, cv::Size(resize_factor*frame_crop_threshold.cols, resize_factor*frame_crop_threshold.rows));
         cv::namedWindow("Target Extent");
         cv::imshow("Target Extent",output_image_resize);
