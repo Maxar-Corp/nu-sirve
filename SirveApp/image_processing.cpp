@@ -17,6 +17,7 @@ ImageProcessing::ImageProcessing(ABPFileType file_type)
         nRows = 720;
         nRows2 = nRows/2;
         nCols = 1280;
+        nCols2 = nCols/2;
     }
 }
 
@@ -272,12 +273,12 @@ std::vector<std::vector<uint16_t>> ImageProcessing::FixedNoiseSuppression(const 
         char* buffer = array.data();
 
         ABIRReader reader;
-        if (!reader.Open(buffer, file_type))
+        if (!reader.Open(buffer))
         {
             return frames_out;
         }
 
-        auto frames = reader.ReadFrames(start_frame, stop_frame, false);
+        auto frames = reader.ReadFrames(start_frame, stop_frame, false, file_type);
         video_frames_16bit = std::move(frames->video_frames_16bit);
     }
 
@@ -321,8 +322,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AdaptiveNoiseSuppressionByFr
 {
     int num_video_frames = original.frames_16bit.size();
     int num_pixels = original.frames_16bit[0].size();
-    int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
     int start_frame_index, stop_frame_index, abs_start_frame;
     double M;
     int N2 = num_of_averaging_frames/2;
@@ -539,8 +538,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
-    int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
     int offseti;
     double min0, max0, min, max;
     std::vector<uint16_t> frame_out;
@@ -717,7 +714,7 @@ std::vector<uint16_t> ImageProcessing::DeinterlacePhaseCorrelationCurrent(int fr
 void ImageProcessing::TranslateFrameByOffsetsManual(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset, int xOffset_correction, int yOffset_correction)
 {
     yOffset = td.centroid_y - yOffset_correction;
-    xOffset = td.centroid_x- xOffset_correction;
+    xOffset = td.centroid_x - xOffset_correction;
     output = arma::shift(arma::shift(frame,-yOffset,0),-xOffset,1);
     track_centered_offsets.push_back({framei+1,xOffset,yOffset});
     cont_search = false;
@@ -740,8 +737,8 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
     std::vector<std::vector<uint16_t>> frames_out;
 
     int num_video_frames = original.frames_16bit.size();
-    int nRows = original.y_pixels, yOffset_correction = nRows/2;
-    int nCols = original.x_pixels, xOffset_correction = nCols/2;
+    int yOffset_correction = nRows2;
+    int xOffset_correction = nCols2;
     int yOffset, xOffset;
     int OSMPriority = QString::compare(trackTypePriority, "OSM", Qt::CaseInsensitive);
     arma::mat output(nRows, nCols);
@@ -897,8 +894,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterImageFromOffsets(const
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
-    int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
     int yOffset, xOffset;
     arma::mat output(nRows, nCols);
     arma::mat frame(nRows, nCols);
@@ -932,8 +927,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnBrightest(const Vide
 {
     std::vector<std::vector<uint16_t>> frames_out;
     int num_video_frames = original.frames_16bit.size();
-    int nRows = original.y_pixels, nRows2 = nRows/2;
-    int nCols = original.x_pixels, nCols2 = nCols/2;
     int yOffset0, xOffset0, i_max;
     arma::uvec peak_index;
     arma::mat output(nRows, nCols);
@@ -1030,8 +1023,6 @@ std::vector<std::vector<uint16_t>> ImageProcessing::MedianFilterStandard(VideoDe
 
     int num_video_frames = original.frames_16bit.size();
     arma::mat window(window_size,window_size);
-    int nRows = original.y_pixels;
-    int nCols = original.x_pixels;
 
     arma::mat output(nRows, nCols);
     arma::mat frame(nCols, nRows);
