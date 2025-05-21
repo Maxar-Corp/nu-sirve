@@ -4,7 +4,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/photo.hpp>
 
-std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, const CalibrationData&
+std::array<double, 3> SharedTrackingFunctions::CalculateSumCounts(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, const CalibrationData&
                                                                    model)
 {
     std::array<double, 3> measurements = {0,0,0};
@@ -23,7 +23,7 @@ std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv:
     if (valid_indices)
     {
         arma::mat counts = original_mat_frame.submat(row1, col1, row2, col2);
-        measurements = model.MeasureIrradiance(row1, col1, row2, col2, counts, frame_integration_time);
+        measurements = model.MeasureSumCounts(row1, col1, row2, col2, counts, frame_integration_time);
     }
 
     return measurements;

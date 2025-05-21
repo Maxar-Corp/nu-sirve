@@ -12,7 +12,7 @@
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
-    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "Irradiance", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);

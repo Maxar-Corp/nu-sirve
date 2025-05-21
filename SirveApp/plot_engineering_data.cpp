@@ -168,7 +168,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     {
         func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
     }
-    else if (type == Enums::PlotType::Irradiance)
+    else if (type == Enums::PlotType::SumCounts)
     {
         func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
     }
@@ -213,7 +213,7 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
                 } else if (my_quantities.at(0).getName() == "Elevation")
                 {
                     y_values.push_back(it->second.elevation);
-                } else if (my_quantities.at(0).getName() == "Irradiance")
+                } else if (my_quantities.at(0).getName() == "SumCounts")
                 {
                     y_values.push_back(it->second.sum_relative_counts);
                 }

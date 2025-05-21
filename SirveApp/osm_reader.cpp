@@ -208,7 +208,7 @@ TrackData OSMReader::GetTrackData(const FrameData& input)
 
     for (auto k = 0u; k < num_bands; ++k)
     {
-        IrradianceData ir_data{};
+        SumCountsData ir_data{};
         ir_data.band_id = Read<uint32_t>(true);
         ir_data.num_measurements = Read<uint32_t>(true);
 
