@@ -1,3 +1,4 @@
+#include "custom_tab_bar.h"
 #include "plot_palette.h"
 #include "plot_engineering_data.h"
 #include "qcheckbox.h"
@@ -5,14 +6,18 @@
 #include "qmenu.h"
 #include "quantity.h"
 #include "qwidgetaction.h"
-#include <QMessageBox>
-
 #include <map>
-
+#include <QHelpEvent>
+#include <QMessageBox>
+#include <QTabBar>
+#include <QToolTip>
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
     quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+
+    CustomTabBar* customTabBar = new CustomTabBar();
+    this->setTabBar(customTabBar);
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);

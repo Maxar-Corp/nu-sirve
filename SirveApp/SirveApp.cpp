@@ -4,6 +4,7 @@
 #include "data_export.h"
 #include "osm_reader.h"
 #include "wait_cursor.h"
+#include "custom_tab_bar.h"
 
 SirveApp::SirveApp(QWidget *parent)
     : QMainWindow(parent)

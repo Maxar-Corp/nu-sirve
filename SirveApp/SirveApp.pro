@@ -29,6 +29,7 @@ HEADERS +=  abir_reader.h \
             config.h \
             constants.h \
             custom_input_dialog.h \
+            custom_tab_bar.h \
             data_export.h \
             data_structures.h \
             engineering_data.h \
@@ -87,6 +88,7 @@ SOURCES +=  abir_reader.cpp \
             color_scheme.cpp \
             config.cpp \
             custom_input_dialog.cpp \
+            custom_tab_bar.cpp \
             data_export.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
