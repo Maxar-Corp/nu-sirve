@@ -264,8 +264,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         graph->setSymbolColor(QColor::fromRgb(255,20,20));
 
         this->addGraph(graph);
-
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
+        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
         this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
