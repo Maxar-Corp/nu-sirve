@@ -185,7 +185,7 @@ void SirveApp::SetupUi() {
 
     grpbox_status_area = new QGroupBox("State Control");
     grpbox_status_area->setObjectName("grpbox_status_area");
-    grpbox_status_area->setFixedHeight(200);
+    grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     auto *vlayout_status_area = new QVBoxLayout();
     grpbox_status_area->setLayout(vlayout_status_area);
     cmb_processing_states = new QComboBox();
@@ -199,15 +199,16 @@ void SirveApp::SetupUi() {
     lbl_processing_description->setWordWrap(true);
     scrollarea_processing_description = new QScrollArea();
     scrollarea_processing_description->setWidgetResizable(true);
-    scrollarea_processing_description->setWidget(lbl_processing_description);
     scrollarea_processing_description->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollarea_processing_description->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    auto *vlayout_processing_description = new QVBoxLayout(scrollarea_processing_description);
+    QWidget* scroll_content = new QWidget();
+    auto *vlayout_processing_description = new QVBoxLayout(scroll_content);
     vlayout_processing_description->addWidget(lbl_processing_description);
-    auto * d_bottom_vertical_spacer = new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    vlayout_processing_description->addItem(d_bottom_vertical_spacer);
+    vlayout_processing_description->addItem(new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    scrollarea_processing_description->setWidget(scroll_content);
     vlayout_status_area->addWidget(scrollarea_processing_description);
+    vlayout_status_area->setContentsMargins(5, 15, 5, 5);
     auto *form_processing_state = new QFormLayout;
     form_processing_state->addRow(tr("&Processing State:"),cmb_processing_states);
     form_processing_state->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
@@ -328,11 +329,8 @@ void SirveApp::SetupUi() {
     status_bar->addWidget(grpbox_status_bar);
 
     hlayout_status_permanent->addWidget(lbl_progress_status);
-    //hlayout_status_permanent->addItem(hspacer_item1);
     hlayout_status_permanent->addStretch(1);
     hlayout_status_permanent->addWidget(grpbox_progressbar_area);
-    //hlayout_status_permanent->addItem(hspacer_item1);
-    //hlayout_status_permanent->insertStretch(-1,0);
 
     status_bar->addPermanentWidget(grpbox_status_permanent,0);
     status_bar->setContentsMargins(10,0,10, 10);
@@ -911,7 +909,6 @@ QWidget* SirveApp::SetupTracksTab(){
     connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
-    //hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
     QGroupBox * grpbox_autotrack = new QGroupBox("Tracking Parameters");
