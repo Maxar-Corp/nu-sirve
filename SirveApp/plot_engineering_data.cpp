@@ -653,6 +653,7 @@ void EngineeringPlot::set_sub_plot_xmax(int value)
 void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 {
     index_sub_plot_xmin = min; // for the frameline offset
+    index_sub_plot_xmax = max; // for the workspace, et. al.
 
     sub_plot_xmin = min;
     sub_plot_xmax = max;
