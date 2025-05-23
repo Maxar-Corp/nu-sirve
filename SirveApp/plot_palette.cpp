@@ -30,7 +30,14 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quan
     QVBoxLayout *layout = new QVBoxLayout(tab);
     layout->addWidget(engineering_plot);
 
-    int plot_type_id = Enums::getPlotTypeIndexFromString(quantities[0].getName());
+    QString quant_type_name = quantities.at(0).getName();
+    QStringList parts = quant_type_name.split(' ',Qt::SkipEmptyParts);
+    if (parts.size() >= 2)
+    {
+        quant_type_name = parts[1];
+    }
+
+    int plot_type_id = Enums::getPlotTypeIndexFromString(quant_type_name);
     Enums::PlotUnit plot_unit = quantities[0].getUnit();
 
     int palette_tab_id = this->tabBar()->count();

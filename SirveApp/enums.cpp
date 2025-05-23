@@ -38,6 +38,7 @@ QString Enums::plotUnitToString(PlotUnit plotUnit) {
 }
 
 int Enums::getPlotTypeIndexFromString(const QString &value) {
+
     const QMetaObject &metaObj = Enums::staticMetaObject;
     int index = metaObj.indexOfEnumerator("PlotType");
     QMetaEnum metaEnum = metaObj.enumerator(index);

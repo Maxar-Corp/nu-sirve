@@ -13,7 +13,15 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     plotTitle = plot_title;
     plot_classification = "EDIT CLASSIFICATION";
     my_quantities = quantities;
-    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(0).getName()));
+
+    QString quant_type_name = quantities.at(0).getName();
+    QStringList parts = quant_type_name.split(' ',Qt::SkipEmptyParts);
+    if (parts.size() >= 2)
+    {
+        quant_type_name = parts[1];
+    }
+
+    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quant_type_name));
     plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(1).getName()));
     num_frames = static_cast<unsigned int>(osm_frames.size());
 
