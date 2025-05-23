@@ -1876,7 +1876,7 @@ void SirveApp::LoadOsmData()
     //  Set up new plots as we do in the plot designer class:
     HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
     HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    HandleParamsSelected("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Undefined_PlotUnit), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
 
     osmDataLoaded = true;
 

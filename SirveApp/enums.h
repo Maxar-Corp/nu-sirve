@@ -25,7 +25,6 @@ public:
     enum PlotUnit {
         Degrees,
         Radians,
-        Photons,
         Undefined_PlotUnit
     };
 
