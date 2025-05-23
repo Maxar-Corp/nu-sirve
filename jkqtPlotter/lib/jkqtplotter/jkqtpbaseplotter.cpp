@@ -4613,14 +4613,14 @@ QString JKQTBasePlotter::getUserSettigsPrefix() const
 QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     loadUserSettings();
 
-    QSet<int> set;
     QStringList cols=getDatastore()->getColumnNames();
 
+    // First, store only the non-legend columns.
     for (int i = 0; i < cols.size(); ++i)
     {
         if (!cols[i].contains(this->legendExclusionString, Qt::CaseSensitivity::CaseInsensitive))
         {
-            set.insert(i);
+            selection_set.insert(i);
         }
     }
 
@@ -4639,7 +4639,7 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     dataColumnsListWidget=new QListWidget(dlg);
 
     for (int i=0; i < cols.size(); i++) {
-        if (set.contains(i))
+        if (selection_set.contains(i))
         {
             QListWidgetItem* item=new QListWidgetItem(cols[i], dataColumnsListWidget);
             item->setCheckState(Qt::Checked);
@@ -4663,17 +4663,17 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     layout->addWidget(buttonBox, layout->rowCount(),0, 1, layout->columnCount());
     layout->setRowStretch(layout->rowCount()-2,1);
     layout->setColumnStretch(0,1);
-    dlg->resize(350,500);
+    dlg->resize(350, 500);
 
-    if (dlg->exec()==QDialog::Accepted) {
+    if (dlg->exec() == QDialog::Accepted) {
 
+        delete dlg;
+        dataColumnsListWidget=nullptr;
+
+        saveUserSettings();
+
+        return selection_set;
     }
-    delete dlg;
-    dataColumnsListWidget=nullptr;
-
-    saveUserSettings();
-
-    return set;
 }
 
 
@@ -4726,9 +4726,17 @@ void JKQTBasePlotter::getDataColumnsByUserComboBoxSelected(const QString &name) 
 void JKQTBasePlotter::getDataColumnsByUserItemChanged(QListWidgetItem * /*widgetitem*/) {
     if (!dataColumnsListWidget) return;
     QStringList data;
+
+    selection_set.clear();
+
     for (int i=0; i<dataColumnsListWidget->count(); i++) {
-        if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked) data.append(dataColumnsListWidget->item(i)->text());
+        if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked)
+        {
+            data.append(dataColumnsListWidget->item(i)->text());
+            selection_set.insert(i);
+        }
     }
+
     data.sort();
 
     QMapIterator<QString, QStringList> it(getDataColumnsByUserSaved);

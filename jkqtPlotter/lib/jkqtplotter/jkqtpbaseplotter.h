@@ -2793,7 +2793,7 @@ protected:
 
 private:
 
-
+    QSet<int> selection_set;
     double printZoomFactor;
     double printSizeX_Millimeter;
     double printSizeY_Millimeter;
