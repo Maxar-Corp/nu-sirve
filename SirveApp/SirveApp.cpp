@@ -119,7 +119,7 @@ void SirveApp::SetupUi() {
     splitter->setStretchFactor(2, 1);  // Right widget small
 
     // removes the added extra padding around widgets
-    splitter->setHandleWidth(0);
+    splitter->setHandleWidth(1);
 
 
     // Define main widgets in UI
