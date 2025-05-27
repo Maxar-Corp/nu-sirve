@@ -4493,3 +4493,32 @@ double SirveApp::GetAvailableMemoryRatio(int num_frames, ABPFileType file_type)
     return static_cast<double>(availPhysMem) /
         (num_frames * 16 * nCols * nRows);
 }
+
+void SirveApp::VideoPopoutToggled(bool show_popout)
+{
+
+    QList<int> sizes = splitter->sizes();
+
+    // if d data
+    if (abp_file_type == ABPFileType::ABP_D)
+    {
+        // when d data is popped out, we need to expand the right column graph data
+        if (show_popout)
+        {
+            sizes[1] = 0;
+            sizes[2] = rightWidgetStartingSize;
+
+        }
+        else
+        {
+            //when d data is popped back into widget, we need to hide the graph
+            // collapse right panel and let video take its space
+            sizes[1] += sizes[2];
+            sizes[2] = 0;
+        }
+
+    }
+
+    splitter->setSizes(sizes);
+
+}
