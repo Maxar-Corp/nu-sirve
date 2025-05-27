@@ -3281,19 +3281,24 @@ void JKQTBasePlotter::copyData() {
     QString qfresult;
 
     QSet<int> cols=getDataColumnsByUser();
+
+    if (cols.size() > 0)
     {
-        QTextStream txt(&result);
-        QLocale loc=QLocale::system();
-        loc.setNumberOptions(QLocale::OmitGroupSeparator);
-        const auto dp=loc.decimalPoint();
-        const QString sep="\t";
-        datastore->saveCSV(txt, cols, sep, QString(dp), " ", "\"");
-        txt.flush();
-    }
-    {
-        QTextStream txt(&qfresult);
-        datastore->saveCSV(txt, cols, ",", ".", "#!", "\"");
-        txt.flush();
+        // Note: The 'extra' curly braces here allow for re-use of the variable 'txt'.
+        {
+            QTextStream txt(&result);
+            QLocale loc=QLocale::system();
+            loc.setNumberOptions(QLocale::OmitGroupSeparator);
+            const auto dp=loc.decimalPoint();
+            const QString sep="\t";
+            datastore->saveCSV(txt, cols, sep, QString(dp), " ", "\"");
+            txt.flush();
+        }
+        {
+            QTextStream txt(&qfresult);
+            datastore->saveCSV(txt, cols, ",", ".", "#!", "\"");
+            txt.flush();
+        }
     }
     QClipboard *clipboard = QApplication::clipboard();
     QMimeData* mime=new QMimeData();
@@ -3308,6 +3313,10 @@ void JKQTBasePlotter::copyData() {
 void JKQTBasePlotter::copyDataMatlab() {
     loadUserSettings();
     QString result="";
+
+    QSet<int> cols=getDataColumnsByUser();
+
+    if (cols.size() > 0)
     {
         QTextStream txt(&result);
         datastore->saveMatlab(txt, getDataColumnsByUser());
@@ -4611,11 +4620,14 @@ QString JKQTBasePlotter::getUserSettigsPrefix() const
 }
 
 QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
+
+    selection_set.clear();
+
     loadUserSettings();
 
     QStringList cols=getDatastore()->getColumnNames();
 
-    // First, store only the non-legend columns.
+    // record only the non-legend column indexes.
     for (int i = 0; i < cols.size(); ++i)
     {
         if (!cols[i].contains(this->legendExclusionString, Qt::CaseSensitivity::CaseInsensitive))
@@ -4727,13 +4739,25 @@ void JKQTBasePlotter::getDataColumnsByUserItemChanged(QListWidgetItem * /*widget
     if (!dataColumnsListWidget) return;
     QStringList data;
 
-    selection_set.clear();
+    int count = dataColumnsListWidget->count();
 
-    for (int i=0; i<dataColumnsListWidget->count(); i++) {
+    for (int i=0; i < count; i++) {
         if (dataColumnsListWidget->item(i)->checkState()==Qt::Checked)
         {
             data.append(dataColumnsListWidget->item(i)->text());
-            selection_set.insert(i);
+        } else
+        {
+            // lookup the index of the column we just un-checked and remove it
+
+            QStringList names = this->datastore->getColumnNames();
+            for (int j = 0; j < names.size(); j++)
+            {
+                if (names[j] == dataColumnsListWidget->item(i)->text())
+                {
+                    selection_set.remove(j);
+                }
+
+            }
         }
     }
 
