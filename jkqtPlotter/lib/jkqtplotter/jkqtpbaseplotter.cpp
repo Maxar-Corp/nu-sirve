@@ -4686,6 +4686,9 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
 
         return selection_set;
     }
+
+    selection_set.clear();
+    return selection_set; // handles QDialog::Rejected by default
 }
 
 
