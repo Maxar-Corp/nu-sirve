@@ -25,7 +25,7 @@ void AutoTracking::CancelOperation()
 }
 
 // leverage OpenCV to track objects of interest
-arma::s32_mat AutoTracking::SingleTracker(
+arma::s64_mat AutoTracking::SingleTracker(
     QSize screenResolution,
     QPoint appPos,
     u_int track_id,
@@ -56,7 +56,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     u_int indx, num_frames = stop_frame - start_frame + 1;
 
-    arma::s32_mat output(num_frames, 18);
+    arma::s64_mat output(num_frames, 18);
     
     arma::running_stat<double> stats;
 
@@ -127,7 +127,7 @@ arma::s32_mat AutoTracking::SingleTracker(
 
     if (!valid_ROI || choice == "Discard")
     {
-        output = arma::s32_mat();
+        output = arma::s64_mat();
         return output;
     }
 
@@ -204,7 +204,7 @@ arma::s32_mat AutoTracking::SingleTracker(
             SharedTrackingFunctions::CheckROI(ROI, valid_ROI);
             if (!valid_ROI || choice == "Discard")
             {
-                output = arma::s32_mat();
+                output = arma::s64_mat();
                 return output;
             }
             else if (choice == "Save")
@@ -317,6 +317,7 @@ void AutoTracking::GetROI(string window_name, cv::Rect & ROI, cv::Mat & display_
 {
     cv::namedWindow(window_name,cv::WINDOW_AUTOSIZE);
     cv::moveWindow(window_name,ROI_window_x, ROI_window_y);
+    cv::cvtColor(display_frame_resize, display_frame_resize,cv::COLOR_GRAY2RGB);
     ROI = cv::selectROI(window_name, display_frame_resize);   
 
     while (true)
@@ -373,7 +374,7 @@ void AutoTracking::TrackingStep(
     cv::Scalar & sum_counts,
     uint & number_pixels,
     arma::mat & offsets_matrix,
-    arma::s32_mat & output,
+    arma::s64_mat & output,
     double & sum_relative_counts__old,
     const CalibrationData& calibration_model
 )
@@ -384,12 +385,12 @@ void AutoTracking::TrackingStep(
 
     SharedTrackingFunctions::GetFrameRepresentations(indx, clamp_low_coeff, clamp_high_coeff, current_processing_state.details, base_processing_state_details, frame, prefilter, display_frame, raw_display_frame, clean_display_frame, raw_frame);
 
-    bool ok = tracker->update(display_frame, ROI);
+    bool ok = tracker->update(clean_display_frame, ROI);
 
     cv::Mat frame_crop_threshold;
     cv::Rect bbox = ROI;
     cv::Rect bbox_uncentered = bbox;
-    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, i, clamp_low_coeff, clamp_high_coeff, frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y); //Returns absolute position of bbox within frame
+    SharedTrackingFunctions::FindTargetExtent(nRows, nCols, i, clamp_low_coeff, clamp_high_coeff, clean_display_frame, threshold, bbox_buffer_pixels, frame_crop_threshold, ROI, bbox, offsets_matrix, bbox_uncentered, extent_window_x, extent_window_y); //Returns absolute position of bbox within frame
 
     cv::Mat frame_bbox = frame(bbox);
     raw_frame_bbox = raw_frame(bbox_uncentered);
@@ -402,7 +403,7 @@ void AutoTracking::TrackingStep(
 
         double frame_integration_time = input_frame_header[indx].int_time;
 
-        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
+        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx+1, bbox_uncentered, base_processing_state_details);
         sum_relative_counts__old = sum_relative_counts;
         stats(sum_relative_counts__old);
         SIGMA = stats.stddev();
@@ -413,24 +414,29 @@ void AutoTracking::TrackingStep(
         {
             measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
         }
-
+        cv::cvtColor(clean_display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
         string window_name = "Tracking... ";
-        rectangle(display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
-        rectangle(display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
+        rectangle(clean_display_frame, ROI, cv::Scalar( 0, 0, 255 ), 1);
+        rectangle(clean_display_frame, bbox, cv::Scalar( 255, 255, 0 ), 1);
         cv::Point point(frame_x, frame_y);
-        cv::circle(display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
-        cv::imshow(window_name, display_frame);    
-        cv::moveWindow(window_name, tracking_window_x, tracking_window_y); 
-
+        cv::circle(clean_display_frame, point, 2, cv::Scalar(0, 0, 255), -1); // Red color, filled
+        cv::imshow(window_name, clean_display_frame);    
+        if (i==0)
+        {
+            cv::moveWindow(window_name, tracking_window_x, tracking_window_y);           
+        }
+        
         string raw_window_name = "Raw Data Tracking... ";
         bool bbox_uncentered_valid = (bbox_uncentered.x>0 && (bbox_uncentered.x+bbox_uncentered.width)<nCols && bbox_uncentered.y>0 && (bbox_uncentered.y+bbox_uncentered.height)<nRows); 
         if (bbox_uncentered_valid)
         {
-            rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 0, 0, 255 ), 1);
+            rectangle(raw_display_frame, bbox_uncentered, cv::Scalar( 255, 255, 0 ), 1);
         }
         cv::imshow(raw_window_name, raw_display_frame); 
-        cv::moveWindow(raw_window_name, raw_window_x, raw_window_y); 
-
+        if (i==0)
+        {
+            cv::moveWindow(raw_window_name, raw_window_x, raw_window_y); 
+        }
         cv::waitKey(1);
 
         output.row(i) =  {
@@ -444,7 +450,7 @@ void AutoTracking::TrackingStep(
                             static_cast<uint16_t>(peak_counts),
                             static_cast<int32_t>(mean_counts),
                             static_cast<int32_t>(sum_counts[0]),
-                            static_cast<int32_t>(sum_relative_counts),
+                            static_cast<int64_t>(sum_relative_counts),
                             static_cast<int32_t>(measurements[0]),
                             static_cast<int32_t>(measurements[1]),
                             static_cast<int32_t>(measurements[2]),

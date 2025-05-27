@@ -19,16 +19,15 @@ public:
     void AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quantity> quantities);
     void AddPoppedTabIndex(int tab_index);
     void AddSyncedTabIndex(int tab_index);
-    void DeleteGraphIfExists(int plot_id, int track_id);
+    void DeleteAllTrackGraphs(int plot_id);
 
     EngineeringPlot *GetEngineeringPlotReference(int tab_id);
     Enums::PlotType GetPlotTypeByTabId(int tab_id);
     Enums::PlotUnit GetPlotUnitByTabId(int tab_id);
 
     int GetLowestSyncedTabIndex();
-    int GetUnitTypeByTabId(int tab_id);
     bool HasSyncedTabWithIndex(int tab_id);
-    void PlotAllSirveTracks();
+    void PlotAllSirveTracks(int override_track_id);
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
     void RedrawPlot(int plot_id);
     void RemovePoppedTabIndex(int tab_index);
@@ -36,7 +35,8 @@ public:
     void RouteFramelineUpdate(int frameline_x);
     void SetAbirDataLoaded(bool abir_data_loaded);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
-    void UpdatePlotLabel(int tab_id, QString label);
+    void UpdatePlotLabel(int tab_id, const QString& label);
+    void UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame>, const std::set<int>& track_ids);
 
 protected:
     void mouseDoubleClickEvent (QMouseEvent *event) override;

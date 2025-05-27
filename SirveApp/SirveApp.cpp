@@ -100,6 +100,7 @@ void SirveApp::SetupUi() {
 
     // Set minimum sizes
     leftWidget->setMinimumWidth(leftWidgetStartingSize);
+    leftWidget->setMaximumWidth(leftWidgetStartingSize);
     centralWidget->setMinimumWidth(centralWidgetStartingSize);
     rightWidget->setMinimumWidth(rightWidgetStartingSize);
 
@@ -133,8 +134,8 @@ void SirveApp::SetupUi() {
     // ------------------------------------------------------------------------
     // Define complete tab widget
     // ------------------------------------------------------------------------
-    tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
+    tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupTracksTab(), "Tracks");
 
     SetupVideoFrame();
@@ -244,14 +245,12 @@ void SirveApp::SetupUi() {
     // ------------------------------------------------------------------------
     // initialize ui elements
 
-    tab_menu->setCurrentIndex(0);
-
     tab_menu->setTabEnabled(0, false);
     tab_menu->setTabEnabled(1, false);
     tab_menu->setTabEnabled(2, false);
 
     tab_menu->tabBar()->hide();
-
+    tab_menu->setCurrentIndex(0);
     txt_start_frame->setEnabled(false);
     txt_stop_frame->setEnabled(false);
     btn_get_frames->setEnabled(false);
@@ -1270,12 +1269,8 @@ void SirveApp::ImportTracks()
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
                 video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
 
-                for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-                {
-                    plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
-                }
-
-                FramePlotSpace();
+                plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
+                plot_palette->PlotAllSirveTracks(-1);
             }
         }
         else
@@ -1304,12 +1299,9 @@ void SirveApp::ImportTracks()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));;
-            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-            {
-                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
-            }
 
-            FramePlotSpace();
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
+            plot_palette->PlotAllSirveTracks(-1);
         }
 
     }
@@ -1357,6 +1349,8 @@ void SirveApp::HandleCreateTrackClick()
         auto response = QtHelpers::LaunchYesNoMessageBox("Confirm Track Overwriting", "The manual track ID you have chosen already exists. You can edit this track without saving, but finalizing this track will overwrite it. Are you sure you want to proceed with editing the existing manual track?");
         if (response == QMessageBox::Yes)
         {
+            in_edit_mode = true;
+
             QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
             if (existing_track_control != nullptr)
             {
@@ -1381,7 +1375,7 @@ void SirveApp::PrepareForTrackCreation(int track_id)
     btn_create_track->setHidden(true);
     btn_finish_create_track->setHidden(false);
     lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
-    tab_menu->setTabEnabled(0, false);
+    tab_menu->setTabEnabled(1, false);
 }
 
 void SirveApp::HandleFinishCreateTrackClick()
@@ -1449,15 +1443,8 @@ void SirveApp::HandleFinishCreateTrackClick()
         int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
         video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
-        plot_palette->UpdateManualPlottingTrackFrames(0, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
 
-        for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-        {
-            plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
-        }
-
-
-        FramePlotSpace();
+        plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
 
         if (!existing_track_TF)
         {
@@ -1476,7 +1463,7 @@ void SirveApp::HandleFinishCreateTrackClick()
             const QFileInfo info(new_track_file_name);
             lbl_track_description->setText(info.fileName());
             int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-            HandleManualTrackRecoloring(currently_editing_or_creating_track_id, color_options[ind]);
+            ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
         }
     }
 
@@ -1490,7 +1477,7 @@ void SirveApp::ExitTrackCreationMode()
     lbl_create_track_message->setText("");
     currently_editing_or_creating_track_id = -1;
     tab_menu->setTabEnabled(0, true);
-    tab_menu->setTabEnabled(2, true);
+    tab_menu->setTabEnabled(1, true);
     video_player_->ExitTrackCreationMode();
 }
 
@@ -1498,17 +1485,22 @@ void SirveApp::HandleHideManualTrackId(int track_id)
 {
     QColor new_color(0,0,0,0);
 
-    // TODO: Check this!
     video_player_->HideManualTrackId(track_id);
-    plot_palette->RecolorManualTrack(0, track_id, new_color); // Why painting black here?
-    FramePlotSpace();
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, new_color);
+    }
+    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
 {
     video_player_->ShowManualTrackId(track_id);
-    plot_palette->RecolorManualTrack(0, track_id, new_color);
-    FramePlotSpace();
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, new_color);
+    }
+    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
@@ -1531,13 +1523,32 @@ void SirveApp::HandleTrackRemoval(int track_id)
     // WARNING: This should be amended later to adjust for tabs that have been hidden by the user:
     for (int i = 0; i < plot_palette->tabBar()->count(); i++)
     {
-        plot_palette->DeleteGraphIfExists(i, track_id);
-        plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
+        plot_palette->DeleteAllTrackGraphs(i);
+
+        std::vector<size_t> &new_column_indices = plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
+        plot_palette->GetEngineeringPlotReference(i)->RestoreTrackGraphs(new_column_indices);
         plot_palette->RedrawPlot(i);
-        plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
+        plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
     }
 
-    FramePlotSpace();
+    qDebug() << "About to call PlotAllSirveTracks from within HandleTrackRemoval";
+    plot_palette->PlotAllSirveTracks(-1);
+}
+
+void SirveApp::ColorTrack(int track_id, const QColor& initial_color)
+{
+    video_player_->RecolorManualTrack(track_id, initial_color);
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorManualTrack(index, track_id, initial_color);
+    }
+
+    int track_override_id = in_edit_mode ? track_id : -1;
+
+    plot_palette->PlotAllSirveTracks(track_override_id);
+
+    if (in_edit_mode)
+        in_edit_mode = false;
 }
 
 void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color)
@@ -1548,12 +1559,9 @@ void SirveApp::HandleManualTrackRecoloring(int track_id, const QColor& new_color
         plot_palette->RecolorManualTrack(index, track_id, new_color);
     }
 
-    FramePlotSpace();
-}
+    int track_override_id = in_edit_mode ? track_id : -1;
 
-void SirveApp::FramePlotSpace()
-{
-    plot_palette->PlotAllSirveTracks();
+    plot_palette->PlotAllSirveTracks(track_override_id);
 }
 
 std::once_flag once_flag_main_window;
@@ -1738,37 +1746,6 @@ void SirveApp::LoadWorkspace()
     }
 }
 
-void SirveApp::HandleAbpBFileSelected()
-{
-    abp_file_type = ABPFileType::ABP_B;
-    HandleAbpFileSelected();
-    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-        {
-            toolbox_image_processing->setItemEnabled(i, true);
-            toolbox_image_processing->setItemIcon(i, QIcon());
-        }
-    }
-}
-
-void SirveApp::HandleAbpDFileSelected()
-{
-    abp_file_type = ABPFileType::ABP_D;
-    HandleAbpFileSelected();
-    for (int i = 0; i < toolbox_image_processing->count(); ++i) {
-        if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
-        {
-            QIcon icon(":/icons/no-ghosts.png");
-
-            // Set same pixmap for Disabled mode
-            icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
-
-            toolbox_image_processing->setItemIcon(i, icon);
-            toolbox_image_processing->setItemEnabled(i, false);
-        }
-    }
-}
-
 void SirveApp::HandleAbpFileSelected()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
@@ -1786,6 +1763,7 @@ void SirveApp::HandleAbpFileSelected()
     if (validated)
     {
         LoadOsmData();
+
         QFileInfo fileInfo(file_selection);
         abpimage_file_base_name = fileInfo.baseName();
     }
@@ -2041,6 +2019,33 @@ void SirveApp::UiLoadAbirData()
     video_player_->ClearAnnotations();
 
     LoadAbirData(min_frame, max_frame);
+
+    if (abp_file_type == ABPFileType::ABP_B)
+    {
+        for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+            if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+            {
+                toolbox_image_processing->setItemEnabled(i, true);
+                toolbox_image_processing->setItemIcon(i, QIcon());
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < toolbox_image_processing->count(); ++i) {
+            if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
+            {
+                QIcon icon(":/icons/no-ghosts.png");
+
+                // Set same pixmap for Disabled mode
+                icon.addPixmap(QPixmap(":/icons/no-ghosts.png"), QIcon::Disabled);
+
+                toolbox_image_processing->setItemIcon(i, icon);
+                toolbox_image_processing->setItemEnabled(i, false);
+            }
+        }
+    };
+
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
@@ -2088,6 +2093,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
 
     WaitCursor cursor;
+    abp_file_type = ABPFileType::ABP_B;
     abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, abp_file_type);
     if (abir_frames == nullptr)
     {
@@ -2204,7 +2210,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     txt_auto_track_start_frame->setValidator(validator);
     txt_auto_track_stop_frame->setValidator(validator);
     txt_auto_track_start_frame->setText(QString::number(min_frame));
-    txt_auto_track_stop_frame->setText(QString::number(min_frame + 1));
+    txt_auto_track_stop_frame->setText(QString::number(max_frame));
     connect(txt_auto_track_start_frame, &QLineEdit::editingFinished,this, &SirveApp::HandleAutoTrackStartChangeInput);
 
     video_player_->SetPlaybackEnabled(true);
@@ -2660,13 +2666,9 @@ void SirveApp::CreateMenuActions()
 {
     QIcon on(":/icons/check.png");
 
-    action_load_OSM_B = new QAction("Load B Data");
-    action_load_OSM_B->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM_B, &QAction::triggered, this, &SirveApp::HandleAbpBFileSelected);
-
-    action_load_OSM_D = new QAction("Load D Data");
-    action_load_OSM_D->setStatusTip("Load OSM abpimage file");
-    connect(action_load_OSM_D, &QAction::triggered, this, &SirveApp::HandleAbpDFileSelected);
+    action_load_OSM = new QAction("Load Data");
+    action_load_OSM->setStatusTip("Load OSM abpimage file");
+    connect(action_load_OSM, &QAction::triggered, this, &SirveApp::HandleAbpFileSelected);
 
     action_show_calibration_dialog = new QAction("Setup Calibration");
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
@@ -2714,7 +2716,7 @@ void SirveApp::CreateMenuActions()
     connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
 
 	file_menu = menuBar()->addMenu(tr("&File"));
-	file_menu->addAction(action_load_OSM_B);
+	file_menu->addAction( action_load_OSM);
 	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
     file_menu->addAction(action_close);
@@ -2852,14 +2854,14 @@ void SirveApp::ExportPlotData()
 
     if (item == "Export All Data")
     {
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingTrackFrames());
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames());
     }
     else {
 
         int min_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int max_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax();
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingTrackFrames(), min_frame, max_frame);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), min_frame, max_frame);
     }
 
     QMessageBox msgBox;
@@ -3125,6 +3127,7 @@ void SirveApp::HandleBadPixelReplacement()
         }
 
         WaitCursor cursor;
+        abp_file_type = ABPFileType::ABP_B;
         abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, abp_file_type);
         if (abir_frames == nullptr)
         {
@@ -4084,7 +4087,7 @@ void SirveApp::ExecuteAutoTracking()
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
         auto frame_headers = abir_frames->ir_data;
         appPos = this->GetWindowPosition();
-        arma::s32_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
+        arma::s64_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
         auto currentState = state_manager_->GetCurrentState();
         if (!autotrack.empty() && currentState.offsets.size()>0){
@@ -4107,7 +4110,7 @@ void SirveApp::ExecuteAutoTracking()
             offset_matrix2.insert_cols(offset_matrix2.n_cols,12);
             arma::mat autotrack_d = arma::conv_to<arma::mat>::from(autotrack);
             autotrack_d += offset_matrix2;
-            autotrack = arma::conv_to<arma::s32_mat>::from(autotrack_d);
+            autotrack = arma::conv_to<arma::s64_mat>::from(autotrack_d);
         }
 
         if (!autotrack.empty()){
@@ -4141,11 +4144,10 @@ void SirveApp::ExecuteAutoTracking()
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
-            for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-            {
-                plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingTrackFrames(), track_info->GetManualTrackIds());
-            }
-            FramePlotSpace();
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
+
+            qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";
+            plot_palette->PlotAllSirveTracks(-1);
 
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");

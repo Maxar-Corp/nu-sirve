@@ -32,6 +32,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     index_sub_plot_xmax = num_frames - 1;
 
     ds = this->getDatastore();
+    ds->clear();
 
     show_frame_line = true;
 
@@ -66,34 +67,77 @@ int extractNumberBetweenSpaces(const QString& str) {
         return -1;  // Not found
     }
 }
-
-void EngineeringPlot::DeleteTrack(int track_id)
+void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
 {
-    JKQTPDatastore *ds = getDatastore();
-    QList<size_t> toDelete;
-    int columns_found = 0;
-    int col = 0;
+    qDebug() << "Contents of Data Store:";
+    if (_ds->getMaxRows() > 0) {
+        for (int i = 0; i < 10; i++)
+        {
+            QString row = *new QString();
+            for (int j=0; j < _ds->getColumnCount(); j++)
+            {
+                double val = _ds->get(j, i);
 
-    // Iterate over all column indices
-    while (columns_found < 2) {
-        QString colName = ds->getColumnName(col);
+                QString number_string = QString::number(val);
 
-        // Example condition: column name contains a number surrounded by underscores
-        QRegularExpression re("\\s(\\d+)\\s");
-        if (re.match(colName).hasMatch() && re.match(colName).captured(1).toInt() == track_id) {
-            qDebug() << "Marking column for deletion:" << colName;
-            toDelete.append(col);
-            columns_found++;
+                if (val <= 0 || val > 100000 || number_string.contains('e'))
+                    number_string = "NaN";
+
+                row += number_string + " ";
+            }
+            qDebug() << row;
         }
-        col++;
+    }
+}
+
+std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
+{
+    const int index_of_frameline_y_column = 3; // base zero, so 3 is the 4th column
+    const int index_of_deleted_track_x_column = index_of_frameline_y_column + track_id * 2 -1;
+
+    JKQTPDatastore *ds = getDatastore();
+    JKQTPDatastore *ds2 = new JKQTPDatastore();
+
+    std::vector<size_t> *new_column_indexes = new std::vector<size_t>();
+
+    int column_count = ds->getColumnCount();
+    int next_ds2_index = 0;
+
+    for (int i = 0; i < column_count; i++)
+    {
+        QString column_name = ds->getColumnName(i);
+
+        static QRegularExpression re("\\s(\\d+)\\s");
+
+        if (!(re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt() == track_id)) {
+
+            size_t new_column_index = ds2->addColumn(ds->getRows(i), ds->getColumnName(i));
+
+            if (i > index_of_frameline_y_column && i != index_of_deleted_track_x_column && i != index_of_deleted_track_x_column+1) {
+                new_column_indexes->push_back(new_column_index);
+            }
+
+            for (int j = 0; j < ds->getRows(i); j++) {
+                ds2->set(next_ds2_index, j, ds->get(i,j));
+            }
+            next_ds2_index++;
+        }
     }
 
-    // Important: sort in descending order before deleting to avoid index shifting
-    std::sort(toDelete.begin(), toDelete.end(), std::greater<size_t>());
+    column_count = ds2->getColumnCount();
+    ds->clear();
 
-    for (size_t col : toDelete) {
-        ds->deleteColumn(col);
+    for (int i = 0; i < column_count; i++)
+    {
+        QString column_name = ds2->getColumnName(i);
+        ds->addColumn(ds2->getRows(i), column_name);
+        for (int j = 0; j < ds2->getRows(i); j++)
+        {
+            ds->set(i, j, ds2->get(i,j));
+        }
     }
+
+    return *new_column_indexes;
 }
 
 FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
@@ -146,12 +190,11 @@ void EngineeringPlot::PlotChart()
     func_y = DeriveFunctionPointers(plotYType);
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
-    PlotSirveTracks();
 
     this->getPlotter()->setPlotLabel(plot_classification);
 }
 
-void EngineeringPlot::PlotSirveTracks()
+void EngineeringPlot::PlotSirveTracks(int override_track_id)
 {
     for (int track_id : manual_track_ids)
     {
@@ -172,11 +215,28 @@ void EngineeringPlot::PlotSirveTracks()
                     y_values.push_back(it->second.elevation);
                 } else if (my_quantities.at(0).getName() == "Irradiance")
                 {
-                    y_values.push_back(it->second.irradiance);
+                    y_values.push_back(it->second.sum_relative_counts);
                 }
             }
         }
-        AddSeriesWithColor(x_values, y_values, track_id);
+
+        size_t columnX, columnY;
+        QList<QString> names = ds->getColumnNames();
+
+        if (! TrackExists(track_id))
+        {
+            AddTrack(x_values, y_values, track_id, columnX, columnY);
+            AddGraph(track_id, columnX, columnY);
+        }
+        else
+        {
+            if (track_id == override_track_id)
+                ReplaceTrack(x_values, y_values, track_id);
+            DeleteGraphIfExists("Track " + QString::number(track_id));
+            LookupTrackColumnIndexes(track_id, columnX, columnY);
+            AddGraph(track_id, columnX, columnY);
+            this->plotter->plotUpdated();
+        }
     }
 }
 
@@ -500,33 +560,8 @@ void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlotting
     }
 }
 
-void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vector<double> y_values, int track_id)
+void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
 {
-    QString title = "Track " + QString::number(track_id);
-
-    DeleteGraphIfExists(title);
-
-    QVector<double> X(x_values.begin(), x_values.end());
-    QVector<double> Y(y_values.begin(), y_values.end());
-
-    QString titleX = "Track " + QString::number(track_id) + " x";
-    QString titleY = "Track " + QString::number(track_id) + " y";
-
-     QList<QString> names = ds->getColumnNames();
-
-    size_t columnX;
-    size_t columnY;
-
-    if (!names.contains(titleX))
-    {
-        columnX=ds->addCopiedColumn(X, titleX);
-        columnY=ds->addCopiedColumn(Y, titleY);
-    }
-    else {
-        columnX=(size_t)names.indexOf(titleX);
-        columnY=(size_t)names.indexOf(titleY);
-    }
-
     graph=new JKQTPXYLineGraph(this);
 
     graph->setXColumn(columnX);
@@ -538,6 +573,61 @@ void EngineeringPlot::AddSeriesWithColor(std::vector<double> x_values, std::vect
     graph->setSymbolType(JKQTPNoSymbol);
 
     this->addGraph(graph);
+}
+
+bool EngineeringPlot::TrackExists(int track_id)
+{
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QList<QString> names = ds->getColumnNames();
+
+    return names.contains(titleX);
+}
+
+void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
+{
+    QVector<double> X(x_values.begin(), x_values.end());
+    QVector<double> Y(y_values.begin(), y_values.end());
+
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
+    columnX=ds->addCopiedColumn(X, titleX);
+    columnY=ds->addCopiedColumn(Y, titleY);
+}
+
+void EngineeringPlot::LookupTrackColumnIndexes(int track_id,  size_t &columnX, size_t &columnY)
+{
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
+    QList<QString> names = ds->getColumnNames();
+
+    columnX=(size_t)names.indexOf(titleX);
+    columnY=(size_t)names.indexOf(titleY);
+}
+
+void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
+{
+    QList<QString> names = ds->getColumnNames();
+    QString x_column_to_search_for = "Track " + QString::number(track_id) + " x";
+    int col_index_found;
+
+    for (int j=0; j < ds->getColumnCount(); j++)
+    {
+        if (QString(names[j]) == x_column_to_search_for)
+        {
+            col_index_found = j;
+        }
+    }
+
+    ds->resizeColumn(col_index_found, x.size());
+    ds->resizeColumn(col_index_found+1, x.size());
+
+    for (size_t row_index = 0; row_index < x.size(); ++row_index)
+    {
+        ds->set(col_index_found, row_index, x[row_index]);
+        ds->set(col_index_found+1, row_index, y[row_index]);
+    }
 }
 
 void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
@@ -583,7 +673,35 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
     }
 
     if (graph_exists)
+    {
         this->getGraphs().removeAt(index);
+    }
+}
+
+void EngineeringPlot::DeleteAllTrackGraphs()
+{
+    for (int i = this->getGraphs().count()-1; i >=0; i--)
+    {
+        QString title = this->getGraphs().at(i)->getTitle();
+        if (title.contains("Track")) {
+            this->getGraphs().removeAt(i);
+        }
+    }
+}
+
+void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes)
+{
+    for (int i = 0; i < new_column_indexes.size(); i+=2)
+    {
+        if (i > 3)
+        {
+            // get the track ID from the new columns' names
+            static QRegularExpression re("\\s(\\d+)\\s");
+            QString column_name = ds->getColumnNames()[i];
+            int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
+            AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
+        }
+    }
 }
 
 void EngineeringPlot::DefineFullPlotInterval()

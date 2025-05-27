@@ -135,7 +135,7 @@ public:
     std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
     std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
     const std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
-    const std::vector<ManualPlottingTrackFrame>& GetManualPlottingTrackFrames();
+    const std::vector<ManualPlottingTrackFrame>& GetManualPlottingFrames();
     const std::vector<TrackFrame>& GetManualImageFrames();
 
     size_t GetTrackCount() const;

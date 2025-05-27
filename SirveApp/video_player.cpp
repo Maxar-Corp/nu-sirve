@@ -238,7 +238,6 @@ void VideoPlayer::ToggleOsmTracks(bool input)
 void VideoPlayer::TogglePopout()
 {
 
-
     auto pop_in = [this] {
         if (original_parent_) {
             popout_->setChecked(false);
