@@ -187,6 +187,7 @@ public:
     void UpdatePlots(EngineeringPlot *engineering_plot);
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
     void UpdateGlobalFrameVector();
+    void VideoPopoutToggled(bool show_popout);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
