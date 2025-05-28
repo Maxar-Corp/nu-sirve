@@ -42,6 +42,9 @@ private:
 
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
     bool AnyItemChecked(QListWidget *listWidget);
+    void OnYAxisValueChanged(QListWidgetItem *changedItem);
+    void OnXAxisValueChanged(QListWidgetItem *changedItem);
+    void SetAxisUnit(QListWidget *axis_list_widget, QComboBox *units_combo_box);
 };
 
 #endif // PLOT_DESIGNER_H

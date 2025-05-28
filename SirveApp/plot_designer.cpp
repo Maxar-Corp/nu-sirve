@@ -1,6 +1,4 @@
 #include <QApplication>
-#include <QDialog>
-#include <QTextEdit>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -9,7 +7,9 @@
 #include "enums.h"
 #include "plot_designer.h"
 
+#include <qbuttongroup.h>
 #include <QPointer>
+#include <QRadioButton>
 
 #include "support/qthelpers.h"
 #include "qcombobox.h"
@@ -48,8 +48,13 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     listWidget2 = new SingleCheckList(this);
 
     // Create the buttons
-    QPushButton *closeButton = new QPushButton("Close", this);
+    QPushButton *closeButton = new QPushButton("Create Tab", this);
     connect(closeButton, &QPushButton::clicked, this, &PlotDesigner::accept);
+
+    // not sure which signal will produce the best results, should probably switch to radio button instead of checkbox
+    connect(listWidget1, &QListWidget::itemChanged, this, &PlotDesigner::OnYAxisValueChanged);
+    connect(listWidget2, &QListWidget::itemChanged, this, &PlotDesigner::OnXAxisValueChanged);
+
 
     // Layout the widgets
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -131,4 +136,59 @@ void PlotDesigner::accept() {
 
     // Call the base class accept to close the dialog
     QDialog::accept();
+}
+
+void PlotDesigner::OnYAxisValueChanged(QListWidgetItem *changedItem)
+{
+    SetAxisUnit(listWidget1, unitsBox1);
+}
+
+void PlotDesigner::OnXAxisValueChanged(QListWidgetItem *changedItem)
+{
+    SetAxisUnit(listWidget2, unitsBox2);
+}
+
+void PlotDesigner::SetAxisUnit(QListWidget *axis_list_widget, QComboBox *units_combo_box)
+{
+    if (axis_list_widget->selectedItems().count() == 0)
+    {
+        return;
+    }
+    QString checked_value = axis_list_widget->selectedItems().at(0)->text();
+    QString combo_value = units_combo_box->currentText();
+
+    QStringList radian_degree_values;
+    radian_degree_values << "Azimuth" << "Elevation" << "Boresight_Azimuth" << "Boresight_Elevation";
+
+    units_combo_box->clear();
+
+    if (radian_degree_values.contains(checked_value))
+    {
+        units_combo_box->addItem("Degrees");
+        units_combo_box->addItem("Radians");
+        units_combo_box->setCurrentText("Degrees");
+    }
+    else if (checked_value == "FovX" || checked_value == "FovY")
+    {
+        units_combo_box->addItem("Microns");
+        units_combo_box->setCurrentText("Microns");
+    }
+    else if (checked_value == "SumCounts")
+    {
+        units_combo_box->addItem("Counts");
+        units_combo_box->setCurrentText("Counts");
+    }
+    else if (checked_value == "Frames")
+    {
+        units_combo_box->addItem("Frame_Number");
+        units_combo_box->setCurrentText("Frame_Number");
+    }
+    else if (checked_value == "Seconds_From_Epoch" || checked_value == "Seconds_Past_Midnight")
+    {
+        units_combo_box->addItem("Seconds");
+        units_combo_box->setCurrentText("Seconds");
+    }else
+    {
+        populateComboBox(units_combo_box);
+    }
 }
