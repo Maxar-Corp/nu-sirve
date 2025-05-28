@@ -3,6 +3,7 @@
 SingleCheckList::SingleCheckList(QWidget *parent)
     : QListWidget(parent) {
     connect(this, &QListWidget::itemChanged, this, &SingleCheckList::onItemChanged);
+
 }
 
 void SingleCheckList::onItemChanged(QListWidgetItem *changedItem) {

@@ -52,8 +52,9 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     connect(closeButton, &QPushButton::clicked, this, &PlotDesigner::accept);
 
     // not sure which signal will produce the best results, should probably switch to radio button instead of checkbox
-    connect(listWidget1, &QListWidget::itemChanged, this, &PlotDesigner::OnYAxisValueChanged);
-    connect(listWidget2, &QListWidget::itemChanged, this, &PlotDesigner::OnXAxisValueChanged);
+    connect(listWidget1, &SingleCheckList::itemClicked, this, &PlotDesigner::OnYAxisValueChanged);
+    connect(listWidget2, &SingleCheckList::itemClicked, this, &PlotDesigner::OnXAxisValueChanged);
+
 
 
     // Layout the widgets
