@@ -12,6 +12,7 @@ public:
 
 private slots:
     void onItemChanged(QListWidgetItem *changedItem);
+    void onItemClicked(QListWidgetItem *changedItem);
 };
 
 #endif // SINGLECHECKLIST_H

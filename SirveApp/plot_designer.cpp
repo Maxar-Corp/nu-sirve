@@ -55,6 +55,9 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     connect(listWidget1, &SingleCheckList::itemClicked, this, &PlotDesigner::OnYAxisValueChanged);
     connect(listWidget2, &SingleCheckList::itemClicked, this, &PlotDesigner::OnXAxisValueChanged);
 
+    // connect(listWidget1, &SingleCheckList::itemChanged, this, &PlotDesigner::OnYAxisValueChanged);
+    // connect(listWidget2, &SingleCheckList::itemChanged, this, &PlotDesigner::OnXAxisValueChanged);
+
 
 
     // Layout the widgets
