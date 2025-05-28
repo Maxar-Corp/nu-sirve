@@ -9,7 +9,14 @@
 #include "abir_reader.h"
 #include "tracks.h"
 #include "video_details.h"
-#include "constants.h"
+
+enum CenterOnTracks
+{
+    OSM,
+    MANUAL,
+    OSM_THEN_MANUAL,
+    MANUAL_THEN_OSM
+};
 
 class  ImageProcessing : public QObject
 {
@@ -18,13 +25,12 @@ class  ImageProcessing : public QObject
 public:
 
     ImageProcessing(ABPFileType file_type);
-    ~ImageProcessing();
 
-    double min_deinterlace_dist;
-    double max_deinterlace_dist;
-    int deinterlace_kernel_size;
-    int frameval;
-    bool cancel_operation;
+    double min_deinterlace_dist = 1.5;
+    double max_deinterlace_dist = 40.0;
+    int deinterlace_kernel_size = 3;
+    int frame_val = 0;
+    bool cancel_operation = false;
 
     void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indeces, int width_pixels);
     void UpdateProgressBar(unsigned int value);
@@ -58,15 +64,15 @@ public slots:
 private:
 
     int nRows = 480;
-    int nRows2 = nRows/2;
+    int nRows2 = 240;
     int nCols = 640;
-    int nCols2 = nCols/2;
+    int nCols2 = 320;
     std::vector<std::vector<uint16_t>> video_frames_16bit;
     arma::mat disk_avg_kernel;
 
-    static arma::mat apply_shrinkage_operator(arma::mat s, double tau);
+    static arma::mat apply_shrinkage_operator(const arma::mat& s, double tau);
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
-    static arma::mat perform_thresholding(arma::mat X, double tau);
+    static arma::mat perform_thresholding(const arma::mat& X, double tau);
 };
 
 #endif

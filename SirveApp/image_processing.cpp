@@ -5,23 +5,13 @@
 
 ImageProcessing::ImageProcessing(ABPFileType file_type)
 {
-    frameval = 0;
-
-    cancel_operation = false;
-
-    min_deinterlace_dist = 1.5;
-    max_deinterlace_dist = 40;
-    deinterlace_kernel_size = 3;
     if (file_type == ABPFileType::ABP_D)
     {
         nRows = 720;
-        nRows2 = nRows/2;
+        nRows2 = 360;
         nCols = 1280;
+        nCols2 = 640;
     }
-}
-
-ImageProcessing::~ImageProcessing()
-{
 }
 
 void ImageProcessing::ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indices, int width_pixels)
@@ -512,7 +502,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::RPCPNoiseSuppression(const V
     return frames_out;
 }
 
-arma::mat ImageProcessing::perform_thresholding(arma::mat X, double tau)
+arma::mat ImageProcessing::perform_thresholding(const arma::mat& X, double tau)
 {
     arma::mat U;
     arma::vec s;
@@ -525,12 +515,9 @@ arma::mat ImageProcessing::perform_thresholding(arma::mat X, double tau)
     return D;
 }
 
-arma::mat ImageProcessing::apply_shrinkage_operator(arma::mat s, double tau)
+arma::mat ImageProcessing::apply_shrinkage_operator(const arma::mat& s, double tau)
 {
-    arma::mat z(s);
-    arma::mat st = arma::sign(s) % arma::max(arma::abs(s)-tau, z.zeros());
-
-    return st;
+    return arma::sign(s) % arma::max(arma::abs(s)-tau, arma::zeros<arma::mat>(s.n_rows, s.n_cols));
 }
 
 std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(double weight, int offset, int NThresh, const VideoDetails& original, bool hide_shadow_choice)
@@ -571,7 +558,7 @@ std::vector<std::vector<uint16_t>> ImageProcessing::AccumulatorNoiseSuppression(
             foreground.convertTo(foreground_64FC1,CV_64FC1);
             arma::mat arma_frame( reinterpret_cast<double*>(foreground_64FC1.data), foreground_64FC1.cols, foreground_64FC1.rows );
             arma::vec frame_vector = arma::vectorise(arma_frame);
-            ImageProcessing::remove_shadow(nRows, nCols, frame_vector, NThresh);
+            remove_shadow(nRows, nCols, frame_vector, NThresh);
             cv::Mat foreground_64FC1 = cv::Mat(nRows, nCols, CV_64FC1, frame_vector.memptr());
             foregroundn = max0*foreground_64FC1;
         }
@@ -750,13 +737,18 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
     auto num_frames = (int) osm_frames.size();
 
     const std::vector<TrackFrame> *primary_frames, *secondary_frames;
+    int primary_id, secondary_id;
     QPoint primary_correction, secondary_correction;
     if (osm_priority) {
+        primary_id = osm_track_id;
+        secondary_id = manual_track_id;
         primary_frames = &osm_frames;
         secondary_frames = &manual_frames;
         primary_correction = {0, 0};
         secondary_correction = {size.width() / 2, size.height() / 2};
     } else {
+        primary_id = manual_track_id;
+        secondary_id = osm_track_id;
         primary_frames = &manual_frames;
         secondary_frames = &osm_frames;
         primary_correction = {size.width() / 2, size.height() / 2};
@@ -778,11 +770,11 @@ std::vector<std::vector<uint16_t>> ImageProcessing::CenterOnTracks(const QString
         QPoint offsets;
 
         // Try the primary tracks first
-        auto good = OffsetFrame(primary_frames->at(i).tracks, frame, osm_track_id, primary_correction, offsets, output);
+        auto good = OffsetFrame(primary_frames->at(i).tracks, frame, primary_id, primary_correction, offsets, output);
         if (!good && any_track) {
             // If no valid tracks were found, try the secondary tracks, if any_track is true
             good = OffsetFrame(
-                secondary_frames->at(i).tracks, frame, manual_track_id, secondary_correction, offsets, output);
+                secondary_frames->at(i).tracks, frame, secondary_id, secondary_correction, offsets, output);
         }
 
         if (good) {
