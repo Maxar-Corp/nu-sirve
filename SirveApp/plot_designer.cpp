@@ -40,6 +40,9 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     populateComboBox(unitsBox1);
     populateComboBox(unitsBox2);
 
+    QLabel *plotYAxisLabel = new QLabel("Choose Y Axis Quantity & Units:");
+    QLabel *plotXAxisLabel = new QLabel("Choose X Axis Quantity & Units:");
+
     // Create the list widgets
     listWidget1 = new SingleCheckList(this);
     listWidget2 = new SingleCheckList(this);
@@ -51,8 +54,10 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
     // Layout the widgets
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(plotTitle);
+    layout->addWidget(plotYAxisLabel);
     layout->addWidget(listWidget1);
     layout->addWidget(unitsBox1);
+    layout->addWidget(plotXAxisLabel);
     layout->addWidget(listWidget2);
     layout->addWidget(unitsBox2);
     layout->addWidget(closeButton);

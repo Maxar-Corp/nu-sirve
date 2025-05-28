@@ -119,7 +119,7 @@ void SirveApp::SetupUi() {
     splitter->setStretchFactor(2, 1);  // Right widget small
 
     // removes the added extra padding around widgets
-    splitter->setHandleWidth(0);
+    splitter->setHandleWidth(1);
 
 
     // Define main widgets in UI
@@ -185,7 +185,7 @@ void SirveApp::SetupUi() {
 
     grpbox_status_area = new QGroupBox("State Control");
     grpbox_status_area->setObjectName("grpbox_status_area");
-    grpbox_status_area->setFixedHeight(200);
+    grpbox_status_area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     auto *vlayout_status_area = new QVBoxLayout();
     grpbox_status_area->setLayout(vlayout_status_area);
     cmb_processing_states = new QComboBox();
@@ -199,15 +199,16 @@ void SirveApp::SetupUi() {
     lbl_processing_description->setWordWrap(true);
     scrollarea_processing_description = new QScrollArea();
     scrollarea_processing_description->setWidgetResizable(true);
-    scrollarea_processing_description->setWidget(lbl_processing_description);
     scrollarea_processing_description->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollarea_processing_description->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    auto *vlayout_processing_description = new QVBoxLayout(scrollarea_processing_description);
+    QWidget* scroll_content = new QWidget();
+    auto *vlayout_processing_description = new QVBoxLayout(scroll_content);
     vlayout_processing_description->addWidget(lbl_processing_description);
-    auto * d_bottom_vertical_spacer = new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    vlayout_processing_description->addItem(d_bottom_vertical_spacer);
+    vlayout_processing_description->addItem(new QSpacerItem(10, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    scrollarea_processing_description->setWidget(scroll_content);
     vlayout_status_area->addWidget(scrollarea_processing_description);
+    vlayout_status_area->setContentsMargins(5, 15, 5, 5);
     auto *form_processing_state = new QFormLayout;
     form_processing_state->addRow(tr("&Processing State:"),cmb_processing_states);
     form_processing_state->setFormAlignment(Qt::AlignHCenter | Qt::AlignCenter);
@@ -328,11 +329,8 @@ void SirveApp::SetupUi() {
     status_bar->addWidget(grpbox_status_bar);
 
     hlayout_status_permanent->addWidget(lbl_progress_status);
-    //hlayout_status_permanent->addItem(hspacer_item1);
     hlayout_status_permanent->addStretch(1);
     hlayout_status_permanent->addWidget(grpbox_progressbar_area);
-    //hlayout_status_permanent->addItem(hspacer_item1);
-    //hlayout_status_permanent->insertStretch(-1,0);
 
     status_bar->addPermanentWidget(grpbox_status_permanent,0);
     status_bar->setContentsMargins(10,0,10, 10);
@@ -911,7 +909,6 @@ QWidget* SirveApp::SetupTracksTab(){
     connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
-    //hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
     QGroupBox * grpbox_autotrack = new QGroupBox("Tracking Parameters");
@@ -1867,9 +1864,9 @@ void SirveApp::LoadOsmData()
     plot_palette = new PlotPalette();
 
     //  Set up new plots as we do in the plot designer class:
-    HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
-    HandleParamsSelected("Irradiance",{Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Azimuth", {Quantity("OSM Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Elevation",{Quantity("OSM Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
+    HandleParamsSelected("Sum Counts",{Quantity("OSM SumCounts", Enums::PlotUnit::Undefined_PlotUnit), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)});
 
     osmDataLoaded = true;
 
@@ -4494,4 +4491,33 @@ double SirveApp::GetAvailableMemoryRatio(int num_frames, ABPFileType file_type)
     DWORDLONG availPhysMem = memInfo.ullAvailPhys;
     return static_cast<double>(availPhysMem) /
         (num_frames * 16 * nCols * nRows);
+}
+
+void SirveApp::VideoPopoutToggled(bool show_popout)
+{
+
+    QList<int> sizes = splitter->sizes();
+
+    // if d data
+    if (abp_file_type == ABPFileType::ABP_D)
+    {
+        // when d data is popped out, we need to expand the right column graph data
+        if (show_popout)
+        {
+            sizes[1] = 0;
+            sizes[2] = rightWidgetStartingSize;
+
+        }
+        else
+        {
+            //when d data is popped back into widget, we need to hide the graph
+            // collapse right panel and let video take its space
+            sizes[1] += sizes[2];
+            sizes[2] = 0;
+        }
+
+    }
+
+    splitter->setSizes(sizes);
+
 }

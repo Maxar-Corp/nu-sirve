@@ -42,13 +42,13 @@ struct MessageHeader
 	double seconds = 0.0;
 };
 
-struct IrradianceData
+struct SumCountsData
 {
-	IrradianceData() = default;
-	IrradianceData(const IrradianceData&) = default;
-	IrradianceData& operator=(const IrradianceData&) = default;
+	SumCountsData() = default;
+	SumCountsData(const SumCountsData&) = default;
+	SumCountsData& operator=(const SumCountsData&) = default;
 
-	IrradianceData(uint32_t bandId, uint32_t numMeasurements, std::vector<double> time, std::vector<double> irRadiance,
+	SumCountsData(uint32_t bandId, uint32_t numMeasurements, std::vector<double> time, std::vector<double> irRadiance,
 		std::vector<double> irSigma);
 
 	uint32_t band_id = 0;
@@ -66,7 +66,7 @@ struct TrackData
 	TrackData(uint32_t trackId, uint32_t sensorType, uint32_t numBands, uint32_t roiBlx, uint32_t roiBly, uint32_t roiUrx, uint32_t roiUry,
 		uint32_t numPixels, uint32_t objectType, double semiMajorAxis, double semiMinorAxis, double orientationAngle, double maxX,
 		double maxY, double frameStabilizeX, double frameStabilizeY, double stableFrameShiftX, double stableFrameShiftY, double centroidX,
-		double centroidY, double centroidVarianceX, double centroidVarianceY, double covariance, std::vector<IrradianceData> irMeasurements,
+		double centroidY, double centroidVarianceX, double centroidVarianceY, double covariance, std::vector<SumCountsData> irMeasurements,
 		std::vector<double> azElTrack);
 
 	uint32_t track_id = 0;
@@ -95,7 +95,7 @@ struct TrackData
 	double centroid_variance_y = 0.0;
 	double covariance = 0.0;
 
-    std::vector<IrradianceData> ir_measurements;
+    std::vector<SumCountsData> ir_measurements;
 	std::vector <double> az_el_track;
 
 };

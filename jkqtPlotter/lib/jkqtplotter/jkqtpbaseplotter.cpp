@@ -1910,6 +1910,15 @@ bool JKQTBasePlotter::exportpreview(QSizeF pageSize, bool unitIsMM) {
     layout->setColumnStretch(layout->columnCount()-1, 1);
     layout->addWidget(scroll, layout->rowCount(),0, 1, layout->columnCount());
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok);
+    if (okButton)
+        okButton->setToolTip("Copy this plot image to clipboard and close the dialog.");
+
+    QPushButton* cancelButton = buttonBox->button(QDialogButtonBox::Cancel);
+    if (cancelButton)
+        cancelButton->setToolTip("Cancel and discard changes.");
+
     connect(buttonBox, SIGNAL(accepted()), dlg, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), dlg, SLOT(reject()));
     layout->addWidget(buttonBox, layout->rowCount(),0, 1, layout->columnCount());
@@ -4658,6 +4667,15 @@ QSet<int> JKQTBasePlotter::getDataColumnsByUser() {
     layout->addWidget(btn, 3,1);
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    QPushButton* okButton = buttonBox->button(QDialogButtonBox::Ok);
+    if (okButton)
+        okButton->setToolTip("Copy selected columns to clipboard and close the dialog.");
+
+    QPushButton* cancelButton = buttonBox->button(QDialogButtonBox::Cancel);
+    if (cancelButton)
+        cancelButton->setToolTip("Cancel and discard changes.");
+
     connect(buttonBox, SIGNAL(accepted()), dlg, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), dlg, SLOT(reject()));
     layout->addWidget(buttonBox, layout->rowCount(),0, 1, layout->columnCount());

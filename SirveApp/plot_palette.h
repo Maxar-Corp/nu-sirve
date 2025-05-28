@@ -40,6 +40,8 @@ public:
 
 protected:
     void mouseDoubleClickEvent (QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;
 
 private:
     bool abir_data_loaded = false;

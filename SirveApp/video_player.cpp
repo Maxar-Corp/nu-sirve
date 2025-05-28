@@ -251,6 +251,8 @@ void VideoPlayer::TogglePopout()
         {
             central_panel_->show();
         }
+
+        mw_->VideoPopoutToggled(false);
     };
 
     if (popout_dialog_.isNull()) {
@@ -262,6 +264,12 @@ void VideoPlayer::TogglePopout()
 
         central_panel_ = original_parent_->parentWidget();
         central_panel_->hide();
+        if (mw_ == nullptr)
+        {
+            InitMainWindow();
+        }
+        mw_->VideoPopoutToggled(true);
+
 
         popout_dialog_ = new QDialog(nullptr, Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
         popout_dialog_->setMinimumWidth(minimum_width);
@@ -561,7 +569,7 @@ void VideoPlayer::SetupUi()
     video_buttons->addWidget(next_);
 
     lbl_fps_ = new QLabel("fps");
-    lbl_fps_->setFixedWidth(30);
+    lbl_fps_->setFixedWidth(40);
     video_buttons->addWidget(lbl_fps_);
 
     increase_fps_ = new QPushButton();

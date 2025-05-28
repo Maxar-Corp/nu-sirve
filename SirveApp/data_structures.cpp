@@ -19,7 +19,7 @@ FrameHeader::FrameHeader(uint64_t authorization, uint32_t classification, uint32
 
 MessageHeader::MessageHeader(uint64_t size, double seconds): size(size), seconds(seconds) {}
 
-IrradianceData::IrradianceData(uint32_t bandId, uint32_t numMeasurements, std::vector<double> time, std::vector<double> irRadiance,
+SumCountsData::SumCountsData(uint32_t bandId, uint32_t numMeasurements, std::vector<double> time, std::vector<double> irRadiance,
     std::vector<double> irSigma): band_id(bandId),
                                   num_measurements(numMeasurements),
                                   time(std::move(time)),
@@ -30,7 +30,7 @@ TrackData::TrackData(uint32_t trackId, uint32_t sensorType, uint32_t numBands, u
     uint32_t roiUry, uint32_t numPixels, uint32_t objectType, double semiMajorAxis, double semiMinorAxis, double orientationAngle,
     double maxX, double maxY, double frameStabilizeX, double frameStabilizeY, double stableFrameShiftX, double stableFrameShiftY,
     double centroidX, double centroidY, double centroidVarianceX, double centroidVarianceY, double covariance,
-    std::vector<IrradianceData> irMeasurements, std::vector<double> azElTrack): track_id(trackId),
+    std::vector<SumCountsData> irMeasurements, std::vector<double> azElTrack): track_id(trackId),
                                                                                 sensor_type(sensorType),
                                                                                 num_bands(numBands),
                                                                                 roiBLX(roiBlx),
