@@ -21,7 +21,7 @@ struct MessageHeader
 	double seconds;
 };
 
-struct IrradianceData {
+struct SumCountsData {
 	uint32_t band_id, num_measurements;
 
 	std::vector<double> time, ir_radiance, ir_sigma;
@@ -36,7 +36,7 @@ struct TrackData {
 	double semi_major_axis, semi_minor_axis, orientation_angle, maxX, maxY;
 	double frame_stabilize_x, frame_stabilize_y, stable_frame_shift_x, stable_frame_shift_y, centroid_x, centroid_y, centroid_variance_x, centroid_variance_y, covariance;
 
-    std::vector<IrradianceData> ir_measurements;
+    std::vector<SumCountsData> ir_measurements;
 	std::vector <double> az_el_track;
 
 };

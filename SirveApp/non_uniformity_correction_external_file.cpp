@@ -100,7 +100,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
         this->resize(500, 500);
 
     engineering_data = new EngineeringData(osm_frames);
-    plot_data = new EngineeringPlot(osm_frames, "Irradiance", {Quantity("Irradiance", Enums::PlotUnit::Photons), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)}); // TODO: Pull in metadata for this.
+    plot_data = new EngineeringPlot(osm_frames, "SumCounts", {Quantity("SumCounts", Enums::PlotUnit::Undefined_PlotUnit), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)}); // TODO: Pull in metadata for this.
 
     track_info = new TrackInformation(osm_frames,file_type_);
     plot_data->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());

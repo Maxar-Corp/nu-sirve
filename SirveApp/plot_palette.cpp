@@ -5,14 +5,18 @@
 #include "qmenu.h"
 #include "quantity.h"
 #include "qwidgetaction.h"
-#include <QMessageBox>
-
 #include <map>
-
+#include <QHelpEvent>
+#include <QMessageBox>
+#include <QTabBar>
+#include <QToolTip>
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
-    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "Irradiance", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+
+    // Required to detect mouse passing over unused tab bar real estate, to display tooltip:
+    setMouseTracking(true);
 
     // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -25,7 +29,14 @@ void PlotPalette::AddPlotTab(EngineeringPlot *engineering_plot, std::vector<Quan
     QVBoxLayout *layout = new QVBoxLayout(tab);
     layout->addWidget(engineering_plot);
 
-    int plot_type_id = Enums::getPlotTypeIndexFromString(quantities[0].getName());
+    QString quant_type_name = quantities.at(0).getName();
+    QStringList parts = quant_type_name.split(' ',Qt::SkipEmptyParts);
+    if (parts.size() >= 2)
+    {
+        quant_type_name = parts[1];
+    }
+
+    int plot_type_id = Enums::getPlotTypeIndexFromString(quant_type_name);
     Enums::PlotUnit plot_unit = quantities[0].getUnit();
 
     int palette_tab_id = this->tabBar()->count();
@@ -219,6 +230,37 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class
     }
+}
+
+void PlotPalette::mouseMoveEvent(QMouseEvent* event)
+{
+    auto tabBar = this->tabBar();
+    int lastIndex = tabBar->count() - 1;
+    if (lastIndex < 0)
+        return;
+
+    QPoint tabBarPos = tabBar->mapFrom(this, event->position().toPoint());
+    QRect lastTabRect = tabBar->tabRect(lastIndex);
+
+    // Check if the point is just to the right of the last tab:
+    int tolerance = lastTabRect.width();
+    bool isToRight = (tabBarPos.y() >= lastTabRect.top() &&
+                      tabBarPos.y() <= lastTabRect.bottom() &&
+                      tabBarPos.x() > this->width() - tolerance &&
+                      tabBarPos.x() <= this->width());
+
+    if (isToRight) {
+        QString tooltipText = "Double right-click in right-side empty area to add new tab!";
+        QToolTip::showText(event->globalPosition().toPoint(), tooltipText, this);
+    }
+
+    QWidget::mouseMoveEvent(event);
+}
+
+void PlotPalette::leaveEvent(QEvent* event)
+{
+    QToolTip::hideText();
+    //QTabBar::leaveEvent(event);
 }
 
 void PlotPalette::PlotAllSirveTracks(int override_track_id)

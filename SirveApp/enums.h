@@ -15,7 +15,7 @@ public:
         Elevation,
         FovX,
         FovY,
-        Irradiance,
+        SumCounts,
         Frames,
         Seconds_From_Epoch,
         Seconds_Past_Midnight,
@@ -25,7 +25,6 @@ public:
     enum PlotUnit {
         Degrees,
         Radians,
-        Photons,
         Undefined_PlotUnit
     };
 

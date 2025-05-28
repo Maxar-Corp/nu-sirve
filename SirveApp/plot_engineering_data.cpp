@@ -13,7 +13,15 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     plotTitle = plot_title;
     plot_classification = "EDIT CLASSIFICATION";
     my_quantities = quantities;
-    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(0).getName()));
+
+    QString quant_type_name = quantities.at(0).getName();
+    QStringList parts = quant_type_name.split(' ',Qt::SkipEmptyParts);
+    if (parts.size() >= 2)
+    {
+        quant_type_name = parts[1];
+    }
+
+    plotYType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quant_type_name));
     plotXType = Enums::getPlotTypeByIndex(Enums::getPlotTypeIndexFromString(quantities.at(1).getName()));
     num_frames = static_cast<unsigned int>(osm_frames.size());
 
@@ -168,7 +176,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     {
         func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
     }
-    else if (type == Enums::PlotType::Irradiance)
+    else if (type == Enums::PlotType::SumCounts)
     {
         func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
     }
@@ -213,7 +221,7 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
                 } else if (my_quantities.at(0).getName() == "Elevation")
                 {
                     y_values.push_back(it->second.elevation);
-                } else if (my_quantities.at(0).getName() == "Irradiance")
+                } else if (my_quantities.at(0).getName() == "SumCounts")
                 {
                     y_values.push_back(it->second.sum_relative_counts);
                 }
@@ -265,8 +273,11 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         this->addGraph(graph);
 
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ");
-        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ");
+        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
+
+        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
+        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 

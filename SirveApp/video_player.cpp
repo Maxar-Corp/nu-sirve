@@ -561,7 +561,7 @@ void VideoPlayer::SetupUi()
     video_buttons->addWidget(next_);
 
     lbl_fps_ = new QLabel("fps");
-    lbl_fps_->setFixedWidth(30);
+    lbl_fps_->setFixedWidth(40);
     video_buttons->addWidget(lbl_fps_);
 
     increase_fps_ = new QPushButton();
