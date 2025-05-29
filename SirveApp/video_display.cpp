@@ -280,6 +280,7 @@ void VideoDisplay::HandleBtnSelectTrackCentroid(bool checked)
     UpdateDisplayFrame();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::ExitSelectTrackCentroidMode()
 {
     btn_select_track_centroid->setChecked(false);
@@ -301,6 +302,7 @@ void VideoDisplay::HandleBtnPinpoint(bool checked)
     UpdateDisplayFrame();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::HandlePinpointControlActivation(bool status)
 {
     btn_pinpoint->setEnabled(status);
@@ -309,6 +311,7 @@ void VideoDisplay::HandlePinpointControlActivation(bool status)
     btn_clear_pinpoints->setEnabled(status);
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::ReclaimLabel()
 {
     video_display_layout->insertWidget(0, lbl_image_canvas, 0, Qt::AlignHCenter);
@@ -505,21 +508,16 @@ void VideoDisplay::Calibrate(QRect area)
         QRect adjusted_area = area;
 
         for (const auto& zoom : zoom_manager.GetZoomList()) {
-            int* x1,* y1,* x2,* y2;
-            x1 = new int;
-            y1 = new int;
-            x2 = new int;
-            y2 = new int;
+            int x1, y1, x2, y2;
+            adjusted_area.getCoords(&x1, &y1, &x2, &y2);
 
-            adjusted_area.getCoords(x1, y1, x2, y2);
-
-            double x1_position = *x1 * 1.0 / width;
-            double y1_position = *y1 * 1.0 / height;
+            double x1_position = x1 * 1.0 / width;
+            double y1_position = y1 * 1.0 / height;
             int new_x1 = std::round(x1_position * zoom.width()) + zoom.x();
             int new_y1 = std::round(y1_position * zoom.height()) + zoom.y();
 
-            double x2_position = *x2 * 1.0 / width;
-            double y2_position = *y2 * 1.0 / height;
+            double x2_position = x2 * 1.0 / width;
+            double y2_position = y2 * 1.0 / height;
             int new_x2 = std::round(x2_position * zoom.width()) + zoom.x();
             int new_y2 = std::round(y2_position * zoom.height()) + zoom.y();
 
@@ -718,6 +716,7 @@ void VideoDisplay::ResetCreateTrackMinAndMaxFrames()
     UpdateCreateTrackLabel();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::UpdateCreateTrackLabel()
 {
     if (track_details_min_frame == 0) {
@@ -795,10 +794,9 @@ void VideoDisplay::UpdateDisplayFrame()
 
     // Convert image back to RGB to facilitate use of the colors
     frame = frame.convertToFormat(QImage::Format_RGB888);
-    uint indx = this->counter;
 
-    x_correction = offsets_matrix(indx, 0);
-    y_correction = offsets_matrix(indx, 1);
+    x_correction = offsets_matrix(counter, 0);
+    y_correction = offsets_matrix(counter, 1);
 
     if (should_show_bad_pixels && current_idx != -1) {
         for (auto i = 0; i < state_manager_->at(current_idx).replaced_pixels.size(); i++) {
@@ -880,7 +878,7 @@ void VideoDisplay::UpdateDisplayFrame()
         if (chk_show_crosshair->isChecked()) {
             SetVideoCursor();
         }
-
+        assert(starting_frame_number + counter - 1 < track_details.size());
         if (track_details[starting_frame_number + counter - 1].has_value()) {
             TrackDetails td0 = track_details[starting_frame_number + counter - 1].value();
             int new_x_in_progress_track = std::round(1.0 * (td0.centroid_x - x_correction));
@@ -978,7 +976,8 @@ void VideoDisplay::UpdateDisplayFrame()
         }
     }
 
-    size_t num_osm_tracks = osm_track_frames[counter].tracks.size();
+    assert(counter < osm_track_frames.size());
+    auto num_osm_tracks = osm_track_frames[counter].tracks.size();
     if (plot_tracks && num_osm_tracks > 0) {
         QPainter osm_track_marker_painter(&frame);
         osm_track_marker_painter.setPen(QPen(OSM_track_color));
@@ -1008,7 +1007,8 @@ void VideoDisplay::UpdateDisplayFrame()
         }
     }
 
-    size_t num_manual_tracks = manual_track_frames[counter].tracks.size();
+    assert(counter < manual_track_frames.size());
+    auto num_manual_tracks = manual_track_frames[counter].tracks.size();
     if (num_manual_tracks > 0 && manual_track_ids_to_show.size() > 0) {
         QPainter manual_track_marker_painter(&frame);
         manual_track_marker_painter.setPen(QPen(rgb_cyan));
@@ -1187,7 +1187,7 @@ void VideoDisplay::DrawAnnotations()
     }
 }
 
-QRectF VideoDisplay::GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height)
+QRectF VideoDisplay::GetRectangleAroundPixel(int x_center, int y_center, int box_size, double box_width, double box_height) const
 {
     if (!zoom_manager.IsCurrentlyZoomed(x_center, y_center))
         return QRectF();
@@ -1387,6 +1387,7 @@ void VideoDisplay::ViewFrame(unsigned int frame_number)
     UpdateDisplayFrame();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::ShowStencil()
 {
     annotation_stencil->show();
@@ -1398,6 +1399,7 @@ void VideoDisplay::HideStencil()
     UpdateDisplayFrame();
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::InitializeStencilData(AnnotationInfo data)
 {
     annotation_stencil->InitializeData(std::move(data));

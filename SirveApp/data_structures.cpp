@@ -1,0 +1,96 @@
+#include "data_structures.h"
+
+FrameHeader::FrameHeader(uint64_t authorization, uint32_t classification, uint32_t type, uint32_t priority, uint32_t operIndicator,
+    uint32_t infoSource, uint32_t infoDestination, uint32_t transactionId, uint32_t ackReqIndicator, uint32_t ackResponse,
+    uint32_t cantProReason, uint32_t messageLength, uint32_t softwareVersion, double timeGeneratedSeconds): authorization(authorization),
+    classification(classification),
+    type(type),
+    priority(priority),
+    oper_indicator(operIndicator),
+    info_source(infoSource),
+    info_destination(infoDestination),
+    transaction_id(transactionId),
+    ack_req_indicator(ackReqIndicator),
+    ack_response(ackResponse),
+    cant_pro_reason(cantProReason),
+    message_length(messageLength),
+    software_version(softwareVersion),
+    time_generated_seconds(timeGeneratedSeconds) {}
+
+MessageHeader::MessageHeader(uint64_t size, double seconds): size(size), seconds(seconds) {}
+
+SumCountsData::SumCountsData(uint32_t bandId, uint32_t numMeasurements, std::vector<double> time, std::vector<double> irRadiance,
+    std::vector<double> irSigma): band_id(bandId),
+                                  num_measurements(numMeasurements),
+                                  time(std::move(time)),
+                                  ir_radiance(std::move(irRadiance)),
+                                  ir_sigma(std::move(irSigma)) {}
+
+TrackData::TrackData(uint32_t trackId, uint32_t sensorType, uint32_t numBands, uint32_t roiBlx, uint32_t roiBly, uint32_t roiUrx,
+    uint32_t roiUry, uint32_t numPixels, uint32_t objectType, double semiMajorAxis, double semiMinorAxis, double orientationAngle,
+    double maxX, double maxY, double frameStabilizeX, double frameStabilizeY, double stableFrameShiftX, double stableFrameShiftY,
+    double centroidX, double centroidY, double centroidVarianceX, double centroidVarianceY, double covariance,
+    std::vector<SumCountsData> irMeasurements, std::vector<double> azElTrack): track_id(trackId),
+                                                                                sensor_type(sensorType),
+                                                                                num_bands(numBands),
+                                                                                roiBLX(roiBlx),
+                                                                                roiBLY(roiBly),
+                                                                                roiURX(roiUrx),
+                                                                                roiURY(roiUry),
+                                                                                num_pixels(numPixels),
+                                                                                object_type(objectType),
+                                                                                semi_major_axis(semiMajorAxis),
+                                                                                semi_minor_axis(semiMinorAxis),
+                                                                                orientation_angle(orientationAngle),
+                                                                                maxX(maxX),
+                                                                                maxY(maxY),
+                                                                                frame_stabilize_x(frameStabilizeX),
+                                                                                frame_stabilize_y(frameStabilizeY),
+                                                                                stable_frame_shift_x(stableFrameShiftX),
+                                                                                stable_frame_shift_y(stableFrameShiftY),
+                                                                                centroid_x(centroidX),
+                                                                                centroid_y(centroidY),
+                                                                                centroid_variance_x(centroidVarianceX),
+                                                                                centroid_variance_y(centroidVarianceY),
+                                                                                covariance(covariance),
+                                                                                ir_measurements(std::move(irMeasurements)),
+                                                                                az_el_track(std::move(azElTrack)) {}
+
+FrameData::FrameData(uint32_t taskId, uint32_t numTracks, double frame_time, double iFovX, double iFovY, double julianDate,
+    double secondsPastMidnight, std::vector<double> mrp, std::vector<double> mrpCovRand, std::vector<double> mrpCovBias,
+    std::vector<double> ecf, std::vector<double> lla, std::vector<double> dcm, std::vector<double> azElBoresight,
+    std::vector<TrackData> trackData): task_id(taskId),
+                                       num_tracks(numTracks),
+                                       frame_time(frame_time),
+                                       i_fov_x(iFovX),
+                                       i_fov_y(iFovY),
+                                       julian_date(julianDate),
+                                       seconds_past_midnight(secondsPastMidnight),
+                                       mrp(std::move(mrp)),
+                                       mrp_cov_rand(std::move(mrpCovRand)),
+                                       mrp_cov_bias(std::move(mrpCovBias)),
+                                       ecf(std::move(ecf)),
+                                       lla(std::move(lla)),
+                                       dcm(std::move(dcm)),
+                                       az_el_boresight(std::move(azElBoresight)),
+                                       track_data(std::move(trackData)) {}
+
+Frame::Frame(FrameHeader frameHeader, MessageHeader msgHeader, FrameData data): frame_header(std::move(frameHeader)),
+                                                                                msg_header(std::move(msgHeader)),
+                                                                                data(std::move(data)) {}
+
+VideoInfo::VideoInfo(int xPixels, int yPixels, int minFrame, int maxFrame, int xCorrection, int yCorrection): x_pixels(xPixels),
+    y_pixels(yPixels),
+    min_frame(minFrame),
+    max_frame(maxFrame),
+    x_correction(xCorrection),
+    y_correction(yCorrection) {}
+
+PlottingFrameData::PlottingFrameData(double azimuthSensor, double elevationSensor, double julianDate, double secondsPastMidnight,
+    double timingOffset, double frameTime): azimuth_sensor(azimuthSensor),
+                                            elevation_sensor(elevationSensor),
+                                            julian_date(julianDate),
+                                            seconds_past_midnight(secondsPastMidnight),
+                                            timing_offset(timingOffset),
+                                            frame_time(frameTime) {}
+

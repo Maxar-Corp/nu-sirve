@@ -137,8 +137,8 @@ FrameData OSMReader::ReadFrameData()
     auto osm_seconds = Read<uint32_t>(true);
     auto osm_micro_seconds = Read<uint32_t>(true);
 
-    data.frametime = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
-    data.julian_date = CalculateGpsUtcJulianDate(data.frametime);
+    data.frame_time = osm_seconds + osm_micro_seconds * 1e-6; // GPS Time since Jan 6, 1990
+    data.julian_date = CalculateGpsUtcJulianDate(data.frame_time);
 
     auto modified_julian_date = data.julian_date + 0.5;
     int midnight_julian = static_cast<int>(std::floor(modified_julian_date));

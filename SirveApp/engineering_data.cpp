@@ -136,7 +136,7 @@ void EngineeringData::extract_engineering_data(const std::vector<Frame> & osm_fr
         temp.elevation_sensor = osm_frames[i].data.az_el_boresight[1];
         temp.julian_date = osm_frames[i].data.julian_date;
         temp.seconds_past_midnight = osm_frames[i].data.seconds_past_midnight;
-        temp.frame_time = osm_frames[i].data.frametime;
+        temp.frame_time = osm_frames[i].data.frame_time;
 
         frame_data.push_back(temp);
         julian_date.push_back(osm_frames[i].data.julian_date);

@@ -76,6 +76,7 @@ set(SOURCES
         config.cpp
         custom_input_dialog.cpp
         data_export.cpp
+        data_structures.cpp
         engineering_data.cpp
         enhanced_label.cpp
         histogram_plotter.cpp

@@ -9,7 +9,14 @@
 #include "abir_reader.h"
 #include "tracks.h"
 #include "video_details.h"
-#include "constants.h"
+
+enum CenterOnTracks
+{
+    OSM,
+    MANUAL,
+    OSM_THEN_MANUAL,
+    MANUAL_THEN_OSM
+};
 
 class  ImageProcessing : public QObject
 {
@@ -18,13 +25,12 @@ class  ImageProcessing : public QObject
 public:
 
     ImageProcessing(ABPFileType file_type);
-    ~ImageProcessing();
 
-    double min_deinterlace_dist;
-    double max_deinterlace_dist;
-    int deinterlace_kernel_size;
-    int frameval;
-    bool cancel_operation;
+    double min_deinterlace_dist = 1.5;
+    double max_deinterlace_dist = 40.0;
+    int deinterlace_kernel_size = 3;
+    int frame_val = 0;
+    bool cancel_operation = false;
 
     void ReplacePixelsWithNeighbors(std::vector<std::vector<uint16_t>> & original_pixels, const std::vector<unsigned int>& bad_pixel_indeces, int width_pixels);
     void UpdateProgressBar(unsigned int value);
@@ -41,8 +47,8 @@ public:
 	std::vector<std::vector<uint16_t>> DeinterlaceOpenCVPhaseCorrelation(const VideoDetails & original);
     std::vector<uint16_t> DeinterlacePhaseCorrelationCurrent(int current_frame, const std::vector<uint16_t>& current_frame_16bit) const;
 
-    std::vector<std::vector<uint16_t>> CenterOnTracks(const QString& trackTypePriority, const VideoDetails& original, int OSM_track_id, int manual_track_id, const std::vector<TrackFrame>& osmFrames,\
-                                                      const std::vector<TrackFrame>& manualFrames, boolean findAnyTrack, std::vector<std::vector<int>> & track_centered_offsets);
+    std::vector<std::vector<uint16_t>> CenterOnTracks(const QString& trackTypePriority, const VideoDetails& original, int osm_track_id, int manual_track_id, const std::vector<TrackFrame>& osm_frames,\
+                                                      const std::vector<TrackFrame>& manual_frames, bool any_track, std::vector<std::vector<int>> & out_offsets);
 
     std::vector<std::vector<uint16_t>> CenterOnBrightest(const VideoDetails & original, std::vector<std::vector<int>> & brightest_centered_offsets);
     std::vector<std::vector<uint16_t>> FrameStacking(int number_of_frames, const VideoDetails & original);
@@ -58,17 +64,15 @@ public slots:
 private:
 
     int nRows = 480;
-    int nRows2 = nRows/2;
+    int nRows2 = 240;
     int nCols = 640;
-    int nCols2 = nCols/2;
+    int nCols2 = 320;
     std::vector<std::vector<uint16_t>> video_frames_16bit;
     arma::mat disk_avg_kernel;
 
-    static arma::mat apply_shrinkage_operator(arma::mat s, double tau);
+    static arma::mat apply_shrinkage_operator(const arma::mat& s, double tau);
     void remove_shadow(int nRows, int nCols, arma::vec & frame_vector, int NThresh);
-    static arma::mat perform_thresholding(arma::mat X, double tau);
-    void TranslateFrameByOffsetsManual(TrackDetails &td, arma::mat &frame, bool &cont_search, int &framei, int &xOffset, arma::mat &output, std::vector<std::vector<int>>& track_centered_offsets, int &yOffset, int xOffset_correction, int yOffset_correction);
-    void TranslateFramesByOffsetOsm(int &yOffset, std::vector<std::vector<int>>& track_centered_offsets, bool &cont_search, arma::mat &frame, int &xOffset, arma::mat &output, int &framei, TrackDetails &td);
+    static arma::mat perform_thresholding(const arma::mat& X, double tau);
 };
 
 #endif

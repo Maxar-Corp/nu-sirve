@@ -103,7 +103,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     plot_data = new EngineeringPlot(osm_frames, "SumCounts", {Quantity("SumCounts", Enums::PlotUnit::Undefined_PlotUnit), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)}); // TODO: Pull in metadata for this.
 
     track_info = new TrackInformation(osm_frames,file_type_);
-    plot_data->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    plot_data->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
 
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();

@@ -137,7 +137,7 @@ void SirveApp::SetupUi() {
     tab_menu->addTab(SetupColorCorrectionTab(), "Color/Overlays");
     tab_menu->addTab(SetupProcessingTab(), "Processing");
     tab_menu->addTab(SetupTracksTab(), "Tracks");
- 
+
     SetupVideoFrame();
     SetupPlotFrame();
 
@@ -1034,10 +1034,8 @@ QWidget* SirveApp::SetupTracksTab(){
 void SirveApp::ResetEngineeringDataAndSliderGUIs()
 {
     video_player_->ResetSlider();
-    if (eng_data != nullptr){
-        std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
-        for ( int track_id : previous_manual_track_ids )
-        {
+    if (eng_data != nullptr) {
+        for (int track_id : track_info->GetManualTrackIds()) {
             HandleTrackRemoval(track_id);
             video_player_->DeleteManualTrack(track_id);
         }
@@ -1242,7 +1240,7 @@ void SirveApp::ImportTracks()
         return;
     }
 
-    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
     for ( int track_id : result.track_ids )
     {
         video_player_->AddManualTrackIdToShowLater(track_id);
@@ -1266,9 +1264,9 @@ void SirveApp::ImportTracks()
 
                 int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
-                video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+                video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
 
-                plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+                plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
                 plot_palette->PlotAllSirveTracks(-1);
             }
         }
@@ -1281,9 +1279,8 @@ void SirveApp::ImportTracks()
             track_info->AddManualTracks(result.frames);
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
-            std::set<int> track_ids = track_info->get_manual_track_ids();
 
-            for ( int tid : track_ids ){
+            for (int tid : track_info->GetManualTrackIds()){
                 cmb_manual_track_IDs->addItem(QString::number(tid));
 
             }
@@ -1298,9 +1295,9 @@ void SirveApp::ImportTracks()
 
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
-            video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));;
+            video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));;
 
-            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
             plot_palette->PlotAllSirveTracks(-1);
         }
 
@@ -1312,7 +1309,7 @@ void SirveApp::HandleCreateTrackClick()
     bool ok;
     QPoint appPos = this->GetWindowPosition();
     int bbox_buffer_pixels = txt_pixel_buffer->text().toInt();
-    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
     int maxID = 0;
     string prefilter = "NONE";
     if (rad_autotrack_filter_gaussian->isChecked()){
@@ -1375,7 +1372,6 @@ void SirveApp::PrepareForTrackCreation(int track_id)
     btn_create_track->setHidden(true);
     btn_finish_create_track->setHidden(false);
     lbl_create_track_message->setText("Editing Track: " + QString::number(currently_editing_or_creating_track_id));
-    // tab_menu->setTabEnabled(0, false);
     tab_menu->setTabEnabled(1, false);
 }
 
@@ -1409,7 +1405,7 @@ void SirveApp::HandleFinishCreateTrackClick()
     {
         QString new_track_file_name;
         QString suggested_track_name;
-        std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+        const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
         bool existing_track_TF = false;
         if (previous_manual_track_ids.find(currently_editing_or_creating_track_id) == previous_manual_track_ids.end())
         {
@@ -1443,16 +1439,15 @@ void SirveApp::HandleFinishCreateTrackClick()
 
         int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
-        video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+        video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
 
-        plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
 
         if (!existing_track_TF)
         {
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
-            std::set<int> track_ids = track_info->get_manual_track_ids();
-            for ( int track_id : track_ids ){
+            for (int track_id : track_info->GetManualTrackIds() ){
                 cmb_manual_track_IDs->addItem(QString::number(track_id));
             }
         }
@@ -1511,16 +1506,15 @@ void SirveApp::HandleTrackRemoval(int track_id)
     track_info->RemoveManualTrack(track_id);
     cmb_manual_track_IDs->clear();
     cmb_manual_track_IDs->addItem("Primary");
-    std::set<int> track_ids = track_info->get_manual_track_ids();
 
-    for ( int tid : track_ids ){
+    for ( int tid : track_info->GetManualTrackIds() ){
         cmb_manual_track_IDs->addItem(QString::number(tid));
     }
     track_info->RemoveManualTrackPlotting(track_id);
     track_info->RemoveManualTrackImage(track_id);
     int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
     int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
-    video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
+    video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
     video_player_->DeleteManualTrack(track_id);
 
     // WARNING: This should be amended later to adjust for tabs that have been hidden by the user:
@@ -1531,7 +1525,7 @@ void SirveApp::HandleTrackRemoval(int track_id)
         std::vector<size_t> &new_column_indices = plot_palette->GetEngineeringPlotReference(i)->DeleteTrack(track_id);
         plot_palette->GetEngineeringPlotReference(i)->RestoreTrackGraphs(new_column_indices);
         plot_palette->RedrawPlot(i);
-        plot_palette->UpdateManualPlottingTrackFrames(i, track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+        plot_palette->UpdateManualPlottingTrackFrames(i, track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
     }
 
     qDebug() << "About to call PlotAllSirveTracks from within HandleTrackRemoval";
@@ -1878,7 +1872,7 @@ void SirveApp::LoadOsmData()
 
     connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
-    size_t num_tracks = track_info->get_track_count();
+    size_t num_tracks = track_info->GetTrackCount();
     if (num_tracks == 0)
     {
         QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
@@ -1886,7 +1880,7 @@ void SirveApp::LoadOsmData()
 
     plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
 
-    plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
 
     //--------------------------------------------------------------------------------
 
@@ -1953,7 +1947,7 @@ void SirveApp::LoadOsmData()
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
-    data_plot->set_plotting_track_frames(track_info->get_osm_plotting_track_frames(), track_info->get_track_count());
+    data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
     int tab_count = plot_palette->tabBar()->count();
@@ -2046,7 +2040,7 @@ void SirveApp::UiLoadAbirData()
                 toolbox_image_processing->setItemIcon(i, icon);
                 toolbox_image_processing->setItemEnabled(i, false);
             }
-        }  
+        }
     };
 
     lbl_workspace_name->setText("Workspace File: ");
@@ -2119,7 +2113,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Deriving processing state..."));
     this->repaint();
     ProcessingState primary;
-    auto number_frames = static_cast<uint32_t>(abir_frames->video_frames_16bit.size());
     auto x_pixels = abir_frames->x_pixels;
     progress_bar_main->setValue(20);
     auto y_pixels = abir_frames->y_pixels;
@@ -2160,13 +2153,13 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     int index1 = max_frame;
     std::vector<PlottingFrameData> temp = eng_data->get_subset_plotting_frame_data(index0, index1);
 
-    video_player_->InitializeTrackData(track_info->get_osm_frames(index0, index1), track_info->get_manual_frames(index0, index1));
+    video_player_->InitializeTrackData(track_info->GetOsmFrames(index0, index1), track_info->GetManualFrames(index0, index1));
     cmb_OSM_track_IDs->clear();
     cmb_OSM_track_IDs->addItem("Primary");
     cmb_manual_track_IDs->clear();
     cmb_manual_track_IDs->addItem("Primary");
-    std::set<int> track_ids = track_info->get_OSM_track_ids();
-    for ( int track_id : track_ids ){
+    const auto& track_ids = track_info->GetOsmTrackIds();
+    for (int track_id : track_ids){
         cmb_OSM_track_IDs->addItem(QString::number(track_id));
     }
 
@@ -2858,14 +2851,14 @@ void SirveApp::ExportPlotData()
 
     if (item == "Export All Data")
     {
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames());
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames());
     }
     else {
 
         int min_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
         int max_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax();
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->get_osm_plotting_track_frames(), track_info->get_manual_plotting_frames(), min_frame, max_frame);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), min_frame, max_frame);
     }
 
     QMessageBox msgBox;
@@ -2972,7 +2965,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 
     if (osmDataLoaded == true)
     {
-        for (int id : this->track_info->get_manual_track_ids())
+        for (int id : this->track_info->GetManualTrackIds())
         {
             QLineSeries *trackSeries = new QLineSeries();
             trackSeries->setName("Track " + QString::number(id));
@@ -3596,12 +3589,15 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
     int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
 
-    std::vector<TrackFrame> osmFrames = track_info->get_osm_frames(min_frame - 1, max_frame);
-    std::vector<TrackFrame> manualFrames = track_info->get_manual_frames(min_frame - 1, max_frame);
+    std::vector<TrackFrame> osmFrames = track_info->GetOsmFrames(min_frame - 1, max_frame);
+    std::vector<TrackFrame> manualFrames = track_info->GetManualFrames(min_frame - 1, max_frame);
 
     new_state.find_any_tracks = find_any_tracks;
 
     QPointer image_processor = CreateImageProcessor();
+
+    connect(image_processor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
+    connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);
 
     new_state.details.frames_16bit = image_processor->CenterOnTracks(trackFeaturePriority, new_state.details,
         OSM_track_id, manual_track_id, osmFrames, manualFrames, find_any_tracks, track_centered_offsets);
@@ -3609,22 +3605,23 @@ void SirveApp::CenterOnTracks(const QString& trackFeaturePriority, int OSM_track
     if (new_state.details.frames_16bit.size() > 0)
     {
         auto method = osm_priority == 0 ? ProcessingMethod::center_on_OSM : ProcessingMethod::center_on_manual;
-        state_manager_->push_back(std::move(new_state), method);
-        auto& last = state_manager_->back();
-        last.offsets = track_centered_offsets;
+        new_state.offsets = track_centered_offsets;
 
         osm_priority = QString::compare(trackFeaturePriority, "OSM", Qt::CaseInsensitive);
         int track_id = osm_priority == 0 ? OSM_track_id : manual_track_id;
-        last.track_id = track_id;
+        new_state.track_id = track_id;
 
         arma::mat offsets_matrix;
-        SharedTrackingFunctions::CreateOffsetMatrix(0,num_frames-1,last, offsets_matrix);
-        last.offsets_matrix = offsets_matrix;
+        SharedTrackingFunctions::CreateOffsetMatrix(0, num_frames-1, new_state, offsets_matrix);
+        new_state.offsets_matrix = std::move(offsets_matrix);
+
+        state_manager_->push_back(std::move(new_state), method);
 
         // TODO: Shouldn't this be handled by a signal?
         UpdateGlobalFrameVector();
     }
     CloseProgressArea();
+    image_processor->deleteLater();
 }
 
 void SirveApp::CenterOnOffsets(const QString& trackFeaturePriority, int track_id, const std::vector<std::vector<int>> & track_centered_offsets, boolean find_any_tracks, int source_state_idx)
@@ -4049,7 +4046,7 @@ void SirveApp::ExecuteAutoTracking()
     int start_frame_i = start_frame - frame0;
     int stop_frame_i = start_frame_i + num_frames_to_track - 1;
     bool ok;
-    std::set<int> previous_manual_track_ids = track_info->get_manual_track_ids();
+    const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
     int maxID = 0;
     if(previous_manual_track_ids.size()>0){
         maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
@@ -4143,16 +4140,15 @@ void SirveApp::ExecuteAutoTracking()
 
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_sub_plot_xmax() + 1;
-            video_player_->UpdateManualTrackData(track_info->get_manual_frames(index0, index1));
-            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->get_manual_plotting_frames(), track_info->get_manual_track_ids());
+            video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
+            plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
 
             qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";
             plot_palette->PlotAllSirveTracks(-1);
 
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
-            std::set<int> track_ids = track_info->get_manual_track_ids();
-            for ( int tid : track_ids )
+            for (int tid : track_info->GetManualTrackIds())
             {
                 cmb_manual_track_IDs->addItem(QString::number(tid));
             }
@@ -4286,6 +4282,9 @@ void SirveApp::DeleteState()
                 }
             }
             std::sort(delete_states_i.begin(), delete_states_i.end(), std::greater<size_t>());
+            auto it = std::unique(delete_states_i.begin(), delete_states_i.end());
+            delete_states_i.erase(it, delete_states_i.end());
+
             for (auto i = 0; i <  delete_states_i.size() ;i++){
                 cmb_processing_states->removeItem(delete_states_i[i]);
                 state_manager_->erase(delete_states_i[i]);

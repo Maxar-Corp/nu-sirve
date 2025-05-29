@@ -308,21 +308,24 @@ void PlotPalette::SetAbirDataLoaded(bool osm_data_loaded)
     this->abir_data_loaded = osm_data_loaded;
 }
 
-void PlotPalette::UpdatePlotLabel(int tab_id, QString label)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void PlotPalette::UpdatePlotLabel(int tab_id, const QString& label)
 {
     engineering_plot_ref.at(tab_id)->getPlotter()->setPlotLabel(label);
     engineering_plot_ref.at(tab_id)->getPlotter()->redrawPlot();
 }
 
-void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
 {
-    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(std::move(frames), track_ids);
 }
 
-void PlotPalette::UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids)
+// ReSharper disable once CppMemberFunctionMayBeConst
+void PlotPalette::UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
 {
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
-        engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
+        engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(std::move(frames), track_ids);
     }
 }

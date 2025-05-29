@@ -79,7 +79,7 @@ public:
 
     void ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id);
 
-    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
+    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);

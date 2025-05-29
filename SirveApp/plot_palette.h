@@ -26,7 +26,6 @@ public:
     Enums::PlotUnit GetPlotUnitByTabId(int tab_id);
 
     int GetLowestSyncedTabIndex();
-    int GetUnitTypeByTabId(int tab_id);
     bool HasSyncedTabWithIndex(int tab_id);
     void PlotAllSirveTracks(int override_track_id);
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
@@ -35,9 +34,9 @@ public:
     void RemoveSyncedTabIndex(int tab_index);
     void RouteFramelineUpdate(int frameline_x);
     void SetAbirDataLoaded(bool abir_data_loaded);
-    void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, std::set<int> track_ids);
-    void UpdatePlotLabel(int tab_id, QString label);
-    void UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame>, std::set<int>);
+    void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
+    void UpdatePlotLabel(int tab_id, const QString& label);
+    void UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame>, const std::set<int>& track_ids);
 
 protected:
     void mouseDoubleClickEvent (QMouseEvent *event) override;
