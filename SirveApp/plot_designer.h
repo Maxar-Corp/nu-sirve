@@ -7,6 +7,8 @@
 #include <QPointer>
 #include <QDialog>
 
+#include "single_check_list.h"
+
 class QLabel;
 class QTextEdit;
 class QPushButton;
@@ -26,6 +28,10 @@ signals:
 public slots:
     void accept() override;
 
+
+private slots:
+    void onSingleCheckItemSelected(QListWidgetItem *item);
+
 private:
     QPointer<QLabel> label1;
     QPointer<QLabel> label2;
@@ -34,17 +40,15 @@ private:
     QPointer<QTextEdit> textEdit2;
     QPointer<QPushButton> closeButton;
 
-    QPointer<QListWidget> listWidget1;
-    QPointer<QListWidget> listWidget2;
+    QPointer<SingleCheckList> listWidget1;
+    QPointer<SingleCheckList> listWidget2;
 
     QPointer<QComboBox> unitsBox1;
     QPointer<QComboBox> unitsBox2;
 
     void AddCheckableItems(QListWidget *listWidget, const QStringList &items);
     bool AnyItemChecked(QListWidget *listWidget);
-    void OnYAxisValueChanged(QListWidgetItem *changedItem);
-    void OnXAxisValueChanged(QListWidgetItem *changedItem);
-    void SetAxisUnit(QListWidget *axis_list_widget, QComboBox *units_combo_box);
+    void SetAxisUnit(QString checked_value, QComboBox *units_combo_box);
 };
 
 #endif // PLOT_DESIGNER_H

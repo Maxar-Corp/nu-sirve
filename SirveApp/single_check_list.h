@@ -10,6 +10,9 @@ class SingleCheckList : public QListWidget {
 public:
     explicit SingleCheckList(QWidget *parent = nullptr);
 
+signals:
+    void itemChecked(QListWidgetItem* item);
+
 private slots:
     void onItemChanged(QListWidgetItem *changedItem);
     void onItemClicked(QListWidgetItem *changedItem);

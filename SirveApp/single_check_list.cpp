@@ -16,6 +16,7 @@ void SingleCheckList::onItemChanged(QListWidgetItem *changedItem) {
                 item->setCheckState(Qt::Unchecked);
             }
         }
+        emit itemChecked(changedItem);
     }
 }
 

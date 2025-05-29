@@ -8,6 +8,7 @@
 #include "plot_designer.h"
 
 #include <qbuttongroup.h>
+#include <QCheckBox>
 #include <QPointer>
 #include <QRadioButton>
 
@@ -45,18 +46,17 @@ PlotDesigner::PlotDesigner(QWidget *parent) : QDialog(parent) {
 
     // Create the list widgets
     listWidget1 = new SingleCheckList(this);
+    listWidget1->setObjectName("listWidget1");
     listWidget2 = new SingleCheckList(this);
+    listWidget2->setObjectName("listWidget2");
 
     // Create the buttons
     QPushButton *closeButton = new QPushButton("Create Tab", this);
     connect(closeButton, &QPushButton::clicked, this, &PlotDesigner::accept);
 
-    // not sure which signal will produce the best results, should probably switch to radio button instead of checkbox
-    connect(listWidget1, &SingleCheckList::itemClicked, this, &PlotDesigner::OnYAxisValueChanged);
-    connect(listWidget2, &SingleCheckList::itemClicked, this, &PlotDesigner::OnXAxisValueChanged);
-
-    // connect(listWidget1, &SingleCheckList::itemChanged, this, &PlotDesigner::OnYAxisValueChanged);
-    // connect(listWidget2, &SingleCheckList::itemChanged, this, &PlotDesigner::OnXAxisValueChanged);
+    // Connect the signal from SingleCheckList to this widget's slot
+    connect(listWidget1, &SingleCheckList::itemChecked, this, &PlotDesigner::onSingleCheckItemSelected, Qt::UniqueConnection);
+    connect(listWidget2, &SingleCheckList::itemChecked, this, &PlotDesigner::onSingleCheckItemSelected, Qt::UniqueConnection);
 
 
 
@@ -142,23 +142,8 @@ void PlotDesigner::accept() {
     QDialog::accept();
 }
 
-void PlotDesigner::OnYAxisValueChanged(QListWidgetItem *changedItem)
+void PlotDesigner::SetAxisUnit(QString checked_value, QComboBox *units_combo_box)
 {
-    SetAxisUnit(listWidget1, unitsBox1);
-}
-
-void PlotDesigner::OnXAxisValueChanged(QListWidgetItem *changedItem)
-{
-    SetAxisUnit(listWidget2, unitsBox2);
-}
-
-void PlotDesigner::SetAxisUnit(QListWidget *axis_list_widget, QComboBox *units_combo_box)
-{
-    if (axis_list_widget->selectedItems().count() == 0)
-    {
-        return;
-    }
-    QString checked_value = axis_list_widget->selectedItems().at(0)->text();
     QString combo_value = units_combo_box->currentText();
 
     QStringList radian_degree_values;
@@ -194,5 +179,23 @@ void PlotDesigner::SetAxisUnit(QListWidget *axis_list_widget, QComboBox *units_c
     }else
     {
         populateComboBox(units_combo_box);
+    }
+}
+
+
+void PlotDesigner::onSingleCheckItemSelected(QListWidgetItem *item)
+{
+    if (item) {
+        QString selected_value = item->text();
+        QString object_name = sender()->objectName();
+
+        if (object_name == listWidget1->objectName())
+        {
+            SetAxisUnit(selected_value, unitsBox1);
+        }
+        else if (object_name == listWidget2->objectName())
+        {
+            SetAxisUnit(selected_value, unitsBox2);
+        }
     }
 }
