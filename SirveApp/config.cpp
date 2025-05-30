@@ -64,7 +64,7 @@ namespace configReaderWriter {
                 workspace_folder = currentPath + "/" + fileInfo_0.baseName();
             }
             else{
-                workspace_folder = fileInfo_0.absolutePath();
+                workspace_folder = fileInfo_0.filePath();
             }
         }
 
