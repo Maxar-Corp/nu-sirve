@@ -23,8 +23,12 @@ public:
     };
 
     enum PlotUnit {
+        Counts,
         Degrees,
+        Frame_Number,
+        Microns,
         Radians,
+        Seconds,
         Undefined_PlotUnit
     };
 
