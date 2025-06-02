@@ -25,7 +25,7 @@ public:
     enum PlotUnit {
         Counts,
         Degrees,
-        Frame_Number,
+        FrameNumber,
         Microns,
         Radians,
         Seconds,
