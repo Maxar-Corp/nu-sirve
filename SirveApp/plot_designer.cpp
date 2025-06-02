@@ -113,12 +113,12 @@ void PlotDesigner::accept() {
     std::vector<Quantity> quantity_pair;
     for (int i = 0; i < listWidget1->count(); ++i) {
         if (listWidget1->item(i)->checkState() == Qt::Checked)
-            quantity_pair.push_back(Quantity(listWidget1->item(i)->text(), Enums::getPlotUnitByIndex(unitsBox1->currentIndex())));
+            quantity_pair.push_back(Quantity(listWidget1->item(i)->text(), Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(unitsBox1->currentText()))));
     }
 
     for (int i = 0; i < listWidget2->count(); ++i) {
         if (listWidget2->item(i)->checkState() == Qt::Checked)
-            quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitByIndex(unitsBox2->currentIndex())));
+            quantity_pair.push_back(Quantity(listWidget2->item(i)->text(), Enums::getPlotUnitByIndex(Enums::getPlotUnitIndexFromString(unitsBox2->currentText()))));
     }
 
     if (plotTitle->text().size() < 1) {
@@ -169,8 +169,8 @@ void PlotDesigner::SetAxisUnit(QString checked_value, QComboBox *units_combo_box
     }
     else if (checked_value == "Frames")
     {
-        units_combo_box->addItem("Frame_Number");
-        units_combo_box->setCurrentText("Frame_Number");
+        units_combo_box->addItem("FrameNumber");
+        units_combo_box->setCurrentText("FrameNumber");
     }
     else if (checked_value == "Seconds_From_Epoch" || checked_value == "Seconds_Past_Midnight")
     {
