@@ -264,6 +264,17 @@ void PlotPalette::PlotAllSirveTracks(int override_track_id)
     }
 }
 
+void PlotPalette::SetupSubRanges(int min_x, int max_x)
+{
+    for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
+    {
+        engineering_plot_ref.at(plot_id)->set_sub_plot_xmin(min_x);
+        engineering_plot_ref.at(plot_id)->set_sub_plot_xmax(max_x);
+        engineering_plot_ref.at(plot_id)->SetPlotterXAxisMinMax(min_x, max_x);
+        engineering_plot_ref.at(plot_id)->set_data_scope_icon("partial");
+    }
+}
+
 void PlotPalette::RecolorManualTrack(int plot_id, int track_id, QColor new_color)
 {
     engineering_plot_ref.at(plot_id)->RecolorManualTrack(track_id, new_color);

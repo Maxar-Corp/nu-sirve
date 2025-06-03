@@ -113,6 +113,7 @@ public:
     void set_sub_plot_xmax(int value);
 
     void set_use_subinterval(bool use_subinterval);
+    void set_data_scope_icon(QString type);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
 
@@ -138,12 +139,12 @@ private:
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
-    double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
+    //double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
     int index_sub_plot_xmin, index_sub_plot_xmax;
 
     QAction* actToggleFrameLine;
     QAction* actToggleDataScope;
-    double fixed_max_y;
+    double fixed_max_y, sub_max_y;
     size_t frameLineColumnX;
     JKQTPXYLineGraph* graph;
     std::vector<Quantity> my_quantities;

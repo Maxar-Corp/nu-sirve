@@ -2046,6 +2046,7 @@ void SirveApp::UiLoadAbirData()
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
+    plot_palette->SetupSubRanges(min_frame, max_frame);
 
     QList<int> sizes = splitter->sizes();
     // expand frame for d data

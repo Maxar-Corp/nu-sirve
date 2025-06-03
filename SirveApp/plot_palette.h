@@ -34,6 +34,7 @@ public:
     void RemoveSyncedTabIndex(int tab_index);
     void RouteFramelineUpdate(int frameline_x);
     void SetAbirDataLoaded(bool abir_data_loaded);
+    void SetupSubRanges(int min_x, int min_y);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
     void UpdatePlotLabel(int tab_id, const QString& label);
     void UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame>, const std::set<int>& track_ids);
