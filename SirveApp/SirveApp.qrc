@@ -23,10 +23,12 @@
         <file>icons/crosshair-violet.png</file>
         <file>icons/crosshair-white.png</file>
         <file>icons/expand.png</file>
+	<file>icons/full-data.png</file>
         <file>icons/magnify.png</file>
         <file>icons/menu.png</file>
         <file>icons/no-ghosts.png</file>
         <file>icons/pause.png</file>
+	<file>icons/partial-data.png</file>
         <file>icons/play.png</file>
         <file>icons/play-pause.png</file>
         <file>icons/record.png</file>

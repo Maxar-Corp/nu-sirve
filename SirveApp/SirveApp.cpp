@@ -2459,10 +2459,10 @@ void SirveApp::ResetColorCorrection()
 
 void SirveApp::HandlePlotFullDataToggle()
 {
-    for (int i= 0; i < plot_palette->tabBar()->count(); i++)
-    {
-        plot_palette->GetEngineeringPlotReference(i)->ToggleUseSubInterval();
-    }
+    // for (int i= 0; i < plot_palette->tabBar()->count(); i++)
+    // {
+    //     plot_palette->GetEngineeringPlotReference(i)->ToggleUseSubInterval();
+    // }
 }
 
 void SirveApp::HandlePlotPrimaryOnlyToggle()

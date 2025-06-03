@@ -35,6 +35,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     ds = this->getDatastore();
     ds->clear();
 
+    // Set up frame line buttonology
     show_frame_line = true;
 
     actToggleFrameLine=new QAction(QIcon(":icons/jkqtp_frameline.png"), tr("Toggle Frame Line"), this);
@@ -43,6 +44,15 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     toolbar->addAction(this->get_action_toggle_frameline());
 
     connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
+
+    // Set up data scope toggler
+    actToggleDataScope = new QAction(QIcon(":icons/full-data.png"), tr("Toggle Data Scope"), this);
+    actToggleDataScope->setToolTip(tr("Toggle full vs. user-selected data."));
+
+    toolbar->addAction(this->get_action_toggle_datascope());
+
+    connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
+
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     this->setExclusionString("frameline");
@@ -53,6 +63,10 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
     return this->actToggleFrameLine;
+}
+
+QAction *EngineeringPlot::get_action_toggle_datascope() const {
+    return this->actToggleDataScope;
 }
 
 EngineeringPlot::~EngineeringPlot()
@@ -478,7 +492,7 @@ bool EngineeringPlot::get_plot_primary_only()
 
 bool EngineeringPlot::get_use_subinterval()
 {
-    return use_subinterval;
+    return show_full_scope;
 }
 
 void EngineeringPlot::set_plot_primary_only(bool value)
@@ -494,7 +508,7 @@ void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> 
 
 void EngineeringPlot::set_use_subinterval(bool use_subinterval)
 {
-    this->use_subinterval = use_subinterval;
+    this->show_full_scope = use_subinterval;
 }
 
 void EngineeringPlot::InitializeFrameLine(double frameline_x)
@@ -536,6 +550,14 @@ void EngineeringPlot::ToggleFrameLine()
     this->getGraphs().at(1)->setVisible(show_frame_line);
     emit this->plotter->plotUpdated();
 }
+
+void EngineeringPlot::ToggleDataScope()
+{
+    show_full_scope = ! show_full_scope;
+    show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(sub_plot_xmin, sub_plot_xmax);
+    show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
+}
+
 
 void EngineeringPlot::ToggleGraphTickSymbol()
 {
@@ -661,7 +683,7 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 
     sub_plot_xmin = min;
     sub_plot_xmax = max;
-    use_subinterval = true;
+    show_full_scope =false;
 }
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
@@ -723,12 +745,6 @@ void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 void EngineeringPlot::RecolorOsmTrack(QColor color)
 {
     emit updatePlots();
-}
-
-void EngineeringPlot::ToggleUseSubInterval()
-{
-    use_subinterval = ! use_subinterval;
-    use_subinterval ? SetPlotterXAxisMinMax(sub_plot_xmin, sub_plot_xmax) : SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax);
 }
 
 void EngineeringPlot::HandlePlayerButtonClick()

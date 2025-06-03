@@ -84,7 +84,7 @@ public:
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
     void SetPlotterXAxisMinMax(int min, int max);
-    void ToggleUseSubInterval();
+    //void ToggleUseSubInterval();
 
     JKQTPDatastore* get_data_store() const {
         return ds;
@@ -130,6 +130,7 @@ public slots:
     void SetPlotClassification(QString input_title);
 
 public Q_SLOTS:
+    void ToggleDataScope();
     void ToggleFrameLine();
     void ToggleGraphTickSymbol();
 
@@ -141,6 +142,7 @@ private:
     int index_sub_plot_xmin, index_sub_plot_xmax;
 
     QAction* actToggleFrameLine;
+    QAction* actToggleDataScope;
     double fixed_max_y;
     size_t frameLineColumnX;
     JKQTPXYLineGraph* graph;
@@ -156,7 +158,7 @@ private:
     bool show_frame_line;
     QTabWidget* tabWidget;
 
-    bool use_subinterval = false;
+    bool show_full_scope = true;
     std::vector<PlottingTrackFrame> track_frames;
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
@@ -166,6 +168,8 @@ private:
     bool TrackExists(int track_id);
 
     QAction* get_action_toggle_frameline() const;
+    QAction* get_action_toggle_datascope() const;
+
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_sum_relative_counts(size_t i);
