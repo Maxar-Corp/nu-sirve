@@ -2750,7 +2750,12 @@ protected:
     /** \brief QAction which triggers the saving as CSV (data only) */
     QAction* actSaveCSV;
     /** \brief QAction which triggers zoom all */
+
+public:
+
     QAction* actZoomAll;
+
+protected:
     /** \brief QAction which triggers zoom in */
     QAction* actZoomIn;
     /** \brief QAction which triggers zoom out */

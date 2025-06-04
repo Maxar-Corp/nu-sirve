@@ -302,7 +302,7 @@ JKQTBasePlotter::JKQTBasePlotter(bool datastore_internal, QObject* parent, JKQTP
     connect(actSavePix,    SIGNAL(triggered()), this, SLOT(saveAsPixelImage()));
 
     connect(actSaveCSV,    SIGNAL(triggered()), this, SLOT(saveAsCSV()));
-    connect(actZoomAll,    SIGNAL(triggered()), this, SLOT(zoomToFit()));
+    // the connect for actZoomAll ("zoomToFit") has moved to the SIRVE plot_engineering class, which inherits from this.
     connect(actZoomIn,     SIGNAL(triggered()), this, SLOT(zoomIn()));
     connect(actZoomOut,    SIGNAL(triggered()), this, SLOT(zoomOut()));
 
@@ -4311,7 +4311,7 @@ bool JKQTBasePlotter::getGraphsYMinMax(double& miny, double& maxy, double& small
 }
 
 void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool includeY0, double scaleX, double scaleY) {
-
+    qDebug() << "Calling zoomToFit from jkqtbaseplotter.cpp";
     if (graphs.size()<=0) return;
     auto calcLocScaling=[](JKQTPCoordinateAxis* axis, double &xxmin, double&xxmax, double&xsmallestGreaterZero, bool include0, double scale) -> bool {
         if (JKQTPIsOKFloat(xxmin) && JKQTPIsOKFloat(xxmax)) {

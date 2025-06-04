@@ -293,6 +293,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         this->zoomToFit();
 
+        connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(DoCustomZoomIn()));
+
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
 
@@ -558,6 +560,7 @@ void EngineeringPlot::ToggleDataScope()
 {
     show_full_scope = ! show_full_scope;
     show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+
     show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
 
@@ -571,6 +574,12 @@ void EngineeringPlot::ToggleGraphTickSymbol()
         graph->setSymbolSize(newSize);
         emit this->plotter->plotUpdated();
     }
+}
+
+void EngineeringPlot::DoCustomZoomIn()
+{
+    qDebug() << "Doing a custom zoom in";
+    show_full_scope ? this->zoomToFit() : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
@@ -667,6 +676,7 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
         plotter->redrawPlot();
     }
 
+    // these two lines are non-SOLID.
     plotter->sub_plot_ymax = plotter->getYAxis()->getMax();
     plotter->sub_plot_ymin = plotter->getYAxis()->getMin();
 }

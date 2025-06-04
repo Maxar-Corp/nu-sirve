@@ -131,6 +131,7 @@ public slots:
     void SetPlotClassification(QString input_title);
 
 public Q_SLOTS:
+    void DoCustomZoomIn();
     void ToggleDataScope();
     void ToggleFrameLine();
     void ToggleGraphTickSymbol();
