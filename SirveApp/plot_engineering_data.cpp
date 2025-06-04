@@ -666,6 +666,9 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
         plotter->getXAxis()->setMax(max);
         plotter->redrawPlot();
     }
+
+    plotter->sub_plot_ymax = plotter->getYAxis()->getMax();
+    plotter->sub_plot_ymin = plotter->getYAxis()->getMin();
 }
 
 void EngineeringPlot::set_data_scope_icon(QString type)

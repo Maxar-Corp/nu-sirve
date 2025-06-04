@@ -457,7 +457,6 @@ void JKQTBasePlotter::initSettings() {
 
 
 void JKQTBasePlotter::zoomIn(double factor) {
-    qDebug() << "Called base plotter's zoomIn";
     for (auto ax: getXAxes(true)) {
         const double old_mi=ax->x2p(ax->getMin());
         const double old_ma=ax->x2p(ax->getMax());
@@ -479,7 +478,7 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double new_ma=qMax(old_mi,old_ma)+(new_range-range)/2.0;
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
-        //if (xmin>sub_plot_ymin && xmax<sub_plot_ymax)
+        if (xmin>sub_plot_ymin && xmax<sub_plot_ymax)
             ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
 
@@ -488,7 +487,6 @@ void JKQTBasePlotter::zoomIn(double factor) {
 }
 
 void JKQTBasePlotter::zoomOut(double factor) {
-    qDebug() << "zoomout";
     zoomIn(1.0/factor);
 }
 

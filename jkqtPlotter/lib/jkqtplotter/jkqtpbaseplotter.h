@@ -617,7 +617,7 @@ public:
 
     void setLegendExclusionText(QString legendExclusionText);
 
-    double sub_plot_xmin, sub_plot_xmax, sub_plot_ymin, sub_plot_ymax;
+    double sub_plot_xmin, sub_plot_xmax, sub_plot_ymin, sub_plot_ymax = -1;
 
 public Q_SLOTS:
     /** \brief remove all plots

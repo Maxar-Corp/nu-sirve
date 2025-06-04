@@ -139,7 +139,6 @@ private:
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
-    //double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
     int index_sub_plot_xmin, index_sub_plot_xmax;
 
     QAction* actToggleFrameLine;
