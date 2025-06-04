@@ -926,9 +926,6 @@ public Q_SLOTS:
          *  \deprecated The function JKQTPlotter::zoom() is deprecated and will be removed in future version, use JKQTPlotter::setXY() instead!
          */
     inline void zoom(double xminn, double xmaxn, double yminn, double ymaxn, bool affectsSecondaryAxes=false) {
-
-        qDebug() << "xminn = " << xminn;
-
         plotter->zoom(xminn, xmaxn, yminn, ymaxn, affectsSecondaryAxes);
     }
 
@@ -1043,12 +1040,11 @@ public Q_SLOTS:
 
     /** \copydoc JKQTBasePlotter::zoomToFit() */
     inline void zoomToFit(bool zoomX=true, bool zoomY=true, bool includeX0=false, bool includeY0=false, double scaleX=1.05, double scaleY=1.05) {
-        qDebug() << "Calling intermediary from jkqtplotter.h.";
         plotter->zoomToFit(zoomX, zoomY, includeX0, includeY0, scaleX, scaleY);
     }
 
     /** \copydoc JKQTBasePlotter::zoomIn() */
-    inline void zoomIn(double factor=1.02) { qDebug() << "Hello"; plotter->zoomIn(factor); }
+    inline void zoomIn(double factor=1.02) { plotter->zoomIn(factor); }
     /** \copydoc JKQTBasePlotter::zoomOut() */
     inline void zoomOut(double factor=1.02) { plotter->zoomOut(factor); }
 

@@ -262,9 +262,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         std::vector<double> x_values = get_x_func(track_index);
         std::vector<double> y_values = get_y_func(track_index);
 
-        qDebug() << "x_values count=" << x_values.size();
-        qDebug() << "y_values count=" << y_values.size();
-
         QVector<double> X(x_values.begin(), x_values.end());
         QVector<double> Y(y_values.begin(), y_values.end());
 
@@ -578,8 +575,16 @@ void EngineeringPlot::ToggleGraphTickSymbol()
 
 void EngineeringPlot::DoCustomZoomIn()
 {
-    qDebug() << "Doing a custom zoom in";
-    show_full_scope ? this->zoomToFit() : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+    if (show_full_scope)
+    {
+        this->zoomToFit();
+    }
+    else
+    {
+        plotter->getYAxis()->setMin(plotter->sub_plot_ymin);
+        plotter->getYAxis()->setMax(plotter->sub_plot_ymax);
+        SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+    }
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
@@ -675,8 +680,10 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
         plotter->getXAxis()->setMax(max);
         plotter->redrawPlot();
     }
+}
 
-    // these two lines are non-SOLID.
+void EngineeringPlot::RecordYAxisMinMax()
+{
     plotter->sub_plot_ymax = plotter->getYAxis()->getMax();
     plotter->sub_plot_ymin = plotter->getYAxis()->getMin();
 }
@@ -707,13 +714,8 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     std::function<std::vector<double>(size_t)> func_y = DeriveFunctionPointers(plotYType);
     std::vector<double> y_values = func_y(1);
 
-    qDebug() << y_values.size();
-
     plotter->sub_plot_ymin = *std::min_element(y_values.begin(), y_values.begin());
     plotter->sub_plot_ymax = *std::max_element(y_values.begin(), y_values.end());
-
-    qDebug() << "plotter->sub_plot_ymin = " << plotter->sub_plot_ymin;
-    qDebug() << "plotter->sub_plot_ymax = " << plotter->sub_plot_ymax;
 
     show_full_scope =false;
 }

@@ -43,7 +43,6 @@ public:
     using JKQTPlotter::zoomIn; // Keep access to the base class version
 
     inline void zoomIn() { // Overload with new default factor
-        qDebug() << "Got here";
         zoomIn(1.5); // Call base class function with new factor
     }
 
@@ -84,7 +83,6 @@ public:
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
     void SetPlotterXAxisMinMax(int min, int max);
-    //void ToggleUseSubInterval();
 
     JKQTPDatastore* get_data_store() const {
         return ds;
@@ -119,6 +117,7 @@ public:
 
     void print_ds(JKQTPDatastore *_ds);
     void DeleteGraphIfExists(const QString &titleToFind);
+    void RecordYAxisMinMax();
 
 signals:
     void changeMotionStatus(bool status);

@@ -4311,7 +4311,6 @@ bool JKQTBasePlotter::getGraphsYMinMax(double& miny, double& maxy, double& small
 }
 
 void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool includeY0, double scaleX, double scaleY) {
-    qDebug() << "Calling zoomToFit from jkqtbaseplotter.cpp";
     if (graphs.size()<=0) return;
     auto calcLocScaling=[](JKQTPCoordinateAxis* axis, double &xxmin, double&xxmax, double&xsmallestGreaterZero, bool include0, double scale) -> bool {
         if (JKQTPIsOKFloat(xxmin) && JKQTPIsOKFloat(xxmax)) {
