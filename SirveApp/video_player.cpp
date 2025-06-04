@@ -693,6 +693,10 @@ void VideoPlayer::InitMainWindow()
 
 void VideoPlayer::ViewFrame(uint32_t frame_number)
 {
+    if (state_manager_->empty() || state_manager_->GetCurrentStateIdx() < 0) {
+        return;
+    }
+
     InitMainWindow();
 
     int num_video_frames = state_manager_->GetCurrentState().details.frames_16bit.size();
