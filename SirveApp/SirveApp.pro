@@ -232,4 +232,5 @@ RESOURCES += \
     SirveApp.qrc
 
 DISTFILES += \
-    icons/full-data.png
+    icons/full-data.png \
+    icons/zoom-home.png

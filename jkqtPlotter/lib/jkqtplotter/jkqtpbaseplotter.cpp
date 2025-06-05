@@ -281,7 +281,7 @@ JKQTBasePlotter::JKQTBasePlotter(bool datastore_internal, QObject* parent, JKQTP
     actSaveCSV->setToolTip(tr("Save the data which is used for the plot as Comma Separated Values (CSV)"));
     //toolbar->addAction(actSaveCSV);
     //toolbar->addSeparator();
-    actZoomAll=new QAction(QIcon(":/JKQTPlotter/jkqtp_zoomall.png"), tr("Zoom &All"), this);
+    actZoomAll=new QAction(QIcon(":/icons/zoom-home.png"), tr("Zoom &All"), this);
     actZoomAll->setToolTip(tr("Zoom to view all data"));
     actZoomIn=new QAction(QIcon(":/JKQTPlotter/jkqtp_zoomin.png"), tr("Zoom &In"), this);
     actZoomIn->setToolTip(tr("Zoom in around the center of the plot"));
