@@ -1882,6 +1882,8 @@ void SirveApp::LoadOsmData()
 
     plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
 
+    plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
+
     //--------------------------------------------------------------------------------
 
     std::vector<double> epoch0 = eng_data->get_epoch(osm_frames);
@@ -1935,11 +1937,6 @@ void SirveApp::LoadOsmData()
     menu_plot_primary->setIconVisibleInMenu(false);
 
     tab_plots->setCurrentIndex(1);
-
-    for (int i = 0; i < plot_palette->tabBar()->count(); i++)
-    {
-        plot_palette->GetEngineeringPlotReference(i)->DefineFullPlotInterval();
-    }
 
     UpdateGuiPostDataLoad(osmDataLoaded);
 }
