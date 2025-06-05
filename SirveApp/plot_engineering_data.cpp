@@ -492,7 +492,7 @@ bool EngineeringPlot::get_plot_primary_only()
     return plot_primary_only;
 }
 
-bool EngineeringPlot::get_use_subinterval()
+bool EngineeringPlot::get_show_full_scope()
 {
     return show_full_scope;
 }
@@ -508,9 +508,9 @@ void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> 
     number_of_tracks = num_unique;
 }
 
-void EngineeringPlot::set_use_subinterval(bool use_subinterval)
+void EngineeringPlot::set_show_full_scope(bool value)
 {
-    this->show_full_scope = use_subinterval;
+    this->show_full_scope =value;
 }
 
 void EngineeringPlot::InitializeFrameLine(double frameline_x)
@@ -682,6 +682,15 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
     }
 }
 
+void EngineeringPlot::SetupSubRange(int min_x, int max_x)
+{
+    set_sub_plot_xmin(min_x);
+    set_sub_plot_xmax(max_x);
+    SetPlotterXAxisMinMax(min_x, max_x);
+    RecordYAxisMinMax();
+    set_data_scope_icon("partial");
+}
+
 void EngineeringPlot::RecordYAxisMinMax()
 {
     plotter->sub_plot_ymax = plotter->getYAxis()->getMax();
@@ -717,6 +726,7 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     plotter->sub_plot_ymin = *std::min_element(y_values.begin(), y_values.begin());
     plotter->sub_plot_ymax = *std::max_element(y_values.begin(), y_values.end());
 
+    // This next line is not yet SOLID:
     show_full_scope =false;
 }
 

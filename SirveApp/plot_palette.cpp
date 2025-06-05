@@ -268,11 +268,7 @@ void PlotPalette::SetupSubRanges(int min_x, int max_x)
 {
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
-        engineering_plot_ref.at(plot_id)->set_sub_plot_xmin(min_x);
-        engineering_plot_ref.at(plot_id)->set_sub_plot_xmax(max_x);
-        engineering_plot_ref.at(plot_id)->SetPlotterXAxisMinMax(min_x, max_x);
-        engineering_plot_ref.at(plot_id)->RecordYAxisMinMax();
-        engineering_plot_ref.at(plot_id)->set_data_scope_icon("partial");
+        engineering_plot_ref.at(plot_id)->SetupSubRange(min_x, max_x);
     }
 }
 

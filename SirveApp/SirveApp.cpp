@@ -1953,13 +1953,14 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     int tab_count = plot_palette->tabBar()->count();
     if (tab_count > 0)
     {
-        data_plot->set_use_subinterval(plot_palette->GetEngineeringPlotReference(0)->get_use_subinterval());
-        if (data_plot->get_use_subinterval()){
-            data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
-                                             plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
-            data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
-                                             plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
-        }
+        data_plot->set_show_full_scope(plot_palette->GetEngineeringPlotReference(0)->get_show_full_scope());
+
+        data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
+                                         plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
+        data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
+                                         plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
+        data_plot->set_data_scope_icon("partial");
+
         data_plot->DefineFullPlotInterval();
     }
 

@@ -83,6 +83,7 @@ public:
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
     void SetPlotterXAxisMinMax(int min, int max);
+    void SetupSubRange(int min, int max);
 
     JKQTPDatastore* get_data_store() const {
         return ds;
@@ -103,14 +104,14 @@ public:
     int get_index_zoom_min();
     int get_index_zoom_max();
     bool get_plot_primary_only();
-    bool get_use_subinterval();
+    bool get_show_full_scope();
 
     void set_plot_primary_only(bool value);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     void set_sub_plot_xmin(int value);
     void set_sub_plot_xmax(int value);
 
-    void set_use_subinterval(bool use_subinterval);
+    void set_show_full_scope(bool use_subinterval);
     void set_data_scope_icon(QString type);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
