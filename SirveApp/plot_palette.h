@@ -62,7 +62,6 @@ signals:
 
     void popinPlot(int plotType);
     void popoutPlot(int tab_index, QString plotTitle, std::vector<Quantity> &quantities);
-    void toggleUseSubInterval();
 
 public slots:
     void HandleDesignerParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);

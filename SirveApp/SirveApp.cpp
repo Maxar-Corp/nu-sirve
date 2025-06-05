@@ -1878,6 +1878,7 @@ void SirveApp::LoadOsmData()
         QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
     }
 
+    // To avoid managing the configuration of all plots centrally, configure the first one and key the others off of that (for now).
     plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
     plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
@@ -1906,7 +1907,6 @@ void SirveApp::LoadOsmData()
 
     connect(plot_palette, &PlotPalette::editClassification, this, &SirveApp::EditClassificationText);
     connect(plot_palette, &PlotPalette::popoutPlot, this, &SirveApp::OpenPopoutEngineeringPlot);
-    connect(plot_palette, &PlotPalette::toggleUseSubInterval, this, &SirveApp::HandlePlotFullDataToggle);
     connect(plot_palette, &PlotPalette::currentChanged, this, &SirveApp::HandlePlotFocusChanged);
 
     engineering_plot_layout->addWidget(plot_palette);
@@ -2452,14 +2452,6 @@ void SirveApp::ResetColorCorrection()
     slider_lift->setValue(0);
     slider_gain->setValue(1000);
     chk_relative_histogram->setChecked(false);
-}
-
-void SirveApp::HandlePlotFullDataToggle()
-{
-    // for (int i= 0; i < plot_palette->tabBar()->count(); i++)
-    // {
-    //     plot_palette->GetEngineeringPlotReference(i)->ToggleUseSubInterval();
-    // }
 }
 
 void SirveApp::HandlePlotPrimaryOnlyToggle()

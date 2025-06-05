@@ -212,13 +212,6 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
             QMessageBox::information(nullptr, "Sync Reset", "Plot syncing has been reset.");
         });
 
-        if (abir_data_loaded)
-        {
-            menu.addAction("Toggle Plot All Data", [this]() {
-                emit toggleUseSubInterval();
-            });
-        }
-
         menu.exec(event->globalPosition().toPoint()); // Show menu at the cursor position
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class

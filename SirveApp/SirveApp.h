@@ -334,7 +334,6 @@ public slots:
     void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
     void HandlePlayerStateChanged(bool status);
     void HandlePlotFocusChanged(int tab_index);
-    void HandlePlotFullDataToggle();
     void HandlePlotPrimaryOnlyToggle();
     void HandlePopoutHistogramClosed();
     void HandleProcessingNewStateSelected();
