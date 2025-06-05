@@ -1145,7 +1145,8 @@ void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
         bool within_range_x = xmin > plotter->sub_plot_xmin && xmax < plotter->sub_plot_xmax;
         bool within_range_y = ymin > plotter->sub_plot_ymin && ymax < plotter->sub_plot_ymax;
 
-        if (within_range_x && within_range_y)
+        // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
+        if (plotter->show_full_scope || (within_range_x && within_range_y))
             plotter->setXY(xmin, xmax, ymin, ymax, true);
     }
 

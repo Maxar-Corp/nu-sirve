@@ -161,7 +161,6 @@ private:
     bool show_frame_line;
     QTabWidget* tabWidget;
 
-    bool show_full_scope = true;
     std::vector<PlottingTrackFrame> track_frames;
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 

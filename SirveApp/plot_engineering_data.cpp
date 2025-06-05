@@ -464,7 +464,7 @@ QString EngineeringPlot::get_plot_title()
 
 bool EngineeringPlot::get_show_full_scope()
 {
-    return show_full_scope;
+    return plotter->show_full_scope;
 }
 
 int EngineeringPlot::get_subinterval_min()
@@ -490,7 +490,7 @@ void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> 
 
 void EngineeringPlot::set_show_full_scope(bool value)
 {
-    this->show_full_scope =value;
+    plotter->show_full_scope =value;
 }
 
 void EngineeringPlot::set_data_scope_icon(QString type)
@@ -582,12 +582,12 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     plotter->sub_plot_ymax = *std::max_element(y_values.begin(), y_values.end());
 
     // This next line is not yet SOLID:
-    show_full_scope =false;
+    plotter->show_full_scope =false;
 }
 
 void EngineeringPlot::DoCustomZoomIn()
 {
-    if (show_full_scope)
+    if (plotter->show_full_scope)
     {
         this->zoomToFit();
     }
@@ -627,10 +627,10 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
 
 void EngineeringPlot::ToggleDataScope()
 {
-    show_full_scope = ! show_full_scope;
-    show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+    plotter->show_full_scope = ! plotter->show_full_scope;
+    plotter->show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 
-    show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
+    plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
 
 void EngineeringPlot::ToggleFrameLine()

@@ -457,6 +457,7 @@ void JKQTBasePlotter::initSettings() {
 
 
 void JKQTBasePlotter::zoomIn(double factor) {
+
     for (auto ax: getXAxes(true)) {
         const double old_mi=ax->x2p(ax->getMin());
         const double old_ma=ax->x2p(ax->getMax());
@@ -466,7 +467,8 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double new_ma=qMax(old_mi,old_ma)+(new_range-range)/2.0;
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
-        if (xmin>sub_plot_xmin && xmax<sub_plot_xmax)
+        // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
+        if (show_full_scope || (xmin>sub_plot_xmin && xmax<sub_plot_xmax))
             ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
     for (auto ax: getYAxes(true)) {
@@ -478,7 +480,8 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double new_ma=qMax(old_mi,old_ma)+(new_range-range)/2.0;
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
-        if (xmin>sub_plot_ymin && xmax<sub_plot_ymax)
+        // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
+        if (show_full_scope || (xmin>sub_plot_ymin && xmax<sub_plot_ymax))
             ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
 

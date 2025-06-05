@@ -619,6 +619,8 @@ public:
 
     double sub_plot_xmin, sub_plot_xmax, sub_plot_ymin, sub_plot_ymax = -1;
 
+    bool show_full_scope = true;
+
 public Q_SLOTS:
     /** \brief remove all plots
          *
