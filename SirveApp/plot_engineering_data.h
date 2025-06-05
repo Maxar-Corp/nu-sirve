@@ -82,6 +82,8 @@ public:
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
+
+    void SetDataScopeButtonEnabled(bool value);
     void SetPlotterXAxisMinMax(int min, int max);
     void SetupSubRange(int min, int max);
 
@@ -164,6 +166,7 @@ private:
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
     void EditPlotText();
+    QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
     bool TrackExists(int track_id);

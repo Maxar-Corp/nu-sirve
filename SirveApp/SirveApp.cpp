@@ -1879,10 +1879,9 @@ void SirveApp::LoadOsmData()
     }
 
     plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
-
     plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
-
     plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
+    plot_palette->GetEngineeringPlotReference(0)->SetDataScopeButtonEnabled(false);
 
     //--------------------------------------------------------------------------------
 
@@ -1959,6 +1958,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         data_plot->set_data_scope_icon("partial");
 
         data_plot->DefineFullPlotInterval();
+
+        data_plot->SetDataScopeButtonEnabled(false);
     }
 
     plot_palette->AddPlotTab(data_plot, quantities);

@@ -52,13 +52,28 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     toolbar->addAction(this->get_action_toggle_datascope());
 
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
-
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     this->setExclusionString("frameline");
     this->setMinimumWidth(200);
     this->plotter->setWidgetWidth(100);
     this->setToolbarAlwaysOn(true);
+}
+
+void EngineeringPlot::SetDataScopeButtonEnabled(bool value)
+{
+    QToolButton* toggle_button = FindToolButtonForAction(toolbar, actToggleDataScope);
+    toggle_button->setDisabled(!value);
+}
+
+QToolButton* EngineeringPlot::FindToolButtonForAction(QToolBar* toolbar, QAction* action) {
+    const QList<QToolButton*> buttons = toolbar->findChildren<QToolButton*>();
+    for (QToolButton* button : buttons) {
+        if (button->defaultAction() == action) {
+            return button;
+        }
+    }
+    return nullptr; // Not found
 }
 
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
@@ -689,6 +704,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     SetPlotterXAxisMinMax(min_x, max_x);
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
+    SetDataScopeButtonEnabled(true);
 }
 
 void EngineeringPlot::RecordYAxisMinMax()
