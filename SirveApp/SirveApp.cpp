@@ -2165,22 +2165,19 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     }
 
     video_player_->InitializeFrameData(min_frame, std::move(temp), std::move(abir_frames->ir_data));
-    // DeleteAbirData();
     video_player_->ReceiveVideoData(x_pixels, y_pixels);
-    UpdateGlobalFrameVector();
-
-    for (int i= 0; i < plot_palette->tabBar()->count(); i++)
-    {
-        plot_palette->GetEngineeringPlotReference(i)->SetPlotterXAxisMinMax(min_frame - 1, max_frame - 1);
-        plot_palette->GetEngineeringPlotReference(i)->set_sub_plot_xmin(min_frame - 1);
-        plot_palette->GetEngineeringPlotReference(i)->set_sub_plot_xmax(max_frame - 1);
-        plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval(min_frame-1, max_frame - 1);
-    }
-
+    video_player_->UpdateFps();
 
     connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
 
-    video_player_->UpdateFps();
+    UpdateGlobalFrameVector();
+
+    // Configure the three, initial "out of the box" plots to account for the newly configued data scope (a.k.a. "sub plot", "start/stop frames", yada yada)
+    for (int i= 0; i < plot_palette->tabBar()->count(); i++)
+    {
+        plot_palette->GetEngineeringPlotReference(i)->SetPlotterXAxisMinMax(min_frame - 1, max_frame - 1);
+        plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval(min_frame-1, max_frame - 1);
+    }
 
     progress_bar_main->setValue(100);
     this->repaint();
