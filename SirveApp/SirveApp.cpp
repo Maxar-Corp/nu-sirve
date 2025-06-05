@@ -1953,7 +1953,7 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     int tab_count = plot_palette->tabBar()->count();
     if (tab_count > 0)
     {
-        data_plot->set_show_full_scope(plot_palette->GetEngineeringPlotReference(0)->get_show_full_scope());
+        data_plot->set_show_full_scope(false);
 
         data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
                                          plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
