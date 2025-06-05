@@ -230,11 +230,21 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
         {
             int track_id = track_data.first;
             manual_track_ids.insert(track_id);
-            manual_frames[i].tracks[track_id] = track_data.second;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_data.second.centroid_x-1, track_data.second.centroid_y-1, track_data.second.sum_relative_counts);
-            manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x-1;
-            manual_image_frames[i].tracks[track_id].centroid_y = track_data.second.centroid_y-1;
-            manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_data.second.sum_relative_counts;
+            std::pair<const int, TrackDetails> temp_track_data = track_data;
+            // manual_frames[i].tracks[track_id] = track_data.second;
+            if(track_data.second.centroid_x>nCols){
+                temp_track_data.second.centroid_x = 320;
+                temp_track_data.second.centroid_y = 240;
+                manual_image_frames[i].tracks[track_id].centroid_x = 320;
+                manual_image_frames[i].tracks[track_id].centroid_y = 240;
+            }
+            else{              
+                manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x-1;
+                manual_image_frames[i].tracks[track_id].centroid_y = track_data.second.centroid_y-1;
+            }
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, temp_track_data.second.centroid_x-1, temp_track_data.second.centroid_y-1, temp_track_data.second.sum_relative_counts);
+            manual_frames[i].tracks[track_id] = temp_track_data.second;
+            manual_plotting_frames[i].tracks[track_id].sum_relative_counts = temp_track_data.second.sum_relative_counts;
         }
     }
 }
@@ -274,7 +284,7 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
 
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
-    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts, Sum Relative Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
+    QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts, Sum Relative Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
     file.write(csv_line0.toUtf8());
     file.write("\n");
     RemoveManualTrackPlotting(track_id);
@@ -300,10 +310,10 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
              + QString::number(track_details.julian_date,'f',9) + ","
              + QString::number(track_details.second_past_midnight,'f',9) + ","
              + QString::number(track_details.timing_offset) + ","
-             + QString::number(track_details.centroid_x_boresight+1) + ","
-             + QString::number(track_details.centroid_y_boresight+1) + ","
-             + QString::number(track_details.centroid_x+1) + ","
-             + QString::number(track_details.centroid_y+1) + ","
+             + QString::number(track_details.centroid_x_boresight) + ","
+             + QString::number(track_details.centroid_y_boresight) + ","
+             + QString::number(track_details.centroid_x) + ","
+             + QString::number(track_details.centroid_y) + ","
              + QString::number(track_details.az) + ","
              + QString::number(track_details.el) + ","
              + QString::number(track_details.number_pixels) + ","
@@ -371,7 +381,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
 
     int line_num = 0;
     bool ok;
-
+    bool computeXY;
     try
     {
         QFile file(absolute_file_name);
@@ -379,6 +389,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
         QByteArray line = file.readLine();
         while (!file.atEnd())
         {
+            computeXY = false;
             line_num += 1;
 
             line = file.readLine();
@@ -394,16 +405,30 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             if (!ok) throw std::runtime_error("Julian Date");
             double seconds_past_midnight = cells[4].toDouble(&ok);
             if (!ok) throw std::runtime_error("Seconds Past Midnight");
-            double timeing_offset = cells[5].toDouble(&ok);
-            if (!ok) throw std::runtime_error("Timeing Offset");
+            double timing_offset = cells[5].toDouble(&ok);
+            if (!ok) throw std::runtime_error("Timing Offset");
             int track_x_boresight = cells[6].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track X Boresight Value");
+            if (!ok){
+                computeXY = true;
+            }
             int track_y_boresight = cells[7].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track Y Boresight Value");
+            if (!ok || computeXY){
+                computeXY = true;
+            }
             int track_x = cells[8].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track X Value");
+            if (!ok || computeXY){
+                computeXY = true;
+            }
             int track_y = cells[9].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track Y Value");
+            if (!ok || computeXY){
+                computeXY = true;
+            }
+            if (computeXY){
+                track_x_boresight = 32768;
+                track_y_boresight = 32768;
+                track_x = 32768;
+                track_y = 32768;
+            }
             double track_az = cells[10].toDouble(&ok);
             if (!ok) throw std::runtime_error("Track Az Value");
             double track_el = cells[11].toDouble(&ok);
@@ -438,7 +463,7 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             td.frame_time = frame_time;
             td.julian_date = julian_date;
             td.second_past_midnight = seconds_past_midnight;
-            td.timing_offset = timeing_offset;
+            td.timing_offset = timing_offset;
             td.centroid_x_boresight = track_x_boresight;
             td.centroid_y_boresight = track_y_boresight;
             td.centroid_x = track_x;
