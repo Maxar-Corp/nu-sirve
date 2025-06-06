@@ -4,8 +4,8 @@
 
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
-static constexpr ABPVersion MIN_VERSION_NUMBER = 1.0;
-static constexpr ABPVersion MAX_VERSION_NUMBER = 20.0;
+static const ABPVersion MIN_VERSION_NUMBER = 1.0;
+static const ABPVersion MAX_VERSION_NUMBER = 20.0;
 static constexpr auto FRAME_SIZE_INCREMENT = 32;
 static constexpr auto FRAME_SIZE_INCREMENT_2_1 = 40;
 
