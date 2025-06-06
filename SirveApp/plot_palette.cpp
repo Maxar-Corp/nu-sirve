@@ -311,7 +311,7 @@ void PlotPalette::UpdatePlotLabel(int tab_id, const QString& label)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void PlotPalette::UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
 {
-    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(std::move(frames), track_ids);
+    engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -319,6 +319,6 @@ void PlotPalette::UpdateAllManualPlottingTrackFrames(std::vector<ManualPlottingT
 {
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
-        engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(std::move(frames), track_ids);
+        engineering_plot_ref.at(plot_id)->UpdateManualPlottingTrackFrames(frames, track_ids);
     }
 }

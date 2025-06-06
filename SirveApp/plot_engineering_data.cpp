@@ -551,7 +551,7 @@ void EngineeringPlot::ToggleGraphTickSymbol()
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
 {
-    manual_track_frames = std::move(frames);
+    manual_track_frames = frames;
     manual_track_ids = track_ids;
 
     QColor starting_color = ColorScheme::get_track_colors()[0];
