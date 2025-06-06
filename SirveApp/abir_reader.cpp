@@ -24,7 +24,7 @@ ABPVersion& ABPVersion::operator=(float version) { return (*this = ABPVersion(ve
 
 bool ABPVersion::operator==(const ABPVersion& other) const { return (major == other.major && minor == other.minor); }
 bool ABPVersion::operator!=(const ABPVersion& other) const { return !(*this == other); }
-bool ABPVersion::operator<(const ABPVersion& other) const { return (major < other.major || (major == other.major && minor < other.minor)); }
+bool ABPVersion::operator<(const ABPVersion& other) const { return std::tie(major, minor) < std::tie(other.major, other.minor); }
 bool ABPVersion::operator<=(const ABPVersion& other) const { return (*this < other || *this == other); }
 bool ABPVersion::operator>(const ABPVersion& other) const { return !(*this <= other); }
 bool ABPVersion::operator>=(const ABPVersion& other) const { return !(*this < other); }
