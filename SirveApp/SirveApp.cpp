@@ -1942,6 +1942,7 @@ void SirveApp::LoadOsmData()
 
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
+
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
@@ -1959,7 +1960,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
 
         data_plot->DefineFullPlotInterval();
 
-        data_plot->SetDataScopeButtonEnabled(false);
+        QObject* senderObj = sender();
+        (senderObj && senderObj->objectName().contains("PlotPalette")) ? data_plot->SetDataScopeButtonEnabled(true) :data_plot->SetDataScopeButtonEnabled(false);
     }
 
     plot_palette->AddPlotTab(data_plot, quantities);

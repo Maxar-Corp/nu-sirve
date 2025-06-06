@@ -15,10 +15,10 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
     quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
 
-    // Required to detect mouse passing over unused tab bar real estate, to display tooltip:
+    setObjectName("PlotPalette"); // used to discern when Plot Palette itself invokes HandleParamsSelected()
+
     setMouseTracking(true);
 
-    // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(tabBar(), &QTabBar::customContextMenuRequested, this, &PlotPalette::HandleTabRightClicked);
 }
