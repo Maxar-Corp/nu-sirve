@@ -142,6 +142,29 @@ struct ABIRFrames
     int last_valid_frame;
 };
 
+struct ABPVersion
+{
+    int major = 0;
+    int minor = 0;
+
+    ABPVersion() = default;
+    ABPVersion(const ABPVersion& other) = default;
+    ABPVersion& operator=(const ABPVersion& other) = default;
+
+    ABPVersion(int major, int minor);
+    // ReSharper disable once CppNonExplicitConvertingConstructor
+    ABPVersion(float version);
+    ABPVersion& operator=(float version);
+
+    // TODO: C++20: use the <=> operator instead
+    bool operator==(const ABPVersion& other) const;
+    bool operator!=(const ABPVersion& other) const;
+    bool operator<(const ABPVersion& other) const;
+    bool operator<=(const ABPVersion& other) const;
+    bool operator>(const ABPVersion& other) const;
+    bool operator>=(const ABPVersion& other) const;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 class ABIRReader : public BinaryReader
 {
@@ -160,7 +183,7 @@ signals:
     void AdvanceFrame(int);
 
 private:
-    double file_version_{};
+    ABPVersion file_version_;
 };
 
 
