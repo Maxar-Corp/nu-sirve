@@ -613,9 +613,21 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 
 void EngineeringPlot::SetupSubRange(int min_x, int max_x)
 {
-    set_sub_plot_xmin(min_x);
-    set_sub_plot_xmax(max_x);
-    SetPlotterXAxisMinMax(min_x, max_x);
+    double adjusted_min_x = min_x;
+    double adjusted_max_x = max_x;
+
+    if (x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
+    {
+        qDebug() << "Adjusting...";
+        adjusted_min_x = min_x + get_single_x_axis_value(0);
+        adjusted_max_x = max_x + get_single_x_axis_value(0);
+        qDebug() << "adjusted_min_x=" << adjusted_min_x;
+        qDebug() << "adjusted_max_x=" << adjusted_max_x;
+    }
+
+    set_sub_plot_xmin((int)adjusted_min_x);
+    set_sub_plot_xmax((int)adjusted_max_x);
+    SetPlotterXAxisMinMax((int)adjusted_min_x, (int)adjusted_max_x);
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
     SetDataScopeButtonEnabled(true);

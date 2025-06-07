@@ -1866,7 +1866,7 @@ void SirveApp::LoadOsmData()
     //  Set up new plots as we do in the plot designer class:
     HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    HandleParamsSelected("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    HandleParamsSelected("Boresight El",{Quantity("Boresight_Elevation", Enums::PlotUnit::Counts), Quantity("Seconds_Past_Midnight", Enums::PlotUnit::Seconds)});
 
     osmDataLoaded = true;
 
@@ -2047,6 +2047,7 @@ void SirveApp::UiLoadAbirData()
     lbl_workspace_name->setText("Workspace File: ");
 
     plot_palette->SetAbirDataLoaded(true);
+
     plot_palette->SetupSubRanges(min_frame, max_frame);
 
     QList<int> sizes = splitter->sizes();
