@@ -83,7 +83,7 @@ public:
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
 
-    void SetDataScopeButtonEnabled(bool value);
+    void DisableDataScopeButton(bool value);
     void SetPlotterXAxisMinMax(int min, int max);
     void SetupSubRange(int min, int max);
 

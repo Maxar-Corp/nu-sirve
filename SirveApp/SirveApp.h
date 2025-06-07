@@ -320,6 +320,8 @@ public slots:
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
 
+    void EstablishCanonicalPlot(QString plotTitle, const std::vector<Quantity> &quantities);
+
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);

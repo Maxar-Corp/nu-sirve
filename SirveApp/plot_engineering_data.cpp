@@ -61,10 +61,10 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     this->setToolbarAlwaysOn(true);
 }
 
-void EngineeringPlot::SetDataScopeButtonEnabled(bool value)
+void EngineeringPlot::DisableDataScopeButton(bool value)
 {
     QToolButton* toggle_button = FindToolButtonForAction(toolbar, actToggleDataScope);
-    toggle_button->setDisabled(!value);
+    toggle_button->setDisabled(value);
 }
 
 QToolButton* EngineeringPlot::FindToolButtonForAction(QToolBar* toolbar, QAction* action) {
@@ -630,7 +630,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     SetPlotterXAxisMinMax((int)adjusted_min_x, (int)adjusted_max_x);
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
-    SetDataScopeButtonEnabled(true);
+    DisableDataScopeButton(false);
 }
 
 void EngineeringPlot::ToggleDataScope()

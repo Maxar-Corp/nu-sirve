@@ -1863,10 +1863,9 @@ void SirveApp::LoadOsmData()
 
     plot_palette = new PlotPalette();
 
-    //  Set up new plots as we do in the plot designer class:
-    HandleParamsSelected("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    HandleParamsSelected("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    HandleParamsSelected("Boresight El",{Quantity("Boresight_Elevation", Enums::PlotUnit::Counts), Quantity("Seconds_Past_Midnight", Enums::PlotUnit::Seconds)});
+    EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Boresight El",{Quantity("Boresight_Elevation", Enums::PlotUnit::Counts), Quantity("Seconds_Past_Midnight", Enums::PlotUnit::Seconds)});
 
     osmDataLoaded = true;
 
@@ -1881,8 +1880,8 @@ void SirveApp::LoadOsmData()
     // To avoid managing the configuration of all plots centrally, configure the first one and key the others off of that (for now).
     plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
     plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
-    plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
-    plot_palette->GetEngineeringPlotReference(0)->SetDataScopeButtonEnabled(false);
+    //plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
+    //plot_palette->GetEngineeringPlotReference(0)->SetDataScopeButtonEnabled(false);
 
     //--------------------------------------------------------------------------------
 
@@ -1940,29 +1939,38 @@ void SirveApp::LoadOsmData()
     UpdateGuiPostDataLoad(osmDataLoaded);
 }
 
-void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
+void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quantity> &quantities)
 {
-
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
-    int tab_count = plot_palette->tabBar()->count();
-    if (tab_count > 0)
-    {
-        data_plot->set_show_full_scope(false);
+    data_plot->DefineFullPlotInterval();
 
-        data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
+    data_plot->set_show_full_scope(true);
+    data_plot->set_data_scope_icon("full");
+    data_plot->DisableDataScopeButton(true);
+
+    plot_palette->AddPlotTab(data_plot, quantities);
+
+}
+
+void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
+{
+    EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
+    data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
+    UpdatePlots(data_plot);
+
+    data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
                                          plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
-        data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
+    data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
                                          plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
-        data_plot->set_data_scope_icon("partial");
 
-        data_plot->DefineFullPlotInterval();
+    data_plot->DefineFullPlotInterval();
 
-        QObject* senderObj = sender();
-        (senderObj && senderObj->objectName().contains("PlotPalette")) ? data_plot->SetDataScopeButtonEnabled(true) : data_plot->SetDataScopeButtonEnabled(false);
-    }
+    data_plot->set_show_full_scope(false);
+    data_plot->set_data_scope_icon("partial");
+    data_plot->DisableDataScopeButton(false);
 
     plot_palette->AddPlotTab(data_plot, quantities);
 }
