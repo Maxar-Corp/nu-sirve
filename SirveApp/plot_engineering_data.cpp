@@ -28,9 +28,10 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     x_axis_units = plotXType;
 
-    // Here, 'sub_plot' refers to the user-selected frame range
-    index_sub_plot_xmin = 0;
-    index_sub_plot_xmax = num_frames - 1;
+    // these next two variables represent the scope of all data that has been read in (Hence, the 'full scope').
+    // they are base-zero indices, so we use the 'index_' prefix.
+    index_full_scope_xmin = 0;
+    index_full_scope_xmax = num_frames - 1;
 
     ds = this->getDatastore();
     ds->clear();
@@ -88,15 +89,6 @@ EngineeringPlot::~EngineeringPlot()
 {
 }
 
-int extractNumberBetweenSpaces(const QString& str) {
-    QRegularExpression re("\\s(\\d+)\\s");  // Matches a number surrounded by whitespace
-    QRegularExpressionMatch match = re.match(str, 0, QRegularExpression::NormalMatch);
-    if (match.hasMatch()) {
-        return match.captured(1).toInt();
-    } else {
-        return -1;  // Not found
-    }
-}
 void EngineeringPlot::print_ds(JKQTPDatastore* _ds)
 {
     qDebug() << "Contents of Data Store:";
@@ -260,18 +252,18 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
 
-        InitializeFrameLine(index_sub_plot_xmin + 0);
+        InitializeFrameLine(index_full_scope_xmin + 0);
     }
 }
 
-int EngineeringPlot::get_index_sub_plot_xmin()
+int EngineeringPlot::get_index_full_scope_xmin()
 {
-    return index_sub_plot_xmin;
+    return index_full_scope_xmin;
 }
 
-int EngineeringPlot::get_index_sub_plot_xmax()
+int EngineeringPlot::get_index_full_scope_xmax()
 {
-    return index_sub_plot_xmax;
+    return index_full_scope_xmax;
 }
 
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
@@ -397,6 +389,8 @@ std::vector<double> EngineeringPlot::get_individual_y_track_fov_y(size_t i)
     return y_values;
 }
 
+// The next three functions return the X value(s) associated with a range of indices or a single index.
+
 std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, unsigned int end_idx)
 {
     switch (x_axis_units)
@@ -445,6 +439,7 @@ double EngineeringPlot::get_max_x_axis_value()
         return 0;
     }
 }
+
 
 std::vector<Quantity> EngineeringPlot::get_params()
 {
@@ -504,10 +499,9 @@ void EngineeringPlot::set_sub_plot_xmin(int value)
 }
 
 void EngineeringPlot::set_sub_plot_xmax(int value)
-{
+{ 
     plotter->sub_plot_xmax = value;
 }
-
 
 void EngineeringPlot::HandlePlayerButtonClick()
 {
@@ -548,7 +542,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
 {
     if (show_frame_line)
     {
-        int frameline_x = frame + index_sub_plot_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
+        int frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
         QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
         ds->setColumnData(frameLineColumnX, updatedXData);
         emit this->plotter->plotUpdated();
@@ -569,8 +563,10 @@ void EngineeringPlot::DefineFullPlotInterval()
 
 void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 {
-    index_sub_plot_xmin = min; // for the frameline offset
-    index_sub_plot_xmax = max; // for the workspace, et. al.
+    //int offset = (x_axis_units == Enums::Seconds_From_Epoch || x_axis_units == Enums::Seconds_Past_Midnight) ? get_single_x_axis_value(0) : 0;
+
+    index_full_scope_xmin = min; // for the frameline offset
+    index_full_scope_xmax = max; // for the workspace, et. al.
 
     plotter->sub_plot_xmin = min;
     plotter->sub_plot_xmax = max;

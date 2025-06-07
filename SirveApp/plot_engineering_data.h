@@ -101,8 +101,8 @@ public:
     int get_subinterval_min();
     int get_subinterval_max();
 
-    int get_index_sub_plot_xmin();
-    int get_index_sub_plot_xmax();
+    int get_index_full_scope_xmin();
+    int get_index_full_scope_xmax();
     int get_index_zoom_min();
     int get_index_zoom_max();
     bool get_plot_primary_only();
@@ -142,7 +142,7 @@ private:
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
-    int index_sub_plot_xmin, index_sub_plot_xmax;
+    int index_full_scope_xmin, index_full_scope_xmax;
 
     QAction* actToggleFrameLine;
     QAction* actToggleDataScope;
