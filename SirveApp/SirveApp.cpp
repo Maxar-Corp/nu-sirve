@@ -1961,7 +1961,7 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         data_plot->DefineFullPlotInterval();
 
         QObject* senderObj = sender();
-        (senderObj && senderObj->objectName().contains("PlotPalette")) ? data_plot->SetDataScopeButtonEnabled(true) :data_plot->SetDataScopeButtonEnabled(false);
+        (senderObj && senderObj->objectName().contains("PlotPalette")) ? data_plot->SetDataScopeButtonEnabled(true) : data_plot->SetDataScopeButtonEnabled(false);
     }
 
     plot_palette->AddPlotTab(data_plot, quantities);

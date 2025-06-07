@@ -603,7 +603,7 @@ void EngineeringPlot::RecordYAxisMinMax()
 
 void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 {
-    JKQTBasePlotter* plotter = this->getPlotter();
+    //JKQTBasePlotter* plotter = this->getPlotter();
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
@@ -637,7 +637,6 @@ void EngineeringPlot::ToggleDataScope()
 {
     plotter->show_full_scope = ! plotter->show_full_scope;
     plotter->show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
-
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
 
