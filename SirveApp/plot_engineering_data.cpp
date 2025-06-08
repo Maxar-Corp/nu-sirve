@@ -568,8 +568,8 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     index_full_scope_xmin = min; // for the frameline offset
     index_full_scope_xmax = max; // for the workspace, et. al.
 
-    plotter->sub_plot_xmin = min;
-    plotter->sub_plot_xmax = max;
+    //plotter->sub_plot_xmin = offset+min;
+    //plotter->sub_plot_xmax = offset+max;
 
     std::function<std::vector<double>(size_t)> func_y = DeriveFunctionPointers(plotYType);
     std::vector<double> y_values = func_y(1);
@@ -603,7 +603,6 @@ void EngineeringPlot::RecordYAxisMinMax()
 
 void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 {
-    //JKQTBasePlotter* plotter = this->getPlotter();
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
@@ -619,8 +618,8 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     if (x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
     {
         qDebug() << "Adjusting...";
-        adjusted_min_x = min_x + get_single_x_axis_value(0);
-        adjusted_max_x = max_x + get_single_x_axis_value(0);
+        adjusted_min_x = get_single_x_axis_value(min_x);
+        adjusted_max_x = get_single_x_axis_value(max_x);;
         qDebug() << "adjusted_min_x=" << adjusted_min_x;
         qDebug() << "adjusted_max_x=" << adjusted_max_x;
     }
@@ -628,6 +627,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     set_sub_plot_xmin((int)adjusted_min_x);
     set_sub_plot_xmax((int)adjusted_max_x);
     SetPlotterXAxisMinMax((int)adjusted_min_x, (int)adjusted_max_x);
+
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
     DisableDataScopeButton(false);

@@ -1878,8 +1878,8 @@ void SirveApp::LoadOsmData()
     }
 
     // To avoid managing the configuration of all plots centrally, configure the first one and key the others off of that (for now).
-    plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
-    plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
+    //plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
+    //plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     //plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
     //plot_palette->GetEngineeringPlotReference(0)->SetDataScopeButtonEnabled(false);
 
@@ -2181,6 +2181,9 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
 
     UpdateGlobalFrameVector();
+
+    double adjusted_min_x = min_frame;
+    double adjusted_max_x = max_frame;
 
     // Configure the three, initial "out of the box" plots to account for the newly configued data scope (a.k.a. "sub plot", "start/stop frames", yada yada)
     for (int i= 0; i < plot_palette->tabBar()->count(); i++)
