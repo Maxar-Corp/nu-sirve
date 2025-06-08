@@ -542,7 +542,13 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
 {
     if (show_frame_line)
     {
-        int frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
+        int adjusted_frame = frame;
+        if (x_axis_units == Enums::Seconds_Past_Midnight)
+        {
+            adjusted_frame = get_single_x_axis_value(frame);
+        }
+
+        int frameline_x = adjusted_frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
         QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
         ds->setColumnData(frameLineColumnX, updatedXData);
         emit this->plotter->plotUpdated();
