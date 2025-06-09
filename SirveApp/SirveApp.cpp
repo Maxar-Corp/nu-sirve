@@ -1863,9 +1863,9 @@ void SirveApp::LoadOsmData()
 
     plot_palette = new PlotPalette();
 
-    EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    EstablishCanonicalPlot("Boresight El",{Quantity("Boresight_Elevation", Enums::PlotUnit::Counts), Quantity("Seconds_Past_Midnight", Enums::PlotUnit::Seconds)});
+    EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
 
     osmDataLoaded = true;
 
