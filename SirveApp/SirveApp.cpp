@@ -1966,8 +1966,12 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         x_max = data_plot->get_single_x_axis_value(x_max);
     }
 
+    data_plot->set_sub_plot_xmin(x_min);
+    data_plot->set_sub_plot_xmax(x_max);
+
     data_plot->SetPlotterXAxisMinMax(x_min, x_max);
     data_plot->DefinePlotSubInterval(x_min, x_max);
+    data_plot->DefineFullPlotInterval();
 
     data_plot->set_show_full_scope(false);
     data_plot->set_data_scope_icon("partial");
