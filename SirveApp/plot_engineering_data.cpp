@@ -569,13 +569,8 @@ void EngineeringPlot::DefineFullPlotInterval()
 
 void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 {
-    //int offset = (x_axis_units == Enums::Seconds_From_Epoch || x_axis_units == Enums::Seconds_Past_Midnight) ? get_single_x_axis_value(0) : 0;
-
     index_full_scope_xmin = min; // for the frameline offset
     index_full_scope_xmax = max; // for the workspace, et. al.
-
-    //plotter->sub_plot_xmin = offset+min;
-    //plotter->sub_plot_xmax = offset+max;
 
     std::function<std::vector<double>(size_t)> func_y = DeriveFunctionPointers(plotYType);
     std::vector<double> y_values = func_y(1);

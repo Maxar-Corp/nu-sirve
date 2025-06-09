@@ -246,7 +246,6 @@ void PlotPalette::mouseMoveEvent(QMouseEvent* event)
 void PlotPalette::leaveEvent(QEvent* event)
 {
     QToolTip::hideText();
-    //QTabBar::leaveEvent(event);
 }
 
 void PlotPalette::PlotAllSirveTracks(int override_track_id)

@@ -1877,12 +1877,6 @@ void SirveApp::LoadOsmData()
         QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
     }
 
-    // To avoid managing the configuration of all plots centrally, configure the first one and key the others off of that (for now).
-    //plot_palette->GetEngineeringPlotReference(0)->past_midnight = eng_data->get_seconds_from_midnight();
-    //plot_palette->GetEngineeringPlotReference(0)->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
-    //plot_palette->GetEngineeringPlotReference(0)->DefineFullPlotInterval();
-    //plot_palette->GetEngineeringPlotReference(0)->SetDataScopeButtonEnabled(false);
-
     //--------------------------------------------------------------------------------
 
     std::vector<double> epoch0 = eng_data->get_epoch(osm_frames);
