@@ -1962,6 +1962,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
 
     if (x_axis_unit == Enums::PlotUnit::Seconds)
     {
+        data_plot->set_pre_image(x_min, x_max);
+
         x_min = data_plot->get_single_x_axis_value(x_min);
         x_max = data_plot->get_single_x_axis_value(x_max);
     }

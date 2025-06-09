@@ -430,6 +430,12 @@ double EngineeringPlot::get_single_x_axis_value(int x_index)
     }
 }
 
+void EngineeringPlot::set_pre_image(double min_x, double max_x)
+{
+    partial_scope_original_min_x = min_x;
+    partial_scope_original_max_x = max_x;
+}
+
 double EngineeringPlot::get_max_x_axis_value()
 {
     switch (x_axis_units)
@@ -549,7 +555,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
     {
         double frameline_x;
         //double transformed_frame_unit = frame;
-        if (x_axis_units == Enums::Seconds_Past_Midnight)
+        if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
             frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x);
         } else

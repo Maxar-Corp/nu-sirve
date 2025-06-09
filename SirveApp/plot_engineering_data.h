@@ -190,6 +190,7 @@ public:
 
     double get_single_x_axis_value(int x_index);
 
+    void set_pre_image(double, double);
 private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 
