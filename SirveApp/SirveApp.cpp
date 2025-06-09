@@ -1955,12 +1955,19 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
-    data_plot->SetPlotterXAxisMinMax(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
-                                         plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
-    data_plot->DefinePlotSubInterval(plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min(),
-                                         plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max());
+    Enums::PlotUnit x_axis_unit = data_plot->get_quantity_unit_by_axis(1);
 
-    data_plot->DefineFullPlotInterval();
+    double x_min = plot_palette->GetEngineeringPlotReference(0)->get_subinterval_min();
+    double x_max = plot_palette->GetEngineeringPlotReference(0)->get_subinterval_max();
+
+    if (x_axis_unit == Enums::PlotUnit::Seconds)
+    {
+        x_min = data_plot->get_single_x_axis_value(x_min);
+        x_max = data_plot->get_single_x_axis_value(x_max);
+    }
+
+    data_plot->SetPlotterXAxisMinMax(x_min, x_max);
+    data_plot->DefinePlotSubInterval(x_min, x_max);
 
     data_plot->set_show_full_scope(false);
     data_plot->set_data_scope_icon("partial");

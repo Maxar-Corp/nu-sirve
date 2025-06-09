@@ -107,6 +107,7 @@ public:
     int get_index_zoom_max();
     bool get_plot_primary_only();
     bool get_show_full_scope();
+    Enums::PlotUnit get_quantity_unit_by_axis(int axis_index);
 
     void set_plot_primary_only(bool value);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
@@ -143,6 +144,7 @@ private:
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
     int index_full_scope_xmin, index_full_scope_xmax;
+    int partial_scope_original_min_x = 0, partial_scope_original_max_x;
 
     QAction* actToggleFrameLine;
     QAction* actToggleDataScope;
@@ -183,7 +185,12 @@ private:
     std::vector<double> get_individual_y_track_fov_x(size_t i);
     std::vector<double> get_individual_y_track_fov_y(size_t i);
     double get_max_x_axis_value();
+
+public:
+
     double get_single_x_axis_value(int x_index);
+
+private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 
     void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);

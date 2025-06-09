@@ -85,6 +85,11 @@ QAction *EngineeringPlot::get_action_toggle_datascope() const {
     return this->actToggleDataScope;
 }
 
+Enums::PlotUnit EngineeringPlot::get_quantity_unit_by_axis(int axis_index)
+{
+    return my_quantities[axis_index].getUnit();
+}
+
 EngineeringPlot::~EngineeringPlot()
 {
 }
@@ -252,7 +257,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         // get the upper bound for drawing the frame line
         this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
 
-        InitializeFrameLine(index_full_scope_xmin + 0);
+        InitializeFrameLine(index_full_scope_xmin);
     }
 }
 
@@ -542,13 +547,18 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
 {
     if (show_frame_line)
     {
-        int adjusted_frame = frame;
+        double frameline_x;
+        //double transformed_frame_unit = frame;
         if (x_axis_units == Enums::Seconds_Past_Midnight)
         {
-            adjusted_frame = get_single_x_axis_value(frame);
+            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x);
+        } else
+        {
+            frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
         }
 
-        int frameline_x = adjusted_frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
+        qDebug() << "frameline x = " << frameline_x;
+
         QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
         ds->setColumnData(frameLineColumnX, updatedXData);
         emit this->plotter->plotUpdated();
@@ -613,21 +623,21 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
 
 void EngineeringPlot::SetupSubRange(int min_x, int max_x)
 {
-    double adjusted_min_x = min_x;
-    double adjusted_max_x = max_x;
+    partial_scope_original_min_x = min_x;
+    partial_scope_original_max_x = max_x;
+
+    double transformed_min_x = min_x;
+    double transformed_max_x = max_x;
 
     if (x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
     {
-        qDebug() << "Adjusting...";
-        adjusted_min_x = get_single_x_axis_value(min_x);
-        adjusted_max_x = get_single_x_axis_value(max_x);;
-        qDebug() << "adjusted_min_x=" << adjusted_min_x;
-        qDebug() << "adjusted_max_x=" << adjusted_max_x;
+        transformed_min_x = get_single_x_axis_value(min_x);
+        transformed_max_x = get_single_x_axis_value(max_x);
     }
 
-    set_sub_plot_xmin((int)adjusted_min_x);
-    set_sub_plot_xmax((int)adjusted_max_x);
-    SetPlotterXAxisMinMax((int)adjusted_min_x, (int)adjusted_max_x);
+    set_sub_plot_xmin((int)transformed_min_x);
+    set_sub_plot_xmax((int)transformed_max_x);
+    SetPlotterXAxisMinMax((int)transformed_min_x, (int)transformed_max_x);
 
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
