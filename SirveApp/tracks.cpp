@@ -285,13 +285,18 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
     //Assumption: TrackInformation has been initialized and the size of new_track_details and manual_frames match
     manual_track_ids.insert(track_id);
 
+    RemoveManualTrackPlotting(track_id);
+    RemoveManualTrackImage(track_id);
+    WriteManualTrackToFile(frame_data,track_id, new_track_details,new_track_file_name);
+}
+
+void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name)
+{
     QFile file(new_track_file_name);
     file.open(QIODevice::WriteOnly|QIODevice::Text);
     QString csv_line0 = "TrackID, Frame Number, Frame Time, Julian Date, Second Past Midnight, Timing Offset, Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Azimuth, Elevation, Number Pixels, Peak Counts, Mean Counts, Sum Counts, Sum Relative Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, bbox_x, bbox_y, bbox_width, bbox_height";
     file.write(csv_line0.toUtf8());
     file.write("\n");
-    RemoveManualTrackPlotting(track_id);
-    RemoveManualTrackImage(track_id);
     for (int i = 0; i < manual_frames.size(); i++)
     {
         if (new_track_details[i].has_value())
@@ -344,6 +349,7 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
 
     file.close();
 }
+
 
 std::vector<std::optional<TrackDetails>> TrackInformation::CopyManualTrack(int track_id)
 {

@@ -898,6 +898,9 @@ QWidget* SirveApp::SetupTracksTab(){
     btn_finish_create_track->setFixedWidth(100);
     btn_import_tracks = new QPushButton("Import Tracks");
     btn_import_tracks->setFixedWidth(150);
+    btn_save_track = new QPushButton("Save Track");
+    btn_save_track->setFixedWidth(100);
+    connect(btn_save_track, &QPushButton::clicked, this, &SirveApp::HandleSaveTrackClick);
     QVBoxLayout* vlayout_workspace = new QVBoxLayout();
     QHBoxLayout *hlayout_workspace = new QHBoxLayout();
     hlayout_workspace->setAlignment(Qt::AlignLeft);
@@ -911,6 +914,7 @@ QWidget* SirveApp::SetupTracksTab(){
     connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
+     hlayout_workspace->addWidget(btn_save_track,Qt::AlignLeft);
     hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
@@ -1367,6 +1371,37 @@ void SirveApp::HandleCreateTrackClick()
         PrepareForTrackCreation(track_id);
         video_player_->EnterTrackCreationMode(appPos,empty_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
     }
+}
+
+void SirveApp::HandleSaveTrackClick()
+{
+    bool ok;
+    int maxID = 0;
+    QString new_track_file_name;
+    QString suggested_track_name;
+    const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
+    if (previous_manual_track_ids.size()>0){
+        maxID = *max_element(previous_manual_track_ids.begin(), previous_manual_track_ids.end());
+    }
+    u_int track_id = QInputDialog::getInt(this, tr("Select Track ID to Save"), tr("Track ID:"), maxID, 1, 1000000, 1, &ok);
+    if (!ok || track_id < 0)
+    {
+        return;
+    }
+    std::vector<std::optional<TrackDetails>> track_details = track_info->CopyManualTrack(track_id);
+    QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+    if (existing_track_control != nullptr)
+    {
+        QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+        suggested_track_name = lbl_track_description->text();
+    }
+    new_track_file_name = QFileDialog::getSaveFileName(this, "Select a new file to save the track into", config_values.workspace_folder + "/" + suggested_track_name,  "CSV (*.csv)");
+    if (new_track_file_name.isEmpty())
+    {
+        QtHelpers::LaunchMessageBox("Returning.", "An invalid or empty file was chosen.");
+        return;
+    }
+    track_info->WriteManualTrackToFile(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);   
 }
 
 void SirveApp::PrepareForTrackCreation(int track_id)
