@@ -263,7 +263,7 @@ TrackData OSMReader::GetTrackData(const FrameData& input)
 
 std::vector<double> OSMReader::CalculateAzimuthElevation(int nRows, int nCols, int x_pixel, int y_pixel, const FrameData& input)
 {
-    std::vector<double> results = AzElCalculation::calculate(nRows, nCols, x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm,
+    std::vector<double> results = AzElCalculation::calculateAzEl(nRows, nCols, x_pixel, y_pixel, input.lla[0], input.lla[1], input.dcm,
                                                              input.i_fov_x, input.i_fov_y, false);
     return results;
 }

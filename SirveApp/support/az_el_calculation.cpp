@@ -6,7 +6,7 @@
 #include <qmath.h>
 
 
-std::vector<double> AzElCalculation::calculate(int nRows, int nCols, int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
+std::vector<double> AzElCalculation::calculateAzEl(int nRows, int nCols, int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {
 	if (adjust_frame_ref)
 	{
@@ -66,12 +66,7 @@ std::vector<int> AzElCalculation::calculateXY(int nRows, int nCols, double az, d
 	los_ned(0) = ux;
 	los_ned(1) = uy;
 	los_ned(2) = uz;
-    std::vector<double> test_cam_to_ecf = arma::conv_to<std::vector<double>>::from(cam_to_ecf.as_col());
-    std::vector<double> test_a_ecf_to_ned = arma::conv_to<std::vector<double>>::from(a_ecf_to_ned.as_col());
-    std::vector<double> test_inv_cam_to_ecf = arma::conv_to<std::vector<double>>::from(arma::inv(cam_to_ecf).as_col());
-    std::vector<double> test_inv_a_ecf_to_ned = arma::conv_to<std::vector<double>>::from(arma::inv(a_ecf_to_ned).as_col());
     los  = arma::inv(cam_to_ecf)*arma::inv(a_ecf_to_ned)*los_ned;
-    std::vector<double> test_los = arma::conv_to<std::vector<double>>::from(los);
     double dphi = -std::asin(los[1]);
     double dth = std::asin(los[0]/std::cos(std::sin(los[1])));
     int x = std::round(dth/ifov_x);
