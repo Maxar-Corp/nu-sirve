@@ -273,7 +273,7 @@ std::vector<double> OSMReader::CalculateDirectionCosineMatrix(const std::vector<
     arma::vec mr(input);
 
     double sig = 1. - arma::accu(arma::square(mr));
-    double norm = 1. / std::pow(1 - sig, 2);
+    double norm = 1. / std::pow(1 + arma::accu(arma::square(mr)), 2);
     double sig2 = std::pow(sig, 2);
 
     double mr02 = mr(0) * mr(0);

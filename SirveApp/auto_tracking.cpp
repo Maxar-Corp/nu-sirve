@@ -442,8 +442,8 @@ void AutoTracking::TrackingStep(
         output.row(i) =  {
                             static_cast<uint16_t>(track_id),
                             static_cast<uint16_t>(frame0 + i),
-                            frame_x - nRows/2,
-                            frame_y - nCols/2,
+                            frame_x - nCols/2,
+                            frame_y - nRows/2,
                             frame_x,
                             frame_y,
                             static_cast<int32_t>(number_pixels),

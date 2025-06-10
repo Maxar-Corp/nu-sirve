@@ -55,7 +55,7 @@ struct PlottingTrackDetails
     PlottingTrackDetails() = default;
     PlottingTrackDetails(const PlottingTrackDetails&) = default;
 
-    PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double azimuth, double elevation,
+    PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double az, double el,
                          double irradiance);
 
     PlottingTrackDetails(const TrackData& track_data);

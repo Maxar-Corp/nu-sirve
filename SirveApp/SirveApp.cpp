@@ -892,23 +892,26 @@ QWidget* SirveApp::SetupTracksTab(){
     QLabel *lbl_track = new QLabel("User Defined Tracks");
     lbl_create_track_message = new QLabel("");
     btn_create_track = new QPushButton("Create Manual Track");
-    btn_create_track->setFixedWidth(160);
+    btn_create_track->setFixedWidth(150);
     btn_finish_create_track = new QPushButton("Finish");
     btn_finish_create_track->setHidden(true);
     btn_finish_create_track->setFixedWidth(100);
     btn_import_tracks = new QPushButton("Import Tracks");
-    btn_import_tracks->setFixedWidth(100);
+    btn_import_tracks->setFixedWidth(150);
     QVBoxLayout* vlayout_workspace = new QVBoxLayout();
     QHBoxLayout *hlayout_workspace = new QHBoxLayout();
     hlayout_workspace->setAlignment(Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_track, Qt::AlignLeft);
     vlayout_workspace->addWidget(lbl_create_track_message);
+    hlayout_workspace->addStretch();
     hlayout_workspace->addWidget(btn_create_track,Qt::AlignLeft);
     hlayout_workspace->addWidget(btn_finish_create_track,Qt::AlignLeft);
     btn_auto_track_target = new QPushButton("Auto Tracker");
+    btn_auto_track_target->setFixedWidth(150);
     connect(btn_auto_track_target, &QPushButton::clicked, this, &SirveApp::ExecuteAutoTracking);
     hlayout_workspace->addWidget(btn_auto_track_target);
     hlayout_workspace->addWidget(btn_import_tracks,Qt::AlignLeft);
+    hlayout_workspace->addStretch();
     vlayout_workspace->addLayout(hlayout_workspace);
 
     QGroupBox * grpbox_autotrack = new QGroupBox("Tracking Parameters");
