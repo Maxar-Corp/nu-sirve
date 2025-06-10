@@ -11,8 +11,8 @@ public:
     Quantity();
     Quantity(QString name, Enums::PlotUnit unit);
 
-    QString getName();
-    Enums::PlotUnit getUnit();
+    QString getName() const;
+    Enums::PlotUnit getUnit() const;
 
 private:
 

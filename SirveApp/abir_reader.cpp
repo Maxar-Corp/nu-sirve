@@ -4,8 +4,8 @@
 
 static constexpr auto VERSION_NUMBER_OFFSET = 36;
 static constexpr auto FRAME_SIZE_OFFSET = 16;
-static constexpr auto MIN_VERSION_NUMBER = 1.0;
-static constexpr auto MAX_VERSION_NUMBER = 20.0;
+static const ABPVersion MIN_VERSION_NUMBER = 1.0;
+static const ABPVersion MAX_VERSION_NUMBER = 20.0;
 static constexpr auto FRAME_SIZE_INCREMENT = 32;
 static constexpr auto FRAME_SIZE_INCREMENT_2_1 = 40;
 
@@ -13,6 +13,21 @@ ABIRFrames::ABIRFrames() :
     x_pixels(0), y_pixels(0), max_value(0), last_valid_frame(0)
 {
 }
+
+ABPVersion::ABPVersion(int major, int minor): major(major), minor(minor) {}
+
+ABPVersion::ABPVersion(float version) :
+    major(static_cast<int>(version)),
+    minor(static_cast<int>(round((version - static_cast<int>(version)) * 10))) {}
+
+ABPVersion& ABPVersion::operator=(float version) { return (*this = ABPVersion(version)); }
+
+bool ABPVersion::operator==(const ABPVersion& other) const { return (major == other.major && minor == other.minor); }
+bool ABPVersion::operator!=(const ABPVersion& other) const { return !(*this == other); }
+bool ABPVersion::operator<(const ABPVersion& other) const { return std::tie(major, minor) < std::tie(other.major, other.minor); }
+bool ABPVersion::operator<=(const ABPVersion& other) const { return (*this < other || *this == other); }
+bool ABPVersion::operator>(const ABPVersion& other) const { return !(*this <= other); }
+bool ABPVersion::operator>=(const ABPVersion& other) const { return !(*this < other); }
 
 bool ABIRReader::Open(const char* filename)
 {
@@ -23,11 +38,11 @@ bool ABIRReader::Open(const char* filename)
     }
 
     Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
-    file_version_ = Read<double>(true);
+    file_version_ = Read<float>();
 
     if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER)
     {
-        file_version_ = 4.20;
+        file_version_ = 2.0;
     }
 
     if (file_version_ == 2.5)
@@ -72,9 +87,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
     // Ensure that minimum frame number is smaller than max frame number
     if (max_frame < min_frame)
     {
-        auto tmp = max_frame;
-        max_frame = min_frame;
-        min_frame = tmp;
+        std::swap(min_frame, max_frame);
     }
 
     // Ensure reasonable upper and lower bounds

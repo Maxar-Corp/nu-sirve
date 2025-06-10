@@ -108,7 +108,7 @@ public:
         txt_FNS_start_frame,  txt_FNS_stop_frame;
     QPointer<QPushButton> btn_get_frames, btn_load_osm, btn_copy_directory, btn_apply_epoch, btn_reset_color_correction,
         btn_ANS, btn_FNS, btn_calibration_dialog, btn_deinterlace, btn_deinterlace_current_frame, btn_video_menu,
-        btn_save_plot, btn_plot_menu,  btn_workspace_load, btn_workspace_save, btn_undo_step, btn_popout_histogram,
+        btn_save_plot,  btn_workspace_load, btn_workspace_save, btn_undo_step, btn_popout_histogram,
         btn_popout_engineering, btn_replace_bad_pixels, btn_import_tracks, btn_create_track, btn_finish_create_track,
         btn_center_on_tracks, btn_center_on_brightest, btn_frame_stack, btn_RPCP, btn_cancel_operation,
         btn_auto_track_target;
@@ -320,6 +320,8 @@ public slots:
     void ExecuteFrameStacking();
     void ExecuteRPCPNoiseSuppression();
 
+    void EstablishCanonicalPlot(QString plotTitle, const std::vector<Quantity> &quantities);
+
     void HandleAbpFileSelected();
     void HandleAnnotationDialogClosed();
     void HandleAutoLiftGainCheck(int state);
@@ -334,7 +336,6 @@ public slots:
     void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
     void HandlePlayerStateChanged(bool status);
     void HandlePlotFocusChanged(int tab_index);
-    void HandlePlotFullDataToggle();
     void HandlePlotPrimaryOnlyToggle();
     void HandlePopoutHistogramClosed();
     void HandleProcessingNewStateSelected();
