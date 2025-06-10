@@ -211,7 +211,6 @@ const std::set<int>& TrackInformation::GetOsmTrackIds()
     return osm_track_ids;
 }
 
-
 void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames)
 {
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
@@ -226,17 +225,21 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
     }
     for (int i = 0; i < manual_frames.size(); i++)
     {
+        TrackEngineeringData eng_data = track_engineering_data[i];
 		for (const auto& track_data : new_frames[i].tracks)
         {
             int track_id = track_data.first;
             manual_track_ids.insert(track_id);
             std::pair<const int, TrackDetails> temp_track_data = track_data;
-            // manual_frames[i].tracks[track_id] = track_data.second;
-            if(track_data.second.centroid_x>nCols){
-                temp_track_data.second.centroid_x = 320;
-                temp_track_data.second.centroid_y = 240;
-                manual_image_frames[i].tracks[track_id].centroid_x = 320;
-                manual_image_frames[i].tracks[track_id].centroid_y = 240;
+            if(track_data.second.centroid_x>nCols || track_data.second.centroid_x_boresight>nCols ||
+            track_data.second.centroid_y>nRows || track_data.second.centroid_y_boresight>nRows){
+                std::vector<int> x_y_result = AzElCalculation::calculateXY(nRows, nCols, temp_track_data.second.az,temp_track_data.second.el, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y);
+                temp_track_data.second.centroid_x_boresight = x_y_result[0];
+                temp_track_data.second.centroid_y_boresight = x_y_result[1];
+                temp_track_data.second.centroid_x = x_y_result[0] + nCols/2;
+                temp_track_data.second.centroid_y = x_y_result[1] + nRows/2;
+                manual_image_frames[i].tracks[track_id].centroid_x = temp_track_data.second.centroid_x;
+                manual_image_frames[i].tracks[track_id].centroid_y = temp_track_data.second.centroid_y;
             }
             else{              
                 manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x-1;
@@ -314,8 +317,8 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
              + QString::number(track_details.centroid_y_boresight) + ","
              + QString::number(track_details.centroid_x) + ","
              + QString::number(track_details.centroid_y) + ","
-             + QString::number(track_details.az) + ","
-             + QString::number(track_details.el) + ","
+             + QString::number(track_details.az,'f',6) + ","
+             + QString::number(track_details.el,'f',6) + ","
              + QString::number(track_details.number_pixels) + ","
              + QString::number(track_details.peak_counts) + ","
              + QString::number(track_details.mean_counts) + ","
