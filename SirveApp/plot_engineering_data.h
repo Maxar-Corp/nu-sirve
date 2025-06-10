@@ -178,6 +178,7 @@ private:
     std::vector<double> get_individual_y_track_elevation(size_t i);
     std::vector<double> get_individual_y_track_fov_x(size_t i);
     std::vector<double> get_individual_y_track_fov_y(size_t i);
+
     double get_max_x_axis_value();
 
 public:
@@ -185,6 +186,10 @@ public:
     double get_single_x_axis_value(int x_index);
 
     void set_pre_image(double, double);
+
+protected:
+    void mousePressEvent(QMouseEvent *event);
+
 private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 

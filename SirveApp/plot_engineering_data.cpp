@@ -451,7 +451,6 @@ double EngineeringPlot::get_max_x_axis_value()
     }
 }
 
-
 std::vector<Quantity> EngineeringPlot::get_params()
 {
 
@@ -481,6 +480,29 @@ int EngineeringPlot::get_subinterval_min() const
 int EngineeringPlot::get_subinterval_max() const
 {
     return this->getXAxis()->getMax();
+}
+
+void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
+    if (event->button() == Qt::LeftButton) {
+
+        double x = plotter->p2x(event->pos().x()/magnification);
+        double y =plotter->p2y((event->pos().y()-getPlotYOffset())/magnification);
+
+
+
+        // Convert screen (pixel) coordinates to plot coordinates
+        // JKQTPDatapoint dp = this->screenToPlot(event->pos());
+
+        // double xClicked = dp.x;
+        // double yClicked = dp.y;
+
+        qDebug() << "Clicked at plot coordinates: X=" << x << ", Y=" << y;
+
+        // You can now use xClicked as needed
+    }
+
+    // Call base implementation
+    JKQTPlotter::mousePressEvent(event);
 }
 
 void EngineeringPlot::set_plot_primary_only(bool value)
