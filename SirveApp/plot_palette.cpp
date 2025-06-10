@@ -15,10 +15,10 @@ PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
     quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
 
-    // Required to detect mouse passing over unused tab bar real estate, to display tooltip:
+    setObjectName("PlotPalette"); // used to discern when Plot Palette itself invokes HandleParamsSelected()
+
     setMouseTracking(true);
 
-    // Enable custom context menu on the QTabBar
     tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(tabBar(), &QTabBar::customContextMenuRequested, this, &PlotPalette::HandleTabRightClicked);
 }
@@ -212,13 +212,6 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
             QMessageBox::information(nullptr, "Sync Reset", "Plot syncing has been reset.");
         });
 
-        if (abir_data_loaded)
-        {
-            menu.addAction("Toggle Plot All Data", [this]() {
-                emit toggleUseSubInterval();
-            });
-        }
-
         menu.exec(event->globalPosition().toPoint()); // Show menu at the cursor position
     } else {
         QWidget::mousePressEvent(event); // Pass the event to the base class
@@ -253,7 +246,6 @@ void PlotPalette::mouseMoveEvent(QMouseEvent* event)
 void PlotPalette::leaveEvent(QEvent* event)
 {
     QToolTip::hideText();
-    //QTabBar::leaveEvent(event);
 }
 
 void PlotPalette::PlotAllSirveTracks(int override_track_id)
@@ -261,6 +253,14 @@ void PlotPalette::PlotAllSirveTracks(int override_track_id)
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
         engineering_plot_ref.at(plot_id)->PlotSirveTracks(override_track_id);
+    }
+}
+
+void PlotPalette::SetupSubRanges(int min_x, int max_x)
+{
+    for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
+    {
+        engineering_plot_ref.at(plot_id)->SetupSubRange(min_x, max_x);
     }
 }
 

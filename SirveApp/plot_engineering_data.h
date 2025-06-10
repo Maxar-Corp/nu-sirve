@@ -42,13 +42,6 @@ public:
 
     using JKQTPlotter::zoomIn; // Keep access to the base class version
 
-    inline void zoomIn() { // Overload with new default factor
-        qDebug() << "Got here";
-        zoomIn(1.5); // Call base class function with new factor
-    }
-
-    void AddTransparentLabel();
-
     QChartView *chart_view;
     ColorScheme colors;
     JKQTPDatastore* ds;
@@ -83,8 +76,10 @@ public:
     void RecolorManualTrack(int track_id, QColor new_color);
     void RecolorOsmTrack(QColor new_color);
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
+
+    void DisableDataScopeButton(bool value);
     void SetPlotterXAxisMinMax(int min, int max);
-    void ToggleUseSubInterval();
+    void SetupSubRange(int min, int max);
 
     JKQTPDatastore* get_data_store() const {
         return ds;
@@ -95,29 +90,32 @@ public:
     }
 
     std::vector<Quantity> get_params();
-    QString get_plot_title();
+    QString get_plot_title() const;
     int get_palette_tab_index();
-    int get_subinterval_min();
-    int get_subinterval_max();
+    int get_subinterval_min() const;
+    int get_subinterval_max() const;
 
-    int get_index_sub_plot_xmin();
-    int get_index_sub_plot_xmax();
+    int get_index_full_scope_xmin() const;
+    int get_index_full_scope_xmax() const;
     int get_index_zoom_min();
     int get_index_zoom_max();
     bool get_plot_primary_only();
-    bool get_use_subinterval();
+    bool get_show_full_scope();
+    Enums::PlotUnit get_quantity_unit_by_axis(int axis_index);
 
     void set_plot_primary_only(bool value);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
     void set_sub_plot_xmin(int value);
     void set_sub_plot_xmax(int value);
 
-    void set_use_subinterval(bool use_subinterval);
+    void set_show_full_scope(bool use_subinterval);
+    void set_data_scope_icon(QString type);
 
     FuncType DeriveFunctionPointers(Enums::PlotType type);
 
     void print_ds(JKQTPDatastore *_ds);
     void DeleteGraphIfExists(const QString &titleToFind);
+    void RecordYAxisMinMax();
 
 signals:
     void changeMotionStatus(bool status);
@@ -130,6 +128,8 @@ public slots:
     void SetPlotClassification(QString input_title);
 
 public Q_SLOTS:
+    void DoCustomZoomIn();
+    void ToggleDataScope();
     void ToggleFrameLine();
     void ToggleGraphTickSymbol();
 
@@ -137,11 +137,12 @@ private:
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
-    double full_plot_xmin, full_plot_xmax, sub_plot_xmin, sub_plot_xmax;
-    int index_sub_plot_xmin, index_sub_plot_xmax;
+    int index_full_scope_xmin, index_full_scope_xmax;
+    int partial_scope_original_min_x = 0, partial_scope_original_max_x;
 
     QAction* actToggleFrameLine;
-    double fixed_max_y;
+    QAction* actToggleDataScope;
+    double fixed_max_y, sub_max_y;
     size_t frameLineColumnX;
     JKQTPXYLineGraph* graph;
     std::vector<Quantity> my_quantities;
@@ -156,16 +157,18 @@ private:
     bool show_frame_line;
     QTabWidget* tabWidget;
 
-    bool use_subinterval = false;
     std::vector<PlottingTrackFrame> track_frames;
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
     void EditPlotText();
+    QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
-    bool TrackExists(int track_id);
+    bool TrackExists(int track_id) const;
 
     QAction* get_action_toggle_frameline() const;
+    QAction* get_action_toggle_datascope() const;
+
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
     std::vector<double> get_individual_y_track_sum_relative_counts(size_t i);
@@ -176,7 +179,13 @@ private:
     std::vector<double> get_individual_y_track_fov_x(size_t i);
     std::vector<double> get_individual_y_track_fov_y(size_t i);
     double get_max_x_axis_value();
+
+public:
+
     double get_single_x_axis_value(int x_index);
+
+    void set_pre_image(double, double);
+private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 
     void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);

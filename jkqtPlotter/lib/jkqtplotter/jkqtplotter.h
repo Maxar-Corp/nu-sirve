@@ -1585,6 +1585,8 @@ protected:
     /** \brief current minimal size of the JKQTPlotter widget to properly display the plot */
     QSize minSize;
 
+    double full_plot_xmin, full_plot_xmax;
+
     /** \brief the context menu object used by this JKQTPlotter
          *
          *  \note this might be \c ==nullptr occasionally, therefore you need to check it, before accessing it!

@@ -281,7 +281,7 @@ JKQTBasePlotter::JKQTBasePlotter(bool datastore_internal, QObject* parent, JKQTP
     actSaveCSV->setToolTip(tr("Save the data which is used for the plot as Comma Separated Values (CSV)"));
     //toolbar->addAction(actSaveCSV);
     //toolbar->addSeparator();
-    actZoomAll=new QAction(QIcon(":/JKQTPlotter/jkqtp_zoomall.png"), tr("Zoom &All"), this);
+    actZoomAll=new QAction(QIcon(":/icons/zoom-home.png"), tr("Zoom &All"), this);
     actZoomAll->setToolTip(tr("Zoom to view all data"));
     actZoomIn=new QAction(QIcon(":/JKQTPlotter/jkqtp_zoomin.png"), tr("Zoom &In"), this);
     actZoomIn->setToolTip(tr("Zoom in around the center of the plot"));
@@ -302,7 +302,7 @@ JKQTBasePlotter::JKQTBasePlotter(bool datastore_internal, QObject* parent, JKQTP
     connect(actSavePix,    SIGNAL(triggered()), this, SLOT(saveAsPixelImage()));
 
     connect(actSaveCSV,    SIGNAL(triggered()), this, SLOT(saveAsCSV()));
-    connect(actZoomAll,    SIGNAL(triggered()), this, SLOT(zoomToFit()));
+    // the connect for actZoomAll ("zoomToFit") has moved to the SIRVE plot_engineering class, which inherits from this.
     connect(actZoomIn,     SIGNAL(triggered()), this, SLOT(zoomIn()));
     connect(actZoomOut,    SIGNAL(triggered()), this, SLOT(zoomOut()));
 
@@ -457,9 +457,6 @@ void JKQTBasePlotter::initSettings() {
 
 
 void JKQTBasePlotter::zoomIn(double factor) {
-    //std::cout<<(double)event->delta()/120.0<<":   "<<factor<<std::endl;
-
-
 
     for (auto ax: getXAxes(true)) {
         const double old_mi=ax->x2p(ax->getMin());
@@ -470,7 +467,9 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double new_ma=qMax(old_mi,old_ma)+(new_range-range)/2.0;
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
-        ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
+        // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
+        if (show_full_scope || (xmin>=sub_plot_xmin && xmax<=sub_plot_xmax))
+            ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
     for (auto ax: getYAxes(true)) {
         const double old_mi=ax->x2p(ax->getMin());
@@ -481,7 +480,9 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double new_ma=qMax(old_mi,old_ma)+(new_range-range)/2.0;
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
-        ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
+        // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
+        if (show_full_scope || (new_mi>=sub_plot_ymin && new_ma<=sub_plot_ymax))
+            ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
 
     redrawPlot();
@@ -4313,7 +4314,6 @@ bool JKQTBasePlotter::getGraphsYMinMax(double& miny, double& maxy, double& small
 }
 
 void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool includeY0, double scaleX, double scaleY) {
-
     if (graphs.size()<=0) return;
     auto calcLocScaling=[](JKQTPCoordinateAxis* axis, double &xxmin, double&xxmax, double&xsmallestGreaterZero, bool include0, double scale) -> bool {
         if (JKQTPIsOKFloat(xxmin) && JKQTPIsOKFloat(xxmax)) {
