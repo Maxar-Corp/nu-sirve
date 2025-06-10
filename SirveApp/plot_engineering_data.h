@@ -119,6 +119,7 @@ public:
 
 signals:
     void changeMotionStatus(bool status);
+    void frameNumberChanged(uint32_t frame_number);
     void updatePlots();
 
 public slots:

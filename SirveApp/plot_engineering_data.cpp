@@ -483,22 +483,14 @@ int EngineeringPlot::get_subinterval_max() const
 }
 
 void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
-    if (event->button() == Qt::LeftButton) {
+    if (event->button() == Qt::RightButton) {
 
         double x = plotter->p2x(event->pos().x()/magnification);
         double y =plotter->p2y((event->pos().y()-getPlotYOffset())/magnification);
 
-
-
-        // Convert screen (pixel) coordinates to plot coordinates
-        // JKQTPDatapoint dp = this->screenToPlot(event->pos());
-
-        // double xClicked = dp.x;
-        // double yClicked = dp.y;
-
         qDebug() << "Clicked at plot coordinates: X=" << x << ", Y=" << y;
 
-        // You can now use xClicked as needed
+        emit frameNumberChanged(x);
     }
 
     // Call base implementation
