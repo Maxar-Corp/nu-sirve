@@ -42,12 +42,6 @@ public:
 
     using JKQTPlotter::zoomIn; // Keep access to the base class version
 
-    inline void zoomIn() { // Overload with new default factor
-        zoomIn(1.5); // Call base class function with new factor
-    }
-
-    void AddTransparentLabel();
-
     QChartView *chart_view;
     ColorScheme colors;
     JKQTPDatastore* ds;
@@ -96,13 +90,13 @@ public:
     }
 
     std::vector<Quantity> get_params();
-    QString get_plot_title();
+    QString get_plot_title() const;
     int get_palette_tab_index();
-    int get_subinterval_min();
-    int get_subinterval_max();
+    int get_subinterval_min() const;
+    int get_subinterval_max() const;
 
-    int get_index_full_scope_xmin();
-    int get_index_full_scope_xmax();
+    int get_index_full_scope_xmin() const;
+    int get_index_full_scope_xmax() const;
     int get_index_zoom_min();
     int get_index_zoom_max();
     bool get_plot_primary_only();
@@ -170,7 +164,7 @@ private:
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
-    bool TrackExists(int track_id);
+    bool TrackExists(int track_id) const;
 
     QAction* get_action_toggle_frameline() const;
     QAction* get_action_toggle_datascope() const;

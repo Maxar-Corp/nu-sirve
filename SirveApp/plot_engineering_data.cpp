@@ -261,12 +261,12 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
     }
 }
 
-int EngineeringPlot::get_index_full_scope_xmin()
+int EngineeringPlot::get_index_full_scope_xmin() const
 {
     return index_full_scope_xmin;
 }
 
-int EngineeringPlot::get_index_full_scope_xmax()
+int EngineeringPlot::get_index_full_scope_xmax() const
 {
     return index_full_scope_xmax;
 }
@@ -463,7 +463,7 @@ bool EngineeringPlot::get_plot_primary_only()
     return plot_primary_only;
 }
 
-QString EngineeringPlot::get_plot_title()
+QString EngineeringPlot::get_plot_title() const
 {
     return plotTitle;
 }
@@ -473,12 +473,12 @@ bool EngineeringPlot::get_show_full_scope()
     return plotter->show_full_scope;
 }
 
-int EngineeringPlot::get_subinterval_min()
+int EngineeringPlot::get_subinterval_min() const
 {
     return this->getXAxis()->getMin();
 }
 
-int EngineeringPlot::get_subinterval_max()
+int EngineeringPlot::get_subinterval_max() const
 {
     return this->getXAxis()->getMax();
 }
@@ -562,8 +562,6 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
         {
             frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
         }
-
-        qDebug() << "frameline x = " << frameline_x;
 
         QVector<double> updatedXData = {(double)frameline_x, (double)frameline_x};
         ds->setColumnData(frameLineColumnX, updatedXData);
@@ -826,20 +824,18 @@ void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y,
 
 void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes)
 {
-    for (int i = 0; i < new_column_indexes.size(); i+=2)
+    const int firstIndexAfterFramelineColummns = 4;
+
+    for (int i = firstIndexAfterFramelineColummns; i < new_column_indexes.size(); i+=2)
     {
-        if (i > 3)
-        {
-            // get the track ID from the new columns' names
-            static QRegularExpression re("\\s(\\d+)\\s");
-            QString column_name = ds->getColumnNames()[i];
-            int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
-            AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
-        }
+        static QRegularExpression re("\\s(\\d+)\\s");
+        QString column_name = ds->getColumnNames()[i];
+        int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
+        AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
     }
 }
 
-bool EngineeringPlot::TrackExists(int track_id)
+bool EngineeringPlot::TrackExists(int track_id) const
 {
     QString titleX = "Track " + QString::number(track_id) + " x";
     QList<QString> names = ds->getColumnNames();
