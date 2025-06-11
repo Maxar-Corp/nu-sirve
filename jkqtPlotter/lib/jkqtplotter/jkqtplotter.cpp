@@ -123,7 +123,12 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
     actMouseMoveToolTip->setChecked(false);
 
     connect(actMouseLeftAsDefault, SIGNAL(triggered()), this, SLOT(resetMouseLeftAction()));
-    connect(actMouseLeftAsRuler, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsRuler()));
+    //connect(actMouseLeftAsRuler, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsRuler()));
+
+    connect(actMouseLeftAsRuler, &QAction::triggered, this, [=]() {
+        emit contextActionTriggered("Snap It");
+    });
+
     connect(actMouseLeftAsPanView, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsPanView()));
     connect(actMouseLeftAsZoomRect, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsZoomRect()));
     connect(actMouseMoveToolTip, SIGNAL(toggled(bool)), this, SLOT(setMouseMoveActionAsToolTip(bool)));
@@ -1750,6 +1755,7 @@ void JKQTPlotter::openContextMenu()
 
 void JKQTPlotter::openContextMenu(int x, int y)
 {
+    qDebug() << "Opening context menu";
     if (contextMenuMode==JKQTPContextMenuModes::jkqtpcmmStandardContextMenu) {
         openStandardContextMenu(x,y);
     } else if (contextMenuMode==JKQTPContextMenuModes::jkqtpcmmSpecialContextMenu) {

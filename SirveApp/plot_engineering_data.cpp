@@ -55,10 +55,19 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
+    connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
+
     this->setExclusionString("frameline");
     this->setMinimumWidth(200);
     this->plotter->setWidgetWidth(100);
     this->setToolbarAlwaysOn(true);
+}
+
+void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
+    if (actionName == "Snap It") {
+        qDebug() << "Reached Action one.";
+        emit frameNumberChanged(snap_x);
+    }
 }
 
 void EngineeringPlot::DisableDataScopeButton(bool value)
@@ -483,14 +492,9 @@ int EngineeringPlot::get_subinterval_max() const
 }
 
 void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
+
     if (event->button() == Qt::RightButton) {
-
-        double x = plotter->p2x(event->pos().x()/magnification);
-        double y =plotter->p2y((event->pos().y()-getPlotYOffset())/magnification);
-
-        qDebug() << "Clicked at plot coordinates: X=" << x << ", Y=" << y;
-
-        emit frameNumberChanged(x);
+        snap_x = plotter->p2x(event->pos().x()/magnification);
     }
 
     // Call base implementation

@@ -128,6 +128,9 @@ public slots:
     void PlotCurrentFrameline(int frameline_x);
     void SetPlotClassification(QString input_title);
 
+private slots:
+    void onJPContextActionTriggered(const QString& actionName);
+
 public Q_SLOTS:
     void DoCustomZoomIn();
     void ToggleDataScope();
@@ -193,6 +196,8 @@ protected:
 
 private:
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+
+    double snap_x = 0;
 
     void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
 };

@@ -1739,7 +1739,6 @@ Q_SIGNALS:
          */
     void afterExporting();
 
-
     /**@}*/
 
 

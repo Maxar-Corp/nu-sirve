@@ -1169,6 +1169,9 @@ public Q_SLOTS:
     /** \copydoc JKQTBasePlotter::setXY()  */
     inline void setXY(double xminn, double xmaxx, double yminn, double ymaxx, bool affectsSecondaryAxes=false) { plotter->setXY(xminn, xmaxx, yminn, ymaxx, affectsSecondaryAxes); }
 Q_SIGNALS:
+
+    void contextActionTriggered(const QString& actionName);
+
     /** \brief emitted whenever the mouse moves
          *
          * \param x x-position of the mouse (in plot coordinates)
