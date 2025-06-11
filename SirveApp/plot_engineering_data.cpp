@@ -65,8 +65,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
 void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
     if (actionName == "Snap It") {
-        qDebug() << "Reached Action one.";
-        emit frameNumberChanged(snap_x);
+        qDebug() << "Snapping to " << snap_x - get_subinterval_min();
+        emit frameNumberChanged(snap_x - get_subinterval_min());
     }
 }
 
@@ -494,7 +494,7 @@ int EngineeringPlot::get_subinterval_max() const
 void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
 
     if (event->button() == Qt::RightButton) {
-        snap_x = plotter->p2x(event->pos().x()/magnification);
+        snap_x = plotter->p2x(event->pos().x() / magnification);
     }
 
     // Call base implementation
