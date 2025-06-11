@@ -1669,6 +1669,9 @@ protected:
     /** \brief removes a previously set override mouse drag action for the given button/modifiers combination \see setOverrideMouseDragAction(), resetOverrideMouseDragAction(), registeredOverrideMouseDragActionModes */
     void resetOverrideMouseDragAction(Qt::MouseButton button,Qt::KeyboardModifiers modifiers);
 
+    /** \brief action that snaps the video and frameline to where the user clicked */
+    QAction* actSnapIt;
+
     /** \brief action group, that groups the actMouseLeft... actions */
     QActionGroup* actgrpMouseLeft;
     /** \brief action that activates the default action, set in plotterStyle! */

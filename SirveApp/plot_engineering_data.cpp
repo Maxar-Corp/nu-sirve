@@ -65,7 +65,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
 void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
     if (actionName == "Snap It") {
-        qDebug() << "Snapping to " << snap_x - get_subinterval_min();
         emit frameNumberChanged(snap_x - get_subinterval_min());
     }
 }
