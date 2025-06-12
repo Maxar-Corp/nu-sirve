@@ -1981,6 +1981,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     data_plot->set_data_scope_icon("partial");
     data_plot->DisableDataScopeButton(false);
 
+    connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
+
     plot_palette->AddPlotTab(data_plot, quantities);
 }
 

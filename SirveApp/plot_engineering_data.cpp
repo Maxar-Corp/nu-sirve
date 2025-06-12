@@ -66,8 +66,15 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
     if (actionName == "Snap It" && ! get_show_full_scope()) {
 
-        emit frameNumberChanged(snap_x - get_subinterval_min());
-
+        if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
+        {
+            double fraction = double(snap_x - get_subinterval_min()) / double(get_subinterval_max()-get_subinterval_min());
+            emit frameNumberChanged(fraction * (partial_scope_original_max_x - partial_scope_original_min_x));
+        }
+        else
+        {
+            emit frameNumberChanged(snap_x - get_subinterval_min());
+        }
     }
 }
 
