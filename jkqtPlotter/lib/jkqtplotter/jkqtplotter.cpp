@@ -102,7 +102,6 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
 
     actSnapIt=actgrpMouseLeft->addAction(QIcon(":/icons/snap-it.png"), tr("Snap it"));
     actSnapIt->setToolTip(tr(""));
-    //actSnapIt->setCheckable(true);
 
     actMouseLeftAsDefault=actgrpMouseLeft->addAction(QIcon(":/JKQTPlotter/jkqtp_mouseact_default.png"), tr("Default Tool"));
     actMouseLeftAsDefault->setToolTip(tr("switch back to the default mouse action/tool (left button, no modifiers)"));
@@ -132,7 +131,7 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
     connect(actMouseLeftAsDefault, SIGNAL(triggered()), this, SLOT(resetMouseLeftAction()));
     connect(actMouseLeftAsRuler, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsRuler()));
 
-    connect(actSnapIt, &QAction::triggered, this, [=]() {
+    connect(actSnapIt, &QAction::triggered, [this]() {
         emit contextActionTriggered("Snap It");
     });
 
