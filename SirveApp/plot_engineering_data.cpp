@@ -68,12 +68,12 @@ void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
 
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
-            double fraction = double(snap_x - get_subinterval_min()) / double(get_subinterval_max()-get_subinterval_min());
-            emit frameNumberChanged(fraction * (partial_scope_original_max_x - partial_scope_original_min_x));
+            double fraction = double(snap_x - get_single_x_axis_value(partial_scope_original_min_x)) / double(get_single_x_axis_value(partial_scope_original_max_x) - get_single_x_axis_value(partial_scope_original_min_x));
+            emit frameNumberChanged(fraction * (get_single_x_axis_value(partial_scope_original_max_x) - get_single_x_axis_value(partial_scope_original_min_x)));
         }
         else
         {
-            emit frameNumberChanged(snap_x - get_subinterval_min());
+            emit frameNumberChanged(snap_x - partial_scope_original_min_x);
         }
     }
 }
