@@ -75,7 +75,7 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
     contextSubMenus(),
     plotterStyle(JKQTPGetSystemDefaultStyle()),
     resizeTimer(), registeredOverrideMouseDragActionModes(),
-    actgrpMouseLeft(nullptr), actMouseLeftAsDefault(nullptr), actMouseLeftAsRuler(nullptr), actMouseMoveToolTip(nullptr), actMouseLeftAsZoomRect(nullptr), actMouseLeftAsPanView(nullptr)
+    actSnapIt(nullptr), actgrpMouseLeft(nullptr), actMouseLeftAsDefault(nullptr), actMouseLeftAsRuler(nullptr), actMouseMoveToolTip(nullptr), actMouseLeftAsZoomRect(nullptr), actMouseLeftAsPanView(nullptr)
 {
     initJKQTPlotterResources();
 
@@ -99,6 +99,10 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     actgrpMouseLeft=new QActionGroup(this);
+
+    actSnapIt=actgrpMouseLeft->addAction(QIcon(":/icons/snap-it.png"), tr("Snap it"));
+    actSnapIt->setToolTip(tr(""));
+
     actMouseLeftAsDefault=actgrpMouseLeft->addAction(QIcon(":/JKQTPlotter/jkqtp_mouseact_default.png"), tr("Default Tool"));
     actMouseLeftAsDefault->setToolTip(tr("switch back to the default mouse action/tool (left button, no modifiers)"));
     actMouseLeftAsDefault->setCheckable(true);
@@ -108,9 +112,11 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
     actMouseLeftAsZoomRect=actgrpMouseLeft->addAction(QIcon(":/JKQTPlotter/jkqtp_mouseact_zoomrect.png"), tr("Zoom Rectangle Tool"));
     actMouseLeftAsZoomRect->setToolTip(tr("switch on the zoom rectangle tool (left button, no modifiers)"));
     actMouseLeftAsZoomRect->setCheckable(true);
+
     actMouseLeftAsRuler=actgrpMouseLeft->addAction(QIcon(":/JKQTPlotter/jkqtp_mouseact_ruler.png"), tr("Ruler Tool"));
     actMouseLeftAsRuler->setToolTip(tr("switch on the ruler tool (left button, no modifiers)"));
     actMouseLeftAsRuler->setCheckable(true);
+
     //actMouseLeftAsToolTip=actgrpMouseLeft->addAction(QIcon(":/JKQTPlotter/jkqtp_mouseact_tooltip.png"), tr("Data Tooltip Tool"));
     //actMouseLeftAsToolTip->setToolTip(tr("switch on the data tooltip tool when moving the mouse (no modifiers)"));
     //actMouseLeftAsToolTip->setCheckable(true);
@@ -124,6 +130,11 @@ JKQTPlotter::JKQTPlotter(bool datastore_internal, QWidget* parent, JKQTPDatastor
 
     connect(actMouseLeftAsDefault, SIGNAL(triggered()), this, SLOT(resetMouseLeftAction()));
     connect(actMouseLeftAsRuler, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsRuler()));
+
+    connect(actSnapIt, &QAction::triggered, [this]() {
+        emit contextActionTriggered("Snap It");
+    });
+
     connect(actMouseLeftAsPanView, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsPanView()));
     connect(actMouseLeftAsZoomRect, SIGNAL(triggered()), this, SLOT(setMouseLeftActionAsZoomRect()));
     connect(actMouseMoveToolTip, SIGNAL(toggled(bool)), this, SLOT(setMouseMoveActionAsToolTip(bool)));
@@ -1180,6 +1191,7 @@ void JKQTPlotter::initContextMenu()
 {
     resetContextMenu(true);
 
+    contextMenu->addAction(actSnapIt);
     contextMenu->addAction(plotter->getActionSaveData());
     contextMenu->addAction(plotter->getActionSavePlot());
 #ifndef JKQTPLOTTER_COMPILE_WITHOUT_PRINTSUPPORT

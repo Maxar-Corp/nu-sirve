@@ -1945,6 +1945,8 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     data_plot->set_data_scope_icon("full");
     data_plot->DisableDataScopeButton(true);
 
+    connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
+
     plot_palette->AddPlotTab(data_plot, quantities);
 
 }
@@ -1978,6 +1980,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     data_plot->set_show_full_scope(false);
     data_plot->set_data_scope_icon("partial");
     data_plot->DisableDataScopeButton(false);
+
+    connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
 }

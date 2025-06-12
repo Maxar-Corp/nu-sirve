@@ -42,5 +42,6 @@
         <file>icons/stop.png</file>
         <file>icons/jkqtp_frameline.png</file>
         <file>icons/zoom-home.png</file>
+        <file>icons/snap-it.png</file>
     </qresource>
 </RCC>

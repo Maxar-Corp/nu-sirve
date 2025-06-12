@@ -55,10 +55,27 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
+    connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
+
     this->setExclusionString("frameline");
     this->setMinimumWidth(200);
     this->plotter->setWidgetWidth(100);
     this->setToolbarAlwaysOn(true);
+}
+
+void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
+    if (actionName == "Snap It" && ! get_show_full_scope()) {
+
+        if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
+        {
+            double fraction = double(snap_x - get_single_x_axis_value(partial_scope_original_min_x)) / double(get_single_x_axis_value(partial_scope_original_max_x) - get_single_x_axis_value(partial_scope_original_min_x));
+            emit frameNumberChanged(fraction * (get_single_x_axis_value(partial_scope_original_max_x) - get_single_x_axis_value(partial_scope_original_min_x)));
+        }
+        else
+        {
+            emit frameNumberChanged(snap_x - partial_scope_original_min_x);
+        }
+    }
 }
 
 void EngineeringPlot::DisableDataScopeButton(bool value)
@@ -451,7 +468,6 @@ double EngineeringPlot::get_max_x_axis_value()
     }
 }
 
-
 std::vector<Quantity> EngineeringPlot::get_params()
 {
 
@@ -481,6 +497,16 @@ int EngineeringPlot::get_subinterval_min() const
 int EngineeringPlot::get_subinterval_max() const
 {
     return this->getXAxis()->getMax();
+}
+
+void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
+
+    if (event->button() == Qt::RightButton) {
+        snap_x = plotter->p2x(event->pos().x() / magnification);
+    }
+
+    // Call base implementation
+    JKQTPlotter::mousePressEvent(event);
 }
 
 void EngineeringPlot::set_plot_primary_only(bool value)

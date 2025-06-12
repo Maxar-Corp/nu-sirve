@@ -1169,6 +1169,9 @@ public Q_SLOTS:
     /** \copydoc JKQTBasePlotter::setXY()  */
     inline void setXY(double xminn, double xmaxx, double yminn, double ymaxx, bool affectsSecondaryAxes=false) { plotter->setXY(xminn, xmaxx, yminn, ymaxx, affectsSecondaryAxes); }
 Q_SIGNALS:
+
+    void contextActionTriggered(const QString& actionName);
+
     /** \brief emitted whenever the mouse moves
          *
          * \param x x-position of the mouse (in plot coordinates)
@@ -1665,6 +1668,9 @@ protected:
     void setOverrideMouseDragAction(Qt::MouseButton button,Qt::KeyboardModifiers modifiers, JKQTPMouseDragActions action);
     /** \brief removes a previously set override mouse drag action for the given button/modifiers combination \see setOverrideMouseDragAction(), resetOverrideMouseDragAction(), registeredOverrideMouseDragActionModes */
     void resetOverrideMouseDragAction(Qt::MouseButton button,Qt::KeyboardModifiers modifiers);
+
+    /** \brief action that snaps the video and frameline to where the user clicked */
+    QAction* actSnapIt;
 
     /** \brief action group, that groups the actMouseLeft... actions */
     QActionGroup* actgrpMouseLeft;
