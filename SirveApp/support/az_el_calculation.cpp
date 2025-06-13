@@ -6,7 +6,7 @@
 #include <qmath.h>
 
 
-std::vector<double> AzElCalculation::calculateAzEl(int nRows, int nCols, int x, int y, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
+std::vector<double> AzElCalculation::calculateAzEl(int nRows, int nCols, int x, int y, double sensor_lat, double sensor_long, const std::vector<double>& dcm, double ifov_x, double ifov_y, bool adjust_frame_ref)
 {
 	if (adjust_frame_ref)
 	{
@@ -44,8 +44,7 @@ std::vector<double> AzElCalculation::calculateAzEl(int nRows, int nCols, int x, 
 	return std::vector<double> {los_az, los_el};
 }
 
-std::vector<int> AzElCalculation::calculateXY(int nRows, int nCols, double az, double el, double sensor_lat, double sensor_long, std::vector<double> dcm, double ifov_x, double ifov_y)
-{
+std::vector<int> AzElCalculation::calculateXY(int nRows, int nCols, double az, double el, double sensor_lat, double sensor_long, const std::vector<double>& dcm, double ifov_x, double ifov_y){
 
     arma::mat a_ecf_to_seu = earth::Atf_Transformation(sensor_lat, sensor_long);
 	arma::mat rot_z = rotate::CoordFrame_Rotation3(180);
