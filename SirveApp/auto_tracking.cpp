@@ -442,10 +442,10 @@ void AutoTracking::TrackingStep(
         output.row(i) =  {
                             static_cast<uint16_t>(track_id),
                             static_cast<uint16_t>(frame0 + i),
-                            frame_x - nRows/2,
-                            frame_y - nCols/2,
-                            frame_x,
-                            frame_y,
+                            frame_x + 1 - nCols/2,
+                            frame_y + 1 - nRows/2,
+                            frame_x + 1,
+                            frame_y + 1,
                             static_cast<int32_t>(number_pixels),
                             static_cast<uint16_t>(peak_counts),
                             static_cast<int32_t>(mean_counts),
@@ -454,8 +454,8 @@ void AutoTracking::TrackingStep(
                             static_cast<int32_t>(measurements[0]),
                             static_cast<int32_t>(measurements[1]),
                             static_cast<int32_t>(measurements[2]),
-                            static_cast<uint16_t>(bbox_uncentered.x),
-                            static_cast<uint16_t>(bbox_uncentered.y),
+                            static_cast<uint16_t>(bbox_uncentered.x+1),
+                            static_cast<uint16_t>(bbox_uncentered.y+1),
                             static_cast<uint16_t>(bbox_uncentered.width),
                             static_cast<uint16_t>(bbox_uncentered.height)
                         };

@@ -111,7 +111,7 @@ public:
         btn_save_plot,  btn_workspace_load, btn_workspace_save, btn_undo_step, btn_popout_histogram,
         btn_popout_engineering, btn_replace_bad_pixels, btn_import_tracks, btn_create_track, btn_finish_create_track,
         btn_center_on_tracks, btn_center_on_brightest, btn_frame_stack, btn_RPCP, btn_cancel_operation,
-        btn_auto_track_target;
+        btn_auto_track_target, btn_save_track;
 
     QPointer<QCheckBox>  chk_auto_lift_gain, chk_relative_histogram, chk_plot_primary_data, chk_plot_show_line,
         chk_plot_full_data, chk_hide_shadow, chk_FNS_external_file;
@@ -276,6 +276,7 @@ private:
     void HandleBadPixelRawToggle();
     void HandleBadPixelReplacement();
     void HandleCreateTrackClick();
+    void HandleSaveTrackClick();
     void HandleExternalFileToggle();
     void HandleFinishCreateTrackClick();
     void HandleOutlierProcessingChange();

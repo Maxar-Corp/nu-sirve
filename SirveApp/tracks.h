@@ -55,7 +55,7 @@ struct PlottingTrackDetails
     PlottingTrackDetails() = default;
     PlottingTrackDetails(const PlottingTrackDetails&) = default;
 
-    PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double azimuth, double elevation,
+    PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double az, double el,
                          double irradiance);
 
     PlottingTrackDetails(const TrackData& track_data);
@@ -131,6 +131,7 @@ public:
                                const std::vector<std::optional<TrackDetails>>& new_track_details, const QString& new_track_file_name);
     std::vector<std::optional<TrackDetails>> CopyManualTrack(int track_id);
     std::vector<std::optional<TrackDetails>> GetEmptyTrack() const;
+    void WriteManualTrackToFile(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name);
 
     std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
     std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
