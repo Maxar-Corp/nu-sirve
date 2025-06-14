@@ -6,10 +6,6 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "jkqtplotter/jkqtplotter.h"
-#include "jkqtplotter/graphs/jkqtplines.h"
-#include "jkqtpexampleapplication.h"
-
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QString LOG_FILE_PATH = "log/debug_log_file.txt";
     QFile file(LOG_FILE_PATH);
@@ -20,7 +16,12 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
     stream << msg << "\r\n";
 
     // Also output the message to the console
-    QTextStream(stdout) << msg << "\r\n";
+    if (type == QtInfoMsg || type == QtDebugMsg) {
+        // If it's not an info or debug message, we can also print it to stderr
+        QTextStream(stdout) << msg << "\r\n";
+    } else {
+        QTextStream(stderr) << msg << "\r\n";
+    }
 }
 
 int main(int argc, char *argv[])
@@ -41,8 +42,8 @@ int main(int argc, char *argv[])
         qInstallMessageHandler(customMessageHandler);
     }
 
-    JKQTPAppSettingController highDPIController(argc,argv);
-    JKQTPExampleApplication app(argc, argv);
+    QApplication app(argc, argv);
+    QApplication::setApplicationName("SIRVE");
 
     QFile file(":/stylesheets/Modified_Ubuntu.qss");
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
         file.close();
     }
 
-    SirveApp app2;
+    SirveApp sirve;
 
     QPointer screen = QApplication::primaryScreen();
 
@@ -59,16 +60,16 @@ int main(int argc, char *argv[])
 
     if (resolution.width() <= 1920)
     {
-        app2.move(10,10);
+        sirve.move(10,10);
     }
     else
     {
-        app2.move((resolution.width() - app2.size().width())/2,(resolution.height() - app2.size().height())/2);
+        sirve.move((resolution.width() - sirve.size().width())/2,(resolution.height() - sirve.size().height())/2);
     }
 
-    app2.show();
+    sirve.show();
 
-    qDebug() << "Dimensions of Sirve: Width=" << app2.size().width() << " Height=" << app2.size().height() << "\r\n";
+    qDebug() << "Dimensions of Sirve: Width=" << sirve.size().width() << " Height=" << sirve.size().height() << "\r\n";
 
     return app.exec();
 }

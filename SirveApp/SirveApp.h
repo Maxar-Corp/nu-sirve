@@ -193,8 +193,6 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-    ABPFileType abp_file_type = ABPFileType::ABP_B;
-
     QPointer<StateManager> state_manager_;
     QPointer<VideoPlayer> video_player_;
 
@@ -254,7 +252,6 @@ private:
     void EditClassificationText(int plot_tab_index, QString current_value);
     void EditColorMap();
     void EditOSMTrackColor();
-    void EditPlotText();
 
     void EnableBinaryExport();
 
@@ -281,7 +278,6 @@ private:
     void HandleFinishCreateTrackClick();
     void HandleOutlierProcessingChange();
     void HandlePopoutHistogramClick(bool checked);
-    void HandleYAxisChange();
 
     void LoadAbirData(int start_frame, int stop_frame);
     void LoadOsmData();

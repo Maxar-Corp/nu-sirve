@@ -140,7 +140,6 @@ target_link_libraries(SirveApp
             JKQTPlotter6::JKQTMathText6
             JKQTPlotter6::JKQTMath6
             JKQTPlotter6::JKQTCommon6
-            JKQTPExampleToolsLib
 )
 
 target_include_directories(SirveApp PRIVATE 

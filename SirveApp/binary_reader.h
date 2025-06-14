@@ -15,7 +15,7 @@ public:
     bool CanRead(T (&data)[N]);
 
     virtual bool Open(const QString& filename);
-    bool Close();
+    virtual bool Close();
     [[nodiscard]] bool IsOpen() const;
 
     template <typename T>

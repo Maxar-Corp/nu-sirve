@@ -1672,12 +1672,13 @@ void SirveApp::LoadWorkspace()
 
         lbl_current_workspace_folder_field->setText(filePath);
         lbl_workspace_name_field->setText(fileInfo.fileName());
-        bool validated = ValidateAbpFiles(workspace_vals.image_path);
-        if (validated) {
+        if (ValidateAbpFiles(workspace_vals.image_path)) {
             LoadOsmData();
             QFileInfo fileInfo0(workspace_vals.image_path);
             abpimage_file_base_name = fileInfo0.baseName();
             cmb_text_color->setCurrentIndex(2);
+        } else {
+            return;
         }
 
         if (workspace_vals.start_frame == 0 || workspace_vals.end_frame == 0)
@@ -1832,6 +1833,10 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
 
     abp_file_metadata = possible_abp_file_metadata;
 
+    if (!abp_file_metadata.warning_msg.isEmpty()) {
+        QtHelpers::LaunchMessageBox(QString("Warning"), possible_abp_file_metadata.warning_msg);
+    }
+
     return true;
 }
 
@@ -1847,7 +1852,7 @@ void SirveApp::LoadOsmData()
         return;
     }
 
-    osm_frames = reader.ReadFrames(abp_file_type);
+    osm_frames = reader.ReadFrames(abp_file_metadata.file_type);
     if (osm_frames.empty())
     {
         QtHelpers::LaunchMessageBox(QString("Error loading OSM file"), QString("Error reading OSM file. Close program and open logs for details."));
@@ -1897,7 +1902,7 @@ void SirveApp::LoadOsmData()
     }
 
     eng_data = new EngineeringData(osm_frames);
-    track_info = new TrackInformation(osm_frames, abp_file_type);
+    track_info = new TrackInformation(osm_frames, abp_file_metadata.file_type);
 
     plot_palette = new PlotPalette();
 
@@ -2075,7 +2080,7 @@ void SirveApp::UiLoadAbirData()
 
     LoadAbirData(min_frame, max_frame);
 
-    if (abp_file_type == ABPFileType::ABP_B)
+    if (abp_file_metadata.file_type == ABPFileType::ABP_B)
     {
         for (int i = 0; i < toolbox_image_processing->count(); ++i) {
             if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
@@ -2085,7 +2090,7 @@ void SirveApp::UiLoadAbirData()
             }
         }
     }
-    else
+    else if (abp_file_metadata.file_type == ABPFileType::ABP_B)
     {
         for (int i = 0; i < toolbox_image_processing->count(); ++i) {
             if (QString::compare(toolbox_image_processing->itemText(i), "Deinterlacing", Qt::CaseInsensitive) == 0)
@@ -2109,7 +2114,7 @@ void SirveApp::UiLoadAbirData()
 
     QList<int> sizes = splitter->sizes();
     // expand frame for d data
-    if (abp_file_type == ABPFileType::ABP_D)
+    if (abp_file_metadata.file_type == ABPFileType::ABP_D)
     {
         // collapse right panel and let video take its space
         sizes[1] += sizes[2];
@@ -2150,8 +2155,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
 
     WaitCursor cursor;
-    abp_file_type = ABPFileType::ABP_B;
-    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame, abp_file_type);
+    abp_file_metadata.file_type = ABPFileType::ABP_B;
+    abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame);
     if (abir_frames == nullptr)
     {
         QtHelpers::LaunchMessageBox(QString("Error Reading ABIR Frames"), "Error reading .abpimage file. See log for more details.");
@@ -2230,9 +2235,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
 
     UpdateGlobalFrameVector();
-
-    double adjusted_min_x = min_frame;
-    double adjusted_max_x = max_frame;
 
     // Configure the three, initial "out of the box" plots to account for the newly configued data scope (a.k.a. "sub plot", "start/stop frames", yada yada)
     for (int i= 0; i < plot_palette->tabBar()->count(); i++)
@@ -2807,7 +2809,7 @@ void SirveApp::CreateMenuActions()
 
 ImageProcessing* SirveApp::CreateImageProcessor()
 {
-    QPointer image_processor = new ImageProcessing(abp_file_type);
+    QPointer image_processor = new ImageProcessing(abp_file_metadata.file_type);
     connect(image_processor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);
 
@@ -2859,7 +2861,7 @@ void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
 
 void SirveApp::ShowCalibrationDialog()
 {
-	CalibrationDialog calibrate_dialog(calibration_model, abp_file_type);
+	CalibrationDialog calibrate_dialog(calibration_model, abp_file_metadata.file_type);
 
 	auto response = calibrate_dialog.exec();
 
@@ -3058,7 +3060,7 @@ void SirveApp::AnnotateVideo()
     standard_info.x_correction = video_player_->GetXCorrection();
     standard_info.y_correction = video_player_->GetYCorrection();
 
-    annotation_dialog = new AnnotationListDialog(video_player_->GetAnnotations(), standard_info, abp_file_type);
+    annotation_dialog = new AnnotationListDialog(video_player_->GetAnnotations(), standard_info, abp_file_metadata.file_type);
     connect(annotation_dialog, &AnnotationListDialog::showAnnotationStencil, video_player_, &VideoPlayer::ShowStencil);
     connect(annotation_dialog, &AnnotationListDialog::hideAnnotationStencil, video_player_, &VideoPlayer::HideStencil);
     connect(annotation_dialog, &AnnotationListDialog::updateAnnotationStencil, video_player_, &VideoPlayer::InitializeStencilData);
@@ -3176,8 +3178,7 @@ void SirveApp::HandleBadPixelReplacement()
         }
 
         WaitCursor cursor;
-        abp_file_type = ABPFileType::ABP_B;
-        abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame, abp_file_type);
+        abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, start_frame, stop_frame);
         if (abir_frames == nullptr)
         {
             QtHelpers::LaunchMessageBox(QString("Error loading frames."),
@@ -3375,7 +3376,7 @@ bool SirveApp::CheckCurrentStateisNoiseSuppressed(int source_state_idx) const
 
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 {
-    ExternalNUCInformationWidget external_nuc_dialog(abp_file_type);
+    ExternalNUCInformationWidget external_nuc_dialog(abp_file_metadata.file_type);
 
     auto response = external_nuc_dialog.exec();
 
@@ -3479,7 +3480,7 @@ void SirveApp::ApplyFixedNoiseSuppression(const QString& image_path, const QStri
     auto new_state = GetStateManager()[source_state_idx];
 
     new_state.details.frames_16bit = image_processor->FixedNoiseSuppression(abp_file_metadata.image_path, file_path,
-        frame0, start_frame, stop_frame, abp_file_type, new_state.details);
+        frame0, start_frame, stop_frame, new_state.details);
 
     if(new_state.details.frames_16bit.size() > 0) {
         state_manager_->push_back(std::move(new_state), ProcessingMethod::fixed_noise_suppression);
@@ -3733,7 +3734,7 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
 
     lbl_progress_status->setText(QString("Center on Brightest Object..."));
 
-    QPointer image_processor = new ImageProcessing(abp_file_type);
+    QPointer image_processor = new ImageProcessing(abp_file_metadata.file_type);
 
     connect(image_processor, &ImageProcessing::signalProgress, progress_bar_main, &QProgressBar::setValue);
     connect(btn_cancel_operation, &QPushButton::clicked, image_processor, &ImageProcessing::CancelOperation);
@@ -3907,7 +3908,7 @@ void SirveApp::ApplyAdaptiveNoiseSuppression(int relative_start_frame, int numbe
     auto new_state = GetStateManager()[source_state_idx];
     QPointer image_processor = CreateImageProcessor();
 
-    if (GetAvailableMemoryRatio(num_frames, abp_file_type) >=1.5) {
+    if (GetAvailableMemoryRatio(num_frames, abp_file_metadata.file_type) >=1.5) {
         new_state.details.frames_16bit =
             image_processor->AdaptiveNoiseSuppressionMatrix(relative_start_frame, number_of_frames, new_state.details);
     } else {
@@ -3961,7 +3962,7 @@ void SirveApp::ApplyRPCPNoiseSuppression(int source_state_idx)
     video_player_->StopTimer();
 
     int num_frames = (int)GetStateManager()[source_state_idx].details.frames_16bit.size();
-    if(GetAvailableMemoryRatio(num_frames, abp_file_type) < 1.5) {
+    if(GetAvailableMemoryRatio(num_frames, abp_file_metadata.file_type) < 1.5) {
         QtHelpers::LaunchMessageBox("Low memory", "Insufficient memory for this operation. Please select fewer frames.");
         return;
     }
@@ -4055,7 +4056,7 @@ void SirveApp::ExecuteAutoTracking()
         }
     }
 
-    AutoTracking AutoTracker(abp_file_type);
+    AutoTracking AutoTracker(abp_file_metadata.file_type);
 
     string prefilter = "NONE";
     if (rad_autotrack_filter_gaussian->isChecked()){
@@ -4551,7 +4552,7 @@ void SirveApp::VideoPopoutToggled(bool show_popout)
     QList<int> sizes = splitter->sizes();
 
     // if d data
-    if (abp_file_type == ABPFileType::ABP_D)
+    if (abp_file_metadata.file_type == ABPFileType::ABP_D)
     {
         // when d data is popped out, we need to expand the right column graph data
         if (show_popout)
