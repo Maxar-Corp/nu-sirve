@@ -15,7 +15,7 @@ namespace DataExport
                                 std::vector<PlottingFrameData> frame_data,
                                 std::vector<PlottingTrackFrame> track_data,
                                 std::vector<ManualPlottingTrackFrame> manual_track_data,
-                                int min_frame = 0,
+                                int min_frame = 1,
                                 int max_frame = 0);
 };
 
