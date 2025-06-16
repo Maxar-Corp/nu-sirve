@@ -64,22 +64,26 @@ public:
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteAllTrackGraphs();
-
+    void DeleteGraphIfExists(const QString &titleToFind);
     std::vector<size_t>& DeleteTrack(int track_id);
-
-    void PlotChart();
-    void PlotSirveTracks(int override_track_id);
-
-    void ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id);
-
-    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
-    void RecolorManualTrack(int track_id, QColor new_color);
-    void RecolorOsmTrack(QColor new_color);
-    void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
+    FuncType DeriveFunctionPointers(Enums::PlotType type);
 
     void DisableDataScopeButton(bool value);
+
+    void PlotChart();
+    void PlotCurrentFrameline(int frameline_x);
+    void PlotSirveTracks(int override_track_id);
+
+    void RecolorManualTrack(int track_id, QColor new_color);
+    void RecolorOsmTrack(QColor new_color);
+    void RecordYAxisMinMax();
+    void ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id);
+    void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
+
     void SetPlotterXAxisMinMax(int min, int max);
     void SetupSubRange(int min, int max);
+
+    void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
 
     JKQTPDatastore* get_data_store() const {
         return ds;
@@ -101,21 +105,21 @@ public:
     int get_index_zoom_max();
     bool get_plot_primary_only();
     bool get_show_full_scope();
+    double get_single_x_axis_value(int x_index);
     Enums::PlotUnit get_quantity_unit_by_axis(int axis_index);
+
+    std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
 
     void set_plot_primary_only(bool value);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
+    void set_pre_image(double, double);
     void set_sub_plot_xmin(int value);
     void set_sub_plot_xmax(int value);
 
     void set_show_full_scope(bool use_subinterval);
     void set_data_scope_icon(QString type);
 
-    FuncType DeriveFunctionPointers(Enums::PlotType type);
-
     void print_ds(JKQTPDatastore *_ds);
-    void DeleteGraphIfExists(const QString &titleToFind);
-    void RecordYAxisMinMax();
 
 signals:
     void changeMotionStatus(bool status);
@@ -125,17 +129,16 @@ signals:
 public slots:
 
     void HandlePlayerButtonClick();
-    void PlotCurrentFrameline(int frameline_x);
     void SetPlotClassification(QString input_title);
-
-private slots:
-    void onJPContextActionTriggered(const QString& actionName);
 
 public Q_SLOTS:
     void DoCustomZoomIn();
     void ToggleDataScope();
     void ToggleFrameLine();
     void ToggleGraphTickSymbol();
+
+private slots:
+    void onJPContextActionTriggered(const QString& actionName);
 
 private:
 
@@ -159,6 +162,7 @@ private:
     int palette_tab_index;
     QString plot_classification;
     bool show_frame_line;
+    double snap_x = 0;
     QTabWidget* tabWidget;
 
     std::vector<PlottingTrackFrame> track_frames;
@@ -167,6 +171,7 @@ private:
     void EditPlotText();
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
+    void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
     bool TrackExists(int track_id) const;
 
@@ -185,21 +190,8 @@ private:
 
     double get_max_x_axis_value();
 
-public:
-
-    double get_single_x_axis_value(int x_index);
-
-    void set_pre_image(double, double);
-
 protected:
     void mousePressEvent(QMouseEvent *event);
-
-private:
-    std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
-
-    double snap_x = 0;
-
-    void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
 };
 
 #endif
