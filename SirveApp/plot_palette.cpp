@@ -13,7 +13,9 @@
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
-    quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+    x_quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+    y_quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "SumCounts"};
+
 
     setObjectName("PlotPalette"); // used to discern when Plot Palette itself invokes HandleParamsSelected()
 
@@ -192,8 +194,8 @@ void PlotPalette::mouseDoubleClickEvent(QMouseEvent *event)
         QMenu menu(this);
         menu.addAction("Add Tab", [this]() {
             designer = new PlotDesigner(this);
-            designer->AddCheckableItemsByIndex(0, quantities);
-            designer->AddCheckableItemsByIndex(1, quantities);
+            designer->AddCheckableItemsByIndex(0, y_quantities);
+            designer->AddCheckableItemsByIndex(1, x_quantities);
 
             designer->SetDefaultUnits();
 

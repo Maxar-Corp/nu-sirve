@@ -50,7 +50,7 @@ private:
     std::vector<EngineeringPlot*> engineering_plot_ref;
     std::vector<int> popped_tabs;
     std::vector<int> synced_tabs;
-    QStringList quantities;
+    QStringList x_quantities, y_quantities;
     std::map<int, int> tab_to_type;
     std::map<int, int> tab_to_unit;
     QMap<int, QMenu*> tab_menus;
