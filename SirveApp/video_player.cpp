@@ -700,7 +700,10 @@ void VideoPlayer::ViewFrame(uint32_t frame_number)
     InitMainWindow();
 
     int num_video_frames = state_manager_->GetCurrentState().details.frames_16bit.size();
+
+    mw_->UpdateGlobalFrameVector();
     video_display_->ViewFrame(frame_number);
+
     // TODO: This is fugly. This should probably be handled by accessors and/or signals
     int current_auto_track_start = mw_->txt_auto_track_start_frame->text().toInt();
     int current_auto_track_stop = mw_->txt_auto_track_stop_frame->text().toInt();
@@ -725,7 +728,6 @@ void VideoPlayer::ViewFrame(uint32_t frame_number)
     goto_frame_->setText(QLocale::c().toString(video_display_->GetStartingFrameNumber() + frame_number));
     slider_->setValue(frame_number);
 
-    mw_->UpdateGlobalFrameVector();
     emit frameNumberChanged(frame_number);
 }
 
