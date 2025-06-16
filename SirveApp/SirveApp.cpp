@@ -2021,8 +2021,15 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
 
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
+    std::set<int> track_ids = track_info->GetManualTrackIds();
+    data_plot->UpdateManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_ids );
     plot_palette->AddPlotTab(data_plot, quantities);
-    data_plot->UpdateManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds() );
+
+    for (std::set<int>::const_iterator it = track_ids.begin(); it != track_ids.end(); ++it)
+    {
+        plot_palette->RecolorManualTrack(plot_palette->tabBar()->count() - 1, *it, tm_widget->LookupTrackColor(*it));
+    }
+
     data_plot->PlotSirveTracks(-1);
 }
 

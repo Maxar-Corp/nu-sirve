@@ -127,3 +127,16 @@ void TrackManagementWidget::HandleHideTrack(int id)
     tmp->findChild<QComboBoxWithId*>()->setEnabled(false);
     emit hideTrack(id);
 }
+
+QColor TrackManagementWidget::LookupTrackColor(int id)
+{
+    QStringList color_options = ColorScheme::get_track_colors();
+    QWidget *tmp = this->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+    int indx = tmp->findChild<QComboBoxWithId*>()->currentIndex();
+    if (indx > -1)
+    {
+        return color_options[indx];
+    }
+    else
+        throw std::runtime_error("Track Control not found");
+}

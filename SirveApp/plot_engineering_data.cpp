@@ -215,7 +215,6 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
         }
 
         size_t columnX, columnY;
-        QList<QString> names = ds->getColumnNames();
 
         if (! TrackExists(track_id))
         {
