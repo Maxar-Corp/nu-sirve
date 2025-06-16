@@ -13,9 +13,8 @@
 
 PlotPalette::PlotPalette(QWidget *parent) : QTabWidget(parent)
 {
-    x_quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "Frames", "SumCounts", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
-    y_quantities = {"Azimuth", "Boresight_Azimuth", "Boresight_Elevation", "Elevation", "FovX", "FovY", "SumCounts"};
-
+    x_quantities = {"Azimuth", "Elevation", "SumCounts", "Boresight_Azimuth", "Boresight_Elevation", "FovX", "FovY", "Frames", "Seconds_From_Epoch", "Seconds_Past_Midnight"};
+    y_quantities = {"Azimuth", "Elevation", "SumCounts", "Boresight_Azimuth", "Boresight_Elevation", "FovX", "FovY"};
 
     setObjectName("PlotPalette"); // used to discern when Plot Palette itself invokes HandleParamsSelected()
 

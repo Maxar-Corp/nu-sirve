@@ -2022,6 +2022,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
+    data_plot->UpdateManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds() );
+    data_plot->PlotSirveTracks(-1);
 }
 
 void SirveApp::UpdateGuiPostDataLoad(bool osm_data_status)
