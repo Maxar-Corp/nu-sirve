@@ -1795,8 +1795,7 @@ void SirveApp::HandleAbpFileSelected()
 
     lbl_processing_description->setText("");
 
-    bool validated = ValidateAbpFiles(file_selection);
-    if (validated)
+    if (ValidateAbpFiles(file_selection))
     {
         LoadOsmData();
 
@@ -1811,7 +1810,7 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
 
     if (!possible_abp_file_metadata.error_msg.isEmpty())
     {
-        if (eng_data != NULL) { // previously this was nullptr??
+        if (eng_data != nullptr) {
             // if eng_data already initialized, allow user to re-select frames
             txt_start_frame->setEnabled(true);
             txt_stop_frame->setEnabled(true);
@@ -2155,7 +2154,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     lbl_progress_status->setText(QString("Loading ABIR data frames..."));
 
     WaitCursor cursor;
-    abp_file_metadata.file_type = ABPFileType::ABP_B;
     abir_frames = file_processor->LoadImageFile(abp_file_metadata.image_path, min_frame, max_frame);
     if (abir_frames == nullptr)
     {
