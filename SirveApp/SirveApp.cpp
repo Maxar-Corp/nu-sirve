@@ -4423,7 +4423,6 @@ void SirveApp::HandleAutoTrackStartChangeInput()
     unsigned int new_frame_number = txt_auto_track_start_frame->text().toUInt();
     if (new_frame_number >= txt_start_frame->text().toInt() && new_frame_number <= txt_stop_frame->text().toInt()){
         video_player_->ViewFrame(new_frame_number-txt_start_frame->text().toInt());
-        UpdateGlobalFrameVector();
     }
 }
 

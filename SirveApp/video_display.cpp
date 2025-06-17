@@ -1378,15 +1378,6 @@ void VideoDisplay::ResetFrame()
     original_frame_vector.clear();
 }
 
-void VideoDisplay::ViewFrame(unsigned int frame_number)
-{
-    if (counter == frame_number) {
-        return;
-    }
-    counter = frame_number;
-    UpdateDisplayFrame();
-}
-
 // ReSharper disable once CppMemberFunctionMayBeConst
 void VideoDisplay::ShowStencil()
 {
