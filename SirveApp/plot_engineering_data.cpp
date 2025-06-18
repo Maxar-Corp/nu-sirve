@@ -808,7 +808,7 @@ void EngineeringPlot::RotateGraphStyle()
 
     for (auto& element : this->getGraphs()) {
         auto* graph = dynamic_cast<JKQTPXYLineGraph*>(element);
-        if (graph) {
+        if (graph && ! graph->getTitle().contains("Frame Line")) {
             graph->setLineStyle(pen_style);
         }
     }
