@@ -121,6 +121,7 @@ public:
 
     void set_show_full_scope(bool use_subinterval);
     void set_data_scope_icon(QString type);
+    void set_graph_style_icon(QString type);
 
     void print_ds(JKQTPDatastore *_ds);
 
@@ -136,6 +137,7 @@ public slots:
 
 public Q_SLOTS:
     void DoCustomZoomIn();
+    void RotateGraphStyle();
     void ToggleDataScope();
     void ToggleFrameLine();
     void ToggleGraphTickSymbol();
@@ -152,9 +154,11 @@ private:
 
     QAction* actToggleFrameLine;
     QAction* actToggleDataScope;
+    QAction* actRotateGraphStyle;
     double fixed_max_y, sub_max_y;
     size_t frameLineColumnX;
     JKQTPXYLineGraph* graph;
+    int graph_style = 0;
     std::vector<Quantity> my_quantities;
     std::map<int, QColor> manual_track_colors;
     std::vector<ManualPlottingTrackFrame> manual_track_frames;
@@ -178,6 +182,7 @@ private:
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
     bool TrackExists(int track_id) const;
 
+    QAction* get_action_rotate_graphstyle() const;
     QAction* get_action_toggle_frameline() const;
     QAction* get_action_toggle_datascope() const;
 

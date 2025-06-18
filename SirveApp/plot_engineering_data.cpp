@@ -53,8 +53,16 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     toolbar->addAction(this->get_action_toggle_datascope());
 
+    actRotateGraphStyle = new QAction(QIcon(":icons/solid-style.png"), tr("Change Line Style"), this);
+    actRotateGraphStyle->setToolTip("Rotate between solid, dashed, and dot line styles.");
+
+    toolbar->addAction(this->get_action_rotate_graphstyle());
+
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
+
+    connect(actRotateGraphStyle, SIGNAL(triggered()), this, SLOT(RotateGraphStyle()));
+
     connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
 
     this->setExclusionString("frameline");
@@ -92,6 +100,10 @@ QToolButton* EngineeringPlot::FindToolButtonForAction(QToolBar* toolbar, QAction
         }
     }
     return nullptr; // Not found
+}
+
+QAction *EngineeringPlot::get_action_rotate_graphstyle() const {
+    return this->actRotateGraphStyle;
 }
 
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
@@ -271,6 +283,8 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         // graph->setSymbolLineWidth(1);
         // graph->setColor(colors.get_current_color());
         // graph->setSymbolColor(QColor::fromRgb(255,20,20));
+
+        //graph->setLineStyle(Qt::DashLine);
 
         this->addGraph(graph);
 
@@ -576,6 +590,16 @@ void EngineeringPlot::set_show_full_scope(bool value)
     plotter->show_full_scope =value;
 }
 
+void EngineeringPlot::set_data_scope_icon(QString type)
+{
+    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
+}
+
+void EngineeringPlot::set_graph_style_icon(QString style)
+{
+    actRotateGraphStyle->setIcon(QIcon(":icons/"+style+"-style.png"));
+}
+
 void EngineeringPlot::set_sub_plot_xmin(int value)
 {
     plotter->sub_plot_xmin = value;
@@ -756,6 +780,35 @@ void EngineeringPlot::ToggleGraphTickSymbol()
         graph->setSymbolSize(newSize);
         emit this->plotter->plotUpdated();
     }
+}
+
+
+void EngineeringPlot::RotateGraphStyle()
+{
+    Qt::PenStyle pen_style;
+
+    switch (graph_style) {
+        case 0:
+            pen_style = Qt::DashLine;
+            break;
+        case 1:
+            pen_style = Qt::DashDotLine;
+            break;
+        case 2:
+            pen_style = Qt::SolidLine;
+    }
+
+    graph_style += 1;
+    if (graph_style > 2)
+        graph_style = 0;
+
+    for (auto& element : this->getGraphs()) {
+        auto* graph = dynamic_cast<JKQTPXYLineGraph*>(element);
+        if (graph) {
+            graph->setLineStyle(pen_style);
+        }
+    }
+    emit this->plotter->plotUpdated();
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)

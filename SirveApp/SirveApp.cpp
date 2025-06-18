@@ -1987,6 +1987,8 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     data_plot->set_data_scope_icon("full");
     data_plot->DisableDataScopeButton(true);
 
+    data_plot->set_graph_style_icon("solid");
+
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
