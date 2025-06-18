@@ -28,7 +28,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
 	std::ofstream myfile;
 	myfile.open(save_path);   
-	unsigned int initial_frame = min_frame-1;
+	unsigned int initial_frame = min_frame;
 	unsigned int final_frame = max_frame;
     int frame_number, track_id, counts, centroid_x_boresight, centroid_y_boresight, centroid_x, centroid_y;
     double frame_time, julian_date, seconds_past_midnight, azimuth, elevation, timing_offset;
@@ -38,7 +38,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
 	for (unsigned int i = initial_frame; i < final_frame; i++)
 	{
-        frame_number = (i + 1);
+        frame_number = i+1;
         frame_time = (frame_data[i].frame_time);
         julian_date = (frame_data[i].julian_date);
 		seconds_past_midnight = (frame_data[i].seconds_past_midnight);
@@ -56,8 +56,8 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             azimuth = (track_data[i].details[j].azimuth);
             elevation = (track_data[i].details[j].elevation);
 
-            centroid_x_boresight = track_data[i].details[j].centroid.centroid_x + 1;
-            centroid_y_boresight = track_data[i].details[j].centroid.centroid_y + 1;
+            centroid_x_boresight = track_data[i].details[j].centroid.centroid_x;
+            centroid_y_boresight = track_data[i].details[j].centroid.centroid_y;
             centroid_x =  centroid_x_boresight + nCols2;
             centroid_y = centroid_y_boresight + nRows2;
             counts = (track_data[i].details[j].sum_relative_counts);
@@ -70,8 +70,8 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             track_id = (track.first);
             azimuth = (manual_track_data[i].tracks[track.first].azimuth);
             elevation = (manual_track_data[i].tracks[track.first].elevation);
-            centroid_x = track.second.centroid.centroid_x + 1;
-            centroid_y = track.second.centroid.centroid_y + 1;
+            centroid_x = track.second.centroid.centroid_x;
+            centroid_y = track.second.centroid.centroid_y;
             centroid_x_boresight =  centroid_x - nCols2;
             centroid_y_boresight =  centroid_y - nRows2;
             counts = (track.second.sum_relative_counts);

@@ -2903,7 +2903,7 @@ void SirveApp::ExportPlotData()
 
     if (item == "Export All Data")
     {
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), 1, 0, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), 0, 0, abp_file_metadata.file_type);
     }
     else {
 
