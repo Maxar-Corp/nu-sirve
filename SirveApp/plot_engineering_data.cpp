@@ -614,12 +614,17 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 
     std::function<std::vector<double>(size_t)> func_y = DeriveFunctionPointers(plotYType);
     std::vector<double> y_values = func_y(1);
-
-    plotter->sub_plot_ymin = *std::min_element(y_values.begin(), y_values.begin());
-    plotter->sub_plot_ymax = *std::max_element(y_values.begin(), y_values.end());
+    if (!y_values.empty()) {
+        auto [min_element, max_element] = std::minmax_element(y_values.begin(), y_values.end());
+        plotter->sub_plot_ymin = *min_element;
+        plotter->sub_plot_ymax = *max_element;
+    } else {
+        plotter->sub_plot_ymin = 0;
+        plotter->sub_plot_ymax = 1;
+    }
 
     // This next line is not yet SOLID:
-    plotter->show_full_scope =false;
+    plotter->show_full_scope = false;
 }
 
 void EngineeringPlot::DoCustomZoomIn()
