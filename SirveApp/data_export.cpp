@@ -9,12 +9,22 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
                                         std::vector<PlottingFrameData> frame_data,
                                         std::vector<PlottingTrackFrame> track_data,
                                         std::vector<ManualPlottingTrackFrame> manual_track_data,
-                                        int min_frame, int max_frame)
+                                        int min_frame, int max_frame, ABPFileType file_type)
 {
     if (max_frame == 0)
 	{
 		max_frame = static_cast<int>(frame_data.size());
 	}
+
+    int nRows = 480;
+    int nCols = 640;
+
+    if (file_type == ABPFileType::ABP_D){
+        nRows = 720;
+        nCols = 1280;
+    }
+    int nRows2 = nRows/2;
+    int nCols2 = nCols/2;
 
 	std::ofstream myfile;
 	myfile.open(save_path);   
@@ -46,10 +56,10 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             azimuth = (track_data[i].details[j].azimuth);
             elevation = (track_data[i].details[j].elevation);
 
-            centroid_x_boresight = (track_data[i].details[j].centroid.centroid_x);
-            centroid_y_boresight = (track_data[i].details[j].centroid.centroid_y);
-            centroid_x = (track_data[i].details[j].centroid.centroid_x + 320);
-            centroid_y = (track_data[i].details[j].centroid.centroid_y + 240);
+            centroid_x_boresight = track_data[i].details[j].centroid.centroid_x + 1;
+            centroid_y_boresight = track_data[i].details[j].centroid.centroid_y + 1;
+            centroid_x =  centroid_x_boresight + nCols2;
+            centroid_y = centroid_y_boresight + nRows2;
             counts = (track_data[i].details[j].sum_relative_counts);
 
             myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
@@ -60,12 +70,10 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             track_id = (track.first);
             azimuth = (manual_track_data[i].tracks[track.first].azimuth);
             elevation = (manual_track_data[i].tracks[track.first].elevation);
-
-            centroid_x_boresight = (track.second.centroid.centroid_x - 320);
-            centroid_y_boresight = (track.second.centroid.centroid_y - 240);
-            centroid_x = (track.second.centroid.centroid_x);
-            centroid_y = (track.second.centroid.centroid_y);
-
+            centroid_x = track.second.centroid.centroid_x + 1;
+            centroid_y = track.second.centroid.centroid_y + 1;
+            centroid_x_boresight =  centroid_x - nCols2;
+            centroid_y_boresight =  centroid_y - nRows2;
             counts = (track.second.sum_relative_counts);
 
             myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
