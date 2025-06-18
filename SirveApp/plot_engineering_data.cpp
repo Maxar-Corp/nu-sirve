@@ -753,6 +753,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
 
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
+    set_graph_style_icon("solid");
     DisableDataScopeButton(false);
 }
 
@@ -789,13 +790,16 @@ void EngineeringPlot::RotateGraphStyle()
 
     switch (graph_style) {
         case 0:
-            pen_style = Qt::DashLine;
+            pen_style = Qt::DotLine;
+            set_graph_style_icon("dot");
             break;
         case 1:
             pen_style = Qt::DashDotLine;
+            set_graph_style_icon("dash-dot");
             break;
         case 2:
             pen_style = Qt::SolidLine;
+            set_graph_style_icon("solid");
     }
 
     graph_style += 1;
