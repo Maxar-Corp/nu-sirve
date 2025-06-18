@@ -320,10 +320,10 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
              + QString::number(track_details.julian_date,'f',9) + ","
              + QString::number(track_details.second_past_midnight,'f',9) + ","
              + QString::number(track_details.timing_offset) + ","
-             + QString::number(track_details.centroid_x_boresight) + ","
-             + QString::number(track_details.centroid_y_boresight) + ","
-             + QString::number(track_details.centroid_x) + ","
-             + QString::number(track_details.centroid_y) + ","
+             + QString::number(track_details.centroid_x_boresight + 1) + ","
+             + QString::number(track_details.centroid_y_boresight + 1) + ","
+             + QString::number(track_details.centroid_x + 1) + ","
+             + QString::number(track_details.centroid_y + 1) + ","
              + QString::number(track_details.az,'f',6) + ","
              + QString::number(track_details.el,'f',6) + ","
              + QString::number(track_details.number_pixels) + ","
@@ -334,8 +334,8 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
              + QString::number(track_details.peak_irradiance) + ","
              + QString::number(track_details.mean_irradiance) + ","
              + QString::number(track_details.sum_irradiance) + ","
-             + QString::number(track_details.bbox_x) + ","
-             + QString::number(track_details.bbox_y) + ","
+             + QString::number(track_details.bbox_x + 1) + ","
+             + QString::number(track_details.bbox_y + 1) + ","
              + QString::number(track_details.bbox_width) + ","
              + QString::number(track_details.bbox_height);
 
@@ -418,19 +418,19 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             if (!ok) throw std::runtime_error("Seconds Past Midnight");
             double timing_offset = cells[5].toDouble(&ok);
             if (!ok) throw std::runtime_error("Timing Offset");
-            int track_x_boresight = cells[6].toInt(&ok);
+            int track_x_boresight = cells[6].toInt(&ok) - 1;
             if (!ok){
                 computeXY = true;
             }
-            int track_y_boresight = cells[7].toInt(&ok);
+            int track_y_boresight = cells[7].toInt(&ok) -1;
             if (!ok || computeXY){
                 computeXY = true;
             }
-            int track_x = cells[8].toInt(&ok);
+            int track_x = cells[8].toInt(&ok) - 1;
             if (!ok || computeXY){
                 computeXY = true;
             }
-            int track_y = cells[9].toInt(&ok);
+            int track_y = cells[9].toInt(&ok) - 1;
             if (!ok || computeXY){
                 computeXY = true;
             }

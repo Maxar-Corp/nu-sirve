@@ -35,7 +35,7 @@ double SharedTrackingFunctions::GetAdjustedCounts(int indx, cv::Rect boundingBox
     double sum_relative_counts = 0;
      
     int start_indx;
-    start_indx = std::max(indx - number_median_frames,0);
+    start_indx = std::max(indx - number_median_frames + 1,0);
 
     int nRows = base_processing_state_details.y_pixels;
     int nCols = base_processing_state_details.x_pixels;

@@ -70,8 +70,8 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             track_id = (track.first);
             azimuth = (manual_track_data[i].tracks[track.first].azimuth);
             elevation = (manual_track_data[i].tracks[track.first].elevation);
-            centroid_x = track.second.centroid.centroid_x;
-            centroid_y = track.second.centroid.centroid_y;
+            centroid_x = track.second.centroid.centroid_x + 1;
+            centroid_y = track.second.centroid.centroid_y + 1;
             centroid_x_boresight =  centroid_x - nCols2;
             centroid_y_boresight =  centroid_y - nRows2;
             counts = (track.second.sum_relative_counts);
