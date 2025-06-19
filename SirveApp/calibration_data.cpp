@@ -646,7 +646,7 @@ void CalibrationDialog::verifyCalibrationValues()
 
         // get counts from abp image file
         auto frames1 =
-            file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1, file_type);
+            file_processor.LoadImageFile(path_image, abp_frames.start_frame1, abp_frames.stop_frame1);
         if (frames1 == nullptr)
         {
             QMessageBox msg_box;
@@ -661,7 +661,7 @@ void CalibrationDialog::verifyCalibrationValues()
         auto video_frames1 = std::move(frames1->video_frames_16bit);
 
         auto frames2 =
-            file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2, file_type);
+            file_processor.LoadImageFile(path_image, abp_frames.start_frame2, abp_frames.stop_frame2);
         if (frames2 == nullptr)
         {
             QMessageBox msg_box;

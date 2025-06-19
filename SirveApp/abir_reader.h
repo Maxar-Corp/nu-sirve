@@ -5,6 +5,7 @@
 
 enum class ABPFileType
 {
+    UNKNOWN,
     ABP_B,
     ABP_D,
 };
@@ -156,6 +157,9 @@ struct ABPVersion
     ABPVersion(float version);
     ABPVersion& operator=(float version);
 
+    QString ToString() const;
+    float ToFloat() const;
+
     // TODO: C++20: use the <=> operator instead
     bool operator==(const ABPVersion& other) const;
     bool operator!=(const ABPVersion& other) const;
@@ -174,9 +178,13 @@ public:
     ABIRReader() = default;
     ~ABIRReader() override = default;
 
-    bool Open(const char* filename);
+    bool Open(const char* filename, ABPVersion version={});
+    bool Close() override;
+    ABPVersion GetFileVersion() const;
+    ABPFileType GetFileType() const;
+    const QString& GetWarningMessage() const;
 
-    ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only, ABPFileType & file_type);
+    ABIRFrames::Ptr ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only=false);
 
 private:
 signals:
@@ -184,6 +192,9 @@ signals:
 
 private:
     ABPVersion file_version_;
+    ABPFileType file_type_ = ABPFileType::UNKNOWN;
+    QString warning_;
+    uint16_t max_value_ = 0;
 };
 
 

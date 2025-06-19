@@ -39,7 +39,7 @@ public:
     arma::uvec IdentifyBadPixelsMedian(double N, const std::vector<std::vector<uint16_t>>& input_pixels);
     arma::uvec IdentifyBadPixelsMovingMedian(int half_window_length, double N, const std::vector<std::vector<uint16_t>> & input_pixels);
 
-    std::vector<std::vector<uint16_t>> FixedNoiseSuppression(const QString& image_path, const QString& path_video_file, int frame0, int start_frame, int end_frame, ABPFileType file_type, const VideoDetails & original);
+    std::vector<std::vector<uint16_t>> FixedNoiseSuppression(const QString& image_path, const QString& path_video_file, int frame0, int start_frame, int end_frame, const VideoDetails & original);
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionByFrame(int start_frame, int num_of_averaging_frames_input, const VideoDetails& original);
     std::vector<std::vector<uint16_t>> AdaptiveNoiseSuppressionMatrix(int start_frame, int num_of_averaging_frames, const VideoDetails& original);
     std::vector<std::vector<uint16_t>> AccumulatorNoiseSuppression(double weight, int offset, int NThresh, const VideoDetails& original, bool hide_shadow_choice);

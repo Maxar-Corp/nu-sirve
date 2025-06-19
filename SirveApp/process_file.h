@@ -10,11 +10,15 @@
 
 struct AbpFileMetadata
 {
-	QString osm_path, image_path, directory_path, file_name, info_msg, error_msg;
-    AbpFileMetadata()
-    {
-		error_msg = "ABP Files Not Yet Configured.";
-	}
+	QString osm_path;
+    QString image_path;
+    QString directory_path;
+    QString file_name;
+    QString info_msg;
+    QString error_msg = "ABP Files Not Yet Configured.";
+    QString warning_msg;
+    ABPVersion version;
+    ABPFileType file_type = ABPFileType::UNKNOWN;
 };
 
 class ProcessFile : public QWidget
@@ -25,9 +29,9 @@ public:
     ProcessFile();
     ~ProcessFile() override;
 
-    bool VerifyPath(const QString& path);
+    static bool VerifyPath(const QString& path);
     AbpFileMetadata LocateAbpFiles(const QString& candidate_image_path);
-    ABIRFrames::Ptr LoadImageFile(const QString& image_path, int first_frame, int last_frame, ABPFileType & file_type);
+    ABIRFrames::Ptr LoadImageFile(const QString& image_path, int first_frame, int last_frame);
 
 public slots:
     void HandleProgressBarUpdate(int frame_index);

@@ -323,7 +323,7 @@ void VideoDisplay::ReceiveVideoData(int x, int y)
     height = y;
     number_pixels = width * height;
     
-    zoom_manager = {width, height};
+    zoom_manager.Clear(width, height);
     pinpoint_indices.clear();
 
     lbl_image_canvas->setMinimumWidth(width);
@@ -1372,19 +1372,10 @@ void VideoDisplay::ResetFrame()
 
     width = SirveAppConstants::VideoDisplayWidth;
     height = SirveAppConstants::VideoDisplayHeight;
-    number_pixels = width * height;
+    number_pixels = 0;
 
     zoom_manager.Clear(width, height);
     original_frame_vector.clear();
-}
-
-void VideoDisplay::ViewFrame(unsigned int frame_number)
-{
-    if (counter == frame_number) {
-        return;
-    }
-    counter = frame_number;
-    UpdateDisplayFrame();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst

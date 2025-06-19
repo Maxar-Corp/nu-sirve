@@ -11,8 +11,8 @@ void VideoDisplayZoomManager::Clear(int width, int height)
 {
 	image_width_ = width;
 	image_height_ = height;
-	zoom_list_.clear();
-	absolute_zoom_list_.clear();
+	zoom_list_ = {{0, 0, width, height}};
+	absolute_zoom_list_ = {{0.0, 0.0, (double)width, (double)height}};
 }
 
 const std::vector<QRect>& VideoDisplayZoomManager::GetZoomList() const noexcept
@@ -116,7 +116,7 @@ bool VideoDisplayZoomManager::IsCurrentlyZoomed(int x0, int y0) const noexcept
     }
 }
 
-bool VideoDisplayZoomManager::ZoomListExists()
+bool VideoDisplayZoomManager::ZoomListExists() const noexcept
 {
     return ! zoom_list_.empty();
 }
