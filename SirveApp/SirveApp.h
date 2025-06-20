@@ -15,11 +15,9 @@
 #include "video_player.h"
 #include "histogram_plotter.h"
 #include "engineering_data.h"
-#include "plot_engineering_data.h"
 
+#include "plot_engineering_data.h"
 #include "plot_palette.h"
-//#include "video_container.h"
-//#include "video_details.h"
 
 #include "process_file.h"
 #include "annotation_list_dialog.h"
@@ -182,11 +180,12 @@ public:
     void        SetupVideoFrame();
 
     void UpdateEpochString(const QString& new_epoch_string);
+    void UpdateGlobalFrameVector();
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
     void UpdatePlots(EngineeringPlot *engineering_plot);
+
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
-    void UpdateGlobalFrameVector();
     void VideoPopoutToggled(bool show_popout);
 
 protected:
