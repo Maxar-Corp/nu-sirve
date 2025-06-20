@@ -614,7 +614,7 @@ void VideoPlayer::SetupConnections()
     });
 
     connect(goto_frame_, &QLineEdit::editingFinished, [this] {
-        auto frame_number = goto_frame_->text().toUInt();
+        auto frame_number = goto_frame_->text().toUInt() - mw_->txt_start_frame->text().toUInt() + 1;
         playback_controller_->SetCurrentFrameNumber(frame_number - 1);
     });
 
