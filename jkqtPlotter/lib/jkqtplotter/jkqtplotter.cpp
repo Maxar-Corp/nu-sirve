@@ -1164,8 +1164,8 @@ void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
 
         if (getYAxis()->getLogAxis())
         {
-            this->plotter->getYAxis()->setMinorTicks(10);
-            //this->plotter->getYAxis()->setDrawMinorGrid(true);
+            this->plotter->getYAxis()->setMinorTicks(9);
+            this->plotter->getYAxis()->setDrawMinorGrid(true);
             this->plotter->getYAxis()->setMinorTickLabelsEnabled(true);
             this->plotter->getYAxis()->setTickMode(2);
         } else
