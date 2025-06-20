@@ -25,7 +25,7 @@
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
 #include "calibration_data.h"
-#include "non_uniformity_correction_external_file.h"
+#include "fixed_noise_correction_external_file.h"
 #include "config.h"
 #include "workspace.h"
 #include "data_structures.h"

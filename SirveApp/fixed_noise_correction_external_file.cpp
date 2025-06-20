@@ -1,8 +1,6 @@
-#include "non_uniformity_correction_external_file.h"
+#include "fixed_noise_correction_external_file.h"
 
-#include "location_input.h"
-
-ExternalNUCInformationWidget::ExternalNUCInformationWidget(ABPFileType file_type)
+ExternalFixedNoiseInformationWidget::ExternalFixedNoiseInformationWidget(ABPFileType file_type)
 {
     file_type_ = file_type;
     if (file_type == ABPFileType::ABP_D)
@@ -17,32 +15,36 @@ ExternalNUCInformationWidget::ExternalNUCInformationWidget(ABPFileType file_type
     this->show();
 }
 
-ExternalNUCInformationWidget::~ExternalNUCInformationWidget()
+ExternalFixedNoiseInformationWidget::~ExternalFixedNoiseInformationWidget()
 {
 }
 
-void ExternalNUCInformationWidget::InitializeGui()
+void ExternalFixedNoiseInformationWidget::InitializeGui()
 {
     mainLayout = new QGridLayout();
 
-    instructions = "Open the desired *.abpimage file corresponding to the frames to use with the NUC. When frames have been identified, 'Load Frames' for the NUC.";
+    instructions = "Open the desired *.abpimage file corresponding to the frames to use. When frames have been identified, 'Load Frames'.";
    
     lbl_instructions = new QLabel(instructions);
     lbl_instructions->setWordWrap(true);
 
     btn_load_file = new QPushButton("Load OSM File");
+    btn_load_file->setFixedWidth(150);
     btn_load_frames = new QPushButton("Load Frames");
     btn_load_frames->setEnabled(false);
+    btn_load_frames->setFixedWidth(150);
     btn_close = new QPushButton("Cancel");
+    btn_close->setFixedWidth(100);
 
     frame_plot = new QFrame();
 
     frame_layout = new QVBoxLayout();
     frame_plot->setLayout(frame_layout);
+    frame_plot->setFixedWidth(200);
 
-    lbl_instructions->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    btn_load_file->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);   
-    btn_load_frames->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    lbl_instructions->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    btn_load_file->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);   
+    btn_load_frames->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         
     mainLayout->addWidget(lbl_instructions, 0, 0);
     mainLayout->addWidget(btn_load_file, 1, 0);
@@ -51,12 +53,12 @@ void ExternalNUCInformationWidget::InitializeGui()
 
     this->setLayout(mainLayout);
 
-    connect(btn_load_file, &QPushButton::clicked, this, &ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames);
-    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalNUCInformationWidget::getFrames);
-    connect(btn_close, &QPushButton::clicked, this, &ExternalNUCInformationWidget::close);
+    connect(btn_load_file, &QPushButton::clicked, this, &ExternalFixedNoiseInformationWidget::LoadOsmDataAndPlotFrames);
+    connect(btn_load_frames, &QPushButton::clicked, this, &ExternalFixedNoiseInformationWidget::getFrames);
+    connect(btn_close, &QPushButton::clicked, this, &ExternalFixedNoiseInformationWidget::close);
 }
 
-void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
+void ExternalFixedNoiseInformationWidget::LoadOsmDataAndPlotFrames()
 {
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open File"), "", ("Image File(*.abpimage)"));
     abp_metadata = file_processor.LocateAbpFiles(file_selection);
@@ -84,20 +86,13 @@ void ExternalNUCInformationWidget::LoadOsmDataAndPlotFrames()
     PlotOsmFrameData();
 }
 
-void ExternalNUCInformationWidget::PlotOsmFrameData()
+void ExternalFixedNoiseInformationWidget::PlotOsmFrameData()
 {
     if (engineering_data != NULL) {
 
         // delete objects with existing data within them
         delete engineering_data;
     }
-
-    int width, height;
-    width = this->width();
-    height = this->height();
-
-    if (height < 500)
-        this->resize(500, 500);
 
     engineering_data = new EngineeringData(osm_frames);
     plot_data = new EngineeringPlot(osm_frames, "SumCounts", {Quantity("SumCounts", Enums::PlotUnit::Undefined_PlotUnit), Quantity("Frames", Enums::PlotUnit::Undefined_PlotUnit)}); // TODO: Pull in metadata for this.
@@ -113,7 +108,7 @@ void ExternalNUCInformationWidget::PlotOsmFrameData()
     btn_load_frames->setEnabled(true);
 }
 
-void ExternalNUCInformationWidget::getFrames()
+void ExternalFixedNoiseInformationWidget::getFrames()
 {
     // get total number of frames
     int num_messages = osm_frames.size();
@@ -128,25 +123,25 @@ void ExternalNUCInformationWidget::getFrames()
 
     bool ok;
 
-    // get min frame for nuc while limiting input between 1 and total messages
-    start_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt1, 1, 1, num_messages, 1, &ok);
+    // get min frame for FixedNoise while limiting input between 1 and total messages
+    start_frame = QInputDialog::getInt(this, "Exernal File Start Frame", prompt1, 1, 1, num_messages, 1, &ok);
     if (!ok)
         return;
 
-    // get max frame for nuc while limiting input between min and total messages
-    stop_frame = QInputDialog::getInt(this, "Exernal File NUC Correction", prompt2, start_frame, start_frame, num_messages, 1, &ok);
+    // get max frame for FixedNoise while limiting input between min and total messages
+    stop_frame = QInputDialog::getInt(this, "Exernal File Stop Frame", prompt2, start_frame, start_frame, num_messages, 1, &ok);
     if (!ok)
         return;
 
     done(QDialog::Accepted);
 }
 
-void ExternalNUCInformationWidget::closeWindow()
+void ExternalFixedNoiseInformationWidget::closeWindow()
 {
     done(QDialog::Rejected);
 }
 
-void ExternalNUCInformationWidget::closeEvent(QCloseEvent* event)
+void ExternalFixedNoiseInformationWidget::closeEvent(QCloseEvent* event)
 {
     closeWindow();
 }
