@@ -1160,8 +1160,6 @@ void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
         if (plotter->show_full_scope || (within_range_x && within_range_y))
             plotter->setXY(xmin, xmax, ymin, ymax, true);
 
-        qDebug() << "Minor Ticks=" << this->plotter->getYAxis()->getMinorTicks();
-
         if (getYAxis()->getLogAxis())
         {
             this->plotter->getYAxis()->setMinorTicks(9);

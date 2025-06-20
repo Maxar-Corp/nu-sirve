@@ -658,7 +658,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     double transformed_min_x = min_x;
     double transformed_max_x = max_x;
 
-    if (x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
+    if (x_axis_units==Enums::PlotType::Seconds_From_Epoch || x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
     {
         transformed_min_x = get_single_x_axis_value(min_x);
         transformed_max_x = get_single_x_axis_value(max_x);
