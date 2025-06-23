@@ -4314,7 +4314,7 @@ bool JKQTBasePlotter::getGraphsYMinMax(double& miny, double& maxy, double& small
 }
 
 void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool includeY0, double scaleX, double scaleY) {
-    qDebug() << "zoomin' to Fit!";
+
     if (graphs.size()<=0) return;
     auto calcLocScaling=[](JKQTPCoordinateAxis* axis, double &xxmin, double&xxmax, double&xsmallestGreaterZero, bool include0, double scale) -> bool {
         if (JKQTPIsOKFloat(xxmin) && JKQTPIsOKFloat(xxmax)) {
@@ -4325,13 +4325,11 @@ void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool inc
                 doScale=false;
             }
             if (axis->isLogAxis()) {
-                qDebug() << "Log axis.";
                 if ((xxmin<=1e-305)&&(xxmax<=1e-305)) {xxmin=0.1; xxmax=1.0; }
                 else if ((xxmin<=1e-305)&&(xxmax>0)) {
                     if (xsmallestGreaterZero>10.0*DBL_MIN) xxmin=xsmallestGreaterZero;
                     else xxmin=xxmax/axis->getLogAxisBase();
                 }
-                qDebug() << "doScale=" << doScale;
                 if (doScale) {
                     double d=scale*(log(xxmax)-log(xxmin));  // new width
                     double c=(log(xxmax)+log(xxmin))/2.0;     // center of interval
@@ -4384,8 +4382,6 @@ void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool inc
             }
         }
     }
-    //std::cout<<"end of zoomToFit\n";
-    //setXY(xxmin, xxmax, yymin, yymax);
     if (emitSignals) emit zoomChangedLocally(xAxis->getMin(), xAxis->getMax(), yAxis->getMin(), yAxis->getMax(), this);
 }
 
