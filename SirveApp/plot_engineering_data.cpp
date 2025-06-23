@@ -632,6 +632,9 @@ void EngineeringPlot::DoCustomZoomIn()
     }
     else
     {
+        // double min = plotYType == Enums::PlotType::SumCounts ? std::log10(plotter->sub_plot_ymin) : plotter->sub_plot_ymin;
+        // double max = plotYType == Enums::PlotType::SumCounts ? std::log10(plotter->sub_plot_ymax) : plotter->sub_plot_ymax;
+
         plotter->getYAxis()->setMin(plotter->sub_plot_ymin);
         plotter->getYAxis()->setMax(plotter->sub_plot_ymax);
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);

@@ -175,7 +175,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         qDebug() << "yAxisIsLogarithmic=" << yAxisIsLogarithmic;
         engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
         engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
-        // TODO: Refine this ^^^ so it zooms to where you left off.
+        engineering_plot_ref.at(tabIndex)->DefinePlotSubInterval(1000, 2000);
     }
 }
 

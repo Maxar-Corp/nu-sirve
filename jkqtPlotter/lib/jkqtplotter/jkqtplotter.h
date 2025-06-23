@@ -1040,6 +1040,7 @@ public Q_SLOTS:
 
     /** \copydoc JKQTBasePlotter::zoomToFit() */
     inline void zoomToFit(bool zoomX=true, bool zoomY=true, bool includeX0=false, bool includeY0=false, double scaleX=1.05, double scaleY=1.05) {
+        qDebug() << "Inlining it.";
         plotter->zoomToFit(zoomX, zoomY, includeX0, includeY0, scaleX, scaleY);
     }
 
