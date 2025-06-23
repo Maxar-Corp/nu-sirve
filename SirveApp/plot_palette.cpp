@@ -147,8 +147,16 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
     QAction *closeTabAction = contextMenu.addAction("Hide Tab");
     QAction *editBanner = contextMenu.addAction("Edit Banner");
-    QMenu *plotOptions = contextMenu.addMenu("Plot Options ");
-    QAction *plotOptions1 = plotOptions->addAction("Linear/Log");
+
+    bool yAxisIsLogarithmic = engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->getLogAxis();
+
+    QAction *plotOptionsLinearLog = nullptr;
+
+    if (engineering_plot_ref.at(tabIndex)->plotYType == Enums::PlotType::SumCounts)
+    {
+        QMenu *plotOptions = contextMenu.addMenu("Plot Options ");
+        plotOptionsLinearLog = plotOptions->addAction("Linear/Log");
+    }
 
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
@@ -170,9 +178,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         emit popoutPlot(tabIndex, "title", quantities);
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
-    } else if (selectedAction == plotOptions1) {
-        bool yAxisIsLogarithmic = engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->getLogAxis();
-        qDebug() << "yAxisIsLogarithmic=" << yAxisIsLogarithmic;
+    } else if (selectedAction == plotOptionsLinearLog) {
         engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
         engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
         engineering_plot_ref.at(tabIndex)->DefinePlotSubInterval(1000, 2000);
