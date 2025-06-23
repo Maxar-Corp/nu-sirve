@@ -234,13 +234,13 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
 {
-    for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
-    {
-        std::vector<double> x_values = get_x_func(track_index);
-        std::vector<double> y_values = get_y_func(track_index);
+    // for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
+    // {
+        x_osm_values = get_x_func(0);
+        y_osm_values = get_y_func(0);
 
-        QVector<double> X(x_values.begin(), x_values.end());
-        QVector<double> Y(y_values.begin(), y_values.end());
+        QVector<double> X(x_osm_values.begin(), x_osm_values.end());
+        QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
 
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
@@ -270,10 +270,10 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(DoCustomZoomIn()));
 
         // get the upper bound for drawing the frame line
-        this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
+        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end());
 
         InitializeFrameLine(index_full_scope_xmin);
-    }
+    //}
 }
 
 int EngineeringPlot::get_index_full_scope_xmin() const
@@ -445,6 +445,29 @@ double EngineeringPlot::get_single_x_axis_value(int x_index)
     }
 }
 
+double EngineeringPlot::get_min_x_axis_value()
+{
+    switch (x_axis_units)
+    {
+    case Enums::Frames:
+        return 1;
+    case Enums::Seconds_Past_Midnight:
+        return past_midnight[0];
+    case Enums::Seconds_From_Epoch:
+        return past_epoch[0];
+    default:
+        double min_value = 0;
+        auto min_it = std::min_element(x_osm_values.begin(), x_osm_values.end());
+        if (min_it != x_osm_values.end()) {
+            min_value = *min_it;
+            std::cout << "Max value: " << min_value << std::endl;
+        } else {
+            std::cout << "Vector is empty." << std::endl;
+        }
+        return min_value;
+    }
+}
+
 double EngineeringPlot::get_max_x_axis_value()
 {
     switch (x_axis_units)
@@ -456,7 +479,15 @@ double EngineeringPlot::get_max_x_axis_value()
     case Enums::Seconds_From_Epoch:
         return past_epoch[past_epoch.size() - 1];
     default:
-        return 0;
+        double max_value = 0;
+        auto max_it = std::max_element(x_osm_values.begin(), x_osm_values.end());
+        if (max_it != x_osm_values.end()) {
+            max_value = *max_it;
+            std::cout << "Max value: " << max_value << std::endl;
+        } else {
+            std::cout << "Vector is empty." << std::endl;
+        }
+        return max_value;
     }
 }
 

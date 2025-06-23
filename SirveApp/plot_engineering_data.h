@@ -104,6 +104,8 @@ public:
     int get_index_full_scope_xmax() const;
     int get_index_zoom_min();
     int get_index_zoom_max();
+    double get_max_x_axis_value();
+    double get_min_x_axis_value();
     bool get_plot_primary_only();
     bool get_show_full_scope();
     double get_single_x_axis_value(int x_index);
@@ -189,7 +191,8 @@ private:
     std::vector<double> get_individual_y_track_fov_x(size_t i);
     std::vector<double> get_individual_y_track_fov_y(size_t i);
 
-    double get_max_x_axis_value();
+    std::vector<double> x_osm_values;
+    std::vector<double> y_osm_values;
 
 protected:
     void mousePressEvent(QMouseEvent *event);
