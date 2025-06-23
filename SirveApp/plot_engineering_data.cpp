@@ -1,6 +1,7 @@
 #include <QPushButton>
 #include <QLegendMarker>
 #include <functional>
+#include "jkqtplotter/graphs/jkqtpscatter.h"
 #include "plot_engineering_data.h"
 #include "enums.h"
 #include "SirveApp.h"
@@ -245,15 +246,31 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        graph=new JKQTPXYLineGraph(this);
+        JKQTPGraphSymbols customsymbol=JKQTPRegisterCustomGraphSymbol(
+            [](QPainter& p) {
+                const double w=p.pen().widthF();
+                p.setPen(QPen(QColor("darkblue"), w));
+                p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
+            });
+        //JKQTPGraphSymbols customsymbol_olympicrings=JKQTPRegisterCustomGraphSymbol(f);
+
+        JKQTPXYScatterGraph* graph=new JKQTPXYScatterGraph(plotter);
+
         graph->setXColumn(columnX);
         graph->setYColumn(columnY);
+        graph->setSymbolType(customsymbol);
+        graph->setSymbolSize(3);
         graph->setTitle(title.replace('_',' '));
 
-        graph->setSymbolSize(0.1);
-        graph->setSymbolLineWidth(1);
-        graph->setColor(colors.get_current_color());
-        graph->setSymbolColor(QColor::fromRgb(255,20,20));
+        // graph=new JKQTPXYLineGraph(this);
+        // graph->setXColumn(columnX);
+        // graph->setYColumn(columnY);
+        // graph->setTitle(title.replace('_',' '));
+
+        // graph->setSymbolSize(0.1);
+        // graph->setSymbolLineWidth(1);
+        // graph->setColor(colors.get_current_color());
+        // graph->setSymbolColor(QColor::fromRgb(255,20,20));
 
         this->addGraph(graph);
 
