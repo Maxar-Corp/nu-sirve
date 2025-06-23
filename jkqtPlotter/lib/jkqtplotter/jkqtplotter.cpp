@@ -1138,20 +1138,37 @@ void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
         double new_wheel_x = plotter->p2x(wheel_x);
         double new_wheel_y = plotter->p2y((wheel_y-getPlotYOffset()));
 
+        qDebug() << "new_wheel_y " << new_wheel_y;
+
+        if (getYAxis()->getLogAxis())
+            new_wheel_y = std::log10(new_wheel_y);
+
         double centered_xmin = plotter->getXMin() - new_wheel_x;
         double centered_xmax = plotter->getXMax() - new_wheel_x;
         double centered_ymin = plotter->getYMin() - new_wheel_y;
         double centered_ymax = plotter->getYMax() - new_wheel_y;
+
+        qDebug() << "centered_ymin " << centered_ymin;
+        qDebug() << "centered_ymax " << centered_ymax;
 
         centered_xmin /= factor;
         centered_xmax /= factor;
         centered_ymin /= factor;
         centered_ymax /= factor;
 
+        qDebug() << "division occurred ... factor =" << factor;
+        qDebug() << "centered_ymin " << centered_ymin;
+        qDebug() << "centered_ymax " << centered_ymax;
+
         double xmin = centered_xmin + new_wheel_x;
         double xmax = centered_xmax + new_wheel_x;
         double ymin = centered_ymin + new_wheel_y;
         double ymax = centered_ymax + new_wheel_y;
+
+        qDebug() << "ymin " << ymin;
+        qDebug() << "ymax " << ymax;
+
+        qDebug() << "-----------------";
 
         bool within_range_x = xmin > plotter->sub_plot_xmin && xmax < plotter->sub_plot_xmax;
         bool within_range_y = ymin > plotter->sub_plot_ymin && ymax < plotter->sub_plot_ymax;
