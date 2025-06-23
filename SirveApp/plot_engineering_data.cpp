@@ -702,7 +702,6 @@ void EngineeringPlot::ToggleGraphTickSymbol()
     }
 }
 
-
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
 {
     graph=new JKQTPXYLineGraph(this);
@@ -716,18 +715,6 @@ void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
     graph->setSymbolType(JKQTPNoSymbol);
 
     this->addGraph(graph);
-}
-
-void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
-{
-    QVector<double> X(x_values.begin(), x_values.end());
-    QVector<double> Y(y_values.begin(), y_values.end());
-
-    QString titleX = "Track " + QString::number(track_id) + " x";
-    QString titleY = "Track " + QString::number(track_id) + " y";
-
-    columnX=ds->addCopiedColumn(X, titleX);
-    columnY=ds->addCopiedColumn(Y, titleY);
 }
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
@@ -758,6 +745,40 @@ void EngineeringPlot::DeleteAllTrackGraphs()
             this->getGraphs().removeAt(i);
         }
     }
+}
+
+void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
+{
+    manual_track_colors[track_id] = new_color;
+}
+
+void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
+{
+    manual_track_frames = std::move(frames);
+    manual_track_ids = track_ids;
+
+    QColor starting_color = ColorScheme::get_track_colors()[0];
+    for (auto track_id : track_ids)
+    {
+        if (manual_track_colors.find(track_id) == manual_track_colors.end())
+        {
+            manual_track_colors[track_id] = starting_color;
+        }
+    }
+}
+
+// Track backend operations.  Should we put in a separate class?
+
+void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
+{
+    QVector<double> X(x_values.begin(), x_values.end());
+    QVector<double> Y(y_values.begin(), y_values.end());
+
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
+    columnX=ds->addCopiedColumn(X, titleX);
+    columnY=ds->addCopiedColumn(Y, titleY);
 }
 
 std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
@@ -821,11 +842,6 @@ void EngineeringPlot::LookupTrackColumnIndexes(int track_id,  size_t &columnX, s
     columnY=(size_t)names.indexOf(titleY);
 }
 
-void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
-{
-    manual_track_colors[track_id] = new_color;
-}
-
 void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
 {
     QList<QString> names = ds->getColumnNames();
@@ -869,19 +885,4 @@ bool EngineeringPlot::TrackExists(int track_id) const
     QList<QString> names = ds->getColumnNames();
 
     return names.contains(titleX);
-}
-
-void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
-{
-    manual_track_frames = std::move(frames);
-    manual_track_ids = track_ids;
-
-    QColor starting_color = ColorScheme::get_track_colors()[0];
-    for (auto track_id : track_ids)
-    {
-        if (manual_track_colors.find(track_id) == manual_track_colors.end())
-        {
-            manual_track_colors[track_id] = starting_color;
-        }
-    }
 }
