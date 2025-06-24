@@ -253,6 +253,13 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
         graph->setXColumn(columnX);
         graph->setYColumn(columnY);
 
+        JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
+            [](QPainter& p) {
+                const double w=p.pen().widthF();
+                p.setPen(QPen(QColor("darkblue"), w));
+                p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
+            });
+
         if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph)) {
             scatter_graph->setSymbolSize(3.0);
             scatter_graph->setSymbolType(customSymbol);
@@ -773,20 +780,20 @@ void EngineeringPlot::ToggleFrameLine()
 
 void EngineeringPlot::ToggleGraphTickSymbol()
 {
-    double currentSize = dynamic_cast<JKQTPXYLineGraph*>(graph)->getSymbolSize();
-    double newSize = (currentSize == 0.1) ? 5 : 0.1;
+    // double currentSize = (graph_type = Enums::GraphType::Line) ? dynamic_cast<JKQTPXYLineGraph*>(graph)->getSymbolSize() : dynamic_cast<JKQTPXYScatterGraph*>(graph)->getSymbolSize();
+    // double newSize = (currentSize == 0.1) ? 5 : 0.1;
 
-    if (newSize >= 0 && newSize <= 5)
-    {
-        dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolSize(newSize);
+    // if (newSize >= 0 && newSize <= 5)
+    // {
+    //     (graph_type = Enums::GraphType::Line) ? dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolSize(newSize) : dynamic_cast<JKQTPXYScatterGraph*>(graph)->setSymbolSize(newSize);
         emit this->plotter->plotUpdated();
-    }
+    // }
 }
 
 
 void EngineeringPlot::RotateGraphStyle()
 {
-    DeleteGraphIfExists(plotTitle);
+    DeleteGraphIfExists(plotTitle.remove(' '));
     DeleteGraphIfExists("Frame Line");
     auto frameline_x = ds->get(frameLineColumnX,0);
     ds->clear();

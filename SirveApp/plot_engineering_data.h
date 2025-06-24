@@ -87,13 +87,6 @@ public:
 
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
 
-    JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
-        [](QPainter& p) {
-            const double w=p.pen().widthF();
-            p.setPen(QPen(QColor("darkblue"), w));
-            p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
-        });
-
     JKQTPDatastore* get_data_store() const {
         return ds;
     }
