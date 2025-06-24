@@ -788,7 +788,8 @@ void EngineeringPlot::ToggleDataScope()
 
     if (my_quantities.at(1).getUnit() == Enums::PlotUnit::Degrees)
     {
-        DeleteGraphIfExists(my_quantities.at(0).getName().remove(' '));
+        qDebug() << "Searching for " << my_quantities.at(0).getName();
+        DeleteGraphIfExists(my_quantities.at(0).getName().remove(' ').replace('_',' '));
         DeleteGraphIfExists("Frame Line");
         ds->clear();
 
@@ -891,6 +892,7 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
         QString title = (*it)->getTitle();
         if (title == titleToFind) {
             graph_exists = true;
+            qDebug() << "Found graph with title " << title;
             break;
         }
     }
@@ -898,6 +900,7 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
     if (graph_exists)
     {
         this->getGraphs().removeAt(index);
+        qDebug() << "Reovmed graph at index " << index;
     }
 }
 
