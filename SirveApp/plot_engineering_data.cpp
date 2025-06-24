@@ -54,7 +54,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     toolbar->addAction(this->get_action_toggle_datascope());
 
     actRotateGraphStyle = new QAction(QIcon(":icons/solid-style.png"), tr("Change Line Style"), this);
-    actRotateGraphStyle->setToolTip("Rotate between solid, dashed, and dot line styles.");
+    actRotateGraphStyle->setToolTip("Toggle between scatter plot and line plot types.");
 
     toolbar->addAction(this->get_action_rotate_graphstyle());
 
@@ -277,6 +277,7 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
             line_graph->setSymbolLineWidth(1);
             line_graph->setColor(colors.get_current_color());
             line_graph->setSymbolColor(QColor::fromRgb(255,20,20));
+            line_graph->setLineStyle(Qt::SolidLine);
         }
     }
 
@@ -780,14 +781,7 @@ void EngineeringPlot::ToggleFrameLine()
 
 void EngineeringPlot::ToggleGraphTickSymbol()
 {
-    // double currentSize = (graph_type = Enums::GraphType::Line) ? dynamic_cast<JKQTPXYLineGraph*>(graph)->getSymbolSize() : dynamic_cast<JKQTPXYScatterGraph*>(graph)->getSymbolSize();
-    // double newSize = (currentSize == 0.1) ? 5 : 0.1;
-
-    // if (newSize >= 0 && newSize <= 5)
-    // {
-    //     (graph_type = Enums::GraphType::Line) ? dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolSize(newSize) : dynamic_cast<JKQTPXYScatterGraph*>(graph)->setSymbolSize(newSize);
-        emit this->plotter->plotUpdated();
-    // }
+    emit this->plotter->plotUpdated();
 }
 
 
