@@ -2016,7 +2016,6 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
 
     if (x_axis_unit == Enums::PlotUnit::Degrees)
     {
-        qDebug() << "Degrees";
         x_min = data_plot->get_min_x_axis_value();
         x_max = data_plot->get_max_x_axis_value();
     }

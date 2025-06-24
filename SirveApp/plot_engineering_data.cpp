@@ -245,12 +245,44 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
     }
 }
 
+void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, QString title)
+{
+    if (graph_type == Enums::GraphType::Scatter)
+    {
+        graph = new JKQTPXYScatterGraph(plotter);
+        graph->setXColumn(columnX);
+        graph->setYColumn(columnY);
+
+        if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph)) {
+            scatter_graph->setSymbolSize(3.0);
+            scatter_graph->setSymbolType(customSymbol);
+        }
+    }
+    else
+    {
+        graph=new JKQTPXYLineGraph(this);
+        graph->setXColumn(columnX);
+        graph->setYColumn(columnY);
+
+        if (auto line_graph = dynamic_cast<JKQTPXYLineGraph*>(graph))
+        {
+            line_graph->setSymbolSize(0.1);
+            line_graph->setSymbolLineWidth(1);
+            line_graph->setColor(colors.get_current_color());
+            line_graph->setSymbolColor(QColor::fromRgb(255,20,20));
+        }
+    }
+
+    graph->setTitle(title.replace('_',' '));
+    this->addGraph(graph);
+}
+
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
 {
-    // for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
-    // {
         x_osm_values = get_x_func(0);
         y_osm_values = get_y_func(0);
+
+        graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
 
         QVector<double> X(x_osm_values.begin(), x_osm_values.end());
         QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
@@ -258,35 +290,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        JKQTPGraphSymbols customsymbol=JKQTPRegisterCustomGraphSymbol(
-            [](QPainter& p) {
-                const double w=p.pen().widthF();
-                p.setPen(QPen(QColor("darkblue"), w));
-                p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
-            });
-        //JKQTPGraphSymbols customsymbol_olympicrings=JKQTPRegisterCustomGraphSymbol(f);
-
-        JKQTPXYScatterGraph* graph=new JKQTPXYScatterGraph(plotter);
-
-        graph->setXColumn(columnX);
-        graph->setYColumn(columnY);
-        graph->setSymbolType(customsymbol);
-        graph->setSymbolSize(3);
-        graph->setTitle(title.replace('_',' '));
-
-        // graph=new JKQTPXYLineGraph(this);
-        // graph->setXColumn(columnX);
-        // graph->setYColumn(columnY);
-        // graph->setTitle(title.replace('_',' '));
-
-        // graph->setSymbolSize(0.1);
-        // graph->setSymbolLineWidth(1);
-        // graph->setColor(colors.get_current_color());
-        // graph->setSymbolColor(QColor::fromRgb(255,20,20));
-
-        //graph->setLineStyle(Qt::DashLine);
-
-        this->addGraph(graph);
+        AddTypedGraph(graph_type, columnX, columnY, title);
 
         QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
         this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
@@ -300,11 +304,9 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(DoCustomZoomIn()));
 
-        // get the upper bound for drawing the frame line
-        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end());
+        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
 
         InitializeFrameLine(index_full_scope_xmin);
-    //}
 }
 
 int EngineeringPlot::get_index_full_scope_xmin() const
@@ -491,7 +493,6 @@ double EngineeringPlot::get_min_x_axis_value()
         auto min_it = std::min_element(x_osm_values.begin(), x_osm_values.end());
         if (min_it != x_osm_values.end()) {
             min_value = *min_it;
-            std::cout << "Max value: " << min_value << std::endl;
         } else {
             std::cout << "Vector is empty." << std::endl;
         }
@@ -514,7 +515,6 @@ double EngineeringPlot::get_max_x_axis_value()
         auto max_it = std::max_element(x_osm_values.begin(), x_osm_values.end());
         if (max_it != x_osm_values.end()) {
             max_value = *max_it;
-            std::cout << "Max value: " << max_value << std::endl;
         } else {
             std::cout << "Vector is empty." << std::endl;
         }
@@ -773,12 +773,12 @@ void EngineeringPlot::ToggleFrameLine()
 
 void EngineeringPlot::ToggleGraphTickSymbol()
 {
-    double currentSize = graph->getSymbolSize();
+    double currentSize = dynamic_cast<JKQTPXYLineGraph*>(graph)->getSymbolSize();
     double newSize = (currentSize == 0.1) ? 5 : 0.1;
 
     if (newSize >= 0 && newSize <= 5)
     {
-        graph->setSymbolSize(newSize);
+        dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolSize(newSize);
         emit this->plotter->plotUpdated();
     }
 }
@@ -786,32 +786,38 @@ void EngineeringPlot::ToggleGraphTickSymbol()
 
 void EngineeringPlot::RotateGraphStyle()
 {
-    Qt::PenStyle pen_style;
+    DeleteGraphIfExists(plotTitle);
+    DeleteGraphIfExists("Frame Line");
+    auto frameline_x = ds->get(frameLineColumnX,0);
+    ds->clear();
 
-    switch (graph_style) {
-        case 0:
-            pen_style = Qt::DotLine;
-            set_graph_style_icon("dot");
-            break;
-        case 1:
-            pen_style = Qt::DashDotLine;
-            set_graph_style_icon("dash-dot");
-            break;
-        case 2:
-            pen_style = Qt::SolidLine;
-            set_graph_style_icon("solid");
+    if (graph_type == Enums::GraphType::Line)
+    {
+        graph_type = Enums::GraphType::Scatter;
+
+        QVector<double> X(x_osm_values.begin(), x_osm_values.end());
+        QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY, plotTitle.remove(' '));
+    } else
+    {
+        DeleteGraphIfExists(plotTitle);
+        graph_type = Enums::GraphType::Line;
+
+        QVector<double> X(x_osm_values.begin(), x_osm_values.end());
+        QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY, plotTitle.remove(' '));
     }
 
-    graph_style += 1;
-    if (graph_style > 2)
-        graph_style = 0;
+    InitializeFrameLine(frameline_x);
 
-    for (auto& element : this->getGraphs()) {
-        auto* graph = dynamic_cast<JKQTPXYLineGraph*>(element);
-        if (graph && ! graph->getTitle().contains("Frame Line")) {
-            graph->setLineStyle(pen_style);
-        }
-    }
     emit this->plotter->plotUpdated();
 }
 
@@ -822,10 +828,10 @@ void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
     graph->setXColumn(columnX);
     graph->setYColumn(columnY);
     graph->setTitle("Track " + QString::number(track_id));
-    graph->setSymbolLineWidth(1);
-    graph->setColor(manual_track_colors[track_id]);
-    graph->setLineStyle(Qt::SolidLine);
-    graph->setSymbolType(JKQTPNoSymbol);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolLineWidth(1);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setColor(manual_track_colors[track_id]);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setLineStyle(Qt::SolidLine);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolType(JKQTPNoSymbol);
 
     this->addGraph(graph);
 }

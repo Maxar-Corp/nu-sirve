@@ -61,6 +61,7 @@ public:
 
     void AddGraph(int track_id, size_t &columnX, size_t&columnY);
     void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
+    void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, QString title);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteAllTrackGraphs();
@@ -85,6 +86,13 @@ public:
     void SetupSubRange(int min, int max);
 
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
+
+    JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
+        [](QPainter& p) {
+            const double w=p.pen().widthF();
+            p.setPen(QPen(QColor("darkblue"), w));
+            p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
+        });
 
     JKQTPDatastore* get_data_store() const {
         return ds;
@@ -157,8 +165,8 @@ private:
     QAction* actRotateGraphStyle;
     double fixed_max_y, sub_max_y;
     size_t frameLineColumnX;
-    JKQTPXYLineGraph* graph;
-    int graph_style = 0;
+    JKQTPXYGraph* graph;
+    Enums::GraphType graph_type = Enums::GraphType::Line;
     std::vector<Quantity> my_quantities;
     std::map<int, QColor> manual_track_colors;
     std::vector<ManualPlottingTrackFrame> manual_track_frames;
