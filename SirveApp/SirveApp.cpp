@@ -1279,7 +1279,6 @@ void SirveApp::ImportTracks()
         }
         else
         {
-
             video_player_->AddManualTrackIdToShowLater(track_id);
             tm_widget->AddTrackControl(track_id);
 
@@ -1307,7 +1306,6 @@ void SirveApp::ImportTracks()
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
             plot_palette->PlotAllSirveTracks(-1);
         }
-
     }
 }
 
@@ -2024,7 +2022,16 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     data_plot->set_sub_plot_xmax(x_max);
 
     data_plot->SetPlotterXAxisMinMax(x_min, x_max);
-    data_plot->DefinePlotSubInterval(x_min, x_max);
+
+    if (x_axis_unit == Enums::PlotUnit::FrameNumber || x_axis_unit == Enums::PlotUnit::Counts || x_axis_unit == Enums::PlotUnit::Seconds)
+    {
+         data_plot->DefinePlotSubInterval(x_min, x_max);
+    } else
+    {
+        data_plot->set_index_partial_scope_xmin(txt_start_frame->text().toInt());
+        data_plot->set_index_partial_scope_xmax(txt_stop_frame->text().toInt());
+    }
+
     data_plot->DefineFullPlotInterval();
 
     data_plot->set_show_full_scope(false);
@@ -2041,6 +2048,8 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     {
         plot_palette->RecolorManualTrack(plot_palette->tabBar()->count() - 1, *it, tm_widget->LookupTrackColor(*it));
     }
+
+    //data_plot->SetupSubRange(plot_palette->GetEngineeringPlotReference(0)->get_index_partial_scope_xmin(), plot_palette->GetEngineeringPlotReference(0)->get_index_partial_scope_xmax());
 
     data_plot->PlotSirveTracks(-1);
 }
@@ -2256,6 +2265,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     {
         plot_palette->GetEngineeringPlotReference(i)->SetPlotterXAxisMinMax(min_frame - 1, max_frame - 1);
         plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval(min_frame-1, max_frame - 1);
+        plot_palette->GetEngineeringPlotReference(i)->set_show_full_scope(false);
     }
 
     progress_bar_main->setValue(100);

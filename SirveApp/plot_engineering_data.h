@@ -103,8 +103,9 @@ public:
 
     int get_index_full_scope_xmin() const;
     int get_index_full_scope_xmax() const;
-    int get_index_zoom_min();
-    int get_index_zoom_max();
+    int get_index_partial_scope_xmin() const;
+    int get_index_partial_scope_xmax() const;
+
     double get_max_x_axis_value();
     double get_min_x_axis_value();
     bool get_plot_primary_only();
@@ -113,6 +114,9 @@ public:
     Enums::PlotUnit get_quantity_unit_by_axis(int axis_index);
 
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+
+    void set_index_partial_scope_xmin(int value);
+    void set_index_partial_scope_xmax(int value);
 
     void set_plot_primary_only(bool value);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
@@ -150,7 +154,7 @@ private:
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
-    int index_full_scope_xmin, index_full_scope_xmax;
+    int index_full_scope_xmin, index_full_scope_xmax, index_partial_scope_xmin, index_partial_scope_xmax;
     int partial_scope_original_min_x = 0, partial_scope_original_max_x;
 
     QAction* actToggleFrameLine;
@@ -200,6 +204,7 @@ private:
     std::vector<double> x_osm_values;
     std::vector<double> y_osm_values;
 
+    int frameline_offset_x;
 protected:
     void mousePressEvent(QMouseEvent *event);
 };

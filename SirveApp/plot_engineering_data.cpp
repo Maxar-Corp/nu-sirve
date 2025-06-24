@@ -327,6 +327,16 @@ int EngineeringPlot::get_index_full_scope_xmax() const
     return index_full_scope_xmax;
 }
 
+int EngineeringPlot::get_index_partial_scope_xmin() const
+{
+    return index_partial_scope_xmin;
+}
+
+int EngineeringPlot::get_index_partial_scope_xmax() const
+{
+    return index_partial_scope_xmax;
+}
+
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
 {
     std::vector<double> x_values;
@@ -471,6 +481,16 @@ std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, u
     }
 }
 
+void EngineeringPlot::set_index_partial_scope_xmin(int value)
+{
+    index_partial_scope_xmin = value;
+}
+
+void EngineeringPlot::set_index_partial_scope_xmax(int value)
+{
+    index_partial_scope_xmax = value;
+}
+
 double EngineeringPlot::get_single_x_axis_value(int x_index)
 {
     switch (x_axis_units)
@@ -567,7 +587,6 @@ void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
         snap_x = plotter->p2x(event->pos().x() / magnification);
     }
 
-    // Call base implementation
     JKQTPlotter::mousePressEvent(event);
 }
 
@@ -699,9 +718,6 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
         plotter->sub_plot_ymin = *new_min;
         plotter->sub_plot_ymax = *new_max;
     }
-
-    // This next line is not yet SOLID:
-    plotter->show_full_scope =false;
 }
 
 void EngineeringPlot::DoCustomZoomIn()
@@ -769,6 +785,35 @@ void EngineeringPlot::ToggleDataScope()
 {
     plotter->show_full_scope = ! plotter->show_full_scope;
     plotter->show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+
+    if (my_quantities.at(1).getUnit() == Enums::PlotUnit::Degrees)
+    {
+        DeleteGraphIfExists(my_quantities.at(0).getName().remove(' '));
+        DeleteGraphIfExists("Frame Line");
+        ds->clear();
+
+        std::vector<double> filtered_x, filtered_y;
+        double min_index = plotter->show_full_scope ? get_index_full_scope_xmin() : get_index_partial_scope_xmin();
+        double max_index = plotter->show_full_scope ? get_index_full_scope_xmax() : get_index_partial_scope_xmax();
+
+        qDebug() << "Show FS: " << plotter->show_full_scope;
+        qDebug() << "min index = " << min_index;
+        qDebug() << "max index = " << max_index;
+
+        for (size_t i = min_index; i <= max_index && i < x_osm_values.size(); ++i) {
+            filtered_x.push_back(x_osm_values[i]);
+            filtered_y.push_back(y_osm_values[i]);
+        }
+
+        QVector<double> X(filtered_x.begin(), filtered_x.end());
+        QVector<double> Y(filtered_y.begin(), filtered_y.end());
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY, my_quantities.at(0).getName().remove(' '));
+    }
+
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
 
