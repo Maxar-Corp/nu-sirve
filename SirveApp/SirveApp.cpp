@@ -2049,8 +2049,6 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         plot_palette->RecolorManualTrack(plot_palette->tabBar()->count() - 1, *it, tm_widget->LookupTrackColor(*it));
     }
 
-    //data_plot->SetupSubRange(plot_palette->GetEngineeringPlotReference(0)->get_index_partial_scope_xmin(), plot_palette->GetEngineeringPlotReference(0)->get_index_partial_scope_xmax());
-
     data_plot->PlotSirveTracks(-1);
 }
 

@@ -61,7 +61,7 @@ public:
 
     void AddGraph(int track_id, size_t &columnX, size_t&columnY);
     void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
-    void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, QString title);
+    void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteAllTrackGraphs();
@@ -184,7 +184,7 @@ private:
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
     void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
-    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
+    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks);
     bool TrackExists(int track_id) const;
 
     QAction* get_action_rotate_graphstyle() const;

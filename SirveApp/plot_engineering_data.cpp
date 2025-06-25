@@ -195,7 +195,7 @@ void EngineeringPlot::PlotChart()
     func_x = DeriveFunctionPointers(plotXType);
     func_y = DeriveFunctionPointers(plotYType);
 
-    PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
+    PlotSirveQuantities(func_x, func_y, plot_number_tracks);
 
     this->getPlotter()->setPlotLabel(plot_classification);
 }
@@ -245,7 +245,7 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
     }
 }
 
-void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, QString title)
+void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY)
 {
     if (graph_type == Enums::GraphType::Scatter)
     {
@@ -281,11 +281,11 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
         }
     }
 
-    graph->setTitle(title.replace('_',' '));
+    graph->setTitle(plotTitle);
     this->addGraph(graph);
 }
 
-void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
+void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks)
 {
         x_osm_values = get_x_func(0);
         y_osm_values = get_y_func(0);
@@ -298,7 +298,7 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        AddTypedGraph(graph_type, columnX, columnY, title);
+        AddTypedGraph(graph_type, columnX, columnY);
 
         QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
         this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
@@ -819,7 +819,7 @@ void EngineeringPlot::ToggleDataScope()
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        AddTypedGraph(graph_type, columnX, columnY, my_quantities.at(0).getName().remove(' '));
+        AddTypedGraph(graph_type, columnX, columnY);
     }
 
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
@@ -840,7 +840,7 @@ void EngineeringPlot::ToggleGraphTickSymbol()
 
 void EngineeringPlot::RotateGraphStyle()
 {
-    DeleteGraphIfExists(plotTitle.remove(' '));
+    DeleteGraphIfExists(plotTitle);
     DeleteGraphIfExists("Frame Line");
     auto frameline_x = ds->get(frameLineColumnX,0);
     ds->clear();
@@ -855,10 +855,9 @@ void EngineeringPlot::RotateGraphStyle()
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        AddTypedGraph(graph_type, columnX, columnY, plotTitle.remove(' '));
+        AddTypedGraph(graph_type, columnX, columnY);
     } else
     {
-        DeleteGraphIfExists(plotTitle);
         graph_type = Enums::GraphType::Line;
 
         QVector<double> X(x_osm_values.begin(), x_osm_values.end());
@@ -867,12 +866,11 @@ void EngineeringPlot::RotateGraphStyle()
         size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        AddTypedGraph(graph_type, columnX, columnY, plotTitle.remove(' '));
+        AddTypedGraph(graph_type, columnX, columnY);
     }
 
+    plotter->plotUpdated();
     InitializeFrameLine(frameline_x);
-
-    emit this->plotter->plotUpdated();
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
@@ -895,11 +893,9 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
     int index = 0;
     bool graph_exists = false;
 
-    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
-        QString title = (*it)->getTitle();
-        if (title == titleToFind) {
+    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) {
+        if ((*it)->getTitle() == titleToFind) {
             graph_exists = true;
-            qDebug() << "Found graph with title " << title;
             break;
         }
     }
