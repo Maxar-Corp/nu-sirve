@@ -141,7 +141,7 @@ public slots:
     void SetPlotClassification(QString input_title);
 
 public Q_SLOTS:
-    void DoCustomZoomIn();
+    void HomeZoomIn();
     void RotateGraphStyle();
     void ToggleDataScope();
     void ToggleFrameLine();
@@ -205,6 +205,8 @@ private:
     std::vector<double> y_osm_values;
 
     int frameline_offset_x;
+    void FilterValuesBasedOnScope(std::vector<double> filtered_x, std::vector<double> filtered_y);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
 };

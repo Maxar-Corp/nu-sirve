@@ -287,34 +287,34 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
 
 void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks)
 {
-        x_osm_values = get_x_func(0);
-        y_osm_values = get_y_func(0);
+    x_osm_values = get_x_func(0);
+    y_osm_values = get_y_func(0);
 
-        graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
+    graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
 
-        QVector<double> X(x_osm_values.begin(), x_osm_values.end());
-        QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
+    QVector<double> X(x_osm_values.begin(), x_osm_values.end());
+    QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
 
-        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
-        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+    size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+    size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-        AddTypedGraph(graph_type, columnX, columnY);
+    AddTypedGraph(graph_type, columnX, columnY);
 
-        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
+    QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+    this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
 
-        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
-        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
-        this->getYAxis()->setLabelFontSize(10); // large x-axis label
-        this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
+    QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
+    this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
+    this->getYAxis()->setLabelFontSize(10); // large x-axis label
+    this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
-        this->zoomToFit();
+    this->zoomToFit();
 
-        connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(DoCustomZoomIn()));
+    connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
 
-        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
+    this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
 
-        InitializeFrameLine(index_full_scope_xmin);
+    InitializeFrameLine(index_full_scope_xmin);
 }
 
 int EngineeringPlot::get_index_full_scope_xmin() const
@@ -678,7 +678,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
     if (show_frame_line)
     {
         double frameline_x;
-        //double transformed_frame_unit = frame;
+
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
             frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x);
@@ -720,9 +720,20 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     }
 }
 
-void EngineeringPlot::DoCustomZoomIn()
+void EngineeringPlot::HomeZoomIn()
 {
-    if (plotter->show_full_scope)
+    // Here we check the X axis' units.  If they are degrees, then this plot was
+    // instantiated without a linear X axis, and therefore it does not have a "sub interval"
+    // the same way as plots that are measured in Frames or Seconds do.  These non-linear plots
+    // instead have 2D subsets, the elements (x,y's) of which depend upon the linear range of
+    // start-to-stop frames that the user selected in the SIRVE gui.
+    if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees)
+    {
+        plotter->getYAxis()->setMin(0);
+        plotter->getYAxis()->setMax(fixed_max_y);
+        SetPlotterXAxisMinMax(get_min_x_axis_value(), get_max_x_axis_value());
+    }
+    else if (plotter->show_full_scope)
     {
         this->zoomToFit();
     }
@@ -788,9 +799,7 @@ void EngineeringPlot::ToggleDataScope()
 
     if (my_quantities.at(1).getUnit() == Enums::PlotUnit::Degrees)
     {
-        qDebug() << "Searching for " << my_quantities.at(0).getName();
-        DeleteGraphIfExists(my_quantities.at(0).getName().remove(' ').replace('_',' '));
-        DeleteGraphIfExists("Frame Line");
+        DeleteGraphIfExists(plotTitle);
         ds->clear();
 
         std::vector<double> filtered_x, filtered_y;
