@@ -617,7 +617,7 @@ public:
 
     void setLegendExclusionText(QString legendExclusionText);
 
-    double sub_plot_xmin = 0.0, sub_plot_xmax = 1.0, sub_plot_ymin = 0.0, sub_plot_ymax = 1.0;
+    double sub_plot_xmin = 0, sub_plot_xmax = 1, sub_plot_ymin = 0, sub_plot_ymax = 1;
 
     bool show_full_scope = true;
 
