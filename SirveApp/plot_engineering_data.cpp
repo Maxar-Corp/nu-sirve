@@ -701,7 +701,7 @@ void EngineeringPlot::SetPlotClassification(QString classification)
 
 void EngineeringPlot::DefineFullPlotInterval()
 {
-    full_plot_xmin = get_single_x_axis_value(0);
+    full_plot_xmin = get_min_x_axis_value();
     full_plot_xmax = get_max_x_axis_value();
 }
 
@@ -802,8 +802,15 @@ void EngineeringPlot::ToggleDataScope()
         qDebug() << "max index = " << max_index;
 
         for (size_t i = min_index; i <= max_index && i < x_osm_values.size(); ++i) {
-            filtered_x.push_back(x_osm_values[i]);
-            filtered_y.push_back(y_osm_values[i]);
+
+            try {
+                double x = x_osm_values.at(i);
+                double y = y_osm_values.at(i);
+                filtered_x.push_back(x);
+                filtered_y.push_back(y);
+            } catch (const std::out_of_range& e) {
+                qDebug() << "Error fetching value for index " << i;
+            }
         }
 
         QVector<double> X(filtered_x.begin(), filtered_x.end());
@@ -900,7 +907,6 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
     if (graph_exists)
     {
         this->getGraphs().removeAt(index);
-        qDebug() << "Reovmed graph at index " << index;
     }
 }
 

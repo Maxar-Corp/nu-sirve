@@ -457,7 +457,7 @@ void JKQTBasePlotter::initSettings() {
 
 
 void JKQTBasePlotter::zoomIn(double factor) {
-    qDebug() << "Hi";
+
     for (auto ax: getXAxes(true)) {
         const double old_mi=ax->x2p(ax->getMin());
         const double old_ma=ax->x2p(ax->getMax());
