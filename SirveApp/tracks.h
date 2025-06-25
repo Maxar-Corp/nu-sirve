@@ -19,7 +19,7 @@ struct TrackDetails
                  int numberPixels, double sumRelativeCounts, double peakIrradiance, double meanIrradiance, double sumIrradiance,
                  double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth, int bboxHeight);
 
-    TrackDetails(int centroid_x, int centroid_y);
+    TrackDetails(double centroid_x, double centroid_y);
 
     TrackDetails(const TrackData& track_data);
     TrackDetails& operator=(const TrackData& track_data);

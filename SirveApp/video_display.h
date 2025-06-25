@@ -85,7 +85,6 @@ public:
     void ExitTrackCreationMode();
 
     void SaveFrame();
-    void ViewFrame(unsigned int frame_number);
     void ResetFrame();
 
     void ReceiveVideoData(int x, int y);

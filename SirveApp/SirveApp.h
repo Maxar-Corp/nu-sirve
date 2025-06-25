@@ -15,11 +15,9 @@
 #include "video_player.h"
 #include "histogram_plotter.h"
 #include "engineering_data.h"
-#include "plot_engineering_data.h"
 
+#include "plot_engineering_data.h"
 #include "plot_palette.h"
-//#include "video_container.h"
-//#include "video_details.h"
 
 #include "process_file.h"
 #include "annotation_list_dialog.h"
@@ -182,19 +180,18 @@ public:
     void        SetupVideoFrame();
 
     void UpdateEpochString(const QString& new_epoch_string);
+    void UpdateGlobalFrameVector();
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
     void UpdatePlots(EngineeringPlot *engineering_plot);
+
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
-    void UpdateGlobalFrameVector();
     void VideoPopoutToggled(bool show_popout);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-    ABPFileType abp_file_type = ABPFileType::ABP_B;
-
     QPointer<StateManager> state_manager_;
     QPointer<VideoPlayer> video_player_;
 
@@ -254,7 +251,6 @@ private:
     void EditClassificationText(int plot_tab_index, QString current_value);
     void EditColorMap();
     void EditOSMTrackColor();
-    void EditPlotText();
 
     void EnableBinaryExport();
 
@@ -281,7 +277,6 @@ private:
     void HandleFinishCreateTrackClick();
     void HandleOutlierProcessingChange();
     void HandlePopoutHistogramClick(bool checked);
-    void HandleYAxisChange();
 
     void LoadAbirData(int start_frame, int stop_frame);
     void LoadOsmData();

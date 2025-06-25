@@ -60,6 +60,20 @@ AbpFileMetadata ProcessFile::LocateAbpFiles(const QString& candidate_image_path)
 	abp_data.osm_path = candidate_osm_path;
 	abp_data.directory_path = directory_path;
 	abp_data.file_name = file_name;
+
+	try {
+		ABIRReader reader;
+		if (!reader.Open(candidate_image_path.toLocal8Bit())) {
+			abp_data.error_msg = QString("Failed to open ABP image file");
+			return abp_data;
+		}
+		abp_data.file_type = reader.GetFileType();
+		abp_data.version = reader.GetFileVersion();
+		abp_data.warning_msg = reader.GetWarningMessage();
+	} catch (const std::exception& e) {
+		abp_data.error_msg = QString("Failed to open ABP image file: %1").arg(e.what());
+	}
+
 	return abp_data;
 }
 
@@ -72,7 +86,7 @@ bool ProcessFile::VerifyPath(const QString& path)
 	return file_exists && file_isFile;
 }
 
-ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame, ABPFileType & file_type)
+ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_frame, int last_frame)
 {
     if (first_frame < 0 || last_frame < 0)
     {
@@ -92,9 +106,7 @@ ABIRFrames::Ptr ProcessFile::LoadImageFile(const QString& image_path, int first_
     {
         return nullptr;
     }
-	ABPFileType file_type_temp = file_type;	
-   	auto result = reader.ReadFrames(frame_start, frame_end, false, file_type_temp);
-	file_type = file_type_temp;
+   	auto result = reader.ReadFrames(frame_start, frame_end, false);
 	return result;
 }
 

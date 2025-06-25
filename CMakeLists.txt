@@ -46,6 +46,12 @@ if(WIN32)
     set(CMAKE_INSTALL_DATAROOTDIR .)
 endif()
 
+# This removes a "deprecated" warning
+set(JKQtPlotter_BUILD_LIB_JKQTFASTPLOTTER OFF)
+set(JKQtPlotter_BUILD_EXAMPLES OFF)
+set(JKQtPlotter_BUILD_TOOLS OFF)
+set(JKQtPlotter_BUILD_TOOLS OFF)
+set(JKQtPlotter_BUILD_TESTS OFF)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/jkqtPlotter/lib")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/jkqtPlotter/examples/libexampletools")

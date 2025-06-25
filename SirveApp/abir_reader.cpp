@@ -8,6 +8,9 @@ static const ABPVersion MIN_VERSION_NUMBER = 1.0;
 static const ABPVersion MAX_VERSION_NUMBER = 20.0;
 static constexpr auto FRAME_SIZE_INCREMENT = 32;
 static constexpr auto FRAME_SIZE_INCREMENT_2_1 = 40;
+static constexpr auto IMAGE_SIZE_OFFSET = 24;
+static constexpr auto IMAGE_SIZE_ABP_B = 640 * 480 * 2;
+static constexpr auto IMAGE_SIZE_ABP_D = 1280 * 720 * 2;
 
 ABIRFrames::ABIRFrames() :
     x_pixels(0), y_pixels(0), max_value(0), last_valid_frame(0)
@@ -22,6 +25,16 @@ ABPVersion::ABPVersion(float version) :
 
 ABPVersion& ABPVersion::operator=(float version) { return (*this = ABPVersion(version)); }
 
+QString ABPVersion::ToString() const
+{
+    return QString("%1.%2").arg(major).arg(minor);
+}
+
+float ABPVersion::ToFloat() const
+{
+    return static_cast<float>(major) + static_cast<float>(minor) / 10.0f;
+}
+
 bool ABPVersion::operator==(const ABPVersion& other) const { return (major == other.major && minor == other.minor); }
 bool ABPVersion::operator!=(const ABPVersion& other) const { return !(*this == other); }
 bool ABPVersion::operator<(const ABPVersion& other) const { return std::tie(major, minor) < std::tie(other.major, other.minor); }
@@ -29,31 +42,67 @@ bool ABPVersion::operator<=(const ABPVersion& other) const { return (*this < oth
 bool ABPVersion::operator>(const ABPVersion& other) const { return !(*this <= other); }
 bool ABPVersion::operator>=(const ABPVersion& other) const { return !(*this < other); }
 
-bool ABIRReader::Open(const char* filename)
+bool ABIRReader::Open(const char* filename, ABPVersion version)
 {
-
-    if (!BinaryReader::Open(filename))
-    {
+    if (!BinaryReader::Open(filename)) {
         return false;
     }
 
-    Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
-    file_version_ = Read<float>();
+    // ABP files before version 2.1 did not have a version number
+    if (version == 0.0 || version > 2.0) {
+        Seek(VERSION_NUMBER_OFFSET, SEEK_SET);
+        file_version_ = Read<float>();
+    } else {
+        file_version_ = version;
+    }
 
-    if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER)
-    {
+    if (file_version_ < MIN_VERSION_NUMBER || file_version_ > MAX_VERSION_NUMBER) {
+        warning_ = "Failed to determine the ABP file version. Using default version 2.0.";
         file_version_ = 2.0;
     }
 
-    if (file_version_ == 2.5)
-    {
+    if (file_version_ == 2.5) {
         file_version_ = 3.0;
+    }
+
+    Seek(IMAGE_SIZE_OFFSET, SEEK_SET);
+    auto image_size = Read<uint64_t>();
+    if (image_size == IMAGE_SIZE_ABP_B) {
+        file_type_ = ABPFileType::ABP_B;
+    } else if (image_size == IMAGE_SIZE_ABP_D) {
+        file_type_ = ABPFileType::ABP_D;
+    } else {
+        Close();
+        throw std::runtime_error("Invalid ABP file type.");
     }
 
     return true;
 }
 
-ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only, ABPFileType & file_type)
+bool ABIRReader::Close()
+{
+    file_version_ = 0.0;
+    file_type_ = ABPFileType::UNKNOWN;
+    warning_.clear();
+    return BinaryReader::Close();
+}
+
+ABPVersion ABIRReader::GetFileVersion() const
+{
+    return file_version_;
+}
+
+ABPFileType ABIRReader::GetFileType() const
+{
+    return file_type_;
+}
+
+const QString& ABIRReader::GetWarningMessage() const
+{
+    return warning_;
+}
+
+ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, bool header_only)
 {
     if (!IsOpen())
     {
@@ -139,13 +188,6 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         header_data.frame_time = Read<double>();
         header_data.image_x_size = Read<uint16_t>();
         header_data.image_y_size = Read<uint16_t>();
-        if (frame_index == min_frame)
-        {
-            if (header_data.image_x_size > 640)
-            {
-                file_type = ABPFileType::ABP_D;
-            }
-        }
         header_data.pixel_depth = Read<uint16_t>();
         header_data.bits_per_pixel = Read<uint16_t>();
 
@@ -292,7 +334,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
                 header_data.pressure = Read<float>();
                 header_data.relative_humidity = Read<float>();
 
-                if (file_type == ABPFileType::ABP_D)
+                if (file_type_ == ABPFileType::ABP_D)
                 {
                     header_data.cooling = Read<float>();
                 }
@@ -327,7 +369,7 @@ ABIRFrames::Ptr ABIRReader::ReadFrames(uint32_t min_frame, uint32_t max_frame, b
         {
             Read(frame.data(), static_cast<uint32_t>(header_data.image_size));
 
-            if (file_type == ABPFileType::ABP_D) {
+            if (file_type_ == ABPFileType::ABP_D) {
                 // Shift the int16_t values of the ABP-D data to fill the uint16_t's dynamic range
                 for(uint16_t& val : frame) {
                     val = static_cast<uint16_t>(reinterpret_cast<int16_t&>(val) + 0x8000);

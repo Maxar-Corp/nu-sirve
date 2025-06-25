@@ -614,7 +614,7 @@ void VideoPlayer::SetupConnections()
     });
 
     connect(goto_frame_, &QLineEdit::editingFinished, [this] {
-        auto frame_number = goto_frame_->text().toUInt();
+        auto frame_number = goto_frame_->text().toUInt() - mw_->txt_start_frame->text().toUInt() + 1;
         playback_controller_->SetCurrentFrameNumber(frame_number - 1);
     });
 
@@ -700,7 +700,7 @@ void VideoPlayer::ViewFrame(uint32_t frame_number)
     InitMainWindow();
 
     int num_video_frames = state_manager_->GetCurrentState().details.frames_16bit.size();
-    video_display_->ViewFrame(frame_number);
+    video_display_->counter = frame_number;
     // TODO: This is fugly. This should probably be handled by accessors and/or signals
     int current_auto_track_start = mw_->txt_auto_track_start_frame->text().toInt();
     int current_auto_track_stop = mw_->txt_auto_track_stop_frame->text().toInt();
@@ -771,6 +771,7 @@ void VideoPlayer::StopRecording()
     recording_ = false;
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void VideoPlayer::SetVideoDimensions()
 {
     video_display_->SetVideoDimensions();

@@ -403,7 +403,7 @@ void AutoTracking::TrackingStep(
 
         double frame_integration_time = input_frame_header[indx].int_time;
 
-        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx+1, bbox_uncentered, base_processing_state_details);
+        sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state_details);
         sum_relative_counts__old = sum_relative_counts;
         stats(sum_relative_counts__old);
         SIGMA = stats.stddev();
@@ -412,7 +412,7 @@ void AutoTracking::TrackingStep(
         std::array<double, 3> measurements = {0,0,0};
         if (calibration_model.calibration_available)
         {
-            measurements =  SharedTrackingFunctions::CalculateSumCounts(indx, bbox_uncentered,base_processing_state_details,frame_integration_time, calibration_model);
+            measurements =  SharedTrackingFunctions::CalculateSumCounts(indx, bbox_uncentered, base_processing_state_details, frame_integration_time, calibration_model);
         }
         cv::cvtColor(clean_display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
         string window_name = "Tracking... ";
@@ -442,10 +442,10 @@ void AutoTracking::TrackingStep(
         output.row(i) =  {
                             static_cast<uint16_t>(track_id),
                             static_cast<uint16_t>(frame0 + i),
-                            frame_x + 1 - nCols/2,
-                            frame_y + 1 - nRows/2,
-                            frame_x + 1,
-                            frame_y + 1,
+                            frame_x - nCols/2,
+                            frame_y - nRows/2,
+                            frame_x,
+                            frame_y,
                             static_cast<int32_t>(number_pixels),
                             static_cast<uint16_t>(peak_counts),
                             static_cast<int32_t>(mean_counts),
@@ -454,8 +454,8 @@ void AutoTracking::TrackingStep(
                             static_cast<int32_t>(measurements[0]),
                             static_cast<int32_t>(measurements[1]),
                             static_cast<int32_t>(measurements[2]),
-                            static_cast<uint16_t>(bbox_uncentered.x+1),
-                            static_cast<uint16_t>(bbox_uncentered.y+1),
+                            static_cast<uint16_t>(bbox_uncentered.x),
+                            static_cast<uint16_t>(bbox_uncentered.y),
                             static_cast<uint16_t>(bbox_uncentered.width),
                             static_cast<uint16_t>(bbox_uncentered.height)
                         };

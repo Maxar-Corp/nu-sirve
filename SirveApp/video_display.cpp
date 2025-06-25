@@ -323,7 +323,7 @@ void VideoDisplay::ReceiveVideoData(int x, int y)
     height = y;
     number_pixels = width * height;
     
-    zoom_manager = {width, height};
+    zoom_manager.Clear(width, height);
     pinpoint_indices.clear();
 
     lbl_image_canvas->setMinimumWidth(width);
@@ -630,11 +630,11 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     double sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state->details);
 
     details.sum_relative_counts = sum_relative_counts;
-    details.centroid_x = round(x + x_correction + 1);
-    details.centroid_y = round(y + y_correction + 1);
+    details.centroid_x = round(x + x_correction);
+    details.centroid_y = round(y + y_correction);
     if (chk_snap_to_feature->isChecked()) {
-        details.centroid_x = round(frame_x + x_correction + 1);
-        details.centroid_y = round(frame_y + y_correction + 1);
+        details.centroid_x = round(frame_x + x_correction);
+        details.centroid_y = round(frame_y + y_correction);
     }
     details.centroid_x_boresight = details.centroid_x - nCols2;
     details.centroid_y_boresight = details.centroid_y - nRows2;
@@ -645,8 +645,8 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.peak_irradiance = measurements[0];
     details.mean_irradiance = measurements[1];
     details.sum_irradiance = measurements[2];
-    details.bbox_x = bbox_uncentered.x + 1 + x_correction;
-    details.bbox_y = bbox_uncentered.y + 1 + y_correction;
+    details.bbox_x = bbox_uncentered.x + x_correction;
+    details.bbox_y = bbox_uncentered.y + y_correction;
     details.bbox_width = bbox_uncentered.width;
     details.bbox_height = bbox_uncentered.height;
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame) {
@@ -881,8 +881,8 @@ void VideoDisplay::UpdateDisplayFrame()
         assert(starting_frame_number + counter - 1 < track_details.size());
         if (track_details[starting_frame_number + counter - 1].has_value()) {
             TrackDetails td0 = track_details[starting_frame_number + counter - 1].value();
-            int new_x_in_progress_track = std::round(1.0 * (td0.centroid_x - x_correction - 1));
-            int new_y_in_progress_track = std::round(1.0 * (td0.centroid_y - y_correction - 1));
+            int new_x_in_progress_track = std::round(1.0 * (td0.centroid_x - x_correction));
+            int new_y_in_progress_track = std::round(1.0 * (td0.centroid_y - y_correction));
             frame.setPixel(new_x_in_progress_track, new_y_in_progress_track, rgb_cyan);
         }
     }
@@ -957,8 +957,8 @@ void VideoDisplay::UpdateDisplayFrame()
             TrackDetails td = track_details[starting_frame_number + counter - 1].value();
             int track_x = td.centroid_x;
             int track_y = td.centroid_y;
-            int new_track_x = track_x - x_correction - 1;
-            int new_track_y = track_y - y_correction - 1; 
+            int new_track_x = track_x - x_correction;
+            int new_track_y = track_y - y_correction; 
             if (new_track_x < 0) {
                 new_track_x = new_track_x + width;
             }
@@ -1017,8 +1017,8 @@ void VideoDisplay::UpdateDisplayFrame()
             int track_id = trackData.first;
             if (manual_track_ids_to_show.find(track_id) != manual_track_ids_to_show.end()) {
                 QColor color = manual_track_colors[track_id];
-                int track_x = trackData.second.centroid_x-1;
-                int track_y = trackData.second.centroid_y-1;
+                int track_x = trackData.second.centroid_x;
+                int track_y = trackData.second.centroid_y;
                 int new_track_x = track_x - x_correction;
                 int new_track_y = track_y - y_correction;
                 if (new_track_x < 0) {
@@ -1372,19 +1372,10 @@ void VideoDisplay::ResetFrame()
 
     width = SirveAppConstants::VideoDisplayWidth;
     height = SirveAppConstants::VideoDisplayHeight;
-    number_pixels = width * height;
+    number_pixels = 0;
 
     zoom_manager.Clear(width, height);
     original_frame_vector.clear();
-}
-
-void VideoDisplay::ViewFrame(unsigned int frame_number)
-{
-    if (counter == frame_number) {
-        return;
-    }
-    counter = frame_number;
-    UpdateDisplayFrame();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst

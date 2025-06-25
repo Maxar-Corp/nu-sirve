@@ -1,5 +1,6 @@
 #include "tracks.h"
 #include "support/az_el_calculation.h"
+#include <opencv2/core/fast_math.hpp>
 
 #include <QFile>
 
@@ -32,26 +33,27 @@ TrackDetails::TrackDetails(double frameTime, double julianDate, double secondPas
         bbox_width(bboxWidth),
         bbox_height(bboxHeight) {}
 
-TrackDetails::TrackDetails(int centroid_x, int centroid_y) : centroid_x(centroid_x), centroid_y(centroid_y) {}
+TrackDetails::TrackDetails(double centroid_x, double centroid_y) :
+    centroid_x(cvRound(centroid_x)), centroid_y(cvRound(centroid_y)) {}
 
 TrackDetails::TrackDetails(const TrackData& track_data) :
-    centroid_x(std::lround(track_data.centroid_x)),
-    centroid_y(std::lround(track_data.centroid_y)),
+    centroid_x(cvRound(track_data.centroid_x)),
+    centroid_y(cvRound(track_data.centroid_y)),
     number_pixels((int)track_data.num_pixels),
     bbox_x(std::abs((int)track_data.roiURX - (int)track_data.roiBLX)),
     bbox_y(std::min(track_data.roiBLY, track_data.roiURY)),
     bbox_width(std::abs((int)track_data.roiURX - (int)track_data.roiBLX)),
     bbox_height(std::abs((int)track_data.roiURY - (int)track_data.roiBLY))
-{
-    if (track_data.az_el_track.size() > 1) {
-        az = track_data.az_el_track[0];
-        el = track_data.az_el_track[1];
-    }
+    {
+        if (track_data.az_el_track.size() > 1) {
+            az = track_data.az_el_track[0];
+            el = track_data.az_el_track[1];
+        }
 
-    if (!track_data.ir_measurements.empty() && !track_data.ir_measurements[0].ir_radiance.empty()) {
-        sum_relative_counts = track_data.ir_measurements[0].ir_radiance[0];
+        if (!track_data.ir_measurements.empty() && !track_data.ir_measurements[0].ir_radiance.empty()) {
+            sum_relative_counts = track_data.ir_measurements[0].ir_radiance[0];
+        }
     }
-}
 
 TrackDetails& TrackDetails::operator=(const TrackData& track_data)
 {
@@ -175,7 +177,7 @@ std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_
     if (start_index > osm_frames.size() || end_index > osm_frames.size() || start_index > end_index) {
         return {};
     }
-	return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
+    return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
 }
 
 std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index) const
@@ -183,7 +185,7 @@ std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int e
     if (start_index > manual_frames.size() || end_index > manual_frames.size() || start_index > end_index) {
         return {};
     }
-	return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
+    return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
 }
 
 const std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
@@ -216,7 +218,7 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
     //Assumption: TrackInformation has been initialized and the size of new_frames and manual_frames match
     for (int i = 0; i < manual_frames.size(); i++)
     {
-		for (const auto &trackData : new_frames[i].tracks)
+        for (const auto &trackData : new_frames[i].tracks)
         {
             int track_id = trackData.first;
             RemoveManualTrackPlotting(track_id);
@@ -226,7 +228,7 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
     for (int i = 0; i < manual_frames.size(); i++)
     {
         TrackEngineeringData eng_data = track_engineering_data[i];
-		for (const auto& track_data : new_frames[i].tracks)
+        for (const auto& track_data : new_frames[i].tracks)
         {
             int track_id = track_data.first;
             manual_track_ids.insert(track_id);
@@ -241,11 +243,11 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
                 manual_image_frames[i].tracks[track_id].centroid_x = temp_track_data.second.centroid_x;
                 manual_image_frames[i].tracks[track_id].centroid_y = temp_track_data.second.centroid_y;
             }
-            else{              
-                manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x-1;
-                manual_image_frames[i].tracks[track_id].centroid_y = track_data.second.centroid_y-1;
+            else{
+                manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x;
+                manual_image_frames[i].tracks[track_id].centroid_y = track_data.second.centroid_y;
             }
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, temp_track_data.second.centroid_x-1, temp_track_data.second.centroid_y-1, temp_track_data.second.sum_relative_counts);
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, temp_track_data.second.centroid_x, temp_track_data.second.centroid_y, temp_track_data.second.sum_relative_counts);
             manual_frames[i].tracks[track_id] = temp_track_data.second;
             manual_plotting_frames[i].tracks[track_id].sum_relative_counts = temp_track_data.second.sum_relative_counts;
         }
@@ -318,10 +320,10 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
              + QString::number(track_details.julian_date,'f',9) + ","
              + QString::number(track_details.second_past_midnight,'f',9) + ","
              + QString::number(track_details.timing_offset) + ","
-             + QString::number(track_details.centroid_x_boresight) + ","
-             + QString::number(track_details.centroid_y_boresight) + ","
-             + QString::number(track_details.centroid_x) + ","
-             + QString::number(track_details.centroid_y) + ","
+             + QString::number(track_details.centroid_x_boresight + 1) + ","
+             + QString::number(track_details.centroid_y_boresight + 1) + ","
+             + QString::number(track_details.centroid_x + 1) + ","
+             + QString::number(track_details.centroid_y + 1) + ","
              + QString::number(track_details.az,'f',6) + ","
              + QString::number(track_details.el,'f',6) + ","
              + QString::number(track_details.number_pixels) + ","
@@ -332,8 +334,8 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
              + QString::number(track_details.peak_irradiance) + ","
              + QString::number(track_details.mean_irradiance) + ","
              + QString::number(track_details.sum_irradiance) + ","
-             + QString::number(track_details.bbox_x) + ","
-             + QString::number(track_details.bbox_y) + ","
+             + QString::number(track_details.bbox_x + 1) + ","
+             + QString::number(track_details.bbox_y + 1) + ","
              + QString::number(track_details.bbox_width) + ","
              + QString::number(track_details.bbox_height);
 
@@ -416,19 +418,19 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             if (!ok) throw std::runtime_error("Seconds Past Midnight");
             double timing_offset = cells[5].toDouble(&ok);
             if (!ok) throw std::runtime_error("Timing Offset");
-            int track_x_boresight = cells[6].toInt(&ok);
+            int track_x_boresight = cells[6].toInt(&ok) - 1;
             if (!ok){
                 computeXY = true;
             }
-            int track_y_boresight = cells[7].toInt(&ok);
+            int track_y_boresight = cells[7].toInt(&ok) -1;
             if (!ok || computeXY){
                 computeXY = true;
             }
-            int track_x = cells[8].toInt(&ok);
+            int track_x = cells[8].toInt(&ok) - 1;
             if (!ok || computeXY){
                 computeXY = true;
             }
-            int track_y = cells[9].toInt(&ok);
+            int track_y = cells[9].toInt(&ok) - 1;
             if (!ok || computeXY){
                 computeXY = true;
             }
@@ -451,21 +453,21 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
             int sum_counts = cells[15].toInt(&ok);
             if (!ok) throw std::runtime_error("Track Sum Counts");
             int sum_relative_counts = cells[16].toInt(&ok);
-            if (!ok) throw std::runtime_error("Track Sum Relative Counts");  
+            if (!ok) throw std::runtime_error("Track Sum Relative Counts");
             int peak_irradiance = cells[17].toDouble(&ok);
-            if (!ok) throw std::runtime_error("Track Peak Irradiace");  
+            if (!ok) throw std::runtime_error("Track Peak Irradiace");
             int mean_irradiance = cells[18].toDouble(&ok);
-            if (!ok) throw std::runtime_error("Track Mean Irradiace"); 
+            if (!ok) throw std::runtime_error("Track Mean Irradiace");
             int sum_irradiance = cells[19].toDouble(&ok);
-            if (!ok) throw std::runtime_error("Track Sum Irradiace"); 
+            if (!ok) throw std::runtime_error("Track Sum Irradiace");
             int bbox_x = cells[20].toInt(&ok);
-            if (!ok) throw std::runtime_error("BBOX X");     
+            if (!ok) throw std::runtime_error("BBOX X");
             int bbox_y = cells[21].toInt(&ok);
-            if (!ok) throw std::runtime_error("BBOX Y");     
+            if (!ok) throw std::runtime_error("BBOX Y");
             int bbox_width = cells[22].toInt(&ok);
-            if (!ok) throw std::runtime_error("BBOX Width");  
+            if (!ok) throw std::runtime_error("BBOX Width");
             int bbox_height = cells[23].toInt(&ok);
-            if (!ok) throw std::runtime_error("BBOX Height");      
+            if (!ok) throw std::runtime_error("BBOX Height");
             if (frame_number < 0 || frame_number > num_frames) throw std::runtime_error("Invalid frame number");
 
             TrackDetails td;
@@ -513,8 +515,8 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
     TrackEngineeringData eng_data = track_engineering_data[frame_number];
 
     ManualPlottingTrackDetails details;
-	
-	bool adjust_frame_ref = true;
+
+    bool adjust_frame_ref = true;
 
     if (centroid_x < 0)
     {
@@ -537,8 +539,8 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
     details.azimuth = az_el_result[0];
     details.elevation = az_el_result[1];
 
-    details.centroid.centroid_x = centroid_x+1;
-    details.centroid.centroid_y = centroid_y+1;
+    details.centroid.centroid_x = centroid_x;
+    details.centroid.centroid_y = centroid_y;
     details.sum_relative_counts = sum_relative_counts;
 
     return details;

@@ -1156,9 +1156,23 @@ void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
         bool within_range_x = xmin > plotter->sub_plot_xmin && xmax < plotter->sub_plot_xmax;
         bool within_range_y = ymin > plotter->sub_plot_ymin && ymax < plotter->sub_plot_ymax;
 
-        // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
+        // the place where we constrain 2D translation of the plotspace when in partial data scope/subplot mode, while using the mouse wheel:
         if (plotter->show_full_scope || (within_range_x && within_range_y))
             plotter->setXY(xmin, xmax, ymin, ymax, true);
+
+        if (getYAxis()->getLogAxis())
+        {
+            this->plotter->getYAxis()->setMinorTicks(9);
+            this->plotter->getYAxis()->setDrawMinorGrid(true);
+            this->plotter->getYAxis()->setMinorTickLabelsEnabled(true);
+            this->plotter->getYAxis()->setTickMode(2);
+        } else
+        {
+            this->plotter->getYAxis()->setMinorTicks(1);
+            this->plotter->getYAxis()->setDrawMinorGrid(false);
+            this->plotter->getYAxis()->setMinorTickLabelsEnabled(false);
+            this->plotter->getYAxis()->setTickMode(0);
+        }
     }
 
     event->accept();

@@ -37,7 +37,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     ds->clear();
 
     // Set up frame line buttonology
-    show_frame_line = true;
+    show_frame_line = x_axis_units == Enums::Frames || x_axis_units == Enums::Seconds_From_Epoch || x_axis_units == Enums::Seconds_Past_Midnight;
 
     actToggleFrameLine=new QAction(QIcon(":icons/jkqtp_frameline.png"), tr("Toggle Frame Line"), this);
     actToggleFrameLine->setToolTip(tr("Toggle the frame line for this plot"));
@@ -54,7 +54,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
-
     connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
 
     this->setExclusionString("frameline");
@@ -215,7 +214,6 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
         }
 
         size_t columnX, columnY;
-        QList<QString> names = ds->getColumnNames();
 
         if (! TrackExists(track_id))
         {
@@ -447,12 +445,6 @@ double EngineeringPlot::get_single_x_axis_value(int x_index)
     }
 }
 
-void EngineeringPlot::set_pre_image(double min_x, double max_x)
-{
-    partial_scope_original_min_x = min_x;
-    partial_scope_original_max_x = max_x;
-}
-
 double EngineeringPlot::get_max_x_axis_value()
 {
     switch (x_axis_units)
@@ -509,6 +501,11 @@ void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
     JKQTPlotter::mousePressEvent(event);
 }
 
+void EngineeringPlot::set_data_scope_icon(QString type)
+{
+    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
+}
+
 void EngineeringPlot::set_plot_primary_only(bool value)
 {
     plot_primary_only = value;
@@ -520,14 +517,15 @@ void EngineeringPlot::set_plotting_track_frames(std::vector<PlottingTrackFrame> 
     number_of_tracks = num_unique;
 }
 
+void EngineeringPlot::set_pre_image(double min_x, double max_x)
+{
+    partial_scope_original_min_x = min_x;
+    partial_scope_original_max_x = max_x;
+}
+
 void EngineeringPlot::set_show_full_scope(bool value)
 {
     plotter->show_full_scope =value;
-}
-
-void EngineeringPlot::set_data_scope_icon(QString type)
-{
-    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
 }
 
 void EngineeringPlot::set_sub_plot_xmin(int value)
@@ -573,6 +571,7 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     lineGraph->setTitle("Frame Line");
 
     this->addGraph(lineGraph);
+    this->getGraphs().at(1)->setVisible(show_frame_line);
 }
 
 void EngineeringPlot::PlotCurrentFrameline(int frame)
@@ -614,6 +613,7 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
 
     std::function<std::vector<double>(size_t)> func_y = DeriveFunctionPointers(plotYType);
     std::vector<double> y_values = func_y(1);
+
     if (!y_values.empty()) {
         auto [min_element, max_element] = std::minmax_element(y_values.begin(), y_values.end());
         plotter->sub_plot_ymin = *min_element;
@@ -664,7 +664,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     double transformed_min_x = min_x;
     double transformed_max_x = max_x;
 
-    if (x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
+    if (x_axis_units==Enums::PlotType::Seconds_From_Epoch || x_axis_units==Enums::PlotType::Seconds_Past_Midnight)
     {
         transformed_min_x = get_single_x_axis_value(min_x);
         transformed_max_x = get_single_x_axis_value(max_x);

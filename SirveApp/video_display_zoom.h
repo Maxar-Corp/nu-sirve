@@ -24,7 +24,7 @@ public:
     bool IsCurrentlyZoomed() const noexcept;
     bool IsCurrentlyZoomed(int x0, int y0) const noexcept;
 
-    bool ZoomListExists();
+    bool ZoomListExists() const noexcept;
 
 private:
     int image_width_ = 0, image_height_ = 0;

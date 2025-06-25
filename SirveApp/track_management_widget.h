@@ -21,7 +21,7 @@ public:
     std::map<int,QColor> track_colors;
     void AddTrackControl(int id);
     void RemoveTrackControl(int id);
-
+    QColor LookupTrackColor(int id);
 signals:
     void displayTrack(int id, QColor color);
     void hideTrack(int id);
