@@ -876,6 +876,7 @@ void EngineeringPlot::RotateGraphStyle()
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
         AddTypedGraph(graph_type, columnX, columnY);
+        set_graph_style_icon("dot");
     } else
     {
         graph_type = Enums::GraphType::Line;
@@ -887,6 +888,7 @@ void EngineeringPlot::RotateGraphStyle()
         size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
         AddTypedGraph(graph_type, columnX, columnY);
+        set_graph_style_icon("solid");
     }
 
     plotter->plotUpdated();
