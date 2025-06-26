@@ -630,11 +630,6 @@ void EngineeringPlot::set_show_full_scope(bool value)
     plotter->show_full_scope =value;
 }
 
-void EngineeringPlot::set_data_scope_icon(QString type)
-{
-    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
-}
-
 void EngineeringPlot::set_graph_style_icon(QString style)
 {
     actRotateGraphStyle->setIcon(QIcon(":icons/"+style+"-style.png"));
@@ -845,6 +840,8 @@ void EngineeringPlot::ToggleDataScope()
 
         AddTypedGraph(graph_type, columnX, columnY);
     }
+
+    RecordYAxisMinMax();
 
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
