@@ -742,7 +742,7 @@ void EngineeringPlot::HomeZoomIn()
     // start-to-stop frames that the user selected in the SIRVE gui.
     if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees)
     {
-        plotter->getYAxis()->setMin(0);
+        plotter->getYAxis()->setMin(0); // this bound could be improved.
         plotter->getYAxis()->setMax(fixed_max_y);
         SetPlotterXAxisMinMax(get_min_x_axis_value(), get_max_x_axis_value());
     }
@@ -810,9 +810,6 @@ void EngineeringPlot::DefineSubSet(std::vector<double> &filtered_x, std::vector<
     double min_index = plotter->show_full_scope ? get_index_full_scope_xmin() : get_index_partial_scope_xmin();
     double max_index = plotter->show_full_scope ? get_index_full_scope_xmax() : get_index_partial_scope_xmax();
 
-    qDebug() << "min_index=" << min_index;
-    qDebug() << "max_index" << max_index;
-
     for (size_t i = min_index; i <= max_index && i < x_osm_values.size(); ++i) {
 
         try {
@@ -829,7 +826,7 @@ void EngineeringPlot::DefineSubSet(std::vector<double> &filtered_x, std::vector<
 void EngineeringPlot::ToggleDataScope()
 {
     plotter->show_full_scope = ! plotter->show_full_scope;
-    plotter->show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+    plotter->show_full_scope ? this->zoomToFit() : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 
     if (my_quantities.at(1).getUnit() == Enums::PlotUnit::Degrees)
     {
@@ -863,7 +860,6 @@ void EngineeringPlot::ToggleGraphTickSymbol()
 {
     emit this->plotter->plotUpdated();
 }
-
 
 void EngineeringPlot::RotateGraphStyle()
 {
