@@ -207,6 +207,8 @@ private:
     int frameline_offset_x;
     void FilterValuesBasedOnScope(std::vector<double> filtered_x, std::vector<double> filtered_y);
 
+    void DefineSubSet(std::vector<double> &filtered_x, std::vector<double> &filtered_y);
+
 protected:
     void mousePressEvent(QMouseEvent *event);
 };

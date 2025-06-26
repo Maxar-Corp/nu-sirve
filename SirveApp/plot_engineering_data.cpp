@@ -292,8 +292,21 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
     graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
 
-    QVector<double> X(x_osm_values.begin(), x_osm_values.end());
-    QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
+    QVector<double> X;
+    QVector<double> Y;
+
+    if (graph_type != Enums::GraphType::Scatter)
+    {
+        X = QVector<double>(x_osm_values.begin(), x_osm_values.end());
+        Y = QVector<double>(y_osm_values.begin(), y_osm_values.end());
+    } else
+    {
+        std::vector<double> filtered_x, filtered_y;
+        set_show_full_scope(false);
+        DefineSubSet(filtered_x, filtered_y);
+        X = QVector<double>(filtered_x.begin(), filtered_x.end());
+        Y = QVector<double>(filtered_y.begin(), filtered_y.end());
+    }
 
     size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
     size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
@@ -792,6 +805,27 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     DisableDataScopeButton(false);
 }
 
+void EngineeringPlot::DefineSubSet(std::vector<double> &filtered_x, std::vector<double> &filtered_y)
+{
+    double min_index = plotter->show_full_scope ? get_index_full_scope_xmin() : get_index_partial_scope_xmin();
+    double max_index = plotter->show_full_scope ? get_index_full_scope_xmax() : get_index_partial_scope_xmax();
+
+    qDebug() << "min_index=" << min_index;
+    qDebug() << "max_index" << max_index;
+
+    for (size_t i = min_index; i <= max_index && i < x_osm_values.size(); ++i) {
+
+        try {
+            double x = x_osm_values.at(i);
+            double y = y_osm_values.at(i);
+            filtered_x.push_back(x);
+            filtered_y.push_back(y);
+        } catch (const std::out_of_range& e) {
+            qDebug() << "Error fetching value for index " << i;
+        }
+    }
+}
+
 void EngineeringPlot::ToggleDataScope()
 {
     plotter->show_full_scope = ! plotter->show_full_scope;
@@ -803,24 +837,8 @@ void EngineeringPlot::ToggleDataScope()
         ds->clear();
 
         std::vector<double> filtered_x, filtered_y;
-        double min_index = plotter->show_full_scope ? get_index_full_scope_xmin() : get_index_partial_scope_xmin();
-        double max_index = plotter->show_full_scope ? get_index_full_scope_xmax() : get_index_partial_scope_xmax();
 
-        qDebug() << "Show FS: " << plotter->show_full_scope;
-        qDebug() << "min index = " << min_index;
-        qDebug() << "max index = " << max_index;
-
-        for (size_t i = min_index; i <= max_index && i < x_osm_values.size(); ++i) {
-
-            try {
-                double x = x_osm_values.at(i);
-                double y = y_osm_values.at(i);
-                filtered_x.push_back(x);
-                filtered_y.push_back(y);
-            } catch (const std::out_of_range& e) {
-                qDebug() << "Error fetching value for index " << i;
-            }
-        }
+        DefineSubSet(filtered_x, filtered_y);
 
         QVector<double> X(filtered_x.begin(), filtered_x.end());
         QVector<double> Y(filtered_y.begin(), filtered_y.end());

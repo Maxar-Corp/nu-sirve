@@ -1996,6 +1996,10 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
+
+    data_plot->set_index_partial_scope_xmin(txt_start_frame->text().toInt());
+    data_plot->set_index_partial_scope_xmax(txt_stop_frame->text().toInt());
+
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
@@ -2026,10 +2030,6 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     if (x_axis_unit == Enums::PlotUnit::FrameNumber || x_axis_unit == Enums::PlotUnit::Counts || x_axis_unit == Enums::PlotUnit::Seconds)
     {
          data_plot->DefinePlotSubInterval(x_min, x_max);
-    } else
-    {
-        data_plot->set_index_partial_scope_xmin(txt_start_frame->text().toInt());
-        data_plot->set_index_partial_scope_xmax(txt_stop_frame->text().toInt());
     }
 
     data_plot->DefineFullPlotInterval();
