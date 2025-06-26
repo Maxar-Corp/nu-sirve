@@ -872,7 +872,7 @@ void JKQTPlotter::mouseMoveEvent ( QMouseEvent * event ) {
                 } else {
                     zoomRect.translate(mouseDragRectXStartPixel-mouseDragRectXEndPixel, mouseDragRectYStartPixel-mouseDragRectYEndPixel);
                 }
-                correctZoomRectForPanning(zoomRect);
+                //correctZoomRectForPanning(zoomRect);
                 setXY(plotter->p2x(zoomRect.left()), plotter->p2x(zoomRect.right()), plotter->p2y(zoomRect.bottom()), plotter->p2y(zoomRect.top()), true);
             }
 
