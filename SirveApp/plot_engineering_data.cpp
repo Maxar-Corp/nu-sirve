@@ -632,9 +632,8 @@ void EngineeringPlot::DoCustomZoomIn()
     }
     else
     {
-        plotter->getYAxis()->setMin(plotter->sub_plot_ymin);
-        plotter->getYAxis()->setMax(plotter->sub_plot_ymax);
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+        SetPlotterYAxisMinMax(plotter->sub_plot_ymin, plotter->sub_plot_ymax);
     }
 }
 
@@ -649,6 +648,15 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
+        plotter->redrawPlot();
+    }
+}
+
+void EngineeringPlot::SetPlotterYAxisMinMax(int min, int max)
+{
+    if (plotter) {
+        plotter->getYAxis()->setMin(min);
+        plotter->getYAxis()->setMax(max);
         plotter->redrawPlot();
     }
 }

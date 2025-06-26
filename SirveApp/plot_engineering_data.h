@@ -81,6 +81,7 @@ public:
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
 
     void SetPlotterXAxisMinMax(int min, int max);
+    void SetPlotterYAxisMinMax(int min, int max);
     void SetupSubRange(int min, int max);
 
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
