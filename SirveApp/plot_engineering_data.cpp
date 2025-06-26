@@ -200,53 +200,53 @@ void EngineeringPlot::PlotChart()
     this->getPlotter()->setPlotLabel(plot_classification);
 }
 
-void EngineeringPlot::PlotSirveTracks(int override_track_id)
+void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_values, std::vector<double> &y_values)
 {
-    for (int track_id : manual_track_ids)
-    {
-        std::vector<double> x_values, y_values;
+    for (size_t i = 0; i < manual_track_frames.size(); i++) {
+        std::map<int, ManualPlottingTrackDetails>::iterator it =
+            manual_track_frames[i].tracks.find(track_id);
+        if (it != manual_track_frames[i].tracks.end()) {
+            x_values.push_back(get_single_x_axis_value(i));
 
-        for (size_t i = 0; i < manual_track_frames.size(); i++)
-        {
-            std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
-            if (it != manual_track_frames[i].tracks.end())
-            {
-                x_values.push_back(get_single_x_axis_value(i));
-
-                if (my_quantities.at(0).getName() == "Azimuth")
-                {
-                    y_values.push_back(it->second.azimuth);
-                } else if (my_quantities.at(0).getName() == "Elevation")
-                {
-                    y_values.push_back(it->second.elevation);
-                } else if (my_quantities.at(0).getName() == "SumCounts")
-                {
-                    y_values.push_back(it->second.sum_relative_counts);
-                }
+            if (my_quantities.at(0).getName() == "Azimuth") {
+                y_values.push_back(it->second.azimuth);
+            } else if (my_quantities.at(0).getName() == "Elevation") {
+                y_values.push_back(it->second.elevation);
+            } else if (my_quantities.at(0).getName() == "SumCounts") {
+                y_values.push_back(it->second.sum_relative_counts);
             }
         }
+    }
+}
+
+void EngineeringPlot::PlotSirveTracks(int override_track_id)
+{
+    for (int track_id : manual_track_ids) {
+        std::vector<double> x_values, y_values;
+
+        GetTrackValues(track_id, x_values, y_values);
 
         size_t columnX, columnY;
 
-        if (! TrackExists(track_id))
-        {
+        if (!TrackExists(track_id)) {
             AddTrack(x_values, y_values, track_id, columnX, columnY);
-            AddGraph(track_id, columnX, columnY);
-        }
-        else
-        {
+            AddTypedGraph(graph_type, columnX, columnY, track_id, "Track " + QString::number(track_id));
+        } else {
             if (track_id == override_track_id)
                 ReplaceTrack(x_values, y_values, track_id);
             DeleteGraphIfExists("Track " + QString::number(track_id));
             LookupTrackColumnIndexes(track_id, columnX, columnY);
-            AddGraph(track_id, columnX, columnY);
+            AddTypedGraph(graph_type, columnX, columnY, track_id, "Track " + QString::number(track_id));
             this->plotter->plotUpdated();
         }
     }
 }
 
-void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY)
+void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY,
+                                            std::optional<int> track_id, std::optional<QString> graph_title)
 {
+    QColor graph_color = track_id.has_value() ? manual_track_colors[track_id.value()] : colors.get_current_color();
+
     if (graph_type == Enums::GraphType::Scatter)
     {
         graph = new JKQTPXYScatterGraph(plotter);
@@ -254,9 +254,9 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
         graph->setYColumn(columnY);
 
         JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
-            [](QPainter& p) {
+            [graph_color](QPainter& p) {
                 const double w=p.pen().widthF();
-                p.setPen(QPen(QColor("darkblue"), w));
+                p.setPen(QPen(graph_color, w));
                 p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
             });
 
@@ -275,13 +275,16 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
         {
             line_graph->setSymbolSize(0.1);
             line_graph->setSymbolLineWidth(1);
-            line_graph->setColor(colors.get_current_color());
+            line_graph->setColor(graph_color);
             line_graph->setSymbolColor(QColor::fromRgb(255,20,20));
             line_graph->setLineStyle(Qt::SolidLine);
         }
     }
 
-    graph->setTitle(plotTitle);
+    // Use the osm data plotTitle (provided on instantiation), unless a Track Title has been passed
+    QString title = graph_title.has_value() ? graph_title.value() : plotTitle;
+    graph->setTitle(title);
+
     this->addGraph(graph);
 }
 
@@ -864,6 +867,7 @@ void EngineeringPlot::RotateGraphStyle()
     DeleteGraphIfExists("Frame Line");
     auto frameline_x = ds->get(frameLineColumnX,0);
     ds->clear();
+    DeleteAllTrackGraphs();
 
     if (graph_type == Enums::GraphType::Line)
     {
@@ -891,6 +895,7 @@ void EngineeringPlot::RotateGraphStyle()
         set_graph_style_icon("solid");
     }
 
+    PlotSirveTracks(-1);
     plotter->plotUpdated();
     InitializeFrameLine(frameline_x);
 }
@@ -924,6 +929,7 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 
     if (graph_exists)
     {
+        qDebug() << "Deleting graph at " << index;
         this->getGraphs().removeAt(index);
     }
 }

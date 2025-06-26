@@ -61,7 +61,7 @@ public:
 
     void AddGraph(int track_id, size_t &columnX, size_t&columnY);
     void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
-    void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY);
+    void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, std::optional<int> track_id = std::nullopt, std::optional<QString> graph_title = std::nullopt);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteAllTrackGraphs();
@@ -73,6 +73,8 @@ public:
 
     void PlotChart();
     void PlotCurrentFrameline(int frameline_x);
+    void GetTrackValues(int &track_id, std::vector<double> &x_values,
+                   std::vector<double> &y_values);
     void PlotSirveTracks(int override_track_id);
 
     void RecolorManualTrack(int track_id, QColor new_color);
