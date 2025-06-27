@@ -237,7 +237,7 @@ void EngineeringPlot::PlotSirveTracks(int override_track_id)
             DeleteGraphIfExists("Track " + QString::number(track_id));
             LookupTrackColumnIndexes(track_id, columnX, columnY);
             AddTypedGraph(graph_type, columnX, columnY, track_id, "Track " + QString::number(track_id));
-            this->plotter->plotUpdated();
+            emit this->plotter->plotUpdated();
         }
     }
 }
@@ -865,9 +865,10 @@ void EngineeringPlot::RotateGraphStyle()
 {
     DeleteGraphIfExists(plotTitle);
     DeleteGraphIfExists("Frame Line");
+    DeleteAllTrackGraphs();
+
     auto frameline_x = ds->get(frameLineColumnX,0);
     ds->clear();
-    DeleteAllTrackGraphs();
 
     if (graph_type == Enums::GraphType::Line)
     {
@@ -895,9 +896,9 @@ void EngineeringPlot::RotateGraphStyle()
         set_graph_style_icon("solid");
     }
 
+    InitializeFrameLine(frameline_x);
     PlotSirveTracks(-1);
     plotter->plotUpdated();
-    InitializeFrameLine(frameline_x);
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
