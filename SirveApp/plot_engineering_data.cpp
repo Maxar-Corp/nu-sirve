@@ -856,11 +856,6 @@ void EngineeringPlot::ToggleFrameLine()
     emit this->plotter->plotUpdated();
 }
 
-void EngineeringPlot::ToggleGraphTickSymbol()
-{
-    emit this->plotter->plotUpdated();
-}
-
 void EngineeringPlot::RotateGraphStyle()
 {
     DeleteGraphIfExists(plotTitle);

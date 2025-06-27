@@ -147,7 +147,6 @@ public Q_SLOTS:
     void RotateGraphStyle();
     void ToggleDataScope();
     void ToggleFrameLine();
-    void ToggleGraphTickSymbol();
 
 private slots:
     void onJPContextActionTriggered(const QString& actionName);

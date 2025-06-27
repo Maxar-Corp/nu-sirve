@@ -182,6 +182,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
         engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
         engineering_plot_ref.at(tabIndex)->DefinePlotSubInterval(1000, 2000);
+        engineering_plot_ref.at(tabIndex)->applyLinearLogStyling();
     }
 }
 

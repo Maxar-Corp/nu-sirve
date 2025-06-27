@@ -1084,7 +1084,20 @@ void JKQTPlotter::keyReleaseEvent(QKeyEvent *event) {
     updateCursor();
 }
 
-void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
+void JKQTPlotter::applyLinearLogStyling() {
+    if (getYAxis()->getLogAxis()) {
+        this->plotter->getYAxis()->setMinorTicks(9);
+        this->plotter->getYAxis()->setDrawMinorGrid(true);
+        this->plotter->getYAxis()->setMinorTickLabelsEnabled(true);
+        this->plotter->getYAxis()->setTickMode(JKQTPLabelTickMode::JKQTPLTMLin);
+    } else {
+        this->plotter->getYAxis()->setMinorTicks(1);
+        this->plotter->getYAxis()->setDrawMinorGrid(false);
+        this->plotter->getYAxis()->setMinorTickLabelsEnabled(false);
+        this->plotter->getYAxis()->setTickMode(0);
+    }
+}
+void JKQTPlotter::wheelEvent(QWheelEvent *event) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     const double wheel_x=event->position().x();
     const double wheel_y=event->position().y();
@@ -1156,26 +1169,9 @@ void JKQTPlotter::wheelEvent ( QWheelEvent * event ) {
         double ymin = centered_ymin + new_wheel_y;
         double ymax = centered_ymax + new_wheel_y;
 
-        bool within_range_x = xmin > plotter->sub_plot_xmin && xmax < plotter->sub_plot_xmax;
-        bool within_range_y = ymin > plotter->sub_plot_ymin && ymax < plotter->sub_plot_ymax;
+        plotter->setXY(xmin, xmax, ymin, ymax, true);
 
-        // the place where we constrain 2D translation of the plotspace when in partial data scope/subplot mode, while using the mouse wheel:
-        //if (plotter->show_full_scope || (within_range_x && within_range_y))
-            plotter->setXY(xmin, xmax, ymin, ymax, true);
-
-        if (getYAxis()->getLogAxis())
-        {
-            this->plotter->getYAxis()->setMinorTicks(9);
-            this->plotter->getYAxis()->setDrawMinorGrid(true);
-            this->plotter->getYAxis()->setMinorTickLabelsEnabled(true);
-            this->plotter->getYAxis()->setTickMode(JKQTPLabelTickMode::JKQTPLTMLin);
-        } else
-        {
-            this->plotter->getYAxis()->setMinorTicks(1);
-            this->plotter->getYAxis()->setDrawMinorGrid(false);
-            this->plotter->getYAxis()->setMinorTickLabelsEnabled(false);
-            this->plotter->getYAxis()->setTickMode(0);
-        }
+        applyLinearLogStyling();
     }
 
     event->accept();
