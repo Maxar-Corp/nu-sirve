@@ -422,9 +422,9 @@ std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, u
         return x_values;
     }
     case Enums::Seconds_Past_Midnight:
-        return std::vector<double>(past_midnight.begin() + start_idx, past_midnight.begin() + end_idx + 1);
+        return std::vector<double>(past_midnight.begin() + start_idx + 1, past_midnight.begin() + end_idx + 1);
     case Enums::Seconds_From_Epoch:
-        return std::vector<double>(past_epoch.begin() + start_idx, past_epoch.begin() + end_idx + 1);
+        return std::vector<double>(past_epoch.begin() + start_idx + 1, past_epoch.begin() + end_idx + 1);
     default:
         return std::vector<double>();
     }
