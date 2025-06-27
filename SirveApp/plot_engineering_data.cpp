@@ -896,9 +896,10 @@ void EngineeringPlot::RotateGraphStyle()
         set_graph_style_icon("solid");
     }
 
+    show_frame_line = x_axis_units == Enums::Frames || x_axis_units == Enums::Seconds_From_Epoch || x_axis_units == Enums::Seconds_Past_Midnight;
     InitializeFrameLine(frameline_x);
     PlotSirveTracks(-1);
-    plotter->plotUpdated();
+    emit this->plotter->plotUpdated();
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
@@ -930,7 +931,6 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 
     if (graph_exists)
     {
-        qDebug() << "Deleting graph at " << index;
         this->getGraphs().removeAt(index);
     }
 }
@@ -1045,7 +1045,7 @@ void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y,
 {
     QList<QString> names = ds->getColumnNames();
     QString x_column_to_search_for = "Track " + QString::number(track_id) + " x";
-    int col_index_found;
+    int col_index_found = -1;
 
     for (int j=0; j < ds->getColumnCount(); j++)
     {
