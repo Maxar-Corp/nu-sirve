@@ -1987,6 +1987,11 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
 
     data_plot->set_graph_style_icon("solid");
 
+    if (data_plot->plotYType == Enums::PlotType::SumCounts)
+    {
+        data_plot->set_graph_mode_icon("linear");
+    }
+
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
