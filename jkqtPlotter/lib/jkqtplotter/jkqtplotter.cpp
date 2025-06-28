@@ -1089,7 +1089,8 @@ void JKQTPlotter::applyLinearLogStyling() {
         this->plotter->getYAxis()->setMinorTicks(9);
         this->plotter->getYAxis()->setDrawMinorGrid(true);
         this->plotter->getYAxis()->setMinorTickLabelsEnabled(true);
-        this->plotter->getYAxis()->setTickMode(JKQTPLabelTickMode::JKQTPLTMLin);
+        this->plotter->getYAxis()->setTickLabelType(JKQTPCALTexponent);
+        this->plotter->getYAxis()->setTickMode(JKQTPLabelTickMode::JKQTPLTMLinOrPower);
     } else {
         this->plotter->getYAxis()->setMinorTicks(1);
         this->plotter->getYAxis()->setDrawMinorGrid(false);
