@@ -770,6 +770,7 @@ void EngineeringPlot::HomeZoomIn()
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
         SetPlotterYAxisMinMax(plotter->sub_plot_ymin, plotter->sub_plot_ymax);
     }
+    redrawPlot();
 }
 
 void EngineeringPlot::RecordYAxisMinMax()
@@ -783,7 +784,6 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
-        plotter->redrawPlot();
     }
 }
 
@@ -792,7 +792,6 @@ void EngineeringPlot::SetPlotterYAxisMinMax(int min, int max)
     if (plotter) {
         plotter->getYAxis()->setMin(min);
         plotter->getYAxis()->setMax(max);
-        plotter->redrawPlot();
     }
 }
 
@@ -813,6 +812,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     set_sub_plot_xmin((int)transformed_min_x);
     set_sub_plot_xmax((int)transformed_max_x);
     SetPlotterXAxisMinMax((int)transformed_min_x, (int)transformed_max_x);
+    redrawPlot();
 
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
@@ -862,6 +862,7 @@ void EngineeringPlot::ToggleDataScope()
     }
 
     RecordYAxisMinMax();
+    redrawPlot();
 
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
@@ -916,7 +917,23 @@ void EngineeringPlot::ToggleGraphStyle()
 
 void EngineeringPlot::ToggleLinearLog()
 {
+    y_axis_is_log = ! y_axis_is_log;
 
+    double x_min, x_max, y_min, y_max;
+
+    x_min = y_axis_is_log ? std::max(getXAxis()->getMin(), 0.0) : getXAxis()->getMin();
+    x_max = getXAxis()->getMax();
+    y_min = getYAxis()->getMin();
+    y_max = getYAxis()->getMax();
+
+    getYAxis()->setLogAxis(y_axis_is_log);
+    SetPlotterXAxisMinMax(x_min, x_max);
+    SetPlotterYAxisMinMax(y_min, y_max);
+    applyLinearLogStyling();
+    RecordYAxisMinMax();
+    redrawPlot();
+
+    y_axis_is_log ? actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png"));
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)

@@ -185,6 +185,8 @@ private:
     std::vector<PlottingTrackFrame> track_frames;
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
+    bool y_axis_is_log = false;
+
     void EditPlotText();
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);

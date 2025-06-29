@@ -179,10 +179,7 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
     } else if (selectedAction == plotOptionsLinearLog) {
-        engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
-        engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
-        engineering_plot_ref.at(tabIndex)->DefinePlotSubInterval(1000, 2000);
-        engineering_plot_ref.at(tabIndex)->applyLinearLogStyling();
+
     }
 }
 

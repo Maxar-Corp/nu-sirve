@@ -2031,6 +2031,7 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
     data_plot->set_sub_plot_xmax(x_max);
 
     data_plot->SetPlotterXAxisMinMax(x_min, x_max);
+    data_plot->redrawPlot();
 
     if (x_axis_unit == Enums::PlotUnit::FrameNumber || x_axis_unit == Enums::PlotUnit::Counts || x_axis_unit == Enums::PlotUnit::Seconds)
     {
@@ -2269,6 +2270,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         plot_palette->GetEngineeringPlotReference(i)->SetPlotterXAxisMinMax(min_frame - 1, max_frame - 1);
         plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval(min_frame-1, max_frame - 1);
         plot_palette->GetEngineeringPlotReference(i)->set_show_full_scope(false);
+        plot_palette->GetEngineeringPlotReference(i)->redrawPlot();
     }
 
     progress_bar_main->setValue(100);
