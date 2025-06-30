@@ -422,9 +422,9 @@ std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, u
         return x_values;
     }
     case Enums::Seconds_Past_Midnight:
-        return std::vector<double>(past_midnight.begin() + start_idx, past_midnight.begin() + end_idx + 1);
+        return std::vector<double>(past_midnight.begin() + start_idx + 1, past_midnight.begin() + end_idx + 1);
     case Enums::Seconds_From_Epoch:
-        return std::vector<double>(past_epoch.begin() + start_idx, past_epoch.begin() + end_idx + 1);
+        return std::vector<double>(past_epoch.begin() + start_idx + 1, past_epoch.begin() + end_idx + 1);
     default:
         return std::vector<double>();
     }
@@ -582,7 +582,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
         //double transformed_frame_unit = frame;
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
-            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x);
+            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x - 1);
         } else
         {
             frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
