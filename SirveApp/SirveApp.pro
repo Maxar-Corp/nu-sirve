@@ -230,3 +230,7 @@ HEADERS += $$PWD\..\jkqtPlotter\examples\libexampletools\jkqtpexampleapplication
 
 RESOURCES += \
     SirveApp.qrc
+
+DISTFILES += \
+    icons/linear-mode.png \
+    icons/log-mode.png

@@ -45,23 +45,31 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     toolbar->addAction(this->get_action_toggle_frameline());
 
-    connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
-
     // Set up data scope toggler
     actToggleDataScope = new QAction(QIcon(":icons/full-data.png"), tr("Toggle Data Scope"), this);
     actToggleDataScope->setToolTip(tr("Toggle full vs. user-selected data."));
 
     toolbar->addAction(this->get_action_toggle_datascope());
 
-    actRotateGraphStyle = new QAction(QIcon(":icons/solid-style.png"), tr("Change Line Style"), this);
-    actRotateGraphStyle->setToolTip("Toggle between scatter plot and line plot types.");
+    actToggleGraphStyle = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Type"), this);
+    actToggleGraphStyle->setToolTip("Toggle between scatter plot and line plot types.");
 
-    toolbar->addAction(this->get_action_rotate_graphstyle());
+    toolbar->addAction(this->get_action_toggle_graphstyle());
 
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
-    connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
+    connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
+    connect(actToggleGraphStyle, SIGNAL(triggered()), this, SLOT(ToggleGraphStyle()));
 
-    connect(actRotateGraphStyle, SIGNAL(triggered()), this, SLOT(RotateGraphStyle()));
+    if (plotYType == Enums::PlotType::SumCounts)
+    {
+        qDebug() << "SUM COUNTS";
+        actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
+        actToggleLinearLog->setToolTip("Toggle between scatter plot and line plot types.");
+        toolbar->addAction(this->get_action_toggle_linearlog());
+        connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
+    }
+
+    connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
 
@@ -102,8 +110,8 @@ QToolButton* EngineeringPlot::FindToolButtonForAction(QToolBar* toolbar, QAction
     return nullptr; // Not found
 }
 
-QAction *EngineeringPlot::get_action_rotate_graphstyle() const {
-    return this->actRotateGraphStyle;
+QAction *EngineeringPlot::get_action_toggle_graphstyle() const {
+    return this->actToggleGraphStyle;
 }
 
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
@@ -112,6 +120,10 @@ QAction *EngineeringPlot::get_action_toggle_frameline() const {
 
 QAction *EngineeringPlot::get_action_toggle_datascope() const {
     return this->actToggleDataScope;
+}
+
+QAction *EngineeringPlot::get_action_toggle_linearlog() const {
+    return this->actToggleLinearLog;
 }
 
 Enums::PlotUnit EngineeringPlot::get_quantity_unit_by_axis(int axis_index)
@@ -606,11 +618,6 @@ void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
     JKQTPlotter::mousePressEvent(event);
 }
 
-void EngineeringPlot::set_data_scope_icon(QString type)
-{
-    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
-}
-
 void EngineeringPlot::set_plot_primary_only(bool value)
 {
     plot_primary_only = value;
@@ -633,9 +640,19 @@ void EngineeringPlot::set_show_full_scope(bool value)
     plotter->show_full_scope =value;
 }
 
+void EngineeringPlot::set_data_scope_icon(QString type)
+{
+    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
+}
+
 void EngineeringPlot::set_graph_style_icon(QString style)
 {
-    actRotateGraphStyle->setIcon(QIcon(":icons/"+style+"-style.png"));
+    actToggleGraphStyle->setIcon(QIcon(":icons/"+style+"-style.png"));
+}
+
+void EngineeringPlot::set_graph_mode_icon(QString mode)
+{
+    actToggleLinearLog->setIcon(QIcon(":icons/"+mode+"-mode.png"));
 }
 
 void EngineeringPlot::set_sub_plot_xmin(int value)
@@ -753,6 +770,7 @@ void EngineeringPlot::HomeZoomIn()
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
         SetPlotterYAxisMinMax(plotter->sub_plot_ymin, plotter->sub_plot_ymax);
     }
+    redrawPlot();
 }
 
 void EngineeringPlot::RecordYAxisMinMax()
@@ -766,7 +784,6 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
-        plotter->redrawPlot();
     }
 }
 
@@ -775,7 +792,6 @@ void EngineeringPlot::SetPlotterYAxisMinMax(int min, int max)
     if (plotter) {
         plotter->getYAxis()->setMin(min);
         plotter->getYAxis()->setMax(max);
-        plotter->redrawPlot();
     }
 }
 
@@ -796,6 +812,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     set_sub_plot_xmin((int)transformed_min_x);
     set_sub_plot_xmax((int)transformed_max_x);
     SetPlotterXAxisMinMax((int)transformed_min_x, (int)transformed_max_x);
+    redrawPlot();
 
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
@@ -845,6 +862,7 @@ void EngineeringPlot::ToggleDataScope()
     }
 
     RecordYAxisMinMax();
+    redrawPlot();
 
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
@@ -856,7 +874,7 @@ void EngineeringPlot::ToggleFrameLine()
     emit this->plotter->plotUpdated();
 }
 
-void EngineeringPlot::RotateGraphStyle()
+void EngineeringPlot::ToggleGraphStyle()
 {
     DeleteGraphIfExists(plotTitle);
     DeleteGraphIfExists("Frame Line");
@@ -895,6 +913,25 @@ void EngineeringPlot::RotateGraphStyle()
     InitializeFrameLine(frameline_x);
     PlotSirveTracks(-1);
     emit this->plotter->plotUpdated();
+}
+
+void EngineeringPlot::ToggleLinearLog()
+{
+    bool yAxisIsLogarithmic = getPlotter()->getYAxis()->getLogAxis();
+    getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
+    getPlotter()->zoomToFit(true, true, false, false);
+
+    int x_min, x_max;
+    x_min = plotter->show_full_scope ? full_plot_xmin : get_subinterval_min();
+    x_max = plotter->show_full_scope ? full_plot_xmax : get_subinterval_max();
+
+    DefinePlotSubInterval(x_min, x_max);
+    applyLinearLogStyling();
+
+    if (!plotter->show_full_scope)
+        SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+
+    y_axis_is_log ? actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png"));
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)

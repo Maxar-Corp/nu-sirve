@@ -129,6 +129,7 @@ public:
     void set_show_full_scope(bool use_subinterval);
     void set_data_scope_icon(QString type);
     void set_graph_style_icon(QString type);
+    void set_graph_mode_icon(QString mode);
 
     void print_ds(JKQTPDatastore *_ds);
 
@@ -144,9 +145,10 @@ public slots:
 
 public Q_SLOTS:
     void HomeZoomIn();
-    void RotateGraphStyle();
     void ToggleDataScope();
+    void ToggleGraphStyle();
     void ToggleFrameLine();
+    void ToggleLinearLog();
 
 private slots:
     void onJPContextActionTriggered(const QString& actionName);
@@ -158,9 +160,11 @@ private:
     int index_full_scope_xmin, index_full_scope_xmax, index_partial_scope_xmin, index_partial_scope_xmax;
     int partial_scope_original_min_x = 0, partial_scope_original_max_x;
 
-    QAction* actToggleFrameLine;
     QAction* actToggleDataScope;
-    QAction* actRotateGraphStyle;
+    QAction* actToggleFrameLine;
+    QAction* actToggleGraphStyle;
+    QAction* actToggleLinearLog;
+
     double fixed_max_y, sub_max_y;
     size_t frameLineColumnX;
     JKQTPXYGraph* graph;
@@ -181,6 +185,8 @@ private:
     std::vector<PlottingTrackFrame> track_frames;
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
+    bool y_axis_is_log = false;
+
     void EditPlotText();
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
@@ -188,9 +194,10 @@ private:
     void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks);
     bool TrackExists(int track_id) const;
 
-    QAction* get_action_rotate_graphstyle() const;
+    QAction* get_action_toggle_graphstyle() const;
     QAction* get_action_toggle_frameline() const;
     QAction* get_action_toggle_datascope() const;
+    QAction* get_action_toggle_linearlog() const;
 
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
