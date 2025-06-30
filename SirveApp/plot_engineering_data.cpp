@@ -931,7 +931,7 @@ void EngineeringPlot::ToggleLinearLog()
     if (!plotter->show_full_scope)
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 
-    y_axis_is_log ? actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png"));
+    yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
 }
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
