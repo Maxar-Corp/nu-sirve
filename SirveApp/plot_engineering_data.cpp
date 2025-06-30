@@ -501,9 +501,9 @@ std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, u
         return x_values;
     }
     case Enums::Seconds_Past_Midnight:
-        return std::vector<double>(past_midnight.begin() + start_idx, past_midnight.begin() + end_idx + 1);
+        return std::vector<double>(past_midnight.begin() + start_idx + 1, past_midnight.begin() + end_idx + 1);
     case Enums::Seconds_From_Epoch:
-        return std::vector<double>(past_epoch.begin() + start_idx, past_epoch.begin() + end_idx + 1);
+        return std::vector<double>(past_epoch.begin() + start_idx + 1, past_epoch.begin() + end_idx + 1);
     default:
         return std::vector<double>();
     }
@@ -709,7 +709,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
 
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
-            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x);
+            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x - 1);
         } else
         {
             frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
@@ -742,9 +742,9 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
     std::vector<double> y_values = func_y(1);
 
     if (!y_values.empty()) {
-        auto [new_min, new_max] = std::minmax_element(y_values.begin(), y_values.end());
-        plotter->sub_plot_ymin = *new_min;
-        plotter->sub_plot_ymax = *new_max;
+        auto [min_element, max_element] = std::minmax_element(y_values.begin(), y_values.end());
+        plotter->sub_plot_ymin = *min_element;
+        plotter->sub_plot_ymax = *max_element;
     }
 }
 
