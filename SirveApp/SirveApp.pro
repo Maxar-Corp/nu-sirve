@@ -34,12 +34,12 @@ HEADERS +=  abir_reader.h \
             engineering_data.h \
             enhanced_label.h \
             enums.h \
+            fixed_noise_correction_external_file.h \
             frame_player.h \
             histogram_plotter.h \
             image_processing.h \
             location_input.h \
             new_location.h \
-            non_uniformity_correction_external_file.h \
             osm_reader.h \
             plot_designer.h \
             playback_controller.h \
@@ -91,12 +91,12 @@ SOURCES +=  abir_reader.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
             enums.cpp \
+            fixed_noise_correction_external_file.cpp \
             histogram_plotter.cpp \
             image_processing.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
-            non_uniformity_correction_external_file.cpp \
             osm_reader.cpp \
             plot_designer.cpp \
             playback_controller.cpp \

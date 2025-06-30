@@ -259,7 +259,7 @@ void CalibrationDialog::ImportNucFile()
 		return;
     }
 
-    auto frames = reader.ReadFrames();
+    auto frames = reader.ReadFrames(file_type);
     if (frames.empty())
     {
 
@@ -806,10 +806,10 @@ void CalibrationDialog::PrepareAndPlotTemperature(const ABPNUCFrames& frames)
     for (int i = 0; i < frames.size(); i++)
     {
 
-        QPointF temp_pt1(i + 1, frames[i].tec_temperature_x100 / 100.0);
+        QPointF temp_pt1(i + 1, frames[i].TEC_Temperature_T0_x100 / 100.0);
         temperature.push_back(temp_pt1);
 
-        all_frame_times.push_back(frames[i].frame_time);
+        all_frame_times.push_back(frames[i].frameTime);
     }
 
     CreateTemperaturePlot(temperature);

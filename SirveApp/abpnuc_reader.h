@@ -2,34 +2,49 @@
 #define ABPNUC_READER_H
 
 #include "binary_reader.h"
+#include "abir_reader.h"
 
 struct ABPNUCFrame
 {
-    int frame_number;
-    uint32_t ir_temperature;
-    uint32_t nuc_environment;
-    uint32_t measured_det_cal_factor;
-    int32_t tec_temperature_x100;
-    int32_t tec_temperature_t1_x100;
-    int32_t tec_temperature_t2_x100;
-    int32_t tec_temperature_t3_x100;
-    int32_t scene_mean_t1;
-    int32_t scene_mean_t2;
-    int32_t scene_mean_t3;
-    int32_t scene_mean;
-    double frame_time;
+    int frameNumber;
+    uint32_t IR_TEMP_x100;
+    uint32_t NUC_Environment;
+    uint32_t Measured_Det_Cal_Factor;
+    int32_t TEC_Temperature_T0_x100;
+    int32_t TEC_Temperature_T1_x100;
+    int32_t TEC_Temperature_T2_x100;
+    int32_t TEC_Temperature_T3_x100;
+    int32_t TEC_Temperature_T4_x100;
+    uint32_t Scene_Mean_T1;
+    uint32_t Scene_Mean_T2;
+    uint32_t Scene_Mean_T3;
+    uint32_t Scene_Mean;
+    double frameTime;
     double seconds;
-    double ambient;
-    double afocal1;
-    double afocal2;
-    double ir_atherm;
-    double ir_integration_time_usec;
-    double detector_temperature;
-
-    // new fields
+    float Ambient;
+    float Afocal1;
+    float Afocal2;
+    float IR_ATherm;
+    double IR_Integration_Time_usec; 
+    double Detector_Temperature;
     uint32_t guid[5];
-    uint32_t guid_source[5];
+    uint32_t source_guid[5];
     uint16_t sensorId;
+
+
+    double ImageMean;
+    uint16_t numberOfTemps;
+    uint16_t unusedShort;
+    uint32_t TEC_Collected_T0_x100;
+    uint32_t TEC_Collected_T1_x100;
+    uint32_t TEC_Collected_T2_x100;
+    uint32_t TEC_Collected_T3_x100;
+    uint32_t TEC_Collected_T4_x100;
+    uint16_t TEC_Status_T0;
+    uint16_t TEC_Status_T1;
+    uint16_t TEC_Status_T2;
+    uint16_t TEC_Status_T3;
+    uint16_t TEC_Status_T4;
 };
 
 using ABPNUCFrames = std::vector<ABPNUCFrame>;
@@ -40,7 +55,10 @@ public:
     ABPNUCReader() = default;
     ~ABPNUCReader() override;
 
-    ABPNUCFrames ReadFrames();
+    ABPNUCFrames ReadFrames(ABPFileType file_type_);
+
+private:
+    ABPFileType file_type_ = ABPFileType::UNKNOWN;
 };
 
 #endif // ABPNUC_READER_H

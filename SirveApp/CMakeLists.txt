@@ -23,11 +23,11 @@ set(HEADERS
         engineering_data.h
         enhanced_label.h
         enums.h
+        fixed_noise_correction_external_file.h
         histogram_plotter.h
         image_processing.h
         location_input.h
         new_location.h
-        non_uniformity_correction_external_file.h
         osm_reader.h
         playback_controller.h
         plot_designer.h
@@ -78,13 +78,13 @@ set(SOURCES
         data_export.cpp
         data_structures.cpp
         engineering_data.cpp
+        fixed_noise_correction_external_file.cpp
         enhanced_label.cpp
         histogram_plotter.cpp
         image_processing.cpp
         location_input.cpp
         main.cpp
         new_location.cpp
-        non_uniformity_correction_external_file.cpp
         osm_reader.cpp
         playback_controller.cpp
         plot_designer.cpp

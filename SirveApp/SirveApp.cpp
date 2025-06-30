@@ -3406,7 +3406,7 @@ bool SirveApp::CheckCurrentStateisNoiseSuppressed(int source_state_idx) const
 
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 {
-    ExternalNUCInformationWidget external_nuc_dialog(abp_file_metadata.file_type);
+    ExternalFixedNoiseInformationWidget external_nuc_dialog(abp_file_metadata.file_type);
 
     auto response = external_nuc_dialog.exec();
 

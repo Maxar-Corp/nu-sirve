@@ -4,7 +4,7 @@ ABPNUCReader::~ABPNUCReader()
 {
 }
 
-ABPNUCFrames ABPNUCReader::ReadFrames()
+ABPNUCFrames ABPNUCReader::ReadFrames(ABPFileType file_type_)
 {
     if (!IsOpen())
     {
@@ -32,35 +32,59 @@ ABPNUCFrames ABPNUCReader::ReadFrames()
 
         // load the OSM
         ReadArray(frame.guid);
-        ReadArray(frame.guid_source);
+        ReadArray(frame.source_guid);
         frame.sensorId = Read<uint16_t>();
 
         // skip 2 bytes here
         Seek(2, SEEK_CUR);
 
-        frame.frame_number = Read<int32_t>();
-        frame.frame_time = Read<double>();
-        frame.ir_temperature = Read<uint32_t>();
-        frame.tec_temperature_x100 = Read<int32_t>();
-        frame.tec_temperature_t1_x100 = Read<int32_t>();
-        frame.tec_temperature_t2_x100 = Read<int32_t>();
-        frame.tec_temperature_t3_x100 = Read<int32_t>();
-        frame.ambient = Read<float>();
-        frame.afocal1 = Read<float>();
-        frame.afocal2 = Read<float>();
-        frame.ir_atherm = Read<float>();
-        frame.ir_integration_time_usec = Read<uint16_t>();
+        frame.frameNumber = Read<int32_t>();
+        frame.frameTime = Read<double>();
+        frame.IR_TEMP_x100 = Read<uint32_t>();
+        frame.TEC_Temperature_T0_x100 = Read<int32_t>();
+        frame.TEC_Temperature_T1_x100 = Read<int32_t>();
+        frame.TEC_Temperature_T2_x100 = Read<int32_t>();
+        frame.TEC_Temperature_T3_x100 = Read<int32_t>();
+        if (file_type_ == ABPFileType::ABP_D)
+        {
+            // frame.TEC_Temperature_T3_x100 = Read<int32_t>();
+            frame.TEC_Temperature_T4_x100 = Read<int32_t>();
+        }
+        frame.Ambient = Read<float>();
+        frame.Afocal1 = Read<float>();
+        frame.Afocal2 = Read<float>();
+        frame.IR_ATherm = Read<float>();
+        frame.IR_Integration_Time_usec = Read<uint16_t>();
 
         // skip 2 bytes here
         Seek(2, SEEK_CUR);
 
-        frame.detector_temperature = Read<double>();
-        frame.nuc_environment = Read<uint32_t>();
-        frame.measured_det_cal_factor = Read<uint32_t>();
-        frame.scene_mean_t2 = Read<int32_t>();
-        frame.scene_mean_t1 = Read<int32_t>();
-        frame.scene_mean_t3 = Read<int32_t>();
-        frame.scene_mean = Read<int32_t>();
+        frame.Detector_Temperature = Read<double>();
+        frame.NUC_Environment = Read<uint32_t>();
+        frame.Measured_Det_Cal_Factor = Read<uint32_t>();
+        if (file_type_ == ABPFileType::ABP_B)
+        {
+            frame.Scene_Mean_T2 = Read<int32_t>();
+            frame.Scene_Mean_T1 = Read<int32_t>();
+            frame.Scene_Mean_T3 = Read<int32_t>();
+            frame.Scene_Mean = Read<int32_t>();
+        }
+        else if (file_type_ == ABPFileType::ABP_D)
+        {
+            frame.ImageMean = Read<double>();
+            frame.numberOfTemps = Read<uint16_t>();
+            frame.unusedShort = Read<uint16_t>();
+            frame.TEC_Collected_T0_x100 = Read<uint32_t>();
+            frame.TEC_Collected_T1_x100 = Read<uint32_t>();
+            frame.TEC_Collected_T2_x100 = Read<uint32_t>();
+            frame.TEC_Collected_T3_x100 = Read<uint32_t>();
+            frame.TEC_Collected_T4_x100 = Read<uint32_t>();
+            frame.TEC_Status_T0 = Read<uint16_t>();
+            frame.TEC_Status_T1 = Read<uint16_t>();
+            frame.TEC_Status_T2 = Read<uint16_t>();
+            frame.TEC_Status_T3 = Read<uint16_t>();
+            frame.TEC_Status_T4 = Read<uint16_t>();
+        }
 
         frames.emplace_back(frame);
     }

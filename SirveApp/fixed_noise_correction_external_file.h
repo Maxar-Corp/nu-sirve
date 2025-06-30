@@ -1,10 +1,10 @@
 #pragma once
-#pragma once
-#ifndef EXTERNAL_NUC_H
-#define EXTERNAL_NUC_H
+#ifndef FIXED_NOISE_CORRECTION_EXTERNAL_H
+#define FIXED_NOISE_CORRECTION_EXTERNAL_H
 
 #include <qcombobox.h>
 #include <qdialog.h>
+#include <qinputdialog.h>
 #include <qgridlayout.h>
 #include <qlabel.h>
 #include <qlineedit.h>
@@ -23,13 +23,13 @@
 #include "tracks.h"
 #include "abir_reader.h"
 
-class ExternalNUCInformationWidget : public QDialog
+class ExternalFixedNoiseInformationWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	ExternalNUCInformationWidget(ABPFileType file_type);
-	~ExternalNUCInformationWidget();
+	ExternalFixedNoiseInformationWidget(ABPFileType file_type);
+	~ExternalFixedNoiseInformationWidget();
 
     AbpFileMetadata abp_metadata;
     ProcessFile file_processor;

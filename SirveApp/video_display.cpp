@@ -1089,10 +1089,10 @@ void VideoDisplay::UpdateDisplayFrame()
             original_mat_frame = original_mat_frame.t();
 
             // get counts sub-matrix corresponding to the calculation region
-            unsigned int ur1 = (unsigned int)top_left.x();
-            unsigned int uc1 = (unsigned int)top_left.y();
-            unsigned int ur2 = (unsigned int)bottom_right.x();
-            unsigned int uc2 = (unsigned int)bottom_right.y();
+            unsigned int ur1 = (unsigned int)top_left.y();
+            unsigned int uc1 = (unsigned int)top_left.x();
+            unsigned int ur2 = (unsigned int)bottom_right.y();
+            unsigned int uc2 = (unsigned int)bottom_right.x();
 
             arma::mat counts = original_mat_frame.submat(ur1, uc1, ur2, uc2);
 
@@ -1101,8 +1101,7 @@ void VideoDisplay::UpdateDisplayFrame()
             original_mat_frame.clear();
 
             double frame_integration_time = frame_headers[counter].int_time;
-            auto measurements = model.MeasureSumCounts(
-                top_left.x(), top_left.y(), bottom_right.x(), bottom_right.y(), counts, frame_integration_time);
+            auto measurements = model.MeasureSumCounts(ur1, uc1, ur2, uc2, counts, frame_integration_time);
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
