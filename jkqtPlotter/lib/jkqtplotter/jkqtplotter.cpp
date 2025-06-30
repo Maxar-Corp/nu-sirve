@@ -1088,7 +1088,7 @@ void JKQTPlotter::applyLinearLogStyling() {
     if (getYAxis()->getLogAxis()) {
         this->plotter->getYAxis()->setMinorTicks(9);
         this->plotter->getYAxis()->setDrawMinorGrid(true);
-        this->plotter->getYAxis()->setMinorTickLabelsEnabled(true);
+        this->plotter->getYAxis()->setTickLabelFontSize(10);
         this->plotter->getYAxis()->setTickLabelType(JKQTPCALTexponent);
         this->plotter->getYAxis()->setTickMode(JKQTPLabelTickMode::JKQTPLTMLinOrPower);
     } else {
@@ -1098,6 +1098,7 @@ void JKQTPlotter::applyLinearLogStyling() {
         this->plotter->getYAxis()->setTickMode(0);
     }
 }
+
 void JKQTPlotter::wheelEvent(QWheelEvent *event) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     const double wheel_x=event->position().x();
