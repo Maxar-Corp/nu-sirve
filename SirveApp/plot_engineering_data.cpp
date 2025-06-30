@@ -917,21 +917,19 @@ void EngineeringPlot::ToggleGraphStyle()
 
 void EngineeringPlot::ToggleLinearLog()
 {
-    y_axis_is_log = ! y_axis_is_log;
+    bool yAxisIsLogarithmic = getPlotter()->getYAxis()->getLogAxis();
+    getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
+    getPlotter()->zoomToFit(true, true, false, false);
 
-    double x_min, x_max, y_min, y_max;
+    int x_min, x_max;
+    x_min = plotter->show_full_scope ? full_plot_xmin : get_subinterval_min();
+    x_max = plotter->show_full_scope ? full_plot_xmax : get_subinterval_max();
 
-    x_min = y_axis_is_log ? std::max(getXAxis()->getMin(), 0.0) : getXAxis()->getMin();
-    x_max = getXAxis()->getMax();
-    y_min = getYAxis()->getMin();
-    y_max = getYAxis()->getMax();
-
-    getYAxis()->setLogAxis(y_axis_is_log);
-    SetPlotterXAxisMinMax(x_min, x_max);
-    SetPlotterYAxisMinMax(y_min, y_max);
+    DefinePlotSubInterval(x_min, x_max);
     applyLinearLogStyling();
-    RecordYAxisMinMax();
-    redrawPlot();
+
+    if (!plotter->show_full_scope)
+        SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 
     y_axis_is_log ? actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png"));
 }

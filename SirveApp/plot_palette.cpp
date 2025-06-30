@@ -148,16 +148,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
     QAction *closeTabAction = contextMenu.addAction("Hide Tab");
     QAction *editBanner = contextMenu.addAction("Edit Banner");
 
-    bool yAxisIsLogarithmic = engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->getLogAxis();
-
-    QAction *plotOptionsLinearLog = nullptr;
-
-    if (engineering_plot_ref.at(tabIndex)->plotYType == Enums::PlotType::SumCounts)
-    {
-        QMenu *plotOptions = contextMenu.addMenu("Plot Options ");
-        plotOptionsLinearLog = plotOptions->addAction("Linear/Log");
-    }
-
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
     if (!selectedAction)
@@ -178,8 +168,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         emit popoutPlot(tabIndex, "title", quantities);
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
-    } else if (selectedAction == plotOptionsLinearLog) {
-
     }
 }
 
