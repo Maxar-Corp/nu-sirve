@@ -38,6 +38,11 @@ public:
         Undefined_ClassificationType
     };
 
+    enum GraphType {
+        Line,
+        Scatter
+    };
+
     static PlotType getPlotTypeByIndex(int index);
     static PlotUnit getPlotUnitByIndex(int index);
     static ClassificationType getClassificationTypeByIndex(int index);

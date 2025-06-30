@@ -61,6 +61,7 @@ public:
 
     void AddGraph(int track_id, size_t &columnX, size_t&columnY);
     void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
+    void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, std::optional<int> track_id = std::nullopt, std::optional<QString> graph_title = std::nullopt);
     void DefineFullPlotInterval();
     void DefinePlotSubInterval(int min, int max);
     void DeleteAllTrackGraphs();
@@ -72,6 +73,8 @@ public:
 
     void PlotChart();
     void PlotCurrentFrameline(int frameline_x);
+    void GetTrackValues(int &track_id, std::vector<double> &x_values,
+                   std::vector<double> &y_values);
     void PlotSirveTracks(int override_track_id);
 
     void RecolorManualTrack(int track_id, QColor new_color);
@@ -81,6 +84,7 @@ public:
     void RestoreTrackGraphs(std::vector<size_t> &new_column_indexes);
 
     void SetPlotterXAxisMinMax(int min, int max);
+    void SetPlotterYAxisMinMax(int min, int max);
     void SetupSubRange(int min, int max);
 
     void UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
@@ -101,14 +105,20 @@ public:
 
     int get_index_full_scope_xmin() const;
     int get_index_full_scope_xmax() const;
-    int get_index_zoom_min();
-    int get_index_zoom_max();
+    int get_index_partial_scope_xmin() const;
+    int get_index_partial_scope_xmax() const;
+
+    double get_max_x_axis_value();
+    double get_min_x_axis_value();
     bool get_plot_primary_only();
     bool get_show_full_scope();
     double get_single_x_axis_value(int x_index);
     Enums::PlotUnit get_quantity_unit_by_axis(int axis_index);
 
     std::vector<double> get_x_axis_values(unsigned int start_idx, unsigned int end_idx);
+
+    void set_index_partial_scope_xmin(int value);
+    void set_index_partial_scope_xmax(int value);
 
     void set_plot_primary_only(bool value);
     void set_plotting_track_frames(std::vector<PlottingTrackFrame> frames, int num_unique);
@@ -118,6 +128,8 @@ public:
 
     void set_show_full_scope(bool use_subinterval);
     void set_data_scope_icon(QString type);
+    void set_graph_style_icon(QString type);
+    void set_graph_mode_icon(QString mode);
 
     void print_ds(JKQTPDatastore *_ds);
 
@@ -132,10 +144,11 @@ public slots:
     void SetPlotClassification(QString input_title);
 
 public Q_SLOTS:
-    void DoCustomZoomIn();
+    void HomeZoomIn();
     void ToggleDataScope();
+    void ToggleGraphStyle();
     void ToggleFrameLine();
-    void ToggleGraphTickSymbol();
+    void ToggleLinearLog();
 
 private slots:
     void onJPContextActionTriggered(const QString& actionName);
@@ -144,14 +157,18 @@ private:
 
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
-    int index_full_scope_xmin, index_full_scope_xmax;
+    int index_full_scope_xmin, index_full_scope_xmax, index_partial_scope_xmin, index_partial_scope_xmax;
     int partial_scope_original_min_x = 0, partial_scope_original_max_x;
 
-    QAction* actToggleFrameLine;
     QAction* actToggleDataScope;
+    QAction* actToggleFrameLine;
+    QAction* actToggleGraphStyle;
+    QAction* actToggleLinearLog;
+
     double fixed_max_y, sub_max_y;
     size_t frameLineColumnX;
-    JKQTPXYLineGraph* graph;
+    JKQTPXYGraph* graph;
+    Enums::GraphType graph_type = Enums::GraphType::Line;
     std::vector<Quantity> my_quantities;
     std::map<int, QColor> manual_track_colors;
     std::vector<ManualPlottingTrackFrame> manual_track_frames;
@@ -168,15 +185,19 @@ private:
     std::vector<PlottingTrackFrame> track_frames;
     Enums::PlotType x_axis_units = Enums::PlotType::Undefined_PlotType;
 
+    bool y_axis_is_log = false;
+
     void EditPlotText();
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
     void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
-    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title);
+    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks);
     bool TrackExists(int track_id) const;
 
+    QAction* get_action_toggle_graphstyle() const;
     QAction* get_action_toggle_frameline() const;
     QAction* get_action_toggle_datascope() const;
+    QAction* get_action_toggle_linearlog() const;
 
     std::vector<double> get_individual_x_track(size_t i);
     std::vector<double> get_individual_y_track_irradiance(size_t i);
@@ -188,7 +209,13 @@ private:
     std::vector<double> get_individual_y_track_fov_x(size_t i);
     std::vector<double> get_individual_y_track_fov_y(size_t i);
 
-    double get_max_x_axis_value();
+    std::vector<double> x_osm_values;
+    std::vector<double> y_osm_values;
+
+    int frameline_offset_x;
+    void FilterValuesBasedOnScope(std::vector<double> filtered_x, std::vector<double> filtered_y);
+
+    void DefineSubSet(std::vector<double> &filtered_x, std::vector<double> &filtered_y);
 
 protected:
     void mousePressEvent(QMouseEvent *event);

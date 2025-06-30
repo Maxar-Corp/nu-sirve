@@ -919,6 +919,9 @@ public:
     }
 
     void setExclusionString(QString exclusionString);
+
+    void applyLinearLogStyling();
+
 public Q_SLOTS:
     /** \brief set the current plot magnification */
     void setMagnification(double m);
@@ -1555,7 +1558,8 @@ protected:
          *
          * \see registerMouseWheelAction(), deregisterMouseWheelAction(), registeredMouseWheelActions
          */
-    void wheelEvent(QWheelEvent * event) override;
+
+    void wheelEvent(QWheelEvent * vent) override;
 
     /** \brief this simply paints the stored image to the widget's surface */
     void paintEvent(QPaintEvent *event) override;

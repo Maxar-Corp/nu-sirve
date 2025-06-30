@@ -1279,7 +1279,6 @@ void SirveApp::ImportTracks()
         }
         else
         {
-
             video_player_->AddManualTrackIdToShowLater(track_id);
             tm_widget->AddTrackControl(track_id);
 
@@ -1307,7 +1306,6 @@ void SirveApp::ImportTracks()
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
             plot_palette->PlotAllSirveTracks(-1);
         }
-
     }
 }
 
@@ -1987,6 +1985,13 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     data_plot->set_data_scope_icon("full");
     data_plot->DisableDataScopeButton(true);
 
+    data_plot->set_graph_style_icon("solid");
+
+    if (data_plot->plotYType == Enums::PlotType::SumCounts)
+    {
+        data_plot->set_graph_mode_icon("linear");
+    }
+
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
@@ -1996,6 +2001,10 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
+
+    data_plot->set_index_partial_scope_xmin(txt_start_frame->text().toInt());
+    data_plot->set_index_partial_scope_xmax(txt_stop_frame->text().toInt());
+
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
@@ -2012,11 +2021,23 @@ void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantit
         x_max = data_plot->get_single_x_axis_value(x_max);
     }
 
+    if (x_axis_unit == Enums::PlotUnit::Degrees)
+    {
+        x_min = data_plot->get_min_x_axis_value();
+        x_max = data_plot->get_max_x_axis_value();
+    }
+
     data_plot->set_sub_plot_xmin(x_min);
     data_plot->set_sub_plot_xmax(x_max);
 
     data_plot->SetPlotterXAxisMinMax(x_min, x_max);
-    data_plot->DefinePlotSubInterval(x_min, x_max);
+    data_plot->redrawPlot();
+
+    if (x_axis_unit == Enums::PlotUnit::FrameNumber || x_axis_unit == Enums::PlotUnit::Counts || x_axis_unit == Enums::PlotUnit::Seconds)
+    {
+         data_plot->DefinePlotSubInterval(x_min, x_max);
+    }
+
     data_plot->DefineFullPlotInterval();
 
     data_plot->set_show_full_scope(false);
@@ -2248,6 +2269,8 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     {
         plot_palette->GetEngineeringPlotReference(i)->SetPlotterXAxisMinMax(min_frame - 1, max_frame - 1);
         plot_palette->GetEngineeringPlotReference(i)->DefinePlotSubInterval(min_frame-1, max_frame - 1);
+        plot_palette->GetEngineeringPlotReference(i)->set_show_full_scope(false);
+        plot_palette->GetEngineeringPlotReference(i)->redrawPlot();
     }
 
     progress_bar_main->setValue(100);

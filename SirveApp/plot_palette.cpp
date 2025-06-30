@@ -147,8 +147,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
 
     QAction *closeTabAction = contextMenu.addAction("Hide Tab");
     QAction *editBanner = contextMenu.addAction("Edit Banner");
-    QMenu *plotOptions = contextMenu.addMenu("Plot Options ");
-    QAction *plotOptions1 = plotOptions->addAction("Linear/Log");
 
     // Show the menu at the cursor position
     QAction *selectedAction = contextMenu.exec(tabBar()->mapToGlobal(pos));
@@ -170,12 +168,6 @@ void PlotPalette::HandleTabRightClicked(const QPoint &pos)
         emit popoutPlot(tabIndex, "title", quantities);
     } else if (selectedAction == editBanner) {
         emit editClassification(tabIndex, engineering_plot_ref.at(tabIndex)->getPlotter()->getPlotLabel());
-    } else if (selectedAction == plotOptions1) {
-        bool yAxisIsLogarithmic = engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->getLogAxis();
-        qDebug() << "yAxisIsLogarithmic=" << yAxisIsLogarithmic;
-        engineering_plot_ref.at(tabIndex)->getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
-        engineering_plot_ref.at(tabIndex)->getPlotter()->zoomToFit(true, true, false, false, 0.5, 0.5);
-        // TODO: Refine this ^^^ so it zooms to where you left off.
     }
 }
 

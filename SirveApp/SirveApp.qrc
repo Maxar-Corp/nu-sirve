@@ -43,5 +43,10 @@
         <file>icons/jkqtp_frameline.png</file>
         <file>icons/zoom-home.png</file>
         <file>icons/snap-it.png</file>
+        <file>icons/dash-dot-style.png</file>
+        <file>icons/dot-style.png</file>
+        <file>icons/solid-style.png</file>
+        <file>icons/linear-mode.png</file>
+        <file>icons/log-mode.png</file>
     </qresource>
 </RCC>

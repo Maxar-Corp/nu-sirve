@@ -457,7 +457,7 @@ void JKQTBasePlotter::initSettings() {
 
 
 void JKQTBasePlotter::zoomIn(double factor) {
-    qDebug() << "Hi";
+
     for (auto ax: getXAxes(true)) {
         const double old_mi=ax->x2p(ax->getMin());
         const double old_ma=ax->x2p(ax->getMax());
@@ -468,7 +468,7 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
         // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
-        if (show_full_scope || (xmin>=sub_plot_xmin && xmax<=sub_plot_xmax))
+        //if (show_full_scope || (xmin>=sub_plot_xmin && xmax<=sub_plot_xmax))
             ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
     for (auto ax: getYAxes(true)) {
@@ -481,7 +481,7 @@ void JKQTBasePlotter::zoomIn(double factor) {
         const double xmin=ax->p2x(new_mi);
         const double xmax=ax->p2x(new_ma);
         // one of three places where we constrain 2D translation of the plotspace when in partial data scope/subplot mode...
-        if (show_full_scope || (new_mi>=sub_plot_ymin && new_ma<=sub_plot_ymax))
+        //if (show_full_scope || (new_mi>=sub_plot_ymin && new_ma<=sub_plot_ymax))
             ax->setRange(qMin(xmin, xmax), qMax(xmin, xmax));
     }
 
@@ -4314,6 +4314,7 @@ bool JKQTBasePlotter::getGraphsYMinMax(double& miny, double& maxy, double& small
 }
 
 void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool includeY0, double scaleX, double scaleY) {
+
     if (graphs.size()<=0) return;
     auto calcLocScaling=[](JKQTPCoordinateAxis* axis, double &xxmin, double&xxmax, double&xsmallestGreaterZero, bool include0, double scale) -> bool {
         if (JKQTPIsOKFloat(xxmin) && JKQTPIsOKFloat(xxmax)) {
@@ -4381,8 +4382,6 @@ void JKQTBasePlotter::zoomToFit(bool zoomX, bool zoomY, bool includeX0, bool inc
             }
         }
     }
-    //std::cout<<"end of zoomToFit\n";
-    //setXY(xxmin, xxmax, yymin, yymax);
     if (emitSignals) emit zoomChangedLocally(xAxis->getMin(), xAxis->getMax(), yAxis->getMin(), yAxis->getMax(), this);
 }
 

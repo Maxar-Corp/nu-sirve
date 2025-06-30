@@ -1,6 +1,7 @@
 #include <QPushButton>
 #include <QLegendMarker>
 #include <functional>
+#include "jkqtplotter/graphs/jkqtpscatter.h"
 #include "plot_engineering_data.h"
 #include "enums.h"
 #include "SirveApp.h"
@@ -44,16 +45,32 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     toolbar->addAction(this->get_action_toggle_frameline());
 
-    connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
-
     // Set up data scope toggler
     actToggleDataScope = new QAction(QIcon(":icons/full-data.png"), tr("Toggle Data Scope"), this);
     actToggleDataScope->setToolTip(tr("Toggle full vs. user-selected data."));
 
     toolbar->addAction(this->get_action_toggle_datascope());
 
+    actToggleGraphStyle = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Type"), this);
+    actToggleGraphStyle->setToolTip("Toggle between scatter plot and line plot types.");
+
+    toolbar->addAction(this->get_action_toggle_graphstyle());
+
     connect(actToggleDataScope, SIGNAL(triggered()), this, SLOT(ToggleDataScope()));
+    connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
+    connect(actToggleGraphStyle, SIGNAL(triggered()), this, SLOT(ToggleGraphStyle()));
+
+    if (plotYType == Enums::PlotType::SumCounts)
+    {
+        qDebug() << "SUM COUNTS";
+        actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
+        actToggleLinearLog->setToolTip("Toggle between scatter plot and line plot types.");
+        toolbar->addAction(this->get_action_toggle_linearlog());
+        connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
+    }
+
     connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
+
     connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
 
     this->setExclusionString("frameline");
@@ -93,12 +110,20 @@ QToolButton* EngineeringPlot::FindToolButtonForAction(QToolBar* toolbar, QAction
     return nullptr; // Not found
 }
 
+QAction *EngineeringPlot::get_action_toggle_graphstyle() const {
+    return this->actToggleGraphStyle;
+}
+
 QAction *EngineeringPlot::get_action_toggle_frameline() const {
     return this->actToggleFrameLine;
 }
 
 QAction *EngineeringPlot::get_action_toggle_datascope() const {
     return this->actToggleDataScope;
+}
+
+QAction *EngineeringPlot::get_action_toggle_linearlog() const {
+    return this->actToggleLinearLog;
 }
 
 Enums::PlotUnit EngineeringPlot::get_quantity_unit_by_axis(int axis_index)
@@ -182,98 +207,142 @@ void EngineeringPlot::PlotChart()
     func_x = DeriveFunctionPointers(plotXType);
     func_y = DeriveFunctionPointers(plotYType);
 
-    PlotSirveQuantities(func_x, func_y, plot_number_tracks, my_quantities.at(0).getName());
+    PlotSirveQuantities(func_x, func_y, plot_number_tracks);
 
     this->getPlotter()->setPlotLabel(plot_classification);
 }
 
-void EngineeringPlot::PlotSirveTracks(int override_track_id)
+void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_values, std::vector<double> &y_values)
 {
-    for (int track_id : manual_track_ids)
-    {
-        std::vector<double> x_values, y_values;
+    for (size_t i = 0; i < manual_track_frames.size(); i++) {
+        std::map<int, ManualPlottingTrackDetails>::iterator it =
+            manual_track_frames[i].tracks.find(track_id);
+        if (it != manual_track_frames[i].tracks.end()) {
+            x_values.push_back(get_single_x_axis_value(i));
 
-        for (size_t i = 0; i < manual_track_frames.size(); i++)
-        {
-            std::map<int, ManualPlottingTrackDetails>::iterator it = manual_track_frames[i].tracks.find(track_id);
-            if (it != manual_track_frames[i].tracks.end())
-            {
-                x_values.push_back(get_single_x_axis_value(i));
-
-                if (my_quantities.at(0).getName() == "Azimuth")
-                {
-                    y_values.push_back(it->second.azimuth);
-                } else if (my_quantities.at(0).getName() == "Elevation")
-                {
-                    y_values.push_back(it->second.elevation);
-                } else if (my_quantities.at(0).getName() == "SumCounts")
-                {
-                    y_values.push_back(it->second.sum_relative_counts);
-                }
+            if (my_quantities.at(0).getName() == "Azimuth") {
+                y_values.push_back(it->second.azimuth);
+            } else if (my_quantities.at(0).getName() == "Elevation") {
+                y_values.push_back(it->second.elevation);
+            } else if (my_quantities.at(0).getName() == "SumCounts") {
+                y_values.push_back(it->second.sum_relative_counts);
             }
-        }
-
-        size_t columnX, columnY;
-
-        if (! TrackExists(track_id))
-        {
-            AddTrack(x_values, y_values, track_id, columnX, columnY);
-            AddGraph(track_id, columnX, columnY);
-        }
-        else
-        {
-            if (track_id == override_track_id)
-                ReplaceTrack(x_values, y_values, track_id);
-            DeleteGraphIfExists("Track " + QString::number(track_id));
-            LookupTrackColumnIndexes(track_id, columnX, columnY);
-            AddGraph(track_id, columnX, columnY);
-            this->plotter->plotUpdated();
         }
     }
 }
 
-void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, QString title)
+void EngineeringPlot::PlotSirveTracks(int override_track_id)
 {
-    for (size_t track_index = 0; track_index < plot_number_tracks; track_index++)
+    for (int track_id : manual_track_ids) {
+        std::vector<double> x_values, y_values;
+
+        GetTrackValues(track_id, x_values, y_values);
+
+        size_t columnX, columnY;
+
+        if (!TrackExists(track_id)) {
+            AddTrack(x_values, y_values, track_id, columnX, columnY);
+            AddTypedGraph(graph_type, columnX, columnY, track_id, "Track " + QString::number(track_id));
+        } else {
+            if (track_id == override_track_id)
+                ReplaceTrack(x_values, y_values, track_id);
+            DeleteGraphIfExists("Track " + QString::number(track_id));
+            LookupTrackColumnIndexes(track_id, columnX, columnY);
+            AddTypedGraph(graph_type, columnX, columnY, track_id, "Track " + QString::number(track_id));
+            emit this->plotter->plotUpdated();
+        }
+    }
+}
+
+void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY,
+                                            std::optional<int> track_id, std::optional<QString> graph_title)
+{
+    QColor graph_color = track_id.has_value() ? manual_track_colors[track_id.value()] : colors.get_current_color();
+
+    if (graph_type == Enums::GraphType::Scatter)
     {
-        std::vector<double> x_values = get_x_func(track_index);
-        std::vector<double> y_values = get_y_func(track_index);
+        graph = new JKQTPXYScatterGraph(plotter);
+        graph->setXColumn(columnX);
+        graph->setYColumn(columnY);
 
-        QVector<double> X(x_values.begin(), x_values.end());
-        QVector<double> Y(y_values.begin(), y_values.end());
+        JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
+            [graph_color](QPainter& p) {
+                const double w=p.pen().widthF();
+                p.setPen(QPen(graph_color, w));
+                p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
+            });
 
-        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
-        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
-
+        if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph)) {
+            scatter_graph->setSymbolSize(3.0);
+            scatter_graph->setSymbolType(customSymbol);
+        }
+    }
+    else
+    {
         graph=new JKQTPXYLineGraph(this);
         graph->setXColumn(columnX);
         graph->setYColumn(columnY);
-        graph->setTitle(title.replace('_',' '));
 
-        graph->setSymbolSize(0.1);
-        graph->setSymbolLineWidth(1);
-        graph->setColor(colors.get_current_color());
-        graph->setSymbolColor(QColor::fromRgb(255,20,20));
-
-        this->addGraph(graph);
-
-        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
-
-        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
-        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
-        this->getYAxis()->setLabelFontSize(10); // large x-axis label
-        this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
-
-        this->zoomToFit();
-
-        connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(DoCustomZoomIn()));
-
-        // get the upper bound for drawing the frame line
-        this->fixed_max_y = *std::max_element(y_values.begin(), y_values.end());
-
-        InitializeFrameLine(index_full_scope_xmin);
+        if (auto line_graph = dynamic_cast<JKQTPXYLineGraph*>(graph))
+        {
+            line_graph->setSymbolSize(0.1);
+            line_graph->setSymbolLineWidth(1);
+            line_graph->setColor(graph_color);
+            line_graph->setSymbolColor(QColor::fromRgb(255,20,20));
+            line_graph->setLineStyle(Qt::SolidLine);
+        }
     }
+
+    // Use the osm data plotTitle (provided on instantiation), unless a Track Title has been passed
+    QString title = graph_title.has_value() ? graph_title.value() : plotTitle;
+    graph->setTitle(title);
+
+    this->addGraph(graph);
+}
+
+void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks)
+{
+    x_osm_values = get_x_func(0);
+    y_osm_values = get_y_func(0);
+
+    graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
+
+    QVector<double> X;
+    QVector<double> Y;
+
+    if (graph_type != Enums::GraphType::Scatter)
+    {
+        X = QVector<double>(x_osm_values.begin(), x_osm_values.end());
+        Y = QVector<double>(y_osm_values.begin(), y_osm_values.end());
+    } else
+    {
+        std::vector<double> filtered_x, filtered_y;
+        set_show_full_scope(false);
+        DefineSubSet(filtered_x, filtered_y);
+        X = QVector<double>(filtered_x.begin(), filtered_x.end());
+        Y = QVector<double>(filtered_y.begin(), filtered_y.end());
+    }
+
+    size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+    size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+    AddTypedGraph(graph_type, columnX, columnY);
+
+    QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+    this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
+
+    QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
+    this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
+    this->getYAxis()->setLabelFontSize(10); // large x-axis label
+    this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
+
+    this->zoomToFit();
+
+    connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
+
+    this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
+
+    InitializeFrameLine(index_full_scope_xmin);
 }
 
 int EngineeringPlot::get_index_full_scope_xmin() const
@@ -284,6 +353,16 @@ int EngineeringPlot::get_index_full_scope_xmin() const
 int EngineeringPlot::get_index_full_scope_xmax() const
 {
     return index_full_scope_xmax;
+}
+
+int EngineeringPlot::get_index_partial_scope_xmin() const
+{
+    return index_partial_scope_xmin;
+}
+
+int EngineeringPlot::get_index_partial_scope_xmax() const
+{
+    return index_partial_scope_xmax;
 }
 
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
@@ -430,6 +509,16 @@ std::vector<double> EngineeringPlot::get_x_axis_values(unsigned int start_idx, u
     }
 }
 
+void EngineeringPlot::set_index_partial_scope_xmin(int value)
+{
+    index_partial_scope_xmin = value;
+}
+
+void EngineeringPlot::set_index_partial_scope_xmax(int value)
+{
+    index_partial_scope_xmax = value;
+}
+
 double EngineeringPlot::get_single_x_axis_value(int x_index)
 {
     switch (x_axis_units)
@@ -445,6 +534,28 @@ double EngineeringPlot::get_single_x_axis_value(int x_index)
     }
 }
 
+double EngineeringPlot::get_min_x_axis_value()
+{
+    switch (x_axis_units)
+    {
+    case Enums::Frames:
+        return 1;
+    case Enums::Seconds_Past_Midnight:
+        return past_midnight[0];
+    case Enums::Seconds_From_Epoch:
+        return past_epoch[0];
+    default:
+        double min_value = 0;
+        auto min_it = std::min_element(x_osm_values.begin(), x_osm_values.end());
+        if (min_it != x_osm_values.end()) {
+            min_value = *min_it;
+        } else {
+            std::cout << "Vector is empty." << std::endl;
+        }
+        return min_value;
+    }
+}
+
 double EngineeringPlot::get_max_x_axis_value()
 {
     switch (x_axis_units)
@@ -456,7 +567,14 @@ double EngineeringPlot::get_max_x_axis_value()
     case Enums::Seconds_From_Epoch:
         return past_epoch[past_epoch.size() - 1];
     default:
-        return 0;
+        double max_value = 0;
+        auto max_it = std::max_element(x_osm_values.begin(), x_osm_values.end());
+        if (max_it != x_osm_values.end()) {
+            max_value = *max_it;
+        } else {
+            std::cout << "Vector is empty." << std::endl;
+        }
+        return max_value;
     }
 }
 
@@ -497,13 +615,7 @@ void  EngineeringPlot::mousePressEvent(QMouseEvent* event)  {
         snap_x = plotter->p2x(event->pos().x() / magnification);
     }
 
-    // Call base implementation
     JKQTPlotter::mousePressEvent(event);
-}
-
-void EngineeringPlot::set_data_scope_icon(QString type)
-{
-    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
 }
 
 void EngineeringPlot::set_plot_primary_only(bool value)
@@ -526,6 +638,21 @@ void EngineeringPlot::set_pre_image(double min_x, double max_x)
 void EngineeringPlot::set_show_full_scope(bool value)
 {
     plotter->show_full_scope =value;
+}
+
+void EngineeringPlot::set_data_scope_icon(QString type)
+{
+    actToggleDataScope->setIcon(QIcon(":icons/"+type+"-data.png"));
+}
+
+void EngineeringPlot::set_graph_style_icon(QString style)
+{
+    actToggleGraphStyle->setIcon(QIcon(":icons/"+style+"-style.png"));
+}
+
+void EngineeringPlot::set_graph_mode_icon(QString mode)
+{
+    actToggleLinearLog->setIcon(QIcon(":icons/"+mode+"-mode.png"));
 }
 
 void EngineeringPlot::set_sub_plot_xmin(int value)
@@ -579,7 +706,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
     if (show_frame_line)
     {
         double frameline_x;
-        //double transformed_frame_unit = frame;
+
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
             frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x - 1);
@@ -602,7 +729,7 @@ void EngineeringPlot::SetPlotClassification(QString classification)
 
 void EngineeringPlot::DefineFullPlotInterval()
 {
-    full_plot_xmin = get_single_x_axis_value(0);
+    full_plot_xmin = get_min_x_axis_value();
     full_plot_xmax = get_max_x_axis_value();
 }
 
@@ -618,27 +745,32 @@ void EngineeringPlot::DefinePlotSubInterval(int min, int max)
         auto [min_element, max_element] = std::minmax_element(y_values.begin(), y_values.end());
         plotter->sub_plot_ymin = *min_element;
         plotter->sub_plot_ymax = *max_element;
-    } else {
-        plotter->sub_plot_ymin = 0;
-        plotter->sub_plot_ymax = 1;
     }
-
-    // This next line is not yet SOLID:
-    plotter->show_full_scope = false;
 }
 
-void EngineeringPlot::DoCustomZoomIn()
+void EngineeringPlot::HomeZoomIn()
 {
-    if (plotter->show_full_scope)
+    // Here we check the X axis' units.  If they are degrees, then this plot was
+    // instantiated without a linear X axis, and therefore it does not have a "sub interval"
+    // the same way as plots that are measured in Frames or Seconds do.  These non-linear plots
+    // instead have 2D subsets, the elements (x,y's) of which depend upon the linear range of
+    // start-to-stop frames that the user selected in the SIRVE gui.
+    if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees)
+    {
+        plotter->getYAxis()->setMin(0); // this bound could be improved.
+        plotter->getYAxis()->setMax(fixed_max_y);
+        SetPlotterXAxisMinMax(get_min_x_axis_value(), get_max_x_axis_value());
+    }
+    else if (plotter->show_full_scope)
     {
         this->zoomToFit();
     }
     else
     {
-        plotter->getYAxis()->setMin(plotter->sub_plot_ymin);
-        plotter->getYAxis()->setMax(plotter->sub_plot_ymax);
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+        SetPlotterYAxisMinMax(plotter->sub_plot_ymin, plotter->sub_plot_ymax);
     }
+    redrawPlot();
 }
 
 void EngineeringPlot::RecordYAxisMinMax()
@@ -652,7 +784,14 @@ void EngineeringPlot::SetPlotterXAxisMinMax(int min, int max)
     if (plotter) {
         plotter->getXAxis()->setMin(min);
         plotter->getXAxis()->setMax(max);
-        plotter->redrawPlot();
+    }
+}
+
+void EngineeringPlot::SetPlotterYAxisMinMax(int min, int max)
+{
+    if (plotter) {
+        plotter->getYAxis()->setMin(min);
+        plotter->getYAxis()->setMax(max);
     }
 }
 
@@ -673,16 +812,58 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     set_sub_plot_xmin((int)transformed_min_x);
     set_sub_plot_xmax((int)transformed_max_x);
     SetPlotterXAxisMinMax((int)transformed_min_x, (int)transformed_max_x);
+    redrawPlot();
 
     RecordYAxisMinMax();
     set_data_scope_icon("partial");
+    set_graph_style_icon("solid");
     DisableDataScopeButton(false);
+}
+
+void EngineeringPlot::DefineSubSet(std::vector<double> &filtered_x, std::vector<double> &filtered_y)
+{
+    double min_index = plotter->show_full_scope ? get_index_full_scope_xmin() : get_index_partial_scope_xmin();
+    double max_index = plotter->show_full_scope ? get_index_full_scope_xmax() : get_index_partial_scope_xmax();
+
+    for (size_t i = min_index; i <= max_index && i < x_osm_values.size(); ++i) {
+
+        try {
+            double x = x_osm_values.at(i);
+            double y = y_osm_values.at(i);
+            filtered_x.push_back(x);
+            filtered_y.push_back(y);
+        } catch (const std::out_of_range& e) {
+            qDebug() << "Error fetching value for index " << i;
+        }
+    }
 }
 
 void EngineeringPlot::ToggleDataScope()
 {
     plotter->show_full_scope = ! plotter->show_full_scope;
-    plotter->show_full_scope ? SetPlotterXAxisMinMax(full_plot_xmin, full_plot_xmax) : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+    plotter->show_full_scope ? this->zoomToFit() : SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+
+    if (my_quantities.at(1).getUnit() == Enums::PlotUnit::Degrees)
+    {
+        DeleteGraphIfExists(plotTitle);
+        ds->clear();
+
+        std::vector<double> filtered_x, filtered_y;
+
+        DefineSubSet(filtered_x, filtered_y);
+
+        QVector<double> X(filtered_x.begin(), filtered_x.end());
+        QVector<double> Y(filtered_y.begin(), filtered_y.end());
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY);
+    }
+
+    RecordYAxisMinMax();
+    redrawPlot();
+
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
 }
 
@@ -693,18 +874,65 @@ void EngineeringPlot::ToggleFrameLine()
     emit this->plotter->plotUpdated();
 }
 
-void EngineeringPlot::ToggleGraphTickSymbol()
+void EngineeringPlot::ToggleGraphStyle()
 {
-    double currentSize = graph->getSymbolSize();
-    double newSize = (currentSize == 0.1) ? 5 : 0.1;
+    DeleteGraphIfExists(plotTitle);
+    DeleteGraphIfExists("Frame Line");
+    DeleteAllTrackGraphs();
 
-    if (newSize >= 0 && newSize <= 5)
+    auto frameline_x = ds->get(frameLineColumnX,0);
+    ds->clear();
+
+    if (graph_type == Enums::GraphType::Line)
     {
-        graph->setSymbolSize(newSize);
-        emit this->plotter->plotUpdated();
+        graph_type = Enums::GraphType::Scatter;
+
+        QVector<double> X(x_osm_values.begin(), x_osm_values.end());
+        QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY);
+        set_graph_style_icon("dot");
+    } else
+    {
+        graph_type = Enums::GraphType::Line;
+
+        QVector<double> X(x_osm_values.begin(), x_osm_values.end());
+        QVector<double> Y(y_osm_values.begin(), y_osm_values.end());
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY);
+        set_graph_style_icon("solid");
     }
+
+    show_frame_line = x_axis_units == Enums::Frames || x_axis_units == Enums::Seconds_From_Epoch || x_axis_units == Enums::Seconds_Past_Midnight;
+    InitializeFrameLine(frameline_x);
+    PlotSirveTracks(-1);
+    emit this->plotter->plotUpdated();
 }
 
+void EngineeringPlot::ToggleLinearLog()
+{
+    bool yAxisIsLogarithmic = getPlotter()->getYAxis()->getLogAxis();
+    getPlotter()->getYAxis()->setLogAxis(!yAxisIsLogarithmic);
+    getPlotter()->zoomToFit(true, true, false, false);
+
+    int x_min, x_max;
+    x_min = plotter->show_full_scope ? full_plot_xmin : get_subinterval_min();
+    x_max = plotter->show_full_scope ? full_plot_xmax : get_subinterval_max();
+
+    DefinePlotSubInterval(x_min, x_max);
+    applyLinearLogStyling();
+
+    if (!plotter->show_full_scope)
+        SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+
+    y_axis_is_log ? actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png"));
+}
 
 void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
 {
@@ -713,24 +941,12 @@ void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
     graph->setXColumn(columnX);
     graph->setYColumn(columnY);
     graph->setTitle("Track " + QString::number(track_id));
-    graph->setSymbolLineWidth(1);
-    graph->setColor(manual_track_colors[track_id]);
-    graph->setLineStyle(Qt::SolidLine);
-    graph->setSymbolType(JKQTPNoSymbol);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolLineWidth(1);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setColor(manual_track_colors[track_id]);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setLineStyle(Qt::SolidLine);
+    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolType(JKQTPNoSymbol);
 
     this->addGraph(graph);
-}
-
-void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
-{
-    QVector<double> X(x_values.begin(), x_values.end());
-    QVector<double> Y(y_values.begin(), y_values.end());
-
-    QString titleX = "Track " + QString::number(track_id) + " x";
-    QString titleY = "Track " + QString::number(track_id) + " y";
-
-    columnX=ds->addCopiedColumn(X, titleX);
-    columnY=ds->addCopiedColumn(Y, titleY);
 }
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
@@ -738,9 +954,8 @@ void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
     int index = 0;
     bool graph_exists = false;
 
-    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) { // Iterate over all plots (graphs)
-        QString title = (*it)->getTitle();
-        if (title == titleToFind) {
+    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) {
+        if ((*it)->getTitle() == titleToFind) {
             graph_exists = true;
             break;
         }
@@ -761,6 +976,40 @@ void EngineeringPlot::DeleteAllTrackGraphs()
             this->getGraphs().removeAt(i);
         }
     }
+}
+
+void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
+{
+    manual_track_colors[track_id] = new_color;
+}
+
+void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
+{
+    manual_track_frames = std::move(frames);
+    manual_track_ids = track_ids;
+
+    QColor starting_color = ColorScheme::get_track_colors()[0];
+    for (auto track_id : track_ids)
+    {
+        if (manual_track_colors.find(track_id) == manual_track_colors.end())
+        {
+            manual_track_colors[track_id] = starting_color;
+        }
+    }
+}
+
+// Track backend operations.  Should we put in a separate class?
+
+void EngineeringPlot::AddTrack(std::vector<double> x_values, std::vector<double> y_values, int track_id, size_t &columnX, size_t &columnY)
+{
+    QVector<double> X(x_values.begin(), x_values.end());
+    QVector<double> Y(y_values.begin(), y_values.end());
+
+    QString titleX = "Track " + QString::number(track_id) + " x";
+    QString titleY = "Track " + QString::number(track_id) + " y";
+
+    columnX=ds->addCopiedColumn(X, titleX);
+    columnY=ds->addCopiedColumn(Y, titleY);
 }
 
 std::vector<size_t> &EngineeringPlot::DeleteTrack(int track_id)
@@ -824,16 +1073,11 @@ void EngineeringPlot::LookupTrackColumnIndexes(int track_id,  size_t &columnX, s
     columnY=(size_t)names.indexOf(titleY);
 }
 
-void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
-{
-    manual_track_colors[track_id] = new_color;
-}
-
 void EngineeringPlot::ReplaceTrack(std::vector<double> x, std::vector<double> y, int track_id)
 {
     QList<QString> names = ds->getColumnNames();
     QString x_column_to_search_for = "Track " + QString::number(track_id) + " x";
-    int col_index_found;
+    int col_index_found = -1;
 
     for (int j=0; j < ds->getColumnCount(); j++)
     {
@@ -872,19 +1116,4 @@ bool EngineeringPlot::TrackExists(int track_id) const
     QList<QString> names = ds->getColumnNames();
 
     return names.contains(titleX);
-}
-
-void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
-{
-    manual_track_frames = std::move(frames);
-    manual_track_ids = track_ids;
-
-    QColor starting_color = ColorScheme::get_track_colors()[0];
-    for (auto track_id : track_ids)
-    {
-        if (manual_track_colors.find(track_id) == manual_track_colors.end())
-        {
-            manual_track_colors[track_id] = starting_color;
-        }
-    }
 }
