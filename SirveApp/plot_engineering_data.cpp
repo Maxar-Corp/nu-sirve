@@ -582,7 +582,7 @@ void EngineeringPlot::PlotCurrentFrameline(int frame)
         //double transformed_frame_unit = frame;
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
-            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x);
+            frameline_x = get_single_x_axis_value(frame + partial_scope_original_min_x - 1);
         } else
         {
             frameline_x = frame + index_full_scope_xmin + 1; // the chart itself represents data in base-1, so add one here to base-0 index
