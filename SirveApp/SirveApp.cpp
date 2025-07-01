@@ -1903,19 +1903,24 @@ void SirveApp::LoadOsmData()
 
     plot_palette = new PlotPalette();
 
-    EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-
     osmDataLoaded = true;
-
-    connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
     size_t num_tracks = track_info->GetTrackCount();
     if (num_tracks == 0)
     {
-        QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
+        osmTrackDataLoaded = false;
+        QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. Plots restricted to FOV and Azimuth series.");
+        EstablishCanonicalPlot("Boresight Azimuth", {Quantity("Boresight_Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+        EstablishCanonicalPlot("Boresight Elevation", {Quantity("Boresight_Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    } else
+    {
+        osmTrackDataLoaded = true;
+        EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+        EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+        EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     }
+
+    connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
     //--------------------------------------------------------------------------------
 
@@ -1980,11 +1985,9 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     UpdatePlots(data_plot);
 
     data_plot->DefineFullPlotInterval();
-
     data_plot->set_show_full_scope(true);
     data_plot->set_data_scope_icon("full");
     data_plot->DisableDataScopeButton(true);
-
     data_plot->set_graph_style_icon("solid");
 
     if (data_plot->plotYType == Enums::PlotType::SumCounts)
@@ -1995,7 +1998,6 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
-
 }
 
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
@@ -2251,8 +2253,10 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     cmb_OSM_track_IDs->addItem("Primary");
     cmb_manual_track_IDs->clear();
     cmb_manual_track_IDs->addItem("Primary");
+
     const auto& track_ids = track_info->GetOsmTrackIds();
-    for (int track_id : track_ids){
+    for (int track_id : track_ids)
+    {
         cmb_OSM_track_IDs->addItem(QString::number(track_id));
     }
 
@@ -2260,7 +2264,10 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     video_player_->ReceiveVideoData(x_pixels, y_pixels);
     video_player_->UpdateFps();
 
-    connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
+    if (osmTrackDataLoaded)
+    {
+        connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
+    }
 
     UpdateGlobalFrameVector();
 

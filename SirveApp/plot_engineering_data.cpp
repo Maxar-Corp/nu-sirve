@@ -64,7 +64,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     {
         qDebug() << "SUM COUNTS";
         actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
-        actToggleLinearLog->setToolTip("Toggle between scatter plot and line plot types.");
+        actToggleLinearLog->setToolTip("Toggle between linear and log Y axis.");
         toolbar->addAction(this->get_action_toggle_linearlog());
         connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
     }
@@ -305,6 +305,18 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
     x_osm_values = get_x_func(0);
     y_osm_values = get_y_func(0);
 
+    qDebug() << "SIZE=" << y_osm_values.size();
+
+    for (auto item : y_osm_values)
+    {
+        qDebug() << "y = " << item;
+    }
+
+    if (y_osm_values.size() == 0)
+    {
+        QtHelpers::LaunchMessageBox(QString("Warning"), "No OSM was found for quantity " + plotTitle);
+    }
+
     graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
 
     QVector<double> X;
@@ -371,7 +383,7 @@ std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
 
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
     {
-        if (i < track_frames[track_frame_index].details.size())
+        if (i < track_frames[track_frame_index].details.size()) // this check should be skipped if no osm tracking exists!
         {
             x_values.push_back(get_single_x_axis_value(track_frame_index));
         }

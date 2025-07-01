@@ -59,6 +59,7 @@ public:
     QPointer<EngineeringData> eng_data;
     QPointer<QWidget> main_widget;
     bool osmDataLoaded;
+    bool osmTrackDataLoaded;
     std::vector<Frame> osm_frames;
     OSMReader osm_reader;
     bool record_video;
