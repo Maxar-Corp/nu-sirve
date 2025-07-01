@@ -934,21 +934,6 @@ void EngineeringPlot::ToggleLinearLog()
     yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
 }
 
-void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
-{
-    graph=new JKQTPXYLineGraph(this);
-
-    graph->setXColumn(columnX);
-    graph->setYColumn(columnY);
-    graph->setTitle("Track " + QString::number(track_id));
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolLineWidth(1);
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setColor(manual_track_colors[track_id]);
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setLineStyle(Qt::SolidLine);
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolType(JKQTPNoSymbol);
-
-    this->addGraph(graph);
-}
-
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 {
     int index = 0;
@@ -1106,7 +1091,7 @@ void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes
         static QRegularExpression re("\\s(\\d+)\\s");
         QString column_name = ds->getColumnNames()[i];
         int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
-        AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
+        AddTypedGraph(graph_type, new_column_indexes[i], new_column_indexes[i+1], track_id);
     }
 }
 
