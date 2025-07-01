@@ -12,9 +12,9 @@ std::array<double, 3> SharedTrackingFunctions::CalculateSumCounts(int indx, cv::
     int nCols = base_processing_state_details.x_pixels;
 
     int row1 = std::max(boundingBox.y,0);
-    int row2 = std::min(boundingBox.y + boundingBox.height-1, nCols);
+    int row2 = std::min(boundingBox.y + boundingBox.height-1, nRows);
     int col1 = std::max(boundingBox.x,0);
-    int col2 = std::min(boundingBox.x + boundingBox.width-1, nRows);
+    int col2 = std::min(boundingBox.x + boundingBox.width-1, nCols);
 
     arma::mat original_mat_frame = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[indx]),nCols,nRows).t(); 
 

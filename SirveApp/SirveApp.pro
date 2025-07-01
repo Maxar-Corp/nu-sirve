@@ -19,6 +19,7 @@ HEADERS +=  abir_reader.h \
             annotation_stencil.h \
             auto_tracking.h\
             binary_reader.h \
+            calibrate_OSM_tracks.h\
             calibration_data.h \
             chart_metadata.h \
             classification.h \
@@ -79,6 +80,7 @@ SOURCES +=  abir_reader.cpp \
             annotation_stencil.cpp \
             auto_tracking.cpp\
             binary_reader.cpp \
+            calibrate_OSM_tracks.cpp\
             calibration_data.cpp \
             classification.cpp \
             clickable_chartview.cpp \

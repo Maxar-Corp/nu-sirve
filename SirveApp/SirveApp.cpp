@@ -2903,6 +2903,19 @@ void SirveApp::ShowCalibrationDialog()
 	calibration_model = calibrate_dialog.model;
 	video_player_->SetCalibrationModel(std::move(calibrate_dialog.model));
 	video_player_->SetRadianceCalculationEnabled(true);
+    
+    int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
+    int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
+
+    ProcessingState* base_processing_state = &state_manager_->front();
+    CalibrateExistingTracks::CalibrateOSMTracks(calibration_model,
+                                                osm_frames,
+                                                track_info->GetOsmPlottingTrackFrames(),
+                                                base_processing_state->details,
+                                                video_player_->GetFrameHeaders(),
+                                                min_frame,
+                                                max_frame,
+                                                abp_file_metadata.file_type);                                           
 }
 
 void SirveApp::ExportPlotData()
@@ -4165,7 +4178,7 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        auto frame_headers = abir_frames->ir_data;
+
         appPos = this->GetWindowPosition();
         arma::s64_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
@@ -4219,7 +4232,7 @@ void SirveApp::ExecuteAutoTracking()
 
             tm_widget->AddTrackControl(track_id);
             video_player_->AddManualTrackIdToShowLater(track_id);
-            track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
+            track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(), track_id, track_details, new_track_file_name);
 
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;

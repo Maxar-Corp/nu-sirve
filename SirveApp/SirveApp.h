@@ -32,12 +32,14 @@
 #include "track_management_widget.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
+#include "calibrate_OSM_tracks.h"
 
 #include <QVBoxLayout>
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QMenu>
 #include <QProgressBar>
+
 
 class SirveApp : public QMainWindow
 {

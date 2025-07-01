@@ -31,10 +31,10 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 	unsigned int initial_frame = min_frame;
 	unsigned int final_frame = max_frame;
     int frame_number, track_id, counts, centroid_x_boresight, centroid_y_boresight, centroid_x, centroid_y;
-    double frame_time, julian_date, seconds_past_midnight, azimuth, elevation, timing_offset;
+    double frame_time, julian_date, seconds_past_midnight, azimuth, elevation, timing_offset, peak_irradiance, mean_irradiance, sum_irradiance;
 
 	// export header
-    myfile << "Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Data Type, Track ID, Azimuth (deg), Elevation (deg), Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Integrated Adjusted Counts" << std::endl;
+    myfile << "Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Data Type, Track ID, Azimuth (deg), Elevation (deg), Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Integrated Adjusted Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance" << std::endl;
 
 	for (unsigned int i = initial_frame; i < final_frame; i++)
 	{
@@ -48,7 +48,9 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 		elevation = (frame_data[i].elevation_sensor);
 		counts = (0);
         myfile  << std::fixed << std::setprecision(9);   
-        myfile  << frame_number << ", "  << frame_time << ", " << julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Boresight, " << track_id << ", " << azimuth  << ", " << elevation << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0"<< ", " << counts << std::endl;
+        myfile  << frame_number << ", "  << frame_time << ", " << julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Boresight, "
+         << track_id << ", " << azimuth  << ", " << elevation << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0" << ", "
+          << counts << ", " << "0" << ", " << "0" <<", " << "0" <<std::endl;
 
         for (size_t j = 0; j < track_data[i].details.size(); j++)
         {
@@ -61,8 +63,13 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             centroid_x =  centroid_x_boresight + nCols2;
             centroid_y = centroid_y_boresight + nRows2;
             counts = (track_data[i].details[j].sum_relative_counts);
+            peak_irradiance = (track_data[i].details[j].centroid.peak_irradiance);
+            mean_irradiance = (track_data[i].details[j].centroid.mean_irradiance);
+            sum_irradiance = (track_data[i].details[j].centroid.sum_irradiance);
 
-            myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
+            myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, "
+             << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y
+              << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance << std::endl;
         }
 
         for (auto track : manual_track_data[i].tracks)
@@ -75,9 +82,15 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             centroid_x_boresight =  centroid_x - nCols2;
             centroid_y_boresight =  centroid_y - nRows2;
             counts = (track.second.sum_relative_counts);
+            peak_irradiance =  (manual_track_data[i].tracks[track.first].peak_irradiance);
+            mean_irradiance =  (manual_track_data[i].tracks[track.first].mean_irradiance);
+            sum_irradiance =  (manual_track_data[i].tracks[track.first].sum_irradiance);;
 
-            myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, " << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y << ", " << counts << std::endl;
+            myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, "
+             << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y
+              << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance << std::endl;
         }
+        
 	}
 
 	myfile.close();

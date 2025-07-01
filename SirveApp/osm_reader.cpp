@@ -185,8 +185,6 @@ FrameData OSMReader::ReadFrameData()
 
     data.az_el_boresight = CalculateAzimuthElevation(nRows, nCols, 0, 0, data);
 
-    // qDebug() << "AZ EL BORESIGHT: " << data.az_el_boresight;
-
     for (auto j = 0u; j < data.num_tracks; ++j)
     {
         auto current_Track = GetTrackData(data);

@@ -63,8 +63,8 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     if (plotYType == Enums::PlotType::SumCounts)
     {
         qDebug() << "SUM COUNTS";
-        actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
-        actToggleLinearLog->setToolTip("Toggle between scatter plot and line plot types.");
+        actToggleLinearLog = new QAction(QIcon(":icons/linear-mode.png"), tr("Toggle Plot Mode"), this);
+        actToggleLinearLog->setToolTip("Toggle between linear and log scales.");
         toolbar->addAction(this->get_action_toggle_linearlog());
         connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
     }
@@ -931,6 +931,7 @@ void EngineeringPlot::ToggleLinearLog()
     if (!plotter->show_full_scope)
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 
+    y_axis_is_log =  plotter->getYAxis()->isLogAxis();   
     y_axis_is_log ? actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png"));
 }
 

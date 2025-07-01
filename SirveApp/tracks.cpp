@@ -188,7 +188,7 @@ std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int e
     return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
 }
 
-const std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
+std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
 {
     return osm_plotting_track_frames;
 }
@@ -343,6 +343,9 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
             file.write("\n");
 
             manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
+            manual_plotting_frames[i].tracks[track_id].peak_irradiance = track_details.peak_irradiance;
+            manual_plotting_frames[i].tracks[track_id].mean_irradiance = track_details.mean_irradiance;
+            manual_plotting_frames[i].tracks[track_id].sum_irradiance = track_details.sum_irradiance;
             manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
             manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
             manual_image_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;

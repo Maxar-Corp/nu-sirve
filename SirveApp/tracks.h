@@ -75,6 +75,9 @@ struct ManualPlottingTrackDetails
     double azimuth = 0.0;
     double elevation = 0.0;
     double irradiance = 0.0;
+    double peak_irradiance = 0.0;
+    double mean_irradiance = 0.0;
+    double sum_irradiance = 0.0;
     double sum_relative_counts = 0.0;
 };
 
@@ -135,7 +138,7 @@ public:
 
     std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
     std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
-    const std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
+    std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
     const std::vector<ManualPlottingTrackFrame>& GetManualPlottingFrames();
     const std::vector<TrackFrame>& GetManualImageFrames();
 
