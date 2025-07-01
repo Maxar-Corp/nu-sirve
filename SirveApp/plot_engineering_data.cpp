@@ -64,7 +64,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     {
         qDebug() << "SUM COUNTS";
         actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
-        actToggleLinearLog->setToolTip("Toggle between scatter plot and line plot types.");
+        actToggleLinearLog->setToolTip("Toggle between linear and log Y axis.");
         toolbar->addAction(this->get_action_toggle_linearlog());
         connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
     }
