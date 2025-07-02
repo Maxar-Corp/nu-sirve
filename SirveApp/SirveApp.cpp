@@ -2904,8 +2904,8 @@ void SirveApp::ShowCalibrationDialog()
 	video_player_->SetCalibrationModel(std::move(calibrate_dialog.model));
 	video_player_->SetRadianceCalculationEnabled(true);
     
-    int min_frame = ConvertFrameNumberTextToInt(txt_start_frame->text());
-    int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
+    int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+    int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
     ProcessingState* base_processing_state = &state_manager_->front();
 
@@ -2914,8 +2914,8 @@ void SirveApp::ShowCalibrationDialog()
                                                 track_info->GetOsmPlottingTrackFrames(),
                                                 base_processing_state->details,
                                                 video_player_->GetFrameHeaders(),
-                                                min_frame,
-                                                max_frame,
+                                                absolute_indx_start_0,
+                                                absolute_indx_stop_0,
                                                 abp_file_metadata.file_type);    
 
     const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
@@ -2934,14 +2934,14 @@ void SirveApp::ShowCalibrationDialog()
         if (reply != QMessageBox::Yes) {
             recalibrateTF = false;
         }   
-        std::vector<TrackFrame> manualFrames = track_info->GetManualFrames(min_frame - 1, max_frame);
+        std::vector<TrackFrame> manualFrames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
         CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
                                             manualFrames,
                                             track_info->GetManualPlottingFrames(),
                                             base_processing_state->details,
                                             video_player_->GetFrameHeaders(),
-                                            min_frame,
-                                            max_frame,
+                                            absolute_indx_start_0,
+                                            absolute_indx_stop_0,
                                             abp_file_metadata.file_type, 
                                             recalibrateTF);
 
@@ -2982,10 +2982,10 @@ void SirveApp::ExportPlotData()
     }
     else {
 
-        int min_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-        int max_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
+        int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+        int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), min_frame, max_frame, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
     }
 
     QMessageBox msgBox;
@@ -4264,9 +4264,9 @@ void SirveApp::ExecuteAutoTracking()
             video_player_->AddManualTrackIdToShowLater(track_id);
             track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(), track_id, track_details, new_track_file_name);
 
-            int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-            int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
-            video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
+            int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+            int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
+            video_player_->UpdateManualTrackData(track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0));
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
 
             qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";

@@ -36,7 +36,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 	// export header
     myfile << "Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Data Type, Track ID, Azimuth (deg), Elevation (deg), Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, Integrated Adjusted Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance" << std::endl;
 
-	for (unsigned int i = initial_frame; i < final_frame; i++)
+	for (unsigned int i = initial_frame; i <= final_frame; i++)
 	{
         frame_number = i+1;
         frame_time = (frame_data[i].frame_time);

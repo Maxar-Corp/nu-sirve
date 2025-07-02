@@ -19,8 +19,8 @@ namespace CalibrateExistingTracks
                                 std::vector<PlottingTrackFrame> & track_data, 
                                 const VideoDetails& base_processing_state_details,
                                 const std::vector<ABIRFrameHeader>& input_frame_header,                              
-                                int min_frame = 1,
-                                int max_frame = 0,
+                                int absolute_indx_start_0 = 1,
+                                int absolute_indx_stop_0 = 0,
                                 ABPFileType file_type = ABPFileType::ABP_B);
                                 
     void CalibrateManualTracks(    
@@ -29,8 +29,8 @@ namespace CalibrateExistingTracks
                                 std::vector<ManualPlottingTrackFrame> & track_data, 
                                 const VideoDetails& base_processing_state_details,
                                 const std::vector<ABIRFrameHeader>& input_frame_header,                              
-                                int min_frame = 1,
-                                int max_frame = 0,
+                                int absolute_indx_start_0 = 1,
+                                int absolute_indx_stop_0 = 0,
                                 ABPFileType file_type = ABPFileType::ABP_B,
                                 bool recalibrateTF = true);
 
