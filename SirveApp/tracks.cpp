@@ -289,7 +289,7 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
 
     RemoveManualTrackPlotting(track_id);
     RemoveManualTrackImage(track_id);
-    WriteManualTrackToFile(frame_data,track_id, new_track_details,new_track_file_name);
+    WriteManualTrackToFile(frame_data,track_id, new_track_details, new_track_file_name);
 }
 
 void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name)
@@ -305,13 +305,21 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
         {
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.sum_relative_counts);
+            if (track_details.peak_irradiance <= 0){
+                track_details.peak_irradiance = manual_plotting_frames[i].tracks[track_id].peak_irradiance;
+                track_details.mean_irradiance = manual_plotting_frames[i].tracks[track_id].mean_irradiance;
+                track_details.sum_irradiance = manual_plotting_frames[i].tracks[track_id].sum_irradiance;
+            }
             track_details.frame_time = frame_data[i].frame_time;
             track_details.julian_date = frame_data[i].julian_date;
             track_details.second_past_midnight = frame_data[i].seconds_past_midnight;
             track_details.timing_offset = osm_frames[i].tracks[0].timing_offset;
+            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.sum_relative_counts);
+
             track_details.az = manual_plotting_frames[i].tracks[track_id].azimuth;
             track_details.el = manual_plotting_frames[i].tracks[track_id].elevation;
+            
+            // manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
 
             QString csv_line =
              QString::number(track_id) + ","
@@ -341,7 +349,6 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
 
             file.write(csv_line.toUtf8());
             file.write("\n");
-
             manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
             manual_plotting_frames[i].tracks[track_id].peak_irradiance = track_details.peak_irradiance;
             manual_plotting_frames[i].tracks[track_id].mean_irradiance = track_details.mean_irradiance;

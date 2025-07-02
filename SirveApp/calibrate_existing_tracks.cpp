@@ -107,6 +107,12 @@ void CalibrateExistingTracks::CalibrateManualTracks(
                     (track_data[absolute_indx_0].tracks[track.first].peak_irradiance) = measurements[0];
                     (track_data[absolute_indx_0].tracks[track.first].mean_irradiance) = measurements[1];
                     (track_data[absolute_indx_0].tracks[track.first].sum_irradiance) = measurements[2];
+                    track_data[absolute_indx_0].tracks[track.first].centroid.peak_irradiance = measurements[0];
+                    track_data[absolute_indx_0].tracks[track.first].centroid.mean_irradiance = measurements[1];
+                    track_data[absolute_indx_0].tracks[track.first].centroid.sum_irradiance = measurements[2];
+                    frame_data[relative_indx].tracks[track_id].peak_irradiance = measurements[0];
+                    frame_data[relative_indx].tracks[track_id].mean_irradiance = measurements[1];
+                    frame_data[relative_indx].tracks[track_id].sum_irradiance = measurements[2];
                 }
     
             }
