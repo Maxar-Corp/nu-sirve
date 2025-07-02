@@ -2908,6 +2908,7 @@ void SirveApp::ShowCalibrationDialog()
     int max_frame = ConvertFrameNumberTextToInt(txt_stop_frame->text());
 
     ProcessingState* base_processing_state = &state_manager_->front();
+
     CalibrateExistingTracks::CalibrateOSMTracks(calibration_model,
                                                 osm_frames,
                                                 track_info->GetOsmPlottingTrackFrames(),
@@ -2915,7 +2916,36 @@ void SirveApp::ShowCalibrationDialog()
                                                 video_player_->GetFrameHeaders(),
                                                 min_frame,
                                                 max_frame,
-                                                abp_file_metadata.file_type);                                           
+                                                abp_file_metadata.file_type);    
+
+    const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
+    
+    if (previous_manual_track_ids.size()>0){
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(
+            nullptr, 
+            "Confirmation", 
+            "Do you want to apply calibration to previously calibrated manual tracks?", 
+            QMessageBox::Yes | QMessageBox::No 
+        );
+
+        bool recalibrateTF = true;
+        if (reply != QMessageBox::Yes) {
+            recalibrateTF = false;
+        }   
+        std::vector<TrackFrame> manualFrames = track_info->GetManualFrames(min_frame - 1, max_frame);
+        CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                            manualFrames,
+                                            track_info->GetManualPlottingFrames(),
+                                            base_processing_state->details,
+                                            video_player_->GetFrameHeaders(),
+                                            min_frame,
+                                            max_frame,
+                                            abp_file_metadata.file_type, 
+                                            recalibrateTF);
+
+    }                                         
 }
 
 void SirveApp::ExportPlotData()

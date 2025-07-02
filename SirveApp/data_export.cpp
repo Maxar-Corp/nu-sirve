@@ -84,7 +84,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
             counts = (track.second.sum_relative_counts);
             peak_irradiance =  (manual_track_data[i].tracks[track.first].peak_irradiance);
             mean_irradiance =  (manual_track_data[i].tracks[track.first].mean_irradiance);
-            sum_irradiance =  (manual_track_data[i].tracks[track.first].sum_irradiance);;
+            sum_irradiance =  (manual_track_data[i].tracks[track.first].sum_irradiance);
 
             myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, "
              << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y

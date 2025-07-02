@@ -32,7 +32,7 @@
 #include "track_management_widget.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
-#include "calibrate_OSM_tracks.h"
+#include "calibrate_existing_tracks.h"
 
 #include <QVBoxLayout>
 #include <QRadioButton>

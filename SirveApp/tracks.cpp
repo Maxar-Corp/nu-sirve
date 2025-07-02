@@ -193,7 +193,7 @@ std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
     return osm_plotting_track_frames;
 }
 
-const std::vector<ManualPlottingTrackFrame>& TrackInformation::GetManualPlottingFrames()
+std::vector<ManualPlottingTrackFrame>& TrackInformation::GetManualPlottingFrames()
 {
     return manual_plotting_frames;
 }
