@@ -690,7 +690,7 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     QVector<double> yData = {-SirveAppConstants::BigNumber, SirveAppConstants::BigNumber};
 
     frameLineColumnX = ds->addCopiedColumn(xData, "frameline_X");
-    size_t frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");
+    frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");
 
     JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
     lineGraph->setXColumn(frameLineColumnX);
@@ -930,6 +930,10 @@ void EngineeringPlot::ToggleLinearLog()
 
     if (!plotter->show_full_scope)
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+
+    QVector<double> updatedYData = {!yAxisIsLogarithmic ?  std::pow(10.0, -99.0) : -SirveAppConstants::BigNumber, SirveAppConstants::BigNumber};
+    ds->setColumnData(frameLineColumnY, updatedYData);
+    emit this->plotter->plotUpdated();
 
     yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
 }
