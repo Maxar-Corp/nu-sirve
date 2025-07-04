@@ -8,16 +8,19 @@
 
 #include "data_structures.h"
 #include "tracks.h"
+#include "calibration_data.h"
 
 namespace DataExport
 {
-    void WriteTrackDataToCsv(   std::string save_path,
+    void WriteTrackDataToCsv(   const CalibrationData model,
+                                std::string save_path,
                                 std::vector<PlottingFrameData> frame_data,
                                 std::vector<PlottingTrackFrame> track_data,
                                 std::vector<ManualPlottingTrackFrame> manual_track_data,
                                 int min_frame = 1,
                                 int max_frame = 0,
-                                ABPFileType file_type = ABPFileType::ABP_B);
+                                ABPFileType file_type = ABPFileType::ABP_B
+                               );
 };
 
 #endif

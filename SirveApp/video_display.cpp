@@ -624,7 +624,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     double frame_integration_time = frame_headers[counter].int_time;
     std::array<double, 3> measurements = {0, 0, 0};
     if (model.calibration_available) {
-        measurements = SharedTrackingFunctions::CalculateSumCounts(indx, bbox_uncentered, base_processing_state->details,
+        measurements = SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state->details,
                                                                     frame_integration_time, model);
     }
     double sum_relative_counts = SharedTrackingFunctions::GetAdjustedCounts(indx, bbox_uncentered, base_processing_state->details);

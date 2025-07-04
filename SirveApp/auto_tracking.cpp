@@ -412,7 +412,7 @@ void AutoTracking::TrackingStep(
         std::array<double, 3> measurements = {0,0,0};
         if (calibration_model.calibration_available)
         {
-            measurements =  SharedTrackingFunctions::CalculateSumCounts(indx, bbox_uncentered, base_processing_state_details, frame_integration_time, calibration_model);
+            measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state_details, frame_integration_time, calibration_model);
         }
         cv::cvtColor(clean_display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
         string window_name = "Tracking... ";

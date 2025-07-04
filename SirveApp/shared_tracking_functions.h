@@ -9,7 +9,7 @@
 
 namespace SharedTrackingFunctions
 {
-    std::array<double, 3> CalculateSumCounts(int indx, cv::Rect boundingBox, const VideoDetails & base_processing_state_details, double frame_integration_time, const CalibrationData&
+    std::array<double, 3> CalculateIrradiance(int indx, cv::Rect boundingBox, const VideoDetails & base_processing_state_details, double frame_integration_time, const CalibrationData&
                                               calibration_model);
     double GetAdjustedCounts(int indx, cv::Rect boundingBox, const VideoDetails & base_processing_state_details);
     void FindTargetExtent(int nRows, int nCols, int i, double & clamp_low_coeff, double & clamp_high_coeff, cv::Mat & frame, int threshold, int bbox_buffer_pixels, cv::Mat & frame_crop_threshold, cv::Rect & ROI, cv::Rect & bbox, arma::mat & offsets_matrix, cv::Rect & bbox_uncentered, int & extent_window_x, int & extent_window_y);

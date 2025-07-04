@@ -140,6 +140,7 @@ public:
     std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
     std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
     std::vector<ManualPlottingTrackFrame>& GetManualPlottingFrames();
+    void UpdateTrackDetails(std::vector<Frame> & osm_frames, std::vector<PlottingTrackFrame> & track_data, int absolute_indx_start_0, int absolute_indx_stop_0);
     const std::vector<TrackFrame>& GetManualImageFrames();
 
     size_t GetTrackCount() const;
@@ -149,8 +150,7 @@ public:
 
 private:
     TrackInformation() = default;
-    ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y,
-                                                             double sum_relative_counts) const;
+    void GetManualPlottingTrackDetails(int frame_number,TrackDetails & track_details) const;
 
     std::vector<PlottingTrackFrame> osm_plotting_track_frames;
     std::vector<TrackFrame> osm_frames;

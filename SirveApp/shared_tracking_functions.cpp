@@ -4,7 +4,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/photo.hpp>
 
-std::array<double, 3> SharedTrackingFunctions::CalculateSumCounts(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, const CalibrationData&
+std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv::Rect boundingBox, const VideoDetails& base_processing_state_details, double frame_integration_time, const CalibrationData&
                                                                    model)
 {
     std::array<double, 3> measurements = {0,0,0};
@@ -16,13 +16,16 @@ std::array<double, 3> SharedTrackingFunctions::CalculateSumCounts(int indx, cv::
     int col1 = std::max(boundingBox.x,0);
     int col2 = std::min(boundingBox.x + boundingBox.width-1, nCols);
 
-    arma::mat original_mat_frame = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[indx]),nCols,nRows).t(); 
-
+    int background_indx = std::max(indx-20,0);
+    // arma::mat background_frame_mat = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[background_indx]),nCols,nRows).t();
+    arma::mat current_frame_mat = arma::reshape(arma::conv_to<arma::vec>::from(base_processing_state_details.frames_16bit[indx]),nCols,nRows).t(); 
+    // arma::mat adjusted_frame_mat = current_frame_mat - background_frame_mat;
     bool valid_indices = ((col2>col1) && (row2>row1) && (col1>0) && (col2>0) && (row1>0) && (row2>0));
 
     if (valid_indices)
     {
-        arma::mat counts = original_mat_frame.submat(row1, col1, row2, col2);
+        // arma::mat counts = adjusted_frame_mat.submat(row1, col1, row2, col2);
+         arma::mat counts = current_frame_mat.submat(row1, col1, row2, col2);
         measurements = model.MeasureSumCounts(row1, col1, row2, col2, counts, frame_integration_time);
     }
 

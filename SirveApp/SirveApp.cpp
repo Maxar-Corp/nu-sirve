@@ -1901,6 +1901,11 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames, abp_file_metadata.file_type);
 
+    int absolute_indx_start_0 = 0;
+    int absolute_indx_stop_0 = osm_frames.size();
+
+    track_info->UpdateTrackDetails(osm_frames, track_info->GetOsmPlottingTrackFrames(), absolute_indx_start_0, absolute_indx_stop_0);
+    
     plot_palette = new PlotPalette();
 
     EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
@@ -2934,9 +2939,9 @@ void SirveApp::ShowCalibrationDialog()
         if (reply != QMessageBox::Yes) {
             recalibrateTF = false;
         }   
-        std::vector<TrackFrame> manualFrames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+        std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
         CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
-                                            manualFrames,
+                                            manual_frames,
                                             track_info->GetManualPlottingFrames(),
                                             base_processing_state->details,
                                             video_player_->GetFrameHeaders(),
@@ -2978,14 +2983,14 @@ void SirveApp::ExportPlotData()
 
     if (item == "Export All Data")
     {
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), 0, 0, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(calibration_model, save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), 0, 0, abp_file_metadata.file_type);
     }
     else {
 
         int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
         int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(calibration_model, save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
     }
 
     QMessageBox msgBox;
@@ -4263,6 +4268,7 @@ void SirveApp::ExecuteAutoTracking()
             tm_widget->AddTrackControl(track_id);
             video_player_->AddManualTrackIdToShowLater(track_id);
             track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(), track_id, track_details, new_track_file_name);
+
 
             int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
             int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();

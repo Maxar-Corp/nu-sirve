@@ -25,7 +25,7 @@ namespace CalibrateExistingTracks
                                 
     void CalibrateManualTracks(    
                                 CalibrationData& calibration_model,
-                                std::vector<TrackFrame>  & frame_data,
+                                std::vector<TrackFrame> & track_frame_data,
                                 std::vector<ManualPlottingTrackFrame> & track_data, 
                                 const VideoDetails& base_processing_state_details,
                                 const std::vector<ABIRFrameHeader>& input_frame_header,                              

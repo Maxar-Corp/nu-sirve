@@ -148,6 +148,7 @@ void CalibrationDialog::InitializeGui()
 	mainLayout = new QVBoxLayout();
 
 	btn_get_nuc_file = new QPushButton("Import NUC File");
+	btn_get_nuc_file->setFixedWidth(150);
 	lbl_nuc_filename = new QLabel("File: ");
 
 	QFrame* horizontal_segment1 = new QFrame();
