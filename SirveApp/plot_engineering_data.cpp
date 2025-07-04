@@ -62,7 +62,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     if (plotYType == Enums::PlotType::SumCounts)
     {
-        qDebug() << "SUM COUNTS";
         actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
         actToggleLinearLog->setToolTip("Toggle between linear and log Y axis.");
         toolbar->addAction(this->get_action_toggle_linearlog());
@@ -80,16 +79,19 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 }
 
 void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
-    if (actionName == "Snap It" && ! get_show_full_scope()) {
+    if (actionName == "Snap It") {
+
+        double min_x = get_show_full_scope() ? index_full_scope_xmin + 1 : partial_scope_original_min_x;
+        double max_x = get_show_full_scope() ? index_full_scope_xmax + 1 : partial_scope_original_max_x;
 
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
-            double fraction = double(snap_x - get_single_x_axis_value(partial_scope_original_min_x)) / double(get_single_x_axis_value(partial_scope_original_max_x) - get_single_x_axis_value(partial_scope_original_min_x));
-            emit frameNumberChanged(fraction * (partial_scope_original_max_x - partial_scope_original_min_x));
+            double fraction = double(snap_x - get_single_x_axis_value(min_x)) / double(get_single_x_axis_value(max_x) - get_single_x_axis_value(min_x));
+            emit frameNumberChanged(fraction * (max_x - min_x));
         }
         else
         {
-            emit frameNumberChanged(snap_x - partial_scope_original_min_x);
+            emit frameNumberChanged(snap_x - min_x);
         }
     }
 }
