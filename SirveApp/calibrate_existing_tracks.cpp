@@ -50,6 +50,14 @@ void CalibrateExistingTracks::CalibrateOSMTracks(
                 track_data[absolute_indx_0].details[j].centroid.peak_irradiance = measurements[0];
                 track_data[absolute_indx_0].details[j].centroid.mean_irradiance = measurements[1];
                 track_data[absolute_indx_0].details[j].centroid.sum_irradiance = measurements[2];
+                track_data[absolute_indx_0].details[j].nuc_calibration_file = calibration_model.path_nuc;
+                track_data[absolute_indx_0].details[j].nuc_image_file = calibration_model.path_image;
+                track_data[absolute_indx_0].details[j].mean_temp1 = calibration_model.user_selection1.temperature_mean;
+                track_data[absolute_indx_0].details[j].mean_temp2 = calibration_model.user_selection2.temperature_mean;
+                track_data[absolute_indx_0].details[j].start_frame1 = calibration_model.user_selection1.initial_frame;
+                track_data[absolute_indx_0].details[j].num_frames1 = calibration_model.user_selection1.num_frames;
+                track_data[absolute_indx_0].details[j].start_frame2 = calibration_model.user_selection2.initial_frame;
+                track_data[absolute_indx_0].details[j].num_frames2 = calibration_model.user_selection2.num_frames;
     
             }
 
@@ -91,8 +99,18 @@ void CalibrateExistingTracks::CalibrateManualTracks(
             double frame_integration_time = input_frame_header[relative_indx].int_time;
             for (auto track : track_data[absolute_indx_0].tracks)
             {
-                if (track_data[absolute_indx_0].tracks[track.first].peak_irradiance==0 || recalibrateTF)
+                if (!track_data[absolute_indx_0].tracks[track.first].is_calibrated || recalibrateTF)
                 {
+                    track_data[absolute_indx_0].tracks[track.first].is_calibrated = true;
+                    track_data[absolute_indx_0].tracks[track.first].mean_temp1 = calibration_model.user_selection1.temperature_mean;
+                    track_data[absolute_indx_0].tracks[track.first].mean_temp2 = calibration_model.user_selection2.temperature_mean;
+                    track_data[absolute_indx_0].tracks[track.first].start_frame1 = calibration_model.user_selection1.initial_frame;
+                    track_data[absolute_indx_0].tracks[track.first].start_frame2 = calibration_model.user_selection2.initial_frame;
+                    track_data[absolute_indx_0].tracks[track.first].num_frames1 = calibration_model.user_selection1.num_frames;
+                    track_data[absolute_indx_0].tracks[track.first].num_frames2 = calibration_model.user_selection2.num_frames;
+                    track_data[absolute_indx_0].tracks[track.first].nuc_calibration_file = calibration_model.path_nuc;
+                    track_data[absolute_indx_0].tracks[track.first].nuc_image_file = calibration_model.path_image;
+
                     track_id = (track.first);
                     cv::Rect bbox;
 

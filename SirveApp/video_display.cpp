@@ -649,6 +649,18 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     details.bbox_y = bbox_uncentered.y + y_correction;
     details.bbox_width = bbox_uncentered.width;
     details.bbox_height = bbox_uncentered.height;
+    if (model.calibration_available){
+            details.is_calibrated = true;
+            details.mean_temp1 = model.user_selection1.temperature_mean;
+            details.mean_temp2 = model.user_selection2.temperature_mean;
+            details.start_frame1 = model.user_selection1.initial_frame;
+            details.start_frame2 = model.user_selection2.initial_frame;
+            details.num_frames1 = model.user_selection1.num_frames;
+            details.num_frames2 = model.user_selection2.num_frames;
+            details.nuc_calibration_file = model.path_nuc;
+            details.nuc_image_file = model.path_image;
+    }
+
     if (track_details_min_frame == 0 || current_frame_num < track_details_min_frame) {
         track_details_min_frame = current_frame_num;
     }

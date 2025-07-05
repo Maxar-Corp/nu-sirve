@@ -309,10 +309,17 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
             track_details.julian_date = frame_data[i].julian_date;
             track_details.second_past_midnight = frame_data[i].seconds_past_midnight;
             track_details.timing_offset = osm_frames[i].tracks[0].timing_offset;
-            if (track_details.peak_irradiance <= 0){
+            if (manual_plotting_frames[i].tracks[track_id].is_calibrated){
                 track_details.peak_irradiance = manual_plotting_frames[i].tracks[track_id].peak_irradiance;
                 track_details.mean_irradiance = manual_plotting_frames[i].tracks[track_id].mean_irradiance;
                 track_details.sum_irradiance = manual_plotting_frames[i].tracks[track_id].sum_irradiance;
+                track_details.is_calibrated = manual_plotting_frames[i].tracks[track_id].is_calibrated;
+                track_details.mean_temp1 = manual_plotting_frames[i].tracks[track_id].mean_temp1;
+                track_details.mean_temp2 = manual_plotting_frames[i].tracks[track_id].mean_temp2;
+                track_details.start_frame1 = manual_plotting_frames[i].tracks[track_id].start_frame1;
+                track_details.start_frame2 = manual_plotting_frames[i].tracks[track_id].start_frame2;
+                track_details.nuc_calibration_file = manual_plotting_frames[i].tracks[track_id].nuc_calibration_file;
+                track_details.nuc_image_file = manual_plotting_frames[i].tracks[track_id].nuc_image_file;
             }
             GetManualPlottingTrackDetails(i, track_details);
             
@@ -348,9 +355,18 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
             manual_plotting_frames[i].tracks[track_id].peak_irradiance = track_details.peak_irradiance;
             manual_plotting_frames[i].tracks[track_id].mean_irradiance = track_details.mean_irradiance;
             manual_plotting_frames[i].tracks[track_id].sum_irradiance = track_details.sum_irradiance;
+            manual_plotting_frames[i].tracks[track_id].is_calibrated = track_details.is_calibrated;
+            manual_plotting_frames[i].tracks[track_id].mean_temp1 = track_details.mean_temp1;
+            manual_plotting_frames[i].tracks[track_id].mean_temp2 = track_details.mean_temp2;
+            manual_plotting_frames[i].tracks[track_id].start_frame1 = track_details.start_frame1;
+            manual_plotting_frames[i].tracks[track_id].start_frame2 = track_details.start_frame2;
+            manual_plotting_frames[i].tracks[track_id].nuc_calibration_file = track_details.nuc_calibration_file;
+            manual_plotting_frames[i].tracks[track_id].nuc_image_file = track_details.nuc_image_file;
+
             manual_plotting_frames[i].tracks[track_id].azimuth = track_details.az;
             manual_plotting_frames[i].tracks[track_id].elevation = track_details.el;
             manual_plotting_frames[i].tracks[track_id].centroid = track_details;
+            
             manual_image_frames[i].tracks[track_id] = track_details;
         }
     }

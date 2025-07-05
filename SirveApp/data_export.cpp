@@ -5,9 +5,7 @@
 #include <iomanip>
 #include <vector>
 
-void DataExport::WriteTrackDataToCsv(   
-                                        CalibrationData model,
-                                        std::string save_path,
+void DataExport::WriteTrackDataToCsv(   std::string save_path,
                                         std::vector<PlottingFrameData> frame_data,
                                         std::vector<PlottingTrackFrame> track_data,
                                         std::vector<ManualPlottingTrackFrame> manual_track_data,
@@ -37,16 +35,6 @@ void DataExport::WriteTrackDataToCsv(
 	unsigned int final_frame = max_frame;
     int frame_number, track_id, counts, centroid_x_boresight, centroid_y_boresight, centroid_x, centroid_y, bbox_x, bbox_y, bbox_width, bbox_height;
     double frame_time, julian_date, seconds_past_midnight, azimuth, elevation, timing_offset, peak_irradiance, mean_irradiance, sum_irradiance;
-    QString nuc_calibration_file = model.path_nuc;
-    QString nuc_image_file = model.path_image;
-    SelectedData selected_data1 = model.user_selection1;
-    SelectedData selected_data2 = model.user_selection2;
-    double mean_temp1 = selected_data1.temperature_mean;
-    double mean_temp2 = selected_data2.temperature_mean;
-    int start_frame1 = selected_data1.initial_frame;
-    int num_frames1 = selected_data1.num_frames;
-    int start_frame2 = selected_data2.initial_frame;
-    int num_frames2 = selected_data2.num_frames;
 
 	// export header
     myfile << "Frame Number, Frame Time, Julian Date, Second Past Midnight, Timeing Offset, Data Type, Track ID, Azimuth (deg), Elevation (deg), Centroid X Boresight, Centroid Y Boresight, Centroid X, Centroid Y, BBOX_x, BBOX_y, BBOX_width, BBOX_height, Integrated Adjusted Counts, Peak Irradiance, Mean Irradiance, Sum Irradiance, Mean Temp1, Mean Temp2, NUC File, NUC Image File, Start Frame 1, Num Frames 1, Start Frame 2, Num Frames 2" << std::endl;
@@ -73,7 +61,6 @@ void DataExport::WriteTrackDataToCsv(
             track_id = track_data[i].details[j].track_id;
             azimuth = track_data[i].details[j].azimuth;
             elevation = track_data[i].details[j].elevation;
-
             centroid_x_boresight = track_data[i].details[j].centroid.centroid_x;
             centroid_y_boresight = track_data[i].details[j].centroid.centroid_y;
             centroid_x =  centroid_x_boresight + nCols2;
@@ -86,10 +73,19 @@ void DataExport::WriteTrackDataToCsv(
             bbox_y = track_data[i].details[j].centroid.bbox_y;
             bbox_width = track_data[i].details[j].centroid.bbox_width;
             bbox_height = track_data[i].details[j].centroid.bbox_height;
+            QString nuc_calibration_file = track_data[i].details[j].nuc_calibration_file;
+            QString nuc_image_file =track_data[i].details[j].nuc_image_file;
+            double mean_temp1 = track_data[i].details[j].mean_temp1;
+            double mean_temp2 = track_data[i].details[j].mean_temp2;
+            int start_frame1 = track_data[i].details[j].start_frame1;
+            int num_frames1 = track_data[i].details[j].num_frames1;
+            int start_frame2 = track_data[i].details[j].start_frame2;
+            int num_frames2 = track_data[i].details[j].num_frames2;
 
             myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, "
              << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y
-              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width  << ", " << bbox_height << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance << ", " << mean_temp1 <<", " << mean_temp2 << ", " << nuc_calibration_file.toStdString() << ", " << nuc_image_file.toStdString() << ", " << start_frame1 << ", " << num_frames1 << ", " << start_frame2 << ", " << num_frames2 <<std::endl;
+              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width  << ", " << bbox_height << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance <<
+               ", " << mean_temp1 <<", " << mean_temp2 << ", " << nuc_calibration_file.toStdString() << ", " << nuc_image_file.toStdString() << ", " << start_frame1 << ", " << num_frames1 << ", " << start_frame2 << ", " << num_frames2 <<std::endl;
         }
 
         for (auto track : manual_track_data[i].tracks)
@@ -109,10 +105,19 @@ void DataExport::WriteTrackDataToCsv(
             bbox_y = manual_track_data[i].tracks[track.first].centroid.bbox_y;
             bbox_width = manual_track_data[i].tracks[track.first].centroid.bbox_width;
             bbox_height = manual_track_data[i].tracks[track.first].centroid.bbox_height;
+            QString nuc_calibration_file = manual_track_data[i].tracks[track.first].nuc_calibration_file;
+            QString nuc_image_file = manual_track_data[i].tracks[track.first].nuc_image_file;
+            double mean_temp1 = manual_track_data[i].tracks[track.first].mean_temp1;
+            double mean_temp2 = manual_track_data[i].tracks[track.first].mean_temp2;
+            int start_frame1 = manual_track_data[i].tracks[track.first].start_frame1;
+            int num_frames1 = manual_track_data[i].tracks[track.first].num_frames1;
+            int start_frame2 = manual_track_data[i].tracks[track.first].start_frame2;
+            int num_frames2 = manual_track_data[i].tracks[track.first].num_frames2;
 
             myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, "
              << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y
-              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width << ", " << bbox_height << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance << ", " << mean_temp1 <<", " << mean_temp2 << ", " << nuc_calibration_file.toStdString() << ", " << nuc_image_file.toStdString() << ", " << start_frame1 << ", " << num_frames1 << ", " << start_frame2 << ", " << num_frames2 <<std::endl;
+              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width << ", " << bbox_height << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance <<
+               ", " << mean_temp1 <<", " << mean_temp2 << ", " << nuc_calibration_file.toStdString() << ", " << nuc_image_file.toStdString() << ", " << start_frame1 << ", " << num_frames1 << ", " << start_frame2 << ", " << num_frames2 <<std::endl;
         }
         
 	}

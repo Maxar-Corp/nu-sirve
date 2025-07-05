@@ -48,6 +48,15 @@ struct TrackDetails
     int bbox_y = 0;
     int bbox_width = 0;
     int bbox_height = 0;
+    bool is_calibrated = false;
+    double mean_temp1 = 0.;
+    uint start_frame1 = 0;
+    uint num_frames1 = 0;
+    double mean_temp2 = 0.;
+    uint start_frame2 = 0;
+    uint num_frames2 = 0;
+    QString nuc_calibration_file;
+    QString nuc_image_file;
 };
 
 struct PlottingTrackDetails
@@ -67,6 +76,15 @@ struct PlottingTrackDetails
     double azimuth = 0.0;
     double elevation = 0.0;
     double irradiance = 0.0;
+    bool is_calibrated = false;
+    double mean_temp1 = 0.;
+    uint start_frame1 = 0;
+    uint num_frames1 = 0;
+    double mean_temp2 = 0.;
+    uint start_frame2 = 0;
+    uint num_frames2 = 0;
+    QString nuc_calibration_file;
+    QString nuc_image_file;
 };
 
 struct ManualPlottingTrackDetails
@@ -79,6 +97,15 @@ struct ManualPlottingTrackDetails
     double mean_irradiance = 0.0;
     double sum_irradiance = 0.0;
     double sum_relative_counts = 0.0;
+    bool is_calibrated = false;
+    double mean_temp1 = 0.;
+    uint start_frame1 = 0;
+    uint num_frames1 = 0;
+    double mean_temp2 = 0.;
+    uint start_frame2 = 0;
+    uint num_frames2 = 0;
+    QString nuc_calibration_file;
+    QString nuc_image_file;
 };
 
 struct ManualPlottingTrackFrame

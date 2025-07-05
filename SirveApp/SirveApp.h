@@ -52,6 +52,7 @@ public:
     /* --------------------------------------------------------------------------------------------
         Key component & supporting status variables
     ----------------------------------------------------------------------------------------------- */
+    CalibrationData calibration_model;
 	ABIRFrames::Ptr abir_frames;
     QString abpimage_file_base_name;
     AbpFileMetadata abp_file_metadata;
@@ -220,8 +221,6 @@ private:
     QPointer<QAction> action_load_workspace, action_save_workspace, action_export_current_frame,
         action_export_frame_range, action_export_tracking_data;
     QPointer<QAction> action_export_all_frames;
-
-    CalibrationData calibration_model;
 
     void AllocateAbirData(int min_frame, int max_frame);
     void AnnotateVideo();

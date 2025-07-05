@@ -12,8 +12,7 @@
 
 namespace DataExport
 {
-    void WriteTrackDataToCsv(   const CalibrationData model,
-                                std::string save_path,
+    void WriteTrackDataToCsv(   std::string save_path,
                                 std::vector<PlottingFrameData> frame_data,
                                 std::vector<PlottingTrackFrame> track_data,
                                 std::vector<ManualPlottingTrackFrame> manual_track_data,

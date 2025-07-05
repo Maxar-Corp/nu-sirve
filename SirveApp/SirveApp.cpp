@@ -2984,13 +2984,14 @@ void SirveApp::ExportPlotData()
     if (item == "Export All Data")
     {
         DataExport::WriteTrackDataToCsv(calibration_model, save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), 0, 0, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), 0, 0, abp_file_metadata.file_type);
     }
     else {
 
         int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
         int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
-        DataExport::WriteTrackDataToCsv(calibration_model, save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
     }
 
     QMessageBox msgBox;
@@ -4246,6 +4247,7 @@ void SirveApp::ExecuteAutoTracking()
             TrackDetails details;
             for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
+                int indx = autotrack(rowii,1)-1;
                 details.centroid_x_boresight = autotrack(rowii,2);
                 details.centroid_y_boresight = autotrack(rowii,3);
                 details.centroid_x = autotrack(rowii,4);
@@ -4262,13 +4264,23 @@ void SirveApp::ExecuteAutoTracking()
                 details.bbox_y = autotrack(rowii,15);
                 details.bbox_width = autotrack(rowii,16);
                 details.bbox_height = autotrack(rowii,17);
-                track_details[autotrack(rowii,1)-1] = details;
+                if (calibration_model.calibration_available){
+                    details.is_calibrated = true;
+                    details.mean_temp1 = calibration_model.user_selection1.temperature_mean;
+                    details.mean_temp2 = calibration_model.user_selection2.temperature_mean;
+                    details.start_frame1 = calibration_model.user_selection1.initial_frame;
+                    details.start_frame2 = calibration_model.user_selection2.initial_frame;
+                    details.num_frames1 = calibration_model.user_selection1.num_frames;
+                    details.num_frames2 = calibration_model.user_selection2.num_frames;
+                    details.nuc_calibration_file = calibration_model.path_nuc;
+                    details.nuc_image_file = calibration_model.path_image;
+                }
+                track_details[indx] = details;
             }
 
             tm_widget->AddTrackControl(track_id);
             video_player_->AddManualTrackIdToShowLater(track_id);
             track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(), track_id, track_details, new_track_file_name);
-
 
             int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
             int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
