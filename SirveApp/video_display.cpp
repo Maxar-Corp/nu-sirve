@@ -1113,7 +1113,7 @@ void VideoDisplay::UpdateDisplayFrame()
             original_mat_frame.clear();
 
             double frame_integration_time = frame_headers[counter].int_time;
-            auto measurements = model.MeasureSumCounts(ur1, uc1, ur2, uc2, counts, frame_integration_time);
+            auto measurements = model.MeasureIrradiance(ur1, uc1, ur2, uc2, counts, frame_integration_time);
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame

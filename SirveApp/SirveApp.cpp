@@ -2089,6 +2089,8 @@ void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
     video_player_->SetGotoFrameEnabled(frame_range_status);
     btn_popout_histogram->setEnabled(frame_range_status);
     action_show_calibration_dialog->setEnabled(frame_range_status);
+    action_load_calibration_model->setEnabled(frame_range_status);
+    action_save_calibration_model->setEnabled(calibration_model.calibration_available);
 
     frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
 
@@ -2760,6 +2762,14 @@ void SirveApp::CreateMenuActions()
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
     action_show_calibration_dialog->setEnabled(false);
 
+    action_load_calibration_model = new QAction("Load Calibration");
+    connect(action_load_calibration_model, &QAction::triggered, this, &SirveApp::LoadCalibrationModel);
+    action_load_calibration_model->setEnabled(false);
+
+    action_save_calibration_model = new QAction("Save Calibration");
+    connect(action_save_calibration_model, &QAction::triggered, this, &SirveApp::SaveCalibrationModel);
+    action_save_calibration_model->setEnabled(false);
+
     action_close = new QAction("Close");
     action_close->setStatusTip("Close main window");
     connect(action_close, &QAction::triggered, this, &SirveApp::CloseWindow);
@@ -2805,6 +2815,8 @@ void SirveApp::CreateMenuActions()
 	file_menu->addAction( action_load_OSM);
 	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
+    file_menu->addAction(action_load_calibration_model);
+    file_menu->addAction(action_save_calibration_model);
     file_menu->addAction(action_close);
     menu_workspace = menuBar()->addMenu(tr("&Workspace"));
     menu_workspace->addAction(action_load_workspace);
@@ -2894,21 +2906,54 @@ void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
     }
 }
 
-void SirveApp::ShowCalibrationDialog()
+void SirveApp::LoadCalibrationModel()
 {
-	CalibrationDialog calibrate_dialog(calibration_model, abp_file_metadata.file_type);
+    QString file_selection = QFileDialog::getOpenFileName(this, ("Select Calibration File"), "", ("Calibration File(*.dat)"));
+    int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
+    if (compare != 0){
 
-	auto response = calibrate_dialog.exec();
+        if (calibration_model.loadFromFile(file_selection))
+        {
+            if (calibration_model.calibration_available){
 
-	if (response == 0) {
+                CalibrateAllExistingTracks();
 
-		return;
-	}
 
-	calibration_model = calibrate_dialog.model;
-	video_player_->SetCalibrationModel(std::move(calibrate_dialog.model));
-	video_player_->SetRadianceCalculationEnabled(true);
-    
+                }
+                else{                       
+                    QMessageBox::information(0, "Calibration Failed",
+                        "Calibration was not applied.");
+                    return;
+                }
+        }
+        else{
+            QMessageBox::information(0, "Calibration Failed",
+                "Calibration was not applied.");
+            return;
+        }
+    }
+    else{
+        return;
+    }
+}
+
+void SirveApp::SaveCalibrationModel()
+{
+if (calibration_model.calibration_available)
+    {
+        QDate today = QDate::currentDate();
+        QTime currentTime = QTime::currentTime();;
+        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+        double temp1 = calibration_model.user_selection1.temperature_mean;
+        double temp2 = calibration_model.user_selection2.temperature_mean;
+        QString suggested_model_file_name = config_values.workspace_folder + "/calibration_model_" + QString::number(std::round(temp1)) + "_" + QString::number(std::round(temp2))+ "_" + formattedDate;
+        QString new_model_file_name = QFileDialog::getSaveFileName(this, "Select model file neame", suggested_model_file_name, "dat (*.dat)");
+        calibration_model.saveToFile(new_model_file_name);
+    }
+}
+
+void SirveApp::CalibrateAllExistingTracks()
+{
     int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
     int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
@@ -2949,8 +2994,51 @@ void SirveApp::ShowCalibrationDialog()
                                             absolute_indx_stop_0,
                                             abp_file_metadata.file_type, 
                                             recalibrateTF);
+        if (recalibrateTF){
+            QMessageBox::information(0, "Calibration Successful",
+                "Calibration applied to OSM and manual tracks.");
+        }
+        else{
+            QMessageBox::information(0, "Calibration Successful",
+            "Calibration applied to OSM tracks.");
+        }
 
-    }                                         
+
+    }        
+}
+
+void SirveApp::ShowCalibrationDialog()
+{
+	CalibrationDialog calibrate_dialog(calibration_model, abp_file_metadata.file_type);
+
+	auto response = calibrate_dialog.exec();
+
+	if (response == 0) {
+
+		return;
+	}
+
+	calibration_model = calibrate_dialog.model;
+
+    if (calibration_model.calibration_available)
+    {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(
+            nullptr, 
+            "Save Model", 
+            "Do you want to save the calibration model?", 
+            QMessageBox::Yes | QMessageBox::No 
+            );   
+
+            if (reply == QMessageBox::Yes) {
+                SaveCalibrationModel();
+            }   
+    }
+	video_player_->SetCalibrationModel(std::move(calibrate_dialog.model));
+	video_player_->SetRadianceCalculationEnabled(true);
+
+    CalibrateAllExistingTracks();
+                                 
 }
 
 void SirveApp::ExportPlotData()

@@ -6,8 +6,86 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <qbuttongroup.h>
+#include <QFile>
+#include <QDataStream>
 
-std::array<double, 3> CalibrationData::MeasureSumCounts(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
+bool CalibrationData::saveToFile(const QString& filename) const {
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+
+    QDataStream out(&file);
+
+    // Write calibration flag
+    out << calibration_available;
+
+    // Write paths
+    out << path_nuc << path_image;
+
+    // Write integration time
+    out << integration_time;
+
+    // Write SelectedData (1 & 2)
+    auto writeSelectedData = [&](const SelectedData& data) {
+        out << data.valid_data << data.temperature_mean << data.temperature_std
+            << data.num_frames << data.initial_frame << data.id
+            << data.start_time << data.stop_time
+            << data.calculated_irradiance << data.color << data.points;
+    };
+
+    writeSelectedData(user_selection1);
+    writeSelectedData(user_selection2);
+
+    // Write arma matrices m and b
+    out << static_cast<quint32>(m.n_rows) << static_cast<quint32>(m.n_cols);
+    for (size_t i = 0; i < m.n_elem; ++i) out << m[i];
+
+    out << static_cast<quint32>(b.n_rows) << static_cast<quint32>(b.n_cols);
+    for (size_t i = 0; i < b.n_elem; ++i) out << b[i];
+
+    return true;
+}
+
+bool CalibrationData::loadFromFile(const QString& filename) {
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QDataStream in(&file);
+
+    // Read calibration flag
+    in >> calibration_available;
+
+    // Read paths
+    in >> path_nuc >> path_image;
+
+    // Integration time
+    in >> integration_time;
+
+    // Read SelectedData
+    auto readSelectedData = [&](SelectedData& data) {
+        in >> data.valid_data >> data.temperature_mean >> data.temperature_std
+           >> data.num_frames >> data.initial_frame >> data.id
+           >> data.start_time >> data.stop_time
+           >> data.calculated_irradiance >> data.color >> data.points;
+    };
+
+    readSelectedData(user_selection1);
+    readSelectedData(user_selection2);
+
+    // Read arma matrices m and b
+    quint32 rows, cols;
+
+    in >> rows >> cols;
+    m.set_size(rows, cols);
+    for (size_t i = 0; i < m.n_elem; ++i) in >> m[i];
+
+    in >> rows >> cols;
+    b.set_size(rows, cols);
+    for (size_t i = 0; i < b.n_elem; ++i) in >> b[i];
+
+    return true;
+}
+
+std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
 {
 	double scale_factor = integration_time / frame_integration_time;
 
@@ -720,8 +798,8 @@ void CalibrationDialog::verifyCalibrationValues()
         model.setup_model(m, b);
         model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2, integration_time);
 
-        QMessageBox::information(0, "Calibration Values Verified",
-                                 "You may now use the radiometric calibration button on the video player control.");
+        QMessageBox::information(0, "Calibration Successful",
+                                 "Calibration finished.");
         done(QDialog::Accepted);
     }
     else

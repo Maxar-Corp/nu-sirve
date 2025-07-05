@@ -26,7 +26,7 @@ std::array<double, 3> SharedTrackingFunctions::CalculateIrradiance(int indx, cv:
     {
         // arma::mat counts = adjusted_frame_mat.submat(row1, col1, row2, col2);
          arma::mat counts = current_frame_mat.submat(row1, col1, row2, col2);
-        measurements = model.MeasureSumCounts(row1, col1, row2, col2, counts, frame_integration_time);
+        measurements = model.MeasureIrradiance(row1, col1, row2, col2, counts, frame_integration_time);
     }
 
     return measurements;

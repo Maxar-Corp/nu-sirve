@@ -131,6 +131,15 @@ void CalibrateExistingTracks::CalibrateManualTracks(
                     track_frame_data[relative_indx].tracks[track_id].peak_irradiance = measurements[0];
                     track_frame_data[relative_indx].tracks[track_id].mean_irradiance = measurements[1];
                     track_frame_data[relative_indx].tracks[track_id].sum_irradiance = measurements[2];
+                    track_frame_data[relative_indx].tracks[track_id].is_calibrated = true;
+                    track_frame_data[relative_indx].tracks[track_id].mean_temp1 = calibration_model.user_selection1.temperature_mean;
+                    track_frame_data[relative_indx].tracks[track_id].mean_temp2 = calibration_model.user_selection2.temperature_mean;
+                    track_frame_data[relative_indx].tracks[track_id].start_frame1 = calibration_model.user_selection1.initial_frame;
+                    track_frame_data[relative_indx].tracks[track_id].start_frame2 = calibration_model.user_selection2.initial_frame;
+                    track_frame_data[relative_indx].tracks[track_id].num_frames1 = calibration_model.user_selection1.num_frames;
+                    track_frame_data[relative_indx].tracks[track_id].num_frames2 = calibration_model.user_selection2.num_frames;
+                    track_frame_data[relative_indx].tracks[track_id].nuc_calibration_file = calibration_model.path_nuc;
+                    track_frame_data[relative_indx].tracks[track_id].nuc_image_file = calibration_model.path_image;
                 }
     
             }

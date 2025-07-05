@@ -53,8 +53,8 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
         myfile  << std::fixed << std::setprecision(9);   
         myfile  << frame_number << ", "  << frame_time << ", " << julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Boresight, "
-         << track_id << ", " << azimuth  << ", " << elevation << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0" << ", " << "0" <<", "
-          << counts << ", " << "0" << ", " << "0" << ", " << "0" << std::endl;
+         << track_id << ", " << azimuth  << ", " << elevation << ", " << "" << ", " << "" << ", " << "" << ", " << "" << ", " << "" << ", " << "" << ", " << "" << ", " << "" <<", "
+          << counts << ", " << "" << ", " << "" << ", " << "" << std::endl;
 
         for (size_t j = 0; j < track_data[i].details.size(); j++)
         {

@@ -143,7 +143,7 @@ public:
     QPointer<QAction> menu_add_banner, menu_add_primary_data, menu_sensor_boresight, menu_osm,
         menu_change_color_tracker, menu_change_color_banner, menu_change_color_map, menu_annotate;
     QPointer<QAction> menu_plot_all_data, menu_plot_primary, menu_plot_frame_marker, menu_plot_edit_banner,
-        action_show_calibration_dialog, action_enable_binary_export;
+        action_show_calibration_dialog, action_load_calibration_model, action_save_calibration_model, action_enable_binary_export;
 
     QPointer<QStackedWidget> stck_noise_suppresssion_methods;
     QPointer<AnnotationListDialog> annotation_dialog;
@@ -281,13 +281,14 @@ private:
 
     void LoadAbirData(int start_frame, int stop_frame);
     void LoadOsmData();
-;
+
     void OpenPopoutHistogramPlot();
     void OpenProgressArea(const QString& message, int N);
     void PrepareForTrackCreation(int track_id);
     static void ProvideInformationAbout();
     void ReplaceBadPixels(std::vector<unsigned int> pixels_to_replace, int source_state_ind);
     void ResetEngineeringDataAndSliderGUIs();
+    void CalibrateAllExistingTracks();
 
 signals:
     void changeBanner(QString banner_text);
@@ -345,6 +346,7 @@ public slots:
     void HandleZoomAfterSlider();
 
     void ImportTracks();
+    void LoadCalibrationModel();
     void LoadWorkspace();
 
     void OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::vector<Quantity> quantities);
@@ -359,6 +361,7 @@ public slots:
 
     void SetDataTimingOffset();
     void SetLiftAndGain(double lift, double gain);
+    void SaveCalibrationModel();
     void ShowCalibrationDialog();
 
     void UiLoadAbirData();
