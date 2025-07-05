@@ -250,6 +250,20 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
             GetManualPlottingTrackDetails(i, temp_track_data.second);
             manual_frames[i].tracks[track_id] = temp_track_data.second;
             manual_plotting_frames[i].tracks[track_id].sum_relative_counts = temp_track_data.second.sum_relative_counts;
+            manual_plotting_frames[i].tracks[track_id].peak_irradiance = temp_track_data.second.peak_irradiance;
+            manual_plotting_frames[i].tracks[track_id].mean_irradiance = temp_track_data.second.mean_irradiance;
+            manual_plotting_frames[i].tracks[track_id].sum_irradiance = temp_track_data.second.sum_irradiance;
+            manual_plotting_frames[i].tracks[track_id].is_calibrated = temp_track_data.second.is_calibrated;
+            manual_plotting_frames[i].tracks[track_id].mean_temp1 = temp_track_data.second.mean_temp1;
+            manual_plotting_frames[i].tracks[track_id].mean_temp2 = temp_track_data.second.mean_temp2;
+            manual_plotting_frames[i].tracks[track_id].start_frame1 = temp_track_data.second.start_frame1;
+            manual_plotting_frames[i].tracks[track_id].start_frame2 = temp_track_data.second.start_frame2;
+            manual_plotting_frames[i].tracks[track_id].nuc_calibration_file = temp_track_data.second.nuc_calibration_file;
+            manual_plotting_frames[i].tracks[track_id].nuc_image_file = temp_track_data.second.nuc_image_file;
+            manual_plotting_frames[i].tracks[track_id].azimuth = temp_track_data.second.az;
+            manual_plotting_frames[i].tracks[track_id].elevation = temp_track_data.second.el;
+            manual_plotting_frames[i].tracks[track_id].centroid = temp_track_data.second;
+
         }
     }
 }
@@ -362,7 +376,6 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
             manual_plotting_frames[i].tracks[track_id].start_frame2 = track_details.start_frame2;
             manual_plotting_frames[i].tracks[track_id].nuc_calibration_file = track_details.nuc_calibration_file;
             manual_plotting_frames[i].tracks[track_id].nuc_image_file = track_details.nuc_image_file;
-
             manual_plotting_frames[i].tracks[track_id].azimuth = track_details.az;
             manual_plotting_frames[i].tracks[track_id].elevation = track_details.el;
             manual_plotting_frames[i].tracks[track_id].centroid = track_details;

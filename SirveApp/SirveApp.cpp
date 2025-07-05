@@ -2917,7 +2917,8 @@ void SirveApp::LoadCalibrationModel()
             if (calibration_model.calibration_available){
 
                 CalibrateAllExistingTracks();
-
+                video_player_->SetCalibrationModel(std::move(calibration_model));
+                video_player_->SetRadianceCalculationEnabled(true);
 
                 }
                 else{                       
