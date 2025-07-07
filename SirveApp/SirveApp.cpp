@@ -1969,7 +1969,9 @@ void SirveApp::LoadOsmData()
 
     tab_plots->setCurrentIndex(1);
 
-    UpdateGuiPostDataLoad(osmDataLoaded);
+    // Here we set the flag true, counting ANY" "osm" data present as justification for enabling the gui.
+    // Question: "Does boresight az-el count as 'osm' data?"
+    UpdateGuiPostDataLoad(true);
 }
 
 void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quantity> &quantities)
