@@ -166,7 +166,7 @@ private:
     QAction* actToggleLinearLog;
 
     double fixed_max_y, sub_max_y;
-    size_t frameLineColumnX;
+    size_t frameLineColumnX, frameLineColumnY;
     JKQTPXYGraph* graph;
     Enums::GraphType graph_type = Enums::GraphType::Line;
     std::vector<Quantity> my_quantities;
