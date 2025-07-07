@@ -53,8 +53,10 @@ public:
 	SelectedData user_selection1, user_selection2;
 	double integration_time = 0.0;
 
-	bool saveToFile(const QString& filename) const;
-	bool loadFromFile(const QString& filename);
+	bool SaveToFile(const QString& filename) const;
+	bool LoadFromFile(const QString& filename);
+	bool SaveToMatlabBinary(const QString& filename) const;
+	static void WriteQString(QDataStream& out, const QString& str);
 
 private:
 	arma::mat m, b;

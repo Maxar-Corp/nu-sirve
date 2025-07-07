@@ -1224,6 +1224,9 @@ void SirveApp::HandleExternalFileToggle()
 
 void SirveApp::ImportTracks()
 {
+    ProcessingState* base_processing_state = &state_manager_->front();
+    int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+    int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
     QString base_track_folder = config_values.workspace_folder;
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), base_track_folder, ("Track File (*.csv)"));
 
@@ -1269,6 +1272,19 @@ void SirveApp::ImportTracks()
                 }
                 track_info->AddManualTracks(result.frames);
 
+                std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+                if (calibration_model.calibration_available){
+                    CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                        manual_frames,
+                                        track_info->GetManualPlottingFrames(),
+                                        base_processing_state->details,
+                                        video_player_->GetFrameHeaders(),
+                                        absolute_indx_start_0,
+                                        absolute_indx_stop_0,
+                                        abp_file_metadata.file_type, 
+                                        true);
+                    }
+
                 int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
                 video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
@@ -1283,6 +1299,19 @@ void SirveApp::ImportTracks()
             tm_widget->AddTrackControl(track_id);
 
             track_info->AddManualTracks(result.frames);
+
+            std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+            if (calibration_model.calibration_available){
+                CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                    manual_frames,
+                                    track_info->GetManualPlottingFrames(),
+                                    base_processing_state->details,
+                                    video_player_->GetFrameHeaders(),
+                                    absolute_indx_start_0,
+                                    absolute_indx_stop_0,
+                                    abp_file_metadata.file_type, 
+                                    true);
+                }
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
 
@@ -2912,12 +2941,12 @@ void SirveApp::LoadCalibrationModel()
     int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
     if (compare != 0){
 
-        if (calibration_model.loadFromFile(file_selection))
+        if (calibration_model.LoadFromFile(file_selection))
         {
             if (calibration_model.calibration_available){
 
                 CalibrateAllExistingTracks();
-                video_player_->SetCalibrationModel(std::move(calibration_model));
+                video_player_->SetCalibrationModel(calibration_model);
                 video_player_->SetRadianceCalculationEnabled(true);
 
                 }
@@ -2933,9 +2962,6 @@ void SirveApp::LoadCalibrationModel()
             return;
         }
     }
-    else{
-        return;
-    }
 }
 
 void SirveApp::SaveCalibrationModel()
@@ -2949,7 +2975,8 @@ if (calibration_model.calibration_available)
         double temp2 = calibration_model.user_selection2.temperature_mean;
         QString suggested_model_file_name = config_values.workspace_folder + "/calibration_model_" + QString::number(std::round(temp1)) + "_" + QString::number(std::round(temp2))+ "_" + formattedDate;
         QString new_model_file_name = QFileDialog::getSaveFileName(this, "Select model file neame", suggested_model_file_name, "dat (*.dat)");
-        calibration_model.saveToFile(new_model_file_name);
+        calibration_model.SaveToFile(new_model_file_name);
+        calibration_model.SaveToMatlabBinary(new_model_file_name.replace("dat","bin"));
     }
 }
 
@@ -3035,7 +3062,7 @@ void SirveApp::ShowCalibrationDialog()
                 SaveCalibrationModel();
             }   
     }
-	video_player_->SetCalibrationModel(std::move(calibrate_dialog.model));
+	video_player_->SetCalibrationModel(calibrate_dialog.model);
 	video_player_->SetRadianceCalculationEnabled(true);
 
     CalibrateAllExistingTracks();

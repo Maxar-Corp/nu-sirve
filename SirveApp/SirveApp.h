@@ -39,6 +39,7 @@
 #include <QGroupBox>
 #include <QMenu>
 #include <QProgressBar>
+#include <regex>
 
 
 class SirveApp : public QMainWindow

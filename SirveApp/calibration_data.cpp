@@ -9,7 +9,56 @@
 #include <QFile>
 #include <QDataStream>
 
-bool CalibrationData::saveToFile(const QString& filename) const {
+bool CalibrationData::SaveToMatlabBinary(const QString& filename) const {
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+
+    QDataStream out(&file);
+    out.setFloatingPointPrecision(QDataStream::DoublePrecision);
+    out.setByteOrder(QDataStream::LittleEndian);
+
+    // Write calibration flag and integration time
+    out << static_cast<qint32>(calibration_available);
+    out << integration_time;
+
+    // Write QStrings as UTF-8
+    WriteQString(out, path_nuc);
+    WriteQString(out, path_image);
+
+    // Write SelectedData (just numeric parts)
+    auto writeSelection = [&](const SelectedData& d) {
+        out << static_cast<qint32>(d.valid_data);
+        out << d.temperature_mean << d.temperature_std;
+        out << static_cast<qint32>(d.num_frames);
+        out << static_cast<qint32>(d.initial_frame);
+        out << static_cast<qint32>(d.id);
+        out << d.start_time << d.stop_time << d.calculated_irradiance;
+    };
+    writeSelection(user_selection1);
+    writeSelection(user_selection2);
+
+    // Write arma matrices
+    out << static_cast<quint32>(m.n_rows);
+    out << static_cast<quint32>(m.n_cols);
+    for (arma::uword i = 0; i < m.n_elem; ++i)
+        out << m[i];
+
+    out << static_cast<quint32>(b.n_rows);
+    out << static_cast<quint32>(b.n_cols);
+    for (arma::uword i = 0; i < b.n_elem; ++i)
+        out << b[i];
+
+    return true;
+}
+
+void CalibrationData::WriteQString(QDataStream& out, const QString& str) {
+    QByteArray utf8 = str.toUtf8();
+    quint32 length = static_cast<quint32>(utf8.size());
+    out << length;
+    out.writeRawData(utf8.constData(), length);
+}
+
+bool CalibrationData::SaveToFile(const QString& filename) const {
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) return false;
 
@@ -45,7 +94,7 @@ bool CalibrationData::saveToFile(const QString& filename) const {
     return true;
 }
 
-bool CalibrationData::loadFromFile(const QString& filename) {
+bool CalibrationData::LoadFromFile(const QString& filename) {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) return false;
 
