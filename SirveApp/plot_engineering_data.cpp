@@ -68,7 +68,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
         connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
     }
 
-    connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
+    //connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
 

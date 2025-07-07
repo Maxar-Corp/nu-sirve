@@ -2367,7 +2367,10 @@ void SirveApp::ClosePopoutEngineeringPlot()
 
 void SirveApp::HandlePlotFocusChanged(int tab_index)
 {
-    plot_palette->RouteFramelineUpdate(video_player_->GetCurrentFrameNumber());
+    if (osmTrackDataLoaded)
+    {
+        plot_palette->RouteFramelineUpdate(video_player_->GetCurrentFrameNumber());
+    }
 }
 
 void SirveApp::HandleProgressUpdate(int percent)
