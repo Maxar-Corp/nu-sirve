@@ -76,13 +76,14 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     this->setMinimumWidth(200);
     this->plotter->setWidgetWidth(100);
     this->setToolbarAlwaysOn(true);
+    actSnapIt->setEnabled(false);
 }
 
 void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
     if (actionName == "Snap It") {
 
-        double min_x = get_show_full_scope() ? index_full_scope_xmin + 1 : partial_scope_original_min_x;
-        double max_x = get_show_full_scope() ? index_full_scope_xmax + 1 : partial_scope_original_max_x;
+        double min_x = partial_scope_original_min_x;
+        double max_x = partial_scope_original_max_x;
 
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
@@ -820,6 +821,7 @@ void EngineeringPlot::SetupSubRange(int min_x, int max_x)
     set_data_scope_icon("partial");
     set_graph_style_icon("solid");
     DisableDataScopeButton(false);
+    actSnapIt->setEnabled(true);
 }
 
 void EngineeringPlot::DefineSubSet(std::vector<double> &filtered_x, std::vector<double> &filtered_y)
@@ -867,6 +869,7 @@ void EngineeringPlot::ToggleDataScope()
     redrawPlot();
 
     plotter->show_full_scope ? actToggleDataScope->setIcon(QIcon(":icons/full-data.png")) : actToggleDataScope->setIcon(QIcon(":icons/partial-data.png"));
+    actSnapIt->setEnabled(!plotter->show_full_scope);
 }
 
 void EngineeringPlot::ToggleFrameLine()
