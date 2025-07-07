@@ -2983,7 +2983,7 @@ if (calibration_model.calibration_available)
 void SirveApp::CalibrateAllExistingTracks()
 {
     int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-    int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
+    int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
 
     ProcessingState* base_processing_state = &state_manager_->front();
 
@@ -3104,7 +3104,7 @@ void SirveApp::ExportPlotData()
     else {
 
         int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-        int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
+        int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
     }
@@ -4398,7 +4398,7 @@ void SirveApp::ExecuteAutoTracking()
             track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(), track_id, track_details, new_track_file_name);
 
             int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-            int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
+            int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
             video_player_->UpdateManualTrackData(track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0));
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
 
