@@ -62,7 +62,6 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 
     if (plotYType == Enums::PlotType::SumCounts)
     {
-        qDebug() << "SUM COUNTS";
         actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
         actToggleLinearLog->setToolTip("Toggle between linear and log Y axis.");
         toolbar->addAction(this->get_action_toggle_linearlog());
@@ -198,7 +197,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     return func;
 }
 
-void EngineeringPlot::PlotChart()
+void EngineeringPlot::PlotChart(bool &osmTrackDataLoaded)
 {
     int plot_number_tracks = 1;
 
@@ -207,9 +206,7 @@ void EngineeringPlot::PlotChart()
     func_x = DeriveFunctionPointers(plotXType);
     func_y = DeriveFunctionPointers(plotYType);
 
-    PlotSirveQuantities(func_x, func_y, plot_number_tracks);
-
-    this->getPlotter()->setPlotLabel(plot_classification);
+    PlotSirveQuantities(func_x, func_y, plot_number_tracks, osmTrackDataLoaded);
 }
 
 void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_values, std::vector<double> &y_values)
@@ -300,61 +297,59 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
     this->addGraph(graph);
 }
 
-void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks)
+void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, bool &osmTrackDataLoaded)
 {
     x_osm_values = get_x_func(0);
     y_osm_values = get_y_func(0);
 
-    qDebug() << "SIZE=" << y_osm_values.size();
+    osmTrackDataLoaded = x_osm_values.size() > 0 && y_osm_values.size() > 0;
 
-    for (auto item : y_osm_values)
+    if (osmTrackDataLoaded)
     {
-        qDebug() << "y = " << item;
-    }
+        graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
 
-    if (y_osm_values.size() == 0)
-    {
-        QtHelpers::LaunchMessageBox(QString("Warning"), "No OSM was found for quantity " + plotTitle);
-    }
+        QVector<double> X;
+        QVector<double> Y;
 
-    graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
+        if (graph_type != Enums::GraphType::Scatter)
+        {
+            X = QVector<double>(x_osm_values.begin(), x_osm_values.end());
+            Y = QVector<double>(y_osm_values.begin(), y_osm_values.end());
+        } else
+        {
+            std::vector<double> filtered_x, filtered_y;
+            set_show_full_scope(false);
+            DefineSubSet(filtered_x, filtered_y);
+            X = QVector<double>(filtered_x.begin(), filtered_x.end());
+            Y = QVector<double>(filtered_y.begin(), filtered_y.end());
+        }
 
-    QVector<double> X;
-    QVector<double> Y;
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
 
-    if (graph_type != Enums::GraphType::Scatter)
-    {
-        X = QVector<double>(x_osm_values.begin(), x_osm_values.end());
-        Y = QVector<double>(y_osm_values.begin(), y_osm_values.end());
+        AddTypedGraph(graph_type, columnX, columnY);
+
+        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
+
+        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
+        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
+        this->getYAxis()->setLabelFontSize(10); // large x-axis label
+        this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
+
+        this->zoomToFit();
+
+        connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
+
+        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
+
+        InitializeFrameLine(index_full_scope_xmin);
+
+        this->getPlotter()->setPlotLabel(plot_classification);
     } else
     {
-        std::vector<double> filtered_x, filtered_y;
-        set_show_full_scope(false);
-        DefineSubSet(filtered_x, filtered_y);
-        X = QVector<double>(filtered_x.begin(), filtered_x.end());
-        Y = QVector<double>(filtered_y.begin(), filtered_y.end());
+        QtHelpers::LaunchMessageBox(QString("Warning"), "No OSM data was found for quantity " + plotTitle);
     }
-
-    size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
-    size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
-
-    AddTypedGraph(graph_type, columnX, columnY);
-
-    QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
-    this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
-
-    QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
-    this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
-    this->getYAxis()->setLabelFontSize(10); // large x-axis label
-    this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
-
-    this->zoomToFit();
-
-    connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
-
-    this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
-
-    InitializeFrameLine(index_full_scope_xmin);
 }
 
 int EngineeringPlot::get_index_full_scope_xmin() const

@@ -71,7 +71,7 @@ public:
 
     void DisableDataScopeButton(bool value);
 
-    void PlotChart();
+    void PlotChart(bool &osmTrackDataLoaded);
     void PlotCurrentFrameline(int frameline_x);
     void GetTrackValues(int &track_id, std::vector<double> &x_values,
                    std::vector<double> &y_values);
@@ -191,7 +191,7 @@ private:
     QToolButton *FindToolButtonForAction(QToolBar *toolbar, QAction *action);
     void InitializeFrameLine(double x_intercept);
     void LookupTrackColumnIndexes(int track_id, size_t &columnX, size_t &columnY);
-    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks);
+    void PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, bool &osmTrackDataLoaded);
     bool TrackExists(int track_id) const;
 
     QAction* get_action_toggle_graphstyle() const;

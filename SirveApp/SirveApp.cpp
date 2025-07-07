@@ -1903,22 +1903,16 @@ void SirveApp::LoadOsmData()
 
     plot_palette = new PlotPalette();
 
-    osmDataLoaded = true;
+    osmDataLoaded = track_info->GetTrackCount() != 0;
 
-    size_t num_tracks = track_info->GetTrackCount();
-    if (num_tracks == 0)
+    if (!osmDataLoaded)
     {
-        osmTrackDataLoaded = false;
-        QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. Plots restricted to FOV and Azimuth series.");
-        EstablishCanonicalPlot("Boresight Azimuth", {Quantity("Boresight_Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-        EstablishCanonicalPlot("Boresight Elevation", {Quantity("Boresight_Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    } else
-    {
-        osmTrackDataLoaded = true;
-        EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-        EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-        EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+        QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file.  Try creating your own tracks.");
     }
+
+    EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
 
     connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
@@ -1981,6 +1975,9 @@ void SirveApp::LoadOsmData()
 void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
+
+    qDebug() << track_info->GetOsmPlottingTrackFrames().size();
+
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
@@ -2264,10 +2261,7 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     video_player_->ReceiveVideoData(x_pixels, y_pixels);
     video_player_->UpdateFps();
 
-    if (osmTrackDataLoaded)
-    {
-        connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
-    }
+    connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
 
     UpdateGlobalFrameVector();
 
@@ -3050,35 +3044,34 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 {
     if (eng_data)
     {
-        engineering_plot->PlotChart();
-        engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
+        engineering_plot->PlotChart(osmTrackDataLoaded);
     }
 
-    if (osmDataLoaded == true)
+    if (osmTrackDataLoaded)
+        engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
+
+    for (int id : this->track_info->GetManualTrackIds())
     {
-        for (int id : this->track_info->GetManualTrackIds())
+        QLineSeries *trackSeries = new QLineSeries();
+        trackSeries->setName("Track " + QString::number(id));
+
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+        if (existing_track_control != nullptr)
         {
-            QLineSeries *trackSeries = new QLineSeries();
-            trackSeries->setName("Track " + QString::number(id));
+            QComboBoxWithId *cmb_box = existing_track_control->findChild<QComboBoxWithId*>();
 
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
-            if (existing_track_control != nullptr)
-            {
-                QComboBoxWithId *cmb_box = existing_track_control->findChild<QComboBoxWithId*>();
+            QPen pen;
+            QStringList color_options = ColorScheme::get_track_colors();
+            int index = cmb_box->currentIndex();
+            QColor trackColor = color_options[index];
+            pen.setColor(trackColor);
+            pen.setStyle(Qt::SolidLine);
+            pen.setWidth(3);
 
-                QPen pen;
-                QStringList color_options = ColorScheme::get_track_colors();
-                int index = cmb_box->currentIndex();
-                QColor trackColor = color_options[index];
-                pen.setColor(trackColor);
-                pen.setStyle(Qt::SolidLine);
-                pen.setWidth(3);
+            trackSeries->setPen(pen);
 
-                trackSeries->setPen(pen);
-
-                trackSeries->append(0, 0);
-                trackSeries->append(0, 0);
-            }
+            trackSeries->append(0, 0);
+            trackSeries->append(0, 0);
         }
     }
 
