@@ -2159,7 +2159,7 @@ void SirveApp::UiLoadAbirData()
     video_player_->SetVideoDimensions();
 }
 
-void SirveApp::LoadAbirData(int min_frame, int max_frame)
+void SirveApp::LoadAbirData(int min_frame, int &max_frame)
 {
     DeleteAbirData();
     ResetEngineeringDataAndSliderGUIs();
@@ -2171,7 +2171,7 @@ void SirveApp::DeleteAbirData()
     abir_frames.reset();
 }
 
-void SirveApp::AllocateAbirData(int min_frame, int max_frame)
+void SirveApp::AllocateAbirData(int min_frame, int &max_frame)
 {
     video_player_->StopTimer();
     state_manager_->clear();
