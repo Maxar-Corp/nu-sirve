@@ -151,7 +151,8 @@ public:
 
     QPointer<QStatusBar> status_bar;
     QPointer<QLabel> lbl_status_start_frame, lbl_status_stop_frame, lbl_loaded_frames,
-        lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field;
+        lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field, lbl_status_calibration_nuc, lbl_status_calibration_image,
+        lbl_status_calibration_mean_temp1, lbl_status_calibration_mean_temp2;
     QPointer<QCheckBox> chk_bad_pixels_from_original;
     QPointer<QLineEdit> txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
 
@@ -188,7 +189,8 @@ public:
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
     void UpdatePlots(EngineeringPlot *engineering_plot);
-
+    void UpdateModelStatusArea();
+    void ResetStatusArea();
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
     void VideoPopoutToggled(bool show_popout);
 

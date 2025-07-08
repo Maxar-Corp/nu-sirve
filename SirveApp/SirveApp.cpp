@@ -284,6 +284,16 @@ void SirveApp::SetupUi() {
     lbl_status_start_frame->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_status_stop_frame = new QLabel("Stop Frame:");
     lbl_status_stop_frame->setFont(QFont("Arial", 8, QFont::Bold));
+
+    lbl_status_calibration_nuc = new QLabel("Calibration NUC:");
+    lbl_status_calibration_nuc->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_status_calibration_image = new QLabel("Calibration Image:");
+    lbl_status_calibration_image->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_status_calibration_mean_temp1 = new QLabel("Mean Temp 1:");
+    lbl_status_calibration_mean_temp1->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_status_calibration_mean_temp2 = new QLabel("Mean Temp 2:");
+    lbl_status_calibration_mean_temp2->setFont(QFont("Arial", 8, QFont::Bold));
+
     lbl_current_workspace_folder = new QLabel("Workspace Folder:");
     lbl_current_workspace_folder->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_current_workspace_folder_field = new QLabel(config_values.workspace_folder);
@@ -299,6 +309,7 @@ void SirveApp::SetupUi() {
     grpbox_status_bar->setMinimumWidth(1050);
     auto *hlayout_status_bar1 = new QHBoxLayout();
     auto *hlayout_status_bar2 = new QHBoxLayout();
+    auto *hlayout_status_bar3 = new QHBoxLayout();
     auto *grpbox_status_permanent = new QGroupBox();
     grpbox_status_permanent->setMinimumWidth(600);
     auto *hlayout_status_permanent = new QHBoxLayout();
@@ -322,8 +333,17 @@ void SirveApp::SetupUi() {
     hlayout_status_bar2->addWidget(lbl_workspace_name);
     hlayout_status_bar2->addWidget(lbl_workspace_name_field);
     hlayout_status_bar2->insertStretch(-1,0);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_nuc);
+    hlayout_status_bar3->addItem(hspacer_item10);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_image);
+    hlayout_status_bar3->addItem(hspacer_item10);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_mean_temp1);
+    hlayout_status_bar3->addItem(hspacer_item10);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_mean_temp2);
+    hlayout_status_bar3->insertStretch(-1,0);
     vlayout_status_lbl->addLayout(hlayout_status_bar1);
     vlayout_status_lbl->addLayout(hlayout_status_bar2);
+    vlayout_status_lbl->addLayout(hlayout_status_bar3);
     grpbox_status_bar->setLayout(vlayout_status_lbl);
 
     status_bar->addWidget(grpbox_status_bar);
@@ -1687,6 +1707,7 @@ void SirveApp::LoadWorkspace()
     QString current_workspace_name = QFileDialog::getOpenFileName(this, tr("Select Workspace"), config_values.workspace_folder,  tr("Images (*.json)"));
     int compare = QString::compare(current_workspace_name, "", Qt::CaseInsensitive);
     if (compare != 0){
+
         WorkspaceValues workspace_vals = workspace->LoadState(current_workspace_name);
 
         compare = QString::compare(workspace_vals.image_path, "", Qt::CaseInsensitive);
@@ -1697,8 +1718,6 @@ void SirveApp::LoadWorkspace()
         QFileInfo fileInfo(current_workspace_name);
         QString filePath = fileInfo.path();
 
-        lbl_current_workspace_folder_field->setText(filePath);
-        lbl_workspace_name_field->setText(fileInfo.fileName());
         if (ValidateAbpFiles(workspace_vals.image_path)) {
             LoadOsmData();
             QFileInfo fileInfo0(workspace_vals.image_path);
@@ -1804,7 +1823,8 @@ void SirveApp::LoadWorkspace()
 
             classification_list.push_back(classification);
         }
-
+        lbl_current_workspace_folder_field->setText(filePath);
+        lbl_workspace_name_field->setText(fileInfo.fileName());
         eng_data->set_offset_time(workspace_vals.timing_offset);
     }
 }
@@ -1868,6 +1888,7 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
 
 void SirveApp::LoadOsmData()
 {
+    ResetStatusArea();
     ResetEngineeringDataAndSliderGUIs();
 
     OSMReader reader;
@@ -2210,7 +2231,6 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
 {
     video_player_->StopTimer();
     state_manager_->clear();
-
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setTextVisible(true);
     progress_bar_main->setRange(0,100);
@@ -2935,20 +2955,50 @@ void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
     }
 }
 
+void SirveApp::UpdateModelStatusArea(){
+    
+    if(calibration_model.calibration_available)
+    {
+        QFileInfo NucfileInfo(calibration_model.path_nuc);
+        QString NucFileName = NucfileInfo.fileName();
+        QFileInfo ImagefileInfo(calibration_model.path_image);
+        QString ImageFileName = ImagefileInfo.fileName();
+        lbl_status_calibration_nuc->setText("Calibration NUC: " + NucFileName);
+        lbl_status_calibration_image->setText("Calibration NUC: " + ImageFileName);
+        lbl_status_calibration_mean_temp1->setText("Mean Temp 1: " + QString::number(calibration_model.user_selection1.temperature_mean));
+        lbl_status_calibration_mean_temp2->setText("Mean Temp 2: " + QString::number(calibration_model.user_selection2.temperature_mean));
+    }
+}
+
+
+void SirveApp::ResetStatusArea(){
+        lbl_file_name->setText("OSM File Name: ");
+        lbl_loaded_frames->setText("Loaded Frames: ");
+        lbl_status_start_frame->setText("Start Frame: ");
+        lbl_status_stop_frame->setText("Stop Frame: ");
+        lbl_current_workspace_folder_field->setText("");
+        lbl_workspace_name_field->setText("");
+        lbl_status_calibration_nuc->setText("Calibration NUC: ");
+        lbl_status_calibration_image->setText("Calibration NUC: " );
+        lbl_status_calibration_mean_temp1->setText("Mean Temp 1: ");
+        lbl_status_calibration_mean_temp2->setText("Mean Temp 2: " );
+}
+
+
 void SirveApp::LoadCalibrationModel()
 {
-    QString file_selection = QFileDialog::getOpenFileName(this, ("Select Calibration File"), "", ("Calibration File(*.dat)"));
+    QString file_selection = QFileDialog::getOpenFileName(this, ("Select Calibration File"), "", ("Calibration File(*.bin)"));
     int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
     if (compare != 0){
 
-        if (calibration_model.LoadFromFile(file_selection))
+        if (calibration_model.LoadFromMatlabBinary(file_selection))
         {
             if (calibration_model.calibration_available){
 
                 CalibrateAllExistingTracks();
                 video_player_->SetCalibrationModel(calibration_model);
                 video_player_->SetRadianceCalculationEnabled(true);
-
+                UpdateModelStatusArea();
                 }
                 else{                       
                     QMessageBox::information(0, "Calibration Failed",
@@ -2974,9 +3024,8 @@ if (calibration_model.calibration_available)
         double temp1 = calibration_model.user_selection1.temperature_mean;
         double temp2 = calibration_model.user_selection2.temperature_mean;
         QString suggested_model_file_name = config_values.workspace_folder + "/calibration_model_" + QString::number(std::round(temp1)) + "_" + QString::number(std::round(temp2))+ "_" + formattedDate;
-        QString new_model_file_name = QFileDialog::getSaveFileName(this, "Select model file neame", suggested_model_file_name, "dat (*.dat)");
-        calibration_model.SaveToFile(new_model_file_name);
-        calibration_model.SaveToMatlabBinary(new_model_file_name.replace("dat","bin"));
+        QString new_model_file_name = QFileDialog::getSaveFileName(this, "Select model file neame", suggested_model_file_name, "bin (*.bin)");
+        calibration_model.SaveToMatlabBinary(new_model_file_name);;
     }
 }
 
@@ -2984,7 +3033,7 @@ void SirveApp::CalibrateAllExistingTracks()
 {
     int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
     int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
-
+    bool recalibrateTF = true;
     ProcessingState* base_processing_state = &state_manager_->front();
 
     CalibrateExistingTracks::CalibrateOSMTracks(calibration_model,
@@ -2995,7 +3044,7 @@ void SirveApp::CalibrateAllExistingTracks()
                                                 absolute_indx_start_0,
                                                 absolute_indx_stop_0,
                                                 abp_file_metadata.file_type);    
-
+                                             
     const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
     
     if (previous_manual_track_ids.size()>0){
@@ -3008,31 +3057,37 @@ void SirveApp::CalibrateAllExistingTracks()
             QMessageBox::Yes | QMessageBox::No 
         );
 
-        bool recalibrateTF = true;
-        if (reply != QMessageBox::Yes) {
-            recalibrateTF = false;
-        }   
-        std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
-        CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
-                                            manual_frames,
-                                            track_info->GetManualPlottingFrames(),
-                                            base_processing_state->details,
-                                            video_player_->GetFrameHeaders(),
-                                            absolute_indx_start_0,
-                                            absolute_indx_stop_0,
-                                            abp_file_metadata.file_type, 
-                                            recalibrateTF);
-        if (recalibrateTF){
+
+        if (reply == QMessageBox::Yes) {
+            
+            std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+            CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                                manual_frames,
+                                                track_info->GetManualPlottingFrames(),
+                                                base_processing_state->details,
+                                                video_player_->GetFrameHeaders(),
+                                                absolute_indx_start_0,
+                                                absolute_indx_stop_0,
+                                                abp_file_metadata.file_type, 
+                                                recalibrateTF);
+            }
+            else{
+                recalibrateTF = false;
+            }   
+
+    } 
+    else{
+        recalibrateTF = false;
+    }
+         
+    if (recalibrateTF){
             QMessageBox::information(0, "Calibration Successful",
                 "Calibration applied to OSM and manual tracks.");
-        }
-        else{
-            QMessageBox::information(0, "Calibration Successful",
-            "Calibration applied to OSM tracks.");
-        }
-
-
-    }        
+    }
+    else{
+        QMessageBox::information(0, "Calibration Successful",
+        "Calibration applied to OSM tracks.");
+    } 
 }
 
 void SirveApp::ShowCalibrationDialog()
@@ -3064,7 +3119,7 @@ void SirveApp::ShowCalibrationDialog()
     }
 	video_player_->SetCalibrationModel(calibrate_dialog.model);
 	video_player_->SetRadianceCalculationEnabled(true);
-
+    UpdateModelStatusArea();
     CalibrateAllExistingTracks();
                                  
 }
@@ -3104,7 +3159,7 @@ void SirveApp::ExportPlotData()
     else {
 
         int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-        int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
+        int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
         DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
     }
@@ -3720,6 +3775,7 @@ void SirveApp::OpenProgressArea(const QString& message, int N)
     progress_bar_main->setRange(0,N);
     progress_bar_main->setTextVisible(true);
     lbl_progress_status->setText(message);
+    lbl_progress_status->setFont(QFont("Arial", 9, QFont::Bold));
 }
 
 void SirveApp::CloseProgressArea()

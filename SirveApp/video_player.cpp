@@ -504,7 +504,7 @@ void VideoPlayer::SetupUi()
 
     calculate_radiance_ = new QPushButton();
     calculate_radiance_->resize(button_width, button_height);
-    calculate_radiance_->setIcon(QIcon(":/icons/signal.png"));
+    calculate_radiance_->setIcon(QIcon(":/icons/radiance.png"));
     calculate_radiance_->setCheckable(true);
     calculate_radiance_->setEnabled(false);
     video_buttons->addWidget(calculate_radiance_);

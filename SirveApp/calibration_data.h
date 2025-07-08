@@ -55,8 +55,10 @@ public:
 
 	bool SaveToFile(const QString& filename) const;
 	bool LoadFromFile(const QString& filename);
+	bool LoadFromMatlabBinary(const QString& filename);
 	bool SaveToMatlabBinary(const QString& filename) const;
 	static void WriteQString(QDataStream& out, const QString& str);
+	QString ReadQString(QDataStream& in, QFile& file);
 
 private:
 	arma::mat m, b;

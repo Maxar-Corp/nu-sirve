@@ -32,7 +32,7 @@ void CalibrateExistingTracks::CalibrateOSMTracks(
     
     if (calibration_model.calibration_available){
    
-        for (unsigned int absolute_indx_0 = absolute_indx_start_0; absolute_indx_0 <= absolute_indx_stop_0; absolute_indx_0++)
+        for (unsigned int absolute_indx_0 = absolute_indx_start_0; absolute_indx_0 < absolute_indx_stop_0; absolute_indx_0++)
         {
             relative_indx = absolute_indx_0 - absolute_indx_start_0;
             double frame_integration_time = input_frame_header[relative_indx].int_time;
@@ -93,7 +93,7 @@ void CalibrateExistingTracks::CalibrateManualTracks(
     
     if (calibration_model.calibration_available){
    
-        for (unsigned int absolute_indx_0 = absolute_indx_start_0; absolute_indx_0 <= absolute_indx_stop_0; absolute_indx_0++)
+        for (unsigned int absolute_indx_0 = absolute_indx_start_0; absolute_indx_0 < absolute_indx_stop_0; absolute_indx_0++)
         {
             relative_indx = absolute_indx_0 - absolute_indx_start_0;
             if (relative_indx < track_frame_data.size()){

@@ -9,6 +9,54 @@
 #include <QFile>
 #include <QDataStream>
 
+bool CalibrationData::LoadFromMatlabBinary(const QString& filename) {
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QDataStream in(&file);
+    in.setFloatingPointPrecision(QDataStream::DoublePrecision);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    qint32 flag;
+    in >> flag;
+    calibration_available = flag;
+
+    in >> integration_time;
+
+    // Read UTF-8 encoded QStrings
+    path_nuc = ReadQString(in, file);
+    path_image = ReadQString(in, file);
+
+    // Read SelectedData
+    auto readSelection = [&](SelectedData& d) {
+        qint32 temp;
+        in >> temp; d.valid_data = temp;
+        in >> d.temperature_mean >> d.temperature_std;
+        in >> temp; d.num_frames = temp;
+        in >> temp; d.initial_frame = temp;
+        in >> temp; d.id = temp;
+        in >> d.start_time >> d.stop_time >> d.calculated_irradiance;
+        // NOTE: skipping QString color and points
+    };
+    readSelection(user_selection1);
+    readSelection(user_selection2);
+
+    // Read arma::mat m
+    quint32 rows, cols;
+    in >> rows >> cols;
+    m.set_size(rows, cols);
+    for (arma::uword i = 0; i < m.n_elem; ++i)
+        in >> m[i];
+
+    // Read arma::mat b
+    in >> rows >> cols;
+    b.set_size(rows, cols);
+    for (arma::uword i = 0; i < b.n_elem; ++i)
+        in >> b[i];
+
+    return true;
+}
+
 bool CalibrationData::SaveToMatlabBinary(const QString& filename) const {
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) return false;
@@ -49,6 +97,18 @@ bool CalibrationData::SaveToMatlabBinary(const QString& filename) const {
         out << b[i];
 
     return true;
+}
+
+QString CalibrationData::ReadQString(QDataStream& in, QFile& file) {
+    quint32 length;
+    in >> length;
+
+    QByteArray utf8_data;
+    utf8_data.resize(length);
+    if (file.read(utf8_data.data(), length) != length)
+        return QString();  // or throw error
+
+    return QString::fromUtf8(utf8_data);
 }
 
 void CalibrationData::WriteQString(QDataStream& out, const QString& str) {
@@ -723,7 +783,7 @@ void CalibrationDialog::verifyCalibrationValues()
 
 	QMessageBox msgBox;
 	msgBox.setWindowTitle(QString("Select Associated ABP Frames"));
-	QString box_text = QString("Select the associated *.abpframe file for the temperature profile used.");
+	QString box_text = QString("Select the associated *.abpImage file for the temperature profile used.");
 	msgBox.setText(box_text);
 
 	msgBox.setStandardButtons(QMessageBox::Ok);
