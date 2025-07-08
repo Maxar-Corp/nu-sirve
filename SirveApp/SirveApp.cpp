@@ -2220,6 +2220,12 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         max_value, abir_frames->video_frames_16bit
     };
     progress_bar_main->setValue(80);
+
+    if (max_frame > abir_frames->last_valid_frame)
+    {
+        QtHelpers::LaunchMessageBox(QString("Warning"), "The Stop Frame goes beyond the last validated Frame.");
+    }
+
     max_frame = abir_frames->last_valid_frame;
     progress_bar_main->setValue(100);
 
