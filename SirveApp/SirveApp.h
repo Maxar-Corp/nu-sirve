@@ -74,7 +74,7 @@ public:
     ConfigValues config_values;
 
     const int leftWidgetStartingSize = 600;
-    const int centralWidgetStartingSize = 690;
+    const int centralWidgetStartingSize = 710;
     const int rightWidgetStartingSize = 600;
 
     QGridLayout *engineering_plot_layout;

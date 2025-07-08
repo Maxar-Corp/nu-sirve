@@ -503,10 +503,11 @@ void VideoPlayer::SetupUi()
     video_buttons->addWidget(zoom_);
 
     calculate_radiance_ = new QPushButton();
-    calculate_radiance_->resize(button_width, button_height);
+    calculate_radiance_->setFixedWidth(button_width);
     calculate_radiance_->setIcon(QIcon(":/icons/radiance.png"));
     calculate_radiance_->setCheckable(true);
     calculate_radiance_->setEnabled(false);
+    calculate_radiance_->setToolTip("Calculate Radiance Values");
     video_buttons->addWidget(calculate_radiance_);
 
     popout_ = new QPushButton();
@@ -570,17 +571,18 @@ void VideoPlayer::SetupUi()
 
     lbl_fps_ = new QLabel("fps");
     lbl_fps_->setFixedWidth(40);
+    lbl_fps_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     video_buttons->addWidget(lbl_fps_);
 
     increase_fps_ = new QPushButton();
-    increase_fps_->setFixedWidth(button_width);
+    increase_fps_->setFixedWidth(.5*button_width);
     increase_fps_->setIcon(QIcon(":/icons/chevron-double-up.png"));
     increase_fps_->setToolTip("Increase FPS");
     increase_fps_->setEnabled(false);
     video_buttons->addWidget(increase_fps_);
 
     decrease_fps_ = new QPushButton();
-    decrease_fps_->setFixedWidth(button_width);
+    decrease_fps_->setFixedWidth(.5*button_width);
     decrease_fps_->setIcon(QIcon(":/icons/chevron-double-down.png"));
     decrease_fps_->setToolTip("Decrease FPS");
     decrease_fps_->setEnabled(false);
