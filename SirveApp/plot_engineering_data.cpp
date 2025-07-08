@@ -372,13 +372,29 @@ int EngineeringPlot::get_index_partial_scope_xmax() const
     return index_partial_scope_xmax;
 }
 
+bool EngineeringPlot::OsmTrackingDataAvailable()
+{
+    return std::any_of(track_frames.begin(), track_frames.end(), [](PlottingTrackFrame value) {
+        return value.details.size() > 0;
+    });
+}
+
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
 {
     std::vector<double> x_values;
 
-    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    if (OsmTrackingDataAvailable())
     {
-        if (i < track_frames[track_frame_index].details.size()) // this check should be skipped if no osm tracking exists!
+        for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+        {
+            if (i < track_frames[track_frame_index].details.size()) // this check should be skipped if no osm tracking exists!
+            {
+                x_values.push_back(get_single_x_axis_value(track_frame_index));
+            }
+        }
+    } else
+    {
+        for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
         {
             x_values.push_back(get_single_x_axis_value(track_frame_index));
         }

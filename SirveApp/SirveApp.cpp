@@ -1907,7 +1907,7 @@ void SirveApp::LoadOsmData()
 
     if (!osmDataLoaded)
     {
-        QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file.  Try creating your own tracks.");
+        QtHelpers::LaunchMessageBox(QString("Data Warning!"), "No Az-El or Sum Counts data available - boresight only.");
     }
 
     EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
