@@ -2263,7 +2263,10 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     video_player_->ReceiveVideoData(x_pixels, y_pixels);
     video_player_->UpdateFps();
 
-    connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
+    if (osmTrackDataLoaded)
+    {
+         connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
+    }
 
     UpdateGlobalFrameVector();
 
