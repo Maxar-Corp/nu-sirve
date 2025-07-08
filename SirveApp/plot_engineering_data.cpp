@@ -782,14 +782,13 @@ void EngineeringPlot::HomeZoomIn()
         plotter->getYAxis()->setMax(fixed_max_y);
         SetPlotterXAxisMinMax(get_min_x_axis_value(), get_max_x_axis_value());
     }
-    else if (plotter->show_full_scope)
-    {
-        this->zoomToFit();
-    }
     else
     {
-        SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
-        SetPlotterYAxisMinMax(plotter->sub_plot_ymin, plotter->sub_plot_ymax);
+        this->zoomToFit();
+        if (! plotter->show_full_scope)
+        {
+            SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+        }
     }
     redrawPlot();
 }
