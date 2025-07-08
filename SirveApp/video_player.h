@@ -105,6 +105,8 @@ public slots:
     void ViewFrame(uint32_t frame_number);
 
 private:
+    int button_width = 42;
+    int button_height = 50;
     void SetupUi();
     void SetupConnections();
     void InitMainWindow();
