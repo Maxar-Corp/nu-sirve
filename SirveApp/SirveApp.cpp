@@ -2269,10 +2269,7 @@ void SirveApp::AllocateAbirData(int min_frame, int &max_frame)
     video_player_->ReceiveVideoData(x_pixels, y_pixels);
     video_player_->UpdateFps();
 
-    if (osmTrackDataLoaded)
-    {
-         connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
-    }
+    connect(video_player_, &VideoPlayer::frameNumberChanged, plot_palette, &PlotPalette::RouteFramelineUpdate);
 
     UpdateGlobalFrameVector();
 
@@ -3061,8 +3058,7 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
         engineering_plot->PlotChart(osmTrackDataLoaded);
     }
 
-    if (osmTrackDataLoaded)
-        engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
+    engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
 
     for (int id : this->track_info->GetManualTrackIds())
     {

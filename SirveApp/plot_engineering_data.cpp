@@ -343,13 +343,10 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
 
-        InitializeFrameLine(index_full_scope_xmin);
-
         this->getPlotter()->setPlotLabel(plot_classification);
-    } else
-    {
-        QtHelpers::LaunchMessageBox(QString("Warning"), "No OSM data was found for quantity " + plotTitle);
     }
+
+    InitializeFrameLine(index_full_scope_xmin);
 }
 
 int EngineeringPlot::get_index_full_scope_xmin() const
@@ -721,7 +718,8 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     lineGraph->setTitle("Frame Line");
 
     this->addGraph(lineGraph);
-    this->getGraphs().at(1)->setVisible(show_frame_line);
+    frameline_graph_index = (ds->getColumnCount()-2)/2;
+    this->getGraphs().at(frameline_graph_index)->setVisible(show_frame_line);
 }
 
 void EngineeringPlot::PlotCurrentFrameline(int frame)
@@ -893,7 +891,7 @@ void EngineeringPlot::ToggleDataScope()
 void EngineeringPlot::ToggleFrameLine()
 {
     show_frame_line = ! show_frame_line;
-    this->getGraphs().at(1)->setVisible(show_frame_line);
+    this->getGraphs().at(frameline_graph_index)->setVisible(show_frame_line);
     emit this->plotter->plotUpdated();
 }
 
