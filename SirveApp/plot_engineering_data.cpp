@@ -191,7 +191,19 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     }
     else if (type == Enums::PlotType::SumCounts)
     {
-        func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
+        func = std::bind(&EngineeringPlot::get_individual_y_track_sum_relative_counts, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::PeakIrradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_peak_irradiance, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::MeanIrradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_mean_irradiance, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::SumIrradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_sum_irradiance, this, std::placeholders::_1);
     }
     else
     {
@@ -229,6 +241,15 @@ void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_value
                 y_values.push_back(it->second.elevation);
             } else if (my_quantities.at(0).getName() == "SumCounts") {
                 y_values.push_back(it->second.sum_relative_counts);
+            }
+            else if (my_quantities.at(0).getName() == "PeakIrradiance") {
+                y_values.push_back(it->second.peak_irradiance);
+            }
+            else if (my_quantities.at(0).getName() == "MeanIrradiance") {
+                y_values.push_back(it->second.mean_irradiance);
+            }
+            else if (my_quantities.at(0).getName() == "SumIrradiance") {
+                y_values.push_back(it->second.sum_irradiance);
             }
         }
     }
@@ -383,14 +404,42 @@ std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
     return x_values;
 }
 
-std::vector<double> EngineeringPlot::get_individual_y_track_irradiance(size_t i)
+std::vector<double> EngineeringPlot::get_individual_y_track_peak_irradiance(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
     {
         if (i < track_frames[track_frame_index].details.size())
         {
-            y_values.push_back(track_frames[track_frame_index].details[i].sum_relative_counts);
+            y_values.push_back(track_frames[track_frame_index].details[i].peak_irradiance);
+        }
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_mean_irradiance(size_t i)
+{
+    std::vector<double> y_values;
+    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    {
+        if (i < track_frames[track_frame_index].details.size())
+        {
+            y_values.push_back(track_frames[track_frame_index].details[i].mean_irradiance);
+        }
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_sum_irradiance(size_t i)
+{
+    std::vector<double> y_values;
+    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    {
+        if (i < track_frames[track_frame_index].details.size())
+        {
+            y_values.push_back(track_frames[track_frame_index].details[i].sum_irradiance);
         }
     }
 

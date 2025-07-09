@@ -2987,7 +2987,7 @@ void SirveApp::ResetStatusArea(){
 
 void SirveApp::LoadCalibrationModel()
 {
-    QString file_selection = QFileDialog::getOpenFileName(this, ("Select Calibration File"), "", ("Calibration File(*.bin)"));
+    QString file_selection = QFileDialog::getOpenFileName(nullptr, ("Select Calibration File"), "", ("Calibration File(*.bin)"));
     int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
     if (compare != 0){
 
@@ -4428,9 +4428,9 @@ void SirveApp::ExecuteAutoTracking()
                 details.mean_counts = autotrack(rowii,8);
                 details.sum_counts = autotrack(rowii,9);
                 details.sum_relative_counts =  autotrack(rowii,10);
-                details.peak_irradiance = autotrack(rowii,11);
-                details.mean_irradiance = autotrack(rowii,12);
-                details.sum_irradiance = autotrack(rowii,13);
+                details.peak_irradiance = autotrack(rowii,11)/1000.;
+                details.mean_irradiance = autotrack(rowii,12)/1000.;
+                details.sum_irradiance = autotrack(rowii,13)/1000.;
                 details.bbox_x = autotrack(rowii,14);
                 details.bbox_y = autotrack(rowii,15);
                 details.bbox_width = autotrack(rowii,16);

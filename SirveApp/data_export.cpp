@@ -84,7 +84,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
             myfile << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", OSM Track, "
              << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y
-              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width  << ", " << bbox_height << ", " << counts << ", " << std::round(peak_irradiance) << ", " << std::round(mean_irradiance) << ", " << std::round(sum_irradiance) <<
+              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width  << ", " << bbox_height << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance <<
                ", " << mean_temp1 <<", " << mean_temp2 << ", " << nuc_calibration_file.toStdString() << ", " << nuc_image_file.toStdString() << ", " << start_frame1 << ", " << num_frames1 << ", " << start_frame2 << ", " << num_frames2 <<std::endl;
         }
 
@@ -116,7 +116,7 @@ void DataExport::WriteTrackDataToCsv(   std::string save_path,
 
             myfile  << frame_number << ", " << frame_time << ", "<< julian_date << ", " << seconds_past_midnight << ", " << timing_offset << ", Manual/Auto Track, "
              << track_id << ", " << azimuth << ", " << elevation << ", " << centroid_x_boresight << ", " << centroid_y_boresight << ", " << centroid_x << ", " << centroid_y
-              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width << ", " << bbox_height << ", " << counts << ", " << std::round(peak_irradiance) << ", " << std::round(mean_irradiance) << ", " << std::round(sum_irradiance) <<
+              << ", " << bbox_x << ", " << bbox_y <<", " << bbox_width << ", " << bbox_height << ", " << counts << ", " << peak_irradiance << ", " << mean_irradiance << ", " << sum_irradiance <<
                ", " << mean_temp1 <<", " << mean_temp2 << ", " << nuc_calibration_file.toStdString() << ", " << nuc_image_file.toStdString() << ", " << start_frame1 << ", " << num_frames1 << ", " << start_frame2 << ", " << num_frames2 <<std::endl;
         }
         

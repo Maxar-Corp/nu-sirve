@@ -40,11 +40,11 @@ void CalibrateExistingTracks::CalibrateOSMTracks(
             {
                 cv::Rect bbox;
                 bbox.x = track_data[absolute_indx_0].details[j].centroid.bbox_x;
-                bbox.y = track_data[absolute_indx_0].details[j].centroid.bbox_y;
                 bbox.height = track_data[absolute_indx_0].details[j].centroid.bbox_width;
                 bbox.width = track_data[absolute_indx_0].details[j].centroid.bbox_height;
+                bbox.y = track_data[absolute_indx_0].details[j].centroid.bbox_y - bbox.height;
 
-                std::array<double, 3> measurements = {0,0,0};
+                std::array<double, 3> measurements = {0.,0.,0.};
 
                 measurements = SharedTrackingFunctions::CalculateIrradiance(relative_indx, bbox, base_processing_state_details, frame_integration_time, calibration_model);
                 track_data[absolute_indx_0].details[j].centroid.peak_irradiance = measurements[0];
@@ -58,9 +58,12 @@ void CalibrateExistingTracks::CalibrateOSMTracks(
                 track_data[absolute_indx_0].details[j].num_frames1 = calibration_model.user_selection1.num_frames;
                 track_data[absolute_indx_0].details[j].start_frame2 = calibration_model.user_selection2.initial_frame;
                 track_data[absolute_indx_0].details[j].num_frames2 = calibration_model.user_selection2.num_frames;
-    
+                track_data[absolute_indx_0].details[j].num_frames2 = calibration_model.user_selection2.num_frames;  
+                track_data[absolute_indx_0].details[j].peak_irradiance = measurements[0];
+                track_data[absolute_indx_0].details[j].mean_irradiance = measurements[1];
+                track_data[absolute_indx_0].details[j].sum_irradiance = measurements[2]; 
+                track_data[absolute_indx_0].details[j].is_calibrated = true;
             }
-
         }
     }
 
@@ -121,9 +124,9 @@ void CalibrateExistingTracks::CalibrateManualTracks(
                         bbox.height = track_frame_data[relative_indx].tracks[track_id].bbox_height;
                         bbox.width = track_frame_data[relative_indx].tracks[track_id].bbox_width;
 
-                        std::array<double, 3> measurements = {0,0,0};
-
+                        std::array<double, 3> measurements = {0.,0.,0.};
                         measurements = SharedTrackingFunctions::CalculateIrradiance(relative_indx, bbox, base_processing_state_details, frame_integration_time, calibration_model);
+
                         track_data[absolute_indx_0].tracks[track.first].peak_irradiance = measurements[0];
                         track_data[absolute_indx_0].tracks[track.first].mean_irradiance = measurements[1];
                         track_data[absolute_indx_0].tracks[track.first].sum_irradiance = measurements[2];
@@ -142,6 +145,9 @@ void CalibrateExistingTracks::CalibrateManualTracks(
                         track_frame_data[relative_indx].tracks[track_id].num_frames2 = calibration_model.user_selection2.num_frames;
                         track_frame_data[relative_indx].tracks[track_id].nuc_calibration_file = calibration_model.path_nuc;
                         track_frame_data[relative_indx].tracks[track_id].nuc_image_file = calibration_model.path_image;
+                        track_data[absolute_indx_0].tracks[track.first].centroid.peak_irradiance = track_frame_data[relative_indx].tracks[track_id].peak_irradiance;
+                        track_data[absolute_indx_0].tracks[track.first].centroid.mean_irradiance = track_frame_data[relative_indx].tracks[track_id].mean_irradiance;
+                        track_data[absolute_indx_0].tracks[track.first].centroid.sum_irradiance = track_frame_data[relative_indx].tracks[track_id].sum_irradiance;
                     }
         
                 }

@@ -201,8 +201,8 @@ std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col,
 	arma::mat sub_b = b.submat(ul_row, ul_col, lr_row, lr_col);
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
-	arma::mat radiance = (sub_m % x + sub_b) * scale_factor; // W/m2-sr
-	radiance = 100*radiance; // uW/cm2-sr
+	arma::mat radiance = (sub_m % x); //* scale_factor; // W/m2-sr
+	// radiance = 100*radiance; // uW/cm2-sr
 	arma::uvec indices_inf = arma::find_nonfinite(m);
 	std::vector<unsigned int> vector_inf = arma::conv_to<std::vector<unsigned int>>::from(indices_inf);
 

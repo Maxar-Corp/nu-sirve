@@ -167,6 +167,11 @@ void PlotDesigner::SetAxisUnit(QString checked_value, QComboBox *units_combo_box
         units_combo_box->addItem("Counts");
         units_combo_box->setCurrentText("Counts");
     }
+    else if (checked_value == "PeakIrradiance" || checked_value == "MeanIrradiance" || checked_value == "SumIrradiance")
+    {
+        units_combo_box->addItem("W_m2_str");
+        units_combo_box->setCurrentText("W_m2_str");
+    }
     else if (checked_value == "Frames")
     {
         units_combo_box->addItem("FrameNumber");

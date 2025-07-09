@@ -6,8 +6,8 @@
 
 TrackDetails::TrackDetails(double frameTime, double julianDate, double secondPastMidnight, double timingOffset,
                            int centroidXBoresight, int centroidYBoresight, int centroidX, int centroidY, double az, double el, int peakCounts,
-                           int sumCounts, int meanCounts, int numberPixels, double sumRelativeCounts, double peakIrradiance,
-                           double meanIrradiance, double sumIrradiance, double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth,
+                           int sumCounts, int meanCounts, int numberPixels, double sumRelativeCounts, double peak_irradiance,
+                           double mean_irradiance, double sum_irradiance, double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth,
                            int bboxHeight) :
         frame_time(frameTime),
         julian_date(julianDate),
@@ -24,9 +24,9 @@ TrackDetails::TrackDetails(double frameTime, double julianDate, double secondPas
         mean_counts(meanCounts),
         number_pixels(numberPixels),
         sum_relative_counts(sumRelativeCounts),
-        peak_irradiance(peakIrradiance),
-        mean_irradiance(meanIrradiance),
-        sum_irradiance(sumIrradiance),
+        peak_irradiance(peak_irradiance),
+        mean_irradiance(mean_irradiance),
+        sum_irradiance(sum_irradiance),
         sum_relative_irradiance(sumRelativeIrradiance),
         bbox_x(bboxX),
         bbox_y(bboxY),
@@ -71,13 +71,18 @@ TrackDetails::TrackDetails(const FrameData& frame_data, const TrackData& track_d
 }
 
 PlottingTrackDetails::PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double azimuth,
-                                           double elevation, double irradiance):
+                                           double elevation, double peak_irradiance, double mean_irradiance, double sum_irradiance, bool is_calibrated, double mean_temp1, double mean_temp2):
         track_id(trackId),
         centroid(std::move(centroid)),
         sum_relative_counts(sumRelativeCounts),
         azimuth(azimuth),
         elevation(elevation),
-        irradiance(irradiance) {}
+        peak_irradiance(peak_irradiance),
+        sum_irradiance(sum_irradiance),
+        mean_irradiance(mean_irradiance),
+        is_calibrated(is_calibrated),
+        mean_temp1(mean_temp1),
+        mean_temp2(mean_temp2){}
 
 PlottingTrackDetails::PlottingTrackDetails(const TrackData& track_data) :
     track_id(track_data.track_id), centroid(track_data.centroid_x, track_data.centroid_y)
@@ -379,7 +384,6 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
             manual_plotting_frames[i].tracks[track_id].azimuth = track_details.az;
             manual_plotting_frames[i].tracks[track_id].elevation = track_details.el;
             manual_plotting_frames[i].tracks[track_id].centroid = track_details;
-            
             manual_image_frames[i].tracks[track_id] = track_details;
         }
     }

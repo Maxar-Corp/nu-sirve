@@ -16,7 +16,7 @@ struct TrackDetails
 
     TrackDetails(double frameTime, double julianDate, double secondPastMidnight, double timingOffset, int centroidXBoresight,
                  int centroidYBoresight, int centroidX, int centroidY, double az, double el, int peakCounts, int sumCounts, int meanCounts,
-                 int numberPixels, double sumRelativeCounts, double peakIrradiance, double meanIrradiance, double sumIrradiance,
+                 int numberPixels, double sumRelativeCounts, double peak_irradiance, double mean_irradiance, double sum_irradiance,
                  double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth, int bboxHeight);
 
     TrackDetails(double centroid_x, double centroid_y);
@@ -65,7 +65,7 @@ struct PlottingTrackDetails
     PlottingTrackDetails(const PlottingTrackDetails&) = default;
 
     PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double az, double el,
-                         double irradiance);
+                         double peak_irradiance, double mean_irradiance, double sum_irradiance, bool is_calibrated, double mean_temp1, double mean_temp2);
 
     PlottingTrackDetails(const TrackData& track_data);
     PlottingTrackDetails& operator=(const TrackData& track_data);
@@ -75,7 +75,9 @@ struct PlottingTrackDetails
     double sum_relative_counts = 0.0;
     double azimuth = 0.0;
     double elevation = 0.0;
-    double irradiance = 0.0;
+    double peak_irradiance = 0.0;
+    double sum_irradiance = 0.0;
+    double mean_irradiance = 0.0;
     bool is_calibrated = false;
     double mean_temp1 = 0.;
     uint start_frame1 = 0;

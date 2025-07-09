@@ -16,6 +16,9 @@ public:
         FovX,
         FovY,
         SumCounts,
+        PeakIrradiance,
+        MeanIrradiance,
+        SumIrradiance,
         Frames,
         Seconds_From_Epoch,
         Seconds_Past_Midnight,
@@ -29,6 +32,7 @@ public:
         Microns,
         Radians,
         Seconds,
+        W_m2_str,
         Undefined_PlotUnit
     };
 

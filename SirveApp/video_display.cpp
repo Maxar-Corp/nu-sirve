@@ -622,7 +622,7 @@ void VideoDisplay::SelectTrackCentroid(unsigned int x, unsigned int y)
     SharedTrackingFunctions::GetPointXY(frame_point, bbox, frame_x, frame_y);
 
     double frame_integration_time = frame_headers[counter].int_time;
-    std::array<double, 3> measurements = {0, 0, 0};
+    std::array<double, 3> measurements = {0., 0., 0.};
     if (model.calibration_available) {
         measurements = SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state->details,
                                                                     frame_integration_time, model);
@@ -1117,11 +1117,11 @@ void VideoDisplay::UpdateDisplayFrame()
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
-            QString max_value = QString::number(measurements[0]) + " uW/cm^2-sr";
-            QString avg_value = QString::number(measurements[1]) + " uW/cm^2-sr";
-            QString sum_value = QString::number(measurements[2]) + " uW/cm^2-sr";
+            QString max_value = QString::number(measurements[0]) + " W/m^2-sr";
+            QString avg_value = QString::number(measurements[1]) + " W/m^2-sr";
+            QString sum_value = QString::number(measurements[2]) + " W/m^2-sr";
 
-            QString calculation_text = "     **** Beta Calc.: ****\n";
+            QString calculation_text = " Irradiance at FPA\n";
             calculation_text.append("Max Pixel: " + max_value + "\n");
             calculation_text.append("Avg Pixel: " + avg_value + "\n");
             calculation_text.append("Total: " + sum_value);
