@@ -1978,8 +1978,6 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
 {
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
 
-    qDebug() << track_info->GetOsmPlottingTrackFrames().size();
-
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
