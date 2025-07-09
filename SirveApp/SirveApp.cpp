@@ -1841,6 +1841,12 @@ void SirveApp::LoadOsmData()
 {
     ResetEngineeringDataAndSliderGUIs();
 
+    if (plot_palette != nullptr) // Clean out old plot palette, if it exists.
+    {
+        plot_palette->setParent(nullptr);  // Detach from parent layout/widget
+        plot_palette->deleteLater();
+    }
+
     OSMReader reader;
     if (!reader.Open(abp_file_metadata.osm_path))
     {
