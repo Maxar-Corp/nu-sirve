@@ -1093,6 +1093,13 @@ void VideoDisplay::UpdateDisplayFrame()
         // determine if calculation region is within zoomed image
         if (top_left.x() >= 0 && bottom_right.x() >= 0) {
             // get frame data from original data set and convert mat
+            int background_counter;
+            if (counter>20){
+                background_counter = std::max(static_cast<int>(counter) - 20,0);
+            }
+            else {
+                background_counter = std::min(static_cast<int>(counter) + 20,static_cast<int>(state_manager_->front().details.frames_16bit[counter].size()-1));
+            }
             std::vector<double> calibrate_original_frame_vector(state_manager_->front().details.frames_16bit[counter].begin(),
                                                                 state_manager_->front().details.frames_16bit[counter].end());
             arma::vec original_image_vector(calibrate_original_frame_vector);
@@ -1100,13 +1107,22 @@ void VideoDisplay::UpdateDisplayFrame()
             original_mat_frame.reshape(width, height);
             original_mat_frame = original_mat_frame.t();
 
+            std::vector<double> background_calibrate_original_frame_vector(state_manager_->front().details.frames_16bit[background_counter].begin(),
+                                                                state_manager_->front().details.frames_16bit[background_counter].end());
+            arma::vec background_original_image_vector( background_calibrate_original_frame_vector);
+            arma::mat  background_original_mat_frame( background_original_image_vector);
+            background_original_mat_frame.reshape(width, height);
+            background_original_mat_frame = background_original_mat_frame.t();
+
+            arma::mat cal_frame_mat = original_mat_frame - background_original_mat_frame;
+
             // get counts sub-matrix corresponding to the calculation region
             unsigned int ur1 = (unsigned int)top_left.y();
             unsigned int uc1 = (unsigned int)top_left.x();
             unsigned int ur2 = (unsigned int)bottom_right.y();
             unsigned int uc2 = (unsigned int)bottom_right.x();
 
-            arma::mat counts = original_mat_frame.submat(ur1, uc1, ur2, uc2);
+            arma::mat counts = cal_frame_mat.submat(ur1, uc1, ur2, uc2);
 
             // clear all temporary variables
             calibrate_original_frame_vector.clear();
@@ -1121,16 +1137,35 @@ void VideoDisplay::UpdateDisplayFrame()
             QString avg_value = QString::number(measurements[1]) + " W/m^2-sr";
             QString sum_value = QString::number(measurements[2]) + " W/m^2-sr";
 
-            QString calculation_text = " Irradiance at FPA\n";
-            calculation_text.append("Max Pixel: " + max_value + "\n");
-            calculation_text.append("Avg Pixel: " + avg_value + "\n");
-            calculation_text.append("Total: " + sum_value);
+         QPainter painter_calculation_text(&frame);
 
-            QPainter painter_calculation_text(&frame);
-            painter_calculation_text.setPen(QPen(banner_color));
-            painter_calculation_text.setFont(QFont("Times", 8, QFont::Bold));
-            painter_calculation_text.drawText(frame.rect(), Qt::AlignTop | Qt::AlignRight, calculation_text);
-            painter_calculation_text.end();
+            // Text content
+            QString calculation_text = "Irradiance at FPA\n";
+            calculation_text.append("Peak: " + max_value + "\n");
+            calculation_text.append("Mean: " + avg_value + "\n");
+            calculation_text.append("Sum: " + sum_value);
+
+            // Font and layout
+            QFont font = painter_calculation_text.font();
+            QFontMetrics metrics(font);
+
+            // Estimate a maximum width for wrapping (optional)
+            int maxTextWidth = 200;  // you can adjust this
+            QRect boundingBox = metrics.boundingRect(QRect(0, 0, maxTextWidth, INT_MAX),
+                                                    Qt::TextWordWrap, calculation_text)
+                                .adjusted(-4, -4, 4, 4);  // Add padding
+
+            // Draw semi-transparent background
+            QColor bgColor(0, 0, 255, 100);  // Semi-transparent blue
+            painter_calculation_text.setPen(Qt::NoPen);
+            painter_calculation_text.setBrush(bgColor);
+            QRect textRect = boundingBox.translated(this->x(), this->y());
+            painter_calculation_text.drawRect(textRect);
+
+            // Draw white text on top
+            painter_calculation_text.setPen(Qt::white);
+            painter_calculation_text.drawText(QRect(this->x(), this->y(), boundingBox.width(), boundingBox.height()),
+                                            Qt::TextWordWrap, calculation_text);
 
             // -----------------------------------------------------------------------------------
             // draw rectangle of calculation region
