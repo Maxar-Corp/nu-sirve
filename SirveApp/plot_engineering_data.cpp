@@ -207,6 +207,8 @@ void EngineeringPlot::PlotChart(bool &osmTrackDataLoaded)
     func_y = DeriveFunctionPointers(plotYType);
 
     PlotSirveQuantities(func_x, func_y, plot_number_tracks, osmTrackDataLoaded);
+
+    connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
 }
 
 void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_values, std::vector<double> &y_values)
@@ -338,9 +340,6 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
         this->zoomToFit();
-
-        connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
-
         this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
 
         this->getPlotter()->setPlotLabel(plot_classification);
