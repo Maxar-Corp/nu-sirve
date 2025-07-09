@@ -79,16 +79,19 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
 }
 
 void EngineeringPlot::onJPContextActionTriggered(const QString& actionName) {
-    if (actionName == "Snap It" && ! get_show_full_scope()) {
+    if (actionName == "Snap It") {
+
+        double min_x = get_show_full_scope() ? index_full_scope_xmin + 1 : partial_scope_original_min_x;
+        double max_x = get_show_full_scope() ? index_full_scope_xmax + 1 : partial_scope_original_max_x;
 
         if (get_quantity_unit_by_axis(1) == Enums::PlotUnit::Seconds)
         {
-            double fraction = double(snap_x - get_single_x_axis_value(partial_scope_original_min_x)) / double(get_single_x_axis_value(partial_scope_original_max_x) - get_single_x_axis_value(partial_scope_original_min_x));
-            emit frameNumberChanged(fraction * (partial_scope_original_max_x - partial_scope_original_min_x));
+            double fraction = double(snap_x - get_single_x_axis_value(min_x)) / double(get_single_x_axis_value(max_x) - get_single_x_axis_value(min_x));
+            emit frameNumberChanged(fraction * (max_x - min_x));
         }
         else
         {
-            emit frameNumberChanged(snap_x - partial_scope_original_min_x);
+            emit frameNumberChanged(snap_x - min_x);
         }
     }
 }
@@ -709,7 +712,7 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     QVector<double> yData = {-SirveAppConstants::BigNumber, SirveAppConstants::BigNumber};
 
     frameLineColumnX = ds->addCopiedColumn(xData, "frameline_X");
-    size_t frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");
+    frameLineColumnY = ds->addCopiedColumn(yData, "frameline_Y");
 
     JKQTPXYLineGraph *lineGraph = new JKQTPXYLineGraph();
     lineGraph->setXColumn(frameLineColumnX);
@@ -950,22 +953,11 @@ void EngineeringPlot::ToggleLinearLog()
     if (!plotter->show_full_scope)
         SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
 
+    QVector<double> updatedYData = {!yAxisIsLogarithmic ?  std::pow(10.0, -99.0) : -SirveAppConstants::BigNumber, SirveAppConstants::BigNumber};
+    ds->setColumnData(frameLineColumnY, updatedYData);
+    emit this->plotter->plotUpdated();
+
     yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
-}
-
-void EngineeringPlot::AddGraph(int track_id, size_t &columnX, size_t &columnY)
-{
-    graph=new JKQTPXYLineGraph(this);
-
-    graph->setXColumn(columnX);
-    graph->setYColumn(columnY);
-    graph->setTitle("Track " + QString::number(track_id));
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolLineWidth(1);
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setColor(manual_track_colors[track_id]);
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setLineStyle(Qt::SolidLine);
-    dynamic_cast<JKQTPXYLineGraph*>(graph)->setSymbolType(JKQTPNoSymbol);
-
-    this->addGraph(graph);
 }
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
@@ -1125,7 +1117,7 @@ void EngineeringPlot::RestoreTrackGraphs(std::vector<size_t> &new_column_indexes
         static QRegularExpression re("\\s(\\d+)\\s");
         QString column_name = ds->getColumnNames()[i];
         int track_id = re.match(column_name).hasMatch() && re.match(column_name).captured(1).toInt();
-        AddGraph(track_id, new_column_indexes[i], new_column_indexes[i+1]);
+        AddTypedGraph(graph_type, new_column_indexes[i], new_column_indexes[i+1], track_id);
     }
 }
 

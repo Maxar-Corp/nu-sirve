@@ -42,15 +42,14 @@ public:
 
     using JKQTPlotter::zoomIn; // Keep access to the base class version
 
-    QChartView *chart_view;
     ColorScheme colors;
     JKQTPDatastore* ds;
 
-    QString x_title, y_title, plotTitle;
+    QString plotTitle;
 
     std::vector<double> past_midnight, past_epoch;
-    std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
-    std::vector<double> boresight_az, boresight_el;
+    // std::vector<double> sensor_i_fov_x, sensor_i_fov_y;
+    // std::vector<double> boresight_az, boresight_el;
 
     Enums::PlotType plotYType = Enums::PlotType::Undefined_PlotType;
     Enums::PlotType plotXType = Enums::PlotType::Undefined_PlotType;
@@ -59,7 +58,6 @@ public:
 
     const QVector<double>& getColumn(size_t index) const;
 
-    void AddGraph(int track_id, size_t &columnX, size_t&columnY);
     void AddTrack(std::vector<double> x, std::vector<double> y, int track_id, size_t &columnX, size_t &columnY);
     void AddTypedGraph(Enums::GraphType graph_type, size_t columnX, size_t columnY, std::optional<int> track_id = std::nullopt, std::optional<QString> graph_title = std::nullopt);
     void DefineFullPlotInterval();
@@ -166,8 +164,10 @@ private:
     QAction* actToggleLinearLog;
 
     double fixed_max_y, sub_max_y;
-    size_t frameLineColumnX;
+
+    size_t frameLineColumnX, frameLineColumnY;
     size_t frameline_graph_index;
+
     JKQTPXYGraph* graph;
     Enums::GraphType graph_type = Enums::GraphType::Line;
     std::vector<Quantity> my_quantities;
