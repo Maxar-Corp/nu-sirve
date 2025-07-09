@@ -58,7 +58,7 @@ private:
 signals:
     void editClassification(int tab_index, QString current_value);
     void paletteParamsSelected(QString plotTitle, std::vector<Quantity> &quantities);
-    void plotFocusChanged(int tab_index);
+    //void plotFocusChanged(int tab_index);
 
     void popinPlot(int plotType);
     void popoutPlot(int tab_index, QString plotTitle, std::vector<Quantity> &quantities);

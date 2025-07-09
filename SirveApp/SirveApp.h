@@ -59,6 +59,7 @@ public:
     QPointer<EngineeringData> eng_data;
     QPointer<QWidget> main_widget;
     bool osmDataLoaded;
+    bool osmTrackDataLoaded;
     std::vector<Frame> osm_frames;
     OSMReader osm_reader;
     bool record_video;
@@ -221,7 +222,7 @@ private:
 
     CalibrationData calibration_model;
 
-    void AllocateAbirData(int min_frame, int max_frame);
+    void AllocateAbirData(int min_frame, int &max_frame);
     void AnnotateVideo();
 
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
@@ -278,7 +279,7 @@ private:
     void HandleOutlierProcessingChange();
     void HandlePopoutHistogramClick(bool checked);
 
-    void LoadAbirData(int start_frame, int stop_frame);
+    void LoadAbirData(int start_frame, int &stop_frame);
     void LoadOsmData();
 ;
     void OpenPopoutHistogramPlot();

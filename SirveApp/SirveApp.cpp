@@ -1903,19 +1903,18 @@ void SirveApp::LoadOsmData()
 
     plot_palette = new PlotPalette();
 
+    osmDataLoaded = track_info->GetTrackCount() != 0;
+
+    if (!osmDataLoaded)
+    {
+        QtHelpers::LaunchMessageBox(QString("Data Warning!"), "No Az-El or Sum Counts data available - boresight only.");
+    }
+
     EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
 
-    osmDataLoaded = true;
-
     connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
-
-    size_t num_tracks = track_info->GetTrackCount();
-    if (num_tracks == 0)
-    {
-        QtHelpers::LaunchMessageBox(QString("No Tracking Data"), "No tracking data was found within the file. No data will be plotted.");
-    }
 
     //--------------------------------------------------------------------------------
 
@@ -1970,21 +1969,22 @@ void SirveApp::LoadOsmData()
 
     tab_plots->setCurrentIndex(1);
 
-    UpdateGuiPostDataLoad(osmDataLoaded);
+    // Here we set the flag true, counting ANY" "osm" data present as justification for enabling the gui.
+    // Question: "Does boresight az-el count as 'osm' data?"
+    UpdateGuiPostDataLoad(true);
 }
 
 void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quantity> &quantities)
 {
     EngineeringPlot *data_plot = new EngineeringPlot(osm_frames, plotTitle, quantities);
+
     data_plot->set_plotting_track_frames(track_info->GetOsmPlottingTrackFrames(), track_info->GetTrackCount());
     UpdatePlots(data_plot);
 
     data_plot->DefineFullPlotInterval();
-
     data_plot->set_show_full_scope(true);
     data_plot->set_data_scope_icon("full");
     data_plot->DisableDataScopeButton(true);
-
     data_plot->set_graph_style_icon("solid");
 
     if (data_plot->plotYType == Enums::PlotType::SumCounts)
@@ -1995,7 +1995,6 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     connect(data_plot, &EngineeringPlot::frameNumberChanged, video_player_, &VideoPlayer::ViewFrame);
 
     plot_palette->AddPlotTab(data_plot, quantities);
-
 }
 
 void SirveApp::HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities)
@@ -2158,7 +2157,7 @@ void SirveApp::UiLoadAbirData()
     video_player_->SetVideoDimensions();
 }
 
-void SirveApp::LoadAbirData(int min_frame, int max_frame)
+void SirveApp::LoadAbirData(int min_frame, int &max_frame)
 {
     DeleteAbirData();
     ResetEngineeringDataAndSliderGUIs();
@@ -2170,7 +2169,7 @@ void SirveApp::DeleteAbirData()
     abir_frames.reset();
 }
 
-void SirveApp::AllocateAbirData(int min_frame, int max_frame)
+void SirveApp::AllocateAbirData(int min_frame, int &max_frame)
 {
     video_player_->StopTimer();
     state_manager_->clear();
@@ -2219,6 +2218,12 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
         max_value, abir_frames->video_frames_16bit
     };
     progress_bar_main->setValue(80);
+
+    if (max_frame > abir_frames->last_valid_frame)
+    {
+        QtHelpers::LaunchMessageBox(QString("Warning"), "The Stop Frame goes beyond the last validated Frame.");
+    }
+
     max_frame = abir_frames->last_valid_frame;
     progress_bar_main->setValue(100);
 
@@ -2251,8 +2256,10 @@ void SirveApp::AllocateAbirData(int min_frame, int max_frame)
     cmb_OSM_track_IDs->addItem("Primary");
     cmb_manual_track_IDs->clear();
     cmb_manual_track_IDs->addItem("Primary");
+
     const auto& track_ids = track_info->GetOsmTrackIds();
-    for (int track_id : track_ids){
+    for (int track_id : track_ids)
+    {
         cmb_OSM_track_IDs->addItem(QString::number(track_id));
     }
 
@@ -2366,7 +2373,10 @@ void SirveApp::ClosePopoutEngineeringPlot()
 
 void SirveApp::HandlePlotFocusChanged(int tab_index)
 {
-    plot_palette->RouteFramelineUpdate(video_player_->GetCurrentFrameNumber());
+    if (osmTrackDataLoaded)
+    {
+        plot_palette->RouteFramelineUpdate(video_player_->GetCurrentFrameNumber());
+    }
 }
 
 void SirveApp::HandleProgressUpdate(int percent)
@@ -3043,35 +3053,33 @@ void SirveApp::UpdatePlots(EngineeringPlot *engineering_plot)
 {
     if (eng_data)
     {
-        engineering_plot->PlotChart();
-        engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
+        engineering_plot->PlotChart(osmTrackDataLoaded);
     }
 
-    if (osmDataLoaded == true)
+    engineering_plot->PlotCurrentFrameline(video_player_->GetCurrentFrameNumber());
+
+    for (int id : this->track_info->GetManualTrackIds())
     {
-        for (int id : this->track_info->GetManualTrackIds())
+        QLineSeries *trackSeries = new QLineSeries();
+        trackSeries->setName("Track " + QString::number(id));
+
+        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
+        if (existing_track_control != nullptr)
         {
-            QLineSeries *trackSeries = new QLineSeries();
-            trackSeries->setName("Track " + QString::number(id));
+            QComboBoxWithId *cmb_box = existing_track_control->findChild<QComboBoxWithId*>();
 
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(id));
-            if (existing_track_control != nullptr)
-            {
-                QComboBoxWithId *cmb_box = existing_track_control->findChild<QComboBoxWithId*>();
+            QPen pen;
+            QStringList color_options = ColorScheme::get_track_colors();
+            int index = cmb_box->currentIndex();
+            QColor trackColor = color_options[index];
+            pen.setColor(trackColor);
+            pen.setStyle(Qt::SolidLine);
+            pen.setWidth(3);
 
-                QPen pen;
-                QStringList color_options = ColorScheme::get_track_colors();
-                int index = cmb_box->currentIndex();
-                QColor trackColor = color_options[index];
-                pen.setColor(trackColor);
-                pen.setStyle(Qt::SolidLine);
-                pen.setWidth(3);
+            trackSeries->setPen(pen);
 
-                trackSeries->setPen(pen);
-
-                trackSeries->append(0, 0);
-                trackSeries->append(0, 0);
-            }
+            trackSeries->append(0, 0);
+            trackSeries->append(0, 0);
         }
     }
 

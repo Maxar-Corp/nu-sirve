@@ -68,7 +68,7 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
         connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
     }
 
-    connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
+    //connect(actMouseMoveToolTip, SIGNAL(triggered()), this, SLOT(ToggleGraphTickSymbol()));
 
     connect(this, &JKQTPlotter::contextActionTriggered, this, &EngineeringPlot::onJPContextActionTriggered);
 
@@ -201,7 +201,7 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     return func;
 }
 
-void EngineeringPlot::PlotChart()
+void EngineeringPlot::PlotChart(bool &osmTrackDataLoaded)
 {
     int plot_number_tracks = 1;
 
@@ -210,9 +210,9 @@ void EngineeringPlot::PlotChart()
     func_x = DeriveFunctionPointers(plotXType);
     func_y = DeriveFunctionPointers(plotYType);
 
-    PlotSirveQuantities(func_x, func_y, plot_number_tracks);
+    PlotSirveQuantities(func_x, func_y, plot_number_tracks, osmTrackDataLoaded);
 
-    this->getPlotter()->setPlotLabel(plot_classification);
+    connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
 }
 
 void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_values, std::vector<double> &y_values)
@@ -303,47 +303,51 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
     this->addGraph(graph);
 }
 
-void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks)
+void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size_t)> get_x_func, std::function<std::vector<double>(size_t)> get_y_func, size_t plot_number_tracks, bool &osmTrackDataLoaded)
 {
     x_osm_values = get_x_func(0);
     y_osm_values = get_y_func(0);
 
-    graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
+    osmTrackDataLoaded = x_osm_values.size() > 0 && y_osm_values.size() > 0;
 
-    QVector<double> X;
-    QVector<double> Y;
+    if (osmTrackDataLoaded)
+    {
+        graph_type = get_quantity_unit_by_axis(1) == Enums::PlotUnit::Degrees ? Enums::GraphType::Scatter : Enums::GraphType::Line;
 
-    if (graph_type != Enums::GraphType::Scatter)
-    {
-        X = QVector<double>(x_osm_values.begin(), x_osm_values.end());
-        Y = QVector<double>(y_osm_values.begin(), y_osm_values.end());
-    } else
-    {
-        std::vector<double> filtered_x, filtered_y;
-        set_show_full_scope(false);
-        DefineSubSet(filtered_x, filtered_y);
-        X = QVector<double>(filtered_x.begin(), filtered_x.end());
-        Y = QVector<double>(filtered_y.begin(), filtered_y.end());
+        QVector<double> X;
+        QVector<double> Y;
+
+        if (graph_type != Enums::GraphType::Scatter)
+        {
+            X = QVector<double>(x_osm_values.begin(), x_osm_values.end());
+            Y = QVector<double>(y_osm_values.begin(), y_osm_values.end());
+        } else
+        {
+            std::vector<double> filtered_x, filtered_y;
+            set_show_full_scope(false);
+            DefineSubSet(filtered_x, filtered_y);
+            X = QVector<double>(filtered_x.begin(), filtered_x.end());
+            Y = QVector<double>(filtered_y.begin(), filtered_y.end());
+        }
+
+        size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
+        size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
+
+        AddTypedGraph(graph_type, columnX, columnY);
+
+        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
+
+        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
+        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
+        this->getYAxis()->setLabelFontSize(10); // large x-axis label
+        this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
+
+        this->zoomToFit();
+        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
+
+        this->getPlotter()->setPlotLabel(plot_classification);
     }
-
-    size_t columnX=ds->addCopiedColumn(X, Enums::plotTypeToString(plotXType));
-    size_t columnY=ds->addCopiedColumn(Y, Enums::plotTypeToString(plotYType));
-
-    AddTypedGraph(graph_type, columnX, columnY);
-
-    QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
-    this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
-
-    QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
-    this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
-    this->getYAxis()->setLabelFontSize(10); // large x-axis label
-    this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
-
-    this->zoomToFit();
-
-    connect(this->plotter->actZoomAll, SIGNAL(triggered()), this, SLOT(HomeZoomIn()));
-
-    this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
 
     InitializeFrameLine(index_full_scope_xmin);
 }
@@ -368,13 +372,29 @@ int EngineeringPlot::get_index_partial_scope_xmax() const
     return index_partial_scope_xmax;
 }
 
+bool EngineeringPlot::OsmTrackingDataAvailable()
+{
+    return std::any_of(track_frames.begin(), track_frames.end(), [](PlottingTrackFrame value) {
+        return value.details.size() > 0;
+    });
+}
+
 std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
 {
     std::vector<double> x_values;
 
-    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    if (OsmTrackingDataAvailable())
     {
-        if (i < track_frames[track_frame_index].details.size())
+        for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+        {
+            if (i < track_frames[track_frame_index].details.size()) // this check should be skipped if no osm tracking exists!
+            {
+                x_values.push_back(get_single_x_axis_value(track_frame_index));
+            }
+        }
+    } else
+    {
+        for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
         {
             x_values.push_back(get_single_x_axis_value(track_frame_index));
         }
@@ -701,7 +721,8 @@ void EngineeringPlot::InitializeFrameLine(double frameline_x)
     lineGraph->setTitle("Frame Line");
 
     this->addGraph(lineGraph);
-    this->getGraphs().at(1)->setVisible(show_frame_line);
+    frameline_graph_index = (ds->getColumnCount()-2)/2;
+    this->getGraphs().at(frameline_graph_index)->setVisible(show_frame_line);
 }
 
 void EngineeringPlot::PlotCurrentFrameline(int frame)
@@ -764,14 +785,13 @@ void EngineeringPlot::HomeZoomIn()
         plotter->getYAxis()->setMax(fixed_max_y);
         SetPlotterXAxisMinMax(get_min_x_axis_value(), get_max_x_axis_value());
     }
-    else if (plotter->show_full_scope)
-    {
-        this->zoomToFit();
-    }
     else
     {
-        SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
-        SetPlotterYAxisMinMax(plotter->sub_plot_ymin, plotter->sub_plot_ymax);
+        this->zoomToFit();
+        if (! plotter->show_full_scope)
+        {
+            SetPlotterXAxisMinMax(plotter->sub_plot_xmin, plotter->sub_plot_xmax);
+        }
     }
     redrawPlot();
 }
@@ -875,7 +895,7 @@ void EngineeringPlot::ToggleDataScope()
 void EngineeringPlot::ToggleFrameLine()
 {
     show_frame_line = ! show_frame_line;
-    this->getGraphs().at(1)->setVisible(show_frame_line);
+    this->getGraphs().at(frameline_graph_index)->setVisible(show_frame_line);
     emit this->plotter->plotUpdated();
 }
 
