@@ -156,7 +156,7 @@ private:
     // Parameters to display subplot
     bool plot_all_data, plot_primary_only;
     int index_full_scope_xmin, index_full_scope_xmax, index_partial_scope_xmin, index_partial_scope_xmax;
-    int partial_scope_original_min_x = 0, partial_scope_original_max_x;
+    int partial_scope_original_min_x = 1, partial_scope_original_max_x;
 
     QAction* actToggleDataScope;
     QAction* actToggleFrameLine;
