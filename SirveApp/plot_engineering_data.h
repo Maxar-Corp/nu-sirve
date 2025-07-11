@@ -68,7 +68,7 @@ public:
     FuncType DeriveFunctionPointers(Enums::PlotType type);
 
     void DisableDataScopeButton(bool value);
-
+    int FetchGraphIndexByTitle(const QString &titleToFind);
     void PlotChart(bool &osmTrackDataLoaded);
     void PlotCurrentFrameline(int frameline_x);
     void GetTrackValues(int &track_id, std::vector<double> &x_values,
@@ -147,6 +147,7 @@ public Q_SLOTS:
     void ToggleGraphStyle();
     void ToggleFrameLine();
     void ToggleLinearLog();
+    void ToggleTrack(int track_id);
 
 private slots:
     void onJPContextActionTriggered(const QString& actionName);

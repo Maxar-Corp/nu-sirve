@@ -275,7 +275,6 @@ private:
     void HandleCreateTrackClick();
     void HandleSaveTrackClick();
     void HandleExternalFileToggle();
-    void HandleFinishCreateTrackClick();
     void HandleOutlierProcessingChange();
     void HandlePopoutHistogramClick(bool checked);
 
@@ -341,6 +340,7 @@ public slots:
     void HandleProgressUpdate(int percent);
     void HandleRelativeHistogramToggle(bool input);
     void HandleShowManualTrackId(int track_id, const QColor& color);
+    void HandleTrackCreation();
     void HandleTrackRemoval(int track_id);
     void HandleZoomAfterSlider();
 

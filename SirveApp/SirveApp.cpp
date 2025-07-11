@@ -1173,8 +1173,8 @@ void SirveApp::SetupConnections() {
     //---------------------------------------------------------------------------
     connect(btn_import_tracks, &QPushButton::clicked, this, &SirveApp::ImportTracks);
     connect(btn_create_track, &QPushButton::clicked, this, &SirveApp::HandleCreateTrackClick);
-    connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::HandleFinishCreateTrackClick);
-    connect(video_player_, &VideoPlayer::finishTrackCreation, this, &SirveApp::HandleFinishCreateTrackClick);
+    connect(btn_finish_create_track, &QPushButton::clicked, this, &SirveApp::HandleTrackCreation);
+    connect(video_player_, &VideoPlayer::finishTrackCreation, this, &SirveApp::HandleTrackCreation);
 
     connect(tm_widget, &TrackManagementWidget::displayTrack, this, &SirveApp::HandleShowManualTrackId);
     connect(tm_widget, &TrackManagementWidget::hideTrack, this, &SirveApp::HandleHideManualTrackId);
@@ -1411,7 +1411,7 @@ void SirveApp::PrepareForTrackCreation(int track_id)
     tab_menu->setTabEnabled(1, false);
 }
 
-void SirveApp::HandleFinishCreateTrackClick()
+void SirveApp::HandleTrackCreation()
 {
     const auto& created_track_details = video_player_->GetCreatedTrackDetails();
     bool any_contents = false;
@@ -1516,14 +1516,11 @@ void SirveApp::ExitTrackCreationMode()
 
 void SirveApp::HandleHideManualTrackId(int track_id)
 {
-    QColor new_color(0,0,0,0);
-
     video_player_->HideManualTrackId(track_id);
     for (int index = 0; index < plot_palette->tabBar()->count(); index++)
     {
-        plot_palette->RecolorManualTrack(index, track_id, new_color);
+        plot_palette->ToggleTrack(track_id);
     }
-    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
@@ -1531,9 +1528,8 @@ void SirveApp::HandleShowManualTrackId(int track_id, const QColor& new_color)
     video_player_->ShowManualTrackId(track_id);
     for (int index = 0; index < plot_palette->tabBar()->count(); index++)
     {
-        plot_palette->RecolorManualTrack(index, track_id, new_color);
+        plot_palette->ToggleTrack(track_id);
     }
-    plot_palette->PlotAllSirveTracks(-1);
 }
 
 void SirveApp::HandleTrackRemoval(int track_id)
