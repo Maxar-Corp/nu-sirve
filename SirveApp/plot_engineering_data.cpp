@@ -352,17 +352,17 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
     AddTypedGraph(graph_type, columnX, columnY);
 
-    QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
+    QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  "  [" + Enums::plotUnitToString(my_quantities[1].getUnit()) + "] ";
 
     if (my_quantities[1].getName()=="Frames"){
         this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' '));
     }    
     else{
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + " [" + my_quantities[1].getFormattedUnit() + "]");
+        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + "  [" + my_quantities[1].getFormattedUnit() + "]");
     }
 
     QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
-    this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + " ["+my_quantities[0].getFormattedUnit()+"]");
+    this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + "  ["+my_quantities[0].getFormattedUnit()+"]");
     this->getYAxis()->setLabelFontSize(10); // large x-axis label
     this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 

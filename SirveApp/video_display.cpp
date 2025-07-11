@@ -1133,11 +1133,11 @@ void VideoDisplay::UpdateDisplayFrame()
 
             // -----------------------------------------------------------------------------------
             // print radiance calculation data onto frame
-            QString max_value = QString::number(measurements[0]) + " W/m^2-sr";
-            QString avg_value = QString::number(measurements[1]) + " W/m^2-sr";
-            QString sum_value = QString::number(measurements[2]) + " W/m^2-sr";
+            QString max_value = QString::number(measurements[0]) + "W / m^{2} str";
+            QString avg_value = QString::number(measurements[1]) + "W / m^{2} str";
+            QString sum_value = QString::number(measurements[2]) + "W / m^{2} str";
 
-         QPainter painter_calculation_text(&frame);
+            QPainter painter_calculation_text(&frame);
 
             // Text content
             QString calculation_text = "Irradiance at FPA\n";
@@ -1185,8 +1185,29 @@ void VideoDisplay::UpdateDisplayFrame()
 
     // Draw banner text
     QPainter p1(&frame);
+    p1.setRenderHint(QPainter::Antialiasing);
+
+    // Semi-transparent background color (e.g., black with 50% opacity)
+    QColor bgColor(0, 0, 0, 128);  // RGBA: 128 = 50% opacity
+
+    // Calculate text bounding rectangles (top and bottom)
+    QFont font("Times New Roman", 12, QFont::Bold);
+    p1.setFont(font);
+
+    QRect topRect = QFontMetrics(font).boundingRect(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
+    QRect bottomRect = QFontMetrics(font).boundingRect(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
+
+    // Optional: Add padding
+    int padding = 4;
+    topRect.adjust(-padding, -padding, padding, padding);
+    bottomRect.adjust(-padding, -padding, padding, padding);
+
+    // Draw background rectangles
+    p1.fillRect(topRect, bgColor);
+    p1.fillRect(bottomRect, bgColor);
+
+    // Draw the text over the backgrounds
     p1.setPen(QPen(banner_color));
-    p1.setFont(QFont("Times New Roman", 12, QFont::Bold));
     p1.drawText(frame.rect(), Qt::AlignTop | Qt::AlignHCenter, banner_text);
     p1.drawText(frame.rect(), Qt::AlignBottom | Qt::AlignHCenter, banner_text);
 
