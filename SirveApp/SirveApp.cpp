@@ -1281,14 +1281,14 @@ void SirveApp::ImportTracks()
             {
                 video_player_->AddManualTrackIdToShowLater(track_id);
                 tm_widget->AddTrackControl(track_id);
-                QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-                if (existing_track_control != nullptr)
-                {
-                    QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-                    const QFileInfo info(file_selection);
-                    lbl_track_description->setText(info.fileName());
-                }
-                // AddTrackColorControl(file_selection,track_id);
+                // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+                // if (existing_track_control != nullptr)
+                // {
+                //     QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                //     const QFileInfo info(file_selection);
+                //     lbl_track_description->setText(info.fileName());
+                // }
+                AddTrackColorControl(file_selection,track_id);
                 track_info->AddManualTracks(result.frames);
 
                 std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
@@ -1338,14 +1338,14 @@ void SirveApp::ImportTracks()
                 cmb_manual_track_IDs->addItem(QString::number(tid));
 
             }
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-            if (existing_track_control != nullptr)
-            {
-                QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-                const QFileInfo info(file_selection);
-                lbl_track_description->setText(info.fileName());
-            }
-            // AddTrackColorControl(file_selection,track_id);
+            // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            // if (existing_track_control != nullptr)
+            // {
+            //     QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+            //     const QFileInfo info(file_selection);
+            //     lbl_track_description->setText(info.fileName());
+            // }
+            AddTrackColorControl(file_selection,track_id);
 
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
@@ -1535,17 +1535,17 @@ void SirveApp::HandleFinishCreateTrackClick()
                 cmb_manual_track_IDs->addItem(QString::number(track_id));
             }
         }
-        QStringList color_options = ColorScheme::get_track_colors();
-        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
-        if (existing_track_control != nullptr)
-        {
-            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-            const QFileInfo info(new_track_file_name);
-            lbl_track_description->setText(info.fileName());
-            int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-            ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
-        }
-        // AddTrackColorControl(new_track_file_name, static_cast<uint>(currently_editing_or_creating_track_id));
+        // QStringList color_options = ColorScheme::get_track_colors();
+        // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
+        // if (existing_track_control != nullptr)
+        // {
+        //     QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+        //     const QFileInfo info(new_track_file_name);
+        //     lbl_track_description->setText(info.fileName());
+        //     int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
+        //     ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
+        // }
+        AddTrackColorControl(new_track_file_name, static_cast<uint>(currently_editing_or_creating_track_id));
     }
 
     ExitTrackCreationMode();
@@ -4466,17 +4466,8 @@ void SirveApp::ExecuteAutoTracking()
             {
                 cmb_manual_track_IDs->addItem(QString::number(tid));
             }
-        QStringList color_options = ColorScheme::get_track_colors();
-        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
-        if (existing_track_control != nullptr)
-        {
-            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-            const QFileInfo info(new_track_file_name);
-            lbl_track_description->setText(info.fileName());
-            int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-            ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
-        }
-            // AddTrackColorControl(new_track_file_name, track_id);
+
+            AddTrackColorControl(new_track_file_name, track_id);
         }
 
     CloseProgressArea();
