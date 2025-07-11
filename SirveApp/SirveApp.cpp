@@ -525,10 +525,10 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
     cursor_color = new QComboBox();
     cursor_color->addItems(ColorScheme::cursorColors.keys());
-    cursor_color->setCurrentIndex(10);
+    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditCursorColor);
+    cursor_color->setCurrentIndex(3);
     QFormLayout *form_cursor_color = new QFormLayout;
     form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
-
     QStringList colors = ColorScheme::get_track_colors();
     cmb_text_color = new QComboBox();
     cmb_text_color->addItems(colors);
@@ -1173,7 +1173,6 @@ void SirveApp::SetupConnections() {
     connect(chk_show_time, &QCheckBox::stateChanged, video_player_, &VideoPlayer::SetFrameTimeToggle);
     connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditColorMap);
     connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditBannerColor);
-    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditCursorColor);
 
     connect(btn_add_annotations, &QPushButton::clicked, this, &SirveApp::AnnotateVideo);
     connect(btn_change_banner_text, &QPushButton::clicked, this, &SirveApp::EditBannerText);
@@ -1722,7 +1721,7 @@ void SirveApp::LoadWorkspace()
             LoadOsmData();
             QFileInfo fileInfo0(workspace_vals.image_path);
             abpimage_file_base_name = fileInfo0.baseName();
-            cmb_text_color->setCurrentIndex(2);
+            cmb_text_color->setCurrentIndex(6);
         } else {
             return;
         }

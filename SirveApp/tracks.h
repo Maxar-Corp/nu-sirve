@@ -165,8 +165,10 @@ public:
     std::vector<std::optional<TrackDetails>> GetEmptyTrack() const;
     void WriteManualTrackToFile(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name);
 
-    std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
-    std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
+    std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index);
+    const std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
+    std::vector<TrackFrame> GetManualFrames(int start_index, int end_index);
+    const std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
     std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
     std::vector<ManualPlottingTrackFrame>& GetManualPlottingFrames();
     void UpdateTrackDetails(std::vector<Frame> & osm_frames, std::vector<PlottingTrackFrame> & track_data, int absolute_indx_start_0, int absolute_indx_stop_0);

@@ -3,10 +3,9 @@
 #define QUANTITY_H
 
 #include <QString>
-#include "enums.h"
+#include "enums.h"  // where PlotUnit is declared
 
-class Quantity
-{
+class Quantity {
 public:
     Quantity();
     Quantity(QString name, Enums::PlotUnit unit);
@@ -14,10 +13,11 @@ public:
     QString getName() const;
     Enums::PlotUnit getUnit() const;
 
-private:
+    QString getFormattedUnit() const;
+    QString getFullLabel() const;
 
+private:
     QString plotName;
     Enums::PlotUnit plotUnit;
 };
-
-#endif // QUANTITY_H
+#endif

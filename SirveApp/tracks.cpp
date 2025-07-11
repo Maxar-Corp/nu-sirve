@@ -177,7 +177,7 @@ size_t TrackInformation::GetFrameCount() const
     return osm_frames.size();
 }
 
-std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index) const
+std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index)
 {
     if (start_index > osm_frames.size() || end_index > osm_frames.size() || start_index > end_index) {
         return {};
@@ -185,7 +185,23 @@ std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_
     return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
 }
 
-std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index) const
+const std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index) const
+{
+    if (start_index > osm_frames.size() || end_index > osm_frames.size() || start_index > end_index) {
+        return {};
+    }
+    return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
+}
+
+std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index)
+{
+    if (start_index > manual_frames.size() || end_index > manual_frames.size() || start_index > end_index) {
+        return {};
+    }
+    return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
+}
+
+const std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index) const
 {
     if (start_index > manual_frames.size() || end_index > manual_frames.size() || start_index > end_index) {
         return {};
