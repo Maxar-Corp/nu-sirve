@@ -43,6 +43,8 @@ public slots:
 
 private:
 
+    bool osmTrackDataLoaded = true; // safe to assume this??
+
 	QString file_path, instructions;
 	
 	EngineeringData *engineering_data;

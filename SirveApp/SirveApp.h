@@ -53,7 +53,7 @@ public:
     /* --------------------------------------------------------------------------------------------
         Key component & supporting status variables
     ----------------------------------------------------------------------------------------------- */
-    CalibrationData calibration_model;
+
 	ABIRFrames::Ptr abir_frames;
     QString abpimage_file_base_name;
     AbpFileMetadata abp_file_metadata;
@@ -63,6 +63,7 @@ public:
     QPointer<EngineeringData> eng_data;
     QPointer<QWidget> main_widget;
     bool osmDataLoaded;
+    bool osmTrackDataLoaded;
     std::vector<Frame> osm_frames;
     OSMReader osm_reader;
     bool record_video;
@@ -226,9 +227,11 @@ private:
     QPointer<QAction> action_export_all_frames;
 
     void AddTrackColorControl(QString new_track_file_name, u_int track_id);
-    void AllocateAbirData(int min_frame, int max_frame);
-    void AnnotateVideo();
 
+    CalibrationData calibration_model;
+
+    void AllocateAbirData(int min_frame, int &max_frame);
+    void AnnotateVideo();
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);
@@ -283,7 +286,7 @@ private:
     void HandleOutlierProcessingChange();
     void HandlePopoutHistogramClick(bool checked);
 
-    void LoadAbirData(int start_frame, int stop_frame);
+    void LoadAbirData(int start_frame, int &stop_frame);
     void LoadOsmData();
 
     void OpenPopoutHistogramPlot();

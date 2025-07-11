@@ -2,6 +2,8 @@
 
 ExternalFixedNoiseInformationWidget::ExternalFixedNoiseInformationWidget(ABPFileType file_type)
 {
+    osmTrackDataLoaded = true;
+
     file_type_ = file_type;
     if (file_type == ABPFileType::ABP_D)
     {
@@ -103,7 +105,7 @@ void ExternalFixedNoiseInformationWidget::PlotOsmFrameData()
     plot_data->past_midnight = engineering_data->get_seconds_from_midnight();
     plot_data->past_epoch = engineering_data->get_seconds_from_epoch();
     plot_data->SetPlotClassification("");
-    plot_data->PlotChart();
+    plot_data->PlotChart(osmTrackDataLoaded);
 
     btn_load_frames->setEnabled(true);
 }
