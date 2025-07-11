@@ -21,7 +21,7 @@ QString plotUnitToScientificLabel(Enums::PlotUnit unit) {
         case Enums::PlotUnit::Microns:            return "μm";
         case Enums::PlotUnit::Radians:            return "Radians";
         case Enums::PlotUnit::Seconds:            return "s";
-        case Enums::PlotUnit::W_m2_str:           return "W / m^{2} str";
+        case Enums::PlotUnit::W_m2_str:           return "W / m^{2} \\cdot sr";
         case Enums::PlotUnit::Undefined_PlotUnit: return "Undefined";
         default:                           return "Unknown";
     }

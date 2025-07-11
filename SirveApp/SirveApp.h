@@ -225,6 +225,7 @@ private:
         action_export_frame_range, action_export_tracking_data;
     QPointer<QAction> action_export_all_frames;
 
+    void AddTrackColorControl(QString new_track_file_name, u_int track_id);
     void AllocateAbirData(int min_frame, int max_frame);
     void AnnotateVideo();
 

@@ -1289,6 +1289,7 @@ void SirveApp::ImportTracks()
                     const QFileInfo info(file_selection);
                     lbl_track_description->setText(info.fileName());
                 }
+                AddTrackColorControl(file_selection,track_id);
                 track_info->AddManualTracks(result.frames);
 
                 std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
@@ -1346,6 +1347,7 @@ void SirveApp::ImportTracks()
                 const QFileInfo info(file_selection);
                 lbl_track_description->setText(info.fileName());
             }
+            AddTrackColorControl(file_selection,track_id);
 
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
@@ -1401,11 +1403,11 @@ void SirveApp::HandleCreateTrackClick()
         {
             in_edit_mode = true;
 
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-            if (existing_track_control != nullptr)
-            {
-                existing_track_control->findChild<QCheckBoxWithId*>()->setChecked(false);
-            }
+            // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            // if (existing_track_control != nullptr)
+            // {
+            //     existing_track_control->findChild<QCheckBoxWithId*>()->setChecked(false);
+            // }
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
             video_player_->EnterTrackCreationMode(appPos,existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
@@ -1546,6 +1548,7 @@ void SirveApp::HandleFinishCreateTrackClick()
             int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
             ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
         }
+        AddTrackColorControl(new_track_file_name, static_cast<uint>(currently_editing_or_creating_track_id));
     }
 
     ExitTrackCreationMode();
@@ -1959,7 +1962,7 @@ void SirveApp::LoadOsmData()
 
     EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Sum Counts",{Quantity("Sum_Counts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
 
     osmDataLoaded = true;
 
@@ -2041,7 +2044,7 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
 
     data_plot->set_graph_style_icon("solid");
 
-    if (data_plot->plotYType == Enums::PlotType::SumCounts)
+    if (data_plot->plotYType == Enums::PlotType::Sum_Counts)
     {
         data_plot->set_graph_mode_icon("linear");
     }
@@ -4477,10 +4480,63 @@ void SirveApp::ExecuteAutoTracking()
                 int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
                 HandleManualTrackRecoloring(track_id, color_options[ind]);
             }
+            AddTrackColorControl(new_track_file_name, track_id);
         }
 
     CloseProgressArea();
     }
+}
+
+void SirveApp::AddTrackColorControl(QString new_track_file_name, u_int track_id)
+{
+    QStringList color_options = ColorScheme::get_track_colors();
+    QString used_color;
+    QSet<QString> used_colors;
+
+    // Step 1: Collect all used colors from existing track controls
+    const QList<QWidget*> all_track_controls = tm_widget->findChildren<QWidget*>(QRegularExpression("TrackControl_\\d+"));
+    for (QWidget* ctrl : all_track_controls)
+    {
+        QComboBoxWithId* combo = ctrl->findChild<QComboBoxWithId*>();
+        if (combo)
+            used_colors.insert(combo->currentText());
+    }
+
+    // Step 2: Find the first available color not in use
+    QString next_color;
+    int next_color_index = -1;
+    for (int i = 0; i < color_options.size(); ++i)
+    {
+        if (!used_colors.contains(color_options[i]))
+        {
+            next_color = color_options[i];
+            next_color_index = i;
+            break;
+        }
+    }
+
+    if (next_color_index == -1) {
+    // All colors used — fallback to index 0 or log
+        next_color_index = 0;
+        next_color = color_options[0];
+        // qWarning() << "All colors used — reusing first color:" << next_color;
+    }
+
+    // Step 3: Apply the next available color to the new track
+    QWidget* existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+    if (existing_track_control != nullptr)
+    {
+        QLabel* lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+        const QFileInfo info(new_track_file_name);
+        lbl_track_description->setText(info.fileName());
+
+        QComboBoxWithId* combo = existing_track_control->findChild<QComboBoxWithId*>();
+        if (combo && next_color_index >= 0)
+        {
+            combo->setCurrentIndex(next_color_index);
+            HandleManualTrackRecoloring(track_id, next_color);
+        }
+    }   
 }
 
 void SirveApp::UpdateEpochString(const QString& new_epoch_string)
