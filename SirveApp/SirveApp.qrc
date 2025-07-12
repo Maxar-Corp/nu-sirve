@@ -23,6 +23,7 @@
         <file>icons/crosshair-violet.png</file>
         <file>icons/crosshair-white.png</file>
         <file>icons/expand.png</file>
+        <file>icons/heat.png</file>
         <file>icons/full-data.png</file>
         <file>icons/magnify.png</file>
         <file>icons/menu.png</file>
@@ -34,7 +35,7 @@
         <file>icons/record.png</file>
         <file>icons/record-rec.png</file>
         <file>icons/reverse.png</file>
-        <file>icons/signal.png</file>
+        <file>icons/radiance.png</file>
         <file>icons/skip-backward.png</file>
         <file>icons/skip-forward.png</file>
         <file>icons/skip-next.png</file>

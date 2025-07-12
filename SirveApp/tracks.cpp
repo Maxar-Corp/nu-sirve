@@ -6,8 +6,8 @@
 
 TrackDetails::TrackDetails(double frameTime, double julianDate, double secondPastMidnight, double timingOffset,
                            int centroidXBoresight, int centroidYBoresight, int centroidX, int centroidY, double az, double el, int peakCounts,
-                           int sumCounts, int meanCounts, int numberPixels, double sumRelativeCounts, double peakIrradiance,
-                           double meanIrradiance, double sumIrradiance, double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth,
+                           int sumCounts, int meanCounts, int numberPixels, double sumRelativeCounts, double peak_irradiance,
+                           double mean_irradiance, double sum_irradiance, double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth,
                            int bboxHeight) :
         frame_time(frameTime),
         julian_date(julianDate),
@@ -24,9 +24,9 @@ TrackDetails::TrackDetails(double frameTime, double julianDate, double secondPas
         mean_counts(meanCounts),
         number_pixels(numberPixels),
         sum_relative_counts(sumRelativeCounts),
-        peak_irradiance(peakIrradiance),
-        mean_irradiance(meanIrradiance),
-        sum_irradiance(sumIrradiance),
+        peak_irradiance(peak_irradiance),
+        mean_irradiance(mean_irradiance),
+        sum_irradiance(sum_irradiance),
         sum_relative_irradiance(sumRelativeIrradiance),
         bbox_x(bboxX),
         bbox_y(bboxY),
@@ -71,13 +71,18 @@ TrackDetails::TrackDetails(const FrameData& frame_data, const TrackData& track_d
 }
 
 PlottingTrackDetails::PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double azimuth,
-                                           double elevation, double irradiance):
+                                           double elevation, double peak_irradiance, double mean_irradiance, double sum_irradiance, bool is_calibrated, double mean_temp1, double mean_temp2):
         track_id(trackId),
         centroid(std::move(centroid)),
         sum_relative_counts(sumRelativeCounts),
         azimuth(azimuth),
         elevation(elevation),
-        irradiance(irradiance) {}
+        peak_irradiance(peak_irradiance),
+        sum_irradiance(sum_irradiance),
+        mean_irradiance(mean_irradiance),
+        is_calibrated(is_calibrated),
+        mean_temp1(mean_temp1),
+        mean_temp2(mean_temp2){}
 
 PlottingTrackDetails::PlottingTrackDetails(const TrackData& track_data) :
     track_id(track_data.track_id), centroid(track_data.centroid_x, track_data.centroid_y)
@@ -172,7 +177,7 @@ size_t TrackInformation::GetFrameCount() const
     return osm_frames.size();
 }
 
-std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index) const
+std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index)
 {
     if (start_index > osm_frames.size() || end_index > osm_frames.size() || start_index > end_index) {
         return {};
@@ -180,7 +185,15 @@ std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_
     return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
 }
 
-std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index) const
+const std::vector<TrackFrame> TrackInformation::GetOsmFrames(size_t start_index, size_t end_index) const
+{
+    if (start_index > osm_frames.size() || end_index > osm_frames.size() || start_index > end_index) {
+        return {};
+    }
+    return { osm_frames.begin() + start_index, osm_frames.begin() + end_index };
+}
+
+std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index)
 {
     if (start_index > manual_frames.size() || end_index > manual_frames.size() || start_index > end_index) {
         return {};
@@ -188,12 +201,20 @@ std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int e
     return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
 }
 
-const std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
+const std::vector<TrackFrame> TrackInformation::GetManualFrames(int start_index, int end_index) const
+{
+    if (start_index > manual_frames.size() || end_index > manual_frames.size() || start_index > end_index) {
+        return {};
+    }
+    return { manual_frames.begin() + start_index, manual_frames.begin() + end_index };
+}
+
+std::vector<PlottingTrackFrame>& TrackInformation::GetOsmPlottingTrackFrames()
 {
     return osm_plotting_track_frames;
 }
 
-const std::vector<ManualPlottingTrackFrame>& TrackInformation::GetManualPlottingFrames()
+std::vector<ManualPlottingTrackFrame>& TrackInformation::GetManualPlottingFrames()
 {
     return manual_plotting_frames;
 }
@@ -247,9 +268,23 @@ void TrackInformation::AddManualTracks(const std::vector<TrackFrame>& new_frames
                 manual_image_frames[i].tracks[track_id].centroid_x = track_data.second.centroid_x;
                 manual_image_frames[i].tracks[track_id].centroid_y = track_data.second.centroid_y;
             }
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, temp_track_data.second.centroid_x, temp_track_data.second.centroid_y, temp_track_data.second.sum_relative_counts);
+            GetManualPlottingTrackDetails(i, temp_track_data.second);
             manual_frames[i].tracks[track_id] = temp_track_data.second;
             manual_plotting_frames[i].tracks[track_id].sum_relative_counts = temp_track_data.second.sum_relative_counts;
+            manual_plotting_frames[i].tracks[track_id].peak_irradiance = temp_track_data.second.peak_irradiance;
+            manual_plotting_frames[i].tracks[track_id].mean_irradiance = temp_track_data.second.mean_irradiance;
+            manual_plotting_frames[i].tracks[track_id].sum_irradiance = temp_track_data.second.sum_irradiance;
+            manual_plotting_frames[i].tracks[track_id].is_calibrated = temp_track_data.second.is_calibrated;
+            manual_plotting_frames[i].tracks[track_id].mean_temp1 = temp_track_data.second.mean_temp1;
+            manual_plotting_frames[i].tracks[track_id].mean_temp2 = temp_track_data.second.mean_temp2;
+            manual_plotting_frames[i].tracks[track_id].start_frame1 = temp_track_data.second.start_frame1;
+            manual_plotting_frames[i].tracks[track_id].start_frame2 = temp_track_data.second.start_frame2;
+            manual_plotting_frames[i].tracks[track_id].nuc_calibration_file = temp_track_data.second.nuc_calibration_file;
+            manual_plotting_frames[i].tracks[track_id].nuc_image_file = temp_track_data.second.nuc_image_file;
+            manual_plotting_frames[i].tracks[track_id].azimuth = temp_track_data.second.az;
+            manual_plotting_frames[i].tracks[track_id].elevation = temp_track_data.second.el;
+            manual_plotting_frames[i].tracks[track_id].centroid = temp_track_data.second;
+
         }
     }
 }
@@ -289,7 +324,7 @@ void TrackInformation::AddCreatedManualTrack(const std::vector<PlottingFrameData
 
     RemoveManualTrackPlotting(track_id);
     RemoveManualTrackImage(track_id);
-    WriteManualTrackToFile(frame_data,track_id, new_track_details,new_track_file_name);
+    WriteManualTrackToFile(frame_data, track_id, new_track_details, new_track_file_name);
 }
 
 void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name)
@@ -305,14 +340,24 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
         {
             TrackDetails track_details = new_track_details[i].value();
             manual_frames[i].tracks[track_id] = track_details;
-            manual_plotting_frames[i].tracks[track_id] = GetManualPlottingTrackDetails(i, track_details.centroid_x, track_details.centroid_y, track_details.sum_relative_counts);
             track_details.frame_time = frame_data[i].frame_time;
             track_details.julian_date = frame_data[i].julian_date;
             track_details.second_past_midnight = frame_data[i].seconds_past_midnight;
             track_details.timing_offset = osm_frames[i].tracks[0].timing_offset;
-            track_details.az = manual_plotting_frames[i].tracks[track_id].azimuth;
-            track_details.el = manual_plotting_frames[i].tracks[track_id].elevation;
-
+            if (manual_plotting_frames[i].tracks[track_id].is_calibrated){
+                track_details.peak_irradiance = manual_plotting_frames[i].tracks[track_id].peak_irradiance;
+                track_details.mean_irradiance = manual_plotting_frames[i].tracks[track_id].mean_irradiance;
+                track_details.sum_irradiance = manual_plotting_frames[i].tracks[track_id].sum_irradiance;
+                track_details.is_calibrated = manual_plotting_frames[i].tracks[track_id].is_calibrated;
+                track_details.mean_temp1 = manual_plotting_frames[i].tracks[track_id].mean_temp1;
+                track_details.mean_temp2 = manual_plotting_frames[i].tracks[track_id].mean_temp2;
+                track_details.start_frame1 = manual_plotting_frames[i].tracks[track_id].start_frame1;
+                track_details.start_frame2 = manual_plotting_frames[i].tracks[track_id].start_frame2;
+                track_details.nuc_calibration_file = manual_plotting_frames[i].tracks[track_id].nuc_calibration_file;
+                track_details.nuc_image_file = manual_plotting_frames[i].tracks[track_id].nuc_image_file;
+            }
+            GetManualPlottingTrackDetails(i, track_details);
+            
             QString csv_line =
              QString::number(track_id) + ","
              + QString::number(i+1) + ","
@@ -341,11 +386,21 @@ void TrackInformation::WriteManualTrackToFile(const std::vector<PlottingFrameDat
 
             file.write(csv_line.toUtf8());
             file.write("\n");
-
             manual_plotting_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
-            manual_image_frames[i].tracks[track_id].centroid_x = track_details.centroid_x;
-            manual_image_frames[i].tracks[track_id].centroid_y = track_details.centroid_y;
-            manual_image_frames[i].tracks[track_id].sum_relative_counts = track_details.sum_relative_counts;
+            manual_plotting_frames[i].tracks[track_id].peak_irradiance = track_details.peak_irradiance;
+            manual_plotting_frames[i].tracks[track_id].mean_irradiance = track_details.mean_irradiance;
+            manual_plotting_frames[i].tracks[track_id].sum_irradiance = track_details.sum_irradiance;
+            manual_plotting_frames[i].tracks[track_id].is_calibrated = track_details.is_calibrated;
+            manual_plotting_frames[i].tracks[track_id].mean_temp1 = track_details.mean_temp1;
+            manual_plotting_frames[i].tracks[track_id].mean_temp2 = track_details.mean_temp2;
+            manual_plotting_frames[i].tracks[track_id].start_frame1 = track_details.start_frame1;
+            manual_plotting_frames[i].tracks[track_id].start_frame2 = track_details.start_frame2;
+            manual_plotting_frames[i].tracks[track_id].nuc_calibration_file = track_details.nuc_calibration_file;
+            manual_plotting_frames[i].tracks[track_id].nuc_image_file = track_details.nuc_image_file;
+            manual_plotting_frames[i].tracks[track_id].azimuth = track_details.az;
+            manual_plotting_frames[i].tracks[track_id].elevation = track_details.el;
+            manual_plotting_frames[i].tracks[track_id].centroid = track_details;
+            manual_image_frames[i].tracks[track_id] = track_details;
         }
     }
 
@@ -510,11 +565,13 @@ TrackFileReadResult TrackInformation::ReadTracksFromFile(QString absolute_file_n
     return TrackFileReadResult {track_frames_from_file, track_ids_in_file, ""};
 }
 
-ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y, double sum_relative_counts) const
+void TrackInformation::GetManualPlottingTrackDetails(int frame_number, TrackDetails & track_details) const
 {
-    TrackEngineeringData eng_data = track_engineering_data[frame_number];
 
-    ManualPlottingTrackDetails details;
+    int centroid_x = track_details.centroid_x;
+    int centroid_y = track_details.centroid_y;
+
+    TrackEngineeringData eng_data = track_engineering_data[frame_number];
 
     bool adjust_frame_ref = true;
 
@@ -536,12 +593,29 @@ ManualPlottingTrackDetails TrackInformation::GetManualPlottingTrackDetails(int f
     }
 
     std::vector<double> az_el_result = AzElCalculation::calculateAzEl(nRows, nCols, centroid_x, centroid_y, eng_data.boresight_lat, eng_data.boresight_long, eng_data.dcm, eng_data.i_fov_x, eng_data.i_fov_y, adjust_frame_ref);
-    details.azimuth = az_el_result[0];
-    details.elevation = az_el_result[1];
+    
+    track_details.az = az_el_result[0];
+    track_details.el = az_el_result[1];
 
-    details.centroid.centroid_x = centroid_x;
-    details.centroid.centroid_y = centroid_y;
-    details.sum_relative_counts = sum_relative_counts;
+}
 
-    return details;
+void TrackInformation::UpdateTrackDetails(std::vector<Frame> & osm_frames,std::vector<PlottingTrackFrame> & track_data, int absolute_indx_start_0, int absolute_indx_stop_0)
+{
+    int relative_indx;
+    for (unsigned int absolute_indx_0 = absolute_indx_start_0; absolute_indx_0 < absolute_indx_stop_0; absolute_indx_0++)
+    {
+        for (size_t j = 0; j < track_data[absolute_indx_0].details.size(); j++)
+        {
+            int bbox_x = osm_frames[absolute_indx_0].data.track_data[j].roiBLX;
+            int bbox_y = osm_frames[absolute_indx_0].data.track_data[j].roiBLY;
+            int bbox_height = osm_frames[absolute_indx_0].data.track_data[j].roiBLY - osm_frames[absolute_indx_0].data.track_data[j].roiURY;
+            int bbox_width = osm_frames[absolute_indx_0].data.track_data[j].roiURX - osm_frames[absolute_indx_0].data.track_data[j].roiBLX;
+
+            track_data[absolute_indx_0].details[j].centroid.bbox_x = bbox_x;
+            track_data[absolute_indx_0].details[j].centroid.bbox_y = bbox_y;
+            track_data[absolute_indx_0].details[j].centroid.bbox_width = bbox_width;
+            track_data[absolute_indx_0].details[j].centroid.bbox_height = bbox_height;
+        }
+    }
+    
 }

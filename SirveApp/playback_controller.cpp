@@ -44,10 +44,13 @@ void PlaybackController::IncreaseTimerInterval()
 
 	index_speed_++;
 	timer_frequency_ = 1000 * 1 / kSpeeds[index_speed_];
+	bool isPlaying = timer_->isActive();
 	timer_->stop();
 	timer_->setInterval(timer_frequency_);
 	timer_->setSingleShot(false);
-	timer_->start();
+	if (isPlaying){
+		timer_->start();
+	}
 }
 
 double PlaybackController::GetFps() const
@@ -63,10 +66,13 @@ void PlaybackController::DecreaseTimerInterval()
 
 	index_speed_--;
 	timer_frequency_ = 1000 * 1 / kSpeeds[index_speed_];
+	bool isPlaying = timer_->isActive();
 	timer_->stop();
 	timer_->setInterval(timer_frequency_);
 	timer_->setSingleShot(false);
-	timer_->start();
+	if (isPlaying){
+		timer_->start();
+	}
 }
 
 void PlaybackController::StartTimer()

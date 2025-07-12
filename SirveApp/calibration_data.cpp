@@ -6,16 +6,203 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <qbuttongroup.h>
+#include <QFile>
+#include <QDataStream>
 
-std::array<double, 3> CalibrationData::MeasureSumCounts(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
+bool CalibrationData::LoadFromMatlabBinary(const QString& filename) {
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QDataStream in(&file);
+    in.setFloatingPointPrecision(QDataStream::DoublePrecision);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    qint32 flag;
+    in >> flag;
+    calibration_available = flag;
+
+    in >> integration_time;
+
+    // Read UTF-8 encoded QStrings
+    path_nuc = ReadQString(in, file);
+    path_image = ReadQString(in, file);
+
+    // Read SelectedData
+    auto readSelection = [&](SelectedData& d) {
+        qint32 temp;
+        in >> temp; d.valid_data = temp;
+        in >> d.temperature_mean >> d.temperature_std;
+        in >> temp; d.num_frames = temp;
+        in >> temp; d.initial_frame = temp;
+        in >> temp; d.id = temp;
+        in >> d.start_time >> d.stop_time >> d.calculated_irradiance;
+        // NOTE: skipping QString color and points
+    };
+    readSelection(user_selection1);
+    readSelection(user_selection2);
+
+    // Read arma::mat m
+    quint32 rows, cols;
+    in >> rows >> cols;
+    m.set_size(rows, cols);
+    for (arma::uword i = 0; i < m.n_elem; ++i)
+        in >> m[i];
+
+    // Read arma::mat b
+    in >> rows >> cols;
+    b.set_size(rows, cols);
+    for (arma::uword i = 0; i < b.n_elem; ++i)
+        in >> b[i];
+
+    return true;
+}
+
+bool CalibrationData::SaveToMatlabBinary(const QString& filename) const {
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+
+    QDataStream out(&file);
+    out.setFloatingPointPrecision(QDataStream::DoublePrecision);
+    out.setByteOrder(QDataStream::LittleEndian);
+
+    // Write calibration flag and integration time
+    out << static_cast<qint32>(calibration_available);
+    out << integration_time;
+
+    // Write QStrings as UTF-8
+    WriteQString(out, path_nuc);
+    WriteQString(out, path_image);
+
+    // Write SelectedData (just numeric parts)
+    auto writeSelection = [&](const SelectedData& d) {
+        out << static_cast<qint32>(d.valid_data);
+        out << d.temperature_mean << d.temperature_std;
+        out << static_cast<qint32>(d.num_frames);
+        out << static_cast<qint32>(d.initial_frame);
+        out << static_cast<qint32>(d.id);
+        out << d.start_time << d.stop_time << d.calculated_irradiance;
+    };
+    writeSelection(user_selection1);
+    writeSelection(user_selection2);
+
+    // Write arma matrices
+    out << static_cast<quint32>(m.n_rows);
+    out << static_cast<quint32>(m.n_cols);
+    for (arma::uword i = 0; i < m.n_elem; ++i)
+        out << m[i];
+
+    out << static_cast<quint32>(b.n_rows);
+    out << static_cast<quint32>(b.n_cols);
+    for (arma::uword i = 0; i < b.n_elem; ++i)
+        out << b[i];
+
+    return true;
+}
+
+QString CalibrationData::ReadQString(QDataStream& in, QFile& file) {
+    quint32 length;
+    in >> length;
+
+    QByteArray utf8_data;
+    utf8_data.resize(length);
+    if (file.read(utf8_data.data(), length) != length)
+        return QString();  // or throw error
+
+    return QString::fromUtf8(utf8_data);
+}
+
+void CalibrationData::WriteQString(QDataStream& out, const QString& str) {
+    QByteArray utf8 = str.toUtf8();
+    quint32 length = static_cast<quint32>(utf8.size());
+    out << length;
+    out.writeRawData(utf8.constData(), length);
+}
+
+bool CalibrationData::SaveToFile(const QString& filename) const {
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+
+    QDataStream out(&file);
+
+    // Write calibration flag
+    out << calibration_available;
+
+    // Write paths
+    out << path_nuc << path_image;
+
+    // Write integration time
+    out << integration_time;
+
+    // Write SelectedData (1 & 2)
+    auto writeSelectedData = [&](const SelectedData& data) {
+        out << data.valid_data << data.temperature_mean << data.temperature_std
+            << data.num_frames << data.initial_frame << data.id
+            << data.start_time << data.stop_time
+            << data.calculated_irradiance << data.color << data.points;
+    };
+
+    writeSelectedData(user_selection1);
+    writeSelectedData(user_selection2);
+
+    // Write arma matrices m and b
+    out << static_cast<quint32>(m.n_rows) << static_cast<quint32>(m.n_cols);
+    for (size_t i = 0; i < m.n_elem; ++i) out << m[i];
+
+    out << static_cast<quint32>(b.n_rows) << static_cast<quint32>(b.n_cols);
+    for (size_t i = 0; i < b.n_elem; ++i) out << b[i];
+
+    return true;
+}
+
+bool CalibrationData::LoadFromFile(const QString& filename) {
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QDataStream in(&file);
+
+    // Read calibration flag
+    in >> calibration_available;
+
+    // Read paths
+    in >> path_nuc >> path_image;
+
+    // Integration time
+    in >> integration_time;
+
+    // Read SelectedData
+    auto readSelectedData = [&](SelectedData& data) {
+        in >> data.valid_data >> data.temperature_mean >> data.temperature_std
+           >> data.num_frames >> data.initial_frame >> data.id
+           >> data.start_time >> data.stop_time
+           >> data.calculated_irradiance >> data.color >> data.points;
+    };
+
+    readSelectedData(user_selection1);
+    readSelectedData(user_selection2);
+
+    // Read arma matrices m and b
+    quint32 rows, cols;
+
+    in >> rows >> cols;
+    m.set_size(rows, cols);
+    for (size_t i = 0; i < m.n_elem; ++i) in >> m[i];
+
+    in >> rows >> cols;
+    b.set_size(rows, cols);
+    for (size_t i = 0; i < b.n_elem; ++i) in >> b[i];
+
+    return true;
+}
+
+std::array<double, 3> CalibrationData::MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const
 {
 	double scale_factor = integration_time / frame_integration_time;
 
 	arma::mat sub_b = b.submat(ul_row, ul_col, lr_row, lr_col);
 	arma::mat sub_m = m.submat(ul_row, ul_col, lr_row, lr_col);
 
-	arma::mat radiance = (sub_m % x + sub_b) * scale_factor; // W/m2-sr
-	radiance = 100*radiance; // uW/cm2-sr
+	arma::mat radiance = (sub_m % x); //* scale_factor; // W/m2-sr
+	// radiance = 100*radiance; // uW/cm2-sr
 	arma::uvec indices_inf = arma::find_nonfinite(m);
 	std::vector<unsigned int> vector_inf = arma::conv_to<std::vector<unsigned int>>::from(indices_inf);
 
@@ -148,6 +335,7 @@ void CalibrationDialog::InitializeGui()
 	mainLayout = new QVBoxLayout();
 
 	btn_get_nuc_file = new QPushButton("Import NUC File");
+	btn_get_nuc_file->setFixedWidth(150);
 	lbl_nuc_filename = new QLabel("File: ");
 
 	QFrame* horizontal_segment1 = new QFrame();
@@ -259,7 +447,7 @@ void CalibrationDialog::ImportNucFile()
 		return;
     }
 
-    auto frames = reader.ReadFrames();
+    auto frames = reader.ReadFrames(file_type);
     if (frames.empty())
     {
 
@@ -595,7 +783,7 @@ void CalibrationDialog::verifyCalibrationValues()
 
 	QMessageBox msgBox;
 	msgBox.setWindowTitle(QString("Select Associated ABP Frames"));
-	QString box_text = QString("Select the associated *.abpframe file for the temperature profile used.");
+	QString box_text = QString("Select the associated *.abpImage file for the temperature profile used.");
 	msgBox.setText(box_text);
 
 	msgBox.setStandardButtons(QMessageBox::Ok);
@@ -719,8 +907,8 @@ void CalibrationDialog::verifyCalibrationValues()
         model.setup_model(m, b);
         model.set_calibration_details(path_nuc, path_image, user_selection1, user_selection2, integration_time);
 
-        QMessageBox::information(0, "Calibration Values Verified",
-                                 "You may now use the radiometric calibration button on the video player control.");
+        QMessageBox::information(0, "Calibration Successful",
+                                 "Calibration finished.");
         done(QDialog::Accepted);
     }
     else
@@ -806,10 +994,10 @@ void CalibrationDialog::PrepareAndPlotTemperature(const ABPNUCFrames& frames)
     for (int i = 0; i < frames.size(); i++)
     {
 
-        QPointF temp_pt1(i + 1, frames[i].tec_temperature_x100 / 100.0);
+        QPointF temp_pt1(i + 1, frames[i].TEC_Temperature_T0_x100 / 100.0);
         temperature.push_back(temp_pt1);
 
-        all_frame_times.push_back(frames[i].frame_time);
+        all_frame_times.push_back(frames[i].frameTime);
     }
 
     CreateTemperaturePlot(temperature);

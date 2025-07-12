@@ -23,7 +23,7 @@
 #include "annotation_list_dialog.h"
 #include "custom_input_dialog.h"
 #include "calibration_data.h"
-#include "non_uniformity_correction_external_file.h"
+#include "fixed_noise_correction_external_file.h"
 #include "config.h"
 #include "workspace.h"
 #include "data_structures.h"
@@ -32,12 +32,15 @@
 #include "track_management_widget.h"
 #include "image_processing.h"
 #include "auto_tracking.h"
+#include "calibrate_existing_tracks.h"
 
 #include <QVBoxLayout>
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QMenu>
 #include <QProgressBar>
+#include <regex>
+
 
 class SirveApp : public QMainWindow
 {
@@ -50,6 +53,7 @@ public:
     /* --------------------------------------------------------------------------------------------
         Key component & supporting status variables
     ----------------------------------------------------------------------------------------------- */
+
 	ABIRFrames::Ptr abir_frames;
     QString abpimage_file_base_name;
     AbpFileMetadata abp_file_metadata;
@@ -71,7 +75,7 @@ public:
     ConfigValues config_values;
 
     const int leftWidgetStartingSize = 600;
-    const int centralWidgetStartingSize = 690;
+    const int centralWidgetStartingSize = 710;
     const int rightWidgetStartingSize = 600;
 
     QGridLayout *engineering_plot_layout;
@@ -141,14 +145,15 @@ public:
     QPointer<QAction> menu_add_banner, menu_add_primary_data, menu_sensor_boresight, menu_osm,
         menu_change_color_tracker, menu_change_color_banner, menu_change_color_map, menu_annotate;
     QPointer<QAction> menu_plot_all_data, menu_plot_primary, menu_plot_frame_marker, menu_plot_edit_banner,
-        action_show_calibration_dialog, action_enable_binary_export;
+        action_show_calibration_dialog, action_load_calibration_model, action_save_calibration_model, action_enable_binary_export;
 
     QPointer<QStackedWidget> stck_noise_suppresssion_methods;
     QPointer<AnnotationListDialog> annotation_dialog;
 
     QPointer<QStatusBar> status_bar;
     QPointer<QLabel> lbl_status_start_frame, lbl_status_stop_frame, lbl_loaded_frames,
-        lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field;
+        lbl_workspace_name, lbl_workspace_name_field, lbl_current_workspace_folder_field, lbl_status_calibration_nuc, lbl_status_calibration_image,
+        lbl_status_calibration_mean_temp1, lbl_status_calibration_mean_temp2;
     QPointer<QCheckBox> chk_bad_pixels_from_original;
     QPointer<QLineEdit> txt_auto_track_start_frame, txt_auto_track_stop_frame, txt_accumulator_weight;
 
@@ -185,7 +190,8 @@ public:
     void UpdateGuiPostDataLoad(bool status);
     void UpdateGuiPostFrameRangeLoad(bool status);
     void UpdatePlots(EngineeringPlot *engineering_plot);
-
+    void UpdateModelStatusArea();
+    void ResetStatusArea();
     bool VerifyFrameSelection(int min_frame, int max_frame) const;
     void VideoPopoutToggled(bool show_popout);
 
@@ -220,11 +226,12 @@ private:
         action_export_frame_range, action_export_tracking_data;
     QPointer<QAction> action_export_all_frames;
 
+    void AddTrackColorControl(QString new_track_file_name, u_int track_id);
+
     CalibrationData calibration_model;
 
     void AllocateAbirData(int min_frame, int &max_frame);
     void AnnotateVideo();
-
     void ApplyAccumulatorNoiseSuppression(double weight, int offset, bool hide_shadow_choice, int shadow_sigma_thresh, int source_state_idx);
     void ApplyAdaptiveNoiseSuppression(int relative_start_frame, int num_frames, int processing_state_idx);
     void ApplyDeinterlacing(int processing_state_idx);
@@ -281,13 +288,14 @@ private:
 
     void LoadAbirData(int start_frame, int &stop_frame);
     void LoadOsmData();
-;
+
     void OpenPopoutHistogramPlot();
     void OpenProgressArea(const QString& message, int N);
     void PrepareForTrackCreation(int track_id);
     static void ProvideInformationAbout();
     void ReplaceBadPixels(std::vector<unsigned int> pixels_to_replace, int source_state_ind);
     void ResetEngineeringDataAndSliderGUIs();
+    void CalibrateAllExistingTracks();
 
 signals:
     void changeBanner(QString banner_text);
@@ -345,6 +353,7 @@ public slots:
     void HandleZoomAfterSlider();
 
     void ImportTracks();
+    void LoadCalibrationModel();
     void LoadWorkspace();
 
     void OpenPopoutEngineeringPlot(int tab_index, QString plotTitle, std::vector<Quantity> quantities);
@@ -359,6 +368,7 @@ public slots:
 
     void SetDataTimingOffset();
     void SetLiftAndGain(double lift, double gain);
+    void SaveCalibrationModel();
     void ShowCalibrationDialog();
 
     void UiLoadAbirData();

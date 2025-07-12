@@ -409,10 +409,10 @@ void AutoTracking::TrackingStep(
         SIGMA = stats.stddev();
         step_success = (ok && abs((sum_relative_counts - stats.mean())) <= step_success_coefficient*SIGMA);
 
-        std::array<double, 3> measurements = {0,0,0};
+        std::array<double, 3> measurements = {0.,0.,0.};
         if (calibration_model.calibration_available)
         {
-            measurements =  SharedTrackingFunctions::CalculateSumCounts(indx, bbox_uncentered, base_processing_state_details, frame_integration_time, calibration_model);
+            measurements =  SharedTrackingFunctions::CalculateIrradiance(indx, bbox_uncentered, base_processing_state_details, frame_integration_time, calibration_model);
         }
         cv::cvtColor(clean_display_frame, clean_display_frame,cv::COLOR_GRAY2RGB);
         string window_name = "Tracking... ";
@@ -451,9 +451,9 @@ void AutoTracking::TrackingStep(
                             static_cast<int32_t>(mean_counts),
                             static_cast<int32_t>(sum_counts[0]),
                             static_cast<int64_t>(sum_relative_counts),
-                            static_cast<int32_t>(measurements[0]),
-                            static_cast<int32_t>(measurements[1]),
-                            static_cast<int32_t>(measurements[2]),
+                            static_cast<int32_t>(measurements[0]*1000.),
+                            static_cast<int32_t>(measurements[1]*1000.),
+                            static_cast<int32_t>(measurements[2]*1000.),
                             static_cast<uint16_t>(bbox_uncentered.x),
                             static_cast<uint16_t>(bbox_uncentered.y),
                             static_cast<uint16_t>(bbox_uncentered.width),

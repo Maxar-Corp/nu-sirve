@@ -19,6 +19,7 @@ HEADERS +=  abir_reader.h \
             annotation_stencil.h \
             auto_tracking.h\
             binary_reader.h \
+            calibrate_existing_tracks.h\
             calibration_data.h \
             chart_metadata.h \
             classification.h \
@@ -34,12 +35,12 @@ HEADERS +=  abir_reader.h \
             engineering_data.h \
             enhanced_label.h \
             enums.h \
+            fixed_noise_correction_external_file.h \
             frame_player.h \
             histogram_plotter.h \
             image_processing.h \
             location_input.h \
             new_location.h \
-            non_uniformity_correction_external_file.h \
             osm_reader.h \
             plot_designer.h \
             playback_controller.h \
@@ -79,6 +80,7 @@ SOURCES +=  abir_reader.cpp \
             annotation_stencil.cpp \
             auto_tracking.cpp\
             binary_reader.cpp \
+            calibrate_existing_tracks.cpp\
             calibration_data.cpp \
             classification.cpp \
             clickable_chartview.cpp \
@@ -91,12 +93,12 @@ SOURCES +=  abir_reader.cpp \
             engineering_data.cpp \
             enhanced_label.cpp \
             enums.cpp \
+            fixed_noise_correction_external_file.cpp \
             histogram_plotter.cpp \
             image_processing.cpp \
             location_input.cpp \
             main.cpp \
             new_location.cpp \
-            non_uniformity_correction_external_file.cpp \
             osm_reader.cpp \
             plot_designer.cpp \
             playback_controller.cpp \

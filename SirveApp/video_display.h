@@ -134,7 +134,6 @@ private slots:
     void HandlePixelSelection(QPoint origin);
 
 private:
-
     int nRows = 480;
     int nCols = 640;
     int nRows2 = nRows/2;

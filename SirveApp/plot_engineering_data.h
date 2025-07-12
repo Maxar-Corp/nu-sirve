@@ -202,7 +202,9 @@ private:
     QAction* get_action_toggle_linearlog() const;
 
     std::vector<double> get_individual_x_track(size_t i);
-    std::vector<double> get_individual_y_track_irradiance(size_t i);
+    std::vector<double> get_individual_y_track_peak_irradiance(size_t i);
+    std::vector<double> get_individual_y_track_mean_irradiance(size_t i);
+    std::vector<double> get_individual_y_track_sum_irradiance(size_t i);
     std::vector<double> get_individual_y_track_sum_relative_counts(size_t i);
     std::vector<double> get_individual_y_track_azimuth(size_t i);
     std::vector<double> get_individual_y_track_boresight_azimuth(size_t i);

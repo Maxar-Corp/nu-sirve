@@ -284,6 +284,16 @@ void SirveApp::SetupUi() {
     lbl_status_start_frame->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_status_stop_frame = new QLabel("Stop Frame:");
     lbl_status_stop_frame->setFont(QFont("Arial", 8, QFont::Bold));
+
+    lbl_status_calibration_nuc = new QLabel("Calibration NUC:");
+    lbl_status_calibration_nuc->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_status_calibration_image = new QLabel("Calibration Image:");
+    lbl_status_calibration_image->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_status_calibration_mean_temp1 = new QLabel("Mean Temp 1:");
+    lbl_status_calibration_mean_temp1->setFont(QFont("Arial", 8, QFont::Bold));
+    lbl_status_calibration_mean_temp2 = new QLabel("Mean Temp 2:");
+    lbl_status_calibration_mean_temp2->setFont(QFont("Arial", 8, QFont::Bold));
+
     lbl_current_workspace_folder = new QLabel("Workspace Folder:");
     lbl_current_workspace_folder->setFont(QFont("Arial", 8, QFont::Bold));
     lbl_current_workspace_folder_field = new QLabel(config_values.workspace_folder);
@@ -299,6 +309,7 @@ void SirveApp::SetupUi() {
     grpbox_status_bar->setMinimumWidth(1050);
     auto *hlayout_status_bar1 = new QHBoxLayout();
     auto *hlayout_status_bar2 = new QHBoxLayout();
+    auto *hlayout_status_bar3 = new QHBoxLayout();
     auto *grpbox_status_permanent = new QGroupBox();
     grpbox_status_permanent->setMinimumWidth(600);
     auto *hlayout_status_permanent = new QHBoxLayout();
@@ -322,8 +333,17 @@ void SirveApp::SetupUi() {
     hlayout_status_bar2->addWidget(lbl_workspace_name);
     hlayout_status_bar2->addWidget(lbl_workspace_name_field);
     hlayout_status_bar2->insertStretch(-1,0);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_nuc);
+    hlayout_status_bar3->addItem(hspacer_item10);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_image);
+    hlayout_status_bar3->addItem(hspacer_item10);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_mean_temp1);
+    hlayout_status_bar3->addItem(hspacer_item10);
+    hlayout_status_bar3->addWidget(lbl_status_calibration_mean_temp2);
+    hlayout_status_bar3->insertStretch(-1,0);
     vlayout_status_lbl->addLayout(hlayout_status_bar1);
     vlayout_status_lbl->addLayout(hlayout_status_bar2);
+    vlayout_status_lbl->addLayout(hlayout_status_bar3);
     grpbox_status_bar->setLayout(vlayout_status_lbl);
 
     status_bar->addWidget(grpbox_status_bar);
@@ -505,10 +525,10 @@ QWidget* SirveApp::SetupColorCorrectionTab()
 
     cursor_color = new QComboBox();
     cursor_color->addItems(ColorScheme::cursorColors.keys());
-    cursor_color->setCurrentIndex(10);
+    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditCursorColor);
+    cursor_color->setCurrentIndex(3);
     QFormLayout *form_cursor_color = new QFormLayout;
     form_cursor_color->addRow(tr("&Cursor Color"), cursor_color);
-
     QStringList colors = ColorScheme::get_track_colors();
     cmb_text_color = new QComboBox();
     cmb_text_color->addItems(colors);
@@ -1153,7 +1173,6 @@ void SirveApp::SetupConnections() {
     connect(chk_show_time, &QCheckBox::stateChanged, video_player_, &VideoPlayer::SetFrameTimeToggle);
     connect(cmb_color_maps, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditColorMap);
     connect(cmb_text_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditBannerColor);
-    connect(cursor_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditCursorColor);
 
     connect(btn_add_annotations, &QPushButton::clicked, this, &SirveApp::AnnotateVideo);
     connect(btn_change_banner_text, &QPushButton::clicked, this, &SirveApp::EditBannerText);
@@ -1224,6 +1243,9 @@ void SirveApp::HandleExternalFileToggle()
 
 void SirveApp::ImportTracks()
 {
+    ProcessingState* base_processing_state = &state_manager_->front();
+    int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+    int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
     QString base_track_folder = config_values.workspace_folder;
     QString file_selection = QFileDialog::getOpenFileName(this, ("Open Track File"), base_track_folder, ("Track File (*.csv)"));
 
@@ -1259,15 +1281,28 @@ void SirveApp::ImportTracks()
             {
                 video_player_->AddManualTrackIdToShowLater(track_id);
                 tm_widget->AddTrackControl(track_id);
-
-                QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-                if (existing_track_control != nullptr)
-                {
-                    QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-                    const QFileInfo info(file_selection);
-                    lbl_track_description->setText(info.fileName());
-                }
+                // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+                // if (existing_track_control != nullptr)
+                // {
+                //     QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+                //     const QFileInfo info(file_selection);
+                //     lbl_track_description->setText(info.fileName());
+                // }
+                AddTrackColorControl(file_selection,track_id);
                 track_info->AddManualTracks(result.frames);
+
+                std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+                if (calibration_model.calibration_available){
+                    CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                        manual_frames,
+                                        track_info->GetManualPlottingFrames(),
+                                        base_processing_state->details,
+                                        video_player_->GetFrameHeaders(),
+                                        absolute_indx_start_0,
+                                        absolute_indx_stop_0,
+                                        abp_file_metadata.file_type, 
+                                        true);
+                    }
 
                 int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
                 int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
@@ -1283,6 +1318,19 @@ void SirveApp::ImportTracks()
             tm_widget->AddTrackControl(track_id);
 
             track_info->AddManualTracks(result.frames);
+
+            std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+            if (calibration_model.calibration_available){
+                CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                    manual_frames,
+                                    track_info->GetManualPlottingFrames(),
+                                    base_processing_state->details,
+                                    video_player_->GetFrameHeaders(),
+                                    absolute_indx_start_0,
+                                    absolute_indx_stop_0,
+                                    abp_file_metadata.file_type, 
+                                    true);
+                }
             cmb_manual_track_IDs->clear();
             cmb_manual_track_IDs->addItem("Primary");
 
@@ -1290,14 +1338,14 @@ void SirveApp::ImportTracks()
                 cmb_manual_track_IDs->addItem(QString::number(tid));
 
             }
-
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-            if (existing_track_control != nullptr)
-            {
-                QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-                const QFileInfo info(file_selection);
-                lbl_track_description->setText(info.fileName());
-            }
+            // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            // if (existing_track_control != nullptr)
+            // {
+            //     QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+            //     const QFileInfo info(file_selection);
+            //     lbl_track_description->setText(info.fileName());
+            // }
+            AddTrackColorControl(file_selection,track_id);
 
             int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
             int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
@@ -1353,11 +1401,11 @@ void SirveApp::HandleCreateTrackClick()
         {
             in_edit_mode = true;
 
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-            if (existing_track_control != nullptr)
-            {
-                existing_track_control->findChild<QCheckBoxWithId*>()->setChecked(false);
-            }
+            // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+            // if (existing_track_control != nullptr)
+            // {
+            //     existing_track_control->findChild<QCheckBoxWithId*>()->setChecked(false);
+            // }
             std::vector<std::optional<TrackDetails>> existing_track_details = track_info->CopyManualTrack(track_id);
             PrepareForTrackCreation(track_id);
             video_player_->EnterTrackCreationMode(appPos,existing_track_details, threshold, bbox_buffer_pixels, clamp_low_coeff, clamp_high_coeff, trackFeature, prefilter);
@@ -1487,17 +1535,17 @@ void SirveApp::HandleFinishCreateTrackClick()
                 cmb_manual_track_IDs->addItem(QString::number(track_id));
             }
         }
-
-        QStringList color_options = ColorScheme::get_track_colors();
-        QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
-        if (existing_track_control != nullptr)
-        {
-            QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-            const QFileInfo info(new_track_file_name);
-            lbl_track_description->setText(info.fileName());
-            int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-            ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
-        }
+        // QStringList color_options = ColorScheme::get_track_colors();
+        // QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(currently_editing_or_creating_track_id));
+        // if (existing_track_control != nullptr)
+        // {
+        //     QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+        //     const QFileInfo info(new_track_file_name);
+        //     lbl_track_description->setText(info.fileName());
+        //     int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
+        //     ColorTrack(currently_editing_or_creating_track_id, color_options[ind]);
+        // }
+        AddTrackColorControl(new_track_file_name, static_cast<uint>(currently_editing_or_creating_track_id));
     }
 
     ExitTrackCreationMode();
@@ -1658,6 +1706,7 @@ void SirveApp::LoadWorkspace()
     QString current_workspace_name = QFileDialog::getOpenFileName(this, tr("Select Workspace"), config_values.workspace_folder,  tr("Images (*.json)"));
     int compare = QString::compare(current_workspace_name, "", Qt::CaseInsensitive);
     if (compare != 0){
+
         WorkspaceValues workspace_vals = workspace->LoadState(current_workspace_name);
 
         compare = QString::compare(workspace_vals.image_path, "", Qt::CaseInsensitive);
@@ -1668,13 +1717,11 @@ void SirveApp::LoadWorkspace()
         QFileInfo fileInfo(current_workspace_name);
         QString filePath = fileInfo.path();
 
-        lbl_current_workspace_folder_field->setText(filePath);
-        lbl_workspace_name_field->setText(fileInfo.fileName());
         if (ValidateAbpFiles(workspace_vals.image_path)) {
             LoadOsmData();
             QFileInfo fileInfo0(workspace_vals.image_path);
             abpimage_file_base_name = fileInfo0.baseName();
-            cmb_text_color->setCurrentIndex(2);
+            cmb_text_color->setCurrentIndex(6);
         } else {
             return;
         }
@@ -1775,7 +1822,8 @@ void SirveApp::LoadWorkspace()
 
             classification_list.push_back(classification);
         }
-
+        lbl_current_workspace_folder_field->setText(filePath);
+        lbl_workspace_name_field->setText(fileInfo.fileName());
         eng_data->set_offset_time(workspace_vals.timing_offset);
     }
 }
@@ -1839,6 +1887,7 @@ bool SirveApp::ValidateAbpFiles(const QString& path_to_image_file)
 
 void SirveApp::LoadOsmData()
 {
+    ResetStatusArea();
     ResetEngineeringDataAndSliderGUIs();
 
     if (plot_palette != nullptr) // Clean out old plot palette, if it exists.
@@ -1907,6 +1956,11 @@ void SirveApp::LoadOsmData()
     eng_data = new EngineeringData(osm_frames);
     track_info = new TrackInformation(osm_frames, abp_file_metadata.file_type);
 
+    int absolute_indx_start_0 = 0;
+    int absolute_indx_stop_0 = osm_frames.size();
+
+    track_info->UpdateTrackDetails(osm_frames, track_info->GetOsmPlottingTrackFrames(), absolute_indx_start_0, absolute_indx_stop_0);
+    
     plot_palette = new PlotPalette();
 
     osmDataLoaded = track_info->GetTrackCount() != 0;
@@ -1918,7 +1972,7 @@ void SirveApp::LoadOsmData()
 
     EstablishCanonicalPlot("Elevation",{Quantity("Elevation", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
     EstablishCanonicalPlot("Azimuth", {Quantity("Azimuth", Enums::PlotUnit::Degrees), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
-    EstablishCanonicalPlot("Sum Counts",{Quantity("SumCounts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
+    EstablishCanonicalPlot("Sum Counts",{Quantity("Sum_Counts", Enums::PlotUnit::Counts), Quantity("Frames", Enums::PlotUnit::FrameNumber)});
 
     connect(plot_palette, &PlotPalette::paletteParamsSelected, this, &SirveApp::HandleParamsSelected);
 
@@ -1993,7 +2047,7 @@ void SirveApp::EstablishCanonicalPlot(QString plotTitle, const std::vector<Quant
     data_plot->DisableDataScopeButton(true);
     data_plot->set_graph_style_icon("solid");
 
-    if (data_plot->plotYType == Enums::PlotType::SumCounts)
+    if (data_plot->plotYType == Enums::PlotType::Sum_Counts)
     {
         data_plot->set_graph_mode_icon("linear");
     }
@@ -2089,6 +2143,8 @@ void SirveApp::UpdateGuiPostFrameRangeLoad(bool frame_range_status)
     video_player_->SetGotoFrameEnabled(frame_range_status);
     btn_popout_histogram->setEnabled(frame_range_status);
     action_show_calibration_dialog->setEnabled(frame_range_status);
+    action_load_calibration_model->setEnabled(frame_range_status);
+    action_save_calibration_model->setEnabled(calibration_model.calibration_available);
 
     frame_range_status ? tab_menu->tabBar()->show() : tab_menu->tabBar()->hide();
 
@@ -2179,7 +2235,6 @@ void SirveApp::AllocateAbirData(int min_frame, int &max_frame)
 {
     video_player_->StopTimer();
     state_manager_->clear();
-
     grpbox_progressbar_area->setEnabled(true);
     progress_bar_main->setTextVisible(true);
     progress_bar_main->setRange(0,100);
@@ -2771,6 +2826,14 @@ void SirveApp::CreateMenuActions()
     connect(action_show_calibration_dialog, &QAction::triggered, this, &SirveApp::ShowCalibrationDialog);
     action_show_calibration_dialog->setEnabled(false);
 
+    action_load_calibration_model = new QAction("Load Calibration");
+    connect(action_load_calibration_model, &QAction::triggered, this, &SirveApp::LoadCalibrationModel);
+    action_load_calibration_model->setEnabled(false);
+
+    action_save_calibration_model = new QAction("Save Calibration");
+    connect(action_save_calibration_model, &QAction::triggered, this, &SirveApp::SaveCalibrationModel);
+    action_save_calibration_model->setEnabled(false);
+
     action_close = new QAction("Close");
     action_close->setStatusTip("Close main window");
     connect(action_close, &QAction::triggered, this, &SirveApp::CloseWindow);
@@ -2816,6 +2879,8 @@ void SirveApp::CreateMenuActions()
 	file_menu->addAction( action_load_OSM);
 	file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
+    file_menu->addAction(action_load_calibration_model);
+    file_menu->addAction(action_save_calibration_model);
     file_menu->addAction(action_close);
     menu_workspace = menuBar()->addMenu(tr("&Workspace"));
     menu_workspace->addAction(action_load_workspace);
@@ -2905,6 +2970,141 @@ void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
     }
 }
 
+void SirveApp::UpdateModelStatusArea(){
+    
+    if(calibration_model.calibration_available)
+    {
+        QFileInfo NucfileInfo(calibration_model.path_nuc);
+        QString NucFileName = NucfileInfo.fileName();
+        QFileInfo ImagefileInfo(calibration_model.path_image);
+        QString ImageFileName = ImagefileInfo.fileName();
+        lbl_status_calibration_nuc->setText("Calibration NUC: " + NucFileName);
+        lbl_status_calibration_image->setText("Calibration NUC: " + ImageFileName);
+        lbl_status_calibration_mean_temp1->setText("Mean Temp 1: " + QString::number(calibration_model.user_selection1.temperature_mean));
+        lbl_status_calibration_mean_temp2->setText("Mean Temp 2: " + QString::number(calibration_model.user_selection2.temperature_mean));
+    }
+}
+
+
+void SirveApp::ResetStatusArea(){
+        lbl_file_name->setText("OSM File Name: ");
+        lbl_loaded_frames->setText("Loaded Frames: ");
+        lbl_status_start_frame->setText("Start Frame: ");
+        lbl_status_stop_frame->setText("Stop Frame: ");
+        lbl_current_workspace_folder_field->setText("");
+        lbl_workspace_name_field->setText("");
+        lbl_status_calibration_nuc->setText("Calibration NUC: ");
+        lbl_status_calibration_image->setText("Calibration NUC: " );
+        lbl_status_calibration_mean_temp1->setText("Mean Temp 1: ");
+        lbl_status_calibration_mean_temp2->setText("Mean Temp 2: " );
+}
+
+
+void SirveApp::LoadCalibrationModel()
+{
+    QString file_selection = QFileDialog::getOpenFileName(nullptr, ("Select Calibration File"), "", ("Calibration File(*.bin)"));
+    int compare = QString::compare(file_selection, "", Qt::CaseInsensitive);
+    if (compare != 0){
+
+        if (calibration_model.LoadFromMatlabBinary(file_selection))
+        {
+            if (calibration_model.calibration_available){
+
+                CalibrateAllExistingTracks();
+                video_player_->SetCalibrationModel(calibration_model);
+                video_player_->SetRadianceCalculationEnabled(true);
+                UpdateModelStatusArea();
+                }
+                else{                       
+                    QMessageBox::information(0, "Calibration Failed",
+                        "Calibration was not applied.");
+                    return;
+                }
+        }
+        else{
+            QMessageBox::information(0, "Calibration Failed",
+                "Calibration was not applied.");
+            return;
+        }
+    }
+}
+
+void SirveApp::SaveCalibrationModel()
+{
+if (calibration_model.calibration_available)
+    {
+        QDate today = QDate::currentDate();
+        QTime currentTime = QTime::currentTime();;
+        QString formattedDate = today.toString("yyyyMMdd") + "_" + currentTime.toString("HHmm");
+        double temp1 = calibration_model.user_selection1.temperature_mean;
+        double temp2 = calibration_model.user_selection2.temperature_mean;
+        QString suggested_model_file_name = config_values.workspace_folder + "/calibration_model_" + QString::number(std::round(temp1)) + "_" + QString::number(std::round(temp2))+ "_" + formattedDate;
+        QString new_model_file_name = QFileDialog::getSaveFileName(this, "Select model file neame", suggested_model_file_name, "bin (*.bin)");
+        calibration_model.SaveToMatlabBinary(new_model_file_name);;
+    }
+}
+
+void SirveApp::CalibrateAllExistingTracks()
+{
+    int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+    int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
+    bool recalibrateTF = true;
+    ProcessingState* base_processing_state = &state_manager_->front();
+
+    CalibrateExistingTracks::CalibrateOSMTracks(calibration_model,
+                                                osm_frames,
+                                                track_info->GetOsmPlottingTrackFrames(),
+                                                base_processing_state->details,
+                                                video_player_->GetFrameHeaders(),
+                                                absolute_indx_start_0,
+                                                absolute_indx_stop_0,
+                                                abp_file_metadata.file_type);    
+                                             
+    const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
+    
+    if (previous_manual_track_ids.size()>0){
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(
+            nullptr, 
+            "Confirmation", 
+            "Do you want to apply calibration to previously calibrated manual tracks?", 
+            QMessageBox::Yes | QMessageBox::No 
+        );
+
+
+        if (reply == QMessageBox::Yes) {
+            
+            std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
+            CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
+                                                manual_frames,
+                                                track_info->GetManualPlottingFrames(),
+                                                base_processing_state->details,
+                                                video_player_->GetFrameHeaders(),
+                                                absolute_indx_start_0,
+                                                absolute_indx_stop_0,
+                                                abp_file_metadata.file_type, 
+                                                recalibrateTF);
+            }
+            else{
+                recalibrateTF = false;
+            }   
+
+    } 
+    else{
+        recalibrateTF = false;
+    }
+         
+    if (recalibrateTF){
+            QMessageBox::information(0, "Calibration Successful",
+                "Calibration applied to OSM and manual tracks.");
+    }
+    else{
+        QMessageBox::information(0, "Calibration Successful",
+        "Calibration applied to OSM tracks.");
+    } 
+}
+
 void SirveApp::ShowCalibrationDialog()
 {
 	CalibrationDialog calibrate_dialog(calibration_model, abp_file_metadata.file_type);
@@ -2917,8 +3117,26 @@ void SirveApp::ShowCalibrationDialog()
 	}
 
 	calibration_model = calibrate_dialog.model;
-	video_player_->SetCalibrationModel(std::move(calibrate_dialog.model));
+
+    if (calibration_model.calibration_available)
+    {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(
+            nullptr, 
+            "Save Model", 
+            "Do you want to save the calibration model?", 
+            QMessageBox::Yes | QMessageBox::No 
+            );   
+
+            if (reply == QMessageBox::Yes) {
+                SaveCalibrationModel();
+            }   
+    }
+	video_player_->SetCalibrationModel(calibrate_dialog.model);
 	video_player_->SetRadianceCalculationEnabled(true);
+    UpdateModelStatusArea();
+    CalibrateAllExistingTracks();
+                                 
 }
 
 void SirveApp::ExportPlotData()
@@ -2955,10 +3173,10 @@ void SirveApp::ExportPlotData()
     }
     else {
 
-        int min_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-        int max_frame = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
+        int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+        int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax();
 
-        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), min_frame, max_frame, abp_file_metadata.file_type);
+        DataExport::WriteTrackDataToCsv(save_path, eng_data->get_plotting_frame_data(), track_info->GetOsmPlottingTrackFrames(), track_info->GetManualPlottingFrames(), absolute_indx_start_0, absolute_indx_stop_0, abp_file_metadata.file_type);
     }
 
     QMessageBox msgBox;
@@ -3420,7 +3638,7 @@ bool SirveApp::CheckCurrentStateisNoiseSuppressed(int source_state_idx) const
 
 void SirveApp::ApplyFixedNoiseSuppressionFromExternalFile()
 {
-    ExternalNUCInformationWidget external_nuc_dialog(abp_file_metadata.file_type);
+    ExternalFixedNoiseInformationWidget external_nuc_dialog(abp_file_metadata.file_type);
 
     auto response = external_nuc_dialog.exec();
 
@@ -3570,6 +3788,7 @@ void SirveApp::OpenProgressArea(const QString& message, int N)
     progress_bar_main->setRange(0,N);
     progress_bar_main->setTextVisible(true);
     lbl_progress_status->setText(message);
+    lbl_progress_status->setFont(QFont("Arial", 9, QFont::Bold));
 }
 
 void SirveApp::CloseProgressArea()
@@ -4179,7 +4398,7 @@ void SirveApp::ExecuteAutoTracking()
             return;
         }
         std::vector<std::optional<TrackDetails>>track_details = track_info->GetEmptyTrack();
-        auto frame_headers = abir_frames->ir_data;
+
         appPos = this->GetWindowPosition();
         arma::s64_mat autotrack = AutoTracker.SingleTracker(screenResolution, appPos, track_id, clamp_low_coeff, clamp_high_coeff, threshold, bbox_buffer_pixels, prefilter, trackFeature, start_frame, start_frame_i, stop_frame_i, current_processing_state, base_processing_state->details, video_player_->GetFrameHeaders(), calibration_model);
 
@@ -4212,6 +4431,7 @@ void SirveApp::ExecuteAutoTracking()
             TrackDetails details;
             for (int rowii = 0; rowii<autotrack.n_rows; rowii++)
             {
+                int indx = autotrack(rowii,1)-1;
                 details.centroid_x_boresight = autotrack(rowii,2);
                 details.centroid_y_boresight = autotrack(rowii,3);
                 details.centroid_x = autotrack(rowii,4);
@@ -4221,23 +4441,34 @@ void SirveApp::ExecuteAutoTracking()
                 details.mean_counts = autotrack(rowii,8);
                 details.sum_counts = autotrack(rowii,9);
                 details.sum_relative_counts =  autotrack(rowii,10);
-                details.peak_irradiance = autotrack(rowii,11);
-                details.mean_irradiance = autotrack(rowii,12);
-                details.sum_irradiance = autotrack(rowii,13);
+                details.peak_irradiance = autotrack(rowii,11)/1000.;
+                details.mean_irradiance = autotrack(rowii,12)/1000.;
+                details.sum_irradiance = autotrack(rowii,13)/1000.;
                 details.bbox_x = autotrack(rowii,14);
                 details.bbox_y = autotrack(rowii,15);
                 details.bbox_width = autotrack(rowii,16);
                 details.bbox_height = autotrack(rowii,17);
-                track_details[autotrack(rowii,1)-1] = details;
+                if (calibration_model.calibration_available){
+                    details.is_calibrated = true;
+                    details.mean_temp1 = calibration_model.user_selection1.temperature_mean;
+                    details.mean_temp2 = calibration_model.user_selection2.temperature_mean;
+                    details.start_frame1 = calibration_model.user_selection1.initial_frame;
+                    details.start_frame2 = calibration_model.user_selection2.initial_frame;
+                    details.num_frames1 = calibration_model.user_selection1.num_frames;
+                    details.num_frames2 = calibration_model.user_selection2.num_frames;
+                    details.nuc_calibration_file = calibration_model.path_nuc;
+                    details.nuc_image_file = calibration_model.path_image;
+                }
+                track_details[indx] = details;
             }
 
             tm_widget->AddTrackControl(track_id);
             video_player_->AddManualTrackIdToShowLater(track_id);
-            track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
+            track_info->AddCreatedManualTrack(eng_data->get_plotting_frame_data(), track_id, track_details, new_track_file_name);
 
-            int index0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
-            int index1 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
-            video_player_->UpdateManualTrackData(track_info->GetManualFrames(index0, index1));
+            int absolute_indx_start_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmin();
+            int absolute_indx_stop_0 = plot_palette->GetEngineeringPlotReference(0)->get_index_full_scope_xmax() + 1;
+            video_player_->UpdateManualTrackData(track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0));
             plot_palette->UpdateAllManualPlottingTrackFrames(track_info->GetManualPlottingFrames(), track_info->GetManualTrackIds());
 
             qDebug() << "About to call PlotAllSirveTracks from within ExecuteAutoTracking";
@@ -4250,20 +4481,63 @@ void SirveApp::ExecuteAutoTracking()
                 cmb_manual_track_IDs->addItem(QString::number(tid));
             }
 
-            QStringList color_options = ColorScheme::get_track_colors();
-            QWidget * existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
-            if (existing_track_control != nullptr)
-            {
-                QLabel *lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
-                const QFileInfo info(new_track_file_name);
-                lbl_track_description->setText(info.fileName());
-                int ind = existing_track_control->findChild<QComboBoxWithId*>()->currentIndex();
-                HandleManualTrackRecoloring(track_id, color_options[ind]);
-            }
+            AddTrackColorControl(new_track_file_name, track_id);
         }
 
     CloseProgressArea();
     }
+}
+
+void SirveApp::AddTrackColorControl(QString new_track_file_name, u_int track_id)
+{
+    QStringList color_options = ColorScheme::get_track_colors();
+    QString used_color;
+    QSet<QString> used_colors;
+
+    // Step 1: Collect all used colors from existing track controls
+    const QList<QWidget*> all_track_controls = tm_widget->findChildren<QWidget*>(QRegularExpression("TrackControl_\\d+"));
+    for (QWidget* ctrl : all_track_controls)
+    {
+        QComboBoxWithId* combo = ctrl->findChild<QComboBoxWithId*>();
+        if (combo)
+            used_colors.insert(combo->currentText());
+    }
+
+    // Step 2: Find the first available color not in use
+    QString next_color;
+    int next_color_index = -1;
+    for (int i = 0; i < color_options.size(); ++i)
+    {
+        if (!used_colors.contains(color_options[i]))
+        {
+            next_color = color_options[i];
+            next_color_index = i;
+            break;
+        }
+    }
+
+    if (next_color_index == -1) {
+    // All colors used — fallback to index 0 or log
+        next_color_index = 0;
+        next_color = color_options[0];
+        // qWarning() << "All colors used — reusing first color:" << next_color;
+    }
+
+    // Step 3: Apply the next available color to the new track
+    QWidget* existing_track_control = tm_widget->findChild<QWidget*>(QString("TrackControl_%1").arg(track_id));
+    if (existing_track_control != nullptr)
+    {
+        QLabel* lbl_track_description = existing_track_control->findChild<QLabel*>("track_description");
+        const QFileInfo info(new_track_file_name);
+        lbl_track_description->setText(info.fileName());
+
+        QComboBoxWithId* combo = existing_track_control->findChild<QComboBoxWithId*>();
+        if (combo && next_color_index >= 0)
+        {
+            combo->setCurrentIndex(next_color_index);
+            HandleManualTrackRecoloring(track_id, next_color);
+        }
+    }   
 }
 
 void SirveApp::UpdateEpochString(const QString& new_epoch_string)

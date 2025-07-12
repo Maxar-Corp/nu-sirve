@@ -60,10 +60,11 @@ EngineeringPlot::EngineeringPlot(std::vector<Frame> const &osm_frames, QString p
     connect(actToggleFrameLine, SIGNAL(triggered()), this, SLOT(ToggleFrameLine()));
     connect(actToggleGraphStyle, SIGNAL(triggered()), this, SLOT(ToggleGraphStyle()));
 
-    if (plotYType == Enums::PlotType::SumCounts)
+    if (plotYType == Enums::PlotType::Sum_Counts || plotYType == Enums::PlotType::Peak_Irradiance || plotYType == Enums::PlotType::Mean_Irradiance || plotYType == Enums::PlotType::Sum_Irradiance)
     {
-        actToggleLinearLog = new QAction(QIcon(":icons/solid-style.png"), tr("Toggle Plot Mode"), this);
-        actToggleLinearLog->setToolTip("Toggle between linear and log Y axis.");
+        qDebug() << "Quantity can be plottedd in log space";
+        actToggleLinearLog = new QAction(QIcon(":icons/linear-mode.png"), tr("Toggle Plot Mode"), this);
+        actToggleLinearLog->setToolTip("Toggle between linear and log scales.");
         toolbar->addAction(this->get_action_toggle_linearlog());
         connect(actToggleLinearLog, SIGNAL(triggered()), this, SLOT(ToggleLinearLog()));
     }
@@ -189,9 +190,21 @@ FuncType EngineeringPlot::DeriveFunctionPointers(Enums::PlotType type)
     {
         func = std::bind(&EngineeringPlot::get_individual_y_track_boresight_elevation, this, std::placeholders::_1);
     }
-    else if (type == Enums::PlotType::SumCounts)
+    else if (type == Enums::PlotType::Sum_Counts)
     {
-        func = std::bind(&EngineeringPlot::get_individual_y_track_irradiance, this, std::placeholders::_1);
+        func = std::bind(&EngineeringPlot::get_individual_y_track_sum_relative_counts, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Peak_Irradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_peak_irradiance, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Mean_Irradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_mean_irradiance, this, std::placeholders::_1);
+    }
+    else if (type == Enums::PlotType::Sum_Irradiance)
+    {
+        func = std::bind(&EngineeringPlot::get_individual_y_track_sum_irradiance, this, std::placeholders::_1);
     }
     else
     {
@@ -227,8 +240,17 @@ void EngineeringPlot::GetTrackValues(int &track_id, std::vector<double> &x_value
                 y_values.push_back(it->second.azimuth);
             } else if (my_quantities.at(0).getName() == "Elevation") {
                 y_values.push_back(it->second.elevation);
-            } else if (my_quantities.at(0).getName() == "SumCounts") {
+            } else if (my_quantities.at(0).getName() == "Sum_Counts") {
                 y_values.push_back(it->second.sum_relative_counts);
+            }
+            else if (my_quantities.at(0).getName() == "Peak_Irradiance") {
+                y_values.push_back(it->second.peak_irradiance);
+            }
+            else if (my_quantities.at(0).getName() == "Mean_Irradiance") {
+                y_values.push_back(it->second.mean_irradiance);
+            }
+            else if (my_quantities.at(0).getName() == "Sum_Irradiance") {
+                y_values.push_back(it->second.sum_irradiance);
             }
         }
     }
@@ -297,7 +319,7 @@ void EngineeringPlot::AddTypedGraph(Enums::GraphType graph_type, size_t columnX,
     }
 
     // Use the osm data plotTitle (provided on instantiation), unless a Track Title has been passed
-    QString title = graph_title.has_value() ? graph_title.value() : plotTitle;
+    QString title = graph_title.has_value() ? graph_title.value() : "OSM";
     graph->setTitle(title);
 
     this->addGraph(graph);
@@ -335,17 +357,23 @@ void EngineeringPlot::PlotSirveQuantities(std::function<std::vector<double>(size
 
         AddTypedGraph(graph_type, columnX, columnY);
 
-        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[1].getUnit()) + ") ";
-        this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + unitsXAxis);
+        QString unitsXAxis = Enums::plotUnitToString(my_quantities[1].getUnit()).contains("Undefined") ? "" :  "\\quad[" + Enums::plotUnitToString(my_quantities[1].getUnit()) + "]";
 
-        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ") ";
-        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + unitsYAxis);
+        if (my_quantities[1].getName()=="Frames"){
+            this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' '));
+        }
+        else{
+            this->getXAxis()->setAxisLabel(my_quantities[1].getName().replace('_', ' ') + "\\quad[" + my_quantities[1].getFormattedUnit() + "]");
+        }
+
+        QString unitsYAxis = Enums::plotUnitToString(my_quantities[0].getUnit()).contains("Undefined") ? "" :  " (" + Enums::plotUnitToString(my_quantities[0].getUnit()) + ")";
+        this->getYAxis()->setAxisLabel(my_quantities[0].getName().replace('_', ' ') + "\\quad[" + my_quantities[0].getFormattedUnit() + "]");
         this->getYAxis()->setLabelFontSize(10); // large x-axis label
         this->getYAxis()->setTickLabelFontSize(10); // and larger y-axis tick labels
 
         this->zoomToFit();
-        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
 
+        this->fixed_max_y = *std::max_element(y_osm_values.begin(), y_osm_values.end()); // get the upper bound for drawing the frame line
         this->getPlotter()->setPlotLabel(plot_classification);
     }
 
@@ -403,14 +431,42 @@ std::vector<double> EngineeringPlot::get_individual_x_track(size_t i)
     return x_values;
 }
 
-std::vector<double> EngineeringPlot::get_individual_y_track_irradiance(size_t i)
+std::vector<double> EngineeringPlot::get_individual_y_track_peak_irradiance(size_t i)
 {
     std::vector<double> y_values;
     for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
     {
         if (i < track_frames[track_frame_index].details.size())
         {
-            y_values.push_back(track_frames[track_frame_index].details[i].sum_relative_counts);
+            y_values.push_back(track_frames[track_frame_index].details[i].peak_irradiance);
+        }
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_mean_irradiance(size_t i)
+{
+    std::vector<double> y_values;
+    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    {
+        if (i < track_frames[track_frame_index].details.size())
+        {
+            y_values.push_back(track_frames[track_frame_index].details[i].mean_irradiance);
+        }
+    }
+
+    return y_values;
+}
+
+std::vector<double> EngineeringPlot::get_individual_y_track_sum_irradiance(size_t i)
+{
+    std::vector<double> y_values;
+    for (int track_frame_index = 0; track_frame_index < track_frames.size(); track_frame_index += 1)
+    {
+        if (i < track_frames[track_frame_index].details.size())
+        {
+            y_values.push_back(track_frames[track_frame_index].details[i].sum_irradiance);
         }
     }
 
@@ -870,6 +926,7 @@ void EngineeringPlot::ToggleDataScope()
     if (my_quantities.at(1).getUnit() == Enums::PlotUnit::Degrees)
     {
         DeleteGraphIfExists(plotTitle);
+        DeleteGraphIfExists("OSM");
         ds->clear();
 
         std::vector<double> filtered_x, filtered_y;
@@ -902,6 +959,7 @@ void EngineeringPlot::ToggleFrameLine()
 void EngineeringPlot::ToggleGraphStyle()
 {
     DeleteGraphIfExists(plotTitle);
+    DeleteGraphIfExists("OSM");
     DeleteGraphIfExists("Frame Line");
     DeleteAllTrackGraphs();
 

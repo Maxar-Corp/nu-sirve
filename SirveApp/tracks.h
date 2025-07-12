@@ -16,7 +16,7 @@ struct TrackDetails
 
     TrackDetails(double frameTime, double julianDate, double secondPastMidnight, double timingOffset, int centroidXBoresight,
                  int centroidYBoresight, int centroidX, int centroidY, double az, double el, int peakCounts, int sumCounts, int meanCounts,
-                 int numberPixels, double sumRelativeCounts, double peakIrradiance, double meanIrradiance, double sumIrradiance,
+                 int numberPixels, double sumRelativeCounts, double peak_irradiance, double mean_irradiance, double sum_irradiance,
                  double sumRelativeIrradiance, int bboxX, int bboxY, int bboxWidth, int bboxHeight);
 
     TrackDetails(double centroid_x, double centroid_y);
@@ -48,6 +48,15 @@ struct TrackDetails
     int bbox_y = 0;
     int bbox_width = 0;
     int bbox_height = 0;
+    bool is_calibrated = false;
+    double mean_temp1 = 0.;
+    uint start_frame1 = 0;
+    uint num_frames1 = 0;
+    double mean_temp2 = 0.;
+    uint start_frame2 = 0;
+    uint num_frames2 = 0;
+    QString nuc_calibration_file;
+    QString nuc_image_file;
 };
 
 struct PlottingTrackDetails
@@ -56,7 +65,7 @@ struct PlottingTrackDetails
     PlottingTrackDetails(const PlottingTrackDetails&) = default;
 
     PlottingTrackDetails(int trackId, TrackDetails centroid, double sumRelativeCounts, double az, double el,
-                         double irradiance);
+                         double peak_irradiance, double mean_irradiance, double sum_irradiance, bool is_calibrated, double mean_temp1, double mean_temp2);
 
     PlottingTrackDetails(const TrackData& track_data);
     PlottingTrackDetails& operator=(const TrackData& track_data);
@@ -66,7 +75,18 @@ struct PlottingTrackDetails
     double sum_relative_counts = 0.0;
     double azimuth = 0.0;
     double elevation = 0.0;
-    double irradiance = 0.0;
+    double peak_irradiance = 0.0;
+    double sum_irradiance = 0.0;
+    double mean_irradiance = 0.0;
+    bool is_calibrated = false;
+    double mean_temp1 = 0.;
+    uint start_frame1 = 0;
+    uint num_frames1 = 0;
+    double mean_temp2 = 0.;
+    uint start_frame2 = 0;
+    uint num_frames2 = 0;
+    QString nuc_calibration_file;
+    QString nuc_image_file;
 };
 
 struct ManualPlottingTrackDetails
@@ -75,7 +95,19 @@ struct ManualPlottingTrackDetails
     double azimuth = 0.0;
     double elevation = 0.0;
     double irradiance = 0.0;
+    double peak_irradiance = 0.0;
+    double mean_irradiance = 0.0;
+    double sum_irradiance = 0.0;
     double sum_relative_counts = 0.0;
+    bool is_calibrated = false;
+    double mean_temp1 = 0.;
+    uint start_frame1 = 0;
+    uint num_frames1 = 0;
+    double mean_temp2 = 0.;
+    uint start_frame2 = 0;
+    uint num_frames2 = 0;
+    QString nuc_calibration_file;
+    QString nuc_image_file;
 };
 
 struct ManualPlottingTrackFrame
@@ -133,10 +165,13 @@ public:
     std::vector<std::optional<TrackDetails>> GetEmptyTrack() const;
     void WriteManualTrackToFile(const std::vector<PlottingFrameData>& frame_data, int track_id, const std::vector<std::optional<TrackDetails>> & new_track_details, const QString& new_track_file_name);
 
-    std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
-    std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
-    const std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
-    const std::vector<ManualPlottingTrackFrame>& GetManualPlottingFrames();
+    std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index);
+    const std::vector<TrackFrame> GetOsmFrames(size_t start_index, size_t end_index) const;
+    std::vector<TrackFrame> GetManualFrames(int start_index, int end_index);
+    const std::vector<TrackFrame> GetManualFrames(int start_index, int end_index) const;
+    std::vector<PlottingTrackFrame>& GetOsmPlottingTrackFrames();
+    std::vector<ManualPlottingTrackFrame>& GetManualPlottingFrames();
+    void UpdateTrackDetails(std::vector<Frame> & osm_frames, std::vector<PlottingTrackFrame> & track_data, int absolute_indx_start_0, int absolute_indx_stop_0);
     const std::vector<TrackFrame>& GetManualImageFrames();
 
     size_t GetTrackCount() const;
@@ -146,8 +181,7 @@ public:
 
 private:
     TrackInformation() = default;
-    ManualPlottingTrackDetails GetManualPlottingTrackDetails(int frame_number, int centroid_x, int centroid_y,
-                                                             double sum_relative_counts) const;
+    void GetManualPlottingTrackDetails(int frame_number,TrackDetails & track_details) const;
 
     std::vector<PlottingTrackFrame> osm_plotting_track_frames;
     std::vector<TrackFrame> osm_frames;

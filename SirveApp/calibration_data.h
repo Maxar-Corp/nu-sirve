@@ -43,7 +43,7 @@ class CalibrationData {
 public:
 	CalibrationData() = default;
 
-    std::array<double, 3> MeasureSumCounts(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const;
+    std::array<double, 3> MeasureIrradiance(int ul_row, int ul_col, int lr_row, int lr_col, arma::mat x, double frame_integration_time) const;
 	void setup_model(arma::mat input_m, arma::mat input_b);
 	bool set_calibration_details(QString path_to_nuc, QString path_to_image, SelectedData selection1, SelectedData selection2, double int_time);
 	bool check_path(QString path);
@@ -52,6 +52,13 @@ public:
 	QString path_nuc, path_image;
 	SelectedData user_selection1, user_selection2;
 	double integration_time = 0.0;
+
+	bool SaveToFile(const QString& filename) const;
+	bool LoadFromFile(const QString& filename);
+	bool LoadFromMatlabBinary(const QString& filename);
+	bool SaveToMatlabBinary(const QString& filename) const;
+	static void WriteQString(QDataStream& out, const QString& str);
+	QString ReadQString(QDataStream& in, QFile& file);
 
 private:
 	arma::mat m, b;

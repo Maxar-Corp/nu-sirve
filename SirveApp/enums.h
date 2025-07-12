@@ -15,7 +15,10 @@ public:
         Elevation,
         FovX,
         FovY,
-        SumCounts,
+        Sum_Counts,
+        Peak_Irradiance,
+        Mean_Irradiance,
+        Sum_Irradiance,
         Frames,
         Seconds_From_Epoch,
         Seconds_Past_Midnight,
@@ -29,6 +32,7 @@ public:
         Microns,
         Radians,
         Seconds,
+        W_m2_str,
         Undefined_PlotUnit
     };
 
