@@ -973,17 +973,8 @@ void EngineeringPlot::ToggleTrack(int track_id)
 
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 {
-    int index = 0;
-    bool graph_exists = false;
-
-    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) {
-        if ((*it)->getTitle() == titleToFind) {
-            graph_exists = true;
-            break;
-        }
-    }
-
-    if (graph_exists)
+    int index = FetchGraphIndexByTitle(titleToFind);
+    if (index != -1)
     {
         this->getGraphs().removeAt(index);
     }
@@ -1012,10 +1003,7 @@ int EngineeringPlot::FetchGraphIndexByTitle(const QString& titleToFind)
         }
     }
 
-    if (graph_exists)
-    {
-        return index;
-    }
+    return graph_exists ? index : -1;
 }
 
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
