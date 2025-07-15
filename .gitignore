@@ -1,4 +1,18 @@
 ## Project-specific files
+
+# .gitignore
+*.exe
+*.dll
+*.so
+*.o
+*.a
+*.lib
+*.bin
+*.pdf
+*.zip
+*.mp4
+*.avi
+
 *.qmake.stash
 *ui_*.h
 */Makefile*
