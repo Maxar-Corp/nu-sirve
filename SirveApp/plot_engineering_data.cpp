@@ -1074,7 +1074,31 @@ void EngineeringPlot::RecolorOsmTrack(QColor new_color)
     int index = FetchGraphIndexByTitle("OSM");
     if (index != -1)
     {
-        // TODO: Set Color here. dynamic_cast<JKQTPXYLineGraph>(this->getGraphs().at(index)->setColor
+        auto graph = this->getGraphs().at(index);
+        if (graph_type == Enums::GraphType::Line)
+        {
+            if (auto line_graph = dynamic_cast<JKQTPXYLineGraph*>(graph))
+            {
+                line_graph->setColor(new_color);
+            }
+        } else if (graph_type == Enums::GraphType::Scatter)
+        {
+            if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph))
+            {
+                JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
+                    [new_color](QPainter& p) {
+                        const double w=p.pen().widthF();
+                        p.setPen(QPen(new_color, w));
+                        p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
+                    });
+
+                if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph)) {
+                    scatter_graph->setSymbolSize(3.0);
+                    scatter_graph->setSymbolType(customSymbol);
+                }
+            }
+        }
+        plotter->plotUpdated();
     }
 }
 

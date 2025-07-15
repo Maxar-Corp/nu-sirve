@@ -3242,13 +3242,15 @@ void SirveApp::EditCursorColor()
 
 void SirveApp::EditOSMTrackColor()
 {
-    // QString tracker_color = cmb_OSM_track_color->currentText();
     QStringList color_options = ColorScheme::get_track_colors();
     QColor color = color_options[cmb_OSM_track_color->currentIndex()];
 
     video_player_->SetTrackerColor(color);
 
-    // UpdatePlots(); //Note: Engineering_Plots does not yet control its own graphical updates like VideoDisplay
+    for (int index = 0; index < plot_palette->tabBar()->count(); index++)
+    {
+        plot_palette->RecolorOsm(index, color);
+    }
 }
 
 void SirveApp::HandleOutlierProcessingChange()
