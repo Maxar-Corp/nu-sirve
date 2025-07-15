@@ -1069,6 +1069,15 @@ void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
     manual_track_colors[track_id] = new_color;
 }
 
+void EngineeringPlot::RecolorOsmTrack(QColor new_color)
+{
+    int index = FetchGraphIndexByTitle("OSM");
+    if (index != -1)
+    {
+        // TODO: Set Color here. dynamic_cast<JKQTPXYLineGraph>(this->getGraphs().at(index)->setColor
+    }
+}
+
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
 {
     manual_track_frames = std::move(frames);

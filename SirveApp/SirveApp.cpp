@@ -1167,7 +1167,7 @@ void SirveApp::SetupConnections() {
     connect(txt_gain_sigma, &QLineEdit::editingFinished, this, &SirveApp::UpdateGlobalFrameVector);
     //---------------------------------------------------------------------------
 
-    connect(chk_show_OSM_tracks, &QCheckBox::stateChanged, this, &SirveApp::HandleOsmTracksToggle);
+    connect(chk_show_OSM_tracks, &QCheckBox::toggled, this, &SirveApp::HandleOsmTracksToggle);
     connect(cmb_OSM_track_color, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &SirveApp::EditOSMTrackColor);
     connect(chk_sensor_track_data, &QCheckBox::stateChanged, video_player_, &VideoPlayer::SetDisplayBoresight);
     connect(chk_show_time, &QCheckBox::stateChanged, video_player_, &VideoPlayer::SetFrameTimeToggle);
@@ -1300,7 +1300,7 @@ void SirveApp::ImportTracks()
                                         video_player_->GetFrameHeaders(),
                                         absolute_indx_start_0,
                                         absolute_indx_stop_0,
-                                        abp_file_metadata.file_type, 
+                                        abp_file_metadata.file_type,
                                         true);
                     }
 
@@ -1328,7 +1328,7 @@ void SirveApp::ImportTracks()
                                     video_player_->GetFrameHeaders(),
                                     absolute_indx_start_0,
                                     absolute_indx_stop_0,
-                                    abp_file_metadata.file_type, 
+                                    abp_file_metadata.file_type,
                                     true);
                 }
             cmb_manual_track_IDs->clear();
@@ -1447,7 +1447,7 @@ void SirveApp::HandleSaveTrackClick()
         QtHelpers::LaunchMessageBox("Returning.", "An invalid or empty file was chosen.");
         return;
     }
-    track_info->WriteManualTrackToFile(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);   
+    track_info->WriteManualTrackToFile(eng_data->get_plotting_frame_data(),track_id, track_details, new_track_file_name);
 }
 
 void SirveApp::PrepareForTrackCreation(int track_id)
@@ -1956,7 +1956,7 @@ void SirveApp::LoadOsmData()
     int absolute_indx_stop_0 = osm_frames.size();
 
     track_info->UpdateTrackDetails(osm_frames, track_info->GetOsmPlottingTrackFrames(), absolute_indx_start_0, absolute_indx_stop_0);
-    
+
     plot_palette = new PlotPalette();
 
     osmDataLoaded = track_info->GetTrackCount() != 0;
@@ -2871,9 +2871,9 @@ void SirveApp::CreateMenuActions()
     action_about = new QAction("SirveApp");
     connect(action_about, &QAction::triggered, this, &SirveApp::ProvideInformationAbout);
 
-	file_menu = menuBar()->addMenu(tr("&File"));
-	file_menu->addAction( action_load_OSM);
-	file_menu->addAction(action_load_OSM_D);
+    file_menu = menuBar()->addMenu(tr("&File"));
+    file_menu->addAction( action_load_OSM);
+    file_menu->addAction(action_load_OSM_D);
     file_menu->addAction(action_show_calibration_dialog);
     file_menu->addAction(action_load_calibration_model);
     file_menu->addAction(action_save_calibration_model);
@@ -2967,7 +2967,7 @@ void SirveApp::EditClassificationText(int plot_tab_index, QString current_value)
 }
 
 void SirveApp::UpdateModelStatusArea(){
-    
+
     if(calibration_model.calibration_available)
     {
         QFileInfo NucfileInfo(calibration_model.path_nuc);
@@ -3011,7 +3011,7 @@ void SirveApp::LoadCalibrationModel()
                 video_player_->SetRadianceCalculationEnabled(true);
                 UpdateModelStatusArea();
                 }
-                else{                       
+                else{
                     QMessageBox::information(0, "Calibration Failed",
                         "Calibration was not applied.");
                     return;
@@ -3054,23 +3054,23 @@ void SirveApp::CalibrateAllExistingTracks()
                                                 video_player_->GetFrameHeaders(),
                                                 absolute_indx_start_0,
                                                 absolute_indx_stop_0,
-                                                abp_file_metadata.file_type);    
-                                             
+                                                abp_file_metadata.file_type);
+
     const auto& previous_manual_track_ids = track_info->GetManualTrackIds();
-    
+
     if (previous_manual_track_ids.size()>0){
 
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(
-            nullptr, 
-            "Confirmation", 
-            "Do you want to apply calibration to previously calibrated manual tracks?", 
-            QMessageBox::Yes | QMessageBox::No 
+            nullptr,
+            "Confirmation",
+            "Do you want to apply calibration to previously calibrated manual tracks?",
+            QMessageBox::Yes | QMessageBox::No
         );
 
 
         if (reply == QMessageBox::Yes) {
-            
+
             std::vector<TrackFrame> manual_frames = track_info->GetManualFrames(absolute_indx_start_0, absolute_indx_stop_0);
             CalibrateExistingTracks::CalibrateManualTracks(calibration_model,
                                                 manual_frames,
@@ -3079,18 +3079,18 @@ void SirveApp::CalibrateAllExistingTracks()
                                                 video_player_->GetFrameHeaders(),
                                                 absolute_indx_start_0,
                                                 absolute_indx_stop_0,
-                                                abp_file_metadata.file_type, 
+                                                abp_file_metadata.file_type,
                                                 recalibrateTF);
             }
             else{
                 recalibrateTF = false;
-            }   
+            }
 
-    } 
+    }
     else{
         recalibrateTF = false;
     }
-         
+
     if (recalibrateTF){
             QMessageBox::information(0, "Calibration Successful",
                 "Calibration applied to OSM and manual tracks.");
@@ -3098,41 +3098,41 @@ void SirveApp::CalibrateAllExistingTracks()
     else{
         QMessageBox::information(0, "Calibration Successful",
         "Calibration applied to OSM tracks.");
-    } 
+    }
 }
 
 void SirveApp::ShowCalibrationDialog()
 {
-	CalibrationDialog calibrate_dialog(calibration_model, abp_file_metadata.file_type);
+    CalibrationDialog calibrate_dialog(calibration_model, abp_file_metadata.file_type);
 
-	auto response = calibrate_dialog.exec();
+    auto response = calibrate_dialog.exec();
 
-	if (response == 0) {
+    if (response == 0) {
 
-		return;
-	}
+        return;
+    }
 
-	calibration_model = calibrate_dialog.model;
+    calibration_model = calibrate_dialog.model;
 
     if (calibration_model.calibration_available)
     {
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(
-            nullptr, 
-            "Save Model", 
-            "Do you want to save the calibration model?", 
-            QMessageBox::Yes | QMessageBox::No 
-            );   
+            nullptr,
+            "Save Model",
+            "Do you want to save the calibration model?",
+            QMessageBox::Yes | QMessageBox::No
+            );
 
             if (reply == QMessageBox::Yes) {
                 SaveCalibrationModel();
-            }   
+            }
     }
-	video_player_->SetCalibrationModel(calibrate_dialog.model);
-	video_player_->SetRadianceCalculationEnabled(true);
+    video_player_->SetCalibrationModel(calibrate_dialog.model);
+    video_player_->SetRadianceCalculationEnabled(true);
     UpdateModelStatusArea();
     CalibrateAllExistingTracks();
-                                 
+
 }
 
 void SirveApp::ExportPlotData()
@@ -4015,25 +4015,19 @@ void SirveApp::CenterOnBrightest(std::vector<std::vector<int>> & brightest_cente
     CloseProgressArea();
 }
 
-// TODO:Verify this works as expected
-void SirveApp::HandleOsmTracksToggle()
+void SirveApp::HandleOsmTracksToggle(bool checked)
 {
-    bool current_status = chk_show_OSM_tracks->isChecked();
-    video_player_->ToggleOsmTracks(current_status);
-    if (current_status) {
+    if (checked) {
         cmb_OSM_track_color->setEnabled(true);
         QStringList color_options = ColorScheme::get_track_colors();
-        QColor color = color_options[cmb_OSM_track_color->currentIndex()];
-
-        video_player_->SetTrackerColor(std::move(color));
+        video_player_->SetTrackerColor(color_options[cmb_OSM_track_color->currentIndex()]);
     }
     else
     {
         cmb_OSM_track_color->setEnabled(false);
-        QColor color = QColor(0,0,0,0);
-
-        video_player_->SetTrackerColor(std::move(color));
+        video_player_->SetTrackerColor(QColor(0,0,0,0));
     }
+    plot_palette->ToggleOsm();
 }
 
 void SirveApp::HandlePlayerStateChanged(bool status)
@@ -4533,7 +4527,7 @@ void SirveApp::AddTrackColorControl(QString new_track_file_name, u_int track_id)
             combo->setCurrentIndex(next_color_index);
             HandleManualTrackRecoloring(track_id, next_color);
         }
-    }   
+    }
 }
 
 void SirveApp::UpdateEpochString(const QString& new_epoch_string)

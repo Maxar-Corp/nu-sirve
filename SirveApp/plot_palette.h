@@ -29,12 +29,14 @@ public:
     bool HasSyncedTabWithIndex(int tab_id);
     void PlotAllSirveTracks(int override_track_id);
     void RecolorManualTrack(int plot_id, int track_id, QColor new_color);
+    void RecolorOsm(int plot_id, QColor new_color);
     void RedrawPlot(int plot_id);
     void RemovePoppedTabIndex(int tab_index);
     void RemoveSyncedTabIndex(int tab_index);
     void RouteFramelineUpdate(int frameline_x);
     void SetAbirDataLoaded(bool abir_data_loaded);
     void SetupSubRanges(int min_x, int min_y);
+    void ToggleOsm();
     void ToggleTrack(int track_id);
     void UpdateManualPlottingTrackFrames(int plot_id, std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids);
     void UpdatePlotLabel(int tab_id, const QString& label);
