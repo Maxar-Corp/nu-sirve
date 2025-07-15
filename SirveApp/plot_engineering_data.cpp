@@ -1021,9 +1021,9 @@ void EngineeringPlot::ToggleLinearLog()
     yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
 }
 
-void EngineeringPlot::ToggleTrack(int track_id)
+void EngineeringPlot::ToggleTrack(const QString &titleToFind)
 {
-    int track_graph_index = FetchGraphIndexByTitle("Track " + QString::number(track_id)); // accounts for presence of osm track and frame line graphs
+    int track_graph_index = FetchGraphIndexByTitle(titleToFind); // accounts for presence of osm track and frame line graphs
     bool track_visible = this->getGraphs().at(track_graph_index)->isVisible();
     getGraphs().at(track_graph_index)->setVisible(!track_visible);
     plotter->redrawPlot();

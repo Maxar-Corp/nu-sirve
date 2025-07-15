@@ -261,7 +261,7 @@ void PlotPalette::ToggleTrack(int track_id)
 {
     for (int plot_id = 0; plot_id < engineering_plot_ref.size(); plot_id++)
     {
-        engineering_plot_ref.at(plot_id)->ToggleTrack(track_id);
+        engineering_plot_ref.at(plot_id)->ToggleTrack("Track " + QString::number(track_id));
     }
 }
 
