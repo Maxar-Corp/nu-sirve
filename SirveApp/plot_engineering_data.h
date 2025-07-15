@@ -147,7 +147,7 @@ public Q_SLOTS:
     void ToggleGraphStyle();
     void ToggleFrameLine();
     void ToggleLinearLog();
-    void ToggleTrack(int track_id);
+    void ToggleTrack(const QString& titleToFind);
 
 private slots:
     void onJPContextActionTriggered(const QString& actionName);

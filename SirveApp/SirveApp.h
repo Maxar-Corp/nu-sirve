@@ -336,7 +336,7 @@ public slots:
     void HandleLiftSliderToggled();
     void HandleManualTrackRecoloring(int track_id, const QColor& color);
     void HandleNewProcessingState(const QString& state_name, const QString& combobox_state_name, int index);
-    void HandleOsmTracksToggle();
+    void HandleOsmTracksToggle(bool checked);
     void HandleParamsSelected(QString plotTitle, const std::vector<Quantity> &quantities);
     void HandlePlayerStateChanged(bool status);
     void HandlePlotFocusChanged(int tab_index);

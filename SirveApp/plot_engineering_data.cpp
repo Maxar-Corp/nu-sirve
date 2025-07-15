@@ -1021,9 +1021,9 @@ void EngineeringPlot::ToggleLinearLog()
     yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
 }
 
-void EngineeringPlot::ToggleTrack(int track_id)
+void EngineeringPlot::ToggleTrack(const QString &titleToFind)
 {
-    int track_graph_index = FetchGraphIndexByTitle("Track " + QString::number(track_id)); // accounts for presence of osm track and frame line graphs
+    int track_graph_index = FetchGraphIndexByTitle(titleToFind); // accounts for presence of osm track and frame line graphs
     bool track_visible = this->getGraphs().at(track_graph_index)->isVisible();
     getGraphs().at(track_graph_index)->setVisible(!track_visible);
     plotter->redrawPlot();
@@ -1067,6 +1067,39 @@ int EngineeringPlot::FetchGraphIndexByTitle(const QString& titleToFind)
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
 {
     manual_track_colors[track_id] = new_color;
+}
+
+void EngineeringPlot::RecolorOsmTrack(QColor new_color)
+{
+    int index = FetchGraphIndexByTitle("OSM");
+    if (index != -1)
+    {
+        auto graph = this->getGraphs().at(index);
+        if (graph_type == Enums::GraphType::Line)
+        {
+            if (auto line_graph = dynamic_cast<JKQTPXYLineGraph*>(graph))
+            {
+                line_graph->setColor(new_color);
+            }
+        } else if (graph_type == Enums::GraphType::Scatter)
+        {
+            if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph))
+            {
+                JKQTPGraphSymbols customSymbol=JKQTPRegisterCustomGraphSymbol(
+                    [new_color](QPainter& p) {
+                        const double w=p.pen().widthF();
+                        p.setPen(QPen(new_color, w));
+                        p.drawEllipse(QPointF(0.33/2.0, 0.33/4.0), 0.33/2.0, 0.33/2.0);
+                    });
+
+                if (auto scatter_graph = dynamic_cast<JKQTPXYScatterGraph*>(graph)) {
+                    scatter_graph->setSymbolSize(3.0);
+                    scatter_graph->setSymbolType(customSymbol);
+                }
+            }
+        }
+        plotter->plotUpdated();
+    }
 }
 
 void EngineeringPlot::UpdateManualPlottingTrackFrames(std::vector<ManualPlottingTrackFrame> frames, const std::set<int>& track_ids)
