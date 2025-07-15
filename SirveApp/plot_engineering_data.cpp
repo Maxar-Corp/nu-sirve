@@ -1021,19 +1021,18 @@ void EngineeringPlot::ToggleLinearLog()
     yAxisIsLogarithmic ? actToggleLinearLog->setIcon(QIcon(":icons/linear-mode.png")) : actToggleLinearLog->setIcon(QIcon(":icons/log-mode.png"));
 }
 
+void EngineeringPlot::ToggleTrack(int track_id)
+{
+    int track_graph_index = FetchGraphIndexByTitle("Track " + QString::number(track_id)); // accounts for presence of osm track and frame line graphs
+    bool track_visible = this->getGraphs().at(track_graph_index)->isVisible();
+    getGraphs().at(track_graph_index)->setVisible(!track_visible);
+    plotter->redrawPlot();
+}
+
 void EngineeringPlot::DeleteGraphIfExists(const QString& titleToFind)
 {
-    int index = 0;
-    bool graph_exists = false;
-
-    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) {
-        if ((*it)->getTitle() == titleToFind) {
-            graph_exists = true;
-            break;
-        }
-    }
-
-    if (graph_exists)
+    int index = FetchGraphIndexByTitle(titleToFind);
+    if (index != -1)
     {
         this->getGraphs().removeAt(index);
     }
@@ -1048,6 +1047,21 @@ void EngineeringPlot::DeleteAllTrackGraphs()
             this->getGraphs().removeAt(i);
         }
     }
+}
+
+int EngineeringPlot::FetchGraphIndexByTitle(const QString& titleToFind)
+{
+    int index = 0;
+    bool graph_exists = false;
+
+    for (auto it = this->getGraphs().begin(); it != this->getGraphs().end(); it++, index++) {
+        if ((*it)->getTitle() == titleToFind) {
+            graph_exists = true;
+            break;
+        }
+    }
+
+    return graph_exists ? index : -1;
 }
 
 void EngineeringPlot::RecolorManualTrack(int track_id, QColor new_color)
